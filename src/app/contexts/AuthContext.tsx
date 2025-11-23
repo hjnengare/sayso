@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode, useMe
 import { useRouter } from 'next/navigation';
 import { getBrowserSupabase } from '../lib/supabase/client';
 import { AuthService } from '../lib/auth';
+import { RateLimiter } from '../lib/rateLimiting';
 import type { AuthUser } from '../lib/types/database';
 
 interface AuthContextType {
@@ -114,6 +115,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
       if (authUser) {
         setUser(authUser);
 
+        // Clear rate limit on successful login
+        try {
+          await RateLimiter.recordSuccess(email.trim().toLowerCase(), 'login');
+        } catch (rateLimitError) {
+          console.error('Error clearing rate limit:', rateLimitError);
+          // Don't fail login if rate limit clearing fails
+        }
+
         // Redirect based on onboarding status and email verification
         if (authUser.profile?.onboarding_complete) {
           router.push('/home');
@@ -165,6 +174,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
             has_session: !!session,
             session_data: session
           });
+
+          // Clear rate limit on successful registration
+          try {
+            await RateLimiter.recordSuccess(email.trim().toLowerCase(), 'register');
+          } catch (rateLimitError) {
+            console.error('Error clearing rate limit:', rateLimitError);
+            // Don't fail registration if rate limit clearing fails
+          }
 
           // Set user state - this will trigger auth state change
           setUser(authUser);

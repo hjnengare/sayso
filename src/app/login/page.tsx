@@ -5,6 +5,7 @@ import { useState, useRef } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useToast } from "../contexts/ToastContext";
 import { useScrollReveal } from "../hooks/useScrollReveal";
+import { RateLimiter } from "../lib/rateLimiting";
 
 // Import shared components
 import { authStyles } from "../components/Auth/Shared/authStyles";
@@ -20,6 +21,7 @@ export default function LoginPage() {
   const [emailTouched, setEmailTouched] = useState(false);
   const [passwordTouched, setPasswordTouched] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [rateLimitInfo, setRateLimitInfo] = useState<{ remainingAttempts?: number; lockedUntil?: Date } | null>(null);
 
   const { login, isLoading: authLoading, error: authError } = useAuth();
   const { showToast } = useToast();
@@ -72,10 +74,32 @@ export default function LoginPage() {
     }
 
     try {
+      // Check rate limit before attempting login
+      const normalizedEmail = email.trim().toLowerCase();
+      const rateLimitResult = await RateLimiter.checkRateLimit(normalizedEmail, 'login');
+      
+      // Update rate limit info for UI feedback
+      setRateLimitInfo({
+        remainingAttempts: rateLimitResult.remainingAttempts,
+        lockedUntil: rateLimitResult.lockedUntil,
+      });
+      
+      if (!rateLimitResult.allowed) {
+        const errorMsg = rateLimitResult.message || 'Too many login attempts. Please try again later.';
+        setError(errorMsg);
+        showToast(errorMsg, 'sage', 5000);
+        setIsSubmitting(false);
+        return;
+      }
+
       const success = await login(email, password);
+      
       if (success) {
+        // Clear rate limit on successful login
+        await RateLimiter.recordSuccess(email.trim().toLowerCase(), 'login');
         showToast("Welcome back! Redirecting...", 'success', 2000);
       } else {
+        // Rate limit already incremented by checkRateLimit, no need to record failure
         const errorMsg = authError || "Invalid email or password";
         setError(errorMsg);
         showToast(errorMsg, 'sage', 4000);
@@ -118,6 +142,15 @@ export default function LoginPage() {
               {error && (
                 <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 text-center">
                   <p className="text-caption font-semibold text-orange-600" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>{error}</p>
+                </div>
+              )}
+
+              {/* Rate Limit Warning */}
+              {rateLimitInfo && rateLimitInfo.remainingAttempts !== undefined && rateLimitInfo.remainingAttempts < 5 && rateLimitInfo.remainingAttempts > 0 && (
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-center">
+                  <p className="text-xs font-medium text-amber-700" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                    ⚠️ {rateLimitInfo.remainingAttempts} login attempt{rateLimitInfo.remainingAttempts !== 1 ? 's' : ''} remaining
+                  </p>
                 </div>
               )}
 

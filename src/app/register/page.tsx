@@ -7,6 +7,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useToast } from "../contexts/ToastContext";
 import { usePrefersReducedMotion } from "../utils/hooks/usePrefersReducedMotion";
 import { useScrollReveal } from "../hooks/useScrollReveal";
+import { RateLimiter } from "../lib/rateLimiting";
 
 // Import shared components
 import { authStyles } from "../components/Auth/Shared/authStyles";
@@ -186,14 +187,31 @@ export default function RegisterPage() {
         return;
       }
 
-      const success = await register(email.trim().toLowerCase(), password);
+      // Check rate limit before attempting registration
+      const normalizedEmail = email.trim().toLowerCase();
+      const rateLimitResult = await RateLimiter.checkRateLimit(normalizedEmail, 'register');
+      
+      if (!rateLimitResult.allowed) {
+        const errorMsg = rateLimitResult.message || 'Too many registration attempts. Please try again later.';
+        setError(errorMsg);
+        showToast(errorMsg, 'sage', 5000);
+        setSubmitting(false);
+        return;
+      }
 
+      const success = await register(normalizedEmail, password);
+      
       if (success) {
+        // Clear rate limit on successful registration
+        await RateLimiter.recordSuccess(normalizedEmail, 'register');
+        
         setUsername("");
         setEmail("");
         setPassword("");
         showToast("✅ Account created! Check your email to confirm your account.", 'success', 5000);
       } else {
+        // Rate limit already incremented by checkRateLimit, no need to record failure
+        
         if (authError) {
           if (authError.includes('fetch') || authError.includes('network')) {
             setError('🌐 Connection error. Please check your internet connection and try again.');

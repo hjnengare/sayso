@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AuthService } from "../lib/auth";
 import { useToast } from "../contexts/ToastContext";
+import { RateLimiter } from "../lib/rateLimiting";
 
 // Import shared components
 import { authStyles } from "../components/Auth/Shared/authStyles";
@@ -57,12 +58,26 @@ export default function ForgotPasswordPage() {
     }
 
     try {
+      // Check rate limit before requesting password reset
+      const normalizedEmail = email.trim().toLowerCase();
+      const rateLimitResult = await RateLimiter.checkRateLimit(normalizedEmail, 'password_reset');
+      
+      if (!rateLimitResult.allowed) {
+        const errorMsg = rateLimitResult.message || 'Too many password reset requests. Please try again later.';
+        setError(errorMsg);
+        showToast(errorMsg, 'sage', 5000);
+        setIsSubmitting(false);
+        return;
+      }
+
       const { error: resetError } = await AuthService.resetPasswordForEmail(email);
 
       if (resetError) {
         setError(resetError.message);
         showToast(resetError.message, 'sage', 4000);
       } else {
+        // Clear rate limit on successful password reset request
+        await RateLimiter.recordSuccess(normalizedEmail, 'password_reset');
         setEmailSent(true);
         showToast("Password reset email sent! Check your inbox.", 'success', 5000);
       }
