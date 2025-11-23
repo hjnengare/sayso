@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import React, { useState, useEffect, useLayoutEffect, useRef, useMemo } from "react";
-import { usePageTitle } from "../../../hooks/usePageTitle";
+import { usePageTitle } from "../../hooks/usePageTitle";
 import { motion, AnimatePresence } from "framer-motion";
 import { PageLoader, Loader } from "../../components/Loader";
 import {
@@ -174,6 +174,12 @@ export default function BusinessProfilePage() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    // Update page title dynamically - must be called before any conditional returns
+    usePageTitle(
+        business?.name || "Loading...",
+        business?.description || "Read reviews and see photos"
+    );
+
     const fetchBusiness = async (forceRefresh = false) => {
         if (!businessId) {
             setError('Business ID is required');
@@ -335,9 +341,6 @@ export default function BusinessProfilePage() {
 
     // Use slug for URLs, fallback to ID for SEO-friendly URLs
     const businessSlug = businessData.slug || businessData.id;
-
-    // Update page title dynamically
-    usePageTitle(businessData.name, businessData.description || "Read reviews and see photos");
 
     const businessInfo: BusinessInfo = {
         name: businessData.name,

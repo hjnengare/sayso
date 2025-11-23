@@ -22,6 +22,7 @@ interface SavedBusiness {
   id: string;
   name: string;
   image?: string;
+  alt: string;
   category: string;
   location: string;
   rating?: number;

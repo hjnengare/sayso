@@ -73,6 +73,7 @@ export async function GET(req: Request) {
           id: business.id,
           name: business.name,
           image: business.image_url || business.uploaded_image,
+          alt: `${business.name} - ${business.category} in ${business.location}`,
           category: business.category,
           location: business.location,
           rating: business.business_stats?.[0]?.average_rating 

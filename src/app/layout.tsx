@@ -22,8 +22,6 @@ const urbanist = Urbanist({
   variable: "--font-urbanist",
 });
 
-import { generateSEOMetadata } from "./lib/utils/seoMetadata";
-
 export const metadata: Metadata = generateSEOMetadata({
   title: "SAYSO (Home) | Discover trusted local gems near you",
   description: "Find amazing local businesses, restaurants, and experiences in your area with personalized recommendations and trusted reviews.",
