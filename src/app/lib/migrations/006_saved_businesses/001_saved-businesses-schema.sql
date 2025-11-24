@@ -27,6 +27,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Drop trigger if it exists, then create it
+DROP TRIGGER IF EXISTS update_saved_businesses_updated_at ON saved_businesses;
 CREATE TRIGGER update_saved_businesses_updated_at
   BEFORE UPDATE ON saved_businesses
   FOR EACH ROW
@@ -34,6 +36,11 @@ CREATE TRIGGER update_saved_businesses_updated_at
 
 -- RLS Policies
 ALTER TABLE saved_businesses ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies if they exist (for idempotency)
+DROP POLICY IF EXISTS "Users can save businesses" ON saved_businesses;
+DROP POLICY IF EXISTS "Users can unsave businesses" ON saved_businesses;
+DROP POLICY IF EXISTS "Users can view their saved businesses" ON saved_businesses;
 
 -- Users can save businesses
 CREATE POLICY "Users can save businesses"

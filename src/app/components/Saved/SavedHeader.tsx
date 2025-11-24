@@ -10,7 +10,7 @@ export default function SavedHeader() {
 
   return (
     <div
-      className="fixed top-0 left-0 right-0 z-50 bg-navbar-bg/95 backdrop-blur-xl border-b border-sage/10 shadow-lg shadow-sage/10 font-urbanist"
+      className="fixed top-0 left-0 right-0 z-50 bg-navbar-bg/95 backdrop-blur-xl border-b border-sage/10 font-urbanist"
       style={{
         fontFamily: '"Urbanist", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
       }}
@@ -43,7 +43,7 @@ export default function SavedHeader() {
                   fontFamily: '"Urbanist", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                 }}
               >
-                {savedCount} {savedCount === 1 ? 'Gem' : 'Gems'}
+                {savedCount} {savedCount === 1 ? ' Item' : ' Items'}
               </span>
             </div>
           )}

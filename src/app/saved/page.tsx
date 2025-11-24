@@ -63,18 +63,76 @@ export default function SavedPage() {
         
         if (!response.ok) {
           if (response.status === 401) {
-            setError('Please log in to view saved businesses');
+            // User not authenticated - this is expected for logged out users
+            setError(null); // Don't show error for expected case
             setSavedBusinesses([]);
+            setIsLoading(false);
             return;
           }
-          throw new Error('Failed to fetch saved businesses');
+          
+          // Try to get error details from response
+          let errorMessage = 'Failed to fetch saved businesses';
+          let errorCode: string | undefined;
+          try {
+            const errorData = await response.json();
+            errorMessage = errorData.error || errorData.message || errorMessage;
+            errorCode = errorData.code;
+          } catch {
+            // If JSON parsing fails, use default message
+          }
+          
+          // Check if it's a table/permission error
+          const isTableError = response.status === 500 && (
+            errorCode === '42P01' || // relation does not exist
+            errorCode === '42501' || // insufficient privilege
+            errorMessage.toLowerCase().includes('relation') ||
+            errorMessage.toLowerCase().includes('does not exist') ||
+            errorMessage.toLowerCase().includes('permission denied')
+          );
+          
+          if (isTableError) {
+            // Table doesn't exist - show helpful message but don't treat as critical error
+            console.warn('Saved businesses table not accessible, feature disabled');
+            setError(null); // Don't show error - feature just isn't available
+            setSavedBusinesses([]);
+            setIsLoading(false);
+            return;
+          }
+          
+          // For other server errors, show error but don't throw
+          if (response.status >= 500) {
+            console.warn('Error fetching saved businesses (non-critical):', errorMessage);
+            setError('Unable to load saved businesses at the moment. Please try again later.');
+          } else {
+            // Client errors - don't show error, just set empty
+            setError(null);
+          }
+          setSavedBusinesses([]);
+          setIsLoading(false);
+          return;
         }
 
         const data = await response.json();
+        console.log('SavedPage - Fetched saved businesses:', {
+          totalBusinesses: data.businesses?.length || 0,
+          businessIds: (data.businesses || []).map((b: any) => b.id),
+          businesses: data.businesses
+        });
         setSavedBusinesses(data.businesses || []);
       } catch (err) {
-        console.error('Error fetching saved businesses:', err);
-        setError('Failed to load saved businesses. Please try again.');
+        // Network or unexpected errors
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        const isNetworkError = errorMessage.includes('fetch') || 
+                             errorMessage.includes('network') ||
+                             errorMessage.includes('Failed to fetch');
+        
+        if (isNetworkError) {
+          console.warn('Network error fetching saved businesses (non-critical):', errorMessage);
+          setError('Unable to load saved businesses. Please check your connection and try again.');
+        } else {
+          console.warn('Error fetching saved businesses (non-critical):', err);
+          setError('Failed to load saved businesses. Please try again.');
+        }
         setSavedBusinesses([]);
       } finally {
         setIsLoading(false);
@@ -82,7 +140,7 @@ export default function SavedPage() {
     };
 
     fetchSavedBusinesses();
-  }, [savedItemsLoading, savedItems.length]); // Refetch when saved items change
+  }, [savedItemsLoading, savedItems.length]); // Refetch when saved items change (removed refetch to avoid unnecessary re-renders)
 
   return (
     <EmailVerificationGuard>

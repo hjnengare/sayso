@@ -25,7 +25,7 @@ function ChatItem({ chat }: { chat: Chat }) {
   return (
     <Link
       href={`/dm/${chat.id}`}
-      className="group flex items-center gap-4 p-4 bg-sage rounded-2xl border border-white/30 hover:bg-sage/90 transition-all duration-300 hover:shadow-lg"
+      className="group flex items-center gap-4 p-4 bg-gradient-to-br from-sage via-sage/95 to-sage/90 backdrop-blur-xl rounded-2xl border border-white/40 ring-1 ring-white/30 hover:bg-sage/90 hover:border-white/60 hover:-translate-y-1 transition-all duration-300"
     >
       {/* Profile Picture */}
       <div className="relative flex-shrink-0">

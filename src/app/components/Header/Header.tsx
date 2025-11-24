@@ -324,10 +324,10 @@ export default function Header({
   // Different styling for home page (frosty variant) vs other pages
   const isHomeVariant = variant === "frosty";
   const computedBackgroundClass = backgroundClassName ?? "bg-navbar-bg";
-  // Header is always fixed at top-0
+  // Header is always fixed at top-0 - Enhanced with better shadows and borders
   const headerClassName = isHomeVariant
-    ? `fixed top-0 left-0 right-0 z-50 ${computedBackgroundClass} backdrop-blur-xl shadow-lg border-b border-white/30 transition-all duration-300`
-    : `fixed top-0 left-0 right-0 z-50 ${computedBackgroundClass} backdrop-blur-xl shadow-lg shadow-sage/5 transition-all duration-300`;
+    ? `fixed top-0 left-0 right-0 z-50 ${computedBackgroundClass} backdrop-blur-xl shadow-[0_4px_24px_rgba(0,0,0,0.08),0_2px_8px_rgba(0,0,0,0.04)] border-b border-white/40 transition-all duration-300`
+    : `fixed top-0 left-0 right-0 z-50 ${computedBackgroundClass} backdrop-blur-xl shadow-[0_4px_24px_rgba(0,0,0,0.08),0_2px_8px_rgba(0,0,0,0.04)] border-b border-sage/10 transition-all duration-300`;
   const isSearchVisible = forceSearchOpen || isStackedLayout || showSearchBar;
 
   const handleSearchToggle = () => {
@@ -366,9 +366,9 @@ export default function Header({
           <div className="flex items-center justify-between gap-6">
             {/* Logo */}
             <OptimizedLink href="/home" className="group flex-shrink-0 relative" aria-label="sayso Home">
-              <div className="absolute inset-0 bg-gradient-to-r from-sage/30 to-coral/30 rounded-lg blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="absolute inset-0 bg-gradient-to-r from-sage/40 via-coral/30 to-sage/40 rounded-xl blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10" />
               <div className="relative scale-90 sm:scale-[0.72] origin-left">
-                <Logo variant="default" className="relative drop-shadow-[0_4px_12px_rgba(0,0,0,0.08)]" color={whiteText ? "sage" : "gradient"} />
+                <Logo variant="default" className="relative drop-shadow-[0_4px_16px_rgba(0,0,0,0.12)] transition-all duration-300 group-hover:drop-shadow-[0_6px_20px_rgba(0,0,0,0.15)]" color={whiteText ? "sage" : "gradient"} />
               </div>
             </OptimizedLink>
 
@@ -380,10 +380,13 @@ export default function Header({
                 <Fragment key={key}>
                 <OptimizedLink
                     href={href}
-                    className={`group capitalize px-2.5 lg:px-3.5 py-1 text-sm sm:text-xs sm:text-sm md:text-sm sm:text-xs lg:text-sm sm:text-xs font-semibold transition-colors duration-200 ${isActive ? 'text-sage' : whiteText ? 'text-white hover:text-white/90' : 'text-charcoal/90 md:text-charcoal/95 hover:text-sage'}`}
+                    className={`group capitalize px-2.5 lg:px-3.5 py-1.5 rounded-lg text-sm sm:text-xs sm:text-sm md:text-sm sm:text-xs lg:text-sm sm:text-xs font-semibold transition-all duration-200 relative ${isActive ? 'text-sage bg-sage/10' : whiteText ? 'text-white hover:text-white/90 hover:bg-white/10' : 'text-charcoal/90 md:text-charcoal/95 hover:text-sage hover:bg-sage/5'}`}
                   style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                 >
-                    <span>{label}</span>
+                    <span className="relative z-10">{label}</span>
+                    {isActive && (
+                      <div className="absolute inset-0 bg-gradient-to-r from-sage/10 via-sage/15 to-sage/10 rounded-lg -z-0" />
+                    )}
                   </OptimizedLink>
 
                   {index === 0 && (
@@ -407,20 +410,23 @@ export default function Header({
                             openDiscoverDropdown();
                           }
                         }}
-                        className={`group capitalize px-3 lg:px-4 py-1.5 rounded-full text-sm sm:text-xs sm:text-sm md:text-sm sm:text-xs lg:text-sm sm:text-xs font-semibold transition-colors duration-200 flex items-center gap-1 ${whiteText ? 'text-white hover:text-white/85' : 'text-charcoal/90 md:text-charcoal/95 hover:text-sage'}`}
+                        className={`group capitalize px-3 lg:px-4 py-1.5 rounded-lg text-sm sm:text-xs sm:text-sm md:text-sm sm:text-xs lg:text-sm sm:text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 relative ${whiteText ? 'text-white hover:text-white/85 hover:bg-white/10' : 'text-charcoal/90 md:text-charcoal/95 hover:text-sage hover:bg-sage/5'}`}
                         style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                         aria-expanded={isDiscoverDropdownOpen}
                         aria-haspopup="true"
                       >
-                        <span className="whitespace-nowrap">Discover</span>
-                        <ChevronDown className={`w-4 h-4 sm:w-4 sm:h-4 transition-transform duration-200 ${isDiscoverDropdownOpen ? 'rotate-180' : ''}`} />
+                        <span className="whitespace-nowrap relative z-10">Discover</span>
+                        <ChevronDown className={`w-4 h-4 sm:w-4 sm:h-4 transition-transform duration-300 relative z-10 ${isDiscoverDropdownOpen ? 'rotate-180' : ''}`} />
+                        {isDiscoverDropdownOpen && (
+                          <div className="absolute inset-0 bg-gradient-to-r from-sage/10 via-sage/15 to-sage/10 rounded-lg -z-0" />
+                        )}
                       </button>
 
                       {isDiscoverDropdownOpen && discoverMenuPos &&
                         createPortal(
                           <div
                             ref={discoverMenuPortalRef}
-                            className={`fixed z-[1000] bg-off-white rounded-2xl border border-white/60 shadow-xl overflow-hidden min-w-[320px] transition-all duration-300 ease-out ${
+                            className={`fixed z-[1000] bg-off-white rounded-2xl border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.12),0_4px_16px_rgba(0,0,0,0.08)] overflow-hidden min-w-[320px] transition-all duration-300 ease-out backdrop-blur-xl ${
                               isDiscoverDropdownClosing ? 'opacity-0 scale-95 translate-y-[-8px]' : 'opacity-100 scale-100 translate-y-0'
                             }`}
                             style={{
@@ -452,7 +458,7 @@ export default function Header({
                                     clearDiscoverHoverTimeout();
                                     closeDiscoverDropdown();
                                   }}
-                                  className={`group flex items-start gap-3 px-5 py-3 hover:bg-sage/10 transition-all duration-200 ${isActive ? 'bg-sage/5' : ''}`}
+                                  className={`group flex items-start gap-3 px-5 py-3 hover:bg-gradient-to-r hover:from-sage/10 hover:to-coral/5 transition-all duration-200 rounded-lg mx-2 ${isActive ? 'bg-gradient-to-r from-sage/10 to-sage/5' : ''}`}
                                   style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                                 >
                                   <div className="flex-1">
@@ -493,18 +499,21 @@ export default function Header({
                       openBusinessDropdown();
                     }
                   }}
-                  className={`group capitalize px-3 lg:px-4 py-1.5 text-sm sm:text-xs sm:text-sm md:text-sm sm:text-xs lg:text-sm sm:text-xs font-semibold transition-colors duration-200 flex items-center gap-1 ${whiteText ? 'text-white hover:text-white/85' : 'text-charcoal/90 md:text-charcoal/95 hover:text-sage'}`}
+                  className={`group capitalize px-3 lg:px-4 py-1.5 rounded-lg text-sm sm:text-xs sm:text-sm md:text-sm sm:text-xs lg:text-sm sm:text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 relative ${whiteText ? 'text-white hover:text-white/85 hover:bg-white/10' : 'text-charcoal/90 md:text-charcoal/95 hover:text-sage hover:bg-sage/5'}`}
                   style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                 >
-                  <span className="whitespace-nowrap">For Businesses</span>
-                  <ChevronDown className={`w-4 h-4 sm:w-4 sm:h-4 transition-transform duration-200 ${isBusinessDropdownOpen ? 'rotate-180' : ''}`} />
+                  <span className="whitespace-nowrap relative z-10">For Businesses</span>
+                  <ChevronDown className={`w-4 h-4 sm:w-4 sm:h-4 transition-transform duration-300 relative z-10 ${isBusinessDropdownOpen ? 'rotate-180' : ''}`} />
+                  {isBusinessDropdownOpen && (
+                    <div className="absolute inset-0 bg-gradient-to-r from-sage/10 via-sage/15 to-sage/10 rounded-lg -z-0" />
+                  )}
                 </button>
 
                 {isBusinessDropdownOpen && menuPos &&
                   createPortal(
                     <div
                       ref={businessMenuPortalRef}
-                      className={`fixed z-[1000] bg-off-white rounded-2xl border border-white/60 shadow-xl overflow-hidden min-w-[560px] whitespace-normal break-keep transition-all duration-300 ease-out ${
+                      className={`fixed z-[1000] bg-off-white rounded-2xl border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.12),0_4px_16px_rgba(0,0,0,0.08)] overflow-hidden min-w-[560px] whitespace-normal break-keep transition-all duration-300 ease-out backdrop-blur-xl ${
                         isBusinessDropdownClosing ? 'opacity-0 scale-95 translate-y-[-8px]' : 'opacity-100 scale-100 translate-y-0'
                       }`}
                       style={{
@@ -524,7 +533,7 @@ export default function Header({
                     >
                       <div className="relative flex items-center justify-between px-5 sm:px-6 pt-4 pb-3 border-b border-charcoal/10 bg-off-white">
                         <div className="relative z-10 flex items-center gap-2">
-                          <h2 className="text-sm md:text-base font-semibold text-charcoal" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>For Businesses</h2>
+                          <h3 className="text-sm md:text-base font-semibold text-charcoal" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>For Businesses</h3>
                         </div>
                         <button
                           onClick={() => {
@@ -543,7 +552,7 @@ export default function Header({
                           <OptimizedLink
                             key={key}
                             href={href}
-                            className="group flex items-start gap-3 px-4 py-3 rounded-xl hover:bg-sage/10 transition-all duration-200"
+                            className="group flex items-start gap-3 px-4 py-3 rounded-xl hover:bg-gradient-to-r hover:from-sage/10 hover:to-coral/5 transition-all duration-200"
                           style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                           onClick={() => {
                             clearBusinessHoverTimeout();
@@ -573,10 +582,10 @@ export default function Header({
               {showSearch && !(forceSearchOpen || isStackedLayout) && (
               <button
                 onClick={handleSearchToggle}
-                className={`group w-11 h-11 sm:w-12 sm:h-12 md:w-12 md:h-12 flex items-center justify-center transition-colors duration-200 ${whiteText ? 'text-white hover:text-white/80' : 'text-charcoal/80 hover:text-sage'}`}
+                className={`group w-11 h-11 sm:w-12 sm:h-12 md:w-12 md:h-12 flex items-center justify-center rounded-lg transition-all duration-200 ${whiteText ? 'text-white hover:text-white/80 hover:bg-white/10' : 'text-charcoal/80 hover:text-sage hover:bg-sage/5'}`}
                 aria-label="Toggle search"
               >
-                <Search className="w-6 h-6 sm:w-5 sm:h-5" />
+                <Search className="w-6 h-6 sm:w-5 sm:h-5 transition-transform duration-200 group-hover:scale-110" />
               </button>
               )}
 
@@ -621,12 +630,12 @@ export default function Header({
               {/* Saved */}
               <OptimizedLink
                 href="/saved"
-                className={`group hidden md:flex w-9 h-9 lg:w-10 lg:h-10 items-center justify-center transition-colors duration-200 relative ${whiteText ? 'text-white hover:text-white/85' : 'text-charcoal/80 hover:text-sage'}`}
+                className={`group hidden md:flex w-9 h-9 lg:w-10 lg:h-10 items-center justify-center rounded-lg transition-all duration-200 relative ${whiteText ? 'text-white hover:text-white/85 hover:bg-white/10' : 'text-charcoal/80 hover:text-sage hover:bg-sage/5'}`}
                 aria-label="Saved"
               >
-                <Bookmark className="w-4 h-4 sm:w-5 sm:h-5" />
+                <Bookmark className="w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-200 group-hover:scale-110" />
                 {savedCount > 0 && (
-                  <span className={`absolute -top-1 -right-1 flex items-center justify-center min-w-[20px] h-5 px-1.5 text-white text-[11px] font-semibold rounded-full shadow-md ${whiteText ? 'bg-white/20' : 'bg-charcoal'}`}>
+                  <span className={`absolute -top-1 -right-1 flex items-center justify-center min-w-[20px] h-5 px-1.5 text-white text-[11px] font-semibold rounded-full shadow-lg bg-gradient-to-br from-coral to-coral/90 border border-white/20 ${whiteText ? 'bg-white/30' : ''}`}>
                     {savedCount > 99 ? '99+' : savedCount}
                   </span>
                 )}
@@ -635,19 +644,19 @@ export default function Header({
               {/* Messages/DM */}
               <OptimizedLink
                 href="/dm"
-                className={`group hidden md:flex w-9 h-9 lg:w-10 lg:h-10 items-center justify-center transition-colors duration-200 relative ${whiteText ? 'text-white hover:text-white/85' : 'text-charcoal/80 hover:text-sage'}`}
+                className={`group hidden md:flex w-9 h-9 lg:w-10 lg:h-10 items-center justify-center rounded-lg transition-all duration-200 relative ${whiteText ? 'text-white hover:text-white/85 hover:bg-white/10' : 'text-charcoal/80 hover:text-sage hover:bg-sage/5'}`}
                 aria-label="Messages"
               >
-                <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+                <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-200 group-hover:scale-110" />
               </OptimizedLink>
 
               {/* Profile */}
               <OptimizedLink
                 href="/profile"
-                className={`group hidden md:flex w-9 h-9 lg:w-10 lg:h-10 items-center justify-center transition-colors duration-200 ${whiteText ? 'text-white hover:text-white/85' : 'text-charcoal/80 hover:text-sage'}`}
+                className={`group hidden md:flex w-9 h-9 lg:w-10 lg:h-10 items-center justify-center rounded-lg transition-all duration-200 ${whiteText ? 'text-white hover:text-white/85 hover:bg-white/10' : 'text-charcoal/80 hover:text-sage hover:bg-sage/5'}`}
                 aria-label="Profile"
               >
-                <User className="w-4 h-4 sm:w-5 sm:h-5" />
+                <User className="w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-200 group-hover:scale-110" />
               </OptimizedLink>
             </div>
           </div>
@@ -688,7 +697,7 @@ export default function Header({
 
       {/* Mobile menu */}
       <div
-        className={`fixed top-0 right-0 h-full w-full bg-navbar-bg z-[99999] shadow-lg shadow-sage/10 transform md:hidden ${
+        className={`fixed top-0 right-0 h-full w-full bg-navbar-bg z-[99999] shadow-[0_-4px_24px_rgba(0,0,0,0.15),0_-2px_8px_rgba(0,0,0,0.1)] transform md:hidden backdrop-blur-xl border-l border-white/20 ${
           isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
         } transition-transform duration-300`}
       >
@@ -710,7 +719,7 @@ export default function Header({
                 key={key}
                 href={href}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`px-3 py-2 rounded-xl text-base font-semibold text-white hover:text-white hover:bg-off-white/10 transition-colors relative min-h-[44px] flex items-center justify-start ${mobileRevealClass}`}
+                className={`px-3 py-2 rounded-xl text-base font-semibold text-white hover:text-white hover:bg-gradient-to-r hover:from-white/10 hover:to-white/5 transition-all duration-200 relative min-h-[44px] flex items-center justify-start ${mobileRevealClass}`}
                 style={{
                   fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                   transitionDelay: `${index * 60}ms`,
@@ -734,7 +743,7 @@ export default function Header({
                     key={key}
                     href={href}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`px-3 py-2 rounded-xl text-base font-medium text-white/90 hover:text-white hover:bg-off-white/10 transition-all duration-200 min-h-[44px] flex items-center justify-start ${mobileRevealClass}`}
+                    className={`px-3 py-2 rounded-xl text-base font-medium text-white/90 hover:text-white hover:bg-gradient-to-r hover:from-white/10 hover:to-white/5 transition-all duration-200 min-h-[44px] flex items-center justify-start ${mobileRevealClass}`}
                     style={{
                       fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                       transitionDelay: `${(primaryCount + index) * 60}ms`,

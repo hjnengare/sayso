@@ -35,7 +35,7 @@ function SavedBusinessesGrid({ savedBusinesses }: SavedBusinessesGridProps) {
       >
         <BusinessCard business={business} />
         {/* Saved indicator - more subtle */}
-        <div className="absolute top-3 right-3 w-8 h-8 bg-gradient-to-br from-sage to-sage/80 rounded-full flex items-center justify-center shadow-lg z-10 opacity-90 group-hover:opacity-100 transition-all duration-300 group-hover:scale-110">
+        <div className="absolute top-3 right-3 w-8 h-8 bg-gradient-to-br from-sage to-sage/80 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/40 z-10 opacity-90 group-hover:opacity-100 transition-all duration-300 group-hover:scale-110">
           <BookmarkCheck className="w-4 h-4 text-white" fill="white" />
         </div>
       </div>
@@ -56,7 +56,7 @@ function SavedBusinessesGrid({ savedBusinesses }: SavedBusinessesGridProps) {
                 px-4 py-2 rounded-full font-urbanist text-sm font-500 whitespace-nowrap
                 transition-all duration-300 flex-shrink-0
                 ${selectedCategory === category
-                  ? "bg-gradient-to-r from-sage to-sage/80 text-white shadow-lg scale-105"
+                  ? "bg-gradient-to-r from-sage to-sage/80 text-white scale-105 border border-white/30"
                   : "bg-charcoal/5 text-charcoal/70 hover:bg-charcoal/10 hover:text-charcoal"
                 }
               `}

@@ -1,7 +1,5 @@
 "use client";
 
-"use client";
-
 import { getBrowserSupabase } from './supabase/client';
 import type { AuthUser, SignUpData, SignInData, AuthError } from './types/database';
 import type { Session } from '@supabase/supabase-js';
@@ -257,7 +255,7 @@ export class AuthService {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('user_id, onboarding_step, interests_count, last_interests_updated, created_at, updated_at, avatar_url, username, display_name, locale, is_top_reviewer, reviews_count, badges_count, subcategories_count, dealbreakers_count')
+        .select('user_id, onboarding_step, interests_count, last_interests_updated, created_at, updated_at, avatar_url, username, display_name, is_top_reviewer, reviews_count, badges_count, subcategories_count, dealbreakers_count')
         .eq('user_id', userId)
         .single();
 
@@ -277,7 +275,7 @@ export class AuthService {
         avatar_url: data.avatar_url || undefined,
         username: data.username || undefined,
         display_name: data.display_name || undefined,
-        locale: data.locale || 'en',
+        locale: 'en', // Default locale - locale column doesn't exist in profiles table
         is_top_reviewer: data.is_top_reviewer || false,
         reviews_count: data.reviews_count || 0,
         badges_count: data.badges_count || 0,

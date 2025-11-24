@@ -282,7 +282,7 @@ export default function OnboardingLayout({
             <Link
               href={backHref}
               aria-label="Go back"
-              className="text-charcoal hover:text-charcoal/80 transition-colors duration-300 p-2 hover:bg-off-white/50 rounded-lg block backdrop-blur-sm"
+              className="text-charcoal hover:text-charcoal/80 transition-all duration-300 p-2 hover:bg-off-white/50 rounded-lg block backdrop-blur-xl border border-white/30 hover:border-white/50"
             >
               {/* ✅ Lucide back arrow */}
               <ArrowLeft className="w-6 h-6" strokeWidth={2.5} />

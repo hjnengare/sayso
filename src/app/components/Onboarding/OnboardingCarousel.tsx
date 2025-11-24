@@ -132,7 +132,7 @@ export default function OnboardingCarousel({
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 flex items-center justify-center z-0"
         >
-          <div className="rounded-full bg-off-white border-4 border-navbar-bg ring-4 ring-sage shadow-lg w-[220px] h-[220px]" />
+          <div className="rounded-full bg-gradient-to-br from-off-white via-off-white to-off-white/95 border-4 border-navbar-bg ring-4 ring-sage/30 w-[220px] h-[220px]" />
         </div>
 
         {/* Dynamic carousel for images */}
@@ -151,7 +151,7 @@ export default function OnboardingCarousel({
               <img
                 src={src}
                 alt={`Onboarding slide ${i + 1}`}
-                className="mx-auto w-[260px] h-[260px] object-contain drop-shadow-sm"
+                className="mx-auto w-[260px] h-[260px] object-contain"
                 decoding="async"
                 loading="eager"
                 onError={() => handleImageError(i)}
@@ -169,9 +169,9 @@ export default function OnboardingCarousel({
               key={dotIndex}
               aria-label={`Go to group ${dotIndex + 1}`}
               onClick={() => handleDotClick(dotIndex)}
-              className={`rounded-full transition-all duration-300 ${
+              className={`rounded-full transition-all duration-300 border border-white/30 ${
                 dotIndex === currentDot 
-                  ? "w-8 h-3 bg-coral shadow-md" 
+                  ? "w-8 h-3 bg-gradient-to-r from-coral to-coral/90" 
                   : "w-2.5 h-2.5 bg-charcoal/20 hover:bg-charcoal/30"
               }`}
             />

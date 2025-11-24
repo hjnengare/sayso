@@ -115,7 +115,7 @@ export default function SpecialDetailPage({ params }: SpecialDetailPageProps) {
           initial={{ y: -80, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ type: "spring", stiffness: 80, damping: 20 }}
-          className="bg-off-white/95 backdrop-blur-md shadow-sm relative z-10 sticky top-0"
+          className="bg-off-white/95 backdrop-blur-xl border-b border-white/30 relative z-10 sticky top-0"
         >
           <div className="mx-auto w-full max-w-[2000px] px-2 py-4">
             <div className="flex items-center justify-between">
@@ -162,7 +162,7 @@ export default function SpecialDetailPage({ params }: SpecialDetailPageProps) {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.6 }}
-                className="relative w-full aspect-[4/3] sm:aspect-[16/9] lg:aspect-[21/9] rounded-2xl overflow-hidden shadow-lg"
+                className="relative w-full aspect-[4/3] sm:aspect-[16/9] lg:aspect-[21/9] rounded-2xl overflow-hidden border border-white/60 ring-1 ring-white/30"
               >
                 <Image
                   src={special.image || "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=1920&h=1080&fit=crop&crop=center&q=90"}
@@ -227,7 +227,7 @@ export default function SpecialDetailPage({ params }: SpecialDetailPageProps) {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.6 }}
-                className="bg-white/40 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-lg p-4"
+                className="bg-gradient-to-br from-white/50 via-white/40 to-white/30 backdrop-blur-xl border border-white/60 rounded-[20px] ring-1 ring-white/30 p-4"
               >
                 <h2 className="text-lg font-bold text-charcoal mb-4" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>Special Details</h2>
 
@@ -279,7 +279,7 @@ export default function SpecialDetailPage({ params }: SpecialDetailPageProps) {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.6 }}
-                className="bg-white/40 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-lg p-4"
+                className="bg-gradient-to-br from-white/50 via-white/40 to-white/30 backdrop-blur-xl border border-white/60 rounded-[20px] ring-1 ring-white/30 p-4"
               >
                 <h2 className="text-lg font-bold text-charcoal mb-3" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>About This Special</h2>
                 <p className="text-sm text-charcoal/80 leading-relaxed" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
@@ -295,16 +295,16 @@ export default function SpecialDetailPage({ params }: SpecialDetailPageProps) {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.5, duration: 0.6 }}
-                className="bg-white/40 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-lg p-4 sticky top-24"
+                className="bg-gradient-to-br from-white/50 via-white/40 to-white/30 backdrop-blur-xl border border-white/60 rounded-[20px] ring-1 ring-white/30 p-4 sticky top-24"
               >
                 <h3 className="text-lg font-bold text-charcoal mb-3" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>Claim This Special</h3>
 
                 <div className="space-y-3">
-                  <button className="w-full bg-gradient-to-r from-sage to-sage/90 hover:from-sage/90 hover:to-sage/80 text-white font-semibold py-3 px-5 rounded-full transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl text-sm" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                  <button className="w-full bg-gradient-to-r from-sage to-sage/90 hover:from-sage/90 hover:to-sage/80 text-white font-semibold py-3 px-5 rounded-full transition-all duration-300 hover:scale-105 border border-white/30 text-sm" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                     Visit Venue
                   </button>
 
-                  <button className="w-full bg-gradient-to-r from-coral to-coral/90 hover:from-coral/90 hover:to-coral/80 text-white font-semibold py-3 px-5 rounded-full transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl text-sm" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                  <button className="w-full bg-gradient-to-r from-coral to-coral/90 hover:from-coral/90 hover:to-coral/80 text-white font-semibold py-3 px-5 rounded-full transition-all duration-300 hover:scale-105 border border-white/30 text-sm" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                     Call for Details
                   </button>
                 </div>
@@ -312,13 +312,13 @@ export default function SpecialDetailPage({ params }: SpecialDetailPageProps) {
                 <div className="mt-4 pt-4 border-t border-charcoal/10">
                   <h4 className="text-sm font-semibold text-charcoal mb-2.5" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>Share Special</h4>
                   <div className="flex gap-2">
-                    <button className="flex-1 bg-white/30 hover:bg-coral text-charcoal/90 hover:text-white py-2 px-3 rounded-full transition-all duration-200 shadow-sm">
+                    <button className="flex-1 bg-white/40 backdrop-blur-sm hover:bg-coral text-charcoal/90 hover:text-white py-2 px-3 rounded-full transition-all duration-200 border border-white/40">
                       <Facebook size={16} className="mx-auto" />
                     </button>
-                    <button className="flex-1 bg-white/30 hover:bg-sage text-charcoal/90 hover:text-white py-2 px-3 rounded-full transition-all duration-200 shadow-sm">
+                    <button className="flex-1 bg-white/40 backdrop-blur-sm hover:bg-sage text-charcoal/90 hover:text-white py-2 px-3 rounded-full transition-all duration-200 border border-white/40">
                       <Instagram size={16} className="mx-auto" />
                     </button>
-                    <button className="flex-1 bg-white/30 hover:bg-charcoal text-charcoal/90 hover:text-white py-2 px-3 rounded-full transition-all duration-200 shadow-sm">
+                    <button className="flex-1 bg-white/40 backdrop-blur-sm hover:bg-charcoal text-charcoal/90 hover:text-white py-2 px-3 rounded-full transition-all duration-200 border border-white/40">
                       <Twitter size={16} className="mx-auto" />
                     </button>
                   </div>
@@ -330,7 +330,7 @@ export default function SpecialDetailPage({ params }: SpecialDetailPageProps) {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.6, duration: 0.6 }}
-                className="bg-white/40 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-lg p-4"
+                className="bg-gradient-to-br from-white/50 via-white/40 to-white/30 backdrop-blur-xl border border-white/60 rounded-[20px] ring-1 ring-white/30 p-4"
               >
                 <h3 className="text-lg font-bold text-charcoal mb-3" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>Venue Information</h3>
 

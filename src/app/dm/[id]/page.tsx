@@ -283,10 +283,10 @@ export default function DMPage() {
                                         className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'} animate-fade-in-up`}
                                     >
                                         <div
-                                            className={`max-w-[75%] sm:max-w-[60%] rounded-2xl px-4 py-3 shadow-lg ${
+                                            className={`max-w-[75%] sm:max-w-[60%] rounded-2xl px-4 py-3 ${
                                                 isCurrentUser
-                                                    ? 'bg-coral/90 text-white'
-                                                    : 'bg-card-bg/95 backdrop-blur-xl text-charcoal border border-white/60'
+                                                    ? 'bg-gradient-to-br from-coral to-coral/90 text-white border border-white/30'
+                                                    : 'bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl text-charcoal border border-white/60 ring-1 ring-white/30'
                                             }`}
                                             style={{
                                                 fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
@@ -328,7 +328,7 @@ export default function DMPage() {
                                     onKeyDown={handleKeyDown}
                                     placeholder="Type a message..."
                                     rows={1}
-                                    className="w-full bg-white border border-charcoal/10 rounded-[20px] px-4 py-3 pr-12 text-body-sm sm:text-body text-charcoal placeholder:text-body-sm sm:placeholder:text-body placeholder-charcoal/40 resize-none focus:outline-none focus:ring-2 focus:ring-sage/30 focus:border-sage/50 transition-all duration-300 max-h-[120px] overflow-y-auto shadow-sm"
+                                    className="w-full bg-white border border-charcoal/10 rounded-[20px] px-4 py-3 pr-12 text-body-sm sm:text-body text-charcoal placeholder:text-body-sm sm:placeholder:text-body placeholder-charcoal/40 resize-none focus:outline-none focus:ring-2 focus:ring-sage/30 focus:border-sage/50 transition-all duration-300 max-h-[120px] overflow-y-auto"
                                     style={{
                                         fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                                         lineHeight: '1.5',
@@ -338,7 +338,7 @@ export default function DMPage() {
                             <button
                                 type="submit"
                                 disabled={!message.trim()}
-                                className="w-12 h-12 bg-coral hover:bg-coral/90 disabled:bg-charcoal/20 disabled:cursor-not-allowed text-white rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 shadow-md shadow-coral/20 min-h-[48px] min-w-[48px]"
+                                className="w-12 h-12 bg-gradient-to-br from-coral to-coral/90 hover:bg-coral/90 disabled:bg-charcoal/20 disabled:cursor-not-allowed text-white rounded-full flex items-center justify-center border border-white/30 transition-all duration-300 hover:scale-110 active:scale-95 min-h-[48px] min-w-[48px]"
                                 aria-label="Send message"
                             >
                                 <Send className="w-5 h-5" strokeWidth={2.5} />

@@ -130,8 +130,8 @@ export default function WriteReviewPage() {
             <Link
               key={business.id}
               href="/business/review"
-              className="block p-4 bg-card-bg backdrop-blur-xl border border-white/60 rounded-[20px] shadow-lg hover:border-sage/30
-                         transition-all duration-200 group"
+              className="block p-4 bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] ring-1 ring-white/30 hover:border-white/80 hover:-translate-y-1
+                         transition-all duration-300 group"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">

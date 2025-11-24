@@ -95,6 +95,11 @@ export function SavedItemsProvider({ children }: SavedItemsProviderProps) {
 
       const data = await response.json();
       const businessIds = (data.businesses || []).map((b: any) => b.id);
+      console.log('SavedItemsContext - Fetched saved items:', {
+        totalBusinesses: data.businesses?.length || 0,
+        businessIds: businessIds,
+        count: businessIds.length
+      });
       setSavedItems(businessIds);
     } catch (error) {
       // Better error logging - only log if it's a network/unexpected error
@@ -156,14 +161,45 @@ export function SavedItemsProvider({ children }: SavedItemsProviderProps) {
       });
 
       if (!response.ok) {
-        const error = await response.json();
+        let errorMessage = 'Failed to save business';
+        try {
+          const error = await response.json();
+          errorMessage = error.error || error.details || error.message || errorMessage;
+          
+          // Log detailed error for debugging
+          console.error('Save business API error:', {
+            status: response.status,
+            error: error,
+            business_id: itemId
+          });
+          
+          // Check if it's a table/permission error
+          if (error.code === '42P01' || error.code === '42501' || 
+              errorMessage.toLowerCase().includes('relation') ||
+              errorMessage.toLowerCase().includes('does not exist') ||
+              errorMessage.toLowerCase().includes('permission denied') ||
+              errorMessage.toLowerCase().includes('row-level security')) {
+            errorMessage = 'Saved businesses feature is not available. Please contact support.';
+          }
+        } catch (parseError) {
+          console.error('Error parsing save response:', parseError);
+          errorMessage = `Failed to save business (${response.status})`;
+        }
+        
         // Revert optimistic update on error
         setSavedItems(prev => prev.filter(id => id !== itemId));
-        showToast(error.error || 'Failed to save business', 'sage', 3000);
+        showToast(errorMessage, 'sage', 4000);
         return false;
       }
 
-      showToast('Business saved!', 'success', 2000);
+      // Show success toast with longer duration and more prominent message
+      showToast('✨ Business saved! Check your saved items to view it.', 'success', 4500);
+      
+      // Trigger refetch to update saved items count
+      // Add a small delay to ensure the database transaction is committed
+      await new Promise(resolve => setTimeout(resolve, 100));
+      await fetchSavedItems();
+      
       return true;
     } catch (error) {
       console.error('Error saving business:', error);
@@ -172,7 +208,7 @@ export function SavedItemsProvider({ children }: SavedItemsProviderProps) {
       showToast('Failed to save business. Please try again.', 'sage', 3000);
       return false;
     }
-  }, [user, showToast]);
+  }, [user, showToast, fetchSavedItems]);
 
   const removeSavedItem = useCallback(async (itemId: string): Promise<boolean> => {
     if (!user) {
@@ -200,7 +236,11 @@ export function SavedItemsProvider({ children }: SavedItemsProviderProps) {
         return false;
       }
 
-      showToast('Business removed from saved', 'success', 2000);
+      showToast('Business removed from saved', 'success', 3000);
+      
+      // Trigger refetch to update saved items count
+      await fetchSavedItems();
+      
       return true;
     } catch (error) {
       console.error('Error unsaving business:', error);
@@ -214,7 +254,7 @@ export function SavedItemsProvider({ children }: SavedItemsProviderProps) {
       showToast('Failed to unsave business. Please try again.', 'sage', 3000);
       return false;
     }
-  }, [user, showToast]);
+  }, [user, showToast, fetchSavedItems]);
 
   const isItemSaved = useCallback((itemId: string) => {
     return savedItems.includes(itemId);

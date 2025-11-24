@@ -92,11 +92,14 @@ export default function BusinessOfTheMonthCard({ business }: { business: Busines
       }}
     >
       <div
-        className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden group cursor-pointer h-[650px] sm:h-auto flex flex-col border border-white/50 backdrop-blur-md ring-1 ring-white/20"
+        className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden group cursor-pointer h-[650px] sm:h-auto flex flex-col border border-white/60 backdrop-blur-xl ring-1 ring-white/30 transition-all duration-300 hover:border-white/80 hover:-translate-y-1"
         style={{ "--width": "540", "--height": "650" } as React.CSSProperties}
       >
+        {/* Glass depth overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-off-white/8 via-transparent to-transparent pointer-events-none z-0" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/5 via-transparent to-transparent pointer-events-none z-0" />
         {/* Media */}
-        <div className="relative overflow-hidden rounded-t-[12px] flex-1 sm:flex-initial z-10">
+        <div className="relative overflow-hidden rounded-t-[12px] flex-1 sm:flex-initial z-10 border-b border-white/60">
           <div className="relative w-full h-[490px] sm:h-[320px] md:h-[220px]">
             {!imgError && displayImage ? (
               isImagePng || displayImage.includes('/png/') || displayImage.endsWith('.png') || usingFallback ? (
@@ -183,7 +186,7 @@ export default function BusinessOfTheMonthCard({ business }: { business: Busines
           )}
 
           {/* rating badge */}
-          <span className="absolute right-2 top-2 z-20 inline-flex items-center gap-1 rounded-[12px] bg-off-white/90 px-3 py-1.5 text-charcoal border border-white/30">
+          <span className="absolute right-2 top-2 z-20 inline-flex items-center gap-1 rounded-[12px] bg-off-white/95 backdrop-blur-xl px-3 py-1.5 text-charcoal border border-white/40">
             <Star className="w-3.5 h-3.5 text-navbar-bg fill-navbar-bg" />
             <span className="text-sm font-semibold" style={{
               fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
@@ -198,7 +201,7 @@ export default function BusinessOfTheMonthCard({ business }: { business: Busines
             className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 z-20 flex-col gap-2 transition-all duration-300 ease-out translate-x-12 opacity-0 md:group-hover:translate-x-0 md:group-hover:opacity-100"
           >
             <button
-              className="w-10 h-10 bg-off-white/95 rounded-full flex items-center justify-center hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/30"
+              className="w-10 h-10 bg-off-white/95 backdrop-blur-sm rounded-full flex items-center justify-center hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40"
               onClick={(e) => {
                 e.stopPropagation();
                 // Handle write review
@@ -209,7 +212,7 @@ export default function BusinessOfTheMonthCard({ business }: { business: Busines
               <Edit className="w-4 h-4 text-primary" />
             </button>
             <button
-              className="w-10 h-10 bg-off-white/95 rounded-full flex items-center justify-center hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/30"
+              className="w-10 h-10 bg-off-white/95 backdrop-blur-sm rounded-full flex items-center justify-center hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40"
               onClick={(e) => {
                 e.stopPropagation();
                 // Handle bookmark
@@ -220,7 +223,7 @@ export default function BusinessOfTheMonthCard({ business }: { business: Busines
               <Bookmark className="w-4 h-4 text-primary" />
             </button>
             <button
-              className="w-10 h-10 bg-off-white/95 rounded-full flex items-center justify-center hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/30"
+              className="w-10 h-10 bg-off-white/95 backdrop-blur-sm rounded-full flex items-center justify-center hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40"
               onClick={(e) => {
                 e.stopPropagation();
                 // Handle share
@@ -234,10 +237,10 @@ export default function BusinessOfTheMonthCard({ business }: { business: Busines
         </div>
 
         {/* CONTENT */}
-        <div className="px-4 pt-4 pb-6 relative flex-shrink-0 z-10">
-          <div className="mb-2 cursor-pointer">
+        <div className="px-4 pt-4 pb-6 relative flex-shrink-0 z-10 bg-gradient-to-br from-sage/12 via-sage/8 to-sage/10 rounded-b-[12px] border-t border-white/30">
+          <div className="mb-2 cursor-pointer w-full min-w-0 h-[3.5rem] sm:h-[4rem] flex items-center justify-center">
             <Tooltip content={business.name} position="top">
-              <h3 className="text-h2 sm:text-h1 font-bold text-charcoal group-hover:text-coral/90 transition-colors duration-300 text-center truncate max-w-full" style={{ 
+              <h3 className="text-h2 sm:text-h1 font-bold text-charcoal group-hover:text-coral/90 transition-colors duration-300 text-center truncate w-full max-w-full overflow-hidden text-ellipsis whitespace-nowrap" style={{ 
                 fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', 
                 fontWeight: 700,
                 WebkitFontSmoothing: 'antialiased',
@@ -318,7 +321,7 @@ export default function BusinessOfTheMonthCard({ business }: { business: Busines
               <span>Review</span>
             </button>
             <button
-              className="w-9 h-9 bg-gradient-to-br from-off-white via-white to-off-white/95 backdrop-blur-xl rounded-full flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-sage/40 border border-white/60 ring-1 ring-white/30 transition-all active:scale-95"
+              className="w-9 h-9 bg-gradient-to-br from-off-white via-white to-off-white/95 backdrop-blur-xl rounded-full flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-sage/40 border border-white/40 transition-all active:scale-95"
               onClick={(e) => {
                 e.stopPropagation();
                 // Handle bookmark
@@ -328,7 +331,7 @@ export default function BusinessOfTheMonthCard({ business }: { business: Busines
               <Bookmark className="w-4 h-4 text-charcoal" />
             </button>
             <button
-              className="w-9 h-9 bg-gradient-to-br from-off-white via-white to-off-white/95 backdrop-blur-xl rounded-full flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-sage/40 border border-white/60 ring-1 ring-white/30 transition-all active:scale-95"
+              className="w-9 h-9 bg-gradient-to-br from-off-white via-white to-off-white/95 backdrop-blur-xl rounded-full flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-sage/40 border border-white/40 transition-all active:scale-95"
               onClick={(e) => {
                 e.stopPropagation();
                 // Handle share

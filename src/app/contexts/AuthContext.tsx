@@ -306,7 +306,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // Fetch fresh profile data from database to ensure we have the latest data including username and display_name
       const { data: freshProfile, error: fetchError } = await supabase
         .from('profiles')
-        .select('user_id, onboarding_step, interests_count, last_interests_updated, created_at, updated_at, avatar_url, username, display_name, locale, is_top_reviewer, reviews_count, badges_count, subcategories_count, dealbreakers_count')
+        .select('user_id, onboarding_step, interests_count, last_interests_updated, created_at, updated_at, avatar_url, username, display_name, is_top_reviewer, reviews_count, badges_count, subcategories_count, dealbreakers_count')
         .eq('user_id', user.id)
         .single();
 
@@ -324,7 +324,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           avatar_url: freshProfile.avatar_url || undefined,
           username: freshProfile.username || undefined,
           display_name: freshProfile.display_name || undefined,
-          locale: freshProfile.locale || 'en',
+          locale: 'en', // Default locale - locale column doesn't exist in profiles table
           is_top_reviewer: freshProfile.is_top_reviewer || false,
           reviews_count: freshProfile.reviews_count || 0,
           badges_count: freshProfile.badges_count || 0,

@@ -26,11 +26,22 @@ export default function SimilarBusinesses({
     sortOrder: "desc",
   });
 
-  // Filter out current business and limit results
+  // Filter out current business, remove duplicates, and limit results
   const similarBusinesses = useMemo(() => {
     if (!businesses || businesses.length === 0) return [];
-    return businesses
-      .filter((b) => b.id !== currentBusinessId)
+    
+    // Create a Map to track unique businesses by ID
+    const uniqueBusinessesMap = new Map<string, typeof businesses[0]>();
+    
+    // First pass: filter out current business and collect unique businesses
+    businesses.forEach((b) => {
+      if (b.id !== currentBusinessId && !uniqueBusinessesMap.has(b.id)) {
+        uniqueBusinessesMap.set(b.id, b);
+      }
+    });
+    
+    // Convert Map values to array, limit results, and add href
+    return Array.from(uniqueBusinessesMap.values())
       .slice(0, limit)
       .map((b) => ({
         ...b,

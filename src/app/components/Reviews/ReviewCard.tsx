@@ -61,7 +61,7 @@ export default function ReviewCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
       whileHover={{ scale: 1.01, x: 5 }}
-      className="bg-off-white  rounded-lg p-6 border border-charcoal/10 transition-all duration-300 group shadow-sm"
+      className="bg-gradient-to-br from-off-white via-off-white to-off-white/95 backdrop-blur-sm rounded-lg p-6 border border-white/60 ring-1 ring-white/30 transition-all duration-300 group hover:border-white/80 hover:-translate-y-1"
     >
       <div className="flex items-start space-x-4">
         {/* Avatar */}
@@ -72,7 +72,7 @@ export default function ReviewCard({
         >
           {review.user.avatar_url ? (
             <div className="relative">
-              <div className="w-12 h-12 rounded-full p-0.5 bg-off-white ring-2 ring-off-white shadow-sm">
+              <div className="w-12 h-12 rounded-full p-0.5 bg-off-white ring-2 ring-white/40">
                 <Image
                   src={review.user.avatar_url}
                   alt={review.user.name || 'User'}
@@ -83,7 +83,7 @@ export default function ReviewCard({
               </div>
             </div>
           ) : (
-            <div className="w-12 h-12 bg-gradient-to-br from-sage/20 to-sage/10 rounded-full flex items-center justify-center ring-2 ring-off-white shadow-sm transition-shadow duration-300">
+            <div className="w-12 h-12 bg-gradient-to-br from-sage/20 to-sage/10 rounded-full flex items-center justify-center ring-2 ring-white/40 transition-shadow duration-300">
               <span className="font-urbanist text-lg font-700 text-sage">
                 {review.user.name?.[0] || 'U'}
               </span>
@@ -291,7 +291,7 @@ export default function ReviewCard({
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setSelectedImageIndex(null)}
-                className="absolute -top-4 -right-4 w-8 h-8 bg-off-white text-black rounded-full flex items-center justify-center shadow-lg"
+                className="absolute -top-4 -right-4 w-8 h-8 bg-off-white/95 backdrop-blur-xl text-black rounded-full flex items-center justify-center border border-white/40"
               >
                 <X size={20} />
               </motion.button>

@@ -285,7 +285,7 @@ function BusinessCard({
   };
 
   const mediaBaseClass =
-    "relative overflow-hidden z-10 cursor-pointer rounded-t-[12px] bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 border border-white/50 backdrop-blur-md";
+    "relative overflow-hidden z-10 cursor-pointer rounded-t-[12px] bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 border-b border-white/60 backdrop-blur-xl";
   const mediaClass = compact
     ? `${mediaBaseClass} h-[300px] lg:h-[260px]`
     : `${mediaBaseClass} h-[490px] sm:h-[320px] md:h-[240px]`;
@@ -301,7 +301,7 @@ function BusinessCard({
       }}
     >
       <div
-        className={`relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden group cursor-pointer w-full flex flex-col border border-white/50 backdrop-blur-md ring-1 ring-white/20 ${compact ? "md:h-[416px]" : "h-[650px] sm:h-auto md:w-[340px]"
+        className={`relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden group cursor-pointer w-full flex flex-col border border-white/60 backdrop-blur-xl ring-1 ring-white/30 transition-all duration-300 hover:border-white/80 hover:-translate-y-1 ${compact ? "md:h-[416px]" : "h-[650px] sm:h-auto md:w-[340px]"
           }`}
         style={{
           maxWidth: compact ? "100%" : "540px",
@@ -318,8 +318,9 @@ function BusinessCard({
           }
         }}
       >
-        {/* Glass depth overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-off-white/5 via-transparent to-transparent pointer-events-none z-0" />
+        {/* Glass depth overlay - Enhanced */}
+        <div className="absolute inset-0 bg-gradient-to-br from-off-white/8 via-transparent to-transparent pointer-events-none z-0" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/5 via-transparent to-transparent pointer-events-none z-0" />
         {/* MEDIA - Full bleed with premium overlay */}
         <div
           className={mediaClass}
@@ -394,7 +395,7 @@ function BusinessCard({
           )}
 
           {!hideStar && hasRating && displayRating !== undefined && (
-            <div className="absolute right-4 top-4 z-20 inline-flex items-center gap-1 rounded-full bg-off-white/90 px-3 py-1.5 text-charcoal border border-white/30">
+            <div className="absolute right-4 top-4 z-20 inline-flex items-center gap-1 rounded-full bg-off-white/95 backdrop-blur-xl px-3 py-1.5 text-charcoal border border-white/40">
               <Star className="w-3.5 h-3.5 text-navbar-bg fill-navbar-bg" aria-hidden />
               <span className="text-sm font-semibold text-charcoal" style={{ 
                 fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', 
@@ -406,7 +407,7 @@ function BusinessCard({
           )}
 
           {!hideStar && !hasRating && (
-            <div className="absolute right-4 top-4 z-20 inline-flex items-center gap-1 rounded-full bg-off-white/90 px-3 py-1.5 text-charcoal border border-white/30">
+            <div className="absolute right-4 top-4 z-20 inline-flex items-center gap-1 rounded-full bg-off-white/95 backdrop-blur-xl px-3 py-1.5 text-charcoal border border-white/40">
               <span className="text-sm font-semibold text-charcoal" style={{ 
                 fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', 
                 fontWeight: 600
@@ -424,7 +425,7 @@ function BusinessCard({
                 e.stopPropagation();
                 setShowInfoPopup(!showInfoPopup);
               }}
-              className="w-10 h-10 bg-off-white/95 backdrop-blur-sm rounded-full flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/30 shadow-lg touch-manipulation"
+              className="w-10 h-10 bg-off-white/95 backdrop-blur-xl rounded-full flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40 touch-manipulation"
               aria-label="More options"
               aria-expanded={showInfoPopup}
             >
@@ -435,7 +436,7 @@ function BusinessCard({
             {showInfoPopup && (
               <div
                 ref={infoPopupRef}
-                className="absolute bottom-full left-0 mb-2 bg-off-white/95 backdrop-blur-xl rounded-2xl shadow-xl border border-white/30 p-2 z-30 min-w-[140px] whitespace-nowrap"
+                className="absolute bottom-full left-0 mb-2 bg-off-white/95 backdrop-blur-xl rounded-2xl border border-white/40 p-2 z-30 min-w-[140px] whitespace-nowrap"
                 style={{
                   animation: 'fadeInUp 0.2s ease-out forwards',
                   transformOrigin: 'bottom left',
@@ -490,7 +491,7 @@ function BusinessCard({
           {/* Premium floating actions - desktop only */}
           <div className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-20 flex-col items-center gap-2 transition-all duration-300 ease-out translate-x-12 opacity-0 md:group-hover:translate-x-0 md:group-hover:opacity-100">
             <button
-              className="w-12 h-10 bg-off-white/95 rounded-[20px] flex items-center justify-center hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/30"
+              className="w-12 h-10 bg-off-white/95 backdrop-blur-sm rounded-[20px] flex items-center justify-center hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40"
               onClick={(e) => {
                 e.stopPropagation();
                 handleWriteReview();
@@ -501,7 +502,7 @@ function BusinessCard({
               <Edit className="w-4 h-4 text-primary" />
             </button>
             <button
-              className="w-12 h-10 bg-off-white/95 rounded-[20px] flex items-center justify-center hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/30"
+              className="w-12 h-10 bg-off-white/95 backdrop-blur-sm rounded-[20px] flex items-center justify-center hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40"
               onClick={(e) => {
                 e.stopPropagation();
                 handleBookmark();
@@ -514,7 +515,7 @@ function BusinessCard({
               />
             </button>
             <button
-              className="w-12 h-10 bg-off-white/95 rounded-[20px] flex items-center justify-center hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/30"
+              className="w-12 h-10 bg-off-white/95 backdrop-blur-sm rounded-[20px] flex items-center justify-center hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40"
               onClick={(e) => {
                 e.stopPropagation();
                 handleShare();
@@ -538,16 +539,16 @@ function BusinessCard({
               {/* Content - Centered */}
               <div className="flex flex-col items-center text-center relative z-10 space-y-1">
                 {/* Business Name - Inside wrapper */}
-                <div className="flex items-center justify-center w-full">
+                <div className="flex items-center justify-center w-full min-w-0 h-[3.5rem] sm:h-[4rem]">
                   <Tooltip content={business.name} position="top">
                     <button
                       type="button"
                       onClick={handleCardClick}
-                      className="group w-full max-w-full text-charcoal transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/40 rounded-lg px-2 py-1"
+                      className="group w-full max-w-full min-w-0 text-charcoal transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/40 rounded-lg px-2 py-1 flex items-center justify-center"
                       aria-label={`View ${business.name} details`}
                     >
                       <h3
-                        className="text-h2 sm:text-h1 font-bold text-inherit text-center leading-[1.3] truncate tracking-tight transition-colors duration-300 group-hover:text-navbar-bg/90 max-w-full"
+                        className="text-h2 sm:text-h1 font-bold text-inherit text-center leading-[1.3] truncate tracking-tight transition-colors duration-300 group-hover:text-navbar-bg/90 w-full max-w-full overflow-hidden text-ellipsis whitespace-nowrap"
                         style={{
                           fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                           fontWeight: 700,
@@ -564,7 +565,7 @@ function BusinessCard({
                 </div>
                 {/* Category and Location - Combined with bullet separator */}
                 <div
-                  className="flex items-center justify-center gap-1.5 text-caption sm:text-xs text-charcoal/60 min-h-[20px]"
+                  className="flex items-center justify-center gap-1.5 text-caption sm:text-xs text-charcoal/60 h-5 min-h-[20px] max-h-[20px]"
                   style={{
                     fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                     fontWeight: 400,
@@ -582,10 +583,10 @@ function BusinessCard({
                         href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${business.name} ${business.location || business.address || ''}`)}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-caption sm:text-xs font-normal text-charcoal/60 transition-colors duration-200 hover:text-navbar-bg/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/30 rounded-full px-2 py-1"
+                        className="inline-flex items-center gap-1 text-caption sm:text-xs font-normal text-charcoal/60 transition-colors duration-200 hover:text-navbar-bg/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/30 rounded-full px-2 py-1 min-w-0"
                         aria-label={`Open ${business.name} in maps`}
                       >
-                        <MapPin className="w-3 h-3 text-navbar-bg/90 stroke-[2.5] transition-colors duration-200 group-hover:text-navbar-bg/90" />
+                        <MapPin className="w-3 h-3 text-navbar-bg/90 stroke-[2.5] transition-colors duration-200 group-hover:text-navbar-bg/90 flex-shrink-0" />
                         <span className="truncate max-w-[8rem] sm:max-w-[10rem]">{business.location || business.address}</span>
                       </a>
                     </>
@@ -675,7 +676,7 @@ function BusinessCard({
                 </div>
 
                 {/* Percentile chips - Inside wrapper */}
-                <div className="flex items-center justify-center gap-1 flex-wrap min-h-[28px] max-h-[56px] py-1 md:bg-off-white/40 md:rounded-[20px] md:border md:border-white/30">
+                <div className="flex items-center justify-center gap-1 flex-wrap min-h-[28px] max-h-[56px] py-1 md:bg-off-white/50 md:backdrop-blur-sm md:rounded-[20px] md:border md:border-white/40">
                   <PercentileChip
                     label="punctuality"
                     value={business.percentiles?.punctuality || 0}

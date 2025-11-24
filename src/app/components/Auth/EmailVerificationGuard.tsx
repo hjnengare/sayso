@@ -42,12 +42,18 @@ export default function EmailVerificationGuard({
     }
   }, [isVerifiedFromUrl, user, updateUser]);
 
+  // More accurate user existence check - check if we have user data, not just the object
+  const userExists = !!(user && (user.email || user.id));
+  
   console.log('EmailVerificationGuard: Checking access', {
-    user_exists: !!user,
+    user_exists: userExists,
+    user_object_exists: !!user,
+    user_id: user?.id,
     email: user?.email,
     email_verified: user?.email_verified,
     isVerifiedFromUrl,
-    isLoading
+    isLoading,
+    user_type: user ? typeof user : 'null'
   });
 
   // Show loading only briefly - don't block if we have URL verification signal
@@ -63,8 +69,11 @@ export default function EmailVerificationGuard({
   }
 
   // If user is not logged in, show children (they'll be handled by ProtectedRoute)
-  if (!user) {
-    console.log('EmailVerificationGuard: No user, allowing access (ProtectedRoute will handle)');
+  // Check both user object existence and if it has essential data
+  if (!user || (!user.email && !user.id)) {
+    console.log('EmailVerificationGuard: No user or incomplete user data, allowing access (ProtectedRoute will handle)', {
+      user: user ? { id: user.id, email: user.email } : null
+    });
     return <>{children}</>;
   }
 

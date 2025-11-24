@@ -22,7 +22,7 @@ export default function EventHeroImage({
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.6 }}
-      className="relative w-full aspect-[4/3] sm:aspect-[16/9] lg:aspect-[21/9] rounded-2xl overflow-hidden shadow-lg border border-white/50"
+      className="relative w-full aspect-[4/3] sm:aspect-[16/9] lg:aspect-[21/9] rounded-2xl overflow-hidden border border-white/60 ring-1 ring-white/30"
     >
       <Image
         src={event.image || "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=1920&h=1080&fit=crop&crop=center&q=90"}
@@ -38,7 +38,7 @@ export default function EventHeroImage({
 
       {/* Event Type Badge */}
       <div className="absolute top-6 left-6">
-        <span className={`px-4 py-2 rounded-full text-body-sm font-600 backdrop-blur-md border shadow-sm ${
+        <span className={`px-4 py-2 rounded-full text-body-sm font-600 backdrop-blur-xl border ${
           event.type === "event"
             ? "bg-coral/90 text-white border-coral/50"
             : "bg-sage/90 text-white border-sage/50"
@@ -48,7 +48,7 @@ export default function EventHeroImage({
       </div>
 
       {/* Rating Badge - matching BusinessCard style */}
-      <div className="absolute top-6 right-6 z-20 inline-flex items-center gap-1 rounded-full bg-off-white/90 px-3 py-1.5 text-charcoal border border-white/30">
+      <div className="absolute top-6 right-6 z-20 inline-flex items-center gap-1 rounded-full bg-off-white/95 backdrop-blur-xl px-3 py-1.5 text-charcoal border border-white/40">
         <Star className="w-3.5 h-3.5 text-coral fill-coral" aria-hidden />
         <span className="text-body-sm font-semibold text-charcoal" style={{ 
           fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', 
@@ -61,7 +61,7 @@ export default function EventHeroImage({
       {/* Like Button */}
       <button
         onClick={onLike}
-        className={`absolute bottom-6 right-6 w-12 h-12 rounded-full backdrop-blur-md border transition-all duration-300 hover:scale-110 ${
+        className={`absolute bottom-6 right-6 w-12 h-12 rounded-full backdrop-blur-xl border transition-all duration-300 hover:scale-110 ${
           isLiked
             ? "bg-coral/90 text-white border-coral/50"
             : "bg-white/20 text-white border-white/30 hover:bg-white/30"

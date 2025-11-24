@@ -56,10 +56,13 @@ export default function ReviewerCard({
           className="block"
         >
           <div
-            className="bg-card-bg backdrop-blur-xl rounded-[20px] overflow-hidden group cursor-pointer h-[240px] relative border border-white/60"
+            className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl rounded-[20px] overflow-hidden group cursor-pointer h-[240px] relative border border-white/60 ring-1 ring-white/30 transition-all duration-300 hover:border-white/80 hover:-translate-y-1"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
+          {/* Glass depth overlay */}
+          <div className="absolute inset-0 bg-gradient-to-br from-off-white/8 via-transparent to-transparent pointer-events-none z-0" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/5 via-transparent to-transparent pointer-events-none z-0" />
           {/* Content */}
           <div className="relative z-10 p-2 h-full flex flex-col">
             {/* Header with small profile pic and rating */}
@@ -137,7 +140,7 @@ export default function ReviewerCard({
             {/* Latest Review Preview with fade-in effect */}
             {latestReview && (
               <div className="mb-1.5 mt-1 border-t border-white/20 pt-1.5">
-                <div className="bg-off-white rounded-md px-2 py-1">
+                <div className="bg-gradient-to-br from-off-white/95 to-off-white/85 backdrop-blur-sm rounded-md px-2 py-1 border border-white/30">
                   <div className="flex items-center gap-1 mb-0.5">
                     <Star className="w-3 h-3 fill-coral text-coral" />
                     <span className="font-urbanist text-[10px] text-charcoal/60" style={{ 
@@ -218,7 +221,7 @@ export default function ReviewerCard({
               {/* Card Actions - always visible on mobile, slide-up on desktop */}
               <div className="flex gap-1.5 transition-all duration-500 ease-out md:translate-y-4 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100">
                 <button
-                  className="min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 w-11 h-11 sm:w-8 sm:h-8 bg-white/90 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/60 hover:bg-white hover:scale-110 active:scale-95 transition-all duration-300 touch-manipulation"
+                  className="min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 w-11 h-11 sm:w-8 sm:h-8 bg-off-white/95 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/40 hover:bg-off-white hover:scale-110 active:scale-95 transition-all duration-300 touch-manipulation"
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
@@ -257,8 +260,11 @@ export default function ReviewerCard({
         className="block"
       >
         <div
-          className="bg-card-bg backdrop-blur-xl rounded-[20px] group cursor-pointer h-[187px] flex flex-col relative overflow-hidden border border-white/60"
+          className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl rounded-[20px] group cursor-pointer h-[187px] flex flex-col relative overflow-hidden border border-white/60 ring-1 ring-white/30 transition-all duration-300 hover:border-white/80 hover:-translate-y-1"
         >
+        {/* Glass depth overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-off-white/8 via-transparent to-transparent pointer-events-none z-0" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/5 via-transparent to-transparent pointer-events-none z-0" />
         <div className="flex items-start gap-1.5 mb-2 p-2">
           <div className="relative">
             <ProfilePicture

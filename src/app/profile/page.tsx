@@ -145,12 +145,49 @@ function ProfileContent() {
   const [userReviews, setUserReviews] = useState<Review[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(true);
 
-  // Get saved businesses for mobile display - TODO: Implement API call to fetch businesses by IDs
-  const savedBusinesses = useMemo(() => {
-    // TODO: Replace with actual API call to fetch businesses by IDs
-    // Example: const businesses = await fetch(`/api/businesses?ids=${savedItems.join(',')}`);
-    return [];
-  }, [savedItems]);
+  // Get saved businesses for mobile display
+  const [savedBusinesses, setSavedBusinesses] = useState<any[]>([]);
+  const [savedBusinessesLoading, setSavedBusinessesLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchSavedBusinesses = async () => {
+      if (!user?.id || savedItems.length === 0) {
+        setSavedBusinesses([]);
+        return;
+      }
+
+      try {
+        setSavedBusinessesLoading(true);
+        const response = await fetch('/api/user/saved');
+        
+        if (!response.ok) {
+          if (response.status === 401) {
+            // User not authenticated - this is expected for logged out users
+            setSavedBusinesses([]);
+            return;
+          }
+          // For other errors, just log and keep empty array
+          console.warn('Error fetching saved businesses for profile:', response.status);
+          setSavedBusinesses([]);
+          return;
+        }
+
+        const data = await response.json();
+        if (data.businesses && Array.isArray(data.businesses)) {
+          setSavedBusinesses(data.businesses);
+        } else {
+          setSavedBusinesses([]);
+        }
+      } catch (error) {
+        console.warn('Error fetching saved businesses for profile:', error);
+        setSavedBusinesses([]);
+      } finally {
+        setSavedBusinessesLoading(false);
+      }
+    };
+
+    fetchSavedBusinesses();
+  }, [user?.id, savedItems.length]);
 
   const profile = React.useMemo(() => {
     const rawProfile: any = user?.profile || {};

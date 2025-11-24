@@ -10,7 +10,7 @@ export default function EventActionCard() {
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 0.5, duration: 0.6 }}
-      className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-lg p-4 sm:p-6 relative overflow-hidden"
+      className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] ring-1 ring-white/30 p-4 sm:p-6 relative overflow-hidden"
     >
       {/* Gradient overlays matching user profile */}
       <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-sage/10 to-transparent rounded-full blur-lg"></div>
@@ -26,14 +26,14 @@ export default function EventActionCard() {
 
         <div className="space-y-3">
           <button
-            className="w-full bg-navbar-bg text-white font-semibold py-3 px-5 rounded-full transition-all duration-300 hover:bg-navbar-bg/90 hover:shadow-lg text-body-sm"
+            className="w-full bg-gradient-to-br from-navbar-bg to-navbar-bg/90 text-white font-semibold py-3 px-5 rounded-full transition-all duration-300 hover:bg-navbar-bg/90 border border-white/30 text-body-sm"
             style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
           >
             Reserve Your Spot
           </button>
 
           <button
-            className="w-full bg-white/40 text-charcoal font-semibold py-3 px-5 rounded-full transition-all duration-300 hover:bg-charcoal hover:text-white hover:shadow-lg text-body-sm"
+            className="w-full bg-gradient-to-br from-white/50 to-white/30 backdrop-blur-sm text-charcoal font-semibold py-3 px-5 rounded-full transition-all duration-300 hover:bg-charcoal hover:text-white border border-white/40 text-body-sm"
             style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
           >
             Contact Organizer

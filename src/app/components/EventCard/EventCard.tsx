@@ -103,7 +103,7 @@ export default function EventCard({ event, onBookmark }: EventCardProps) {
     >
       <Link href={`/event/${event.id}`} className="w-full">
         <article
-          className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden cursor-pointer h-[650px] sm:h-auto flex flex-col border border-white/50 backdrop-blur-md ring-1 ring-white/20 shadow-none sm:shadow-lg"
+          className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden cursor-pointer h-[650px] sm:h-auto flex flex-col border border-white/60 backdrop-blur-xl ring-1 ring-white/30 transition-all duration-300 hover:border-white/80 hover:-translate-y-1"
           style={
             {
               width: "100%",
@@ -113,8 +113,11 @@ export default function EventCard({ event, onBookmark }: EventCardProps) {
             } as CSSProperties
           }
         >
+          {/* Glass depth overlay */}
+          <div className="absolute inset-0 bg-gradient-to-br from-off-white/8 via-transparent to-transparent pointer-events-none z-0" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/5 via-transparent to-transparent pointer-events-none z-0" />
           {/* MEDIA - Full bleed with premium overlay */}
-          <div className="relative overflow-hidden flex-1 sm:flex-initial h-[490px] sm:h-[320px] lg:h-[240px] xl:h-[220px] z-10 rounded-t-[12px] border border-white/60">
+          <div className="relative overflow-hidden flex-1 sm:flex-initial h-[490px] sm:h-[320px] lg:h-[240px] xl:h-[220px] z-10 rounded-t-[12px] border-b border-white/60">
             <div className="absolute inset-0 bg-gradient-to-b from-off-white/90 via-off-white/80 to-off-white/70" aria-hidden="true" />
             <div className="relative w-full h-full">
               <div className="relative w-full h-full overflow-hidden flex items-center justify-center">
@@ -134,7 +137,7 @@ export default function EventCard({ event, onBookmark }: EventCardProps) {
           </div>
 
           {/* CONTENT - Minimal, premium spacing */}
-          <div className="px-4 pt-4 pb-6 flex flex-col justify-between bg-sage/10 gap-4">
+          <div className="px-4 pt-4 pb-6 flex flex-col justify-between bg-gradient-to-br from-sage/12 via-sage/8 to-sage/10 gap-4 rounded-b-[12px] border-t border-white/30">
             <div className="flex flex-col items-center text-center gap-3">
               <h3
                 className="text-h2 sm:text-h1 font-bold leading-tight text-charcoal text-center truncate"
@@ -163,7 +166,7 @@ export default function EventCard({ event, onBookmark }: EventCardProps) {
             {onBookmark && (
               <button
                 onClick={handleBookmarkClick}
-                className="w-full min-h-[44px] py-3 px-4 bg-navbar-bg/90 rounded-full flex items-center justify-center gap-2 shadow-[0_4px_12px_rgba(0,0,0,0.15)] hover:bg-navbar-bg transition-colors duration-200 text-off-white border border-sage/60"
+                className="w-full min-h-[44px] py-3 px-4 bg-gradient-to-br from-navbar-bg to-navbar-bg/90 rounded-full flex items-center justify-center gap-2 hover:bg-navbar-bg transition-all duration-200 text-off-white border border-sage/50"
                 aria-label="Bookmark event"
                 title="Bookmark"
               >
