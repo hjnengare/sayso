@@ -56,7 +56,8 @@ export default function DealBreakerCard({
           className={`
             absolute inset-0 w-full h-full rounded-lg border-2 p-4 flex flex-col justify-center items-center text-center
             bg-gradient-to-br from-sage/10 to-sage/5 border-sage/30 hover:border-sage/50
-            transition-all duration-200 hover:shadow-lg
+            ring-1 ring-sage/20 hover:ring-sage/30 backdrop-blur-sm
+            transition-all duration-200
           `}
           style={{ backfaceVisibility: 'hidden' }}
         >
@@ -72,7 +73,7 @@ export default function DealBreakerCard({
         <div
           className={`
             absolute inset-0 w-full h-full rounded-lg border-2 p-4 flex flex-col justify-center items-center text-center
-            bg-gradient-to-br from-coral to-coral/90 border-coral 
+            bg-gradient-to-br from-coral to-coral/90 border-coral ring-1 ring-coral/30 backdrop-blur-sm
           `}
           style={{ 
             backfaceVisibility: 'hidden',

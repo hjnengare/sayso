@@ -54,9 +54,46 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let user = null;
+  try {
+    const { data: { user: authUser }, error } = await supabase.auth.getUser();
+    
+    // Handle invalid JWT/user errors - clear session
+    if (error) {
+      const errorMessage = error.message?.toLowerCase() || '';
+      if (
+        errorMessage.includes('user from sub claim') ||
+        errorMessage.includes('jwt does not exist') ||
+        errorMessage.includes('user does not exist') ||
+        error.code === 'user_not_found'
+      ) {
+        console.warn('Middleware: Invalid user in JWT, clearing session:', error.message);
+        // Clear invalid session cookies
+        try {
+          response.cookies.delete('sb-access-token');
+          response.cookies.delete('sb-refresh-token');
+        } catch (clearError) {
+          console.warn('Middleware: Error clearing cookies:', clearError);
+        }
+        // Redirect to onboarding if trying to access protected route
+        const protectedRoutes = ['/interests', '/subcategories', '/deal-breakers', '/complete', '/home', '/profile', '/reviews', '/write-review', '/leaderboard', '/saved', '/dm', '/reviewer'];
+        const isProtectedRoute = protectedRoutes.some(route =>
+          request.nextUrl.pathname.startsWith(route)
+        );
+        if (isProtectedRoute) {
+          return NextResponse.redirect(new URL('/onboarding', request.url));
+        }
+        return response;
+      }
+      // For other auth errors, continue without user
+      console.warn('Middleware: Auth error (non-fatal):', error.message);
+    } else {
+      user = authUser;
+    }
+  } catch (error) {
+    console.error('Middleware: Unexpected error getting user:', error);
+    // Continue without user - will redirect if needed below
+  }
 
   console.log('Middleware: Checking route', {
     pathname: request.nextUrl.pathname,

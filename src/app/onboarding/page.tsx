@@ -73,25 +73,23 @@ const styles = `
   .btn-premium {
     position: relative;
     background: linear-gradient(135deg, #7D9B76 0%, #6B8A64 100%);
-    box-shadow:
-      0 10px 40px rgba(125,155,118,0.25),
-      0 4px 12px rgba(0,0,0,0.08),
-      inset 0 1px 0 rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    ring: 1px solid rgba(125,155,118,0.2);
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     backdrop-filter: blur(10px);
   }
   .btn-premium:hover {
     transform: translateY(-2px);
-    box-shadow:
-      0 20px 60px rgba(125,155,118,0.35),
-      0 8px 24px rgba(0,0,0,0.12),
-      inset 0 1px 0 rgba(255,255,255,0.2);
+    border-color: rgba(255,255,255,0.4);
+    ring-color: rgba(125,155,118,0.3);
   }
   .btn-premium:active { transform: translateY(0); }
 
   :focus-visible {
     outline: none;
-    box-shadow: 0 0 0 4px rgba(104,163,130,0.40), 0 0 0 6px #ffffff;
+    ring: 2px solid rgba(104,163,130,0.40);
+    ring-offset: 2px;
+    ring-offset-color: #ffffff;
   }
 
   .no-hyphens {

@@ -25,8 +25,8 @@ export default function SubcategoryPill({ subcategory, isSelected, onToggle }: S
         relative flex items-center gap-2 rounded-full border-2 px-4 py-2 text-sm font-medium transition-all duration-200
         focus:outline-none focus:ring-2 focus:ring-sage focus:ring-offset-2
         ${isSelected
-          ? 'border-coral bg-coral text-white shadow-sm scale-105'
-          : 'border-sage/30 bg-sage/5 text-sage hover:bg-sage/10 hover:border-sage/40 hover:scale-105'
+          ? 'border-coral bg-gradient-to-br from-coral to-coral/90 text-white ring-1 ring-coral/30 scale-105 backdrop-blur-sm'
+          : 'border-sage/30 bg-gradient-to-br from-sage/10 to-sage/5 text-sage hover:bg-sage/15 hover:border-sage/50 hover:ring-1 hover:ring-sage/20 hover:scale-105 backdrop-blur-sm'
         }
       `}
       style={sfPro}

@@ -187,22 +187,29 @@ export class AuthService {
     try {
       const { data: { user }, error } = await supabase.auth.getUser();
 
-      // Handle refresh token errors - clear invalid session
+      // Handle authentication errors - clear invalid session
       if (error) {
         const errorMessage = error.message?.toLowerCase() || '';
-        if (
+        const shouldClearSession = 
           errorMessage.includes('refresh token') ||
           errorMessage.includes('invalid refresh token') ||
           errorMessage.includes('refresh token not found') ||
-          error.code === 'refresh_token_not_found'
-        ) {
-          console.warn('Invalid refresh token detected, clearing session:', error.message);
+          errorMessage.includes('user from sub claim') ||
+          errorMessage.includes('jwt does not exist') ||
+          error.code === 'refresh_token_not_found' ||
+          error.code === 'user_not_found';
+
+        if (shouldClearSession) {
+          console.warn('Invalid session detected, clearing session:', {
+            message: error.message,
+            code: error.code
+          });
           // Clear the invalid session
           try {
             await supabase.auth.signOut();
           } catch (signOutError) {
             // Ignore sign out errors - we're already handling an error state
-            console.warn('Error during sign out after refresh token failure:', signOutError);
+            console.warn('Error during sign out after session failure:', signOutError);
           }
           return null;
         }
@@ -228,18 +235,22 @@ export class AuthService {
       const errorMessage = error instanceof Error ? error.message : String(error);
       const lowerMessage = errorMessage.toLowerCase();
       
-      // Check if it's a refresh token error
-      if (
+      // Check if it's a session/auth error that requires clearing the session
+      const shouldClearSession = 
         lowerMessage.includes('refresh token') ||
         lowerMessage.includes('invalid refresh token') ||
-        lowerMessage.includes('refresh token not found')
-      ) {
-        console.warn('Invalid refresh token detected in catch block, clearing session:', errorMessage);
+        lowerMessage.includes('refresh token not found') ||
+        lowerMessage.includes('user from sub claim') ||
+        lowerMessage.includes('jwt does not exist') ||
+        lowerMessage.includes('user does not exist');
+
+      if (shouldClearSession) {
+        console.warn('Invalid session detected in catch block, clearing session:', errorMessage);
         try {
           const supabase = this.getClient();
           await supabase.auth.signOut();
         } catch (signOutError) {
-          console.warn('Error during sign out after refresh token failure:', signOutError);
+          console.warn('Error during sign out after session failure:', signOutError);
         }
       } else {
         console.error('Error getting current user:', error);

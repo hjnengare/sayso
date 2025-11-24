@@ -46,10 +46,10 @@ export default function InterestButton({
         focus:outline-none focus:ring-2 focus:ring-sage focus:ring-offset-2
         ${
           isSelected
-            ? "bg-coral text-white shadow-[0_10px_40px_rgba(214,116,105,0.22),0_2px_8px_rgba(0,0,0,0.06)] scale-105"
+            ? "bg-gradient-to-br from-coral to-coral/90 text-white border-2 border-white/30 ring-1 ring-coral/30 scale-105 backdrop-blur-sm"
             : isDisabled
-            ? "bg-charcoal/5 text-charcoal/40 cursor-not-allowed opacity-60"
-            : "bg-sage text-white hover:bg-sage/90 hover:scale-105 active:scale-95 shadow-[0_8px_24px_rgba(125,155,118,0.16)]"
+            ? "bg-charcoal/5 text-charcoal/40 cursor-not-allowed opacity-60 border border-charcoal/10"
+            : "bg-gradient-to-br from-sage to-sage/90 text-white border border-white/20 ring-1 ring-sage/20 hover:bg-sage/90 hover:scale-105 hover:border-white/30 hover:ring-sage/30 active:scale-95 backdrop-blur-sm"
         }
       `}
       style={{ ...sfPro, animationDelay: `${delay}s` }}

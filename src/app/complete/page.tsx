@@ -155,13 +155,13 @@ function CompletePageContent() {
           {/* Floating graphics (non-interactive now) */}
           <div className="relative mx-auto mb-4 h-28 w-full max-w-[420px]" aria-hidden="true">
             <div className="absolute inset-0 overflow-hidden">
-              <div className="absolute bottom-0 left-[15%] w-14 h-14 rounded-full bg-off-white/90 border-2 border-coral flex items-center justify-center float-anim shadow-[0_8px_24px_rgba(0,0,0,0.06)] pointer-events-none select-none">
+              <div className="absolute bottom-0 left-[15%] w-14 h-14 rounded-full bg-gradient-to-br from-off-white/95 to-off-white/90 border-2 border-coral/60 ring-1 ring-coral/20 backdrop-blur-xl flex items-center justify-center float-anim pointer-events-none select-none">
                 <Smile className="w-5 h-5 text-charcoal" aria-hidden="true" />
               </div>
-              <div className="absolute bottom-0 left-[45%] w-14 h-14 rounded-full bg-off-white/90 border-2 border-sage flex items-center justify-center float-anim delay-400 shadow-[0_8px_24px_rgba(0,0,0,0.06)] pointer-events-none select-none">
+              <div className="absolute bottom-0 left-[45%] w-14 h-14 rounded-full bg-gradient-to-br from-off-white/95 to-off-white/90 border-2 border-sage/60 ring-1 ring-sage/20 backdrop-blur-xl flex items-center justify-center float-anim delay-400 pointer-events-none select-none">
                 <Star className="w-5 h-5 text-charcoal" aria-hidden="true" />
               </div>
-              <div className="absolute bottom-0 left-[75%] w-14 h-14 rounded-full bg-off-white/90 border-2 border-coral flex items-center justify-center float-anim delay-800 shadow-[0_8px_24px_rgba(0,0,0,0.06)] pointer-events-none select-none">
+              <div className="absolute bottom-0 left-[75%] w-14 h-14 rounded-full bg-gradient-to-br from-off-white/95 to-off-white/90 border-2 border-coral/60 ring-1 ring-coral/20 backdrop-blur-xl flex items-center justify-center float-anim delay-800 pointer-events-none select-none">
                 <Check className="w-5 h-5 text-charcoal" aria-hidden="true" />
               </div>
             </div>
@@ -178,7 +178,7 @@ function CompletePageContent() {
             >
               <span
                 className="
-                  group relative block w-[200px] mx-auto rounded-full py-4 px-4 text-body font-semibold text-white text-center flex items-center justify-center bg-gradient-to-r from-coral to-coral/80 hover:from-sage hover:to-sage transition-all duration-300 btn-target btn-press focus:outline-none focus-visible:ring-4 focus-visible:ring-sage/30 focus-visible:ring-offset-2
+                  group relative block w-[200px] mx-auto rounded-full py-4 px-4 text-body font-semibold text-white text-center flex items-center justify-center bg-gradient-to-r from-coral to-coral/80 hover:from-sage hover:to-sage border border-white/30 ring-1 ring-coral/20 hover:ring-sage/20 backdrop-blur-sm transition-all duration-300 btn-target btn-press focus:outline-none focus-visible:ring-4 focus-visible:ring-sage/30 focus-visible:ring-offset-2
                 "
               >
                 Continue to Home
@@ -189,7 +189,7 @@ function CompletePageContent() {
 
           {/* Completion badge */}
           <div className="mt-8">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-sage/10 border border-sage/30 rounded-full">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-sage/15 to-sage/10 border border-sage/40 ring-1 ring-sage/20 rounded-full backdrop-blur-sm">
               <CheckCircle className="w-4 h-4 text-sage" />
               <span className="text-xs font-semibold text-sage" style={sf}>
                 Setup Complete
