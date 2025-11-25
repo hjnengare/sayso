@@ -94,11 +94,10 @@ export function useStaggeredAnimation(
         y: 0,
         scale: [1, 1.05, 0.98, 1.02, 1],
         transition: {
-          type: 'spring',
-          stiffness: 300,
-          damping: 15,
-          mass: 0.6,
+          type: 'keyframes',
+          times: [0, 0.25, 0.5, 0.75, 1],
           duration: 0.6,
+          ease: 'easeInOut',
         },
       },
     };
