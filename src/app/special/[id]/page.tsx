@@ -82,7 +82,7 @@ export default function SpecialDetailPage({ params }: SpecialDetailPageProps) {
   };
 
   if (loading) {
-    return <PageLoader size="xl" color="sage" />;
+    return <PageLoader size="xl" variant="pulse" color="sage" text="Loading Special" />;
   }
 
   if (!special) {

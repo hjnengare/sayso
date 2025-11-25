@@ -156,7 +156,12 @@ export default function TrendingPage() {
             />
           </div>
 
-          <div className="py-4">
+            <div className="py-4">
+            {loading && (
+              <div className="flex items-center justify-center py-12">
+                <Loader size="md" color="sage" text="Loading Trending" />
+              </div>
+            )}
             {!loading && error && (
               <div className="bg-white border border-sage/20 rounded-3xl shadow-sm px-6 py-10 text-center space-y-4">
                 <p className="text-charcoal font-semibold text-h2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
@@ -191,7 +196,7 @@ export default function TrendingPage() {
                     {/* Loading Spinner Overlay for Pagination */}
                     {isPaginationLoading && (
                       <div className="fixed inset-0 z-[9998] bg-off-white/95 backdrop-blur-sm flex items-center justify-center min-h-screen">
-                        <Loader size="lg" variant="spinner" color="sage" />
+                        <Loader size="lg" variant="pulse" color="sage" text="Loading Trending" />
                       </div>
                     )}
 

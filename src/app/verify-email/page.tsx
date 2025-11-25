@@ -6,7 +6,8 @@ import Link from 'next/link';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { usePrefersReducedMotion } from '../utils/hooks/usePrefersReducedMotion';
-import { Mail, CheckCircle, Loader, ExternalLink, ArrowLeft } from 'react-feather';
+import { Mail, CheckCircle, ExternalLink, ArrowLeft } from 'react-feather';
+import { Loader as AppLoader } from '../components/Loader';
 
 const styles = `
   /* Mobile-first typography scale - Body text ≥ 16px */
@@ -352,10 +353,7 @@ export default function VerifyEmailPage() {
       <>
         <style dangerouslySetInnerHTML={{ __html: styles }} />
         <div className="min-h-[100dvh] bg-off-white flex items-center justify-center ios-inertia hide-scrollbar">
-          <div className="text-center">
-            <div className="w-12 h-12 border-4 border-sage/20 border-t-sage rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="font-urbanist text-base text-charcoal/70">Loading...</p>
-          </div>
+          <AppLoader size="lg" variant="pulse" color="sage" text="Loading Verify Email" />
         </div>
       </>
     );
@@ -486,7 +484,7 @@ export default function VerifyEmailPage() {
               >
                 {isChecking ? (
                   <>
-                    <Loader className="w-4 h-4 animate-spin" />
+                    <AppLoader className="w-4 h-4 animate-spin" />
                     Checking...
                   </>
                 ) : (

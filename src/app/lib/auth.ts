@@ -190,26 +190,37 @@ export class AuthService {
       // Handle authentication errors - clear invalid session
       if (error) {
         const errorMessage = error.message?.toLowerCase() || '';
-        const shouldClearSession = 
+        const errorCode = error.code?.toLowerCase() || '';
+        
+        // Check for session-related errors that should be handled gracefully
+        const isSessionError = 
           errorMessage.includes('refresh token') ||
           errorMessage.includes('invalid refresh token') ||
           errorMessage.includes('refresh token not found') ||
           errorMessage.includes('user from sub claim') ||
           errorMessage.includes('jwt does not exist') ||
-          error.code === 'refresh_token_not_found' ||
-          error.code === 'user_not_found';
+          errorMessage.includes('user does not exist') ||
+          errorMessage.includes('session missing') ||
+          errorMessage.includes('auth session missing') ||
+          errorCode === 'refresh_token_not_found' ||
+          errorCode === 'user_not_found' ||
+          errorCode === 'session_not_found';
 
-        if (shouldClearSession) {
-          console.warn('Invalid session detected, clearing session:', {
-            message: error.message,
-            code: error.code
-          });
-          // Clear the invalid session
-          try {
-            await supabase.auth.signOut();
-          } catch (signOutError) {
-            // Ignore sign out errors - we're already handling an error state
-            console.warn('Error during sign out after session failure:', signOutError);
+        // For session errors, silently return null (user is not authenticated)
+        if (isSessionError) {
+          // Only log if it's not a simple "session missing" (which is expected for unauthenticated users)
+          if (!errorMessage.includes('session missing') && !errorMessage.includes('auth session missing')) {
+            console.warn('Invalid session detected, clearing session:', {
+              message: error.message,
+              code: error.code
+            });
+            // Clear the invalid session
+            try {
+              await supabase.auth.signOut();
+            } catch (signOutError) {
+              // Ignore sign out errors - we're already handling an error state
+              console.warn('Error during sign out after session failure:', signOutError);
+            }
           }
           return null;
         }
@@ -236,24 +247,29 @@ export class AuthService {
       const lowerMessage = errorMessage.toLowerCase();
       
       // Check if it's a session/auth error that requires clearing the session
-      const shouldClearSession = 
+      const isSessionError = 
         lowerMessage.includes('refresh token') ||
         lowerMessage.includes('invalid refresh token') ||
         lowerMessage.includes('refresh token not found') ||
         lowerMessage.includes('user from sub claim') ||
         lowerMessage.includes('jwt does not exist') ||
-        lowerMessage.includes('user does not exist');
+        lowerMessage.includes('user does not exist') ||
+        lowerMessage.includes('session missing') ||
+        lowerMessage.includes('auth session missing');
 
-      if (shouldClearSession) {
-        console.warn('Invalid session detected in catch block, clearing session:', errorMessage);
-        try {
-          const supabase = this.getClient();
-          await supabase.auth.signOut();
-        } catch (signOutError) {
-          console.warn('Error during sign out after session failure:', signOutError);
+      if (isSessionError) {
+        // Only log and clear if it's not a simple "session missing" (which is expected for unauthenticated users)
+        if (!lowerMessage.includes('session missing') && !lowerMessage.includes('auth session missing')) {
+          console.warn('Invalid session detected in catch block, clearing session:', errorMessage);
+          try {
+            const supabase = this.getClient();
+            await supabase.auth.signOut();
+          } catch (signOutError) {
+            console.warn('Error during sign out after session failure:', signOutError);
+          }
         }
       } else {
-      console.error('Error getting current user:', error);
+        console.error('Error getting current user:', error);
       }
       return null;
     }

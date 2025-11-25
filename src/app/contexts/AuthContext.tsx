@@ -67,28 +67,40 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // Optimize for email verification events - update immediately if email is confirmed
       if (event === 'SIGNED_IN' && session?.user?.email_confirmed_at) {
         // Fast path: if email is confirmed in session, optimistically update user
-        const currentUser = await AuthService.getCurrentUser();
-        if (currentUser) {
-          console.log('AuthContext: Email verified - fast update', {
-            email: currentUser.email,
-            email_verified: currentUser.email_verified
-          });
-          setUser(currentUser);
-          setIsLoading(false);
-          return;
+        try {
+          const currentUser = await AuthService.getCurrentUser();
+          if (currentUser) {
+            console.log('AuthContext: Email verified - fast update', {
+              email: currentUser.email,
+              email_verified: currentUser.email_verified
+            });
+            setUser(currentUser);
+            setIsLoading(false);
+            return;
+          }
+        } catch (error) {
+          console.warn('AuthContext: Error getting user after sign in:', error);
+          // Continue with normal flow
         }
       }
       
       // Only update user state - middleware handles all routing logic
       if (session?.user) {
-        const currentUser = await AuthService.getCurrentUser();
-        console.log('AuthContext: User state updated', {
-          email: currentUser?.email,
-          email_verified: currentUser?.email_verified,
-          user_id: currentUser?.id
-        });
-        setUser(currentUser);
-        setIsLoading(false);
+        try {
+          const currentUser = await AuthService.getCurrentUser();
+          console.log('AuthContext: User state updated', {
+            email: currentUser?.email,
+            email_verified: currentUser?.email_verified,
+            user_id: currentUser?.id
+          });
+          setUser(currentUser);
+          setIsLoading(false);
+        } catch (error) {
+          console.warn('AuthContext: Error getting user from session:', error);
+          // If there's an error getting user, clear the state
+          setUser(null);
+          setIsLoading(false);
+        }
       } else {
         console.log('AuthContext: User signed out');
         setUser(null);

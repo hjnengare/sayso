@@ -36,6 +36,8 @@ interface FilterModalProps {
   onApplyFilters?: (filters: FilterState) => void;
   /** element to anchor under (the search input wrapper) */
   anchorRef?: React.RefObject<HTMLElement>;
+  /** Initial filter state to display */
+  initialFilters?: FilterState;
 }
 
 const sf = {
@@ -49,10 +51,20 @@ export default function FilterModal({
   onClose,
   onApplyFilters,
   anchorRef,
+  initialFilters,
 }: FilterModalProps) {
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [selectedRating, setSelectedRating] = useState<number | null>(null);
-  const [selectedDistance, setSelectedDistance] = useState<string | null>(null);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(initialFilters?.categories || []);
+  const [selectedRating, setSelectedRating] = useState<number | null>(initialFilters?.minRating || null);
+  const [selectedDistance, setSelectedDistance] = useState<string | null>(initialFilters?.distance || null);
+
+  // Update state when initialFilters change
+  useEffect(() => {
+    if (initialFilters) {
+      setSelectedCategories(initialFilters.categories || []);
+      setSelectedRating(initialFilters.minRating || null);
+      setSelectedDistance(initialFilters.distance || null);
+    }
+  }, [initialFilters]);
 
   const panelRef = useRef<HTMLDivElement>(null);
 
@@ -71,17 +83,11 @@ export default function FilterModal({
     const isMobile = window.innerWidth < 768; // Use md breakpoint (768px)
     
     const gap = isMobile ? 8 : 8; // Small space below the input
-    const leftPadding = isMobile ? 16 : 8;
-    const rightPadding = isMobile ? 16 : 8;
+    const horizontalPadding = isMobile ? 16 : 16; // Consistent padding on both sides
 
-    // On mobile, align with anchor but ensure it fits viewport
-    const left = isMobile ? Math.max(leftPadding, rect.left) : Math.max(leftPadding, rect.left);
-    const maxWidth = window.innerWidth - left - rightPadding;
-
-    // On mobile, use full width minus padding, otherwise use anchor width
-    const width = isMobile 
-      ? Math.min(window.innerWidth - leftPadding - rightPadding, maxWidth)
-      : Math.min(rect.width || 400, maxWidth, 600); // Cap at 600px on desktop
+    // Always use full device width minus padding
+    const left = horizontalPadding;
+    const width = window.innerWidth - (horizontalPadding * 2);
 
     // Place directly under the anchor (account for page scroll)
     const top = rect.bottom + gap;
@@ -202,7 +208,7 @@ export default function FilterModal({
           position: "fixed",
           top: style.top,
           left: style.left,
-          width: style.width || (typeof window !== 'undefined' && window.innerWidth < 768 ? 'calc(100vw - 32px)' : 400),
+          width: style.width || (typeof window !== 'undefined' ? `calc(100vw - 32px)` : 400),
           maxWidth: "calc(100vw - 32px)", // 16px padding on each side
           maxHeight: typeof window !== 'undefined' && window.innerWidth < 768
             ? `calc(100vh - ${style.top + 20}px - env(safe-area-inset-bottom, 0px) - 20px)` // Extra space for mobile browser UI
@@ -258,15 +264,15 @@ export default function FilterModal({
               Category
             </h3>
             <div className="flex flex-wrap gap-2 sm:gap-2">
-              {categoryOptions.map(({ name, Icon }) => {
-                const active = selectedCategories.includes(name);
+              {categoryOptions.map(({ id, name, Icon }) => {
+                const active = selectedCategories.includes(id);
                 return (
                   <button
-                    key={name}
+                    key={id}
                     type="button"
                     onClick={() =>
                       setSelectedCategories((prev) =>
-                        prev.includes(name) ? prev.filter((x) => x !== name) : [...prev, name]
+                        prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
                       )
                     }
                     className={`px-3 sm:px-3 py-2.5 sm:py-2 rounded-full text-sm sm:text-xs flex items-center gap-2 border transition-all min-h-[44px] sm:min-h-0 touch-manipulation

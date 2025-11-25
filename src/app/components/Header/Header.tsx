@@ -309,14 +309,41 @@ export default function Header({
   };
 
   const handleApplyFilters = (f: FilterState) => {
-    console.log("filters:", f);
+    // Navigate to explore page with filters applied via URL params
+    const params = new URLSearchParams();
+    if (f.categories.length > 0) {
+      params.set('categories', f.categories.join(','));
+    }
+    if (f.minRating !== null) {
+      params.set('min_rating', f.minRating.toString());
+    }
+    if (f.distance) {
+      params.set('distance', f.distance);
+    }
+    
+    const queryString = params.toString();
+    const exploreUrl = queryString ? `/explore?${queryString}` : '/explore';
+    router.push(exploreUrl);
+    
+    if (!forceSearchOpen && !isStackedLayout) {
+      setShowSearchBar(false);
+    }
+    closeFilters();
   };
 
   // NEW: when user submits the query (Enter), we close the search bar (and filters if open)
   const handleSubmitQuery = (query: string) => {
-    console.log("submit query:", query);
+    // Navigate to explore page with search query
+    const params = new URLSearchParams();
+    if (query.trim()) {
+      params.set('search', query.trim());
+    }
+    const queryString = params.toString();
+    const exploreUrl = queryString ? `/explore?${queryString}` : '/explore';
+    router.push(exploreUrl);
+    
     if (!forceSearchOpen && !isStackedLayout) {
-    setShowSearchBar(false);
+      setShowSearchBar(false);
     }
     if (isFilterVisible) closeFilters();
   };

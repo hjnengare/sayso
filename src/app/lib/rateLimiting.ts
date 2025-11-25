@@ -228,7 +228,25 @@ export class RateLimiter {
       });
 
     if (error) {
-      console.error('Error recording attempt:', error);
+      // Check if error is empty/unstructured
+      const errorMessage = error.message || '';
+      const errorCode = error.code || '';
+      const isEmptyError = 
+        (!errorMessage || errorMessage === '[object Object]') &&
+        (!errorCode || errorCode === 'unknown') &&
+        (!error || Object.keys(error).length === 0);
+      
+      // Only log if we have meaningful error information
+      if (!isEmptyError) {
+        const errorInfo: Record<string, any> = {
+          message: errorMessage || 'Unknown error',
+          code: errorCode || 'unknown',
+        };
+        if (error.details) errorInfo.details = error.details;
+        if (error.hint) errorInfo.hint = error.hint;
+        console.warn('Error recording attempt (non-critical):', errorInfo);
+      }
+      // Silently ignore empty errors to prevent console spam
     }
   }
 
@@ -252,7 +270,25 @@ export class RateLimiter {
       .eq('attempt_type', attemptType);
 
     if (error) {
-      console.error('Error locking account:', error);
+      // Check if error is empty/unstructured
+      const errorMessage = error.message || '';
+      const errorCode = error.code || '';
+      const isEmptyError = 
+        (!errorMessage || errorMessage === '[object Object]') &&
+        (!errorCode || errorCode === 'unknown') &&
+        (!error || Object.keys(error).length === 0);
+      
+      // Only log if we have meaningful error information
+      if (!isEmptyError) {
+        const errorInfo: Record<string, any> = {
+          message: errorMessage || 'Unknown error',
+          code: errorCode || 'unknown',
+        };
+        if (error.details) errorInfo.details = error.details;
+        if (error.hint) errorInfo.hint = error.hint;
+        console.warn('Error locking account (non-critical):', errorInfo);
+      }
+      // Silently ignore empty errors to prevent console spam
     }
   }
 
@@ -272,7 +308,25 @@ export class RateLimiter {
       .eq('attempt_type', attemptType);
 
     if (error) {
-      console.error('Error resetting attempts:', error);
+      // Check if error is empty/unstructured
+      const errorMessage = error.message || '';
+      const errorCode = error.code || '';
+      const isEmptyError = 
+        (!errorMessage || errorMessage === '[object Object]') &&
+        (!errorCode || errorCode === 'unknown') &&
+        (!error || Object.keys(error).length === 0);
+      
+      // Only log if we have meaningful error information
+      if (!isEmptyError) {
+        const errorInfo: Record<string, any> = {
+          message: errorMessage || 'Unknown error',
+          code: errorCode || 'unknown',
+        };
+        if (error.details) errorInfo.details = error.details;
+        if (error.hint) errorInfo.hint = error.hint;
+        console.warn('Error resetting attempts (non-critical):', errorInfo);
+      }
+      // Silently ignore empty errors to prevent console spam
     }
   }
 

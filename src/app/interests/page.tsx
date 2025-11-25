@@ -243,7 +243,7 @@ export default function InterestsPage() {
       <Suspense fallback={
         <OnboardingLayout backHref="/register" step={1}>
           <div className="flex items-center justify-center min-h-[400px]">
-            <Loader size="md" color="sage" text="Loading interests..." />
+            <Loader size="md" variant="pulse" color="sage" text="Loading Interests" />
           </div>
         </OnboardingLayout>
       }>

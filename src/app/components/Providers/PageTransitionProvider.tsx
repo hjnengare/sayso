@@ -105,7 +105,7 @@ export default function PageTransitionProvider({ children }: PageTransitionProvi
             <div className="min-h-screen w-full flex items-center justify-center">
               <Loader 
                 size="lg" 
-                variant="spinner" 
+                variant="pulse" 
                 color="sage"
               />
             </div>

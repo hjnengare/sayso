@@ -138,7 +138,7 @@ function SubcategoriesContent() {
     return (
       <OnboardingLayout step={2} backHref="/interests">
         <div className="flex items-center justify-center min-h-[400px]">
-          <div className="animate-pulse text-charcoal/60">Loading subcategories...</div>
+          <Loader size="md" variant="pulse" color="sage" text="Loading Subcategories" />
         </div>
       </OnboardingLayout>
     );
@@ -191,7 +191,7 @@ export default function SubcategoriesPage() {
       <Suspense fallback={
         <OnboardingLayout step={2} backHref="/interests">
           <div className="flex items-center justify-center min-h-[400px]">
-            <Loader size="md" color="sage" text="Loading subcategories..." />
+            <Loader size="md" variant="pulse" color="sage" text="Loading Subcategories" />
           </div>
         </OnboardingLayout>
       }>

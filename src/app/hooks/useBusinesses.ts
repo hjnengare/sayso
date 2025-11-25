@@ -20,6 +20,10 @@ export interface UseBusinessesOptions {
   dealbreakerIds?: string[];
   feedStrategy?: 'mixed' | 'standard';
   skip?: boolean; // Skip fetching if true
+  minRating?: number | null; // Minimum rating filter (1-5)
+  radius?: number | null; // Distance radius in km
+  latitude?: number | null; // User latitude for distance filtering
+  longitude?: number | null; // User longitude for distance filtering
 }
 
 export interface UseBusinessesResult {
@@ -67,6 +71,14 @@ export function useBusinesses(options: UseBusinessesOptions = {}): UseBusinesses
         params.set('dealbreakers', options.dealbreakerIds.join(','));
       }
       if (options.feedStrategy) params.set('feed_strategy', options.feedStrategy);
+      if (options.minRating !== null && options.minRating !== undefined) {
+        params.set('min_rating', options.minRating.toString());
+      }
+      if (options.radius !== null && options.radius !== undefined && options.latitude && options.longitude) {
+        params.set('radius', options.radius.toString());
+        params.set('lat', options.latitude.toString());
+        params.set('lng', options.longitude.toString());
+      }
 
       const response = await fetch(`/api/businesses?${params.toString()}`);
       
@@ -105,6 +117,10 @@ export function useBusinesses(options: UseBusinessesOptions = {}): UseBusinesses
     options.dealbreakerIds?.join(','),
     options.feedStrategy,
     options.skip,
+    options.minRating,
+    options.radius,
+    options.latitude,
+    options.longitude,
   ]);
 
   return {

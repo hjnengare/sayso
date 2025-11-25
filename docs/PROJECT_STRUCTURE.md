@@ -37,20 +37,38 @@ docs/
 │
 ├── 02_architecture/               # 🏗️ System architecture
 │   ├── AUTHENTICATION_ANALYSIS.md # Auth flow documentation
+│   ├── AUTH_PRODUCTION_READINESS.md # Auth security assessment
+│   ├── AUTH_RATE_LIMITING_IMPLEMENTATION.md # Rate limiting docs
+│   ├── BACKEND_IMPLEMENTATION_PLAN.md # Backend feature roadmap
+│   ├── BACKEND_REVIEWER_FEATURES.md # Reviewer feature specs
 │   ├── BUSINESSES_TABLE_SCHEMA.md # Business data structure
-│   └── DATABASE_ARCHITECTURE.md   # Complete database schema
+│   ├── DATABASE_ARCHITECTURE.md   # Complete database schema
+│   └── URL_STRUCTURE.md           # Application routing structure
 │
 ├── 03_features/                   # ✨ Feature documentation
 │   ├── BUSINESS_OWNERSHIP_WORKFLOW.md # Business claiming process
-│   └── FEATURE_INDEX.md           # Complete feature list
+│   ├── FEATURE_INDEX.md           # Complete feature list
+│   ├── FILTERING_IMPLEMENTATION.md # User interest filtering
+│   ├── RECOMMENDATION_SYSTEM.md   # Recommendation engine
+│   ├── REVIEW_FORM_IMPLEMENTATION.md # Review form docs
+│   ├── REVIEW_SUBMISSION_FIX.md   # Review submission fixes
+│   ├── SEO_METADATA_IMPLEMENTATION.md # SEO implementation
+│   └── TOAST_NOTIFICATIONS_IMPLEMENTATION.md # Toast system
 │
 ├── 04_optimization/               # ⚡ Performance docs
+│   ├── CACHING_AND_CDN.md         # Caching and CDN strategy
+│   ├── COMPONENTIZATION_PLAN.md   # Component refactoring plan
+│   ├── CONSOLE_WARNINGS_FIXES.md  # Console warning fixes
+│   ├── DATABASE_PERFORMANCE_OPTIMIZATION.md # DB optimization
+│   ├── LOADER_UNIFICATION_COMPLETE.md # Loader unification
 │   ├── OPTIMIZATION_CHECKLIST.md  # Performance checklist
 │   ├── OPTIMIZATION_SUMMARY.md    # Summary of optimizations
-│   ├── PERFORMANCE_OPTIMIZATION.md
-│   ├── PERFORMANCE_OPTIMIZATION_GUIDE.md
-│   ├── PERFORMANCE_OPTIMIZATION_SUMMARY.md
-│   └── REFACTORING_SUMMARY.md
+│   ├── PERFORMANCE_OPTIMIZATION.md # Performance guide (bundle)
+│   ├── PERFORMANCE_OPTIMIZATION_GUIDE.md # Step-by-step guide
+│   ├── PERFORMANCE_OPTIMIZATION_PLAN.md # Optimization roadmap
+│   ├── PERFORMANCE_OPTIMIZATION_SUMMARY.md # Optimization summary
+│   ├── QUICK_OPTIMIZATION_REFERENCE.md # Quick reference
+│   └── REFACTORING_SUMMARY.md     # Refactoring notes
 │
 ├── 05_design/                     # 🎨 Design system
 │   ├── ANIMATION_GUIDE.md         # Animation patterns
@@ -59,6 +77,10 @@ docs/
 │
 ├── 06_ai-context/                 # 🤖 AI assistant context
 │   └── CLAUDE.md                  # AI guidelines
+│
+├── 07_deployment/                 # 🚀 Deployment & production
+│   ├── DEPLOYMENT_TODO.md         # Deployment checklist
+│   └── PRODUCTION_FIXES.md        # Production fixes log
 │
 ├── README.md                      # Documentation index
 └── PROJECT_STRUCTURE.md           # This file

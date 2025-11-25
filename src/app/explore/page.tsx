@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState, useRef, useEffect } from "react";
+import { useMemo, useState, useRef, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import Header from "../components/Header/Header";
@@ -19,9 +20,39 @@ import { usePredefinedPageTitle } from "../hooks/usePageTitle";
 
 const ITEMS_PER_PAGE = 12;
 
-export default function ExplorePage() {
+function ExplorePageContent() {
   usePredefinedPageTitle('explore');
+  const searchParams = useSearchParams();
   const { interests, subcategories, dealbreakers } = useUserPreferences();
+  
+  // Initialize filters from URL params
+  const initialFilters = useMemo(() => {
+    const categoriesParam = searchParams.get('categories');
+    const minRatingParam = searchParams.get('min_rating');
+    const distanceParam = searchParams.get('distance');
+    
+    return {
+      categories: categoriesParam ? categoriesParam.split(',').filter(Boolean) : [],
+      minRating: minRatingParam ? parseFloat(minRatingParam) : null,
+      distance: distanceParam || null,
+    };
+  }, [searchParams]);
+
+  const [isFilterVisible, setIsFilterVisible] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const [isPaginationLoading, setIsPaginationLoading] = useState(false);
+  const [filters, setFilters] = useState<FilterState>(initialFilters);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const searchWrapRef = useRef<HTMLDivElement>(null);
+  const previousPageRef = useRef(currentPage);
+
+  // Update filters when URL params change
+  useEffect(() => {
+    setFilters(initialFilters);
+  }, [initialFilters]);
+
   const preferenceIds = useMemo(
     () => (interests || []).map((interest) => interest.id).concat((subcategories || []).map((sub) => sub.id)),
     [interests, subcategories]
@@ -36,6 +67,22 @@ export default function ExplorePage() {
     }
     return undefined;
   }, [dealbreakerIds]);
+
+  // Convert distance string to km number
+  const radiusKm = useMemo(() => {
+    if (!filters.distance) return null;
+    const match = filters.distance.match(/(\d+)\s*km/);
+    return match ? parseInt(match[1]) : null;
+  }, [filters.distance]);
+
+  // Combine user preferences with applied filters
+  const activeInterestIds = useMemo(() => {
+    if (filters.categories.length > 0) {
+      return filters.categories; // Use filter categories if set
+    }
+    return preferenceIds.length ? preferenceIds : undefined;
+  }, [filters.categories, preferenceIds]);
+
   const {
     businesses,
     loading,
@@ -46,18 +93,14 @@ export default function ExplorePage() {
     sortBy: "created_at",
     sortOrder: "desc",
     feedStrategy: "mixed",
-    interestIds: preferenceIds.length ? preferenceIds : undefined,
+    interestIds: activeInterestIds,
     priceRanges: preferredPriceRanges,
     dealbreakerIds: dealbreakerIds.length ? dealbreakerIds : undefined,
+    minRating: filters.minRating,
+    radius: radiusKm,
+    latitude: userLocation?.lat ?? null,
+    longitude: userLocation?.lng ?? null,
   });
-
-  const [isFilterVisible, setIsFilterVisible] = useState(false);
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [showScrollTop, setShowScrollTop] = useState(false);
-  const [isPaginationLoading, setIsPaginationLoading] = useState(false);
-  const searchWrapRef = useRef<HTMLDivElement>(null);
-  const previousPageRef = useRef(currentPage);
 
   const totalPages = useMemo(() => Math.ceil(businesses.length / ITEMS_PER_PAGE), [businesses.length]);
   const currentBusinesses = useMemo(() => {
@@ -80,7 +123,27 @@ export default function ExplorePage() {
   };
 
   const handleApplyFilters = (f: FilterState) => {
-    console.log("filters:", f);
+    setFilters(f);
+    setCurrentPage(1); // Reset to first page when filters change
+    closeFilters();
+    
+    // If distance filter is applied, request user location
+    if (f.distance && !userLocation) {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            setUserLocation({
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            });
+          },
+          (error) => {
+            console.warn('Error getting user location:', error);
+            // Continue without location - distance filter won't work but other filters will
+          }
+        );
+      }
+    }
   };
 
   const handleSubmitQuery = (query: string) => {
@@ -125,6 +188,25 @@ export default function ExplorePage() {
     return () => window.removeEventListener("scroll", handleScroll, options);
   }, []);
 
+  // Request location permission on mount if distance filtering might be used
+  useEffect(() => {
+    // Pre-request location if geolocation is available (for better UX)
+    if (navigator.geolocation && !userLocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          });
+        },
+        () => {
+          // Silently fail - location will be requested when distance filter is applied
+        },
+        { timeout: 5000, enableHighAccuracy: false }
+      );
+    }
+  }, [userLocation]);
+
   return (
     <div className="min-h-dvh bg-off-white">
       <Header
@@ -166,6 +248,11 @@ export default function ExplorePage() {
             </div>
 
           <div className="py-4">
+          {loading && (
+            <div className="flex items-center justify-center py-12">
+              <Loader size="md" variant="pulse" color="sage" text="Loading Explore" />
+            </div>
+          )}
           {!loading && error && (
             <div className="bg-white border border-sage/20 rounded-3xl shadow-sm px-6 py-10 text-center space-y-4">
               <p className="text-charcoal font-semibold text-h2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
@@ -200,7 +287,7 @@ export default function ExplorePage() {
                   {/* Loading Spinner Overlay for Pagination */}
                   {isPaginationLoading && (
                     <div className="fixed inset-0 z-[9998] bg-off-white/95 backdrop-blur-sm flex items-center justify-center min-h-screen">
-                      <Loader size="lg" variant="spinner" color="sage" />
+                      <Loader size="lg" variant="pulse" color="sage" text="Loading Explore" />
                     </div>
                   )}
 
@@ -281,6 +368,7 @@ export default function ExplorePage() {
         onClose={closeFilters}
         onApplyFilters={handleApplyFilters}
         anchorRef={searchWrapRef}
+        initialFilters={filters}
       />
 
       {/* Scroll to Top Button */}
@@ -296,6 +384,18 @@ export default function ExplorePage() {
 
       <Footer />
     </div>
+  );
+}
+
+export default function ExplorePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-dvh bg-off-white flex items-center justify-center">
+        <Loader size="lg" variant="pulse" color="sage" text="Loading Explore" />
+      </div>
+    }>
+      <ExplorePageContent />
+    </Suspense>
   );
 }
 
