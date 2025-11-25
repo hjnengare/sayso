@@ -229,7 +229,7 @@ export default function GeneralReviewsPage() {
         initial={{ y: -80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
-        className="sticky top-0 z-50 bg-off-white/80 backdrop-blur-xl border-b border-charcoal/10 px-2 py-4 sm:py-6 shadow-premium-md"
+        className="fixed top-0 left-0 right-0 z-50 bg-off-white/80 backdrop-blur-xl border-b border-charcoal/10 px-2 py-4 sm:py-6 shadow-premium-md"
       >
         <div className="flex items-center justify-between mx-auto w-full max-w-[2000px] px-2">
           <Link href="/home" className="group flex items-center">
@@ -246,7 +246,7 @@ export default function GeneralReviewsPage() {
         </div>
       </motion.header>
 
-      <div className="mx-auto w-full max-w-[2000px] px-2 py-6 sm:py-8 relative z-10">
+      <div className="mx-auto w-full max-w-[2000px] px-2 pt-20 py-6 sm:py-8 relative z-10">
 
         {/* Filters and Sort */}
         <motion.div

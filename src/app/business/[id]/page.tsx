@@ -556,16 +556,14 @@ export default function BusinessProfilePage() {
                 </div>
 
                 <StaggeredContainer>
-                  <div className="bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white ">
+                <div className="bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white ">
                     <div className="py-1 pt-20 sm:px-4">
-                      <main className="relative font-sf-pro pt-4 sm:pt-6" id="main-content" role="main" aria-label="Business profile content">
-                        <div className="mx-auto w-full max-w-[2000px] px-3 relative z-10">
-                          <div className="pt-2 pb-12 sm:pb-16 md:pb-20">
-                            <div className="space-y-6">
-                              <div className="grid gap-6 lg:grid-cols-3 items-start">
+                        <main className="relative font-sf-pro pt-4 sm:pt-6" id="main-content" role="main" aria-label="Business profile content">
+                            <div className="mx-auto w-full max-w-[2000px] px-3 relative z-10">
+                                <div className="pt-2 pb-12 sm:pb-16 md:pb-20">
+                                    <div className="space-y-6">
                                 <AnimatedElement index={0} direction="left">
-                                  <div className="lg:col-span-2">
-                                    <article className="w-full sm:mx-0 flex items-center justify-center" aria-labelledby="photos-heading">
+                                                <article className="w-full sm:mx-0 flex items-center justify-center" aria-labelledby="photos-heading">
                                       <div className="bg-card-bg backdrop-blur-xl border-0 sm:border border-white/60 rounded-2xl sm:rounded-[20px] shadow-none sm:shadow-lg relative overflow-hidden mx-auto w-full">
                                                         <div className="relative z-10">
                                                             <ImageCarousel
@@ -579,25 +577,20 @@ export default function BusinessProfilePage() {
                                                                 ]}
                                                             />
                                                         </div>
-                                      </div>
-                                    </article>
-                                  </div>
+                                                    </div>
+                                                </article>
                                 </AnimatedElement>
 
                                 <AnimatedElement index={1} direction="right">
-                                  <div className="space-y-6">
-                                    <BusinessInfoAside
-                                      businessInfo={businessInfo}
-                                      className="self-start lg:sticky lg:top-28"
-                                    />
-                                  </div>
+                                                <BusinessInfoAside
+                                                    businessInfo={businessInfo}
+                                                />
                                 </AnimatedElement>
-                                        </div>
 
                                 <AnimatedElement index={2} direction="bottom">
-                                  <section className="space-y-6" aria-labelledby="reviews-heading">
-                                    <div className="flex justify-center">
-                                      <div className="flex flex-col gap-3">
+                                        <section className="space-y-6" aria-labelledby="reviews-heading">
+                                                <div className="flex justify-center">
+                                                    <div className="flex flex-col gap-3">
                                                         <h2
                                                             id="reviews-heading"
                                                             className="text-h3 font-semibold text-charcoal border-b border-charcoal/10 pb-2"
@@ -651,24 +644,24 @@ export default function BusinessProfilePage() {
                                                         </Link>
                                                     </div>
                                                 )}
-                                    </section>
+                                            </section>
                                   </AnimatedElement>
 
-                                  {/* Similar Businesses Section */}
+                                        {/* Similar Businesses Section */}
                                   <AnimatedElement index={3} direction="scale">
-                                    <SimilarBusinesses
-                                      currentBusinessId={businessId}
-                                      category={businessData.category}
-                                      location={businessData.location}
-                                      limit={6}
-                                    />
+                                        <SimilarBusinesses
+                                            currentBusinessId={businessId}
+                                            category={businessData.category}
+                                            location={businessData.location}
+                                            limit={6}
+                                        />
                                   </AnimatedElement>
+                                    </div>
                                 </div>
-                              </div>
                             </div>
-                          </main>
-                        </div>
-                      </div>
+                        </main>
+                    </div>
+                </div>
 
                       <AnimatedElement index={4} direction="bottom">
                         <Footer />

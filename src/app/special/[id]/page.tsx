@@ -115,7 +115,7 @@ export default function SpecialDetailPage({ params }: SpecialDetailPageProps) {
           initial={{ y: -80, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ type: "spring", stiffness: 80, damping: 20 }}
-          className="bg-off-white/95 backdrop-blur-xl border-b border-white/30 relative z-10 sticky top-0"
+          className="bg-off-white/95 backdrop-blur-xl border-b border-white/30 relative z-10 fixed top-0 left-0 right-0"
         >
           <div className="mx-auto w-full max-w-[2000px] px-2 py-4">
             <div className="flex items-center justify-between">
@@ -153,7 +153,7 @@ export default function SpecialDetailPage({ params }: SpecialDetailPageProps) {
         </motion.header>
 
         {/* Main Content */}
-        <div className="relative z-10 mx-auto w-full max-w-[2000px] px-2 py-4 sm:py-6 md:py-8 pb-12 sm:pb-16">
+        <div className="relative z-10 mx-auto w-full max-w-[2000px] px-2 pt-20 py-4 sm:py-6 md:py-8 pb-12 sm:pb-16">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             {/* Left Column - Main Content */}
             <div className="lg:col-span-2 space-y-4 sm:space-y-6 lg:space-y-8">

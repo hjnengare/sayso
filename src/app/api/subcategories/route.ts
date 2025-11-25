@@ -35,6 +35,7 @@ const FALLBACK_SUBCATEGORIES = [
   { id: "sports-recreation", label: "Sports & Recreation", interest_id: "experiences-entertainment" },
   { id: "nightlife", label: "Nightlife", interest_id: "experiences-entertainment" },
   { id: "comedy-clubs", label: "Comedy Clubs", interest_id: "experiences-entertainment" },
+  { id: "cinemas", label: "Cinemas", interest_id: "experiences-entertainment" },
 
   // Arts & Culture
   { id: "museums", label: "Museums", interest_id: "arts-culture" },

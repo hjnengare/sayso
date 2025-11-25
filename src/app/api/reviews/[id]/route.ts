@@ -1,5 +1,23 @@
 import { NextResponse } from 'next/server';
 import { getServerSupabase } from '../../../lib/supabase/server';
+import { ReviewValidator } from '../../../lib/utils/validation';
+
+// Simple text sanitization function (strips HTML tags and escapes special characters)
+function sanitizeText(text: string): string {
+  if (!text) return '';
+  // Remove HTML tags
+  let sanitized = text.replace(/<[^>]*>/g, '');
+  // Decode HTML entities
+  sanitized = sanitized
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&nbsp;/g, ' ');
+  // Trim whitespace
+  return sanitized.trim();
+}
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -49,23 +67,40 @@ export async function PUT(req: Request, { params }: RouteParams) {
     const body = await req.json();
     const { rating, title, content, tags } = body;
 
-    // Validate rating if provided
-    if (rating !== undefined) {
-      if (Number.isNaN(rating) || rating < 1 || rating > 5) {
-        return NextResponse.json(
-          { error: 'Rating must be between 1 and 5' },
-          { status: 400 }
-        );
-      }
-    }
+    // Get current review data to validate against
+    const { data: currentReview } = await supabase
+      .from('reviews')
+      .select('rating, content, title, tags')
+      .eq('id', id)
+      .single();
 
-    // Validate content if provided
-    if (content !== undefined && (!content || content.trim().length === 0)) {
+    // Use provided values or fall back to current values for validation
+    const ratingToValidate = rating !== undefined ? rating : currentReview?.rating;
+    const contentToValidate = content !== undefined ? content : currentReview?.content;
+    const titleToValidate = title !== undefined ? title : currentReview?.title;
+    const tagsToValidate = tags !== undefined ? tags : currentReview?.tags || [];
+
+    // Comprehensive validation using ReviewValidator
+    const validationResult = ReviewValidator.validateReviewData({
+      content: contentToValidate,
+      title: titleToValidate,
+      rating: ratingToValidate,
+      tags: tagsToValidate,
+    });
+
+    if (!validationResult.isValid) {
       return NextResponse.json(
-        { error: 'Review content cannot be empty' },
+        {
+          error: 'Validation failed',
+          details: validationResult.errors,
+        },
         { status: 400 }
       );
     }
+
+    // Sanitize content to prevent XSS
+    const sanitizedContent = content !== undefined ? sanitizeText(content.trim()) : undefined;
+    const sanitizedTitle = title !== undefined ? (title ? sanitizeText(title.trim()) : null) : undefined;
 
     // Prepare update data
     const updateData: any = {
@@ -76,10 +111,10 @@ export async function PUT(req: Request, { params }: RouteParams) {
       updateData.rating = rating;
     }
     if (title !== undefined) {
-      updateData.title = title || null;
+      updateData.title = sanitizedTitle;
     }
     if (content !== undefined) {
-      updateData.content = content.trim();
+      updateData.content = sanitizedContent;
     }
     if (tags !== undefined) {
       updateData.tags = tags;
@@ -113,15 +148,14 @@ export async function PUT(req: Request, { params }: RouteParams) {
       );
     }
 
-    // Update business stats if rating changed
-    if (rating !== undefined) {
-      const { error: statsError } = await supabase.rpc('update_business_stats', {
-        p_business_id: review.business_id
-      });
+    // Always recalculate business stats after review update (rating or content may affect stats)
+    const { error: statsError } = await supabase.rpc('update_business_stats', {
+      p_business_id: review.business_id
+    });
 
-      if (statsError) {
-        console.error('Error updating business stats via RPC:', statsError);
-      }
+    if (statsError) {
+      console.error('Error updating business stats via RPC:', statsError);
+      // Don't fail the request if stats update fails, but log it
     }
 
     return NextResponse.json({

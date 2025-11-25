@@ -120,7 +120,7 @@ export default function ReviewerProfilePage() {
     // Handle scroll to top button visibility
     useEffect(() => {
         const handleScroll = () => {
-            setShowScrollTop(window.scrollY > 200);
+            setShowScrollTop(window.scrollY > 100);
         };
 
         window.addEventListener('scroll', handleScroll);

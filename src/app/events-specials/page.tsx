@@ -57,7 +57,7 @@ export default function EventsSpecialsPage() {
 
   useEffect(() => {
     const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 240);
+      setShowScrollTop(window.scrollY > 100);
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });

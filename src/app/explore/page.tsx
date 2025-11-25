@@ -3,10 +3,12 @@
 import { useMemo, useState, useRef, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import Header from "../components/Header/Header";
 import Footer from "../components/Footer/Footer";
 import BusinessCard from "../components/BusinessCard/BusinessCard";
+import StaggeredContainer from "../components/Animations/StaggeredContainer";
+import AnimatedElement from "../components/Animations/AnimatedElement";
 import { useBusinesses } from "../hooks/useBusinesses";
 import { useUserPreferences } from "../hooks/useUserPreferences";
 import SearchInput from "../components/SearchInput/SearchInput";
@@ -180,7 +182,7 @@ function ExplorePageContent() {
   // Handle scroll to top button visibility
   useEffect(() => {
     const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 200);
+      setShowScrollTop(window.scrollY > 100);
     };
 
     const options: AddEventListenerOptions = { passive: true };
@@ -293,23 +295,16 @@ function ExplorePageContent() {
 
                   {/* Paginated Content with Smooth Transition */}
                   <AnimatePresence mode="wait" initial={false}>
-                    <motion.div
+                    <StaggeredContainer
                       key={currentPage}
-                      initial={{ opacity: 0, y: 20, scale: 0.98, filter: "blur(8px)" }}
-                      animate={{ opacity: isPaginationLoading ? 0 : 1, y: 0, scale: 1, filter: "blur(0px)" }}
-                      exit={{ opacity: 0, y: -20, scale: 0.98, filter: "blur(8px)" }}
-                      transition={{
-                        duration: 0.4,
-                        ease: [0.16, 1, 0.3, 1],
-                      }}
                       className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3"
                     >
-                      {currentBusinesses.map((business) => (
-                        <div key={business.id} className="list-none">
+                      {currentBusinesses.map((business, index) => (
+                        <AnimatedElement key={business.id} index={index} direction="bottom" className="list-none">
                           <BusinessCard business={business} compact />
-                        </div>
+                        </AnimatedElement>
                       ))}
-                    </motion.div>
+                    </StaggeredContainer>
                   </AnimatePresence>
 
                   {/* Pagination */}

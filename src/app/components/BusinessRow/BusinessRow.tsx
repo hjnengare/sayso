@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { ArrowRight } from "react-feather";
 import BusinessCard, { Business } from "../BusinessCard/BusinessCard";
 import ScrollableSection from "../ScrollableSection/ScrollableSection";
+import StaggeredContainer from "../Animations/StaggeredContainer";
+import AnimatedElement from "../Animations/AnimatedElement";
 
 export default function BusinessRow({
   title,
@@ -98,13 +100,15 @@ export default function BusinessRow({
 
         <ScrollableSection>
           {/* Gap harmonizes with card radius/shadows; list semantics preserved via <li> inside cards */}
-          <div className="flex gap-3 items-stretch pt-2">
-            {businesses.map((business) => (
-              <div key={business.id} className="list-none flex">
-                <BusinessCard business={business} />
-              </div>
-            ))}
-          </div>
+          <StaggeredContainer>
+            <div className="flex gap-3 items-stretch pt-2">
+              {businesses.map((business, index) => (
+                <AnimatedElement key={business.id} index={index} direction="bottom" className="list-none flex">
+                  <BusinessCard business={business} />
+                </AnimatedElement>
+              ))}
+            </div>
+          </StaggeredContainer>
         </ScrollableSection>
       </div>
     </section>

@@ -1,19 +1,20 @@
 "use client";
 
 import type { CSSProperties, ReactNode } from "react";
-import { CheckCircle, DollarSign, Globe, Mail, MapPin, Phone } from "react-feather";
+import { CheckCircle, DollarSign, Globe, Mail, MapPin, Phone, Clock, Award, Star } from "react-feather";
 import type { BusinessInfo } from "./BusinessInfoModal";
 
 interface BusinessInfoAsideProps {
   businessInfo: BusinessInfo;
   className?: string;
+  stacked?: boolean; // If true, items stack vertically instead of grid
 }
 
 const sectionTitleStyle: CSSProperties = {
   fontFamily: '"Urbanist", system-ui, sans-serif',
 };
 
-export default function BusinessInfoAside({ businessInfo, className = "" }: BusinessInfoAsideProps) {
+export default function BusinessInfoAside({ businessInfo, className = "", stacked = false }: BusinessInfoAsideProps) {
   const infoRows: Array<{
     icon: ReactNode;
     label: string;
@@ -104,75 +105,93 @@ export default function BusinessInfoAside({ businessInfo, className = "" }: Busi
     },
   ];
 
-  const asideClasses =
-    "rounded-2xl bg-gradient-to-br from-card-bg via-card-bg/98 to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[24px] p-6 sm:p-7 space-y-6 relative overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.08),0_4px_16px_rgba(0,0,0,0.04)]";
+  const sectionClasses =
+    "rounded-2xl bg-gradient-to-br from-card-bg via-card-bg/98 to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[24px] p-6 sm:p-8 md:p-10 space-y-8 relative overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.08),0_4px_16px_rgba(0,0,0,0.04)]";
 
   return (
-    <aside
-      className={`${asideClasses} ${className}`}
+    <section
+      className={`${sectionClasses} ${className}`}
       aria-labelledby="business-info-heading"
       style={{
         fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
       }}
     >
       {/* Premium gradient overlays */}
-      <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-sage/15 via-sage/8 to-transparent rounded-full blur-2xl opacity-60"></div>
-      <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-coral/15 via-coral/8 to-transparent rounded-full blur-2xl opacity-60"></div>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-gradient-to-br from-sage/5 to-coral/5 rounded-full blur-3xl opacity-40"></div>
+      <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-sage/20 via-sage/10 to-transparent rounded-full blur-3xl opacity-70"></div>
+      <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-coral/20 via-coral/10 to-transparent rounded-full blur-3xl opacity-70"></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-gradient-to-br from-sage/8 to-coral/8 rounded-full blur-3xl opacity-50"></div>
       
       <div className="relative z-10">
-      <header className="space-y-3 pb-4 border-b border-white/20 mb-4">
-        <div className="flex items-center gap-2">
-          <p className="text-[11px] uppercase tracking-[0.15em] text-charcoal/50 font-bold letter-spacing-wide">Business Info</p>
-        </div>
-        <h2 id="business-info-heading" className="text-xl sm:text-2xl font-bold text-charcoal leading-tight" style={sectionTitleStyle}>
-          {businessInfo.name || "Business Information"}
-        </h2>
-        <p className={`text-sm text-charcoal/75 leading-relaxed ${businessInfo.description ? "" : "italic text-charcoal/40"}`}>
-          {businessInfo.description || "No description available."}
-        </p>
-        {businessInfo.category && (
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-sage/30 bg-gradient-to-r from-sage/10 via-sage/5 to-transparent text-xs font-bold text-white shadow-sm">
-            <span>{businessInfo.category}</span>
-          </div>
-        )}
-      </header>
-
-      <ul className="space-y-3">
-        {infoRows.map((row, index) => (
-          <li 
-            key={row.label} 
-            className="flex gap-4 p-3 rounded-xl bg-white/20 border border-white/30"
-            style={{
-              animationDelay: `${index * 0.05}s`,
-            }}
-          >
-            <span className="w-12 h-12 rounded-xl bg-gradient-to-br from-white/50 via-white/30 to-white/20 border border-white/60 shadow-sm grid place-items-center flex-shrink-0 backdrop-blur-sm">
-              {row.icon}
-            </span>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-bold text-charcoal/60 mb-1 uppercase tracking-wide" style={sectionTitleStyle}>
-                {row.label}
-              </p>
-              {row.render ? (
-                <div>
-                  {row.render()}
-                </div>
-              ) : (
-                <p
-                  className={`text-sm font-medium ${
-                    row.value ? "text-charcoal/90" : "italic text-charcoal/40"
-                  }`}
-                >
-                  {row.value || "Not provided"}
-                </p>
-              )}
+        {/* Premium Header */}
+        <header className="space-y-4 pb-6 border-b border-white/30 mb-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Award className="w-5 h-5 text-sage" strokeWidth={2.5} />
+              <p className="text-[11px] uppercase tracking-[0.2em] text-charcoal/60 font-bold">Business Information</p>
             </div>
-          </li>
-        ))}
-      </ul>
+            {businessInfo.verified && (
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-sage/20 to-sage/10 border border-sage/30">
+                <CheckCircle className="w-4 h-4 text-sage" strokeWidth={2.5} />
+                <span className="text-xs font-bold text-sage">Verified</span>
+              </div>
+            )}
+          </div>
+          <h2 id="business-info-heading" className="text-2xl sm:text-3xl font-bold text-charcoal leading-tight" style={sectionTitleStyle}>
+            {businessInfo.name || "Business Information"}
+          </h2>
+          {businessInfo.category && (
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-sage/40 bg-gradient-to-r from-sage/15 via-sage/8 to-transparent">
+              <span className="text-sm font-bold text-sage">{businessInfo.category}</span>
+            </div>
+          )}
+          {businessInfo.description && (
+            <p className="text-sm sm:text-base text-charcoal/80 leading-relaxed pt-2">
+              {businessInfo.description}
+            </p>
+          )}
+        </header>
+
+        {/* Premium Info Grid - Stacked on write-review page */}
+        <div className={stacked ? "space-y-4" : "grid grid-cols-1 sm:grid-cols-2 gap-4"}>
+          {infoRows.map((row, index) => (
+            <div 
+              key={row.label} 
+              className="group relative p-4 rounded-2xl bg-gradient-to-br from-white/30 via-white/20 to-white/10 border border-white/40 backdrop-blur-sm transition-all duration-300 hover:border-white/60 hover:shadow-lg hover:scale-[1.02]"
+              style={{
+                animationDelay: `${index * 0.05}s`,
+              }}
+            >
+              {/* Card gradient overlay on hover */}
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-sage/5 to-coral/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              
+              <div className="relative z-10 flex gap-4">
+                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-white/60 via-white/40 to-white/30 border border-white/70 shadow-md grid place-items-center flex-shrink-0 backdrop-blur-sm group-hover:scale-110 transition-transform duration-300">
+                  {row.icon}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold text-charcoal/70 mb-2 uppercase tracking-wider" style={sectionTitleStyle}>
+                    {row.label}
+                  </p>
+                  {row.render ? (
+                    <div className="text-sm font-semibold">
+                      {row.render()}
+                    </div>
+                  ) : (
+                    <p
+                      className={`text-sm sm:text-base font-semibold ${
+                        row.value ? "text-charcoal" : "italic text-charcoal/50"
+                      }`}
+                    >
+                      {row.value || "Not provided"}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
-    </aside>
+    </section>
   );
 }
 

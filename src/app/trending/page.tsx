@@ -4,6 +4,8 @@ import { useState, useMemo, useRef, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import BusinessCard from "../components/BusinessCard/BusinessCard";
+import StaggeredContainer from "../components/Animations/StaggeredContainer";
+import AnimatedElement from "../components/Animations/AnimatedElement";
 import Footer from "../components/Footer/Footer";
 import Header from "../components/Header/Header";
 import { ChevronLeft, ChevronRight, ChevronUp } from "react-feather";
@@ -107,7 +109,7 @@ export default function TrendingPage() {
   // Handle scroll to top button visibility
   useEffect(() => {
     const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 200);
+      setShowScrollTop(window.scrollY > 100);
     };
 
     const options: AddEventListenerOptions = { passive: true };
@@ -213,11 +215,13 @@ export default function TrendingPage() {
                         }}
                         className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3"
                       >
-                        {currentBusinesses.map((business) => (
-                          <div key={business.id} className="list-none">
-                            <BusinessCard business={business} compact={true} />
-                          </div>
-                        ))}
+                        <StaggeredContainer>
+                          {currentBusinesses.map((business, index) => (
+                            <AnimatedElement key={business.id} index={index} direction="bottom" className="list-none">
+                              <BusinessCard business={business} compact={true} />
+                            </AnimatedElement>
+                          ))}
+                        </StaggeredContainer>
                       </motion.div>
                     </AnimatePresence>
 

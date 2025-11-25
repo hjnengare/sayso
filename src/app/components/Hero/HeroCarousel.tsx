@@ -228,7 +228,7 @@ export default function HeroCarousel() {
         {/* Hero Section */}
         <section
           ref={containerRef as React.RefObject<HTMLElement>}
-          className="relative h-screen w-full overflow-hidden outline-none rounded-none"
+          className="relative h-[100vh] w-full overflow-hidden outline-none rounded-none"
           aria-label="Hero carousel"
           tabIndex={0}
           style={{ fontFamily: FONT_STACK }}
