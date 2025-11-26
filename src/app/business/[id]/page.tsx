@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import React, { useState, useEffect, useLayoutEffect, useRef, useMemo } from "react";
 import { usePageTitle } from "../../hooks/usePageTitle";
 import { motion, AnimatePresence } from "framer-motion";
@@ -86,7 +86,6 @@ const animations = `
 export default function BusinessProfilePage() {
     const params = useParams();
     const router = useRouter();
-    const searchParams = useSearchParams();
     const { user } = useAuth();
     const businessId = params?.id as string;
     const [showSpecialsModal, setShowSpecialsModal] = useState(false);
@@ -199,21 +198,9 @@ export default function BusinessProfilePage() {
             setIsLoading(true);
             setError(null);
             
-            // Force fresh fetch with cache-busting when coming from review submission or force refresh
-            const urlParams = new URLSearchParams(window.location.search);
-            const refreshed = urlParams.get('refreshed') || forceRefresh;
-            
-            // In development, always use no-store to prevent caching issues
-            // In production, use stale-while-revalidate for better performance
-            // Check if we're in development by checking the hostname (localhost = dev)
-            const isDevelopment = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
-            const cacheOption = (refreshed || isDevelopment) ? 'no-store' : 'force-cache';
-            const revalidateTime = (refreshed || isDevelopment) ? 0 : 600; // 10 minutes in production, 0 in dev
-            
-            const response = await fetch(`/api/businesses/${businessId}${forceRefresh ? `?refreshed=${Date.now()}` : ''}`, {
-                cache: cacheOption,
-                next: { revalidate: revalidateTime },
-                headers: (refreshed || isDevelopment) ? { 'Cache-Control': 'no-cache' } : undefined,
+            // Always fetch fresh data - no caching
+            const response = await fetch(`/api/businesses/${businessId}`, {
+                cache: 'no-store',
             });
             
             if (!response.ok) {
@@ -228,12 +215,6 @@ export default function BusinessProfilePage() {
 
             const data = await response.json();
             setBusiness(data);
-            
-            // Clean up the refreshed query param from URL after successful fetch
-            if (refreshed && window.history.replaceState) {
-                const cleanUrl = window.location.pathname;
-                window.history.replaceState({}, '', cleanUrl);
-            }
 
             // SEO: Redirect from ID to slug if we have a slug and the URL uses an ID
             // Only redirect if the current URL uses an ID (UUID format) and we have a slug
@@ -256,10 +237,8 @@ export default function BusinessProfilePage() {
     };
 
     useEffect(() => {
-        // Check if refreshed parameter is present in URL
-        const refreshed = searchParams.get('refreshed');
-        fetchBusiness(!!refreshed);
-    }, [businessId, router, searchParams]);
+        fetchBusiness();
+    }, [businessId, router]);
 
     // Refetch function for after delete
     const refetchBusiness = () => {

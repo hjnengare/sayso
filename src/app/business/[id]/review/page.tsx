@@ -303,12 +303,11 @@ function WriteReviewContent() {
           refetchReviews();
         }, 500);
       }
-      // Navigate back and force refresh of business data by adding timestamp
+      // Navigate back to business profile (fresh data will be fetched automatically)
       setTimeout(() => {
         // Use the business slug or ID for navigation - prefer slug for SEO-friendly URLs
         const targetId = business?.slug || business?.id || businessId;
-        const refreshParam = Date.now();
-        router.push(`/business/${targetId}?refreshed=${refreshParam}`);
+        router.push(`/business/${targetId}`);
       }, 1500);
     }
   };

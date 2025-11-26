@@ -92,7 +92,7 @@ export default function BusinessOfTheMonthCard({ business }: { business: Busines
       }}
     >
       <div
-        className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden group cursor-pointer h-[650px] sm:h-auto flex flex-col border border-white/60 backdrop-blur-xl ring-1 ring-white/30 transition-all duration-300 hover:border-white/80 hover:-translate-y-1"
+        className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden group cursor-pointer h-[650px] sm:h-auto flex flex-col border border-white/60 backdrop-blur-xl ring-1 ring-white/30 shadow-md md:shadow-none transition-all duration-300 hover:border-white/80 hover:-translate-y-1"
         style={{ "--width": "540", "--height": "650" } as React.CSSProperties}
       >
         {/* Glass depth overlay */}

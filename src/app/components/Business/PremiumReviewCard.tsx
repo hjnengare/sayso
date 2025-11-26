@@ -177,8 +177,8 @@ export function PremiumReviewCard({
     return (
         <>
         <div
-            className={`relative overflow-hidden rounded-2xl border backdrop-blur-md transition-shadow duration-300 border-white/50 bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 ring-1 ring-white/20 text-charcoal shadow-[0_15px_40px_rgba(15,23,42,0.08)] ${
-                compact ? 'p-3' : 'p-4'
+            className={`relative overflow-hidden rounded-xl sm:rounded-2xl border backdrop-blur-md transition-shadow duration-300 border-white/50 bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 ring-1 ring-white/20 text-charcoal shadow-[0_15px_40px_rgba(15,23,42,0.08)] ${
+                compact ? 'p-2 sm:p-3' : 'p-3 sm:p-4'
             }`}
         >
             {/* Glass depth overlay - matching BusinessCard */}
@@ -191,7 +191,7 @@ export function PremiumReviewCard({
                 className="pointer-events-none absolute -bottom-8 -left-8 h-20 w-20 rounded-full blur-lg bg-coral/10"
             />
 
-            <div className={`flex items-start gap-2 sm:gap-3 relative z-10 ${compact ? 'gap-2' : ''}`}>
+            <div className={`flex items-start gap-2 sm:gap-3 relative z-10 ${compact ? 'gap-1.5 sm:gap-2' : 'gap-2 sm:gap-3'}`}>
                 {/* Avatar */}
                 <div className="relative shrink-0">
                     {profileImage && !imageError ? (
@@ -231,30 +231,30 @@ export function PremiumReviewCard({
 
                 {/* Body */}
                 <div className="flex-1 min-w-0">
-                    <div className={`flex items-start justify-between gap-2 ${compact ? 'mb-0.5' : 'mb-1'}`}>
-                        <div className="min-w-0">
-                            <div className="flex items-center gap-2">
-                                <span className={`truncate font-semibold text-charcoal ${compact ? 'text-sm' : ''}`}>
+                    <div className={`flex items-start justify-between gap-2 ${compact ? 'mb-0.5' : 'mb-1 sm:mb-1.5'}`}>
+                        <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                                <span className={`truncate font-semibold text-charcoal ${compact ? 'text-xs sm:text-sm' : 'text-sm sm:text-base'}`}>
                                     {author}
                                 </span>
                                 {highlight && !compact && (
                                     <span
-                                        className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] border-sage/20 bg-sage/10 text-sage"
+                                        className="inline-flex items-center gap-1 rounded-full border px-1.5 sm:px-2 py-0.5 text-[9px] sm:text-[10px] border-sage/20 bg-sage/10 text-sage"
                                     >
-                                        <ShieldCheck className="h-3 w-3" />
-                                        {highlight}
+                                        <ShieldCheck className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                                        <span className="hidden xs:inline">{highlight}</span>
                                     </span>
                                 )}
                             </div>
-                            <span className={`text-charcoal/60 ${compact ? 'text-[11px]' : 'text-[12px]'}`}>{date}</span>
+                            <span className={`text-charcoal/60 ${compact ? 'text-[10px] sm:text-[11px]' : 'text-[11px] sm:text-[12px]'}`}>{date}</span>
                         </div>
                         {/* Stars */}
-                        <div className="flex items-center">
+                        <div className="flex items-center shrink-0">
                             {[...Array(5)].map((_, i) => {
                                 const fill = i < rounded;
                                 return (
                                     <span key={i} className={fill ? "text-coral" : "text-gray-300"}>
-                                        <Star className={compact ? "h-3 w-3" : "h-3.5 w-3.5"} fill={fill ? "currentColor" : "none"} />
+                                        <Star className={compact ? "h-2.5 w-2.5 sm:h-3 sm:w-3" : "h-3 w-3 sm:h-3.5 sm:w-3.5"} fill={fill ? "currentColor" : "none"} />
                                     </span>
                                 );
                             })}
@@ -262,8 +262,8 @@ export function PremiumReviewCard({
                     </div>
 
                     <p
-                        className={`leading-relaxed mb-2 text-charcoal/90 ${
-                            compact ? 'text-xs sm:text-sm mb-1.5 line-clamp-4' : 'text-sm sm:text-[0.92rem]'
+                        className={`leading-relaxed text-charcoal/90 ${
+                            compact ? 'text-xs sm:text-sm mb-1.5 line-clamp-4' : 'text-xs sm:text-sm md:text-[0.92rem] mb-2 sm:mb-3'
                         }`}
                     >
                         {text}
@@ -271,11 +271,11 @@ export function PremiumReviewCard({
 
                     {/* Review Images - Show in compact mode too, just limit count */}
                     {reviewImages && reviewImages.length > 0 && (
-                        <div className={compact ? 'mb-2' : 'mb-3'}>
-                            <div className={`grid gap-1.5 sm:gap-2 ${
+                        <div className={compact ? 'mb-2' : 'mb-2 sm:mb-3'}>
+                            <div className={`grid ${
                                 compact 
                                     ? 'grid-cols-2 sm:grid-cols-3 gap-1 sm:gap-1.5' 
-                                    : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4'
+                                    : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-1.5 sm:gap-2'
                             }`}>
                                 {reviewImages.slice(0, compact ? 4 : 8).map((image, index) => (
                                     <div
@@ -303,12 +303,12 @@ export function PremiumReviewCard({
                     )}
 
                     {tags && tags.length > 0 && !compact && (
-                        <div className={`flex flex-wrap gap-1.5 ${compact ? 'mb-1' : 'mb-2'}`}>
+                        <div className={`flex flex-wrap gap-1 sm:gap-1.5 ${compact ? 'mb-1' : 'mb-2 sm:mb-3'}`}>
                             {tags.slice(0, compact ? 2 : tags.length).map((t) => (
                                 <span
                                     key={t}
-                                    className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 border-sage/25 bg-sage/10 text-sage ${
-                                        compact ? 'text-[10px]' : 'text-[11px]'
+                                    className={`inline-flex items-center gap-0.5 sm:gap-1 rounded-full border px-1.5 sm:px-2 py-0.5 border-sage/25 bg-sage/10 text-sage ${
+                                        compact ? 'text-[9px] sm:text-[10px]' : 'text-[10px] sm:text-[11px]'
                                     }`}
                                 >
                                     @ {t}
@@ -319,30 +319,30 @@ export function PremiumReviewCard({
 
                     {/* Actions - hide in compact mode */}
                     {!compact && (
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-1">
-                            <div className="flex items-center gap-1 flex-wrap">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 pt-1 sm:pt-2">
+                            <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
                                 <button
-                                    className="inline-flex items-center gap-1.5 rounded-full border px-2 py-1.5 sm:px-2.5 text-[10px] sm:text-[11px] transition border-charcoal/10 text-charcoal/80 hover:bg-charcoal/5"
+                                    className="inline-flex items-center gap-1 sm:gap-1.5 rounded-full border px-2 sm:px-2.5 py-1.5 sm:py-2 text-[9px] sm:text-[10px] md:text-[11px] transition border-charcoal/10 text-charcoal/80 hover:bg-charcoal/5 min-h-[32px] sm:min-h-[36px]"
                                 >
                                     <ThumbsUp className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                                     <span className="hidden sm:inline">Helpful</span>
                                 </button>
                                 <button
-                                    className="inline-flex items-center gap-1.5 rounded-full border px-2 py-1.5 sm:px-2.5 text-[10px] sm:text-[11px] transition border-charcoal/10 text-charcoal/80 hover:bg-charcoal/5"
+                                    className="inline-flex items-center gap-1 sm:gap-1.5 rounded-full border px-2 sm:px-2.5 py-1.5 sm:py-2 text-[9px] sm:text-[10px] md:text-[11px] transition border-charcoal/10 text-charcoal/80 hover:bg-charcoal/5 min-h-[32px] sm:min-h-[36px]"
                                 >
                                     <Reply className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                                     <span className="hidden sm:inline">Reply</span>
                                 </button>
                             </div>
-                            <div className="flex items-center gap-1 flex-wrap">
+                            <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
                                 <button
-                                    className="inline-flex items-center gap-1.5 rounded-full border px-2 py-1.5 sm:px-2.5 text-[10px] sm:text-[11px] transition border-charcoal/10 text-charcoal/70 hover:bg-charcoal/5"
+                                    className="inline-flex items-center gap-1 sm:gap-1.5 rounded-full border px-2 sm:px-2.5 py-1.5 sm:py-2 text-[9px] sm:text-[10px] md:text-[11px] transition border-charcoal/10 text-charcoal/70 hover:bg-charcoal/5 min-h-[32px] sm:min-h-[36px]"
                                 >
                                     <Share2 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                                     <span className="hidden sm:inline">Share</span>
                                 </button>
                                 <button
-                                    className="inline-flex items-center gap-1.5 rounded-full border px-2 py-1.5 sm:px-2.5 text-[10px] sm:text-[11px] transition border-charcoal/10 text-charcoal/70 hover:bg-charcoal/5"
+                                    className="inline-flex items-center gap-1 sm:gap-1.5 rounded-full border px-2 sm:px-2.5 py-1.5 sm:py-2 text-[9px] sm:text-[10px] md:text-[11px] transition border-charcoal/10 text-charcoal/70 hover:bg-charcoal/5 min-h-[32px] sm:min-h-[36px]"
                                 >
                                     <Flag className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                                     <span className="hidden sm:inline">Report</span>
@@ -351,24 +351,24 @@ export function PremiumReviewCard({
                                     <div className="relative" ref={menuRef}>
                                         <button
                                             onClick={() => setShowMenu(!showMenu)}
-                                            className="inline-flex rounded-full border p-1 sm:p-1.5 transition border-charcoal/10 text-charcoal/60 hover:bg-charcoal/5"
+                                            className="inline-flex rounded-full border p-1.5 sm:p-1.5 transition border-charcoal/10 text-charcoal/60 hover:bg-charcoal/5 min-h-[32px] sm:min-h-[36px] min-w-[32px] sm:min-w-[36px] items-center justify-center"
                                             aria-label="More options"
                                         >
-                                            <MoreHorizontal className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                                            <MoreHorizontal className="h-3.5 w-3.5 sm:h-3.5 sm:w-3.5" />
                                         </button>
                                         
                                         {showMenu && (
-                                            <div className="absolute right-0 bottom-full mb-2 w-48 bg-gradient-to-br from-off-white via-off-white to-off-white/95 border border-white/60 rounded-lg shadow-lg z-50 overflow-hidden backdrop-blur-md">
+                                            <div className="absolute right-0 bottom-full mb-2 w-48 sm:w-52 bg-gradient-to-br from-off-white via-off-white to-off-white/95 border border-white/60 rounded-lg shadow-lg z-[100] overflow-hidden backdrop-blur-md">
                                                 <button
                                                     onClick={handleEdit}
-                                                    className="w-full px-4 py-2.5 text-left text-sm font-medium text-charcoal hover:bg-sage/10 flex items-center gap-2 transition-colors border-b border-charcoal/5 whitespace-nowrap"
+                                                    className="w-full px-4 py-2.5 sm:py-3 text-left text-sm font-medium text-charcoal hover:bg-sage/10 flex items-center gap-2 transition-colors border-b border-charcoal/5 whitespace-nowrap min-h-[44px]"
                                                 >
                                                     <Edit className="h-4 w-4 text-sage flex-shrink-0" />
                                                     <span>Edit Review</span>
                                                 </button>
                                                 <button
                                                     onClick={handleDelete}
-                                                    className="w-full px-4 py-2.5 text-left text-sm font-medium text-coral hover:bg-coral/10 flex items-center gap-2 transition-colors whitespace-nowrap"
+                                                    className="w-full px-4 py-2.5 sm:py-3 text-left text-sm font-medium text-coral hover:bg-coral/10 flex items-center gap-2 transition-colors whitespace-nowrap min-h-[44px]"
                                                 >
                                                     <Trash2 className="h-4 w-4 flex-shrink-0" />
                                                     <span>Delete Review</span>
@@ -379,10 +379,10 @@ export function PremiumReviewCard({
                                 )}
                                 {!isOwner && (
                                     <button
-                                        className="inline-flex rounded-full border p-1 sm:p-1.5 transition border-charcoal/10 text-charcoal/60 hover:bg-charcoal/5"
+                                        className="inline-flex rounded-full border p-1.5 sm:p-1.5 transition border-charcoal/10 text-charcoal/60 hover:bg-charcoal/5 min-h-[32px] sm:min-h-[36px] min-w-[32px] sm:min-w-[36px] items-center justify-center"
                                         aria-label="More"
                                     >
-                                        <MoreHorizontal className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                                        <MoreHorizontal className="h-3.5 w-3.5 sm:h-3.5 sm:w-3.5" />
                                     </button>
                                 )}
                             </div>

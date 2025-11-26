@@ -18,23 +18,23 @@ export async function fetchBusinessOptimized(
   request?: Request,
   useCache: boolean = true
 ) {
-  const cacheKey = queryCache.key('business', { id: businessIdentifier });
+  // 👇 For now, hard-disable cache entirely during development
+  useCache = false;
 
-  // Check cache first (only if useCache is true)
-  if (useCache) {
-    const cached = queryCache.get(cacheKey);
-    if (cached) {
-      return cached;
-    }
-  } else {
-    // If not using cache, delete any existing cache entries for this business
-    queryCache.delete(cacheKey);
-    // Also try to delete by ID if we have it
-    if (businessIdentifier) {
-      const idCacheKey = queryCache.key('business', { id: businessIdentifier });
-      queryCache.delete(idCacheKey);
-    }
-  }
+  // Cache-related code temporarily disabled:
+  // const cacheKey = queryCache.key('business', { id: businessIdentifier });
+  // if (useCache) {
+  //   const cached = queryCache.get(cacheKey);
+  //   if (cached) {
+  //     return cached;
+  //   }
+  // } else {
+  //   queryCache.delete(cacheKey);
+  //   if (businessIdentifier) {
+  //     const idCacheKey = queryCache.key('business', { id: businessIdentifier });
+  //     queryCache.delete(idCacheKey);
+  //   }
+  // }
 
   // Create parallel clients for independent queries
   const [client1, client2, client3] = await createParallelClients(3);
@@ -218,15 +218,15 @@ export async function fetchBusinessOptimized(
     reviews: reviewsWithProfiles,
   };
 
-  // Cache result (5 minute TTL for business data) - cache by both slug and ID
-  if (useCache && actualBusinessId) {
-    const idCacheKey = queryCache.key('business', { id: actualBusinessId });
-    const slugCacheKey = queryCache.key('business', { id: result.slug || businessIdentifier });
-    queryCache.set(idCacheKey, result, 300000);
-    if (result.slug && result.slug !== actualBusinessId) {
-      queryCache.set(slugCacheKey, result, 300000);
-    }
-  }
+  // Cache result - temporarily disabled
+  // if (useCache && actualBusinessId) {
+  //   const idCacheKey = queryCache.key('business', { id: actualBusinessId });
+  //   const slugCacheKey = queryCache.key('business', { id: result.slug || businessIdentifier });
+  //   queryCache.set(idCacheKey, result, 300000);
+  //   if (result.slug && result.slug !== actualBusinessId) {
+  //     queryCache.set(slugCacheKey, result, 300000);
+  //   }
+  // }
 
   return result;
 }

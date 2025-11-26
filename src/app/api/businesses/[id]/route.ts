@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSupabase } from '../../../lib/supabase/server';
 import { fetchBusinessOptimized } from '../../../lib/utils/optimizedQueries';
-import { cachedJsonResponse, CachePresets, checkETag, generateETag } from '../../../lib/utils/httpCache';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs'; // Use Node.js runtime to avoid Edge Runtime warnings with Supabase
@@ -24,14 +23,10 @@ export async function GET(
       );
     }
 
-    // Check if we should bypass cache (for fresh data after review submission)
-    const { searchParams } = new URL(req.url);
-    const refreshed = searchParams.get('refreshed');
-    const useCache = !refreshed; // Bypass cache if refreshed parameter is present
-    
-    // Use optimized fetch with caching and parallel queries
+    // Cache disabled for now - always fetch fresh data
+    // Use optimized fetch with parallel queries (no caching)
     try {
-      const businessData = await fetchBusinessOptimized(businessId, req, useCache);
+      const businessData = await fetchBusinessOptimized(businessId, req, false);
       
       // Transform to match expected response format
       const stats = businessData.stats;
@@ -42,19 +37,21 @@ export async function GET(
           // Handle profile - could be object, array, or undefined
           const profile = Array.isArray(review.profile) ? review.profile[0] : (review.profile || null);
           
-          // Extract author name - all reviewers are authenticated, so we should always have display_name or username
-          // Fallback to 'User' if profile is completely missing
-          const author = profile?.display_name 
-            || profile?.username 
-            || review.author
-            || 'User';
+          // 🔥 More defensive author resolution - check multiple possible column names
+          const author =
+            profile?.display_name ||
+            profile?.username ||
+            profile?.full_name ||      // in case your profiles table uses full_name
+            profile?.name ||           // extra safety
+            review.author ||           // fallback if backend already set it
+            'User';
           
           // Debug logging if author name is missing
-          if (!profile?.display_name && !profile?.username && !review.author) {
+          if (!author || author === 'User') {
             console.warn('[API] Review missing author name:', {
               review_id: review.id,
               user_id: review.user_id,
-              has_profile: !!profile
+              profile,
             });
           }
           
@@ -97,8 +94,8 @@ export async function GET(
         friendliness: stats?.percentiles?.friendliness || 85,
       };
 
-      // Add cache headers for business profile with stale-while-revalidate for faster loading
-      return cachedJsonResponse(response, CachePresets.business());
+      // Return response without caching
+      return NextResponse.json(response);
     } catch (optimizedError: any) {
       // Fallback to original implementation if optimized fetch fails
       console.warn('[API] Optimized fetch failed, falling back to standard query:', optimizedError);
@@ -231,18 +228,22 @@ export async function GET(
         // Handle profiles - it might be an array or object depending on join type
         const profile = Array.isArray(review.profiles) ? review.profiles[0] : (review.profiles || null);
         
-        // Extract author name with proper fallback
-        const author = profile?.display_name 
-          || profile?.username 
-          || review.author
-          || 'User';
+        // 🔥 More defensive author resolution - check multiple possible column names
+        const author =
+          profile?.display_name ||
+          profile?.username ||
+          profile?.full_name ||      // in case your profiles table uses full_name
+          profile?.name ||           // extra safety
+          review.author ||           // fallback if backend already set it
+          'User';
         
         // Debug logging if author name is missing
-        if (!profile?.display_name && !profile?.username && !review.author) {
+        if (!author || author === 'User') {
           console.warn('[API] Review missing author name (fallback path):', {
             review_id: review.id,
             user_id: review.user_id,
-            has_profile: !!profile
+            has_profile: !!profile,
+            profile,
           });
         }
         

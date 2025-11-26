@@ -40,7 +40,9 @@ export function useReviews(businessId?: string) {
         setLoading(true);
         setError(null);
 
-        const response = await fetch(`/api/reviews?business_id=${businessId}&limit=50`);
+        const response = await fetch(`/api/reviews?business_id=${businessId}&limit=50`, {
+          cache: 'no-store',
+        });
         
         if (!response.ok) {
           throw new Error('Failed to fetch reviews');

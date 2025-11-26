@@ -80,7 +80,9 @@ export function useBusinesses(options: UseBusinessesOptions = {}): UseBusinesses
         params.set('lng', options.longitude.toString());
       }
 
-      const response = await fetch(`/api/businesses?${params.toString()}`);
+      const response = await fetch(`/api/businesses?${params.toString()}`, {
+        cache: 'no-store',
+      });
       
       if (!response.ok) {
         throw new Error(`Failed to fetch businesses: ${response.statusText}`);
