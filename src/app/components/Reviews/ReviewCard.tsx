@@ -41,9 +41,7 @@ export default function ReviewCard({
     const fetchHelpfulData = async () => {
       try {
         // Fetch count
-        const countRes = await fetch(`/api/reviews/${review.id}/helpful/count`, {
-          cache: 'no-store',
-        });
+        const countRes = await fetch(`/api/reviews/${review.id}/helpful/count`);
         if (countRes.ok) {
           const countData = await countRes.json();
           if (typeof countData.count === 'number') {
@@ -52,9 +50,7 @@ export default function ReviewCard({
         }
 
         // Fetch current user status
-        const statusRes = await fetch(`/api/reviews/${review.id}/helpful`, {
-          cache: 'no-store',
-        });
+        const statusRes = await fetch(`/api/reviews/${review.id}/helpful`);
         if (statusRes.ok) {
           const statusData = await statusRes.json();
           if (typeof statusData.helpful === 'boolean') {

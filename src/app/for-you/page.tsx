@@ -209,7 +209,7 @@ export default function ForYouPage() {
                       key={currentPage}
                       initial={{ opacity: 0, y: 20, scale: 0.98, filter: "blur(8px)" }}
                       animate={{ opacity: isPaginationLoading ? 0 : 1, y: 0, scale: 1, filter: "blur(0px)" }}
-                      className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-3"
+                      className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-3"
                     >
                       <StaggeredContainer>
                         {currentBusinesses.map((business, index) => (

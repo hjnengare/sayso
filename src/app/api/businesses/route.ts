@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getServerSupabase } from "@/app/lib/supabase/server";
+import { CachePresets } from "@/app/lib/utils/httpCache";
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs'; // Use Node.js runtime to avoid Edge Runtime warnings with Supabase
@@ -347,7 +348,7 @@ export async function GET(req: Request) {
         nextCursor,
       }
     });
-    return response;
+    return applySharedResponseHeaders(response);
 
   } catch (error) {
     console.error('Error in businesses API:', error);
@@ -1092,4 +1093,11 @@ async function prioritizeRecentlyReviewedBusinesses(
   }
 }
 
-// Cache headers removed - always fetch fresh data
+function applySharedResponseHeaders(response: NextResponse) {
+  // Use optimized cache headers for business data
+  response.headers.set('Cache-Control', CachePresets.business());
+  response.headers.set('ETag', `W/"businesses-${Date.now()}"`);
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('Vary', 'Accept-Encoding');
+  return response;
+}
