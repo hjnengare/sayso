@@ -183,7 +183,7 @@ export default function DMChatListPage() {
       </header>
 
       {/* Chat List */}
-      <main className="mx-auto w-full max-w-[2000px] px-4 pt-20 py-6">
+      <main className="mx-auto w-full max-w-[2000px] px-4 pt-28 md:pt-20 py-6">
         {filteredChats.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <MessageCircle className="w-16 h-16 text-charcoal/20 mb-4" strokeWidth={1.5} />
