@@ -60,21 +60,38 @@ export default function Home() {
   
   // Scroll to top button state (mobile only)
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  // Set mounted state on client side
+  useEffect(() => {
+    setMounted(true);
+    // Check initial scroll position
+    if (typeof window !== 'undefined') {
+      setShowScrollTop(window.scrollY > 100);
+    }
+  }, []);
 
   // Handle scroll to top button visibility
   useEffect(() => {
+    if (!mounted) return;
+
     const handleScroll = () => {
       setShowScrollTop(window.scrollY > 100);
     };
 
+    // Check initial position
+    handleScroll();
+
     const options: AddEventListenerOptions = { passive: true };
     window.addEventListener('scroll', handleScroll, options);
     return () => window.removeEventListener('scroll', handleScroll, options);
-  }, []);
+  }, [mounted]);
 
   // Scroll to top function
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const featuredByCategory = (() => {
@@ -150,16 +167,14 @@ export default function Home() {
       {/* Premium floating orbs background */}
       <HomeBackgroundOrbs />
       
-      <StaggeredContainer>
-        <AnimatedElement index={0} direction="top">
       <div className="relative">
         <HeroCarousel />
       </div>
-        </AnimatedElement>
 
+      <StaggeredContainer>
       <div className="bg-off-white relative">
         <div className="pb-12 sm:pb-16 md:pb-20">
-            <AnimatedElement index={1} direction="left">
+            <AnimatedElement index={0} direction="left">
           <section className="pt-4 sm:pt-8 md:pt-10 relative overflow-hidden">
             <div className="relative z-10">
               {forYouLoading && <BusinessRowSkeleton title="For You Now" />}
@@ -178,7 +193,7 @@ export default function Home() {
           </section>
             </AnimatedElement>
 
-            <AnimatedElement index={2} direction="right">
+            <AnimatedElement index={1} direction="right">
           <section className="pt-4 sm:pt-8 md:pt-10 relative overflow-hidden">
             <div className="relative z-10">
               {trendingLoading && <BusinessRowSkeleton title="Trending Now" />}
@@ -197,7 +212,7 @@ export default function Home() {
           </section>
             </AnimatedElement>
 
-            <AnimatedElement index={3} direction="bottom">
+            <AnimatedElement index={2} direction="bottom">
           <section className="pt-4 sm:pt-8 md:pt-10 relative overflow-hidden">
             <div className="relative z-10">
               <EventsSpecials events={EVENTS_AND_SPECIALS.slice(0, 5)} />
@@ -205,7 +220,7 @@ export default function Home() {
           </section>
             </AnimatedElement>
 
-            <AnimatedElement index={4} direction="scale">
+            <AnimatedElement index={3} direction="scale">
           <section className="pt-4 sm:pt-8 md:pt-10 relative overflow-hidden">
             <div className="relative z-10">
               <CommunityHighlights
@@ -219,7 +234,7 @@ export default function Home() {
             </AnimatedElement>
         </div>
 
-          <AnimatedElement index={5} direction="bottom">
+          <AnimatedElement index={4} direction="bottom">
         <Footer />
           </AnimatedElement>
       </div>

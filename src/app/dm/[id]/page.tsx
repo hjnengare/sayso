@@ -248,7 +248,7 @@ export default function DMPage() {
                                     </div>
                                 )}
                                 <div className="min-w-0 flex-1">
-                                    <h1 className="font-urbanist text-body-sm sm:text-body font-700 text-white animate-delay-100 animate-fade-in truncate" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
+                                    <h1 className="font-urbanist text-lg sm:text-h3 md:text-h2 font-semibold text-white animate-delay-100 animate-fade-in truncate" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
                                         {recipient.name}
                                     </h1>
                                     {recipient.online && (

@@ -49,6 +49,7 @@ export default function TrendingPage() {
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [isPaginationLoading, setIsPaginationLoading] = useState(false);
   const searchWrapRef = useRef<HTMLDivElement>(null);
   const previousPageRef = useRef(currentPage);
@@ -81,8 +82,19 @@ export default function TrendingPage() {
   };
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
+
+  // Set mounted state on client side
+  useEffect(() => {
+    setMounted(true);
+    // Check initial scroll position
+    if (typeof window !== 'undefined') {
+      setShowScrollTop(window.scrollY > 100);
+    }
+  }, []);
 
   // Handle pagination with loader and transitions
   const handlePageChange = (newPage: number) => {
@@ -108,14 +120,19 @@ export default function TrendingPage() {
 
   // Handle scroll to top button visibility
   useEffect(() => {
+    if (!mounted) return;
+
     const handleScroll = () => {
       setShowScrollTop(window.scrollY > 100);
     };
 
+    // Check initial position
+    handleScroll();
+
     const options: AddEventListenerOptions = { passive: true };
     window.addEventListener("scroll", handleScroll, options);
     return () => window.removeEventListener("scroll", handleScroll, options);
-  }, []);
+  }, [mounted]);
 
   return (
     <div className="min-h-dvh bg-off-white">

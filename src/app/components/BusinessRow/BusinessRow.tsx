@@ -101,13 +101,13 @@ export default function BusinessRow({
         <ScrollableSection>
           {/* Gap harmonizes with card radius/shadows; list semantics preserved via <li> inside cards */}
           <StaggeredContainer>
-            <div className="flex gap-3 items-stretch pt-2">
+          <div className="flex gap-3 items-stretch pt-2">
               {businesses.map((business, index) => (
                 <AnimatedElement key={business.id} index={index} direction="bottom" className="list-none flex">
-                  <BusinessCard business={business} />
+                <BusinessCard business={business} />
                 </AnimatedElement>
-              ))}
-            </div>
+            ))}
+          </div>
           </StaggeredContainer>
         </ScrollableSection>
       </div>

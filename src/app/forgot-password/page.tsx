@@ -116,7 +116,7 @@ export default function ForgotPasswordPage() {
 
           <div className="w-full sm:max-w-md lg:max-w-lg sm:mx-auto relative z-10 flex-1 flex flex-col justify-center py-8 sm:py-12 px-0 sm:px-2">
             <section data-section>
-              <div className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-2xl overflow-hidden backdrop-blur-md px-2 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10 lg:px-12 lg:py-10 xl:px-16 xl:py-12">
+              <div className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-2xl overflow-hidden backdrop-blur-md shadow-md px-2 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10 lg:px-12 lg:py-10 xl:px-16 xl:py-12">
                 <div className="text-center space-y-4 relative z-10">
                   <div className="w-16 h-16 mx-auto bg-white/10 rounded-full flex items-center justify-center">
                     <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

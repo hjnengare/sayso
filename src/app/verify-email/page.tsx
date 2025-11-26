@@ -421,7 +421,7 @@ export default function VerifyEmailPage() {
           </div>
 
           {/* Main Card */}
-          <div className="bg-card-bg rounded-lg p-5 sm:p-7 md:p-9 mb-4 relative overflow-hidden border border-white/50 shadow-[0_8px_32px_rgba(0,0,0,0.08)] transition-shadow duration-300 animate-scale-in">
+          <div className="bg-card-bg rounded-lg p-5 sm:p-7 md:p-9 mb-4 relative overflow-hidden border border-white/50 shadow-md transition-shadow duration-300 animate-scale-in">
             
             {/* Email Icon */}
             <div className="text-center mb-6">
