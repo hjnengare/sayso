@@ -260,7 +260,7 @@ export default function BusinessEditPage() {
                 }}
             >
                 {/* Fixed Premium Header */}
-                <header className="fixed top-0 left-0 right-0 z-50 bg-navbar-bg/95 backdrop-blur-sm border-b border-charcoal/10 animate-slide-in-top"
+                <header className="fixed top-0 left-0 right-0 z-50 bg-navbar-bg/95 backdrop-blur-sm border-b border-charcoal/10 shadow-md md:shadow-none animate-slide-in-top"
                     style={{
                         fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif',
                     }}

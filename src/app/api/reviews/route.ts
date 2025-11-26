@@ -3,6 +3,7 @@ import { getServerSupabase } from '../../lib/supabase/server';
 import { ReviewRateLimiter } from '../../lib/utils/rateLimiter';
 import { ReviewValidator } from '../../lib/utils/validation';
 import { ContentModerator } from '../../lib/utils/contentModeration';
+import { invalidateBusinessCache } from '../../lib/utils/optimizedQueries';
 
 // Simple text sanitization function (strips HTML tags and escapes special characters)
 function sanitizeText(text: string): string {
@@ -117,7 +118,7 @@ export async function POST(req: Request) {
     // Check if business exists
     const { data: business, error: businessError } = await supabase
       .from('businesses')
-      .select('id, name')
+      .select('id, name, slug')
       .eq('id', business_id)
       .single();
 
@@ -332,6 +333,15 @@ export async function POST(req: Request) {
         updated_at: review.updated_at,
         profile: serializableReview.profile || null,
       };
+    }
+
+    // Invalidate business cache so the new review appears immediately
+    // Clear both ID and slug cache entries since businesses are cached by both
+    try {
+      invalidateBusinessCache(business.id, business.slug ?? undefined);
+    } catch (cacheError) {
+      // Log but don't fail - cache invalidation is non-critical
+      console.warn('Error invalidating business cache:', cacheError);
     }
 
     return NextResponse.json({

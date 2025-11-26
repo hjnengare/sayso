@@ -24,9 +24,14 @@ export async function GET(
       );
     }
 
+    // Check if we should bypass cache (for fresh data after review submission)
+    const { searchParams } = new URL(req.url);
+    const refreshed = searchParams.get('refreshed');
+    const useCache = !refreshed; // Bypass cache if refreshed parameter is present
+    
     // Use optimized fetch with caching and parallel queries
     try {
-      const businessData = await fetchBusinessOptimized(businessId, req, true);
+      const businessData = await fetchBusinessOptimized(businessId, req, useCache);
       
       // Transform to match expected response format
       const stats = businessData.stats;
@@ -35,12 +40,23 @@ export async function GET(
         stats: stats || undefined,
         reviews: (businessData.reviews || []).map((review: any) => {
           // Handle profile - could be object, array, or undefined
-          const profile = Array.isArray(review.profile) ? review.profile[0] : review.profile;
+          const profile = Array.isArray(review.profile) ? review.profile[0] : (review.profile || null);
           
           // Extract author name - all reviewers are authenticated, so we should always have display_name or username
+          // Fallback to 'User' if profile is completely missing
           const author = profile?.display_name 
             || profile?.username 
-            || review.author;
+            || review.author
+            || 'User';
+          
+          // Debug logging if author name is missing
+          if (!profile?.display_name && !profile?.username && !review.author) {
+            console.warn('[API] Review missing author name:', {
+              review_id: review.id,
+              user_id: review.user_id,
+              has_profile: !!profile
+            });
+          }
           
           return {
             id: review.id,
@@ -206,18 +222,34 @@ export async function GET(
       });
     }
 
-    // Transform the data for the frontend
+      // Transform the data for the frontend
     const stats = business.business_stats?.[0];
     const response = {
       ...business,
       stats: stats || undefined,
       reviews: (reviewsWithProfiles || []).map((review: any) => {
         // Handle profiles - it might be an array or object depending on join type
-        const profile = Array.isArray(review.profiles) ? review.profiles[0] : review.profiles;
+        const profile = Array.isArray(review.profiles) ? review.profiles[0] : (review.profiles || null);
+        
+        // Extract author name with proper fallback
+        const author = profile?.display_name 
+          || profile?.username 
+          || review.author
+          || 'User';
+        
+        // Debug logging if author name is missing
+        if (!profile?.display_name && !profile?.username && !review.author) {
+          console.warn('[API] Review missing author name (fallback path):', {
+            review_id: review.id,
+            user_id: review.user_id,
+            has_profile: !!profile
+          });
+        }
+        
         return {
           id: review.id,
           userId: review.user_id,
-          author: profile?.display_name || profile?.username || undefined,
+          author,
           rating: review.rating,
           text: review.content || review.title || '',
           date: new Date(review.created_at).toLocaleDateString('en-US', {

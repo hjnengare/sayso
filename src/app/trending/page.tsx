@@ -213,7 +213,7 @@ export default function TrendingPage() {
                           duration: 0.4,
                           ease: [0.16, 1, 0.3, 1],
                         }}
-                        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3"
+                        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-3"
                       >
                         <StaggeredContainer>
                           {currentBusinesses.map((business, index) => (

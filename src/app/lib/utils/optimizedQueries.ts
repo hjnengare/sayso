@@ -20,11 +20,19 @@ export async function fetchBusinessOptimized(
 ) {
   const cacheKey = queryCache.key('business', { id: businessIdentifier });
 
-  // Check cache first
+  // Check cache first (only if useCache is true)
   if (useCache) {
     const cached = queryCache.get(cacheKey);
     if (cached) {
       return cached;
+    }
+  } else {
+    // If not using cache, delete any existing cache entries for this business
+    queryCache.delete(cacheKey);
+    // Also try to delete by ID if we have it
+    if (businessIdentifier) {
+      const idCacheKey = queryCache.key('business', { id: businessIdentifier });
+      queryCache.delete(idCacheKey);
     }
   }
 
@@ -123,7 +131,7 @@ export async function fetchBusinessOptimized(
           async () => {
             const result = await client1
               .from('review_images')
-              .select('review_id, image_url')
+              .select('review_id, image_url, storage_path')
               .in('review_id', reviewIds)
               .order('created_at', { ascending: true })
               .limit(100); // Limit total images to prevent large payloads (first image per review)
@@ -191,9 +199,13 @@ export async function fetchBusinessOptimized(
     reviewsWithProfiles = reviewsResult.data.map((review: any) => {
       const profile = profilesResult.data?.find((p: any) => p.user_id === review.user_id);
       const images = imagesMap[review.id] || [];
+      
+      // Ensure profile is always an object (even if empty) for consistent API handling
+      const profileData = profile || null;
+      
       return {
         ...review,
-        profile,
+        profile: profileData,
         images,
       };
     });
@@ -275,14 +287,23 @@ export async function fetchBusinessesOptimized(
 
 /**
  * Invalidate business cache
+ * Accepts both ID and slug to clear both cache entries (businesses are cached by both)
  */
-export function invalidateBusinessCache(businessId?: string) {
-  if (businessId) {
-    const cacheKey = queryCache.key('business', { id: businessId });
-    queryCache.delete(cacheKey);
-  } else {
-    // Invalidate all business caches
+export function invalidateBusinessCache(businessId?: string, slug?: string) {
+  // If nothing is passed, nuke all business cache as a fallback
+  if (!businessId && !slug) {
     queryCache.deleteByPrefix('business:');
+    return;
+  }
+
+  if (businessId) {
+    const idKey = queryCache.key('business', { id: businessId });
+    queryCache.delete(idKey);
+  }
+
+  if (slug) {
+    const slugKey = queryCache.key('business', { id: slug });
+    queryCache.delete(slugKey);
   }
 }
 

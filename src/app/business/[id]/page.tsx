@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import React, { useState, useEffect, useLayoutEffect, useRef, useMemo } from "react";
 import { usePageTitle } from "../../hooks/usePageTitle";
 import { motion, AnimatePresence } from "framer-motion";
@@ -24,6 +24,8 @@ import {
     X,
     ChevronUp,
     MoreVertical,
+    Home,
+    Compass,
 } from "react-feather";
 import { ImageCarousel } from "../../components/Business/ImageCarousel";
 import { PremiumReviewCard } from "../../components/Business/PremiumReviewCard";
@@ -84,6 +86,7 @@ const animations = `
 export default function BusinessProfilePage() {
     const params = useParams();
     const router = useRouter();
+    const searchParams = useSearchParams();
     const { user } = useAuth();
     const businessId = params?.id as string;
     const [showSpecialsModal, setShowSpecialsModal] = useState(false);
@@ -253,8 +256,10 @@ export default function BusinessProfilePage() {
     };
 
     useEffect(() => {
-        fetchBusiness();
-    }, [businessId, router]);
+        // Check if refreshed parameter is present in URL
+        const refreshed = searchParams.get('refreshed');
+        fetchBusiness(!!refreshed);
+    }, [businessId, router, searchParams]);
 
     // Refetch function for after delete
     const refetchBusiness = () => {
@@ -403,7 +408,7 @@ export default function BusinessProfilePage() {
                 {/* Fixed Premium Header */}
                 <header 
                     ref={headerRef} 
-                    className="fixed top-0 left-0 right-0 z-50 bg-navbar-bg/95 backdrop-blur-md border-b border-sage/10 shadow-sage/10 animate-slide-in-top will-change-transform"
+                    className="fixed top-0 left-0 right-0 z-50 bg-navbar-bg/95 backdrop-blur-md border-b border-sage/10 shadow-md md:shadow-sage/10 animate-slide-in-top will-change-transform"
                     role="banner"
                     style={{
                         fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif',
@@ -506,6 +511,34 @@ export default function BusinessProfilePage() {
                         </div>
 
                         <nav className="flex flex-col py-2 px-3 overflow-y-auto flex-1 min-h-0">
+                            {/* Home */}
+                            <Link
+                                href="/home"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className="px-3 py-2 rounded-xl text-base font-semibold text-white hover:text-white hover:bg-off-white/10 transition-colors relative min-h-[44px] flex items-center"
+                                style={{
+                                    fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                                }}
+                            >
+                                <Home className="w-5 h-5 mr-3" />
+                                <span>Home</span>
+                            </Link>
+
+                            {/* Explore */}
+                            <Link
+                                href="/explore"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className="px-3 py-2 rounded-xl text-base font-semibold text-white hover:text-white hover:bg-off-white/10 transition-colors relative min-h-[44px] flex items-center"
+                                style={{
+                                    fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                                }}
+                            >
+                                <Compass className="w-5 h-5 mr-3" />
+                                <span>Explore</span>
+                            </Link>
+
+                            <div className="h-px bg-charcoal/10 my-2 mx-3" />
+
                             {/* Events & Specials */}
                             <button
                                 onClick={() => {

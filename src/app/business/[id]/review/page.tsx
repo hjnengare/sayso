@@ -498,7 +498,7 @@ function WriteReviewContent() {
                           <div className="flex flex-col gap-3">
                             <h2
                               id="what-others-saying-heading"
-                              className="text-h3 font-semibold text-charcoal border-b border-charcoal/10 pb-2"
+                              className="text-h3 font-semibold text-charcoal border-b border-charcoal/10 pt-4 pb-2"
                               style={{ fontFamily: '"Urbanist", system-ui, sans-serif' }}
                             >
                               What Others Are Saying
