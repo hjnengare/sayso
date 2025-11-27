@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useRef, useEffect } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import BusinessCard from "../components/BusinessCard/BusinessCard";
 import StaggeredContainer from "../components/Animations/StaggeredContainer";
 import AnimatedElement from "../components/Animations/AnimatedElement";
@@ -147,7 +147,7 @@ export default function TrendingPage() {
       />
 
       <main className="pt-20 sm:pt-24 pb-28">
-        <div className="mx-auto w-full max-w-[2000px] px-2 pt-2 sm:pt-4">
+        <div className="mx-auto w-full max-w-[2000px] px-2">
           {/* Breadcrumb */}
           <nav className="px-2" aria-label="Breadcrumb">
             <ol className="flex items-center gap-1 text-body-sm text-charcoal/60">
@@ -178,7 +178,7 @@ export default function TrendingPage() {
             <div className="py-4">
             {loading && (
               <div className="flex items-center justify-center py-12">
-                <Loader size="md" color="sage" text="Loading Trending" />
+                <Loader size="md" variant="pulse" color="sage" text="Loading Trending" />
               </div>
             )}
             {!loading && error && (
@@ -221,25 +221,16 @@ export default function TrendingPage() {
 
                     {/* Paginated Content with Smooth Transition */}
                     <AnimatePresence mode="wait" initial={false}>
-                      <motion.div
+                      <StaggeredContainer
                         key={currentPage}
-                        initial={{ opacity: 0, y: 20, scale: 0.98, filter: "blur(8px)" }}
-                        animate={{ opacity: isPaginationLoading ? 0 : 1, y: 0, scale: 1, filter: "blur(0px)" }}
-                        exit={{ opacity: 0, y: -20, scale: 0.98, filter: "blur(8px)" }}
-                        transition={{
-                          duration: 0.4,
-                          ease: [0.16, 1, 0.3, 1],
-                        }}
-                        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-3"
+                        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-3"
                       >
-                        <StaggeredContainer>
-                          {currentBusinesses.map((business, index) => (
-                            <AnimatedElement key={business.id} index={index} direction="bottom" className="list-none">
-                              <BusinessCard business={business} compact={true} />
-                            </AnimatedElement>
-                          ))}
-                        </StaggeredContainer>
-                      </motion.div>
+                        {currentBusinesses.map((business, index) => (
+                          <AnimatedElement key={business.id} index={index} direction="bottom" className="list-none">
+                            <BusinessCard business={business} compact />
+                          </AnimatedElement>
+                        ))}
+                      </StaggeredContainer>
                     </AnimatePresence>
 
                     {/* Pagination */}
