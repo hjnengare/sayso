@@ -113,7 +113,8 @@ export async function DELETE(_req: NextRequest, { params }: RouteContext) {
  * Check if current user marked this review as helpful
  */
 export async function GET(_req: NextRequest, { params }: RouteContext) {
-  const reviewId = params.id;
+  const { id } = await params;
+  const reviewId = id;
 
   try {
     const supabase = await getServerSupabase();

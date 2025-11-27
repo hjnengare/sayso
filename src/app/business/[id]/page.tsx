@@ -57,10 +57,15 @@ export default function BusinessProfilePage() {
     };
 
     const handleShare = () => {
+        if (!business) return;
+        
+        const businessName = business.name || 'Unnamed Business';
+        const businessDescription = business.description || `${business.category || 'Business'} located in ${business.location || 'Cape Town'}`;
+        
         if (navigator.share) {
             navigator.share({
-                title: businessData.name,
-                text: businessData.description,
+                title: businessName,
+                text: businessDescription,
                 url: window.location.href,
             });
         } else {
