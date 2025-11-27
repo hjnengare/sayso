@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Star, BadgeCheck, ShieldCheck, ThumbsUp, Reply, Share2, Flag, MoreHorizontal, User, Edit, Trash2, X, ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
+import { Star, BadgeCheck, ShieldCheck, ThumbsUp, Reply, Share2, Flag, MoreHorizontal, User, Edit, Trash2, X, ChevronLeft, ChevronRight, ZoomIn, Send, MessageCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../contexts/AuthContext";
 import { useReviewSubmission } from "../../hooks/useReviews";
+import { useToast } from "../../contexts/ToastContext";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import { formatDistanceToNow } from "date-fns";
 
 interface PremiumReviewCardProps {
     reviewId?: string;
@@ -51,9 +53,23 @@ export function PremiumReviewCard({
     const buttonRef = useRef<HTMLButtonElement>(null);
     const [menuPosition, setMenuPosition] = useState({ top: 0, right: 0 });
     const imageRef = useRef<HTMLDivElement>(null);
+    const replyFormRef = useRef<HTMLDivElement>(null);
     const { user } = useAuth();
     const { deleteReview } = useReviewSubmission();
+    const { showToast } = useToast();
     const router = useRouter();
+
+    // State for helpful, replies, and flag
+    const [isLiked, setIsLiked] = useState(false);
+    const [helpfulCount, setHelpfulCount] = useState(0);
+    const [loadingHelpful, setLoadingHelpful] = useState(false);
+    const [showReplyForm, setShowReplyForm] = useState(false);
+    const [replyText, setReplyText] = useState('');
+    const [submittingReply, setSubmittingReply] = useState(false);
+    const [replies, setReplies] = useState<any[]>([]);
+    const [loadingReplies, setLoadingReplies] = useState(false);
+    const [isFlagged, setIsFlagged] = useState(false);
+    const [flagging, setFlagging] = useState(false);
 
     // Use current user's profile data if this is the current user's review
     const displayAuthor = (() => {
@@ -79,6 +95,68 @@ export function PremiumReviewCard({
             setImageError(false);
         }
     }, [displayProfileImage]);
+
+    // Fetch helpful status and count on mount
+    useEffect(() => {
+        if (!reviewId) return;
+
+        const fetchHelpfulData = async () => {
+            try {
+                // Fetch count
+                const countRes = await fetch(`/api/reviews/${reviewId}/helpful/count`);
+                if (countRes.ok) {
+                    const countData = await countRes.json();
+                    if (typeof countData.count === 'number') {
+                        setHelpfulCount(countData.count);
+                    }
+                }
+
+                // Fetch current user status
+                if (user) {
+                    const statusRes = await fetch(`/api/reviews/${reviewId}/helpful`);
+                    if (statusRes.ok) {
+                        const statusData = await statusRes.json();
+                        if (typeof statusData.helpful === 'boolean') {
+                            setIsLiked(statusData.helpful);
+                        }
+                    }
+
+                    // Check if user has flagged this review
+                    const flagRes = await fetch(`/api/reviews/${reviewId}/flag`);
+                    if (flagRes.ok) {
+                        const flagData = await flagRes.json();
+                        setIsFlagged(flagData.flagged || false);
+                    }
+                }
+            } catch (err) {
+                console.error('Error fetching helpful data:', err);
+            }
+        };
+
+        fetchHelpfulData();
+    }, [reviewId, user]);
+
+    // Fetch replies on mount
+    useEffect(() => {
+        if (!reviewId) return;
+
+        const fetchReplies = async () => {
+            try {
+                setLoadingReplies(true);
+                const res = await fetch(`/api/reviews/${reviewId}/replies`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setReplies(data.replies || []);
+                }
+            } catch (err) {
+                console.error('Error fetching replies:', err);
+            } finally {
+                setLoadingReplies(false);
+            }
+        };
+
+        fetchReplies();
+    }, [reviewId]);
 
     // Check if current user owns this review
     const isOwner = user && userId && user.id === userId;
@@ -242,6 +320,170 @@ export function PremiumReviewCard({
         }
     };
 
+    // Handle helpful/like
+    const handleHelpful = async () => {
+        if (loadingHelpful || !user || !reviewId) return;
+        
+        setLoadingHelpful(true);
+        const prevHelpful = isLiked;
+        const prevCount = helpfulCount;
+
+        // Optimistic update
+        if (prevHelpful) {
+            setIsLiked(false);
+            setHelpfulCount((c) => Math.max(0, c - 1));
+        } else {
+            setIsLiked(true);
+            setHelpfulCount((c) => c + 1);
+        }
+
+        try {
+            const method = prevHelpful ? 'DELETE' : 'POST';
+            const res = await fetch(`/api/reviews/${reviewId}/helpful`, {
+                method,
+            });
+
+            if (!res.ok) {
+                // Revert if server failed
+                setIsLiked(prevHelpful);
+                setHelpfulCount(prevCount);
+                const errorData = await res.json().catch(() => ({}));
+                console.error('Failed to toggle helpful:', errorData);
+                showToast('Failed to update helpful vote', 'error');
+            } else {
+                // Update count from server response if needed
+                const countRes = await fetch(`/api/reviews/${reviewId}/helpful/count`);
+                if (countRes.ok) {
+                    const countData = await countRes.json();
+                    if (typeof countData.count === 'number') {
+                        setHelpfulCount(countData.count);
+                    }
+                }
+            }
+        } catch (err) {
+            // Revert on network error
+            console.error('Error toggling helpful:', err);
+            setIsLiked(prevHelpful);
+            setHelpfulCount(prevCount);
+            showToast('Failed to update helpful vote', 'error');
+        } finally {
+            setLoadingHelpful(false);
+        }
+    };
+
+    // Handle reply submission
+    const handleSubmitReply = async () => {
+        if (!replyText.trim() || !user || submittingReply || !reviewId) return;
+
+        setSubmittingReply(true);
+        try {
+            const res = await fetch(`/api/reviews/${reviewId}/replies`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ content: replyText.trim() }),
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                setReplies(prev => [data.reply, ...prev]);
+                setReplyText('');
+                setShowReplyForm(false);
+                showToast('Reply posted successfully', 'success');
+            } else {
+                const error = await res.json();
+                showToast(error.error || 'Failed to submit reply', 'error');
+            }
+        } catch (err) {
+            console.error('Error submitting reply:', err);
+            showToast('Failed to submit reply', 'error');
+        } finally {
+            setSubmittingReply(false);
+        }
+    };
+
+    // Handle share
+    const handleShare = async () => {
+        if (!reviewId) return;
+
+        const shareUrl = `${window.location.origin}/business/${window.location.pathname.split('/')[2]}`;
+        const shareText = `Check out this review by ${displayAuthor} on sayso!`;
+
+        try {
+            if (navigator.share) {
+                await navigator.share({
+                    title: `Review by ${displayAuthor}`,
+                    text: shareText,
+                    url: shareUrl,
+                });
+            } else {
+                await navigator.clipboard.writeText(shareUrl);
+                showToast('Link copied to clipboard', 'success');
+            }
+        } catch (err) {
+            // User cancelled share or error occurred
+            if ((err as Error).name !== 'AbortError') {
+                console.error('Error sharing:', err);
+            }
+        }
+    };
+
+    // Handle flag/report
+    const handleFlag = async () => {
+        if (!user || !reviewId || flagging) return;
+
+        // Check if user is trying to flag their own review
+        if (isOwner) {
+            showToast('You cannot flag your own review', 'error');
+            return;
+        }
+
+        // Check if already flagged
+        if (isFlagged) {
+            showToast('You have already flagged this review', 'info');
+            return;
+        }
+
+        const reason = prompt('Why are you flagging this review?\n\nOptions: spam, inappropriate, harassment, off_topic, other');
+        if (!reason) return;
+
+        const validReasons = ['spam', 'inappropriate', 'harassment', 'off_topic', 'other'];
+        if (!validReasons.includes(reason.toLowerCase())) {
+            showToast('Invalid reason. Please use: spam, inappropriate, harassment, off_topic, or other', 'error');
+            return;
+        }
+
+        let details = '';
+        if (reason.toLowerCase() === 'other') {
+            details = prompt('Please provide details:') || '';
+            if (!details.trim()) {
+                showToast('Details are required for "other" reason', 'error');
+                return;
+            }
+        }
+
+        setFlagging(true);
+        try {
+            const res = await fetch(`/api/reviews/${reviewId}/flag`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ reason: reason.toLowerCase(), details: details.trim() }),
+            });
+
+            if (res.ok) {
+                setIsFlagged(true);
+                showToast('Review flagged successfully. Thank you for your report.', 'success');
+            } else {
+                const error = await res.json().catch(() => ({ error: 'Failed to flag review' }));
+                showToast(error.error || 'Failed to flag review', 'error');
+            }
+        } catch (err) {
+            console.error('Error flagging review:', err);
+            showToast('Failed to flag review', 'error');
+        } finally {
+            setFlagging(false);
+        }
+    };
+
     return (
         <>
         <div
@@ -391,30 +633,45 @@ export function PremiumReviewCard({
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 pt-1 sm:pt-2">
                             <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
                                 <button
-                                    className="inline-flex items-center gap-1 sm:gap-1.5 rounded-full border px-2 sm:px-2.5 py-1.5 sm:py-2 text-[9px] sm:text-[10px] md:text-[11px] transition border-charcoal/10 text-charcoal/80 hover:bg-charcoal/5 min-h-[32px] sm:min-h-[36px]"
+                                    onClick={handleHelpful}
+                                    disabled={!user || loadingHelpful}
+                                    className={`inline-flex items-center gap-1 sm:gap-1.5 rounded-full border px-2 sm:px-2.5 py-1.5 sm:py-2 text-[9px] sm:text-[10px] md:text-[11px] transition min-h-[32px] sm:min-h-[36px] ${
+                                        isLiked
+                                            ? 'border-sage/20 bg-sage/10 text-sage'
+                                            : 'border-charcoal/10 text-charcoal/80 hover:bg-charcoal/5'
+                                    } ${loadingHelpful ? 'opacity-60 cursor-not-allowed' : ''}`}
                                 >
-                                    <ThumbsUp className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                                    <span className="hidden sm:inline">Helpful</span>
+                                    <ThumbsUp className={`h-3 w-3 sm:h-3.5 sm:w-3.5 ${isLiked ? 'fill-current' : ''}`} />
+                                    <span className="hidden sm:inline">Helpful {helpfulCount > 0 && `(${helpfulCount})`}</span>
                                 </button>
                                 <button
-                                    className="inline-flex items-center gap-1 sm:gap-1.5 rounded-full border px-2 sm:px-2.5 py-1.5 sm:py-2 text-[9px] sm:text-[10px] md:text-[11px] transition border-charcoal/10 text-charcoal/80 hover:bg-charcoal/5 min-h-[32px] sm:min-h-[36px]"
+                                    onClick={() => setShowReplyForm(!showReplyForm)}
+                                    disabled={!user}
+                                    className="inline-flex items-center gap-1 sm:gap-1.5 rounded-full border px-2 sm:px-2.5 py-1.5 sm:py-2 text-[9px] sm:text-[10px] md:text-[11px] transition border-charcoal/10 text-charcoal/80 hover:bg-charcoal/5 min-h-[32px] sm:min-h-[36px] disabled:opacity-50"
                                 >
                                     <Reply className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                                    <span className="hidden sm:inline">Reply</span>
+                                    <span className="hidden sm:inline">Reply {replies.length > 0 && `(${replies.length})`}</span>
                                 </button>
                             </div>
                             <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
                                 <button
+                                    onClick={handleShare}
                                     className="inline-flex items-center gap-1 sm:gap-1.5 rounded-full border px-2 sm:px-2.5 py-1.5 sm:py-2 text-[9px] sm:text-[10px] md:text-[11px] transition border-charcoal/10 text-charcoal/70 hover:bg-charcoal/5 min-h-[32px] sm:min-h-[36px]"
                                 >
                                     <Share2 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                                     <span className="hidden sm:inline">Share</span>
                                 </button>
                                 <button
-                                    className="inline-flex items-center gap-1 sm:gap-1.5 rounded-full border px-2 sm:px-2.5 py-1.5 sm:py-2 text-[9px] sm:text-[10px] md:text-[11px] transition border-charcoal/10 text-charcoal/70 hover:bg-charcoal/5 min-h-[32px] sm:min-h-[36px]"
+                                    onClick={handleFlag}
+                                    disabled={!user || flagging || isFlagged || isOwner}
+                                    className={`inline-flex items-center gap-1 sm:gap-1.5 rounded-full border px-2 sm:px-2.5 py-1.5 sm:py-2 text-[9px] sm:text-[10px] md:text-[11px] transition min-h-[32px] sm:min-h-[36px] ${
+                                        isFlagged
+                                            ? 'border-coral/20 bg-coral/10 text-coral'
+                                            : 'border-charcoal/10 text-charcoal/70 hover:bg-charcoal/5'
+                                    } ${flagging || isOwner ? 'opacity-60 cursor-not-allowed' : ''}`}
                                 >
                                     <Flag className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                                    <span className="hidden sm:inline">Report</span>
+                                    <span className="hidden sm:inline">{isFlagged ? 'Reported' : 'Report'}</span>
                                 </button>
                                 {isOwner && (
                                     <>
@@ -471,6 +728,82 @@ export function PremiumReviewCard({
                                     </button>
                                 )}
                             </div>
+                        </div>
+                    )}
+
+                    {/* Reply Form */}
+                    {!compact && (
+                        <AnimatePresence>
+                            {showReplyForm && user && (
+                                <motion.div
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    className="mt-4 pt-4 border-t border-charcoal/10"
+                                    ref={replyFormRef}
+                                >
+                                    <div className="space-y-3">
+                                        <textarea
+                                            value={replyText}
+                                            onChange={(e) => setReplyText(e.target.value)}
+                                            placeholder="Write a reply..."
+                                            className="w-full px-4 py-3 rounded-lg border border-charcoal/20 bg-off-white/50 focus:outline-none focus:ring-2 focus:ring-sage/30 focus:border-sage/40 resize-none text-sm"
+                                            rows={3}
+                                            disabled={submittingReply}
+                                            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                                        />
+                                        <div className="flex items-center justify-end gap-2">
+                                            <button
+                                                onClick={() => {
+                                                    setShowReplyForm(false);
+                                                    setReplyText('');
+                                                }}
+                                                className="px-4 py-2 text-sm font-medium text-charcoal/60 hover:text-charcoal transition-colors"
+                                                disabled={submittingReply}
+                                                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                                            >
+                                                Cancel
+                                            </button>
+                                            <button
+                                                onClick={handleSubmitReply}
+                                                disabled={!replyText.trim() || submittingReply}
+                                                className="px-4 py-2 text-sm font-medium bg-sage text-white rounded-lg hover:bg-sage/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                                            >
+                                                <Send size={16} />
+                                                <span>{submittingReply ? 'Sending...' : 'Send'}</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    )}
+
+                    {/* Replies List */}
+                    {!compact && replies.length > 0 && (
+                        <div className="mt-4 pt-4 border-t border-charcoal/10 space-y-3">
+                            <h5 className="text-sm font-semibold text-charcoal/70 mb-3" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                Replies ({replies.length})
+                            </h5>
+                            {replies.map((reply) => (
+                                <div
+                                    key={reply.id}
+                                    className="pl-4 border-l-2 border-sage/20 bg-off-white/30 rounded-r-lg p-3"
+                                >
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <span className="text-sm font-semibold text-charcoal-700" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                            {reply.user?.name || 'User'}
+                                        </span>
+                                        <span className="text-xs text-charcoal/50" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                            {formatDistanceToNow(new Date(reply.created_at), { addSuffix: true })}
+                                        </span>
+                                    </div>
+                                    <p className="text-sm text-charcoal/80" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                        {reply.content}
+                                    </p>
+                                </div>
+                            ))}
                         </div>
                     )}
                 </div>

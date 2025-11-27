@@ -46,13 +46,13 @@ export default function BusinessHeroImage({
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
         </>
       ) : (
-        <div className="absolute inset-0 bg-gradient-to-br from-charcoal/20 via-charcoal/10 to-off-white flex items-center justify-center">
+        <div className="absolute inset-0 bg-card-bg flex items-center justify-center">
           <div className="flex flex-col items-center gap-3">
-            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/30">
-              <Star className="w-10 h-10 sm:w-12 sm:h-12 text-navbar-bg" strokeWidth={1.5} />
+            <div className="w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center">
+              <Star className="w-10 h-10 sm:w-12 sm:h-12 text-navbar-bg/90" strokeWidth={1.5} />
             </div>
-            <p className="text-body-sm text-white/70 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-              Image coming soon
+            <p className="text-body-sm text-charcoal/70 font-medium uppercase tracking-wide" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+              NO PHOTOS YET
             </p>
           </div>
         </div>

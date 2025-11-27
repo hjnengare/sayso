@@ -28,16 +28,18 @@ export default function BusinessCarousel({ businessName, businessImages }: Busin
   }) || [];
   const hasImages = validImages.length > 0;
 
-  // If no valid images, show a placeholder with star icon
+  // If no valid images, show a placeholder matching BusinessHeroImage
   if (!hasImages) {
     return (
-      <div className="mb-0 md:mb-8 mx-0 md:mx-0 relative h-[60vh]">
-        <div className="relative overflow-hidden rounded-2xl md:rounded-lg bg-card-bg h-full flex flex-col items-center justify-center">
-          <div className="w-full h-full md:h-auto flex flex-col items-center justify-center gap-3">
-            <Star size={80} className="text-coral/30" strokeWidth={1.2} />
-            <span className="text-sm font-semibold tracking-wide uppercase text-charcoal/50">
-              No Photos Yet
-            </span>
+      <div className="relative w-full aspect-[4/3] sm:aspect-[16/9] lg:aspect-[21/9] rounded-2xl overflow-hidden border border-white/60 ring-1 ring-white/30">
+        <div className="absolute inset-0 bg-gradient-to-br from-charcoal/20 via-charcoal/10 to-off-white flex items-center justify-center">
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/30">
+              <Star className="w-10 h-10 sm:w-12 sm:h-12 text-navbar-bg" strokeWidth={1.5} />
+            </div>
+            <p className="text-body-sm text-white/70 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+              Image coming soon
+            </p>
           </div>
         </div>
       </div>
@@ -71,9 +73,9 @@ export default function BusinessCarousel({ businessName, businessImages }: Busin
   };
 
   return (
-    <div className="mb-0 md:mb-8 mx-0 md:mx-0 relative h-[60vh]">
+    <div className="relative w-full aspect-[4/3] sm:aspect-[16/9] lg:aspect-[21/9] rounded-2xl overflow-hidden border border-white/60 ring-1 ring-white/30">
       <div
-        className="relative overflow-hidden rounded-2xl md:rounded-lg bg-card-bg h-full"
+        className="relative w-full h-full"
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
@@ -85,22 +87,30 @@ export default function BusinessCarousel({ businessName, businessImages }: Busin
           {validImages.map((img, idx) => (
             <div
               key={idx}
-              className="w-full flex-shrink-0 h-full bg-sage/10 relative overflow-hidden"
+              className="w-full flex-shrink-0 h-full relative overflow-hidden"
             >
               <Image
                 src={img}
                 alt={`${businessName} photo ${idx + 1}`}
                 fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, (max-width: 1280px) 80vw, 1100px"
+                className="object-cover object-center"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 900px"
                 quality={90}
                 priority={idx === 0}
                 onError={() => setImageError((prev) => ({ ...prev, [idx]: true }))}
-                style={{ objectPosition: 'center' }}
+                style={{ objectFit: 'cover' }}
               />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
               {imageError[idx] && (
-                <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-sage/5">
-                  <Star size={64} className="text-sage" fill="currentColor" />
+                <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-gradient-to-br from-charcoal/20 via-charcoal/10 to-off-white">
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/30">
+                      <Star className="w-10 h-10 sm:w-12 sm:h-12 text-navbar-bg" strokeWidth={1.5} />
+                    </div>
+                    <p className="text-body-sm text-white/70 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                      Image coming soon
+                    </p>
+                  </div>
                 </div>
               )}
             </div>
@@ -112,28 +122,33 @@ export default function BusinessCarousel({ businessName, businessImages }: Busin
           <>
             <button
               onClick={handlePrevImage}
-              className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 rounded-full bg-card-bg/90 hover:bg-navbar-bg/90 backdrop-blur-sm flex items-center justify-center transition-all duration-200 z-10 group text-charcoal hover:text-white"
+              className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-off-white/90 hover:bg-off-white backdrop-blur-xl flex items-center justify-center transition-all duration-200 z-20 group text-charcoal hover:text-charcoal border border-white/40 hover:border-white/60"
               aria-label="Previous image"
             >
-              <ChevronLeft className="group-hover:scale-110 transition-transform" size={22} />
+              <ChevronLeft className="group-hover:scale-110 transition-transform" size={22} strokeWidth={2.5} />
             </button>
 
             <button
               onClick={handleNextImage}
-              className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 rounded-full bg-card-bg/90 hover:bg-navbar-bg/90 backdrop-blur-sm flex items-center justify-center transition-all duration-200 z-10 group text-charcoal hover:text-white"
+              className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-off-white/90 hover:bg-off-white backdrop-blur-xl flex items-center justify-center transition-all duration-200 z-20 group text-charcoal hover:text-charcoal border border-white/40 hover:border-white/60"
               aria-label="Next image"
             >
-              <ChevronRight className="group-hover:scale-110 transition-transform" size={22} />
+              <ChevronRight className="group-hover:scale-110 transition-transform" size={22} strokeWidth={2.5} />
             </button>
           </>
         )}
 
-        {/* Image Counter */}
-        <div className="absolute top-3 md:top-4 right-3 md:right-4 px-3 py-1.5 rounded-full bg-charcoal/70 backdrop-blur-sm z-10">
-          <span className="text-sm sm:text-xs md:text-sm font-500 text-white">
-            {currentImageIndex + 1} / {validImages.length}
-          </span>
-        </div>
+        {/* Image Counter - Only show if more than one image */}
+        {validImages.length > 1 && (
+          <div className="absolute top-6 right-6 px-3 py-1.5 rounded-full bg-off-white/95 backdrop-blur-xl z-20 border border-white/40">
+            <span className="text-body-sm font-semibold text-charcoal" style={{ 
+              fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', 
+              fontWeight: 600
+            }}>
+              {currentImageIndex + 1} / {validImages.length}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Dots - Only show if more than one image */}

@@ -413,36 +413,10 @@ function WriteReviewContent() {
                     <div className="grid gap-6 lg:grid-cols-3 items-start">
                       {/* Main Content Section */}
                       <div className="lg:col-span-2 space-y-6">
-                        {/* Image Gallery Section - Separated from form */}
-                        <AnimatedElement index={0} direction="left">
-                        <article className="w-full sm:mx-0 flex items-center justify-center" aria-labelledby="business-images-heading">
-                            <div className="bg-card-bg border-0 sm:border border-white/60 rounded-2xl sm:rounded-[20px] shadow-none sm:shadow-lg relative overflow-hidden mx-auto w-full">
-                            <div className="relative z-10">
-                              {/* Business Info and Carousel */}
-                              <div className="flex flex-col px-4 pt-4 pb-4 md:pb-6">
-                                <div className="text-center px-4 mb-4">
-                                  <h3 className="text-h3 font-semibold text-charcoal mb-2" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
-                                    {businessName}
-                                  </h3>
-                                  <div className="flex items-center justify-center space-x-2">
-                                    {/* Rating Badge - matching BusinessCard style */}
-                                    <div className="inline-flex items-center gap-1 rounded-full bg-off-white/90 px-3 py-1.5 text-charcoal border border-white/30">
-                                      <Star className="w-3.5 h-3.5 text-coral fill-coral" aria-hidden />
-                                      <span className="text-body-sm font-semibold text-charcoal" style={{ 
-                                        fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', 
-                                        fontWeight: 600
-                                      }}>
-                                        {Number(businessRating).toFixed(1)}
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-                                <BusinessCarousel businessName={businessName} businessImages={businessImages} />
-                              </div>
-                            </div>
-                          </div>
-                        </article>
-                          </AnimatedElement>
+                        {/* Image Gallery Section - Matching Business Profile */}
+                        <AnimatedElement index={0} direction="bottom">
+                          <BusinessCarousel businessName={businessName} businessImages={businessImages} />
+                        </AnimatedElement>
 
                         {/* Review Form Section - Separated from images */}
                           <AnimatedElement index={1} direction="right">
