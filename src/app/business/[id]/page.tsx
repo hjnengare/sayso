@@ -568,12 +568,20 @@ export default function BusinessProfilePage() {
                 </div>
 
                 <StaggeredContainer>
-                <div className="bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white ">
-                    <div className="py-1 pt-20 sm:px-4">
-                        <main className="relative font-sf-pro pt-4 sm:pt-6" id="main-content" role="main" aria-label="Business profile content">
-                            <div className="mx-auto w-full max-w-[2000px] px-3 relative z-10">
+                <div className="bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white">
+                    <div className="py-1 pt-20">
+                        {/* Main Content Section */}
+                        <section
+                            className="relative pt-4 sm:pt-6"
+                            style={{
+                                fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                            }}
+                        >
+                            <div className="mx-auto w-full max-w-[2000px] px-2 relative z-10">
                                 <div className="pt-2 pb-12 sm:pb-16 md:pb-20">
-                                    <div className="space-y-6">
+                                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-6 lg:gap-8">
+                                        {/* Left Column - Main Content */}
+                                        <div className="lg:col-span-2 space-y-4 sm:space-y-6 lg:space-y-8">
                                 <AnimatedElement index={0} direction="left">
                                                 <article className="w-full sm:mx-0 flex items-center justify-center" aria-labelledby="photos-heading">
                                       <div className="bg-card-bg backdrop-blur-xl border-0 sm:border border-white/60 rounded-2xl sm:rounded-[20px] shadow-none sm:shadow-lg relative overflow-hidden mx-auto w-full">
@@ -591,12 +599,6 @@ export default function BusinessProfilePage() {
                                                         </div>
                                                     </div>
                                                 </article>
-                                </AnimatedElement>
-
-                                <AnimatedElement index={1} direction="right">
-                                                <BusinessInfoAside
-                                                    businessInfo={businessInfo}
-                                                />
                                 </AnimatedElement>
 
                                 <AnimatedElement index={2} direction="bottom">
@@ -660,25 +662,33 @@ export default function BusinessProfilePage() {
                                   </AnimatedElement>
 
                                         {/* Similar Businesses Section */}
-                                  <AnimatedElement index={3} direction="scale">
-                                        <SimilarBusinesses
-                                            currentBusinessId={businessId}
-                                            category={businessData.category}
-                                            location={businessData.location}
-                                            limit={6}
-                                        />
-                                  </AnimatedElement>
+                                        <AnimatedElement index={3} direction="scale">
+                                            <SimilarBusinesses
+                                                currentBusinessId={businessId}
+                                                category={businessData.category}
+                                                location={businessData.location}
+                                                limit={6}
+                                            />
+                                        </AnimatedElement>
+                                        </div>
+
+                                        {/* Right Column - Sidebar */}
+                                        <div className="space-y-4 sm:space-y-6">
+                                            <AnimatedElement index={1} direction="right">
+                                                <BusinessInfoAside
+                                                    businessInfo={businessInfo}
+                                                />
+                                            </AnimatedElement>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </main>
+                        </section>
+
+                        <Footer />
                     </div>
                 </div>
-
-                      <AnimatedElement index={4} direction="bottom">
-                        <Footer />
-                      </AnimatedElement>
-                  </StaggeredContainer>
+                </StaggeredContainer>
 
                 {/* Events and Specials Modal */}
                 {showSpecialsModal && modalPosition && (
