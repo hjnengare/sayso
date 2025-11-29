@@ -103,13 +103,13 @@ export default function EventCard({ event, onBookmark }: EventCardProps) {
     >
       <Link href={`/event/${event.id}`} className="w-full">
         <article
-          className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden cursor-pointer h-[650px] sm:h-auto flex flex-col border border-white/60 backdrop-blur-xl ring-1 ring-white/30 shadow-md md:shadow-none transition-all duration-300 hover:border-white/80 hover:-translate-y-1"
+          className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden cursor-pointer h-[600px] sm:h-auto flex flex-col border border-white/60 backdrop-blur-xl ring-1 ring-white/30 shadow-md md:shadow-none transition-all duration-300 hover:border-white/80 hover:-translate-y-1"
           style={
             {
               width: "100%",
               maxWidth: "540px",
               "--width": "540",
-              "--height": "650",
+              "--height": "600",
             } as CSSProperties
           }
         >

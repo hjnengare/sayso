@@ -7,7 +7,7 @@ import { ONBOARDING_STEPS, OnboardingStep } from "../contexts/onboarding-steps";
 import { PageLoader } from "./Loader";
 
 // Simple loading component
-const PageLoading = () => <PageLoader size="lg" color="sage" />;
+const PageLoading = () => <PageLoader size="lg" variant="wavy" color="sage" />;
 
 interface OnboardingGuardProps {
   children: React.ReactNode;
