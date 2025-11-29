@@ -5,10 +5,13 @@
 
 "use client";
 
-import { memo, useState, useEffect, useMemo } from "react";
+import { memo, useState, useEffect, useMemo, useRef } from "react";
 import nextDynamic from "next/dynamic";
 import { ChevronUp } from "react-feather";
 import { usePredefinedPageTitle } from "../hooks/usePageTitle";
+import Header from "../components/Header/Header";
+import SearchInput from "../components/SearchInput/SearchInput";
+import FilterModal, { FilterState } from "../components/FilterModal/FilterModal";
 import HeroCarousel from "../components/Hero/HeroCarousel";
 import BusinessRow from "../components/BusinessRow/BusinessRow";
 import BusinessRowSkeleton from "../components/BusinessRow/BusinessRowSkeleton";
@@ -61,6 +64,9 @@ export default function Home() {
   // Scroll to top button state (mobile only)
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [isFilterVisible, setIsFilterVisible] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const searchWrapRef = useRef<HTMLDivElement | null>(null);
 
   // Set mounted state on client side
   useEffect(() => {
@@ -92,6 +98,27 @@ export default function Home() {
     if (typeof window !== 'undefined') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+  };
+
+  const openFilters = () => {
+    if (isFilterVisible) return;
+    setIsFilterVisible(true);
+    setTimeout(() => setIsFilterOpen(true), 10);
+  };
+
+  const closeFilters = () => {
+    setIsFilterOpen(false);
+    setTimeout(() => setIsFilterVisible(false), 150);
+  };
+
+  const handleApplyFilters = (f: FilterState) => {
+    console.log("home filters:", f);
+    closeFilters();
+  };
+
+  const handleSubmitQuery = (query: string) => {
+    console.log("home search query:", query);
+    if (isFilterVisible) closeFilters();
   };
 
   const featuredByCategory = (() => {
@@ -166,10 +193,36 @@ export default function Home() {
     <div className="min-h-dvh bg-off-white relative overflow-hidden" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
       {/* Premium floating orbs background */}
       <HomeBackgroundOrbs />
+
+      {/* Global navbar header fixed at top-0 */}
+      <Header
+        showSearch={true}
+        variant="frosty"
+        backgroundClassName="bg-navbar-bg"
+        searchLayout="floating"
+        topPosition="top-0"
+        reducedPadding={true}
+        whiteText={true}
+      />
       
-      <div className="bg-off-white relative">
-        <div className="pb-12 sm:pb-16 md:pb-20">
-            <AnimatedElement index={0} direction="left">
+      <main className="bg-off-white relative pt-20 sm:pt-24">
+        <div className="mx-auto w-full max-w-[2000px] px-2 pb-12 sm:pb-16 md:pb-20">
+          {/* Search Input at top of home content */}
+          <div ref={searchWrapRef} className="py-4 px-8">
+            <SearchInput
+              variant="header"
+              placeholder="Discover exceptional local hidden gems..."
+              mobilePlaceholder="Search places, coffee, yoga…"
+              onSearch={(q) => console.log("home search change:", q)}
+              onSubmitQuery={handleSubmitQuery}
+              onFilterClick={openFilters}
+              onFocusOpenFilters={openFilters}
+              showFilter
+            />
+          </div>
+
+          {/* For You Section */}
+          <AnimatedElement index={0} direction="left">
           <section className="pt-4 sm:pt-8 md:pt-10 relative overflow-hidden">
             <div className="relative z-10">
               {forYouLoading && <BusinessRowSkeleton title="For You Now" />}
@@ -230,9 +283,18 @@ export default function Home() {
         </div>
 
           <AnimatedElement index={4} direction="bottom">
-        <Footer />
+            <Footer />
           </AnimatedElement>
-      </div>
+      </main>
+
+      {/* Anchored Filter Modal for home search */}
+      <FilterModal
+        isOpen={isFilterOpen}
+        isVisible={isFilterVisible}
+        onClose={closeFilters}
+        onApplyFilters={handleApplyFilters}
+        anchorRef={searchWrapRef}
+      />
 
       {/* Scroll to Top Button - Mobile Only */}
       {showScrollTop && (
@@ -247,14 +309,3 @@ export default function Home() {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-

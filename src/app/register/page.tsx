@@ -9,6 +9,7 @@ import { usePrefersReducedMotion } from "../utils/hooks/usePrefersReducedMotion"
 import { useScrollReveal } from "../hooks/useScrollReveal";
 import { RateLimiter } from "../lib/rateLimiting";
 import { usePredefinedPageTitle } from "../hooks/usePageTitle";
+import { InlineLoader } from "../components/Loader/Loader";
 
 // Import shared components
 import { authStyles } from "../components/Auth/Shared/authStyles";
@@ -353,7 +354,7 @@ export default function RegisterPage() {
                   >
                     {isFormDisabled ? (
                       <>
-                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                        <InlineLoader size="xs" variant="wavy" color="white" />
                         Creating account...
                       </>
                     ) : (

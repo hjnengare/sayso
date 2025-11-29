@@ -236,7 +236,7 @@ function ExplorePageContent() {
           </nav>
 
           {/* Search Input at top of main content */}
-          <div ref={searchWrapRef} className="py-4">
+          <div ref={searchWrapRef} className="py-4 px-4">
             <SearchInput
               variant="header"
               placeholder="Discover exceptional local hidden gems..."

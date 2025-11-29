@@ -152,7 +152,7 @@ export default function EventsSpecialsPage() {
             </AnimatedElement>
 
             <AnimatedElement index={1} direction="left">
-              <div className="py-4 relative">
+              <div className="py-4 px-4 relative">
                 <SearchInput
                   variant="header"
                   placeholder="Search events and limited-time offers..."
