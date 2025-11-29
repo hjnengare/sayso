@@ -4,13 +4,13 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { usePathname } from "next/navigation";
 import {
-    ArrowLeft,
     Store,
     Plus,
     BarChart3,
     MessageSquare,
 } from "lucide-react";
 import { PageLoader } from "../components/Loader";
+import Header from "../components/Header/Header";
 
 // Import components
 import { 
@@ -178,36 +178,15 @@ export default function ManageBusinessPage() {
                     fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif',
                 }}
             >
-                {/* Fixed Premium Header */}
-                <header className="fixed top-0 left-0 right-0 z-50 bg-navbar-bg/95 backdrop-blur-sm border-b border-charcoal/10 animate-slide-in-top"
-                    style={{
-                        fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif',
-                    }}
-                >
-                    <div className="mx-auto w-full max-w-[2000px] px-2 py-4">
-                        <div className="flex items-center justify-between">
-                            <Link
-                                href="/home"
-                                className="group flex items-center"
-                            >
-                                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-charcoal/10 to-charcoal/5 hover:from-sage/20 hover:to-sage/10 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 border border-charcoal/5 hover:border-sage/20 mr-3 sm:mr-4">
-                                    <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6 text-white group-hover:text-sage transition-colors duration-300" />
-                                </div>
-                                <h1 className="font-urbanist text-sm font-700 text-white transition-all duration-300 group-hover:text-white/80 relative">
-                                    Manage Business
-                                </h1>
-                            </Link>
-
-                            <Link
-                                href="/claim-business"
-                                className="bg-sage hover:bg-sage/90 text-white px-4 py-2 rounded-full text-sm font-600 font-urbanist transition-all duration-300 flex items-center gap-2"
-                            >
-                                <Plus className="w-4 h-4" />
-                                Add Business
-                            </Link>
-                        </div>
-                    </div>
-                </header>
+                {/* Main Header */}
+                <Header
+                  showSearch={false}
+                  variant="white"
+                  backgroundClassName="bg-navbar-bg"
+                  topPosition="top-0"
+                  reducedPadding={true}
+                  whiteText={true}
+                />
 
                 <div className="bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white">
                     <div className="py-1 pt-20">

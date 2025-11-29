@@ -3,7 +3,7 @@
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense, useMemo, useRef } from "react";
 import dynamic from "next/dynamic";
-import { ArrowLeft, Edit, Star, ChevronUp, Info } from "react-feather";
+import { Edit, Star, ChevronUp, Info } from "react-feather";
 import Link from "next/link";
 import confetti from "canvas-confetti";
 import { useReviewForm } from "../../../hooks/useReviewForm";
@@ -15,6 +15,7 @@ import BusinessInfoModal, { BusinessInfo } from "../../../components/BusinessInf
 import { PremiumReviewCard } from "../../../components/Business/PremiumReviewCard";
 import { TestimonialCarousel } from "../../../components/Business/TestimonialCarousel";
 import Footer from "../../../components/Footer/Footer";
+import Header from "../../../components/Header/Header";
 import { usePageTitle } from "../../../hooks/usePageTitle";
 import AnimatedElement from "../../../components/Animations/AnimatedElement";
 
@@ -358,54 +359,18 @@ function WriteReviewContent() {
           fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif',
         }}
       >
-        {/* Fixed Premium Header - matching business profile */}
-        <header 
-          className="fixed top-0 left-0 right-0 z-50 bg-navbar-bg/95 backdrop-blur-sm border-b border-charcoal/10 animate-slide-in-top"
-          role="banner"
-          style={{
-            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif',
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-          }}
-        >
-          <div className="mx-auto w-full max-w-[2000px] px-4 sm:px-6 lg:px-10 2xl:px-16 py-4">
-            <nav className="flex items-center justify-between" aria-label="Write review navigation">
-              <button
-                onClick={() => router.back()}
-                className="group flex items-center focus:outline-none rounded-lg px-1 -mx-1"
-                aria-label="Go back to previous page"
-              >
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-white/10 to-white/5 hover:from-white/20 hover:to-white/10 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 border border-white/20 hover:border-white/40 mr-2 sm:mr-3" aria-hidden="true">
-                  <ArrowLeft className="w-6 h-6 text-white group-hover:text-white transition-colors duration-300" strokeWidth={2.5} />
-                </div>
-              <h3
-                className="text-body sm:text-h4 font-semibold text-white animate-delay-100 animate-fade-in truncate max-w-[150px] sm:max-w-none"
-                style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
-              >
-                Write a Review
-              </h3>
-            </button>
-
-            {/* Info Button - Mobile Only */}
-            {businessInfo && (
-              <button
-                ref={infoButtonRef}
-                onClick={() => setIsInfoModalOpen(true)}
-                className="lg:hidden w-10 h-10 sm:w-11 sm:h-11 bg-gradient-to-br from-white/10 to-white/5 hover:from-white/20 hover:to-white/10 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 border border-white/20 hover:border-white/40 min-h-[44px] min-w-[44px]"
-                aria-label="View business information"
-              >
-                <Info className="w-5 h-5 sm:w-6 sm:h-6 text-white" strokeWidth={2.5} />
-              </button>
-            )}
-
-            </nav>
-          </div>
-        </header>
+        {/* Main Header */}
+        <Header
+          showSearch={false}
+          variant="white"
+          backgroundClassName="bg-navbar-bg"
+          topPosition="top-0"
+          reducedPadding={true}
+          whiteText={true}
+        />
 
         <div className="bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white">
-          <div className="py-1 pt-20 sm:px-4">
+          <div className="py-1 pt-20">
             <main className="relative font-sf-pro pt-4 sm:pt-6" id="main-content" role="main" aria-label="Write review content">
               <div className="mx-auto w-full max-w-[2000px] px-3 relative z-10">
                 <div className="pt-2 pb-12 sm:pb-16 md:pb-20">

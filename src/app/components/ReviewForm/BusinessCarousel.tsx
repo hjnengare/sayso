@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Star } from "react-feather";
 
 interface BusinessCarouselProps {
@@ -73,7 +74,12 @@ export default function BusinessCarousel({ businessName, businessImages }: Busin
   };
 
   return (
-    <div className="relative w-full aspect-[4/3] sm:aspect-[16/9] lg:aspect-[21/9] rounded-2xl overflow-hidden border border-white/60 ring-1 ring-white/30">
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.6 }}
+      className="relative w-full aspect-[4/3] sm:aspect-[16/9] lg:aspect-[21/9] rounded-2xl overflow-hidden border border-white/60 ring-1 ring-white/30"
+    >
       <div
         className="relative w-full h-full"
         onTouchStart={onTouchStart}
@@ -151,22 +157,11 @@ export default function BusinessCarousel({ businessName, businessImages }: Busin
         )}
       </div>
 
-      {/* Dots - Only show if more than one image */}
-      {validImages.length > 1 && (
-        <div className="flex items-center justify-center space-x-2 mt-4 px-4">
-          {validImages.map((_, idx) => (
-            <button
-              key={idx}
-              onClick={() => handleDotClick(idx)}
-              className={`transition-all duration-300 ${idx === currentImageIndex
-                  ? "w-8 h-2 bg-sage rounded-full"
-                  : "w-2 h-2 bg-sage/30 rounded-full hover:bg-sage/50"
-                }`}
-              aria-label={`Go to image ${idx + 1}`}
-            />
-          ))}
-        </div>
-      )}
-    </div>
+      <CarouselDots 
+        total={validImages.length} 
+        current={currentImageIndex} 
+        onDotClick={handleDotClick} 
+      />
+    </>
   );
 }
