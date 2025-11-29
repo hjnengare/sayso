@@ -113,18 +113,18 @@ export default function ScrollableSection({
                 scroll-arrow scroll-arrow-left
                 absolute left-2 top-1/2 -translate-y-1/2 z-10
                 w-14 h-14 sm:w-12 sm:h-12
-                bg-sage/10
+                bg-navbar-bg
                 rounded-full
                 flex items-center justify-center
                 transition-all duration-300 ease-out
                 active:scale-95
-                text-sage
+                text-white
                 touch-manipulation
                 /* Neomorphic styling for mobile */
                 shadow-[4px_4px_8px_rgba(0,0,0,0.1),-4px_-4px_8px_rgba(139,176,138,0.3)]
                 sm:shadow-lg
-                hover:shadow-[6px_6px_12px_rgba(0,0,0,0.12),-6px_-6px_12px_rgba(139,176,138,0.4)]
-                sm:hover:bg-sage sm:hover:shadow-xl sm:hover:text-white
+                hover:bg-sage hover:shadow-[6px_6px_12px_rgba(0,0,0,0.12),-6px_-6px_12px_rgba(139,176,138,0.4)]
+                sm:hover:shadow-xl
                 active:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.1),inset_-2px_-2px_4px_rgba(139,176,138,0.3)]
                 sm:active:shadow-lg
                 border border-sage/20
@@ -153,18 +153,18 @@ export default function ScrollableSection({
                 scroll-arrow scroll-arrow-right
                 absolute right-2 top-1/2 -translate-y-1/2 z-10
                 w-14 h-14 sm:w-12 sm:h-12
-                bg-sage/10
+                bg-navbar-bg
                 rounded-full
                 flex items-center justify-center
                 transition-all duration-300 ease-out
                 active:scale-95
-                text-sage
+                text-white
                 touch-manipulation
                 /* Neomorphic styling for mobile */
                 shadow-[4px_4px_8px_rgba(0,0,0,0.1),-4px_-4px_8px_rgba(139,176,138,0.3)]
                 sm:shadow-lg
-                hover:shadow-[6px_6px_12px_rgba(0,0,0,0.12),-6px_-6px_12px_rgba(139,176,138,0.4)]
-                sm:hover:bg-sage sm:hover:shadow-xl sm:hover:text-white
+                hover:bg-sage hover:shadow-[6px_6px_12px_rgba(0,0,0,0.12),-6px_-6px_12px_rgba(139,176,138,0.4)]
+                sm:hover:shadow-xl
                 active:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.1),inset_-2px_-2px_4px_rgba(139,176,138,0.3)]
                 sm:active:shadow-lg
                 border border-sage/20

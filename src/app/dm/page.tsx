@@ -44,7 +44,7 @@ function ChatItem({ chat, index, isSelected, onClick }: { chat: Chat; index: num
         transition={{ duration: 0.2 }}
       >
         <div
-          className={`relative flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-2.5 sm:py-3 transition-all duration-200 ${
+          className={`relative flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-2.5 sm:py-3 transition-all duration-200 border-b border-charcoal/10 ${
             isSelected 
               ? 'bg-sage/5 border-l-2 border-sage' 
               : 'hover:bg-charcoal/5 border-l-2 border-transparent'

@@ -25,12 +25,11 @@ export default function EventsSpecials({
   const handleBookmark = (event: Event) => {
     // In production, this would save to the backend
     // For now, show a toast notification
-    showToast({
-      type: "success",
-      title: "Event saved",
-      message: `${event.title} has been saved to your favorites`,
-      duration: 3000,
-    });
+    showToast(
+      `${event.title} has been saved to your favorites`,
+      "success",
+      3000
+    );
   };
 
   if (!events || events.length === 0) return null;
