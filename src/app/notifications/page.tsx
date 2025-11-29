@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bell, Check, X, MessageSquare, Star, Heart, TrendingUp, Clock } from "react-feather";
 import Header from "../components/Header/Header";
@@ -9,34 +8,11 @@ import { PageLoader } from "../components/Loader";
 import StaggeredContainer from "../components/Animations/StaggeredContainer";
 import AnimatedElement from "../components/Animations/AnimatedElement";
 import { usePredefinedPageTitle } from "../hooks/usePageTitle";
-import { generateNotificationBatch, type ToastNotificationData } from "../data/notificationData";
+import { useNotifications } from "../contexts/NotificationsContext";
 
 export default function NotificationsPage() {
   usePredefinedPageTitle('notifications');
-  const [notifications, setNotifications] = useState<ToastNotificationData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [readNotifications, setReadNotifications] = useState<Set<string>>(new Set());
-
-  useEffect(() => {
-    // Simulate loading notifications
-    setTimeout(() => {
-      const mockNotifications = generateNotificationBatch(10);
-      setNotifications(mockNotifications);
-      setIsLoading(false);
-    }, 500);
-  }, []);
-
-  const markAsRead = (id: string) => {
-    setReadNotifications(prev => new Set(prev).add(id));
-  };
-
-  const markAllAsRead = () => {
-    setReadNotifications(new Set(notifications.map(n => n.id)));
-  };
-
-  const deleteNotification = (id: string) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
-  };
+  const { notifications, isLoading, readNotifications, markAsRead, markAllAsRead, deleteNotification } = useNotifications();
 
   const getNotificationIcon = (type: string) => {
     switch (type) {

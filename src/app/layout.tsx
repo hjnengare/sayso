@@ -7,6 +7,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { OnboardingProvider } from "./contexts/OnboardingContext";
 import { ToastProvider } from "./contexts/ToastContext";
 import { SavedItemsProvider } from "./contexts/SavedItemsContext";
+import { NotificationsProvider } from "./contexts/NotificationsContext";
 import PageTransitionProvider from "./components/Providers/PageTransitionProvider";
 
 // Lazy load non-critical components for faster initial load
@@ -129,10 +130,12 @@ export default function RootLayout({
           <AuthProvider>
             <OnboardingProvider>
               <SavedItemsProvider>
-                <PageTransitionProvider>
-                  <BusinessNotifications />
-                  {children}
-                </PageTransitionProvider>
+                <NotificationsProvider>
+                  <PageTransitionProvider>
+                    <BusinessNotifications />
+                    {children}
+                  </PageTransitionProvider>
+                </NotificationsProvider>
               </SavedItemsProvider>
             </OnboardingProvider>
           </AuthProvider>

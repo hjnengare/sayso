@@ -8,6 +8,7 @@ import { User, X, Briefcase, ChevronDown, Compass, Bookmark, Bell, Edit, Message
 import FilterModal, { FilterState } from "../FilterModal/FilterModal";
 import SearchInput from "../SearchInput/SearchInput";
 import { useSavedItems } from "../../contexts/SavedItemsContext";
+import { useNotifications } from "../../contexts/NotificationsContext";
 import Logo from "../Logo/Logo";
 import OptimizedLink from "../Navigation/OptimizedLink";
 
@@ -72,6 +73,7 @@ export default function Header({
   const [menuPos, setMenuPos] = useState<{left:number; top:number} | null>(null);
   const [discoverMenuPos, setDiscoverMenuPos] = useState<{left:number; top:number} | null>(null);
   const { savedCount } = useSavedItems();
+  const { unreadCount } = useNotifications();
   const [isShrunk, setIsShrunk] = useState(false);
 
   // Use refs to track state without causing re-renders
@@ -646,17 +648,25 @@ export default function Header({
                 aria-label="Notifications"
               >
                 <Bell className="w-6 h-6 sm:w-5 sm:h-5 transition-transform duration-200 group-hover:scale-110" />
-                {/* Notification badge indicator - can be conditionally shown */}
-                {/* <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-coral rounded-full ring-2 ring-white"></span> */}
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[20px] h-5 px-1.5 text-white text-[11px] font-bold rounded-full shadow-lg bg-gradient-to-br from-coral to-coral/90 border border-white/20">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
               </button>
 
               {/* Saved Bookmark Icon - Mobile Only */}
               <OptimizedLink
                 href="/saved"
-                className="md:hidden group w-11 h-11 sm:w-12 sm:h-12 flex items-center justify-center transition-colors duration-200 min-h-[44px] min-w-[44px] touch-manipulation"
+                className="md:hidden group w-11 h-11 sm:w-12 sm:h-12 flex items-center justify-center transition-colors duration-200 min-h-[44px] min-w-[44px] touch-manipulation relative"
                 aria-label="View saved businesses"
               >
                 <Bookmark className={`w-6 h-6 sm:w-5 sm:h-5 ${whiteText ? 'text-white hover:text-white/80' : 'text-charcoal/80 hover:text-sage'}`} fill="none" />
+                {savedCount > 0 && (
+                  <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[20px] h-5 px-1.5 text-white text-[11px] font-bold rounded-full shadow-lg bg-gradient-to-br from-coral to-coral/90 border border-white/20">
+                    {savedCount > 99 ? '99+' : savedCount}
+                  </span>
+                )}
               </OptimizedLink>
 
               {/* Messages/DM Icon - Mobile Only */}
@@ -696,7 +706,7 @@ export default function Header({
               >
                 <Bookmark className="w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-200 group-hover:scale-110" />
                 {savedCount > 0 && (
-                  <span className={`absolute -top-1 -right-1 flex items-center justify-center min-w-[20px] h-5 px-1.5 text-white text-[11px] font-semibold rounded-full shadow-lg bg-gradient-to-br from-coral to-coral/90 border border-white/20 ${whiteText ? 'bg-white/30' : ''}`}>
+                  <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[20px] h-5 px-1.5 text-white text-[11px] font-bold rounded-full shadow-lg bg-gradient-to-br from-coral to-coral/90 border border-white/20">
                     {savedCount > 99 ? '99+' : savedCount}
                   </span>
                 )}
