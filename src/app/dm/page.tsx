@@ -34,7 +34,7 @@ function ChatItem({ chat, index, isSelected, onClick }: { chat: Chat; index: num
         transition={{ duration: 0.2 }}
       >
         <div
-          className={`relative flex items-center gap-4 px-4 py-3 transition-all duration-200 ${
+          className={`relative flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-2.5 sm:py-3 transition-all duration-200 ${
             isSelected 
               ? 'bg-sage/5 border-l-2 border-sage' 
               : 'hover:bg-charcoal/5 border-l-2 border-transparent'
@@ -43,7 +43,7 @@ function ChatItem({ chat, index, isSelected, onClick }: { chat: Chat; index: num
           {/* Profile Picture - Larger Instagram style */}
           <div className="relative flex-shrink-0">
             {!imgError && chat.user.profilePicture && chat.user.profilePicture.trim() !== "" ? (
-              <div className="relative w-14 h-14 rounded-full overflow-hidden">
+              <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden">
                 <Image
                   src={chat.user.profilePicture}
                   alt={chat.user.name}
@@ -54,8 +54,8 @@ function ChatItem({ chat, index, isSelected, onClick }: { chat: Chat; index: num
                 />
               </div>
             ) : (
-              <div className="w-14 h-14 flex items-center justify-center bg-gradient-to-br from-sage/30 to-sage/20 text-sage rounded-full">
-                <User className="text-sage w-7 h-7" strokeWidth={2} />
+              <div className="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center bg-gradient-to-br from-sage/30 to-sage/20 text-sage rounded-full">
+                <User className="text-sage w-6 h-6 sm:w-7 sm:h-7" strokeWidth={2} />
               </div>
             )}
 
@@ -64,14 +64,14 @@ function ChatItem({ chat, index, isSelected, onClick }: { chat: Chat; index: num
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-green-500 rounded-full border-2 border-white"
+                className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-green-500 rounded-full border-2 border-white"
               />
             )}
 
             {/* Verified Badge */}
             {chat.user.badge === "verified" && (
-              <div className="absolute -top-1 -right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center ring-2 ring-white">
-                <Check className="text-white w-3 h-3" strokeWidth={3} />
+              <div className="absolute -top-1 -right-1 w-4.5 h-4.5 sm:w-5 sm:h-5 bg-blue-500 rounded-full flex items-center justify-center ring-2 ring-white">
+                <Check className="text-white w-2.5 h-2.5 sm:w-3 sm:h-3" strokeWidth={3} />
               </div>
             )}
           </div>
@@ -339,7 +339,7 @@ export default function DMChatListPage() {
         {/* Mobile Layout - Full Width */}
         <div className="lg:hidden">
           {/* Mobile Main Content */}
-          <main className="relative z-10 mx-auto w-full max-w-[2000px] px-4 sm:px-6 pt-24 sm:pt-28 pb-8">
+          <main className="relative z-10 mx-auto w-full max-w-[2000px] px-4 sm:px-6 pt-20 sm:pt-24 pb-20 sm:pb-8">
             {/* Search Bar */}
             <div className="mb-4 pb-3">
               <div className="relative group">
@@ -414,32 +414,49 @@ export default function DMChatListPage() {
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="flex flex-col items-center justify-center py-20 sm:py-24 text-center px-4"
+                className="flex flex-col items-center justify-center py-16 sm:py-24 text-center px-4"
               >
-                <div className="relative mb-8">
+                <div className="relative mb-6 sm:mb-8">
                   <div className="absolute inset-0 bg-gradient-to-br from-card-bg/20 to-navbar-bg/20 rounded-full blur-3xl" />
-                  <MessageCircle className="relative w-20 h-20 sm:w-24 sm:h-24 text-charcoal/20" strokeWidth={1.5} />
+                  <MessageCircle className="relative w-16 h-16 sm:w-24 sm:h-24 text-charcoal/20" strokeWidth={1.5} />
                 </div>
-                <h2 className="text-h3 font-bold text-charcoal mb-3" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
+                <h2 className="text-h3 font-bold text-charcoal mb-2 sm:mb-3" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
                   No messages yet
                 </h2>
-                <p className="text-body text-charcoal/60 max-w-md mb-6" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
+                <p className="text-body-sm sm:text-body text-charcoal/60 max-w-md mb-4 sm:mb-6" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
                   Start a conversation with reviewers and community members to get started!
                 </p>
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="px-6 py-3 bg-sage text-white rounded-full font-semibold shadow-sm hover:shadow-md transition-all duration-200"
+                  className="px-5 sm:px-6 py-2.5 sm:py-3 bg-sage text-white rounded-full text-body-sm sm:text-body font-semibold shadow-sm hover:shadow-md transition-all duration-200"
                   style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
                 >
                   Start New Conversation
                 </motion.button>
               </motion.div>
             )}
+
+            {/* Mobile Compose Button - Floating */}
+            <div className="fixed bottom-20 right-4 sm:right-6 z-50 lg:hidden">
+              <motion.button
+                whileHover={{ scale: 1.1, rotate: 90 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => {
+                  router.push('/dm/new');
+                }}
+                className="w-12 h-12 sm:w-14 sm:h-14 bg-sage text-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300"
+                aria-label="New conversation"
+              >
+                <Edit3 className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={2.5} />
+              </motion.button>
+            </div>
           </main>
         </div>
 
-        <Footer />
+        <div className="hidden lg:block">
+          <Footer />
+        </div>
       </motion.div>
     </AnimatePresence>
   );

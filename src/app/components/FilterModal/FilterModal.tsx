@@ -198,7 +198,7 @@ export default function FilterModal({
         aria-label="Search filters"
         aria-modal="true"
         tabIndex={-1}
-        className={`pointer-events-auto rounded-none sm:rounded-xl md:rounded-2xl overflow-hidden
+        className={`pointer-events-auto rounded-2xl overflow-hidden
                     bg-off-white
                     border border-white/30 shadow-2xl
                     transition-all duration-200
