@@ -32,18 +32,23 @@ export default function BusinessCarousel({ businessName, businessImages }: Busin
   // If no valid images, show a placeholder matching BusinessHeroImage
   if (!hasImages) {
     return (
-      <div className="relative w-full aspect-[4/3] sm:aspect-[16/9] lg:aspect-[21/9] rounded-2xl overflow-hidden border border-white/60 ring-1 ring-white/30">
-        <div className="absolute inset-0 bg-gradient-to-br from-charcoal/20 via-charcoal/10 to-off-white flex items-center justify-center">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.6 }}
+        className="relative w-full aspect-[4/3] sm:aspect-[16/9] lg:aspect-[21/9] rounded-2xl overflow-hidden border border-white/60 ring-1 ring-white/30"
+      >
+        <div className="absolute inset-0 bg-card-bg flex items-center justify-center">
           <div className="flex flex-col items-center gap-3">
-            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/30">
-              <Star className="w-10 h-10 sm:w-12 sm:h-12 text-navbar-bg" strokeWidth={1.5} />
+            <div className="w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center">
+              <Star className="w-10 h-10 sm:w-12 sm:h-12 text-navbar-bg/90" strokeWidth={1.5} />
             </div>
-            <p className="text-body-sm text-white/70 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-              Image coming soon
+            <p className="text-body-sm text-charcoal/70 font-medium uppercase tracking-wide" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+              NO PHOTOS YET
             </p>
           </div>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
@@ -108,13 +113,13 @@ export default function BusinessCarousel({ businessName, businessImages }: Busin
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
               {imageError[idx] && (
-                <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-gradient-to-br from-charcoal/20 via-charcoal/10 to-off-white">
+                <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-card-bg">
                   <div className="flex flex-col items-center gap-3">
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/30">
-                      <Star className="w-10 h-10 sm:w-12 sm:h-12 text-navbar-bg" strokeWidth={1.5} />
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center">
+                      <Star className="w-10 h-10 sm:w-12 sm:h-12 text-navbar-bg/90" strokeWidth={1.5} />
                     </div>
-                    <p className="text-body-sm text-white/70 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                      Image coming soon
+                    <p className="text-body-sm text-charcoal/70 font-medium uppercase tracking-wide" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                      NO PHOTOS YET
                     </p>
                   </div>
                 </div>
@@ -157,11 +162,22 @@ export default function BusinessCarousel({ businessName, businessImages }: Busin
         )}
       </div>
 
-      <CarouselDots 
-        total={validImages.length} 
-        current={currentImageIndex} 
-        onDotClick={handleDotClick} 
-      />
-    </>
+      {/* Dots - Only show if more than one image */}
+      {validImages.length > 1 && (
+        <div className="flex items-center justify-center space-x-2 mt-4 px-4">
+          {validImages.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => handleDotClick(idx)}
+              className={`transition-all duration-300 ${idx === currentImageIndex
+                  ? "w-8 h-2 bg-sage rounded-full"
+                  : "w-2 h-2 bg-sage/30 rounded-full hover:bg-sage/50"
+                }`}
+              aria-label={`Go to image ${idx + 1}`}
+            />
+          ))}
+        </div>
+      )}
+    </motion.div>
   );
 }
