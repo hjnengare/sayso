@@ -50,7 +50,7 @@ function BusinessOfMonthPodium({ topBusinesses }: BusinessOfMonthPodiumProps) {
                   <span className="text-body-sm sm:text-body font-bold text-white">2</span>
                 </div>
               </div>
-              <div className="font-urbanist text-body-sm sm:text-body font-700 text-charcoal mb-1 truncate px-2">{businesses[1].name}</div>
+              <div className="font-urbanist text-body-sm sm:text-body font-700 text-charcoal mb-1 truncate px-2 max-w-full overflow-hidden min-h-[1.5rem] sm:min-h-[1.75rem]">{businesses[1].name}</div>
               <div className="font-urbanist text-caption sm:text-body-sm text-charcoal/60 mb-2 flex items-center justify-center gap-1">
                 <Star className="w-3 h-3 sm:w-4 sm:h-4 text-coral fill-coral" />
                 <span className="font-700 text-charcoal">{businesses[1].totalRating?.toFixed(1) || "0.0"}</span>
@@ -80,7 +80,7 @@ function BusinessOfMonthPodium({ topBusinesses }: BusinessOfMonthPodiumProps) {
                   <span className="text-body-sm sm:text-body font-bold text-white">2</span>
                 </div>
               </div>
-              <div className="font-urbanist text-body-sm sm:text-body font-700 text-charcoal mb-1 truncate px-2">{businesses[1].name}</div>
+              <div className="font-urbanist text-body-sm sm:text-body font-700 text-charcoal mb-1 truncate px-2 max-w-full overflow-hidden min-h-[1.5rem] sm:min-h-[1.75rem]">{businesses[1].name}</div>
               <div className="font-urbanist text-caption sm:text-body-sm text-charcoal/60 mb-2 flex items-center justify-center gap-1">
                 <Star className="w-3 h-3 sm:w-4 sm:h-4 text-coral fill-coral" />
                 <span className="font-700 text-charcoal">{businesses[1].totalRating?.toFixed(1) || "0.0"}</span>
@@ -122,7 +122,7 @@ function BusinessOfMonthPodium({ topBusinesses }: BusinessOfMonthPodiumProps) {
                   <Trophy className="text-h3 sm:text-h2 text-white" />
                 </div>
               </div>
-              <div className="font-urbanist text-body sm:text-h3 font-700 text-charcoal mb-1 truncate px-2">{businesses[0].name}</div>
+              <div className="font-urbanist text-body sm:text-h3 font-700 text-charcoal mb-1 truncate px-2 max-w-full overflow-hidden min-h-[1.75rem] sm:min-h-[2rem]">{businesses[0].name}</div>
               <div className="font-urbanist text-caption sm:text-body-sm text-charcoal/60 mb-2 flex items-center justify-center gap-1">
                 <Star className="w-3 h-3 sm:w-4 sm:h-4 text-coral fill-coral" />
                 <span className="font-700 text-charcoal">{businesses[0].totalRating?.toFixed(1) || "0.0"}</span>
@@ -152,7 +152,7 @@ function BusinessOfMonthPodium({ topBusinesses }: BusinessOfMonthPodiumProps) {
                   <Trophy className="text-h3 sm:text-h2 text-white" />
                 </div>
               </div>
-              <div className="font-urbanist text-body sm:text-h3 font-700 text-charcoal mb-1 truncate px-2">{businesses[0].name}</div>
+              <div className="font-urbanist text-body sm:text-h3 font-700 text-charcoal mb-1 truncate px-2 max-w-full overflow-hidden min-h-[1.75rem] sm:min-h-[2rem]">{businesses[0].name}</div>
               <div className="font-urbanist text-caption sm:text-body-sm text-charcoal/60 mb-2 flex items-center justify-center gap-1">
                 <Star className="w-3 h-3 sm:w-4 sm:h-4 text-coral fill-coral" />
                 <span className="font-700 text-charcoal">{businesses[0].totalRating?.toFixed(1) || "0.0"}</span>
@@ -194,7 +194,7 @@ function BusinessOfMonthPodium({ topBusinesses }: BusinessOfMonthPodiumProps) {
                   <span className="text-body-sm sm:text-body font-bold text-white">3</span>
                 </div>
               </div>
-              <div className="font-urbanist text-body-sm sm:text-body font-700 text-charcoal mb-1 truncate px-2">{businesses[2].name}</div>
+              <div className="font-urbanist text-body-sm sm:text-body font-700 text-charcoal mb-1 truncate px-2 max-w-full overflow-hidden min-h-[1.5rem] sm:min-h-[1.75rem]">{businesses[2].name}</div>
               <div className="font-urbanist text-caption sm:text-body-sm text-charcoal/60 mb-2 flex items-center justify-center gap-1">
                 <Star className="w-3 h-3 sm:w-4 sm:h-4 text-coral fill-coral" />
                 <span className="font-700 text-charcoal">{businesses[2].totalRating?.toFixed(1) || "0.0"}</span>
@@ -224,7 +224,7 @@ function BusinessOfMonthPodium({ topBusinesses }: BusinessOfMonthPodiumProps) {
                   <span className="text-body-sm sm:text-body font-bold text-white">3</span>
                 </div>
               </div>
-              <div className="font-urbanist text-body-sm sm:text-body font-700 text-charcoal mb-1 truncate px-2">{businesses[2].name}</div>
+              <div className="font-urbanist text-body-sm sm:text-body font-700 text-charcoal mb-1 truncate px-2 max-w-full overflow-hidden min-h-[1.5rem] sm:min-h-[1.75rem]">{businesses[2].name}</div>
               <div className="font-urbanist text-caption sm:text-body-sm text-charcoal/60 mb-2 flex items-center justify-center gap-1">
                 <Star className="w-3 h-3 sm:w-4 sm:h-4 text-coral fill-coral" />
                 <span className="font-700 text-charcoal">{businesses[2].totalRating?.toFixed(1) || "0.0"}</span>
