@@ -72,6 +72,7 @@ export default function Header({
   const [menuPos, setMenuPos] = useState<{left:number; top:number} | null>(null);
   const [discoverMenuPos, setDiscoverMenuPos] = useState<{left:number; top:number} | null>(null);
   const { savedCount } = useSavedItems();
+  const [isShrunk, setIsShrunk] = useState(false);
 
   // Use refs to track state without causing re-renders
   const isFilterVisibleRef = useRef(isFilterVisible);
@@ -101,6 +102,24 @@ export default function Header({
       setShowSearchBar(true);
     }
   }, [forceSearchOpen, isStackedLayout]);
+
+  // Sleek header shrink on scroll (all main pages)
+  useEffect(() => {
+    const handleScroll = () => {
+      if (typeof window === "undefined") return;
+      const shouldShrink = window.scrollY > 10;
+      setIsShrunk((prev) => (prev !== shouldShrink ? shouldShrink : prev));
+    };
+
+    const options: AddEventListenerOptions = { passive: true };
+    window.addEventListener("scroll", handleScroll, options);
+    // Run once on mount to set initial state
+    handleScroll();
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   // Anchor for the dropdown FilterModal to hang under
   const headerRef = useRef<HTMLElement>(null);
@@ -378,6 +397,20 @@ export default function Header({
   const primaryCount = PRIMARY_LINKS.length;
   const discoverCount = DISCOVER_LINKS.length;
   const businessCount = BUSINESS_LINKS.length;
+
+  // Active state helpers
+  const isDiscoverActive = DISCOVER_LINKS.some(
+    ({ href }) => pathname === href || pathname?.startsWith(href)
+  );
+
+  const isBusinessActive = BUSINESS_LINKS.some(
+    ({ href }) => pathname === href || pathname?.startsWith(href)
+  );
+
+  // Padding classes with a smooth, clearly visible shrink on scroll
+  const basePaddingClass = reducedPadding ? "py-2.5 md:py-4" : "py-3.5 md:py-6";
+  const shrunkPaddingClass = reducedPadding ? "py-1.5 md:py-2.5" : "py-3.5 md:py-5.5";
+  const currentPaddingClass = isShrunk ? shrunkPaddingClass : basePaddingClass;
   const mobileRevealClass = `transform transition-all duration-500 ease-out ${
     isMobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
   }`;
@@ -388,7 +421,7 @@ export default function Header({
   return (
     <>
       <header ref={headerRef} className={headerClassName} style={sf}>
-        <div className={`relative z-[1] mx-auto px-4 sm:px-6 md:px-8 lg:px-10 w-full max-w-[1700px] ${isHomeVariant ? 'py-0' : reducedPadding ? 'py-2 md:py-3' : 'py-4 md:py-6'}`}>
+        <div className={`relative z-[1] mx-auto px-4 sm:px-6 md:px-8 lg:px-10 w-full max-w-[1700px] ${currentPaddingClass}`}>
           {/* Top row */}
           <div className="flex items-center justify-between gap-6">
             {/* Logo */}
@@ -407,13 +440,10 @@ export default function Header({
                 <Fragment key={key}>
                 <OptimizedLink
                     href={href}
-                    className={`group capitalize px-2.5 lg:px-3.5 py-1.5 rounded-lg text-sm sm:text-xs sm:text-sm md:text-sm sm:text-xs lg:text-sm sm:text-xs font-semibold transition-all duration-200 relative ${isActive ? 'text-sage bg-sage/10' : whiteText ? 'text-white hover:text-white/90 hover:bg-white/10' : 'text-charcoal/90 md:text-charcoal/95 hover:text-sage hover:bg-sage/5'}`}
+                    className={`group capitalize px-2.5 lg:px-3.5 py-1.5 rounded-lg text-sm sm:text-xs sm:text-sm md:text-sm sm:text-xs lg:text-sm sm:text-xs font-semibold transition-all duration-200 relative ${isActive ? 'text-sage' : whiteText ? 'text-white hover:text-white/90 hover:bg-white/10' : 'text-charcoal/90 md:text-charcoal/95 hover:text-sage hover:bg-sage/5'}`}
                   style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                 >
                     <span className="relative z-10">{label}</span>
-                    {isActive && (
-                      <div className="absolute inset-0 bg-gradient-to-r from-sage/10 via-sage/15 to-sage/10 rounded-lg -z-0" />
-                    )}
                   </OptimizedLink>
 
                   {index === 0 && (
@@ -437,16 +467,19 @@ export default function Header({
                             openDiscoverDropdown();
                           }
                         }}
-                        className={`group capitalize px-3 lg:px-4 py-1.5 rounded-lg text-sm sm:text-xs sm:text-sm md:text-sm sm:text-xs lg:text-sm sm:text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 relative ${whiteText ? 'text-white hover:text-white/85 hover:bg-white/10' : 'text-charcoal/90 md:text-charcoal/95 hover:text-sage hover:bg-sage/5'}`}
+                        className={`group capitalize px-3 lg:px-4 py-1.5 rounded-lg text-sm sm:text-xs sm:text-sm md:text-sm sm:text-xs lg:text-sm sm:text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 relative ${
+                          isDiscoverActive
+                            ? 'text-sage'
+                            : whiteText
+                              ? 'text-white hover:text-white/85 hover:bg-white/10'
+                              : 'text-charcoal/90 md:text-charcoal/95 hover:text-sage hover:bg-sage/5'
+                        }`}
                         style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                         aria-expanded={isDiscoverDropdownOpen}
                         aria-haspopup="true"
                       >
                         <span className="whitespace-nowrap relative z-10">Discover</span>
                         <ChevronDown className={`w-4 h-4 sm:w-4 sm:h-4 transition-transform duration-300 relative z-10 ${isDiscoverDropdownOpen ? 'rotate-180' : ''}`} />
-                        {isDiscoverDropdownOpen && (
-                          <div className="absolute inset-0 bg-gradient-to-r from-sage/10 via-sage/15 to-sage/10 rounded-lg -z-0" />
-                        )}
                       </button>
 
                       {isDiscoverDropdownOpen && discoverMenuPos &&
@@ -526,14 +559,17 @@ export default function Header({
                       openBusinessDropdown();
                     }
                   }}
-                  className={`group capitalize px-3 lg:px-4 py-1.5 rounded-lg text-sm sm:text-xs sm:text-sm md:text-sm sm:text-xs lg:text-sm sm:text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 relative ${whiteText ? 'text-white hover:text-white/85 hover:bg-white/10' : 'text-charcoal/90 md:text-charcoal/95 hover:text-sage hover:bg-sage/5'}`}
+                  className={`group capitalize px-3 lg:px-4 py-1.5 rounded-lg text-sm sm:text-xs sm:text-sm md:text-sm sm:text-xs lg:text-sm sm:text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 relative ${
+                    isBusinessActive
+                      ? 'text-sage'
+                      : whiteText
+                        ? 'text-white hover:text-white/85 hover:bg-white/10'
+                        : 'text-charcoal/90 md:text-charcoal/95 hover:text-sage hover:bg-sage/5'
+                  }`}
                   style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                 >
                   <span className="whitespace-nowrap relative z-10">For Businesses</span>
                   <ChevronDown className={`w-4 h-4 sm:w-4 sm:h-4 transition-transform duration-300 relative z-10 ${isBusinessDropdownOpen ? 'rotate-180' : ''}`} />
-                  {isBusinessDropdownOpen && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-sage/10 via-sage/15 to-sage/10 rounded-lg -z-0" />
-                  )}
                 </button>
 
                 {isBusinessDropdownOpen && menuPos &&
@@ -699,9 +735,9 @@ export default function Header({
       {showSearch && !isStackedLayout && (
         <div
           className={`fixed left-0 right-0 z-40 bg-transparent transition-all duration-300 ease-out ${
-            isHomeVariant 
-              ? (isSearchVisible ? "top-[calc(6rem+12px)] opacity-100 translate-y-0" : "top-[calc(6rem+12px)] opacity-0 -translate-y-4 pointer-events-none")
-              : (isSearchVisible ? "top-[72px] opacity-100 translate-y-0" : "top-[72px] opacity-0 -translate-y-4 pointer-events-none")
+            isSearchVisible
+              ? "top-[72px] opacity-100 translate-y-0"
+              : "top-[72px] opacity-0 -translate-y-4 pointer-events-none"
           }`}
           style={sf}
         >

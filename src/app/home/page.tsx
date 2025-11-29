@@ -23,9 +23,6 @@ import {
 } from "../data/communityHighlightsData";
 import { useBusinesses, useForYouBusinesses, useTrendingBusinesses } from "../hooks/useBusinesses";
 import { useRoutePrefetch } from "../hooks/useRoutePrefetch";
-import StaggeredContainer from "../components/Animations/StaggeredContainer";
-import AnimatedElement from "../components/Animations/AnimatedElement";
-import { getDirectionByIndex } from "../hooks/useStaggeredAnimation";
 
 // Note: dynamic and revalidate cannot be exported from client components
 // Client components are automatically dynamic
@@ -222,7 +219,6 @@ export default function Home() {
           </div>
 
           {/* For You Section */}
-          <AnimatedElement index={0} direction="left">
           <section className="pt-4 sm:pt-8 md:pt-10 relative overflow-hidden">
             <div className="relative z-10">
               {forYouLoading && <BusinessRowSkeleton title="For You Now" />}
@@ -239,9 +235,7 @@ export default function Home() {
               )}
             </div>
           </section>
-            </AnimatedElement>
 
-            <AnimatedElement index={1} direction="right">
           <section className="pt-4 sm:pt-8 md:pt-10 relative overflow-hidden">
             <div className="relative z-10">
               {trendingLoading && <BusinessRowSkeleton title="Trending Now" />}
@@ -258,17 +252,13 @@ export default function Home() {
               )}
             </div>
           </section>
-            </AnimatedElement>
 
-            <AnimatedElement index={2} direction="bottom">
           <section className="pt-4 sm:pt-8 md:pt-10 relative overflow-hidden">
             <div className="relative z-10">
               <EventsSpecials events={EVENTS_AND_SPECIALS.slice(0, 5)} />
             </div>
           </section>
-            </AnimatedElement>
 
-            <AnimatedElement index={3} direction="scale">
           <section className="pt-4 sm:pt-8 md:pt-10 relative overflow-hidden">
             <div className="relative z-10">
               <CommunityHighlights
@@ -279,12 +269,9 @@ export default function Home() {
               />
             </div>
           </section>
-            </AnimatedElement>
         </div>
 
-          <AnimatedElement index={4} direction="bottom">
-            <Footer />
-          </AnimatedElement>
+          <Footer />
       </main>
 
       {/* Anchored Filter Modal for home search */}
