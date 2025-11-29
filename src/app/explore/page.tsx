@@ -251,8 +251,8 @@ function ExplorePageContent() {
 
           <div className="py-4">
           {loading && (
-            <div className="flex items-center justify-center py-12">
-              <Loader size="md" variant="pulse" color="sage"  />
+            <div className="min-h-dvh bg-off-white flex items-center justify-center">
+              <Loader size="lg" variant="wavy" color="sage"  />
             </div>
           )}
           {!loading && error && (
@@ -289,7 +289,7 @@ function ExplorePageContent() {
                   {/* Loading Spinner Overlay for Pagination */}
                   {isPaginationLoading && (
                     <div className="fixed inset-0 z-[9998] bg-off-white/95 backdrop-blur-sm flex items-center justify-center min-h-screen">
-                      <Loader size="lg" variant="pulse" color="sage"  />
+                      <Loader size="lg" variant="wavy" color="sage"  />
                     </div>
                   )}
 
@@ -385,9 +385,7 @@ function ExplorePageContent() {
 export default function ExplorePage() {
   return (
     <Suspense fallback={
-      <div className="min-h-dvh bg-off-white flex items-center justify-center">
-        <Loader size="lg" variant="pulse" color="sage"  />
-      </div>
+      <Loader size="lg" variant="wavy" color="sage" fullPage />
     }>
       <ExplorePageContent />
     </Suspense>

@@ -79,7 +79,7 @@ export default function ClaimBusinessPage() {
   };
 
   if (authLoading) {
-    return <PageLoader size="lg" variant="pulse" color="sage"  />;
+    return <PageLoader size="lg" variant="wavy" color="sage"  />;
   }
 
   if (!user) {
@@ -189,8 +189,8 @@ export default function ClaimBusinessPage() {
                 {/* Business Results */}
                 <div className="space-y-3 mb-8">
                   {isSearching && (
-                    <div className="flex items-center justify-center py-8">
-                      <Loader size="md" variant="pulse" color="sage"  />
+                    <div className="min-h-dvh bg-off-white flex items-center justify-center">
+                      <PageLoader size="lg" variant="wavy" color="sage"  />
                     </div>
                   )}
                   {!isSearching && businesses.map((business) => (
