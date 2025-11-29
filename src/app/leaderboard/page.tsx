@@ -180,15 +180,15 @@ function LeaderboardPage() {
                 <section className="relative z-10 pb-6 sm:pb-8 md:pb-12">
                   <div className="mx-auto w-full max-w-[2000px] px-2">
                     {/* Breadcrumb */}
-                    <nav className="px-2 py-4" aria-label="Breadcrumb">
+                    <nav className="px-2" aria-label="Breadcrumb">
                       <ol className="flex items-center gap-1 text-body-sm text-charcoal/60">
                         <li>
-                          <Link href="/home" className="hover:text-charcoal transition-colors font-urbanist">
+                          <Link href="/home" className="hover:text-charcoal transition-colors" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
                             Home
                           </Link>
                         </li>
                         <li className="text-charcoal/40">/</li>
-                        <li className="text-charcoal font-medium font-urbanist">Community Highlights</li>
+                        <li className="text-charcoal font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>Community Highlights</li>
                       </ol>
                     </nav>
                   </div>
