@@ -8,7 +8,7 @@ const urbanist = {
 
 export default function PromoBar() {
   return (
-    <div className="hidden md:block fixed top-0 left-0 right-0 z-[60] bg-navbar-bg/90 text-white">
+    <div className="hidden md:block fixed top-0 left-0 right-0 z-[60] bg-navbar-bg text-white">
       <div className="mx-auto w-full max-w-[2000px] px-2">
         <div className="h-10 sm:h-11 flex items-center justify-center text-center">
           <p className="text-xs sm:text-sm font-medium" style={urbanist}>

@@ -24,7 +24,7 @@ export default function EventsPageHeader({
         initial={{ y: -80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: "spring", stiffness: 80, damping: 20, mass: 1 }}
-        className="fixed top-0 left-0 right-0 z-50 bg-navbar-bg/90 backdrop-blur-xl shadow-lg shadow-sage/5"
+        className="fixed top-0 left-0 right-0 z-50 bg-navbar-bg backdrop-blur-xl shadow-lg shadow-sage/5"
         style={sf}
       >
         <div className="relative z-[1] max-w-[1300px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-3 sm:py-4">

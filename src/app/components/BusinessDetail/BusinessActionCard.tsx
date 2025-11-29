@@ -34,7 +34,7 @@ export default function BusinessActionCard({ businessSlug, businessId, isBusines
         <div className="space-y-3">
           <Link
             href={`/business/${businessSlug}/review`}
-            className="block w-full bg-gradient-to-br from-navbar-bg to-navbar-bg/90 text-white font-semibold py-3 px-5 rounded-full transition-all duration-300 hover:bg-navbar-bg/90 border border-white/30 text-body-sm text-center"
+            className="block w-full bg-gradient-to-br from-navbar-bg to-navbar-bg/90 text-white font-semibold py-3 px-5 rounded-full transition-all duration-300 hover:bg-navbar-bg border border-white/30 text-body-sm text-center"
             style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
           >
             Leave a Review

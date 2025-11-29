@@ -63,7 +63,7 @@ export function TestimonialCarousel({ reviews, onDelete }: TestimonialCarouselPr
         disabled={isSingleReview}
         className={`absolute left-2 md:left-6 top-1/2 -translate-y-1/2 z-30 w-10 h-10 md:w-12 md:h-12 rounded-full border-2 transition-all duration-300 flex items-center justify-center shadow-lg ${
           isSingleReview
-            ? "border-sage/30 bg-navbar-bg/90 opacity-40"
+            ? "border-sage/30 bg-navbar-bg opacity-40"
             : "border-sage bg-sage hover:bg-navbar-bg cursor-pointer"
         }`}
         style={{
@@ -153,7 +153,7 @@ export function TestimonialCarousel({ reviews, onDelete }: TestimonialCarouselPr
         disabled={isSingleReview}
         className={`absolute right-2 md:right-6 top-1/2 -translate-y-1/2 z-30 w-10 h-10 md:w-12 md:h-12 rounded-full border-2 transition-all duration-300 flex items-center justify-center shadow-lg ${
           isSingleReview
-            ? "border-sage/30 border-sage/30 bg-navbar-bg/90 opacity-40"
+            ? "border-sage/30 border-sage/30 bg-navbar-bg opacity-40"
             : "border-sage bg-sage hover:bg-navbar-bg cursor-pointer"
         }`}
         style={{

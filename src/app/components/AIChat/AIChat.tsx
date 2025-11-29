@@ -119,7 +119,7 @@ export default function AIChat() {
                 <div
                   className={`max-w-[80%] rounded-2xl px-4 py-2 ${
                     message.role === "user"
-                      ? "bg-navbar-bg/90 text-white rounded-tr-sm backdrop-blur-sm"
+                      ? "bg-navbar-bg text-white rounded-tr-sm backdrop-blur-sm"
                       : "bg-sage text-white rounded-tl-sm"
                   }`}
                 >

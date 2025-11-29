@@ -37,7 +37,7 @@ export default function ReviewSubmitButton({ isFormValid, onSubmit }: ReviewSubm
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
         className={`w-full py-3.5 px-5 rounded-full text-sm font-600 transition-all duration-300 relative overflow-hidden touch-manipulation min-h-[48px] z-20 ${isFormValid
-            ? "active:bg-navbar-bg/80 active:scale-[0.98] hover:bg-navbar-bg/90 text-white focus:outline-none focus:ring-2 focus:ring-navbar-bg/50 focus:ring-offset-2 group hover:shadow-lg cursor-pointer"
+            ? "active:bg-navbar-bg/80 active:scale-[0.98] hover:bg-navbar-bg text-white focus:outline-none focus:ring-2 focus:ring-navbar-bg/50 focus:ring-offset-2 group hover:shadow-lg cursor-pointer"
             : "bg-charcoal/20 text-charcoal/40 cursor-not-allowed"
           }`}
         disabled={!isFormValid}

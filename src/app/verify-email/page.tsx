@@ -432,7 +432,7 @@ export default function VerifyEmailPage() {
               {/* Email Display - Clickable */}
               <button
                 onClick={handleOpenInbox}
-                className="bg-navbar-bg/90 rounded-full p-4 mb-6 border-0 w-full hover:bg-navbar-bg transition-all duration-300 cursor-pointer group"
+                className="bg-navbar-bg rounded-full p-4 mb-6 border-0 w-full hover:bg-navbar-bg transition-all duration-300 cursor-pointer group"
               >
                 <p className="text-lg font-600 text-white group-hover:text-white transition-colors duration-300 flex items-center justify-center gap-2" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
                   {displayEmail}

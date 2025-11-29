@@ -86,7 +86,7 @@ export function PasswordInput({
         <div className="h-5 mt-1 flex items-center gap-2">
           <div className="flex-1 flex gap-1" role="progressbar" aria-valuenow={strength.score} aria-valuemin={0} aria-valuemax={4}>
             {[1, 2, 3, 4].map((level) => {
-              const barColors = ['bg-error-500', 'bg-yellow-400', 'bg-yellow-500', 'bg-navbar-bg/90'] as const;
+              const barColors = ['bg-error-500', 'bg-yellow-400', 'bg-yellow-500', 'bg-navbar-bg'] as const;
               const activeColor = barColors[Math.min(level - 1, barColors.length - 1)];
               return (
                 <div

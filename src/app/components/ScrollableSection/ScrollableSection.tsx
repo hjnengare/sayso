@@ -117,7 +117,7 @@ export default function ScrollableSection({
                 rounded-full shadow-lg 
                 flex items-center justify-center
                 transition-all duration-300 ease-out
-                hover:bg-navbar-bg/90 hover:shadow-xl
+                hover:bg-navbar-bg hover:shadow-xl
                 active:scale-95
                 text-charcoal hover:text-white
               `}
@@ -149,7 +149,7 @@ export default function ScrollableSection({
                 rounded-full shadow-lg 
                 flex items-center justify-center
                 transition-all duration-300 ease-out
-                hover:bg-navbar-bg/90 hover:shadow-xl
+                hover:bg-navbar-bg hover:shadow-xl
                 active:scale-95
                 text-charcoal hover:text-white
               `}

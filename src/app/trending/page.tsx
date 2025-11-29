@@ -239,7 +239,7 @@ export default function TrendingPage() {
                         <button
                           onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
                           disabled={currentPage === 1 || isPaginationLoading}
-                          className="w-10 h-10 rounded-full bg-navbar-bg/90 border border-charcoal/20 flex items-center justify-center hover:bg-navbar-bg/80 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200"
+                          className="w-10 h-10 rounded-full bg-navbar-bg border border-charcoal/20 flex items-center justify-center hover:bg-navbar-bg/80 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200"
                           aria-label="Previous page"
                           title="Previous"
                         >
@@ -252,7 +252,7 @@ export default function TrendingPage() {
                             onClick={() => handlePageChange(page)}
                             disabled={isPaginationLoading}
                             style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
-                            className={`w-10 h-10 rounded-full bg-navbar-bg/90 font-semibold text-body-sm transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed ${
+                            className={`w-10 h-10 rounded-full bg-navbar-bg font-semibold text-body-sm transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed ${
                               currentPage === page
                                 ? "bg-sage text-white shadow-lg"
                                 : "border border-charcoal/20 text-white hover:bg-navbar-bg/80"
@@ -266,7 +266,7 @@ export default function TrendingPage() {
                         <button
                           onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages))}
                           disabled={currentPage === totalPages || isPaginationLoading}
-                          className="w-10 h-10 rounded-full bg-navbar-bg/90 border border-charcoal/20 flex items-center justify-center hover:bg-navbar-bg/80 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200"
+                          className="w-10 h-10 rounded-full bg-navbar-bg border border-charcoal/20 flex items-center justify-center hover:bg-navbar-bg/80 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200"
                           aria-label="Next page"
                           title="Next"
                         >
@@ -295,7 +295,7 @@ export default function TrendingPage() {
       {showScrollTop && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-6 right-6 z-40 w-12 h-12 bg-navbar-bg/90 hover:bg-navbar-bg backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg border border-white/20 hover:scale-110 transition-all duration-300"
+          className="fixed bottom-6 right-6 z-40 w-12 h-12 bg-navbar-bg hover:bg-navbar-bg backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg border border-white/20 hover:scale-110 transition-all duration-300"
           aria-label="Scroll to top"
         >
           <ChevronUp className="w-6 h-6 text-white" strokeWidth={2.5} />

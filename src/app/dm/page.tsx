@@ -186,20 +186,20 @@ export default function DMChatListPage() {
         />
          
         {/* Split Layout for Larger Screens */}
-        <div className="flex  pt-20 lg:pt-20 overflow-hidden">
+        <div className="hidden lg:flex pt-20 overflow-hidden h-[calc(100vh-80px)]">
 
           {/* Left Sidebar - Chat List */}
           <div className="w-full lg:w-[400px] xl:w-[450px] flex flex-col bg-off-white border-r border-charcoal/10 lg:border-r h-full overflow-hidden relative">
             {/* Search Bar - Instagram style */}
             <div className="px-4 sm:px-6 py-4 border-b border-charcoal/10 flex-shrink-0 bg-off-white">
               <form onSubmit={(e) => e.preventDefault()} className="w-full">
-                <div className="relative">
+                <div className="relative group">
                   <input
                     type="text"
-                    placeholder="Search"
+                    placeholder="Search conversations..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-charcoal/5 rounded-lg px-4 py-2.5 pl-10 text-body-sm placeholder:text-body-sm placeholder:text-charcoal/40 font-normal text-charcoal focus:outline-none focus:bg-charcoal/10 focus:ring-2 focus:ring-sage/20 transition-all duration-200 pr-10 touch-manipulation"
+                    className="w-full bg-charcoal/5 rounded-xl px-4 py-3 pl-11 pr-11 text-body-sm placeholder:text-body-sm placeholder:text-charcoal/40 font-normal text-charcoal focus:outline-none focus:bg-white focus:ring-2 focus:ring-sage/30 focus:shadow-lg focus:shadow-sage/10 border border-transparent hover:border-charcoal/10 transition-all duration-300 touch-manipulation"
                     style={{
                       fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                     }}
@@ -207,18 +207,19 @@ export default function DMChatListPage() {
                   />
                   {searchQuery ? (
                     <motion.button
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0, opacity: 0 }}
                       onClick={() => setSearchQuery("")}
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-charcoal/60 hover:text-charcoal transition-colors z-10"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-charcoal/50 hover:text-charcoal hover:bg-charcoal/5 rounded-r-xl transition-all duration-200 z-10"
                       aria-label="Clear search"
                       type="button"
                     >
-                      <span className="text-charcoal/60 text-lg">×</span>
+                      <span className="text-charcoal/60 text-xl font-light leading-none">×</span>
                     </motion.button>
                   ) : (
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Search className="w-4 h-4 text-charcoal/40" strokeWidth={2} />
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none transition-colors duration-200 group-focus-within:text-sage">
+                      <Search className="w-4.5 h-4.5 text-charcoal/40 group-focus-within:text-sage/60" strokeWidth={2.5} />
                     </div>
                   )}
                 </div>
@@ -341,14 +342,14 @@ export default function DMChatListPage() {
           <main className="relative z-10 mx-auto w-full max-w-[2000px] px-4 sm:px-6 pt-24 sm:pt-28 pb-8">
             {/* Search Bar */}
             <div className="mb-4 pb-3">
-              <div className="relative">
+              <div className="relative group">
                 <form onSubmit={(e) => e.preventDefault()} className="w-full">
                   <input
                     type="text"
-                    placeholder="Search"
+                    placeholder="Search conversations..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-charcoal/5 rounded-lg px-2 sm:px-4 py-2.5 text-body-sm placeholder:text-charcoal/40 font-normal text-charcoal focus:outline-none focus:bg-charcoal/10 focus:ring-2 focus:ring-sage/20 transition-all duration-200 pr-10 touch-manipulation"
+                    className="w-full bg-charcoal/5 rounded-xl px-2 sm:px-4 py-3 pl-10 pr-10 text-body-sm placeholder:text-charcoal/40 font-normal text-charcoal focus:outline-none focus:bg-white focus:ring-2 focus:ring-sage/30 focus:shadow-lg focus:shadow-sage/10 border border-transparent hover:border-charcoal/10 transition-all duration-300 touch-manipulation"
                     style={{
                       fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                     }}
@@ -356,18 +357,19 @@ export default function DMChatListPage() {
                   />
                   {searchQuery ? (
                     <motion.button
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0, opacity: 0 }}
                       onClick={() => setSearchQuery("")}
-                      className="absolute inset-y-0 right-0 pr-2 flex items-center text-charcoal/60 hover:text-charcoal transition-colors z-10"
+                      className="absolute inset-y-0 right-0 pr-2 sm:pr-3 flex items-center text-charcoal/50 hover:text-charcoal hover:bg-charcoal/5 rounded-r-xl transition-all duration-200 z-10"
                       aria-label="Clear search"
                       type="button"
                     >
-                      <span className="text-charcoal/60 text-lg">×</span>
+                      <span className="text-charcoal/60 text-xl font-light leading-none">×</span>
                     </motion.button>
                   ) : (
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Search className="w-4 h-4 text-charcoal/40" strokeWidth={2} />
+                    <div className="absolute inset-y-0 left-0 pl-3 sm:pl-3.5 flex items-center pointer-events-none transition-colors duration-200 group-focus-within:text-sage">
+                      <Search className="w-4.5 h-4.5 text-charcoal/40 group-focus-within:text-sage/60" strokeWidth={2.5} />
                     </div>
                   )}
                 </form>
