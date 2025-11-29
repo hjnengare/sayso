@@ -60,6 +60,7 @@ export const PageTitles = {
   dm: generatePageTitle("Messages", "Your messages"),
   claimBusiness: generatePageTitle("Claim Business", "Claim your business listing"),
   manageBusiness: generatePageTitle("Manage Business", "Manage your business"),
+  notifications: generatePageTitle("Notifications", "Stay updated with your notifications"),
 } as const;
 
 /**
