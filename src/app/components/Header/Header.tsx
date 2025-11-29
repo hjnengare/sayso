@@ -76,7 +76,6 @@ export default function Header({
   const { savedCount } = useSavedItems();
   const { unreadCount } = useNotifications();
   const { unreadCount: unreadMessagesCount } = useMessages();
-  const [isShrunk, setIsShrunk] = useState(false);
 
   // Use refs to track state without causing re-renders
   const isFilterVisibleRef = useRef(isFilterVisible);
@@ -107,23 +106,6 @@ export default function Header({
     }
   }, [forceSearchOpen, isStackedLayout]);
 
-  // Sleek header shrink on scroll (all main pages)
-  useEffect(() => {
-    const handleScroll = () => {
-      if (typeof window === "undefined") return;
-      const shouldShrink = window.scrollY > 10;
-      setIsShrunk((prev) => (prev !== shouldShrink ? shouldShrink : prev));
-    };
-
-    const options: AddEventListenerOptions = { passive: true };
-    window.addEventListener("scroll", handleScroll, options);
-    // Run once on mount to set initial state
-    handleScroll();
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
 
   // Anchor for the dropdown FilterModal to hang under
   const headerRef = useRef<HTMLElement>(null);
@@ -406,10 +388,8 @@ export default function Header({
     ({ href }) => pathname === href || pathname?.startsWith(href)
   );
 
-  // Padding classes with a smooth, clearly visible shrink on scroll
-  const basePaddingClass = reducedPadding ? "py-2.5 md:py-4" : "py-3.5 md:py-6";
-  const shrunkPaddingClass = reducedPadding ? "py-1.5 md:py-2.5" : "py-3.5 md:py-5.5";
-  const currentPaddingClass = isShrunk ? shrunkPaddingClass : basePaddingClass;
+  // Padding classes
+  const currentPaddingClass = reducedPadding ? "py-3.5 md:py-4" : "py-3.5 md:py-6";
   const mobileRevealClass = `transform transition-all duration-500 ease-out ${
     isMobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
   }`;
