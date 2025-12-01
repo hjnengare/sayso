@@ -201,7 +201,7 @@ export default function BusinessOfTheMonthCard({ business }: { business: Busines
             className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 z-20 flex-col gap-2 transition-all duration-300 ease-out translate-x-12 opacity-0 md:group-hover:translate-x-0 md:group-hover:opacity-100"
           >
             <button
-              className="w-10 h-10 bg-off-white/95 backdrop-blur-sm rounded-full flex items-center justify-center hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40"
+              className="w-10 h-10 bg-navbar-bg rounded-full flex items-center justify-center hover:bg-navbar-bg/90 hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30"
               onClick={(e) => {
                 e.stopPropagation();
                 // Handle write review
@@ -209,10 +209,10 @@ export default function BusinessOfTheMonthCard({ business }: { business: Busines
               aria-label={`Write a review for ${business.name}`}
               title="Write a review"
             >
-              <Edit className="w-4 h-4 text-primary" />
+              <Edit className="w-4 h-4 text-white" />
             </button>
             <button
-              className="w-10 h-10 bg-off-white/95 backdrop-blur-sm rounded-full flex items-center justify-center hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40"
+              className="w-10 h-10 bg-navbar-bg rounded-full flex items-center justify-center hover:bg-navbar-bg/90 hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30"
               onClick={(e) => {
                 e.stopPropagation();
                 // Handle bookmark
@@ -220,10 +220,10 @@ export default function BusinessOfTheMonthCard({ business }: { business: Busines
               aria-label={`Save ${business.name}`}
               title="Save"
             >
-              <Bookmark className="w-4 h-4 text-primary" />
+              <Bookmark className="w-4 h-4 text-white" />
             </button>
             <button
-              className="w-10 h-10 bg-off-white/95 backdrop-blur-sm rounded-full flex items-center justify-center hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40"
+              className="w-10 h-10 bg-navbar-bg rounded-full flex items-center justify-center hover:bg-navbar-bg/90 hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30"
               onClick={(e) => {
                 e.stopPropagation();
                 // Handle share
@@ -231,7 +231,7 @@ export default function BusinessOfTheMonthCard({ business }: { business: Busines
               aria-label={`Share ${business.name}`}
               title="Share"
             >
-              <Share2 className="w-4 h-4 text-primary" />
+              <Share2 className="w-4 h-4 text-white" />
             </button>
           </div>
         </div>

@@ -221,7 +221,7 @@ export default function ReviewerCard({
               {/* Card Actions - always visible on mobile, slide-up on desktop */}
               <div className="flex gap-1.5 transition-all duration-500 ease-out md:translate-y-4 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100">
                 <button
-                  className="min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 w-11 h-11 sm:w-8 sm:h-8 bg-off-white/95 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/40 hover:bg-off-white hover:scale-110 active:scale-95 transition-all duration-300 touch-manipulation"
+                  className="min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 w-11 h-11 sm:w-8 sm:h-8 bg-navbar-bg rounded-full flex items-center justify-center hover:bg-navbar-bg/90 hover:scale-110 active:scale-95 transition-all duration-300 touch-manipulation"
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
@@ -229,7 +229,7 @@ export default function ReviewerCard({
                   aria-label="Follow"
                   title="Follow"
                 >
-                  <Users className="text-charcoal w-5 h-5 sm:w-4 sm:h-4" />
+                  <Users className="text-white w-5 h-5 sm:w-4 sm:h-4" />
                 </button>
                 <button
                   onClick={(e) => {
@@ -237,11 +237,11 @@ export default function ReviewerCard({
                     e.preventDefault();
                     router.push(`/dm/${reviewerData?.id || ''}`);
                   }}
-                  className="min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 w-11 h-11 sm:w-8 sm:h-8 bg-white/90 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/60 hover:bg-white hover:scale-110 active:scale-95 transition-all duration-300 touch-manipulation"
+                  className="min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 w-11 h-11 sm:w-8 sm:h-8 bg-navbar-bg rounded-full flex items-center justify-center hover:bg-navbar-bg/90 hover:scale-110 active:scale-95 transition-all duration-300 touch-manipulation"
                   aria-label="Message"
                   title="Message"
                 >
-                  <MessageSquare className="text-charcoal w-5 h-5 sm:w-4 sm:h-4" />
+                  <MessageSquare className="text-white w-5 h-5 sm:w-4 sm:h-4" />
                 </button>
               </div>
             </div>
@@ -300,7 +300,7 @@ export default function ReviewerCard({
           {/* Card Actions - always visible on mobile, slide-in on desktop */}
           <div className="absolute right-2 top-2 md:right-2 md:bottom-4 z-20 flex flex-row md:flex-col gap-1.5 md:gap-2 transition-all duration-500 ease-out md:translate-y-8 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100">
             <button
-              className="min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 w-11 h-11 sm:w-8 sm:h-8 bg-white/90 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/60 hover:bg-white hover:scale-110 active:scale-95 transition-all duration-300 touch-manipulation"
+              className="min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 w-11 h-11 sm:w-8 sm:h-8 bg-navbar-bg rounded-full flex items-center justify-center hover:bg-navbar-bg/90 hover:scale-110 active:scale-95 transition-all duration-300 touch-manipulation"
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
@@ -308,7 +308,7 @@ export default function ReviewerCard({
               aria-label="Follow"
               title="Follow"
             >
-              <Users className="text-charcoal w-5 h-5 sm:w-4 sm:h-4" />
+              <Users className="text-white w-5 h-5 sm:w-4 sm:h-4" />
             </button>
             <button
               onClick={(e) => {
@@ -316,14 +316,14 @@ export default function ReviewerCard({
                 e.preventDefault();
                 router.push(`/dm/${review?.reviewer?.id || ''}`);
               }}
-              className="min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 w-11 h-11 sm:w-8 sm:h-8 bg-white/90 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/60 hover:bg-white hover:scale-110 active:scale-95 transition-all duration-300 touch-manipulation"
+              className="min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 w-11 h-11 sm:w-8 sm:h-8 bg-navbar-bg rounded-full flex items-center justify-center hover:bg-navbar-bg/90 hover:scale-110 active:scale-95 transition-all duration-300 touch-manipulation"
               aria-label="Message"
               title="Message"
             >
-              <MessageSquare className="text-charcoal w-5 h-5 sm:w-4 sm:h-4" />
+              <MessageSquare className="text-white w-5 h-5 sm:w-4 sm:h-4" />
             </button>
             <button
-              className="min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 w-11 h-11 sm:w-8 sm:h-8 bg-white/90 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/60 hover:bg-white hover:scale-110 active:scale-95 transition-all duration-300 touch-manipulation"
+              className="min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 w-11 h-11 sm:w-8 sm:h-8 bg-navbar-bg rounded-full flex items-center justify-center hover:bg-navbar-bg/90 hover:scale-110 active:scale-95 transition-all duration-300 touch-manipulation"
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
@@ -331,7 +331,7 @@ export default function ReviewerCard({
               aria-label="Share"
               title="Share"
             >
-              <Share2 className="text-charcoal w-5 h-5 sm:w-4 sm:h-4" />
+              <Share2 className="text-white w-5 h-5 sm:w-4 sm:h-4" />
             </button>
           </div>
         </div>
