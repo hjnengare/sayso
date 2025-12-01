@@ -16,7 +16,7 @@ export default function TestAuthPage() {
   };
 
   const handleRegister = async () => {
-    const success = await register(email, password);
+    const success = await register(email, password, email.split('@')[0] || 'user');
     if (success) {
       console.log('Registration successful!');
     }

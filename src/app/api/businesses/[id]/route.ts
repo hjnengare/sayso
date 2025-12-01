@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSupabase } from '../../../lib/supabase/server';
 import { fetchBusinessOptimized } from '../../../lib/utils/optimizedQueries';
+import { getDisplayUsername } from '../../../lib/utils/generateUsernameServer';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs'; // Use Node.js runtime to avoid Edge Runtime warnings with Supabase
@@ -37,14 +38,13 @@ export async function GET(
           // Handle profile - could be object, array, or undefined
           const profile = Array.isArray(review.profile) ? review.profile[0] : (review.profile || null);
           
-          // 🔥 More defensive author resolution - check multiple possible column names
-          const author =
-            profile?.display_name ||
-            profile?.username ||
-            profile?.full_name ||      // in case your profiles table uses full_name
-            profile?.name ||           // extra safety
-            review.author ||           // fallback if backend already set it
-            'User';
+          // Generate username using same logic as migration
+          const author = getDisplayUsername(
+            profile?.username,
+            profile?.display_name,
+            null, // Email not available in this context
+            review.user_id
+          );
           
           // Debug logging if author name is missing
           if (!author || author === 'User') {
@@ -228,14 +228,13 @@ export async function GET(
         // Handle profiles - it might be an array or object depending on join type
         const profile = Array.isArray(review.profiles) ? review.profiles[0] : (review.profiles || null);
         
-        // 🔥 More defensive author resolution - check multiple possible column names
-        const author =
-          profile?.display_name ||
-          profile?.username ||
-          profile?.full_name ||      // in case your profiles table uses full_name
-          profile?.name ||           // extra safety
-          review.author ||           // fallback if backend already set it
-          'User';
+        // Generate username using same logic as migration
+        const author = getDisplayUsername(
+          profile?.username,
+          profile?.display_name,
+          null, // Email not available in this context
+          review.user_id
+        );
         
         // Debug logging if author name is missing
         if (!author || author === 'User') {

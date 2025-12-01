@@ -438,23 +438,30 @@ export async function GET(req: Request) {
       );
     }
 
-    // Transform reviews to ensure profile data is properly structured
+    // Import username generation utility
+    const { getDisplayUsername } = await import('../../lib/utils/generateUsernameServer');
+    
+    // Transform reviews to ensure user data is properly structured
     const transformedReviews = (reviews || []).map((review: any) => {
       const profile = review.profile || {};
-      // Ensure we always have display_name or username since all reviewers are authenticated
-      const authorName = profile.display_name || profile.username;
+      const user_id = profile.user_id || review.user_id;
       
-      if (!authorName) {
-        console.warn('Review missing author name - user_id:', review.user_id, 'profile:', profile);
-      }
+      // Generate display username using same logic as migration
+      const displayName = getDisplayUsername(
+        profile.username,
+        profile.display_name,
+        null, // Email not available in profile join
+        user_id
+      );
       
       return {
         ...review,
-        // Ensure profile is always an object
-        profile: {
-          user_id: profile.user_id || review.user_id,
-          display_name: profile.display_name || null,
+        user: {
+          id: user_id,
+          name: displayName,
           username: profile.username || null,
+          display_name: profile.display_name || null,
+          email: null, // Email not included in profile join for security
           avatar_url: profile.avatar_url || null,
         },
       };

@@ -10,7 +10,7 @@ import type { AuthUser } from '../lib/types/database';
 interface AuthContextType {
   user: AuthUser | null;
   login: (email: string, password: string) => Promise<boolean>;
-  register: (email: string, password: string) => Promise<boolean>;
+  register: (email: string, password: string, username: string) => Promise<boolean>;
   logout: () => Promise<void>;
   updateUser: (userData: Partial<AuthUser>) => Promise<void>;
   resendVerificationEmail: (email: string) => Promise<boolean>;
@@ -157,14 +157,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-    const register = async (email: string, password: string): Promise<boolean> => {
+    const register = async (email: string, password: string, username: string): Promise<boolean> => {
       setIsLoading(true);
       setError(null);
 
       try {
         console.log('AuthContext: Starting registration...');
         
-        const { user: authUser, session, error: authError } = await AuthService.signUp({ email, password });
+        const { user: authUser, session, error: authError } = await AuthService.signUp({ email, password, username });
 
         if (authError) {
           console.log('AuthContext: Registration error', authError);

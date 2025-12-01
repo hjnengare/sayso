@@ -37,7 +37,7 @@ export function SavedItemsProvider({ children }: SavedItemsProviderProps) {
 
     try {
       setIsLoading(true);
-      const response = await fetch('/api/user/saved');
+      const response = await fetch('/api/saved/businesses?limit=1000');
       
       if (!response.ok) {
         if (response.status === 401) {
@@ -152,7 +152,7 @@ export function SavedItemsProvider({ children }: SavedItemsProviderProps) {
     });
 
     try {
-      const response = await fetch('/api/user/saved', {
+      const response = await fetch('/api/saved/businesses', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -219,7 +219,7 @@ export function SavedItemsProvider({ children }: SavedItemsProviderProps) {
     setSavedItems(prev => prev.filter(id => id !== itemId));
 
     try {
-      const response = await fetch(`/api/user/saved?business_id=${itemId}`, {
+      const response = await fetch(`/api/saved/businesses/${itemId}`, {
         method: 'DELETE',
       });
 

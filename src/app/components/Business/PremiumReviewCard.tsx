@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { formatDistanceToNow } from "date-fns";
 import { ConfirmationDialog } from "../../../components/molecules/ConfirmationDialog/ConfirmationDialog";
+import { getDisplayUsername } from "../../utils/generateUsername";
 
 interface PremiumReviewCardProps {
     reviewId?: string;
@@ -83,8 +84,14 @@ export function PremiumReviewCard({
         if (userId && user?.id === userId) {
             // Use current user's profile data for real-time updates
             const profile = user?.profile;
-            return profile?.display_name || profile?.username || author;
+            return getDisplayUsername(
+                profile?.username,
+                profile?.display_name,
+                user?.email,
+                userId
+            );
         }
+        // For other users, use the author prop (which should come from API with username)
         return author;
     })();
 

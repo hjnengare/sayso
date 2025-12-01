@@ -59,7 +59,7 @@ export default function SavedPage() {
         setIsLoading(true);
         setError(null);
 
-        const response = await fetch('/api/user/saved');
+        const response = await fetch('/api/saved/businesses?limit=1000');
         
         if (!response.ok) {
           if (response.status === 401) {

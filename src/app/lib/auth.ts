@@ -20,7 +20,7 @@ export class AuthService {
     return process.env.NEXT_PUBLIC_BASE_URL || window.location.origin;
   }
 
-  static async signUp({ email, password }: SignUpData): Promise<{ user: AuthUser | null; session: Session | null; error: AuthError | null }> {
+  static async signUp({ email, password, username }: SignUpData): Promise<{ user: AuthUser | null; session: Session | null; error: AuthError | null }> {
     const supabase = this.getClient();
     try {
       // Basic validation
@@ -31,6 +31,24 @@ export class AuthService {
           error: { message: 'Email and password are required' }
         };
         
+      }
+
+      if (!username?.trim()) {
+        return {
+          user: null,
+          session: null,
+          error: { message: 'Username is required' }
+        };
+      }
+
+      // Validate username format
+      const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+      if (!usernameRegex.test(username.trim())) {
+        return {
+          user: null,
+          session: null,
+          error: { message: 'Username must be 3-20 characters and contain only letters, numbers, and underscores' }
+        };
       }
 
       if (!this.isValidEmail(email)) {
@@ -63,6 +81,9 @@ export class AuthService {
         password: password,
         options: {
           emailRedirectTo: `${baseUrl}/auth/callback`,
+          data: {
+            username: username.trim()
+          }
         }
       });
 

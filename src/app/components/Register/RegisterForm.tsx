@@ -263,7 +263,7 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
       }
 
       // Attempt registration
-      const success = await register(email.trim().toLowerCase(), password);
+      const success = await register(email.trim().toLowerCase(), password, username.trim());
 
       if (success) {
         // Clear form

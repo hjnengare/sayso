@@ -51,6 +51,7 @@ export interface AuthError {
 export interface SignUpData {
   email: string;
   password: string;
+  username: string;
 }
 
 export interface SignInData {
@@ -127,6 +128,9 @@ export interface ReviewWithUser extends Review {
   user: {
     id: string;
     name?: string;
+    username?: string | null;
+    display_name?: string | null;
+    email?: string | null;
     avatar_url?: string;
   };
   images?: ReviewImage[];

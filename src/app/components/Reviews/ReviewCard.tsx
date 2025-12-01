@@ -8,6 +8,7 @@ import { Trash2, Image as ImageIcon, ChevronUp, Heart, X, MoreHorizontal, Messag
 import type { ReviewWithUser } from '../../lib/types/database';
 import { useAuth } from '../../contexts/AuthContext';
 import { useReviewSubmission } from '../../hooks/useReviews';
+import { getDisplayUsername } from '../../utils/generateUsername';
 
 interface ReviewCardProps {
   review: ReviewWithUser;
@@ -218,7 +219,12 @@ export default function ReviewCard({
               <div className="w-12 h-12 rounded-full p-0.5 bg-off-white ring-2 ring-white/40">
                 <Image
                   src={review.user.avatar_url}
-                  alt={review.user?.name || 'User'}
+                  alt={getDisplayUsername(
+                    review.user?.username,
+                    review.user?.display_name,
+                    review.user?.email,
+                    review.user_id
+                  )}
                   width={48}
                   height={48}
                   className="w-full h-full rounded-full object-cover group-hover:ring-2 group-hover:ring-sage/40 transition-all duration-300"
@@ -228,7 +234,12 @@ export default function ReviewCard({
           ) : (
             <div className="w-12 h-12 bg-gradient-to-br from-sage/20 to-sage/10 rounded-full flex items-center justify-center ring-2 ring-white/40 transition-shadow duration-300">
               <span className="font-urbanist text-lg font-700 text-sage">
-                {(review.user?.name || 'U')?.[0]?.toUpperCase() || 'U'}
+                {getDisplayUsername(
+                  review.user?.username,
+                  review.user?.display_name,
+                  review.user?.email,
+                  review.user_id
+                )?.[0]?.toUpperCase() || 'U'}
               </span>
             </div>
           )}
@@ -239,7 +250,12 @@ export default function ReviewCard({
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-3 space-y-2 md:space-y-0">
             <div className="flex items-center space-x-3">
               <span className="font-urbanist text-lg font-600 text-charcoal-700 group-hover:text-sage transition-colors duration-300">
-                {review.user?.name || 'User'}
+                {getDisplayUsername(
+                  review.user?.username,
+                  review.user?.display_name,
+                  review.user?.email,
+                  review.user_id
+                )}
               </span>
               <div className="flex items-center space-x-1">
                 {[...Array(5)].map((_, i) => (

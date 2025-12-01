@@ -202,7 +202,7 @@ export default function RegisterPage() {
         return;
       }
 
-      const success = await register(normalizedEmail, password);
+      const success = await register(normalizedEmail, password, username.trim());
       
       if (success) {
         // Clear rate limit on successful registration
