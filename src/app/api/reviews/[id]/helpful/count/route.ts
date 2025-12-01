@@ -10,7 +10,8 @@ type RouteContext = {
  * Get total helpful vote count for a review
  */
 export async function GET(_req: NextRequest, { params }: RouteContext) {
-  const reviewId = params.id;
+  const { id } = await params;
+  const reviewId = id;
 
   try {
     const supabase = await getServerSupabase();

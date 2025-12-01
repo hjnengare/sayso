@@ -10,7 +10,8 @@ type RouteContext = {
  * Mark review as helpful (add vote)
  */
 export async function POST(_req: NextRequest, { params }: RouteContext) {
-  const reviewId = params.id;
+  const { id } = await params;
+  const reviewId = id;
 
   try {
     const supabase = await getServerSupabase();
@@ -65,7 +66,8 @@ export async function POST(_req: NextRequest, { params }: RouteContext) {
  * Remove helpful vote
  */
 export async function DELETE(_req: NextRequest, { params }: RouteContext) {
-  const reviewId = params.id;
+  const { id } = await params;
+  const reviewId = id;
 
   try {
     const supabase = await getServerSupabase();

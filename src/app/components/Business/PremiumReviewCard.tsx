@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Star, BadgeCheck, ShieldCheck, ThumbsUp, Reply, Share2, Flag, MoreHorizontal, User, Edit, Trash2, X, ChevronLeft, ChevronRight, ZoomIn, Send, MessageCircle } from "lucide-react";
+import { Star, BadgeCheck, ShieldCheck, ThumbsUp, Reply, Share2, Flag, MoreHorizontal, User, Edit, Trash2, X, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, ZoomIn, Send, MessageCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../contexts/AuthContext";
 import { useReviewSubmission } from "../../hooks/useReviews";
@@ -70,6 +70,10 @@ export function PremiumReviewCard({
     const [loadingReplies, setLoadingReplies] = useState(false);
     const [isFlagged, setIsFlagged] = useState(false);
     const [flagging, setFlagging] = useState(false);
+    const [editingReplyId, setEditingReplyId] = useState<string | null>(null);
+    const [editReplyText, setEditReplyText] = useState('');
+    const [showAllReplies, setShowAllReplies] = useState(false);
+    const REPLIES_TO_SHOW = 3; // Show first 3 replies by default
 
     // Use current user's profile data if this is the current user's review
     const displayAuthor = (() => {
@@ -403,6 +407,65 @@ export function PremiumReviewCard({
             showToast('Failed to submit reply', 'error');
         } finally {
             setSubmittingReply(false);
+        }
+    };
+
+    // Handle reply edit
+    const handleEditReply = (reply: any) => {
+        setEditingReplyId(reply.id);
+        setEditReplyText(reply.content);
+    };
+
+    // Handle reply update
+    const handleUpdateReply = async () => {
+        if (!editReplyText.trim() || !editingReplyId || !reviewId || !user) return;
+
+        try {
+            const res = await fetch(`/api/reviews/${reviewId}/replies`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ replyId: editingReplyId, content: editReplyText.trim() }),
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                setReplies(prev => prev.map(r => r.id === editingReplyId ? data.reply : r));
+                setEditingReplyId(null);
+                setEditReplyText('');
+                showToast('Reply updated successfully', 'success');
+            } else {
+                const error = await res.json().catch(() => ({ error: 'Failed to update reply' }));
+                showToast(error.error || 'Failed to update reply', 'error');
+            }
+        } catch (err) {
+            console.error('Error updating reply:', err);
+            showToast('Failed to update reply', 'error');
+        }
+    };
+
+    // Handle reply delete
+    const handleDeleteReply = async (replyId: string) => {
+        if (!reviewId || !user) return;
+        
+        if (!confirm('Are you sure you want to delete this reply?')) return;
+
+        try {
+            const res = await fetch(`/api/reviews/${reviewId}/replies`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ replyId }),
+            });
+
+            if (res.ok) {
+                setReplies(prev => prev.filter(r => r.id !== replyId));
+                showToast('Reply deleted successfully', 'success');
+            } else {
+                const error = await res.json().catch(() => ({ error: 'Failed to delete reply' }));
+                showToast(error.error || 'Failed to delete reply', 'error');
+            }
+        } catch (err) {
+            console.error('Error deleting reply:', err);
+            showToast('Failed to delete reply', 'error');
         }
     };
 
@@ -798,24 +861,99 @@ export function PremiumReviewCard({
                             <h5 className="text-sm font-semibold text-charcoal/70 mb-3" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                                 Replies ({replies.length})
                             </h5>
-                            {replies.map((reply) => (
-                                <div
-                                    key={reply.id}
-                                    className="pl-4 border-l-2 border-sage/20 bg-off-white/30 rounded-r-lg p-3"
-                                >
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <span className="text-sm font-semibold text-charcoal-700" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                                            {reply.user?.name || 'User'}
-                                        </span>
-                                        <span className="text-xs text-charcoal/50" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                                            {formatDistanceToNow(new Date(reply.created_at), { addSuffix: true })}
-                                        </span>
+                            {(showAllReplies ? replies : replies.slice(0, REPLIES_TO_SHOW)).map((reply) => {
+                                const isReplyOwner = user?.id === reply.user_id;
+                                const isEditing = editingReplyId === reply.id;
+
+                                return (
+                                    <div
+                                        key={reply.id}
+                                        className="pl-4 border-l-2 border-sage/20 bg-off-white/30 rounded-r-lg p-3"
+                                    >
+                                        <div className="flex items-start justify-between gap-2 mb-1">
+                                            <div className="flex items-center gap-2 flex-1 min-w-0">
+                                                <span className="text-sm font-semibold text-charcoal-700" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                                    {reply.user?.name || 'User'}
+                                                </span>
+                                                <span className="text-xs text-charcoal/50" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                                    {formatDistanceToNow(new Date(reply.created_at), { addSuffix: true })}
+                                                </span>
+                                            </div>
+                                            {isReplyOwner && !isEditing && (
+                                                <div className="flex items-center gap-1 flex-shrink-0">
+                                                    <button
+                                                        onClick={() => handleEditReply(reply)}
+                                                        className="p-1 hover:bg-sage/10 rounded transition-colors"
+                                                        aria-label="Edit reply"
+                                                    >
+                                                        <Edit className="w-3.5 h-3.5 text-charcoal/60 hover:text-sage" />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDeleteReply(reply.id)}
+                                                        className="p-1 hover:bg-coral/10 rounded transition-colors"
+                                                        aria-label="Delete reply"
+                                                    >
+                                                        <Trash2 className="w-3.5 h-3.5 text-charcoal/60 hover:text-coral" />
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                        {isEditing ? (
+                                            <div className="space-y-2">
+                                                <textarea
+                                                    value={editReplyText}
+                                                    onChange={(e) => setEditReplyText(e.target.value)}
+                                                    className="w-full p-2 border border-charcoal/20 rounded-lg text-sm text-charcoal bg-white focus:outline-none focus:ring-2 focus:ring-sage/30 resize-none"
+                                                    rows={3}
+                                                    style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                                                />
+                                                <div className="flex items-center gap-2">
+                                                    <button
+                                                        onClick={handleUpdateReply}
+                                                        className="px-3 py-1.5 bg-sage text-white rounded-lg text-xs font-semibold hover:bg-sage/90 transition-colors"
+                                                        style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                                                    >
+                                                        Save
+                                                    </button>
+                                                    <button
+                                                        onClick={() => {
+                                                            setEditingReplyId(null);
+                                                            setEditReplyText('');
+                                                        }}
+                                                        className="px-3 py-1.5 bg-charcoal/10 text-charcoal rounded-lg text-xs font-semibold hover:bg-charcoal/20 transition-colors"
+                                                        style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <p className="text-sm text-charcoal/80" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                                {reply.content}
+                                            </p>
+                                        )}
                                     </div>
-                                    <p className="text-sm text-charcoal/80" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                                        {reply.content}
-                                    </p>
-                                </div>
-                            ))}
+                                );
+                            })}
+                            {replies.length > REPLIES_TO_SHOW && (
+                                <button
+                                    onClick={() => setShowAllReplies(!showAllReplies)}
+                                    className="text-sm font-semibold text-sage hover:text-sage/80 transition-colors flex items-center gap-1"
+                                    style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                                >
+                                    {showAllReplies ? (
+                                        <>
+                                            <span>Show Less</span>
+                                            <ChevronUp className="w-4 h-4" />
+                                        </>
+                                    ) : (
+                                        <>
+                                            <span>Show More ({replies.length - REPLIES_TO_SHOW} more)</span>
+                                            <ChevronDown className="w-4 h-4" />
+                                        </>
+                                    )}
+                                </button>
+                            )}
                         </div>
                     )}
                 </div>
