@@ -35,9 +35,17 @@ export default function SimilarBusinesses({
     // Create a Map to track unique businesses by ID
     const uniqueBusinessesMap = new Map<string, typeof businesses[0]>();
     
-    // First pass: filter out current business and collect unique businesses
+    // First pass: filter out current business (by both ID and slug) and collect unique businesses
     businesses.forEach((b) => {
-      if (b.id !== currentBusinessId && !uniqueBusinessesMap.has(b.id)) {
+      // Check if this business is the current one by comparing both ID and slug
+      const isCurrentBusiness = 
+        b.id === currentBusinessId || 
+        b.slug === currentBusinessId ||
+        b.id === currentBusinessId ||
+        (b.slug && b.slug === currentBusinessId);
+      
+      // Only add if it's not the current business and not already in the map
+      if (!isCurrentBusiness && !uniqueBusinessesMap.has(b.id)) {
         uniqueBusinessesMap.set(b.id, b);
       }
     });
@@ -47,7 +55,7 @@ export default function SimilarBusinesses({
       .slice(0, limit)
       .map((b) => ({
         ...b,
-        href: `/business/${b.id}`,
+        href: `/business/${b.slug || b.id}`,
       }));
   }, [businesses, currentBusinessId, limit]);
 
@@ -126,6 +134,7 @@ export default function SimilarBusinesses({
                   uploaded_image={business.uploaded_image}
                   category={business.category}
                   location={business.location}
+                  address={business.address}
                   rating={business.rating}
                   totalRating={business.totalRating}
                   reviews={business.reviews}

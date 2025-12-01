@@ -15,6 +15,7 @@ interface SimilarBusinessCardProps {
   uploaded_image?: string;
   category: string;
   location: string;
+  address?: string;
   rating?: number;
   totalRating?: number;
   reviews?: number;
@@ -32,6 +33,7 @@ export default function SimilarBusinessCard({
   uploaded_image,
   category,
   location,
+  address,
   rating,
   totalRating,
   reviews,
@@ -111,44 +113,80 @@ export default function SimilarBusinessCard({
       </div>
 
       {/* Content Section - Premium Enhanced */}
-      <div className="p-4 sm:p-5 space-y-2.5 relative z-10 bg-gradient-to-b from-transparent via-off-white/20 to-off-white/40 flex-1 flex flex-col rounded-b-2xl">
-        {/* Business Name - Premium */}
-        <div className="min-h-[1.5em]">
+      <div className="p-4 sm:p-5 space-y-3 relative z-10 bg-gradient-to-b from-transparent via-off-white/20 to-off-white/40 flex-1 flex flex-col justify-between rounded-b-2xl">
+        {/* Business Name, Location, and Address - Stacked */}
+        <div className="space-y-2">
+          {/* Business Name */}
           <h3
-            className="text-sm sm:text-[15px] font-bold text-charcoal line-clamp-1 group-hover:line-clamp-none group-hover:text-navbar-bg transition-all duration-300 leading-tight"
+            className="text-sm sm:text-base font-bold text-charcoal line-clamp-2 group-hover:text-navbar-bg transition-colors duration-300 leading-tight"
             style={{
               fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
               fontWeight: 700,
-              letterSpacing: '-0.02em',
             }}
             title={name}
           >
             {name}
           </h3>
-        </div>
 
-        {/* Category and Location - Premium */}
-        <div className="flex items-center gap-2 text-xs text-charcoal/75" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
-          <span className="truncate font-semibold bg-gradient-to-r from-sage/10 to-transparent px-2 py-0.5 rounded-full border border-sage/20">{category}</span>
-          <span aria-hidden className="text-charcoal/30">·</span>
-          <div className="flex items-center gap-1 min-w-0 flex-1">
-            <MapPin className="w-3.5 h-3.5 text-coral flex-shrink-0" strokeWidth={2.5} />
-            <span className="truncate text-charcoal/70 font-medium">{location}</span>
+          {/* Location - Stacked */}
+          <div className="flex items-start gap-1.5">
+            <MapPin className="w-3.5 h-3.5 text-coral flex-shrink-0 mt-0.5" strokeWidth={2.5} />
+            <span className="text-xs text-charcoal/70 font-medium leading-relaxed" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
+              {location}
+            </span>
           </div>
-        </div>
 
-        {/* Reviews - Premium */}
-        <div className="flex items-center pt-2 border-t border-white/40 group-hover:border-sage/30 transition-colors duration-300">
-          {displayReviews > 0 ? (
-            <span className="text-xs text-charcoal/70 font-semibold group-hover:text-charcoal transition-colors duration-300" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
-              {displayReviews} {displayReviews === 1 ? 'review' : 'reviews'}
-            </span>
-          ) : (
-            <span className="text-xs text-charcoal/50 italic" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
-              No reviews yet
-            </span>
+          {/* Address - Stacked (if available) */}
+          {address && (
+            <div className="flex items-start gap-1.5">
+              <MapPin className="w-3.5 h-3.5 text-charcoal/40 flex-shrink-0 mt-0.5" strokeWidth={2.5} />
+              <span className="text-xs text-charcoal/60 font-medium leading-relaxed line-clamp-2" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
+                {address}
+              </span>
+            </div>
           )}
         </div>
+
+        {/* Reviews Count and Rating Badge */}
+        <div className="flex items-center justify-between gap-2 pt-2 border-t border-white/40">
+          {/* Reviews Count */}
+          <div className="flex items-center">
+            {displayReviews > 0 ? (
+              <span className="text-xs sm:text-sm text-charcoal/70 font-semibold group-hover:text-charcoal transition-colors duration-300" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
+                {displayReviews} {displayReviews === 1 ? 'review' : 'reviews'}
+              </span>
+            ) : (
+              <span className="text-xs sm:text-sm text-charcoal/50 italic" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
+                No reviews yet
+              </span>
+            )}
+          </div>
+
+          {/* Total Reviews Badge - Only show if has rating */}
+          {displayRating > 0 && (
+            <div className="inline-flex items-center gap-1 rounded-full bg-gradient-to-br from-off-white/98 via-off-white/95 to-off-white/90 backdrop-blur-xl px-2.5 py-1 text-charcoal border border-white/60 shadow-md">
+              <Star className="w-3 h-3 text-coral fill-coral" aria-hidden strokeWidth={2.5} />
+              <span className="text-[10px] font-bold text-charcoal" style={{ 
+                fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', 
+                fontWeight: 700
+              }}>
+                {Number(displayRating).toFixed(1)}
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* See Business CTA Button */}
+        <button
+          className="w-full bg-gradient-to-br from-navbar-bg to-navbar-bg/90 text-white font-semibold py-2.5 px-4 rounded-full transition-all duration-300 hover:bg-navbar-bg border border-white/30 text-sm sm:text-base hover:scale-105 active:scale-95"
+          style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+          onClick={(e) => {
+            e.preventDefault();
+            window.location.href = `/business/${id}`;
+          }}
+        >
+          See Business
+        </button>
       </div>
     </Link>
   );

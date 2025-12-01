@@ -4,10 +4,6 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
-  Twitter,
-  Instagram,
-  Facebook,
-  Linkedin,
   Mail,
   Heart,
 } from "lucide-react";
@@ -33,12 +29,6 @@ export default function Footer() {
     ]
   };
 
-  const socialLinks = [
-    { name: "Twitter", icon: Twitter, href: "https://twitter.com", color: "hover:text-blue-400" },
-    { name: "Instagram", icon: Instagram, href: "https://instagram.com", color: "hover:text-pink-400" },
-    { name: "Facebook", icon: Facebook, href: "https://facebook.com", color: "hover:text-blue-500" },
-    { name: "LinkedIn", icon: Linkedin, href: "https://linkedin.com", color: "hover:text-blue-600" },
-  ];
 
   return (
     <footer className="relative overflow-hidden pb-safe-area-bottom bg-gradient-to-b from-charcoal via-charcoal to-charcoal/95 text-off-white">
@@ -71,41 +61,9 @@ export default function Footer() {
                   <Logo variant="footer" />
                 </div>
               </Link>
-              <p className="font-urbanist text-sm sm:text-base text-off-white/80 leading-relaxed mb-6 max-w-sm">
+              <p className="font-urbanist text-sm sm:text-base text-off-white/80 leading-relaxed max-w-sm">
                 Discover trusted local businesses and authentic experiences in your community.
               </p>
-              
-              {/* Social Media Links */}
-              <div className="flex items-center gap-3 mb-6">
-                {socialLinks.map((social, index) => {
-                  const Icon = social.icon;
-                  return (
-                    <motion.a
-                      key={social.name}
-                      href={social.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      initial={{ opacity: 0, scale: 0 }}
-                      whileInView={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.4, delay: 0.5 + index * 0.1 }}
-                      viewport={{ once: true }}
-                      className={`
-                        w-10 h-10 rounded-full bg-off-white/5 backdrop-blur-sm
-                        border border-off-white/10
-                        flex items-center justify-center
-                        text-off-white/60 ${social.color}
-                        hover:bg-off-white/10 hover:border-off-white/20
-                        hover:scale-110 active:scale-95
-                        transition-all duration-300
-                        shadow-premium
-                      `}
-                      aria-label={social.name}
-                    >
-                      <Icon className="w-5 h-5" />
-                    </motion.a>
-                  );
-                })}
-              </div>
             </motion.div>
           </div>
 
