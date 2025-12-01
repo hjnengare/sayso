@@ -37,13 +37,14 @@ export default function BusinessActionCard({ businessSlug, businessId, isBusines
             href={hasReviewed ? '#' : `/business/${businessSlug}/review`}
             className={`block w-full font-semibold py-3 px-5 rounded-full transition-all duration-300 border text-body-sm text-center ${
               hasReviewed
-                ? 'bg-charcoal/20 text-charcoal/50 cursor-not-allowed border-charcoal/20'
+                ? 'bg-charcoal/10 text-charcoal/40 cursor-not-allowed border-charcoal/10 opacity-60 pointer-events-none'
                 : 'bg-gradient-to-br from-navbar-bg to-navbar-bg/90 text-white hover:bg-navbar-bg border-white/30'
             }`}
             style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
             onClick={(e) => {
               if (hasReviewed) {
                 e.preventDefault();
+                e.stopPropagation();
               }
             }}
             aria-disabled={hasReviewed}

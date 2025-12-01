@@ -24,14 +24,14 @@ function BusinessOfMonthPodium({ topBusinesses }: BusinessOfMonthPodiumProps) {
   ];
 
   return (
-    <div className="flex flex-row justify-center items-end gap-2 sm:gap-4 mb-6 sm:mb-8 md:mb-12 pt-6 sm:pt-8 md:pt-10 px-2 max-w-lg mx-auto">
+    <div className="flex flex-row justify-center items-end gap-1.5 sm:gap-3 md:gap-4 lg:gap-6 mb-6 sm:mb-8 md:mb-12 pt-6 sm:pt-8 md:pt-10 px-2 sm:px-4 md:px-6 max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl mx-auto">
       {/* 2nd Place */}
       {businesses[1] && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.4 }}
-          className="text-center group cursor-pointer flex-1 w-full sm:max-w-[180px] order-1"
+          className="text-center group cursor-pointer flex-1 w-full max-w-[100px] sm:max-w-[140px] md:max-w-[180px] lg:max-w-[200px] order-1"
         >
           {businesses[1].href ? (
             <Link href={businesses[1].href} className="block">
@@ -50,7 +50,7 @@ function BusinessOfMonthPodium({ topBusinesses }: BusinessOfMonthPodiumProps) {
                   <span className="text-body-sm sm:text-body font-bold text-white">2</span>
                 </div>
               </div>
-              <div className="font-urbanist text-body-sm sm:text-body font-700 text-charcoal mb-1 truncate px-2 max-w-full overflow-hidden min-h-[1.5rem] sm:min-h-[1.75rem]">{businesses[1].name}</div>
+              <div className="font-urbanist text-xs sm:text-body-sm md:text-body font-700 text-charcoal mb-1 line-clamp-2 px-1 sm:px-2 max-w-full min-h-[2rem] sm:min-h-[2.5rem] md:min-h-[3rem] break-words">{businesses[1].name}</div>
               <div className="font-urbanist text-caption sm:text-body-sm text-charcoal/60 mb-2 flex items-center justify-center gap-1">
                 <Star className="w-3 h-3 sm:w-4 sm:h-4 text-coral fill-coral" />
                 <span className="font-700 text-charcoal">{businesses[1].totalRating?.toFixed(1) || "0.0"}</span>
@@ -80,7 +80,7 @@ function BusinessOfMonthPodium({ topBusinesses }: BusinessOfMonthPodiumProps) {
                   <span className="text-body-sm sm:text-body font-bold text-white">2</span>
                 </div>
               </div>
-              <div className="font-urbanist text-body-sm sm:text-body font-700 text-charcoal mb-1 truncate px-2 max-w-full overflow-hidden min-h-[1.5rem] sm:min-h-[1.75rem]">{businesses[1].name}</div>
+              <div className="font-urbanist text-xs sm:text-body-sm md:text-body font-700 text-charcoal mb-1 line-clamp-2 px-1 sm:px-2 max-w-full min-h-[2rem] sm:min-h-[2.5rem] md:min-h-[3rem] break-words">{businesses[1].name}</div>
               <div className="font-urbanist text-caption sm:text-body-sm text-charcoal/60 mb-2 flex items-center justify-center gap-1">
                 <Star className="w-3 h-3 sm:w-4 sm:h-4 text-coral fill-coral" />
                 <span className="font-700 text-charcoal">{businesses[1].totalRating?.toFixed(1) || "0.0"}</span>
@@ -103,7 +103,7 @@ function BusinessOfMonthPodium({ topBusinesses }: BusinessOfMonthPodiumProps) {
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.6 }}
-          className="text-center group cursor-pointer flex-1 w-full sm:max-w-[200px] order-2"
+          className="text-center group cursor-pointer flex-1 w-full max-w-[120px] sm:max-w-[160px] md:max-w-[200px] lg:max-w-[240px] order-2"
         >
           {businesses[0].href ? (
             <Link href={businesses[0].href} className="block">
@@ -122,7 +122,7 @@ function BusinessOfMonthPodium({ topBusinesses }: BusinessOfMonthPodiumProps) {
                   <Trophy className="text-h3 sm:text-h2 text-white" />
                 </div>
               </div>
-              <div className="font-urbanist text-body sm:text-h3 font-700 text-charcoal mb-1 truncate px-2 max-w-full overflow-hidden min-h-[1.75rem] sm:min-h-[2rem]">{businesses[0].name}</div>
+              <div className="font-urbanist text-sm sm:text-body md:text-h3 font-700 text-charcoal mb-1 line-clamp-2 px-1 sm:px-2 max-w-full min-h-[2rem] sm:min-h-[2.5rem] md:min-h-[3rem] break-words">{businesses[0].name}</div>
               <div className="font-urbanist text-caption sm:text-body-sm text-charcoal/60 mb-2 flex items-center justify-center gap-1">
                 <Star className="w-3 h-3 sm:w-4 sm:h-4 text-coral fill-coral" />
                 <span className="font-700 text-charcoal">{businesses[0].totalRating?.toFixed(1) || "0.0"}</span>
@@ -152,7 +152,7 @@ function BusinessOfMonthPodium({ topBusinesses }: BusinessOfMonthPodiumProps) {
                   <Trophy className="text-h3 sm:text-h2 text-white" />
                 </div>
               </div>
-              <div className="font-urbanist text-body sm:text-h3 font-700 text-charcoal mb-1 truncate px-2 max-w-full overflow-hidden min-h-[1.75rem] sm:min-h-[2rem]">{businesses[0].name}</div>
+              <div className="font-urbanist text-sm sm:text-body md:text-h3 font-700 text-charcoal mb-1 line-clamp-2 px-1 sm:px-2 max-w-full min-h-[2rem] sm:min-h-[2.5rem] md:min-h-[3rem] break-words">{businesses[0].name}</div>
               <div className="font-urbanist text-caption sm:text-body-sm text-charcoal/60 mb-2 flex items-center justify-center gap-1">
                 <Star className="w-3 h-3 sm:w-4 sm:h-4 text-coral fill-coral" />
                 <span className="font-700 text-charcoal">{businesses[0].totalRating?.toFixed(1) || "0.0"}</span>
@@ -175,7 +175,7 @@ function BusinessOfMonthPodium({ topBusinesses }: BusinessOfMonthPodiumProps) {
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7, duration: 0.6 }}
-          className="text-center group cursor-pointer flex-1 w-full sm:max-w-[180px] order-3"
+          className="text-center group cursor-pointer flex-1 w-full max-w-[100px] sm:max-w-[140px] md:max-w-[180px] lg:max-w-[200px] order-3"
         >
           {businesses[2].href ? (
             <Link href={businesses[2].href} className="block">
