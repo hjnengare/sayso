@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { X, Edit, ChevronRight, Bookmark, Home, User, Search, Settings, HelpCircle } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useSavedItems } from "../../contexts/SavedItemsContext";
@@ -17,7 +17,13 @@ export default function MenuModal({ isOpen, isVisible, onClose }: MenuModalProps
   const { user } = useAuth();
   const { savedCount } = useSavedItems();
   const router = useRouter();
+  const pathname = usePathname();
   const modalRef = useRef<HTMLDivElement>(null);
+
+  // Check active routes
+  const isSavedActive = pathname === '/saved' || pathname?.startsWith('/saved');
+  const isHomeActive = pathname === '/home' || pathname === '/';
+  const isProfileActive = pathname === '/profile' || pathname?.startsWith('/profile');
 
   // Handle outside click and keyboard navigation
   useEffect(() => {
@@ -158,10 +164,14 @@ export default function MenuModal({ isOpen, isVisible, onClose }: MenuModalProps
           <Link
             href="/saved"
             onClick={onClose}
-            className="w-full flex items-center space-x-4 p-4 rounded-xl hover:bg-sage/5 transition-all duration-200 group mobile-interaction touch-target-large relative"
+            className={`w-full flex items-center space-x-4 p-4 rounded-xl transition-all duration-200 group mobile-interaction touch-target-large relative ${
+              isSavedActive ? 'bg-sage/5' : 'hover:bg-sage/5'
+            }`}
           >
-            <div className="w-10 h-10 bg-sage/10 rounded-full flex items-center justify-center group-hover:bg-sage/20 transition-colors duration-200 relative">
-              <Bookmark className="w-5 h-5 text-sage" />
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-200 relative ${
+              isSavedActive ? 'bg-sage/20' : 'bg-sage/10 group-hover:bg-sage/20'
+            }`}>
+              <Bookmark className={`w-5 h-5 ${isSavedActive ? 'text-sage' : 'text-sage'}`} fill={isSavedActive ? 'currentColor' : 'none'} />
               {savedCount > 0 && (
                 <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[20px] h-5 px-1.5 bg-sage text-white text-[11px] font-semibold rounded-full shadow-md">
                   {savedCount > 99 ? '99+' : savedCount}
@@ -169,7 +179,9 @@ export default function MenuModal({ isOpen, isVisible, onClose }: MenuModalProps
               )}
             </div>
             <div className="flex-1 text-left">
-              <span className="font-urbanist text-base font-600 text-charcoal group-hover:text-sage transition-colors duration-200">
+              <span className={`font-urbanist text-base font-600 transition-colors duration-200 ${
+                isSavedActive ? 'text-sage' : 'text-charcoal group-hover:text-sage'
+              }`}>
                 Saved Places
               </span>
               <p className="text-sm text-charcoal/60 mt-1">
@@ -183,13 +195,19 @@ export default function MenuModal({ isOpen, isVisible, onClose }: MenuModalProps
           <Link
             href="/home"
             onClick={onClose}
-            className="w-full flex items-center space-x-4 p-4 rounded-xl hover:bg-sage/5 transition-all duration-200 group mobile-interaction touch-target-large"
+            className={`w-full flex items-center space-x-4 p-4 rounded-xl transition-all duration-200 group mobile-interaction touch-target-large ${
+              isHomeActive ? 'bg-sage/5' : 'hover:bg-sage/5'
+            }`}
           >
-            <div className="w-10 h-10 bg-sage/10 rounded-full flex items-center justify-center group-hover:bg-sage/20 transition-colors duration-200">
-              <Home className="w-5 h-5 text-sage" />
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-200 ${
+              isHomeActive ? 'bg-sage/20' : 'bg-sage/10 group-hover:bg-sage/20'
+            }`}>
+              <Home className={`w-5 h-5 ${isHomeActive ? 'text-sage' : 'text-sage'}`} fill={isHomeActive ? 'currentColor' : 'none'} />
             </div>
             <div className="flex-1 text-left">
-              <span className="font-urbanist text-base font-600 text-charcoal group-hover:text-sage transition-colors duration-200">
+              <span className={`font-urbanist text-base font-600 transition-colors duration-200 ${
+                isHomeActive ? 'text-sage' : 'text-charcoal group-hover:text-sage'
+              }`}>
                 Home
               </span>
               <p className="text-sm text-charcoal/60 mt-1">
@@ -203,13 +221,19 @@ export default function MenuModal({ isOpen, isVisible, onClose }: MenuModalProps
           <Link
             href="/profile"
             onClick={onClose}
-            className="w-full flex items-center space-x-4 p-4 rounded-xl hover:bg-sage/5 transition-all duration-200 group mobile-interaction touch-target-large"
+            className={`w-full flex items-center space-x-4 p-4 rounded-xl transition-all duration-200 group mobile-interaction touch-target-large ${
+              isProfileActive ? 'bg-sage/5' : 'hover:bg-sage/5'
+            }`}
           >
-            <div className="w-10 h-10 bg-sage/10 rounded-full flex items-center justify-center group-hover:bg-sage/20 transition-colors duration-200">
-              <User className="w-5 h-5 text-sage" />
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-200 ${
+              isProfileActive ? 'bg-sage/20' : 'bg-sage/10 group-hover:bg-sage/20'
+            }`}>
+              <User className={`w-5 h-5 ${isProfileActive ? 'text-sage' : 'text-sage'}`} fill={isProfileActive ? 'currentColor' : 'none'} />
             </div>
             <div className="flex-1 text-left">
-              <span className="font-urbanist text-base font-600 text-charcoal group-hover:text-sage transition-colors duration-200">
+              <span className={`font-urbanist text-base font-600 transition-colors duration-200 ${
+                isProfileActive ? 'text-sage' : 'text-charcoal group-hover:text-sage'
+              }`}>
                 Profile
               </span>
               <p className="text-sm text-charcoal/60 mt-1">
