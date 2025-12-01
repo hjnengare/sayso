@@ -895,7 +895,7 @@ export function PremiumReviewCard({
                     {/* Replies List */}
                     {!compact && replies.length > 0 && (
                         <div className="mt-4 pt-4 border-t border-charcoal/10 space-y-3">
-                            <h5 className="text-sm font-semibold text-charcoal/70 mb-3" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                            <h5 className="text-sm font-bold text-charcoal/70 mb-3" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                                 Replies ({replies.length})
                             </h5>
                             {(showAllReplies ? replies : replies.slice(0, REPLIES_TO_SHOW)).map((reply) => {
@@ -912,7 +912,7 @@ export function PremiumReviewCard({
                                                 <span className="text-sm font-semibold text-charcoal-700" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                                                     {reply.user?.name || 'User'}
                                                 </span>
-                                                <span className="text-xs text-charcoal/50" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                                <span className="text-xs font-semibold text-charcoal/50" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                                                     {formatDistanceToNow(new Date(reply.created_at), { addSuffix: true })}
                                                 </span>
                                             </div>
@@ -966,7 +966,7 @@ export function PremiumReviewCard({
                                                 </div>
                                             </div>
                                         ) : (
-                                            <p className="text-sm text-charcoal/80" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                            <p className="text-sm font-semibold text-charcoal/80" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                                                 {reply.content}
                                             </p>
                                         )}

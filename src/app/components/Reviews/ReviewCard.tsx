@@ -524,7 +524,7 @@ export default function ReviewCard({
           {/* Replies List */}
           {replies.length > 0 && (
             <div className="mt-4 pt-4 border-t border-sage/10 space-y-3">
-              <h5 className="font-urbanist text-sm font-semibold text-charcoal/70 mb-3">
+              <h5 className="font-urbanist text-sm font-bold text-charcoal/70 mb-3">
                 Replies ({replies.length})
               </h5>
               {replies.map((reply) => (
@@ -538,11 +538,11 @@ export default function ReviewCard({
                     <span className="font-urbanist text-sm font-semibold text-charcoal-700">
                       {reply.user?.name || 'User'}
                     </span>
-                    <span className="font-urbanist text-xs text-charcoal/50">
+                    <span className="font-urbanist text-xs font-semibold text-charcoal/50">
                       {formatDate(reply.created_at)}
                     </span>
                   </div>
-                  <p className="font-urbanist text-sm text-charcoal/80">
+                  <p className="font-urbanist text-sm font-semibold text-charcoal/80">
                     {reply.content}
                   </p>
                 </motion.div>
