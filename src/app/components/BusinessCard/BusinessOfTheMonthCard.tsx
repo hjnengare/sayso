@@ -321,24 +321,24 @@ export default function BusinessOfTheMonthCard({ business }: { business: Busines
               <span>Review</span>
             </button>
             <button
-              className="w-9 h-9 bg-gradient-to-br from-off-white via-white to-off-white/95 backdrop-blur-xl rounded-full flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-sage/40 border border-white/40 transition-all active:scale-95"
+              className="w-9 h-9 bg-navbar-bg rounded-full flex items-center justify-center hover:bg-navbar-bg/90 focus:outline-none focus:ring-2 focus:ring-sage/40 transition-all active:scale-95"
               onClick={(e) => {
                 e.stopPropagation();
                 // Handle bookmark
               }}
               aria-label={`Save ${business.name}`}
             >
-              <Bookmark className="w-4 h-4 text-charcoal" />
+              <Bookmark className="w-4 h-4 text-white" />
             </button>
             <button
-              className="w-9 h-9 bg-gradient-to-br from-off-white via-white to-off-white/95 backdrop-blur-xl rounded-full flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-sage/40 border border-white/40 transition-all active:scale-95"
+              className="w-9 h-9 bg-navbar-bg rounded-full flex items-center justify-center hover:bg-navbar-bg/90 focus:outline-none focus:ring-2 focus:ring-sage/40 transition-all active:scale-95"
               onClick={(e) => {
                 e.stopPropagation();
                 // Handle share
               }}
               aria-label={`Share ${business.name}`}
             >
-              <Share2 className="w-4 h-4 text-charcoal" />
+              <Share2 className="w-4 h-4 text-white" />
             </button>
           </div>
         </div>
