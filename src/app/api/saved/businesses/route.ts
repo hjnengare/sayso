@@ -56,8 +56,6 @@ export async function GET(req: NextRequest) {
           price_range,
           badge,
           slug,
-          latitude,
-          longitude,
           created_at,
           updated_at
         )
@@ -142,7 +140,18 @@ export async function GET(req: NextRequest) {
     let businesses = savedRecords
       .map((savedRecord: any) => {
         const business = savedRecord.businesses;
-        if (!business) return null;
+        
+        // Filter out null businesses (orphaned saved_businesses records)
+        if (!business || !business.id) {
+          console.warn('Saved business record has no associated business:', savedRecord.id);
+          return null;
+        }
+        
+        // Filter out businesses with missing critical data
+        if (!business.name || business.name.trim() === '') {
+          console.warn('Saved business has no name:', business.id);
+          return null;
+        }
 
         const stats = businessStatsMap.get(business.id);
         const averageRating = stats?.average_rating;
@@ -151,30 +160,28 @@ export async function GET(req: NextRequest) {
 
         return {
           id: business.id,
-          name: business.name,
-          description: business.description,
-          category: business.category,
+          name: business.name.trim(),
+          description: business.description || null,
+          category: business.category || 'Uncategorized',
           interest_id: business.interest_id,
           sub_interest_id: business.sub_interest_id,
-          location: business.location,
-          address: business.address,
-          phone: business.phone,
-          email: business.email,
-          website: business.website,
-          image_url: business.image_url,
-          uploaded_image: business.uploaded_image,
+          location: business.location || business.address || 'Location not available',
+          address: business.address || null,
+          phone: business.phone || null,
+          email: business.email || null,
+          website: business.website || null,
+          image_url: business.image_url || null,
+          uploaded_image: business.uploaded_image || null,
           verified: business.verified || false,
           price_range: business.price_range || '$$',
-          badge: business.badge,
-          slug: business.slug,
-          latitude: business.latitude,
-          longitude: business.longitude,
+          badge: business.badge || null,
+          slug: business.slug || null,
           created_at: business.created_at,
           updated_at: business.updated_at,
           // Stats
-          rating: averageRating,
+          rating: averageRating || null,
           total_reviews: totalReviews,
-          percentiles: percentiles,
+          percentiles: percentiles || null,
           // Saved metadata
           saved_at: savedRecord.created_at,
           saved_id: savedRecord.id,

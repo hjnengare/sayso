@@ -2,7 +2,7 @@
 
 import nextDynamic from "next/dynamic";
 import Link from "next/link";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { ChevronRight } from "react-feather";
 import EmailVerificationGuard from "../components/Auth/EmailVerificationGuard";
 import { useSavedItems } from "../contexts/SavedItemsContext";
@@ -11,9 +11,6 @@ import SavedBusinessRow from "../components/Saved/SavedBusinessRow";
 import EmptySavedState from "../components/Saved/EmptySavedState";
 import { PageLoader } from "../components/Loader";
 import { usePredefinedPageTitle } from "../hooks/usePageTitle";
-
-// Note: dynamic and revalidate cannot be exported from client components
-// Client components are automatically dynamic
 
 const Footer = nextDynamic(() => import("../components/Footer/Footer"), {
   loading: () => null,
@@ -24,6 +21,8 @@ interface SavedBusiness {
   id: string;
   name: string;
   image?: string;
+  image_url?: string;
+  uploaded_image?: string;
   alt: string;
   category: string;
   location: string;
@@ -41,100 +40,168 @@ interface SavedBusiness {
   website?: string;
   description?: string;
   savedAt?: string;
+  slug?: string;
+  subInterestId?: string;
+  interestId?: string;
+  // extra safety if your row/cards filter on this:
+  isSaved?: boolean;
 }
 
 export default function SavedPage() {
-  usePredefinedPageTitle('saved');
+  usePredefinedPageTitle("saved");
   const { savedItems, isLoading: savedItemsLoading, refetch } = useSavedItems();
   const [savedBusinesses, setSavedBusinesses] = useState<SavedBusiness[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch saved businesses from API
   useEffect(() => {
     const fetchSavedBusinesses = async () => {
-      if (savedItemsLoading) {
-        return; // Wait for saved items to load first
-      }
+      if (savedItemsLoading) return;
 
       try {
         setIsLoading(true);
         setError(null);
 
-        const response = await fetch('/api/saved/businesses?limit=1000');
-        
+        const response = await fetch("/api/saved/businesses?limit=1000");
+
         if (!response.ok) {
           if (response.status === 401) {
-            // User not authenticated - this is expected for logged out users
-            setError(null); // Don't show error for expected case
+            setError(null);
             setSavedBusinesses([]);
             setIsLoading(false);
             return;
           }
-          
-          // Try to get error details from response
-          let errorMessage = 'Failed to fetch saved businesses';
+
+          let errorMessage = "Failed to fetch saved businesses";
           let errorCode: string | undefined;
+
           try {
             const errorData = await response.json();
             errorMessage = errorData.error || errorData.message || errorMessage;
             errorCode = errorData.code;
           } catch {
-            // If JSON parsing fails, use default message
+            // ignore parse error
           }
-          
-          // Check if it's a table/permission error
-          const isTableError = response.status === 500 && (
-            errorCode === '42P01' || // relation does not exist
-            errorCode === '42501' || // insufficient privilege
-            errorMessage.toLowerCase().includes('relation') ||
-            errorMessage.toLowerCase().includes('does not exist') ||
-            errorMessage.toLowerCase().includes('permission denied')
-          );
-          
+
+          const isTableError =
+            response.status === 500 &&
+            (errorCode === "42P01" || // relation does not exist
+              errorCode === "42501" || // insufficient privilege
+              errorMessage.toLowerCase().includes("relation") ||
+              errorMessage.toLowerCase().includes("does not exist") ||
+              errorMessage.toLowerCase().includes("permission denied"));
+
           if (isTableError) {
-            // Table doesn't exist - show helpful message but don't treat as critical error
-            console.warn('Saved businesses table not accessible, feature disabled');
-            setError(null); // Don't show error - feature just isn't available
+            console.warn("Saved businesses table not accessible, feature disabled");
+            setError(null);
             setSavedBusinesses([]);
             setIsLoading(false);
             return;
           }
-          
-          // For other server errors, show error but don't throw
+
           if (response.status >= 500) {
-            console.warn('Error fetching saved businesses (non-critical):', errorMessage);
-            setError('Unable to load saved businesses at the moment. Please try again later.');
+            console.warn(
+              "Error fetching saved businesses (non-critical):",
+              errorMessage
+            );
+            setError(
+              "Unable to load saved businesses at the moment. Please try again later."
+            );
           } else {
-            // Client errors - don't show error, just set empty
             setError(null);
           }
+
           setSavedBusinesses([]);
           setIsLoading(false);
           return;
         }
 
         const data = await response.json();
-        console.log('SavedPage - Fetched saved businesses:', {
+
+        console.log("SavedPage - Fetched saved businesses:", {
           totalBusinesses: data.businesses?.length || 0,
           businessIds: (data.businesses || []).map((b: any) => b.id),
-          businesses: data.businesses
+          raw: data.businesses,
         });
-        setSavedBusinesses(data.businesses || []);
+
+        const transformedBusinesses: SavedBusiness[] = (data.businesses || [])
+          .map((b: any): SavedBusiness | null => {
+            if (!b || !b.id) {
+              console.warn("Saved business missing id:", b);
+              return null;
+            }
+
+            if (!b.name || b.name.trim() === "") {
+              console.warn("Saved business missing name:", b.id);
+              return null;
+            }
+
+            const image = b.uploaded_image || b.image_url || b.image || "";
+            const alt = `${b.name} - ${b.category || "Business"}`;
+            const hasRating = b.rating != null && b.rating > 0;
+
+            return {
+              id: b.id,
+              slug: b.slug,
+              name: b.name.trim(),
+              image,
+              image_url: b.image_url,
+              uploaded_image: b.uploaded_image,
+              alt,
+              category: b.category || "Uncategorized",
+              subInterestId: b.sub_interest_id,
+              interestId: b.interest_id,
+              location: b.location || b.address || "Location not available",
+              rating: b.rating,
+              totalRating: b.rating,
+              reviews: b.total_reviews || 0,
+              badge: b.badge,
+              href: b.slug ? `/business/${b.slug}` : `/business/${b.id}`,
+              percentiles: b.percentiles,
+              verified: b.verified || false,
+              priceRange: b.price_range || "$$",
+              hasRating,
+              description: b.description,
+              phone: b.phone,
+              website: b.website,
+              address: b.address,
+              savedAt: b.saved_at,
+              // force true in case your card/row checks this
+              isSaved: true,
+            };
+          })
+          .filter((b: SavedBusiness | null): b is SavedBusiness => b !== null);
+
+        console.log("SavedPage - Transformed businesses:", {
+          total: transformedBusinesses.length,
+          transformed: transformedBusinesses,
+        });
+
+        setSavedBusinesses(transformedBusinesses);
       } catch (err) {
-        // Network or unexpected errors
-        const errorMessage = err instanceof Error ? err.message : String(err);
-        const isNetworkError = errorMessage.includes('fetch') || 
-                             errorMessage.includes('network') ||
-                             errorMessage.includes('Failed to fetch');
-        
+        const errorMessage =
+          err instanceof Error ? err.message : String(err);
+        const isNetworkError =
+          errorMessage.includes("fetch") ||
+          errorMessage.includes("network") ||
+          errorMessage.includes("Failed to fetch");
+
         if (isNetworkError) {
-          console.warn('Network error fetching saved businesses (non-critical):', errorMessage);
-          setError('Unable to load saved businesses. Please check your connection and try again.');
+          console.warn(
+            "Network error fetching saved businesses (non-critical):",
+            errorMessage
+          );
+          setError(
+            "Unable to load saved businesses. Please check your connection and try again."
+          );
         } else {
-          console.warn('Error fetching saved businesses (non-critical):', err);
-          setError('Failed to load saved businesses. Please try again.');
+          console.warn(
+            "Error fetching saved businesses (non-critical):",
+            err
+          );
+          setError("Failed to load saved businesses. Please try again.");
         }
+
         setSavedBusinesses([]);
       } finally {
         setIsLoading(false);
@@ -142,14 +209,15 @@ export default function SavedPage() {
     };
 
     fetchSavedBusinesses();
-  }, [savedItemsLoading, savedItems.length]); // Refetch when saved items change (removed refetch to avoid unnecessary re-renders)
+  }, [savedItemsLoading, savedItems.length]);
 
   return (
     <EmailVerificationGuard>
-      <div 
+      <div
         className="min-h-dvh bg-off-white relative font-urbanist"
         style={{
-          fontFamily: '"Urbanist", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+          fontFamily:
+            '"Urbanist", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
         }}
       >
         <Header
@@ -162,14 +230,24 @@ export default function SavedPage() {
           whiteText={true}
         />
 
-        <div className="relative z-0">
+        <div className="relative">
           <div className="py-1 pt-20 pb-12 sm:pb-16 md:pb-20">
-            <div className="mx-auto w-full max-w-[2000px] px-3 relative z-10 mb-4">
+            <div className="mx-auto w-full max-w-[2000px] px-3 relative mb-4">
               {/* Breadcrumb Navigation */}
-              <nav className="mb-4 sm:mb-6 px-2" aria-label="Breadcrumb">
+              <nav
+                className="md:pt-4 mb-4 sm:mb-6 px-2"
+                aria-label="Breadcrumb"
+              >
                 <ol className="flex items-center gap-2 text-sm sm:text-base">
                   <li>
-                    <Link href="/home" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                    <Link
+                      href="/home"
+                      className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium"
+                      style={{
+                        fontFamily:
+                          "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                      }}
+                    >
                       Home
                     </Link>
                   </li>
@@ -177,13 +255,20 @@ export default function SavedPage() {
                     <ChevronRight className="w-4 h-4 text-charcoal/40" />
                   </li>
                   <li>
-                    <span className="text-charcoal font-semibold" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                    <span
+                      className="text-charcoal font-semibold"
+                      style={{
+                        fontFamily:
+                          "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                      }}
+                    >
                       Saved
                     </span>
                   </li>
                 </ol>
               </nav>
             </div>
+
             {isLoading || savedItemsLoading ? (
               <div className="flex items-center justify-center py-12">
                 <PageLoader size="md" variant="wavy" color="sage" />
@@ -191,13 +276,20 @@ export default function SavedPage() {
             ) : error ? (
               <div className="pt-4 relative z-10">
                 <div className="text-center max-w-md mx-auto px-4">
-                  <p className="text-body text-charcoal/70 mb-4" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
+                  <p
+                    className="text-body text-charcoal/70 mb-4"
+                    style={{
+                      fontFamily: "Urbanist, system-ui, sans-serif",
+                    }}
+                  >
                     {error}
                   </p>
                   <button
                     onClick={() => refetch()}
                     className="px-6 py-3 bg-sage text-white rounded-full text-body font-semibold hover:bg-sage/90 transition-colors"
-                    style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
+                    style={{
+                      fontFamily: "Urbanist, system-ui, sans-serif",
+                    }}
                   >
                     Try Again
                   </button>
@@ -205,6 +297,21 @@ export default function SavedPage() {
               </div>
             ) : savedBusinesses.length > 0 ? (
               <div className="relative z-10">
+                {/* 🔍 DEBUG SECTION – remove when happy */}
+                <div className="mb-4 px-3 text-xs text-charcoal/60">
+                  <div>Saved businesses count: {savedBusinesses.length}</div>
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {savedBusinesses.slice(0, 10).map((b) => (
+                      <span
+                        key={b.id}
+                        className="px-2 py-1 rounded-full bg-charcoal/5"
+                      >
+                        {b.name}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
                 <SavedBusinessRow
                   title="Your Saved Gems"
                   businesses={savedBusinesses}

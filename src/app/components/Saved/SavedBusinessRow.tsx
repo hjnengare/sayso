@@ -50,15 +50,32 @@ export default function SavedBusinessRow({
 
         <ScrollableSection>
           <div className="flex gap-3 pt-2">
-            {businesses.map((business) => (
-              <div key={business.id} className="list-none relative group">
-                <BusinessCard business={business} />
-                {/* Saved indicator */}
-                <div className="absolute top-3 right-3 w-8 h-8 bg-gradient-to-br from-sage to-sage/80 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/40 z-10 opacity-90 group-hover:opacity-100 transition-all duration-300">
-                  <BookmarkCheck className="w-4 h-4 text-white" fill="white" />
+            {businesses.map((business) => {
+              console.log('SavedBusinessRow - Rendering business:', {
+                id: business.id,
+                name: business.name,
+                hasImage: !!(business.image || business.image_url || business.uploaded_image),
+                hasRating: business.hasRating,
+                verified: business.verified
+              });
+              
+              return (
+                <div 
+                  key={business.id} 
+                  className="list-none relative group flex-shrink-0" 
+                  style={{ 
+                    minWidth: '340px', 
+                    width: '340px'
+                  }}
+                >
+                  <BusinessCard business={business} />
+                  {/* Saved indicator */}
+                  <div className="absolute top-3 right-3 w-8 h-8 bg-gradient-to-br from-sage to-sage/80 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/40 z-10 opacity-90 group-hover:opacity-100 transition-all duration-300">
+                    <BookmarkCheck className="w-4 h-4 text-white" fill="white" />
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </ScrollableSection>
       </div>
