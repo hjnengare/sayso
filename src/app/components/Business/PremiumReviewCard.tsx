@@ -9,6 +9,7 @@ import { useToast } from "../../contexts/ToastContext";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { formatDistanceToNow } from "date-fns";
+import { ConfirmationDialog } from "../../../components/molecules/ConfirmationDialog/ConfirmationDialog";
 
 interface PremiumReviewCardProps {
     reviewId?: string;
@@ -73,6 +74,8 @@ export function PremiumReviewCard({
     const [editingReplyId, setEditingReplyId] = useState<string | null>(null);
     const [editReplyText, setEditReplyText] = useState('');
     const [showAllReplies, setShowAllReplies] = useState(false);
+    const [deleteReplyId, setDeleteReplyId] = useState<string | null>(null);
+    const [showDeleteDialog, setShowDeleteDialog] = useState(false);
     const REPLIES_TO_SHOW = 3; // Show first 3 replies by default
 
     // Use current user's profile data if this is the current user's review
@@ -443,22 +446,28 @@ export function PremiumReviewCard({
         }
     };
 
+    // Handle reply delete confirmation
+    const handleDeleteReplyClick = (replyId: string) => {
+        setDeleteReplyId(replyId);
+        setShowDeleteDialog(true);
+    };
+
     // Handle reply delete
-    const handleDeleteReply = async (replyId: string) => {
-        if (!reviewId || !user) return;
-        
-        if (!confirm('Are you sure you want to delete this reply?')) return;
+    const handleDeleteReply = async () => {
+        if (!reviewId || !user || !deleteReplyId) return;
 
         try {
             const res = await fetch(`/api/reviews/${reviewId}/replies`, {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ replyId }),
+                body: JSON.stringify({ replyId: deleteReplyId }),
             });
 
             if (res.ok) {
-                setReplies(prev => prev.filter(r => r.id !== replyId));
+                setReplies(prev => prev.filter(r => r.id !== deleteReplyId));
                 showToast('Reply deleted successfully', 'success');
+                setShowDeleteDialog(false);
+                setDeleteReplyId(null);
             } else {
                 const error = await res.json().catch(() => ({ error: 'Failed to delete reply' }));
                 showToast(error.error || 'Failed to delete reply', 'error');
@@ -880,20 +889,20 @@ export function PremiumReviewCard({
                                                 </span>
                                             </div>
                                             {isReplyOwner && !isEditing && (
-                                                <div className="flex items-center gap-1 flex-shrink-0">
+                                                <div className="flex items-center gap-1.5 flex-shrink-0">
                                                     <button
                                                         onClick={() => handleEditReply(reply)}
-                                                        className="p-1 hover:bg-sage/10 rounded transition-colors"
+                                                        className="flex items-center justify-center rounded-full bg-navbar-bg hover:bg-navbar-bg/90 transition-colors min-h-[44px] min-w-[44px] p-2"
                                                         aria-label="Edit reply"
                                                     >
-                                                        <Edit className="w-3.5 h-3.5 text-charcoal/60 hover:text-sage" />
+                                                        <Edit className="w-4 h-4 text-white" strokeWidth={2.5} />
                                                     </button>
                                                     <button
-                                                        onClick={() => handleDeleteReply(reply.id)}
-                                                        className="p-1 hover:bg-coral/10 rounded transition-colors"
+                                                        onClick={() => handleDeleteReplyClick(reply.id)}
+                                                        className="flex items-center justify-center rounded-full bg-navbar-bg hover:bg-navbar-bg/90 transition-colors min-h-[44px] min-w-[44px] p-2"
                                                         aria-label="Delete reply"
                                                     >
-                                                        <Trash2 className="w-3.5 h-3.5 text-charcoal/60 hover:text-coral" />
+                                                        <Trash2 className="w-4 h-4 text-white" strokeWidth={2.5} />
                                                     </button>
                                                 </div>
                                             )}
@@ -1105,6 +1114,21 @@ export function PremiumReviewCard({
                 showNext={reviewImages && reviewImages.length > 1}
             />
         )}
+
+        {/* Delete Reply Confirmation Dialog */}
+        <ConfirmationDialog
+            isOpen={showDeleteDialog}
+            onClose={() => {
+                setShowDeleteDialog(false);
+                setDeleteReplyId(null);
+            }}
+            onConfirm={handleDeleteReply}
+            title="Delete Reply"
+            message="Are you sure you want to delete this reply? This action cannot be undone."
+            confirmText="Delete"
+            cancelText="Cancel"
+            variant="danger"
+        />
         </>
     );
 }
