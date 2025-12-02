@@ -636,7 +636,7 @@ export default function ReviewCard({
                         </div>
                       </div>
                     ) : (
-                      <p className="font-urbanist text-sm font-semibold text-charcoal/80">
+                      <p className="font-urbanist text-sm font-bold text-charcoal/80">
                         {reply.content}
                       </p>
                     )}

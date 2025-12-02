@@ -818,26 +818,18 @@ export function PremiumReviewCard({
                                     </>
                                 )}
                                 {!isOwner && (
-                                    <>
-                                        <button
-                                            onClick={handleFlag}
-                                            disabled={!user || flagging || isFlagged || isOwner}
-                                            className={`flex items-center justify-center gap-1 sm:gap-1.5 rounded-full px-2.5 sm:px-3 py-2 sm:py-2 text-xs sm:text-sm transition min-h-[44px] min-w-[44px] flex-1 sm:flex-initial bg-navbar-bg hover:bg-navbar-bg/90 ${
-                                                flagging || isOwner ? 'opacity-60 cursor-not-allowed' : ''
-                                            }`}
-                                        >
-                                            <Flag className="h-4 w-4 sm:h-4 sm:w-4 text-white" strokeWidth={2.5} />
-                                            <span className="font-urbanist font-700 text-white hidden sm:inline">
-                                                {isFlagged ? 'Reported' : 'Report'}
-                                            </span>
-                                        </button>
-                                        <button
-                                            className="flex items-center justify-center rounded-full p-2 transition bg-navbar-bg hover:bg-navbar-bg/90 min-h-[44px] min-w-[44px] flex-1 sm:flex-initial"
-                                            aria-label="More"
-                                        >
-                                            <MoreHorizontal className="h-4 w-4 sm:h-4 sm:w-4 text-white" strokeWidth={2.5} />
-                                        </button>
-                                    </>
+                                    <button
+                                        onClick={handleFlag}
+                                        disabled={!user || flagging || isFlagged || isOwner}
+                                        className={`flex items-center justify-center gap-1 sm:gap-1.5 rounded-full px-2.5 sm:px-3 py-2 sm:py-2 text-xs sm:text-sm transition min-h-[44px] min-w-[44px] flex-1 sm:flex-initial bg-navbar-bg hover:bg-navbar-bg/90 ${
+                                            flagging || isOwner ? 'opacity-60 cursor-not-allowed' : ''
+                                        }`}
+                                    >
+                                        <Flag className="h-4 w-4 sm:h-4 sm:w-4 text-white" strokeWidth={2.5} />
+                                        <span className="font-urbanist font-700 text-white hidden sm:inline">
+                                            {isFlagged ? 'Reported' : 'Report'}
+                                        </span>
+                                    </button>
                                 )}
                             </div>
                         </div>
