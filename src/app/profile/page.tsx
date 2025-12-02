@@ -16,7 +16,6 @@ import {
   MessageSquare,
   Share2,
   ThumbsUp,
-  TrendingUp,
   User,
   Eye,
   Star as StarIcon,
@@ -183,7 +182,16 @@ function ProfileContent() {
             setProfileLoading(false);
             return;
           }
-          console.error('Error fetching enhanced profile:', response.status);
+          // Handle 404 gracefully - profile might not exist yet, use existing profile data
+          if (response.status === 404) {
+            console.warn('Profile not found, using existing profile data');
+            setEnhancedProfile(null);
+            setProfileLoading(false);
+            return;
+          }
+          // For other errors, log but don't break the page
+          console.warn('Error fetching enhanced profile:', response.status);
+          setEnhancedProfile(null);
           setProfileLoading(false);
           return;
         }
@@ -191,9 +199,12 @@ function ProfileContent() {
         const result = await response.json();
         if (result.data) {
           setEnhancedProfile(result.data);
+        } else {
+          setEnhancedProfile(null);
         }
       } catch (err) {
-        console.error('Error fetching enhanced profile:', err);
+        console.warn('Error fetching enhanced profile:', err);
+        setEnhancedProfile(null);
       } finally {
         setProfileLoading(false);
       }
@@ -888,14 +899,6 @@ function ProfileContent() {
                                   <MessageSquare size={14} strokeWidth={2.5} className="sm:w-4 sm:h-4" />
                                   <span>Edit Profile</span>
                                 </button>
-                                <Link
-                                  href="/write-review"
-                                  className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-white/90 hover:bg-off-white text-charcoal rounded-full text-caption sm:text-body-sm font-semibold transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg shadow-charcoal/10 border border-charcoal/10 whitespace-nowrap"
-                                  aria-label="Write a review"
-                                >
-                                  <TrendingUp size={14} strokeWidth={2.5} className="sm:w-4 sm:h-4" />
-                                  <span>Leave a Review</span>
-                                </Link>
                               </div>
                             </div>
                           </div>
@@ -1020,14 +1023,7 @@ function ProfileContent() {
                         />
                       ) : (
                         <div className="text-center py-8">
-                          <p className="text-charcoal/70 mb-4">You haven't written any reviews yet.</p>
-                          <Link
-                            href="/write-review"
-                            className="inline-flex items-center gap-2 px-4 py-2.5 bg-sage hover:bg-sage/90 text-white rounded-full text-sm font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-95"
-                          >
-                            <MessageSquare className="w-4 h-4" />
-                            Write Your First Review
-                          </Link>
+                          <p className="text-charcoal/70">You haven't written any reviews yet.</p>
                         </div>
                       )}
                     </section>

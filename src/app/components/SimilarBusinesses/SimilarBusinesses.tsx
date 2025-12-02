@@ -81,9 +81,9 @@ export default function SimilarBusinesses({
             </div>
           </div>
         </div>
-        <ul className="list-none flex flex-col sm:flex-row sm:flex-wrap sm:justify-center gap-4 md:gap-2 relative z-10 max-w-4xl mx-auto">
+        <ul className="list-none flex flex-col sm:flex-row sm:justify-between gap-4 md:gap-6 relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6">
           {[...Array(limit)].map((_, i) => (
-            <li key={i} className="h-full w-full sm:w-auto sm:flex-1 sm:max-w-[300px]">
+            <li key={i} className="flex-1 min-w-0">
               <div className="h-[240px] bg-gradient-to-br from-off-white/90 via-off-white/85 to-off-white/90 rounded-xl border border-white/60 backdrop-blur-xl shadow-lg animate-pulse" />
             </li>
           ))}
@@ -122,10 +122,10 @@ export default function SimilarBusinesses({
       </div>
 
       <StaggeredContainer>
-        <ul className="list-none flex flex-col sm:flex-row sm:flex-wrap sm:justify-center gap-4 md:gap-2 relative z-10 max-w-4xl mx-auto">
+        <ul className="list-none flex flex-col sm:flex-row sm:justify-between gap-4 md:gap-6 relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6">
           {similarBusinesses.map((business, index) => (
             <AnimatedElement key={business.id} index={index} direction="bottom">
-              <li className="h-full w-full sm:w-auto sm:flex-1 sm:max-w-[300px]">
+              <li className="flex-1 min-w-0">
                 <SimilarBusinessCard
                   id={business.id}
                   name={business.name}

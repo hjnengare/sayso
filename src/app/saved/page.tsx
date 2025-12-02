@@ -2,70 +2,64 @@
 
 import nextDynamic from "next/dynamic";
 import Link from "next/link";
-import { useState, useEffect } from "react";
-import { ChevronRight } from "react-feather";
+import { useState, useEffect, useMemo, useRef } from "react";
+import { AnimatePresence } from "framer-motion";
+import { ChevronRight, ChevronLeft, ChevronUp } from "react-feather";
 import EmailVerificationGuard from "../components/Auth/EmailVerificationGuard";
 import { useSavedItems } from "../contexts/SavedItemsContext";
 import Header from "../components/Header/Header";
-import SavedBusinessRow from "../components/Saved/SavedBusinessRow";
+import BusinessCard from "../components/BusinessCard/BusinessCard";
+import StaggeredContainer from "../components/Animations/StaggeredContainer";
+import AnimatedElement from "../components/Animations/AnimatedElement";
 import EmptySavedState from "../components/Saved/EmptySavedState";
-import { PageLoader } from "../components/Loader";
+import { PageLoader, Loader } from "../components/Loader";
 import { usePredefinedPageTitle } from "../hooks/usePageTitle";
+import { Business } from "../components/BusinessCard/BusinessCard";
+
+const ITEMS_PER_PAGE = 12;
 
 const Footer = nextDynamic(() => import("../components/Footer/Footer"), {
   loading: () => null,
   ssr: false,
 });
 
-interface SavedBusiness {
-  id: string;
-  name: string;
-  image?: string;
-  image_url?: string;
-  uploaded_image?: string;
-  alt: string;
-  category: string;
-  location: string;
-  rating?: number;
-  totalRating?: number;
-  reviews: number;
-  badge?: string;
-  href: string;
-  verified: boolean;
-  priceRange: string;
-  hasRating: boolean;
-  percentiles?: Record<string, number>;
-  address?: string;
-  phone?: string;
-  website?: string;
-  description?: string;
-  savedAt?: string;
-  slug?: string;
-  subInterestId?: string;
-  interestId?: string;
-  // extra safety if your row/cards filter on this:
-  isSaved?: boolean;
-}
-
 export default function SavedPage() {
   usePredefinedPageTitle("saved");
   const { savedItems, isLoading: savedItemsLoading, refetch } = useSavedItems();
-  const [savedBusinesses, setSavedBusinesses] = useState<SavedBusiness[]>([]);
+  const [savedBusinesses, setSavedBusinesses] = useState<Business[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const [isPaginationLoading, setIsPaginationLoading] = useState(false);
+  const previousPageRef = useRef(currentPage);
+
+  // Calculate pagination
+  const totalPages = useMemo(
+    () => Math.ceil(savedBusinesses.length / ITEMS_PER_PAGE),
+    [savedBusinesses.length]
+  );
+  const currentBusinesses = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    return savedBusinesses.slice(startIndex, endIndex);
+  }, [savedBusinesses, currentPage]);
 
   useEffect(() => {
     const fetchSavedBusinesses = async () => {
+      // Wait until SavedItemsContext has finished its initial load
       if (savedItemsLoading) return;
 
       try {
         setIsLoading(true);
         setError(null);
 
-        const response = await fetch("/api/saved/businesses?limit=1000");
+        // Use the endpoint that already returns BusinessCard-shaped data
+        const response = await fetch("/api/user/saved");
 
         if (!response.ok) {
           if (response.status === 401) {
+            // Not logged in => show empty state, no error
             setError(null);
             setSavedBusinesses([]);
             setIsLoading(false);
@@ -92,7 +86,9 @@ export default function SavedPage() {
               errorMessage.toLowerCase().includes("permission denied"));
 
           if (isTableError) {
-            console.warn("Saved businesses table not accessible, feature disabled");
+            console.warn(
+              "Saved businesses table not accessible, feature disabled"
+            );
             setError(null);
             setSavedBusinesses([]);
             setIsLoading(false);
@@ -118,66 +114,34 @@ export default function SavedPage() {
 
         const data = await response.json();
 
-        console.log("SavedPage - Fetched saved businesses:", {
+        console.log("SavedPage - Fetched saved businesses (raw):", {
           totalBusinesses: data.businesses?.length || 0,
           businessIds: (data.businesses || []).map((b: any) => b.id),
           raw: data.businesses,
         });
 
-        const transformedBusinesses: SavedBusiness[] = (data.businesses || [])
-          .map((b: any): SavedBusiness | null => {
-            if (!b || !b.id) {
-              console.warn("Saved business missing id:", b);
-              return null;
-            }
+        // No need to transform – this is already Business[]
+        const businesses: Business[] = data.businesses || [];
 
-            if (!b.name || b.name.trim() === "") {
-              console.warn("Saved business missing name:", b.id);
-              return null;
-            }
-
-            const image = b.uploaded_image || b.image_url || b.image || "";
-            const alt = `${b.name} - ${b.category || "Business"}`;
-            const hasRating = b.rating != null && b.rating > 0;
-
-            return {
-              id: b.id,
-              slug: b.slug,
-              name: b.name.trim(),
-              image,
-              image_url: b.image_url,
-              uploaded_image: b.uploaded_image,
-              alt,
-              category: b.category || "Uncategorized",
-              subInterestId: b.sub_interest_id,
-              interestId: b.interest_id,
-              location: b.location || b.address || "Location not available",
-              rating: b.rating,
-              totalRating: b.rating,
-              reviews: b.total_reviews || 0,
-              badge: b.badge,
-              href: b.slug ? `/business/${b.slug}` : `/business/${b.id}`,
-              percentiles: b.percentiles,
-              verified: b.verified || false,
-              priceRange: b.price_range || "$$",
-              hasRating,
-              description: b.description,
-              phone: b.phone,
-              website: b.website,
-              address: b.address,
-              savedAt: b.saved_at,
-              // force true in case your card/row checks this
-              isSaved: true,
-            };
-          })
-          .filter((b: SavedBusiness | null): b is SavedBusiness => b !== null);
-
-        console.log("SavedPage - Transformed businesses:", {
-          total: transformedBusinesses.length,
-          transformed: transformedBusinesses,
+        // Safety filter: make sure we only keep valid ones
+        const filtered = businesses.filter((b) => {
+          if (!b || !b.id) {
+            console.warn("Saved business missing id:", b);
+            return false;
+          }
+          if (!b.name || b.name.trim() === "") {
+            console.warn("Saved business missing name:", b.id);
+            return false;
+          }
+          return true;
         });
 
-        setSavedBusinesses(transformedBusinesses);
+        console.log("SavedPage - Final businesses after filter:", {
+          total: filtered.length,
+          ids: filtered.map((b) => b.id),
+        });
+
+        setSavedBusinesses(filtered);
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : String(err);
@@ -210,6 +174,43 @@ export default function SavedPage() {
 
     fetchSavedBusinesses();
   }, [savedItemsLoading, savedItems.length]);
+
+  // Handle pagination with loader and transitions
+  const handlePageChange = (newPage: number) => {
+    if (newPage === currentPage) return;
+
+    // Show loader
+    setIsPaginationLoading(true);
+
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    // Wait for scroll and show transition
+    setTimeout(() => {
+      previousPageRef.current = currentPage;
+      setCurrentPage(newPage);
+
+      // Hide loader after brief delay for smooth transition
+      setTimeout(() => {
+        setIsPaginationLoading(false);
+      }, 300);
+    }, 150);
+  };
+
+  // Handle scroll to top button visibility
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 100);
+    };
+
+    const options: AddEventListenerOptions = { passive: true };
+    window.addEventListener("scroll", handleScroll, options);
+    return () => window.removeEventListener("scroll", handleScroll, options);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
     <EmailVerificationGuard>
@@ -297,26 +298,101 @@ export default function SavedPage() {
               </div>
             ) : savedBusinesses.length > 0 ? (
               <div className="relative z-10">
-                {/* 🔍 DEBUG SECTION – remove when happy */}
-                <div className="mb-4 px-3 text-xs text-charcoal/60">
-                  <div>Saved businesses count: {savedBusinesses.length}</div>
-                  <div className="flex flex-wrap gap-2 mt-1">
-                    {savedBusinesses.slice(0, 10).map((b) => (
-                      <span
-                        key={b.id}
-                        className="px-2 py-1 rounded-full bg-charcoal/5"
-                      >
-                        {b.name}
-                      </span>
-                    ))}
+                <div className="mx-auto w-full max-w-[2000px] px-2">
+                  {/* Title */}
+                  <div className="mb-6 sm:mb-8 px-2">
+                    <h1
+                      className="text-h2 sm:text-h1 font-bold text-charcoal"
+                      style={{
+                        fontFamily:
+                          "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                      }}
+                    >
+                      Your Saved Gems
+                    </h1>
+                    <p
+                      className="text-body-sm text-charcoal/60 mt-2"
+                      style={{
+                        fontFamily:
+                          "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                      }}
+                    >
+                      {savedBusinesses.length} {savedBusinesses.length === 1 ? "business" : "businesses"} saved
+                    </p>
                   </div>
-                </div>
 
-                <SavedBusinessRow
-                  title="Your Saved Gems"
-                  businesses={savedBusinesses}
-                  showCount={true}
-                />
+                  {/* Loading Spinner Overlay for Pagination */}
+                  {isPaginationLoading && (
+                    <div className="fixed inset-0 z-[9998] bg-off-white/95 backdrop-blur-sm flex items-center justify-center min-h-screen">
+                      <Loader size="lg" variant="wavy" color="sage" />
+                    </div>
+                  )}
+
+                  {/* Paginated Content with Smooth Transition */}
+                  <AnimatePresence mode="wait" initial={false}>
+                    <StaggeredContainer
+                      key={currentPage}
+                      className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-3"
+                    >
+                      {currentBusinesses.map((business, index) => (
+                        <AnimatedElement
+                          key={business.id}
+                          index={index}
+                          direction="bottom"
+                          className="list-none"
+                        >
+                          <BusinessCard business={business} compact />
+                        </AnimatedElement>
+                      ))}
+                    </StaggeredContainer>
+                  </AnimatePresence>
+
+                  {/* Pagination */}
+                  {totalPages > 1 && (
+                    <div className="flex justify-center items-center gap-2 mt-12">
+                      <button
+                        onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
+                        disabled={currentPage === 1 || isPaginationLoading}
+                        className="w-10 h-10 rounded-full bg-navbar-bg border border-charcoal/20 flex items-center justify-center hover:bg-navbar-bg/80 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200"
+                        aria-label="Previous page"
+                        title="Previous"
+                      >
+                        <ChevronLeft className="text-white" size={20} />
+                      </button>
+
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                        <button
+                          key={page}
+                          onClick={() => handlePageChange(page)}
+                          disabled={isPaginationLoading}
+                          style={{
+                            fontFamily:
+                              "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                            fontWeight: 600,
+                          }}
+                          className={`w-10 h-10 rounded-full bg-navbar-bg font-semibold text-body-sm transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed ${
+                            currentPage === page
+                              ? "bg-sage text-white shadow-lg"
+                              : "border border-charcoal/20 text-white hover:bg-navbar-bg/80"
+                          }`}
+                          aria-current={currentPage === page ? "page" : undefined}
+                        >
+                          {page}
+                        </button>
+                      ))}
+
+                      <button
+                        onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages))}
+                        disabled={currentPage === totalPages || isPaginationLoading}
+                        className="w-10 h-10 rounded-full bg-navbar-bg border border-charcoal/20 flex items-center justify-center hover:bg-navbar-bg/80 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200"
+                        aria-label="Next page"
+                        title="Next"
+                      >
+                        <ChevronRight className="text-white" size={20} />
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             ) : (
               <div className="relative z-10 min-h-[calc(100vh-200px)] flex items-center justify-center">
@@ -327,6 +403,17 @@ export default function SavedPage() {
 
           <Footer />
         </div>
+
+        {/* Scroll to Top Button */}
+        {showScrollTop && (
+          <button
+            onClick={scrollToTop}
+            className="fixed bottom-6 right-6 z-40 w-12 h-12 bg-navbar-bg hover:bg-navbar-bg backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg border border-white/20 hover:scale-110 transition-all duration-300"
+            aria-label="Scroll to top"
+          >
+            <ChevronUp className="w-6 h-6 text-white" strokeWidth={2.5} />
+          </button>
+        )}
       </div>
     </EmailVerificationGuard>
   );

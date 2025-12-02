@@ -71,7 +71,19 @@ export async function getUserProfile(
     .eq('id', userId)
     .single();
 
-  if (error || !data) {
+  if (error) {
+    // Log the error for debugging
+    console.error('[getUserProfile] Error fetching profile:', {
+      userId,
+      error: error.message,
+      code: error.code,
+      details: error.details,
+    });
+    return null;
+  }
+
+  if (!data) {
+    console.warn('[getUserProfile] No profile data found for user:', userId);
     return null;
   }
 

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useMemo } from "react";
-import { ArrowLeft, Briefcase, Image as ImageIcon, ThumbsUp, FileText, Star, ChevronRight } from "react-feather";
+import { ArrowLeft, Briefcase, Image as ImageIcon, ThumbsUp, FileText, Star, ChevronRight, TrendingUp } from "react-feather";
 import VerifiedBadge from "../../components/VerifiedBadge/VerifiedBadge";
 
 // Mock reviews data - in production this would come from API
@@ -242,6 +242,15 @@ export default function GeneralReviewsPage() {
             >
               Community Reviews
             </motion.h1>
+          </Link>
+          <Link
+            href="/write-review"
+            className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-sage hover:bg-sage/90 text-white rounded-full text-sm sm:text-base font-semibold transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg shadow-sage/20 border border-sage/20 whitespace-nowrap"
+            aria-label="Write a review"
+          >
+            <TrendingUp size={16} strokeWidth={2.5} />
+            <span className="hidden sm:inline">Write a Review</span>
+            <span className="sm:hidden">Review</span>
           </Link>
         </div>
       </motion.header>

@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { formatDistanceToNow } from 'date-fns';
-import { Trash2, Image as ImageIcon, ChevronUp, Heart, X, MoreHorizontal, MessageCircle, Send } from 'react-feather';
+import { Trash2, Image as ImageIcon, ChevronUp, Heart, X, MessageCircle, Send, Edit } from 'react-feather';
 import type { ReviewWithUser } from '../../lib/types/database';
 import { useAuth } from '../../contexts/AuthContext';
 import { useReviewSubmission } from '../../hooks/useReviews';
@@ -28,13 +28,14 @@ export default function ReviewCard({
   const [isLiked, setIsLiked] = useState(false);
   const [helpfulCount, setHelpfulCount] = useState(review.helpful_count);
   const [loadingHelpful, setLoadingHelpful] = useState(false);
-  const [showMenu, setShowMenu] = useState(false);
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [replyText, setReplyText] = useState('');
   const [submittingReply, setSubmittingReply] = useState(false);
   const [replies, setReplies] = useState<any[]>([]);
   const [loadingReplies, setLoadingReplies] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
+  const [editingReplyId, setEditingReplyId] = useState<string | null>(null);
+  const [editReplyText, setEditReplyText] = useState('');
+  const [deletingReplyId, setDeletingReplyId] = useState<string | null>(null);
   const replyFormRef = useRef<HTMLDivElement>(null);
 
   // Fetch helpful status and count on mount
@@ -68,7 +69,7 @@ export default function ReviewCard({
     }
   }, [review.id, user]);
 
-  // Fetch replies on mount
+  // Fetch replies on mount and after updates
   useEffect(() => {
     const fetchReplies = async () => {
       try {
@@ -76,7 +77,12 @@ export default function ReviewCard({
         const res = await fetch(`/api/reviews/${review.id}/replies`);
         if (res.ok) {
           const data = await res.json();
-          setReplies(data.replies || []);
+          // Ensure user_id is included for ownership checks
+          const repliesWithUserId = (data.replies || []).map((reply: any) => ({
+            ...reply,
+            user_id: reply.user_id || reply.user?.id,
+          }));
+          setReplies(repliesWithUserId);
         }
       } catch (err) {
         console.error('Error fetching replies:', err);
@@ -88,19 +94,6 @@ export default function ReviewCard({
     fetchReplies();
   }, [review.id]);
 
-  // Close menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setShowMenu(false);
-      }
-    };
-
-    if (showMenu) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
-    }
-  }, [showMenu]);
 
   const handleLike = async () => {
     if (loadingHelpful || !user) return;
@@ -158,7 +151,6 @@ export default function ReviewCard({
         onUpdate();
       }
     }
-    setShowMenu(false);
   };
 
   const handleSubmitReply = async () => {
@@ -186,6 +178,67 @@ export default function ReviewCard({
       alert('Failed to submit reply');
     } finally {
       setSubmittingReply(false);
+    }
+  };
+
+  const handleEditReply = (reply: any) => {
+    setEditingReplyId(reply.id);
+    setEditReplyText(reply.content);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingReplyId(null);
+    setEditReplyText('');
+  };
+
+  const handleSaveEdit = async (replyId: string) => {
+    if (!editReplyText.trim() || !user) return;
+
+    try {
+      const res = await fetch(`/api/reviews/${review.id}/replies`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ replyId, content: editReplyText.trim() }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setReplies(prev => prev.map(r => r.id === replyId ? data.reply : r));
+        setEditingReplyId(null);
+        setEditReplyText('');
+      } else {
+        const error = await res.json();
+        alert(error.error || 'Failed to update reply');
+      }
+    } catch (err) {
+      console.error('Error updating reply:', err);
+      alert('Failed to update reply');
+    }
+  };
+
+  const handleDeleteReply = async (replyId: string) => {
+    if (!confirm('Are you sure you want to delete this reply?')) return;
+    if (!user) return;
+
+    setDeletingReplyId(replyId);
+    try {
+      const res = await fetch(`/api/reviews/${review.id}/replies`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ replyId }),
+      });
+
+      if (res.ok) {
+        setReplies(prev => prev.filter(r => r.id !== replyId));
+      } else {
+        const error = await res.json();
+        alert(error.error || 'Failed to delete reply');
+      }
+    } catch (err) {
+      console.error('Error deleting reply:', err);
+      alert('Failed to delete reply');
+    } finally {
+      setDeletingReplyId(null);
     }
   };
 
@@ -286,57 +339,36 @@ export default function ReviewCard({
               </div>
             </div>
 
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2">
               <span className="font-urbanist text-sm font-600 text-charcoal/60">
                 {formatDate(review.created_at)}
               </span>
               
-              {/* Three dots menu */}
-              <div className="relative" ref={menuRef}>
+              {/* Direct action icons */}
+              <div className="flex items-center gap-1">
+                {user?.id === review.user_id && (
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={handleDelete}
+                    className="w-7 h-7 bg-navbar-bg rounded-full flex items-center justify-center hover:bg-navbar-bg/90 transition-colors"
+                    aria-label="Delete review"
+                    title="Delete review"
+                  >
+                    <Trash2 className="w-[18px] h-[18px] text-white" />
+                  </motion.button>
+                )}
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
-                  onClick={() => setShowMenu(!showMenu)}
-                  className="text-charcoal/60 hover:text-charcoal transition-colors duration-200 p-1"
-                  aria-label="More options"
+                  onClick={() => setShowReplyForm(!showReplyForm)}
+                  className="w-7 h-7 bg-navbar-bg rounded-full flex items-center justify-center hover:bg-navbar-bg/90 transition-colors"
+                  aria-label="Reply to review"
+                  title="Reply"
+                  disabled={!user}
                 >
-                  <MoreHorizontal size={18} />
+                  <MessageCircle className="w-[18px] h-[18px] text-white" />
                 </motion.button>
-                
-                {showMenu && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    className="absolute right-0 top-full mt-2 min-w-max bg-gradient-to-br from-off-white via-off-white to-off-white/95 border border-white/60 rounded-lg shadow-lg z-50 overflow-visible backdrop-blur-md"
-                  >
-                    <div className="flex flex-row items-stretch">
-                      {user?.id === review.user_id && (
-                        <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={handleDelete}
-                          className="px-5 py-3 text-sm font-medium text-coral hover:bg-coral/10 flex items-center gap-2 transition-colors whitespace-nowrap min-w-fit"
-                        >
-                          <Trash2 size={16} />
-                          <span>Delete</span>
-                        </motion.button>
-                      )}
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => {
-                          setShowReplyForm(!showReplyForm);
-                          setShowMenu(false);
-                        }}
-                        className="px-5 py-3 text-sm font-medium text-charcoal hover:bg-sage/10 flex items-center gap-2 transition-colors whitespace-nowrap min-w-fit"
-                      >
-                        <MessageCircle size={16} />
-                        <span>Reply</span>
-                      </motion.button>
-                    </div>
-                  </motion.div>
-                )}
               </div>
             </div>
           </div>
@@ -527,26 +559,90 @@ export default function ReviewCard({
               <h5 className="font-urbanist text-sm font-bold text-charcoal/70 mb-3">
                 Replies ({replies.length})
               </h5>
-              {replies.map((reply) => (
-                <motion.div
-                  key={reply.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="pl-4 border-l-2 border-sage/20 bg-off-white/30 rounded-r-lg p-3"
-                >
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-urbanist text-sm font-semibold text-charcoal-700">
-                      {reply.user?.name || 'User'}
-                    </span>
-                    <span className="font-urbanist text-xs font-semibold text-charcoal/50">
-                      {formatDate(reply.created_at)}
-                    </span>
-                  </div>
-                  <p className="font-urbanist text-sm font-semibold text-charcoal/80">
-                    {reply.content}
-                  </p>
-                </motion.div>
-              ))}
+              {replies.map((reply) => {
+                const isOwner = user?.id === reply.user_id;
+                const isEditing = editingReplyId === reply.id;
+                const isDeleting = deletingReplyId === reply.id;
+
+                return (
+                  <motion.div
+                    key={reply.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="pl-4 border-l-2 border-sage/20 bg-off-white/30 rounded-r-lg p-3 relative"
+                  >
+                    <div className="flex items-start justify-between gap-2 mb-1">
+                      <div className="flex items-center gap-2 flex-1">
+                        <span className="font-urbanist text-sm font-semibold text-charcoal-700">
+                          {reply.user?.name || 'User'}
+                        </span>
+                        <span className="font-urbanist text-xs font-semibold text-charcoal/50">
+                          {formatDate(reply.created_at)}
+                        </span>
+                      </div>
+                      {isOwner && !isEditing && (
+                        <div className="flex items-center gap-1">
+                          <motion.button
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => handleEditReply(reply)}
+                            className="w-7 h-7 bg-navbar-bg rounded-full flex items-center justify-center hover:bg-navbar-bg/90 transition-colors"
+                            aria-label="Edit reply"
+                            title="Edit reply"
+                          >
+                            <Edit className="w-[18px] h-[18px] text-white" />
+                          </motion.button>
+                          <motion.button
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => handleDeleteReply(reply.id)}
+                            disabled={isDeleting}
+                            className="w-7 h-7 bg-navbar-bg rounded-full flex items-center justify-center hover:bg-navbar-bg/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            aria-label="Delete reply"
+                            title="Delete reply"
+                          >
+                            <Trash2 className="w-[18px] h-[18px] text-white" />
+                          </motion.button>
+                        </div>
+                      )}
+                    </div>
+                    {isEditing ? (
+                      <div className="space-y-2 mt-2">
+                        <textarea
+                          value={editReplyText}
+                          onChange={(e) => setEditReplyText(e.target.value)}
+                          className="w-full px-3 py-2 rounded-lg border border-sage/20 bg-off-white/50 focus:outline-none focus:ring-2 focus:ring-sage/30 focus:border-sage/40 resize-none font-urbanist text-sm"
+                          rows={2}
+                          autoFocus
+                        />
+                        <div className="flex items-center justify-end gap-2">
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={handleCancelEdit}
+                            className="px-3 py-1.5 text-xs font-medium text-charcoal/70 hover:text-charcoal transition-colors"
+                          >
+                            Cancel
+                          </motion.button>
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => handleSaveEdit(reply.id)}
+                            disabled={!editReplyText.trim()}
+                            className="px-3 py-1.5 text-xs font-medium bg-navbar-bg text-white rounded-lg hover:bg-navbar-bg/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            Save
+                          </motion.button>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="font-urbanist text-sm font-semibold text-charcoal/80">
+                        {reply.content}
+                      </p>
+                    )}
+                  </motion.div>
+                );
+              })}
             </div>
           )}
         </div>

@@ -4,17 +4,30 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Image as ImageIcon, Star, Edit, Bookmark, Share2, MapPin, Award } from "react-feather";
 import Stars from "../Stars/Stars";
 import VerifiedBadge from "../VerifiedBadge/VerifiedBadge";
 import Tooltip from "../Tooltip/Tooltip";
 import { BusinessOfTheMonth } from "../../data/communityHighlightsData";
 import { getCategoryPng, getCategoryPngFromLabels, isPngIcon } from "../../utils/categoryToPngMapping";
+import { useSavedItems } from "../../contexts/SavedItemsContext";
+import { useToast } from "../../contexts/ToastContext";
 
 export default function BusinessOfTheMonthCard({ business }: { business: BusinessOfTheMonth }) {
+  const router = useRouter();
+  const { toggleSavedItem, isItemSaved } = useSavedItems();
+  const { showToast } = useToast();
+  
   const idForSnap = useMemo(() => `business-month-${business.id}`, [business.id]);
   const [imgError, setImgError] = useState(false);
   const [usingFallback, setUsingFallback] = useState(false);
+  
+  // Get business identifier for routing (slug or ID)
+  const businessIdentifier = (business as any).slug || business.id;
+  const reviewRoute = `/business/${businessIdentifier}/review`;
+  const businessProfileRoute = business.href || `/business/${businessIdentifier}`;
+  const isSaved = isItemSaved(business.id);
 
   const hasReviews = business.reviews > 0;
   const ribbonText = useMemo(() => {
@@ -82,6 +95,55 @@ export default function BusinessOfTheMonthCard({ business }: { business: Busines
     <Award className="w-4 h-4 text-white" aria-hidden />
   );
 
+  // Handle save/bookmark
+  const handleBookmark = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const success = await toggleSavedItem(business.id);
+    if (success) {
+      // Toast is handled by SavedItemsContext
+    }
+  };
+
+  // Handle write review
+  const handleWriteReview = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    router.push(reviewRoute);
+  };
+
+  // Handle share
+  const handleShare = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    try {
+      const shareUrl = `${window.location.origin}${businessProfileRoute}`;
+      const shareText = `Check out ${business.name} on sayso!`;
+      
+      if (navigator.share) {
+        await navigator.share({
+          title: business.name,
+          text: shareText,
+          url: shareUrl,
+        });
+      } else {
+        // Fallback: copy to clipboard
+        await navigator.clipboard.writeText(shareUrl);
+        showToast('Link copied to clipboard!', 'success');
+      }
+    } catch (error) {
+      // User cancelled or error occurred
+      if ((error as Error).name !== 'AbortError') {
+        console.error('Error sharing:', error);
+      }
+    }
+  };
+
+  // Handle card click - navigate to business page
+  const handleCardClick = () => {
+    router.push(businessProfileRoute);
+  };
+
   return (
     <li
       id={idForSnap}
@@ -94,6 +156,7 @@ export default function BusinessOfTheMonthCard({ business }: { business: Busines
       <div
         className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-visible group cursor-pointer h-[650px] sm:h-auto flex flex-col border border-white/60 backdrop-blur-xl ring-1 ring-white/30 shadow-premiumElevated transition-all duration-300 hover:border-white/80 hover:-translate-y-1 hover:shadow-premiumElevatedHover"
         style={{ "--width": "540", "--height": "650" } as React.CSSProperties}
+        onClick={handleCardClick}
       >
         {/* Glass depth overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-off-white/8 via-transparent to-transparent pointer-events-none z-0" />
@@ -202,32 +265,27 @@ export default function BusinessOfTheMonthCard({ business }: { business: Busines
           >
             <button
               className="w-10 h-10 bg-navbar-bg rounded-full flex items-center justify-center hover:bg-navbar-bg/90 hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30"
-              onClick={(e) => {
-                e.stopPropagation();
-                // Handle write review
-              }}
+              onClick={handleWriteReview}
               aria-label={`Write a review for ${business.name}`}
               title="Write a review"
             >
               <Edit className="w-4 h-4 text-white" />
             </button>
             <button
-              className="w-10 h-10 bg-navbar-bg rounded-full flex items-center justify-center hover:bg-navbar-bg/90 hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30"
-              onClick={(e) => {
-                e.stopPropagation();
-                // Handle bookmark
-              }}
-              aria-label={`Save ${business.name}`}
-              title="Save"
+              className={`w-10 h-10 rounded-full flex items-center justify-center hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 ${
+                isSaved 
+                  ? 'bg-sage hover:bg-sage/90' 
+                  : 'bg-navbar-bg hover:bg-navbar-bg/90'
+              }`}
+              onClick={handleBookmark}
+              aria-label={isSaved ? `Unsave ${business.name}` : `Save ${business.name}`}
+              title={isSaved ? 'Unsave' : 'Save'}
             >
-              <Bookmark className="w-4 h-4 text-white" />
+              <Bookmark className={`w-4 h-4 ${isSaved ? 'text-white fill-white' : 'text-white'}`} />
             </button>
             <button
               className="w-10 h-10 bg-navbar-bg rounded-full flex items-center justify-center hover:bg-navbar-bg/90 hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30"
-              onClick={(e) => {
-                e.stopPropagation();
-                // Handle share
-              }}
+              onClick={handleShare}
               aria-label={`Share ${business.name}`}
               title="Share"
             >
@@ -304,10 +362,7 @@ export default function BusinessOfTheMonthCard({ business }: { business: Busines
           <div className="flex md:hidden items-center justify-center gap-3 mt-3">
             <button
               className="flex items-center gap-1.5 px-3 py-2 bg-gradient-to-br from-navbar-bg to-navbar-bg/90 text-white rounded-full text-caption sm:text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-sage/40 border border-sage/50 transition-all active:scale-95"
-              onClick={(e) => {
-                e.stopPropagation();
-                // Handle write review
-              }}
+              onClick={handleWriteReview}
               aria-label={`Write a review for ${business.name}`}
               style={{ 
                 fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif", 
@@ -321,21 +376,19 @@ export default function BusinessOfTheMonthCard({ business }: { business: Busines
               <span>Review</span>
             </button>
             <button
-              className="w-9 h-9 bg-navbar-bg rounded-full flex items-center justify-center hover:bg-navbar-bg/90 focus:outline-none focus:ring-2 focus:ring-sage/40 transition-all active:scale-95"
-              onClick={(e) => {
-                e.stopPropagation();
-                // Handle bookmark
-              }}
-              aria-label={`Save ${business.name}`}
+              className={`w-9 h-9 rounded-full flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-sage/40 transition-all active:scale-95 ${
+                isSaved 
+                  ? 'bg-sage hover:bg-sage/90' 
+                  : 'bg-navbar-bg hover:bg-navbar-bg/90'
+              }`}
+              onClick={handleBookmark}
+              aria-label={isSaved ? `Unsave ${business.name}` : `Save ${business.name}`}
             >
-              <Bookmark className="w-4 h-4 text-white" />
+              <Bookmark className={`w-4 h-4 ${isSaved ? 'text-white fill-white' : 'text-white'}`} />
             </button>
             <button
               className="w-9 h-9 bg-navbar-bg rounded-full flex items-center justify-center hover:bg-navbar-bg/90 focus:outline-none focus:ring-2 focus:ring-sage/40 transition-all active:scale-95"
-              onClick={(e) => {
-                e.stopPropagation();
-                // Handle share
-              }}
+              onClick={handleShare}
               aria-label={`Share ${business.name}`}
             >
               <Share2 className="w-4 h-4 text-white" />
