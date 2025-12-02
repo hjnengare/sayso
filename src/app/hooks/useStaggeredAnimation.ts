@@ -24,38 +24,38 @@ export function useStaggeredAnimation(
   config: StaggeredAnimationConfig = {}
 ): Variants {
   const {
-    delay = 0.05, // Reduced from 0.1 for tighter, more premium stagger
-    duration = 0.5, // Reduced from 0.6 for snappier feel
+    delay = 0.02, // Ultra-tight delay for subtle, premium stagger
+    duration = 0.4, // Refined duration for elegant, smooth motion
     direction = 'bottom',
-    distance = 24, // Reduced from 40 for more subtle movement
+    distance = 12, // Minimal distance for subtle, premium movement
   } = config;
 
   return useMemo(() => {
     const baseDelay = index * delay;
-    // Premium spring config: smoother, more refined motion
+    // Premium spring config: ultra-smooth, refined motion
     const springConfig = {
       type: 'spring' as const,
-      stiffness: 180,
-      damping: 28,
-      mass: 0.9,
+      stiffness: 200,
+      damping: 30,
+      mass: 0.8,
     };
 
-    // Determine initial position based on direction - more subtle distances
+    // Determine initial position based on direction - ultra-subtle distances
     const getInitialPosition = () => {
-      const subtleDistance = distance * 0.5; // Reduce distance by half for subtlety
+      const subtleDistance = distance * 0.4; // Ultra-minimal distance for premium subtlety
       switch (direction) {
         case 'top':
-          return { y: -subtleDistance, x: 0, scale: 0.96 };
+          return { y: -subtleDistance, x: 0, scale: 0.98 };
         case 'bottom':
-          return { y: subtleDistance, x: 0, scale: 0.96 };
+          return { y: subtleDistance, x: 0, scale: 0.98 };
         case 'left':
-          return { x: -subtleDistance, y: 0, scale: 0.96 };
+          return { x: -subtleDistance, y: 0, scale: 0.98 };
         case 'right':
-          return { x: subtleDistance, y: 0, scale: 0.96 };
+          return { x: subtleDistance, y: 0, scale: 0.98 };
         case 'scale':
-          return { scale: 0.92, y: subtleDistance * 0.5 };
+          return { scale: 0.96, y: subtleDistance * 0.3 };
         default:
-          return { y: subtleDistance, x: 0, scale: 0.96 };
+          return { y: subtleDistance, x: 0, scale: 0.98 };
       }
     };
 
@@ -74,8 +74,8 @@ export function useStaggeredAnimation(
         transition: {
           ...springConfig,
           delay: baseDelay,
-          duration: duration * 0.85, // Slightly faster for premium feel
-          ease: [0.16, 1, 0.3, 1], // Premium cubic bezier easing
+          duration: duration * 0.9, // Refined duration for elegant motion
+          ease: [0.16, 1, 0.3, 1], // Premium cubic bezier easing for smooth, refined feel
         },
       },
       settled: {
@@ -108,7 +108,7 @@ export function useStaggeredAnimation(
 }
 
 /**
- * Hook for creating page-level animation variants
+ * Hook for creating page-level animation variants with subtle premium effect
  */
 export function usePageAnimation(): Variants {
   return useMemo(() => ({
@@ -116,8 +116,9 @@ export function usePageAnimation(): Variants {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.04, // Reduced from 0.08 for tighter, more premium stagger
-        delayChildren: 0.05, // Reduced from 0.1 for faster start
+        staggerChildren: 0.02, // Ultra-tight stagger for premium, cohesive feel
+        delayChildren: 0.02, // Minimal delay for immediate, smooth appearance
+        ease: [0.16, 1, 0.3, 1], // Premium cubic bezier for smooth, refined motion
       },
     },
   }), []);

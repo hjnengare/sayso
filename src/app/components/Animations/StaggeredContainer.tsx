@@ -9,8 +9,8 @@ interface StaggeredContainerProps extends HTMLMotionProps<'div'> {
 }
 
 /**
- * Container component that enables staggered animations for children
- * Use this as a wrapper for sections that need staggered entrance animations
+ * Container component that enables subtle, premium staggered animations for children
+ * Features ultra-tight stagger timing and refined motion for a cohesive, elegant appearance
  */
 export default function StaggeredContainer({
   children,
