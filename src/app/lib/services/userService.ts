@@ -149,59 +149,124 @@ export async function getUserStats(
   supabase: SupabaseClient,
   userId: string
 ): Promise<UserStats | null> {
-  // Get profile for account creation date
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('created_at, last_active_at')
-    .eq('id', userId)
-    .single();
+  try {
+    // Get profile for account creation date
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('created_at, last_active_at')
+      .eq('id', userId)
+      .single();
 
-  if (!profile) {
-    return null;
-  }
+    if (profileError) {
+      console.error('[getUserStats] Error fetching profile:', {
+        userId,
+        error: profileError.message,
+        code: profileError.code,
+      });
+      return null;
+    }
 
-  // Get total reviews written
-  const { count: totalReviews } = await supabase
-    .from('reviews')
-    .select('*', { count: 'exact', head: true })
-    .eq('user_id', userId);
+    if (!profile) {
+      console.warn('[getUserStats] No profile found for user:', userId);
+      return null;
+    }
 
-  // Get total helpful votes given
-  const { count: totalHelpfulVotes } = await supabase
-    .from('review_helpful_votes')
-    .select('*', { count: 'exact', head: true })
-    .eq('user_id', userId);
+    // Get total reviews written
+    const { count: totalReviews, error: reviewsError } = await supabase
+      .from('reviews')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId);
 
-  // Get total businesses saved
-  const { count: totalSaved } = await supabase
-    .from('saved_businesses')
-    .select('*', { count: 'exact', head: true })
-    .eq('user_id', userId);
+    if (reviewsError) {
+      console.error('[getUserStats] Error counting reviews:', {
+        userId,
+        error: reviewsError.message,
+        code: reviewsError.code,
+      });
+    }
 
-  // Get helpful votes received (on user's reviews)
-  const { data: userReviews } = await supabase
-    .from('reviews')
-    .select('id')
-    .eq('user_id', userId);
-
-  let helpfulVotesReceived = 0;
-  if (userReviews && userReviews.length > 0) {
-    const reviewIds = userReviews.map((r) => r.id);
-    const { count } = await supabase
+    // Get total helpful votes given
+    const { count: totalHelpfulVotes, error: helpfulVotesError } = await supabase
       .from('review_helpful_votes')
       .select('*', { count: 'exact', head: true })
-      .in('review_id', reviewIds);
-    helpfulVotesReceived = count || 0;
-  }
+      .eq('user_id', userId);
 
-  return {
-    totalReviewsWritten: totalReviews || 0,
-    totalHelpfulVotesGiven: totalHelpfulVotes || 0,
-    totalBusinessesSaved: totalSaved || 0,
-    accountCreationDate: profile.created_at,
-    lastActiveDate: profile.last_active_at || profile.created_at,
-    helpfulVotesReceived,
-  };
+    if (helpfulVotesError) {
+      console.error('[getUserStats] Error counting helpful votes given:', {
+        userId,
+        error: helpfulVotesError.message,
+        code: helpfulVotesError.code,
+      });
+    }
+
+    // Get total businesses saved
+    const { count: totalSaved, error: savedError } = await supabase
+      .from('saved_businesses')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId);
+
+    if (savedError) {
+      console.error('[getUserStats] Error counting saved businesses:', {
+        userId,
+        error: savedError.message,
+        code: savedError.code,
+      });
+    }
+
+    // Get helpful votes received (on user's reviews)
+    let helpfulVotesReceived = 0;
+    try {
+      const { data: userReviews, error: userReviewsError } = await supabase
+        .from('reviews')
+        .select('id')
+        .eq('user_id', userId);
+
+      if (userReviewsError) {
+        console.error('[getUserStats] Error fetching user reviews:', {
+          userId,
+          error: userReviewsError.message,
+          code: userReviewsError.code,
+        });
+      } else if (userReviews && userReviews.length > 0) {
+        const reviewIds = userReviews.map((r) => r.id);
+        const { count, error: helpfulVotesReceivedError } = await supabase
+          .from('review_helpful_votes')
+          .select('*', { count: 'exact', head: true })
+          .in('review_id', reviewIds);
+        
+        if (helpfulVotesReceivedError) {
+          console.error('[getUserStats] Error counting helpful votes received:', {
+            userId,
+            error: helpfulVotesReceivedError.message,
+            code: helpfulVotesReceivedError.code,
+          });
+        } else {
+          helpfulVotesReceived = count || 0;
+        }
+      }
+    } catch (err) {
+      console.error('[getUserStats] Error calculating helpful votes received:', {
+        userId,
+        error: err instanceof Error ? err.message : 'Unknown error',
+      });
+    }
+
+    return {
+      totalReviewsWritten: totalReviews || 0,
+      totalHelpfulVotesGiven: totalHelpfulVotes || 0,
+      totalBusinessesSaved: totalSaved || 0,
+      accountCreationDate: profile.created_at,
+      lastActiveDate: profile.last_active_at || profile.created_at,
+      helpfulVotesReceived,
+    };
+  } catch (error) {
+    console.error('[getUserStats] Unexpected error:', {
+      userId,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+    return null;
+  }
 }
 
 /**
