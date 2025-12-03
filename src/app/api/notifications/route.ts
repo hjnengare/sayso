@@ -102,7 +102,7 @@ export async function GET(req: NextRequest) {
  * Create a new notification for a user
  * Body: {
  *   user_id: string (optional, defaults to authenticated user),
- *   type: 'review' | 'business' | 'user' | 'highlyRated',
+ *   type: 'review' | 'business' | 'user' | 'highlyRated' | 'gamification',
  *   message: string,
  *   title: string,
  *   image?: string,
@@ -142,7 +142,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Validate type
-    const validTypes = ['review', 'business', 'user', 'highlyRated'];
+    const validTypes = ['review', 'business', 'user', 'highlyRated', 'gamification'];
     if (!validTypes.includes(type)) {
       return NextResponse.json(
         { error: `Invalid type. Must be one of: ${validTypes.join(', ')}` },

@@ -168,7 +168,7 @@ export interface BusinessSearchFilters {
 export interface Notification {
   id: string;
   user_id: string;
-  type: 'review' | 'business' | 'user' | 'highlyRated';
+  type: 'review' | 'business' | 'user' | 'highlyRated' | 'gamification';
   message: string;
   title: string;
   image?: string | null;
@@ -181,7 +181,7 @@ export interface Notification {
 
 export interface CreateNotificationData {
   user_id?: string; // Optional, defaults to authenticated user
-  type: 'review' | 'business' | 'user' | 'highlyRated';
+  type: 'review' | 'business' | 'user' | 'highlyRated' | 'gamification';
   message: string;
   title: string;
   image?: string;
