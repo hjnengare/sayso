@@ -892,13 +892,6 @@ function ProfileContent() {
                                 </div>
                               )}
                               <div className="flex items-center gap-6 mb-4 flex-wrap">
-                                <div className="flex items-center gap-1">
-                                  <StarIcon className="w-5 h-5 fill-coral text-coral" />
-                                  <span className="text-lg font-bold text-charcoal">
-                                    {reviewsCount > 0 ? (Math.min(5, 4 + reviewsCount / 20)).toFixed(1) : "5.0"}
-                                  </span>
-                                  <span className="text-sm text-charcoal/70">rating</span>
-                                </div>
                                 <div className="text-sm text-charcoal/70">
                                   {reviewsCount} reviews
                                 </div>

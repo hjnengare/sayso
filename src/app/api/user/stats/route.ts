@@ -36,17 +36,21 @@ export async function GET(req: Request) {
 
     const stats = await getUserStats(supabase, userId);
 
+    // If stats is null, return default stats (user might not have any activity yet)
     if (!stats) {
-      return NextResponse.json<ApiResponse<UserStats>>(
-        {
-          data: null,
-          error: {
-            message: 'Failed to fetch stats',
-            code: 'FETCH_FAILED',
-          },
-        },
-        { status: 500 }
-      );
+      console.warn('[Stats API] getUserStats returned null, returning default stats');
+      const defaultStats: UserStats = {
+        totalReviewsWritten: 0,
+        totalHelpfulVotesGiven: 0,
+        totalBusinessesSaved: 0,
+        accountCreationDate: new Date().toISOString(),
+        lastActiveDate: new Date().toISOString(),
+        helpfulVotesReceived: 0,
+      };
+      return NextResponse.json<ApiResponse<UserStats>>({
+        data: defaultStats,
+        error: null,
+      });
     }
 
     return NextResponse.json<ApiResponse<UserStats>>({

@@ -55,7 +55,7 @@ export async function updateLastActive(
   await supabase
     .from('profiles')
     .update({ last_active_at: new Date().toISOString() })
-    .eq('id', userId);
+    .eq('user_id', userId);
 }
 
 /**
@@ -68,7 +68,7 @@ export async function getUserProfile(
   const { data, error } = await supabase
     .from('profiles')
     .select('*')
-    .eq('id', userId)
+    .eq('user_id', userId)
     .single();
 
   if (error) {
@@ -131,7 +131,7 @@ export async function updateUserProfile(
   const { data, error } = await supabase
     .from('profiles')
     .update(updateData)
-    .eq('id', userId)
+    .eq('user_id', userId)
     .select()
     .single();
 
@@ -154,7 +154,7 @@ export async function getUserStats(
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('created_at, last_active_at')
-      .eq('id', userId)
+      .eq('user_id', userId)
       .single();
 
     if (profileError) {
