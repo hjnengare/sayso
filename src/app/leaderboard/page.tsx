@@ -1,11 +1,11 @@
 // src/app/leaderboard/page.tsx
 "use client";
 
-import { useState, useMemo, memo } from "react";
+import { useState, useMemo, memo, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import nextDynamic from "next/dynamic";
-import { ChevronRight } from "react-feather";
+import { ChevronRight, Award } from "react-feather";
 import EmailVerificationGuard from "../components/Auth/EmailVerificationGuard";
 import Header from "../components/Header/Header";
 import LeaderboardPodium from "../components/Leaderboard/LeaderboardPodium";
@@ -14,6 +14,7 @@ import LeaderboardTitle from "../components/Leaderboard/LeaderboardTitle";
 import { Tabs } from "@/components/atoms/Tabs";
 import StaggeredContainer from "../components/Animations/StaggeredContainer";
 import AnimatedElement from "../components/Animations/AnimatedElement";
+import { Loader } from "../components/Loader/Loader";
 
 // Dynamically import BusinessOfMonthLeaderboard to improve initial load time
 const BusinessOfMonthLeaderboard = nextDynamic(
@@ -43,30 +44,44 @@ interface LeaderboardUser {
   id?: string;
 }
 
-// Memoized leaderboard data to prevent recreation on every render
-const topReviewers: LeaderboardUser[] = [
-  { rank: 1, username: "Observer", reviews: 25, badge: "🥇", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=150&h=150", totalRating: 4.9, id: "1" },
-  { rank: 2, username: "Ghost", reviews: 20, badge: "🥈", avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=150&h=150", totalRating: 4.8, id: "2" },
-  { rank: 3, username: "Reviewer", reviews: 15, badge: "🥉", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=150&h=150", totalRating: 4.7, id: "3" },
-  { rank: 4, username: "LocalGuru", reviews: 12, avatar: "https://images.unsplash.com/photo-1494790108755-2616b332e234?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=150&h=150", totalRating: 4.6, id: "4" },
-  { rank: 5, username: "TasteExplorer", reviews: 10, avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=150&h=150", totalRating: 4.5, id: "5" },
-  { rank: 6, username: "CityScout", reviews: 8, avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=150&h=150", totalRating: 4.4, id: "6" },
-  { rank: 7, username: "GemHunter", reviews: 7, avatar: "https://images.unsplash.com/photo-1463453091185-61582044d556?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=150&h=150", totalRating: 4.3, id: "7" },
-  { rank: 8, username: "ReviewMaster", reviews: 6, avatar: "https://images.unsplash.com/photo-1552058544-f2b08422138a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=150&h=150", totalRating: 4.2, id: "8" },
-  { rank: 9, username: "FoodieLife", reviews: 5, avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=150&h=150", totalRating: 4.1, id: "9" },
-  { rank: 10, username: "UrbanExplorer", reviews: 5, avatar: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=150&h=150", totalRating: 4.0, id: "10" },
-  { rank: 11, username: "TrendSetter", reviews: 4, avatar: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=150&h=150", totalRating: 3.9, id: "11" },
-  { rank: 12, username: "NightOwl", reviews: 4, avatar: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=150&h=150", totalRating: 3.8, id: "12" },
-  { rank: 13, username: "VibeChecker", reviews: 3, avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=150&h=150", totalRating: 3.7, id: "13" },
-  { rank: 14, username: "QualityFirst", reviews: 3, avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=150&h=150", totalRating: 3.6, id: "14" },
-  { rank: 15, username: "StyleHunter", reviews: 2, avatar: "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=150&h=150", totalRating: 3.5, id: "15" }
-];
-
 function LeaderboardPage() {
   const [activeTab, setActiveTab] = useState("contributors");
   const [showFullLeaderboard, setShowFullLeaderboard] = useState(false);
   const [showFullBusinessLeaderboard, setShowFullBusinessLeaderboard] = useState(false);
   const [shouldFetchBusinesses, setShouldFetchBusinesses] = useState(false);
+  const [topReviewers, setTopReviewers] = useState<LeaderboardUser[]>([]);
+  const [isLoadingLeaderboard, setIsLoadingLeaderboard] = useState(true);
+  const [leaderboardError, setLeaderboardError] = useState<string | null>(null);
+
+  // Fetch leaderboard data
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      setIsLoadingLeaderboard(true);
+      setLeaderboardError(null);
+      
+      try {
+        const response = await fetch('/api/leaderboard?limit=50&sortBy=reviews');
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch leaderboard');
+        }
+        
+        const data = await response.json();
+        setTopReviewers(data.leaderboard || []);
+      } catch (error: any) {
+        console.error('Error fetching leaderboard:', error);
+        setLeaderboardError(error.message || 'Failed to load leaderboard');
+        // Fallback to empty array on error
+        setTopReviewers([]);
+      } finally {
+        setIsLoadingLeaderboard(false);
+      }
+    };
+
+    if (activeTab === "contributors") {
+      fetchLeaderboard();
+    }
+  }, [activeTab]);
 
   // Fetch real businesses only when businesses tab is active or has been viewed
   // Reduced limit from 200 to 50 - we only need one business per interest category (max ~8)
@@ -233,13 +248,53 @@ function LeaderboardPage() {
                           <div className="relative z-10">
                             {activeTab === "contributors" ? (
                               <>
-                                {/* Podium - visible on all screens */}
-                                <LeaderboardPodium topReviewers={topReviewers} />
-                                <LeaderboardList
-                                  users={topReviewers}
-                                  showFullLeaderboard={showFullLeaderboard}
-                                  onToggleFullLeaderboard={handleToggleFullLeaderboard}
-                                />
+                                {isLoadingLeaderboard ? (
+                                  <div className="flex items-center justify-center py-12">
+                                    <Loader size="md" variant="wavy" color="sage" />
+                                  </div>
+                                ) : leaderboardError ? (
+                                  <div className="text-center py-12">
+                                    <p className="text-charcoal/70 mb-4">{leaderboardError}</p>
+                                    <button
+                                      onClick={() => {
+                                        setLeaderboardError(null);
+                                        setIsLoadingLeaderboard(true);
+                                        fetch('/api/leaderboard?limit=50&sortBy=reviews')
+                                          .then(res => res.json())
+                                          .then(data => {
+                                            setTopReviewers(data.leaderboard || []);
+                                            setIsLoadingLeaderboard(false);
+                                          })
+                                          .catch(err => {
+                                            setLeaderboardError(err.message);
+                                            setIsLoadingLeaderboard(false);
+                                          });
+                                      }}
+                                      className="px-4 py-2 bg-sage text-white rounded-full text-sm font-semibold hover:bg-sage/90 transition-colors"
+                                    >
+                                      Retry
+                                    </button>
+                                  </div>
+                                ) : topReviewers.length === 0 ? (
+                                  <div className="text-center py-12">
+                                    <div className="flex flex-col items-center gap-4">
+                                      <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-sage/20 to-sage/10 rounded-full flex items-center justify-center border border-sage/30">
+                                        <Award className="w-8 h-8 sm:w-10 sm:h-10 text-navbar-bg" strokeWidth={2} />
+                                      </div>
+                                      <p className="text-charcoal/70 text-body-sm sm:text-body">No contributors yet. Be the first to write a review!</p>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <>
+                                    {/* Podium - visible on all screens */}
+                                    <LeaderboardPodium topReviewers={topReviewers} />
+                                    <LeaderboardList
+                                      users={topReviewers}
+                                      showFullLeaderboard={showFullLeaderboard}
+                                      onToggleFullLeaderboard={handleToggleFullLeaderboard}
+                                    />
+                                  </>
+                                )}
                               </>
                             ) : (
                               <BusinessOfMonthLeaderboard
