@@ -141,6 +141,13 @@ export default function MenuModal({ isOpen, isVisible, onClose }: MenuModalProps
 
         {/* Navigation Links */}
         <div className="p-6 space-y-2">
+          {/* Discover */}
+          <div className="mb-4">
+            <span className="font-urbanist text-sm font-600 text-charcoal/60 uppercase tracking-wide underline">
+              Discover
+            </span>
+          </div>
+
           {/* Write Review */}
           <button
             onClick={() => handleNavigation("/business/review")}

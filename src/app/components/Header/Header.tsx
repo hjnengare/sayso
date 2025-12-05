@@ -463,7 +463,7 @@ export default function Header({
                         aria-expanded={isDiscoverDropdownOpen}
                         aria-haspopup="true"
                       >
-                        <span className="whitespace-nowrap relative z-10">Discover</span>
+                        <span className="whitespace-nowrap relative z-10 underline">Discover</span>
                         <ChevronDown className={`w-4 h-4 sm:w-4 sm:h-4 transition-transform duration-300 relative z-10 ${isDiscoverDropdownOpen ? 'rotate-180' : ''}`} />
                       </button>
 
