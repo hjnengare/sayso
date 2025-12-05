@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bell, Check, X, MessageSquare, Star, Heart, TrendingUp, Clock, ChevronRight } from "react-feather";
+import { Bell, Check, X, MessageSquare, Star, Heart, TrendingUp, Clock, ChevronRight, ChevronUp } from "react-feather";
 import Header from "../components/Header/Header";
 import Footer from "../components/Footer/Footer";
 import { PageLoader } from "../components/Loader";
@@ -12,6 +13,22 @@ import { useNotifications } from "../contexts/NotificationsContext";
 export default function NotificationsPage() {
   usePredefinedPageTitle('notifications');
   const { notifications, isLoading, readNotifications, markAsRead, markAllAsRead, deleteNotification } = useNotifications();
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  // Handle scroll to top button visibility
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 100);
+    };
+
+    const options: AddEventListenerOptions = { passive: true };
+    window.addEventListener("scroll", handleScroll, options);
+    return () => window.removeEventListener("scroll", handleScroll, options);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
@@ -36,87 +53,112 @@ export default function NotificationsPage() {
   const unreadCount = notifications.filter(n => !readNotifications.has(n.id)).length;
 
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key="notifications"
-        initial={{ opacity: 0, y: 20, scale: 0.98, filter: "blur(8px)" }}
-        animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
-        exit={{ opacity: 0, y: -20, scale: 0.98, filter: "blur(8px)" }}
-        transition={{
-          duration: 0.6,
-          ease: [0.16, 1, 0.3, 1],
-          opacity: { duration: 0.5 },
-          filter: { duration: 0.55 }
-        }}
-        className="min-h-dvh bg-off-white font-urbanist"
-        style={{
-          fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
-        }}
-      >
-        {/* Main Header */}
-        <Header
-          showSearch={false}
-          variant="white"
-          backgroundClassName="bg-navbar-bg"
-          topPosition="top-0"
-          reducedPadding={true}
-          whiteText={true}
-        />
+    <div
+      className="min-h-dvh bg-off-white relative font-urbanist"
+      style={{
+        fontFamily: '"Urbanist", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+      }}
+    >
+      <Header
+        showSearch={true}
+        variant="frosty"
+        backgroundClassName="bg-navbar-bg"
+        searchLayout="floating"
+        topPosition="top-0"
+        reducedPadding={true}
+        whiteText={true}
+      />
 
-        <div className="bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white">
-          <div className="pt-20 sm:pt-24">
-            {/* Main Content Section */}
-            <section
-              className="relative"
-              style={{
-                fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
-              }}
+      <div className="relative">
+        <div className="pt-20 sm:pt-24 pb-12 sm:pb-16 md:pb-20">
+          <div className="mx-auto w-full max-w-[2000px] px-3 relative mb-4">
+            {/* Breadcrumb Navigation */}
+            <nav
+              className="mb-4 sm:mb-6 px-2"
+              aria-label="Breadcrumb"
             >
-              <div className="mx-auto w-full max-w-[2000px] px-2 relative z-10">
-                {/* Breadcrumb Navigation */}
-                <nav className="mb-4 sm:mb-6 px-2" aria-label="Breadcrumb">
-                  <ol className="flex items-center gap-2 text-sm sm:text-base">
-                    <li>
-                      <Link href="/home" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                        Home
-                      </Link>
-                    </li>
-                    <li className="flex items-center">
-                      <ChevronRight className="w-4 h-4 text-charcoal/40" />
-                    </li>
-                    <li>
-                      <span className="text-charcoal font-semibold" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                        Notifications
-                      </span>
-                    </li>
-                  </ol>
-                </nav>
-                <div className="pt-2 pb-12 sm:pb-16 md:pb-20">
-                    {/* Notifications List */}
-                    {isLoading ? (
-                      <div className="flex items-center justify-center py-20">
-                        <PageLoader size="md" variant="wavy" color="sage" />
-                      </div>
-                    ) : notifications.length === 0 ? (
-                      <div className="p-16 text-center">
-                        <div className="w-20 h-20 mx-auto mb-6 bg-charcoal/10 rounded-full flex items-center justify-center">
-                          <Bell className="w-10 h-10 text-charcoal/60" strokeWidth={1.5} />
-                        </div>
-                        <h3 
-                          className="text-h2 font-semibold text-charcoal mb-2"
-                          style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
-                        >
-                          No notifications yet
-                        </h3>
-                        <p 
-                          className="text-body-sm text-charcoal/60 max-w-md mx-auto text-nowrap"
-                          style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 500 }}
-                        >
-                          When you receive notifications, they'll appear here
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="space-y-3 sm:space-y-4">
+              <ol className="flex items-center gap-2 text-sm sm:text-base">
+                <li>
+                  <Link
+                    href="/home"
+                    className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium"
+                    style={{
+                      fontFamily:
+                        "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                    }}
+                  >
+                    Home
+                  </Link>
+                </li>
+                <li className="flex items-center">
+                  <ChevronRight className="w-4 h-4 text-charcoal/40" />
+                </li>
+                <li>
+                  <span
+                    className="text-charcoal font-semibold"
+                    style={{
+                      fontFamily:
+                        "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                    }}
+                  >
+                    Notifications
+                  </span>
+                </li>
+              </ol>
+            </nav>
+          </div>
+
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <PageLoader size="md" variant="wavy" color="sage" />
+            </div>
+          ) : notifications.length === 0 ? (
+            <div className="relative z-10 min-h-[calc(100vh-200px)] flex items-center justify-center">
+              <div className="p-16 text-center">
+                <div className="w-20 h-20 mx-auto mb-6 bg-charcoal/10 rounded-full flex items-center justify-center">
+                  <Bell className="w-10 h-10 text-charcoal/60" strokeWidth={1.5} />
+                </div>
+                <h3 
+                  className="text-h2 font-semibold text-charcoal mb-2"
+                  style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                >
+                  No notifications yet
+                </h3>
+                <p 
+                  className="text-body-sm text-charcoal/60 max-w-md mx-auto"
+                  style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 500 }}
+                >
+                  When you receive notifications, they'll appear here
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="relative z-10">
+              <div className="mx-auto w-full max-w-[2000px] px-2">
+                {/* Title */}
+                <div className="mb-6 sm:mb-8 px-2">
+                  <h1
+                    className="text-h2 sm:text-h1 font-bold text-charcoal"
+                    style={{
+                      fontFamily:
+                        "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                    }}
+                  >
+                    Notifications
+                  </h1>
+                  <p
+                    className="text-body-sm text-charcoal/60 mt-2"
+                    style={{
+                      fontFamily:
+                        "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                    }}
+                  >
+                    {notifications.length} {notifications.length === 1 ? "notification" : "notifications"}
+                  </p>
+                </div>
+
+                <div className="pb-12 sm:pb-16 md:pb-20">
+                  <div className="space-y-3 sm:space-y-4">
                         {notifications.map((notification) => {
                           const isRead = readNotifications.has(notification.id);
                           const Icon = getNotificationIcon(notification.type);
@@ -183,17 +225,27 @@ export default function NotificationsPage() {
                             </motion.div>
                           );
                         })}
-                      </div>
-                    )}
+                  </div>
                 </div>
               </div>
-            </section>
-          </div>
+            </div>
+          )}
+
+          <Footer />
         </div>
 
-        <Footer />
-      </motion.div>
-    </AnimatePresence>
+        {/* Scroll to Top Button */}
+        {showScrollTop && (
+          <button
+            onClick={scrollToTop}
+            className="fixed bottom-6 right-6 z-40 w-12 h-12 bg-navbar-bg hover:bg-navbar-bg backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg border border-white/20 hover:scale-110 transition-all duration-300"
+            aria-label="Scroll to top"
+          >
+            <ChevronUp className="w-6 h-6 text-white" strokeWidth={2.5} />
+          </button>
+        )}
+      </div>
+    </div>
   );
 }
 
