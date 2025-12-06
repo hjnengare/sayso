@@ -442,7 +442,7 @@ export function PremiumReviewCard({
     return (
         <>
         <div
-            className={`relative overflow-hidden rounded-xl sm:rounded-2xl border backdrop-blur-md transition-shadow duration-300 border-white/50 bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 ring-1 ring-white/20 text-charcoal shadow-[0_15px_40px_rgba(15,23,42,0.08)] ${
+            className={`relative overflow-hidden rounded-[12px] border backdrop-blur-md transition-shadow duration-300 border-white/50 bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 ring-1 ring-white/20 text-charcoal shadow-[0_15px_40px_rgba(15,23,42,0.08)] ${
                 compact ? 'p-2 sm:p-3' : 'p-3 sm:p-4'
             }`}
         >
