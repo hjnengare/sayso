@@ -468,7 +468,33 @@ function ProfileContent() {
     try {
       let avatar_url = profile.avatar_url || null;
 
-      if (avatarFileToSave) {
+      // Handle avatar removal: if avatarFileToSave is explicitly null (user removed it)
+      if (avatarFileToSave === null && data?.avatarFile === null) {
+        // User explicitly removed the avatar
+        avatar_url = null;
+        
+        // Delete old avatar from storage if it exists
+        if (profile.avatar_url) {
+          try {
+            // Extract path from URL
+            const urlParts = profile.avatar_url.split('/');
+            const fileName = urlParts[urlParts.length - 1].split('?')[0]; // Remove query params
+            const path = `${user.id}/${fileName}`;
+            
+            const { error: deleteError } = await supabase.storage
+              .from('avatars')
+              .remove([path]);
+            
+            if (deleteError) {
+              console.warn('Error deleting old avatar:', deleteError);
+              // Continue even if deletion fails
+            }
+          } catch (deleteErr) {
+            console.warn('Error deleting old avatar:', deleteErr);
+            // Continue even if deletion fails
+          }
+        }
+      } else if (avatarFileToSave) {
         try {
           console.log('Starting avatar upload...', {
             fileName: avatarFile.name,

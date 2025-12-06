@@ -39,6 +39,8 @@ export interface Profile {
     showSavedBusinesses?: boolean;
   };
   last_active_at?: string;
+  is_active?: boolean;
+  deactivated_at?: string | null;
 }
 
 export interface UserInterest {

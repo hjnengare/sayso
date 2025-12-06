@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, User, Upload, Camera } from "react-feather";
 import Image from "next/image";
+import { authStyles } from "../Auth/Shared/authStyles";
 
 interface EditProfileModalProps {
   isOpen: boolean;
@@ -102,6 +103,8 @@ export function EditProfileModal({
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
+    // Note: We pass null explicitly to indicate removal
+    // The parent component will handle clearing the avatar_url in the database
   };
 
   const handleSave = async () => {
@@ -133,66 +136,68 @@ export function EditProfileModal({
   };
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 bg-charcoal/60 backdrop-blur-sm z-[9998]"
-            onClick={handleClose}
-          />
-
-          {/* Modal */}
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6">
+    <>
+      <style dangerouslySetInnerHTML={{ __html: authStyles }} />
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            {/* Backdrop */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              transition={{
-                duration: 0.4,
-                type: "spring",
-                stiffness: 300,
-                damping: 25,
-              }}
-              className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-lg max-w-lg w-full max-h-[90vh] overflow-y-auto relative"
-              onClick={(e) => e.stopPropagation()}
-            >
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="fixed inset-0 bg-charcoal/60 backdrop-blur-sm z-[9998]"
+              onClick={handleClose}
+            />
+
+            {/* Modal */}
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                transition={{
+                  duration: 0.4,
+                  type: "spring",
+                  stiffness: 300,
+                  damping: 25,
+                }}
+                className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden backdrop-blur-md shadow-md max-w-lg w-full max-h-[90vh] overflow-y-auto relative px-2 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10"
+                onClick={(e) => e.stopPropagation()}
+              >
               {/* Close button */}
               <button
                 onClick={handleClose}
                 disabled={saving}
-                className="absolute top-4 right-4 text-charcoal/60 hover:text-charcoal transition-colors duration-200 p-2 hover:bg-charcoal/5 rounded-full z-10 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="absolute top-4 right-4 text-white/60 hover:text-white transition-colors duration-200 p-2 hover:bg-white/10 rounded-full z-10 disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label="Close edit profile modal"
               >
                 <X className="w-5 h-5" />
               </button>
 
               {/* Content */}
-              <div className="p-6 sm:p-8">
+              <div className="relative z-10">
                 {/* Title */}
                 <h2
-                  className="text-2xl font-bold text-charcoal mb-6"
-                  style={{ fontFamily: '"Urbanist", system-ui, sans-serif' }}
+                  className="text-2xl font-bold text-white mb-6"
+                  style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 700 }}
                 >
                   Edit Profile
                 </h2>
 
                 {/* Error Message */}
                 {error && (
-                  <div className="mb-4 p-3 rounded-lg bg-coral/10 border border-coral/30">
-                    <p className="text-sm text-coral">{error}</p>
+                  <div className="mb-4 bg-orange-50 border border-orange-200 rounded-[12px] p-4 text-center">
+                    <p className="text-caption font-semibold text-orange-600" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>{error}</p>
                   </div>
                 )}
 
                 {/* Avatar Section */}
                 <div className="mb-6">
                   <label
-                    className="block text-sm font-semibold text-charcoal mb-3"
-                    style={{ fontFamily: '"Urbanist", system-ui, sans-serif' }}
+                    className="block text-sm font-semibold text-white mb-3"
+                    style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
                   >
                     Profile Picture
                   </label>
@@ -219,7 +224,8 @@ export function EditProfileModal({
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
                         disabled={saving}
-                        className="flex-1 px-4 py-2 bg-sage/10 hover:bg-sage/20 text-sage rounded-lg text-sm font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 border border-sage/20"
+                        className="flex-1 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-sm font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 border border-white/20"
+                        style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
                       >
                         <Upload className="w-4 h-4" />
                         <span>Upload</span>
@@ -229,7 +235,8 @@ export function EditProfileModal({
                           type="button"
                           onClick={handleRemoveAvatar}
                           disabled={saving}
-                          className="px-4 py-2 bg-charcoal/5 hover:bg-charcoal/10 text-charcoal rounded-lg text-sm font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 border border-charcoal/10"
+                          className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-sm font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 border border-white/20"
+                          style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
                         >
                           <X className="w-4 h-4" />
                           <span className="hidden sm:inline">Remove</span>
@@ -245,7 +252,7 @@ export function EditProfileModal({
                       disabled={saving}
                     />
                   </div>
-                  <p className="text-xs text-charcoal/60 mt-2">
+                  <p className="text-xs text-white/70 mt-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                     Recommended: Square image, max 5MB
                   </p>
                 </div>
@@ -254,13 +261,13 @@ export function EditProfileModal({
                 <div className="mb-6">
                   <label
                     htmlFor="username"
-                    className="block text-sm font-semibold text-charcoal mb-2"
-                    style={{ fontFamily: '"Urbanist", system-ui, sans-serif' }}
+                    className="block text-sm font-semibold text-white mb-2"
+                    style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
                   >
                     Username <span className="text-coral">*</span>
                   </label>
                   <div className="relative">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-charcoal/40">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
                       <User className="w-5 h-5" />
                     </div>
                     <input
@@ -273,11 +280,11 @@ export function EditProfileModal({
                       }}
                       placeholder="Choose a username"
                       disabled={saving}
-                      className="w-full pl-12 pr-4 py-3 bg-off-white border border-white/60 rounded-lg text-body font-medium text-charcoal placeholder-charcoal/50 focus:outline-none focus:ring-2 focus:ring-sage/30 focus:border-sage transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                      style={{ fontFamily: '"Urbanist", system-ui, sans-serif' }}
+                      className="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-body font-medium text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/40 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                      style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                     />
                   </div>
-                  <p className="text-xs text-charcoal/60 mt-2">
+                  <p className="text-xs text-white/70 mt-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                     3-20 characters, letters, numbers, underscores, and hyphens only
                   </p>
                 </div>
@@ -286,8 +293,8 @@ export function EditProfileModal({
                 <div className="mb-6">
                   <label
                     htmlFor="displayName"
-                    className="block text-sm font-semibold text-charcoal mb-2"
-                    style={{ fontFamily: '"Urbanist", system-ui, sans-serif' }}
+                    className="block text-sm font-semibold text-white mb-2"
+                    style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
                   >
                     Display Name
                   </label>
@@ -298,32 +305,43 @@ export function EditProfileModal({
                     onChange={(e) => setDisplayName(e.target.value)}
                     placeholder="Your display name (optional)"
                     disabled={saving}
-                    className="w-full px-4 py-3 bg-off-white border border-white/60 rounded-lg text-body font-medium text-charcoal placeholder-charcoal/50 focus:outline-none focus:ring-2 focus:ring-sage/30 focus:border-sage transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                    style={{ fontFamily: '"Urbanist", system-ui, sans-serif' }}
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-body font-medium text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/40 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                   />
-                  <p className="text-xs text-charcoal/60 mt-2">
+                  <p className="text-xs text-white/70 mt-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                     This is how your name appears to others
                   </p>
                 </div>
 
                 {/* Buttons */}
-                <div className="flex gap-3 pt-4">
-                  <button
-                    type="button"
-                    onClick={handleClose}
-                    disabled={saving}
-                    className="flex-1 px-6 py-3 rounded-lg text-sm font-semibold bg-charcoal/5 hover:bg-charcoal/10 text-charcoal transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed border border-charcoal/10"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleSave}
-                    disabled={saving || !username.trim()}
-                    className="flex-1 px-6 py-3 rounded-lg text-sm font-semibold bg-sage hover:bg-sage/90 text-white transition-all duration-200 shadow-lg shadow-sage/20 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {saving ? "Saving..." : "Save Changes"}
-                  </button>
+                <div className="pt-2 flex justify-center">
+                  <div className="w-full flex gap-3">
+                    <button
+                      type="button"
+                      onClick={handleClose}
+                      disabled={saving}
+                      className="flex-1 px-6 py-3 rounded-full text-sm font-semibold bg-white/10 hover:bg-white/20 text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed border border-white/20"
+                      style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleSave}
+                      disabled={saving || !username.trim()}
+                      className="flex-1 px-6 py-3 rounded-full text-sm font-semibold bg-gradient-to-r from-coral to-coral/80 hover:from-coral/90 hover:to-coral text-white transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 btn-target btn-press"
+                      style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
+                    >
+                      {saving ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                          Saving...
+                        </>
+                      ) : (
+                        "Save Changes"
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -331,6 +349,7 @@ export function EditProfileModal({
         </>
       )}
     </AnimatePresence>
+    </>
   );
 }
 

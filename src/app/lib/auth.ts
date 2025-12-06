@@ -303,13 +303,34 @@ export class AuthService {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('user_id, onboarding_step, interests_count, last_interests_updated, created_at, updated_at, avatar_url, username, display_name, is_top_reviewer, reviews_count, badges_count, subcategories_count, dealbreakers_count')
+        .select('user_id, onboarding_step, interests_count, last_interests_updated, created_at, updated_at, avatar_url, username, display_name, is_top_reviewer, reviews_count, badges_count, subcategories_count, dealbreakers_count, is_active, deactivated_at')
         .eq('user_id', userId)
         .single();
 
       if (error || !data) {
         console.log('getUserProfile: No data or error', error);
         return undefined;
+      }
+
+      // Reactivate account if it was deactivated (user is logging in)
+      if (data.is_active === false) {
+        const { error: reactivateError } = await supabase
+          .from('profiles')
+          .update({
+            is_active: true,
+            deactivated_at: null,
+            updated_at: new Date().toISOString()
+          })
+          .eq('user_id', userId);
+
+        if (reactivateError) {
+          console.error('Error reactivating account:', reactivateError);
+        } else {
+          console.log('Account reactivated on login');
+          // Update data to reflect reactivation
+          data.is_active = true;
+          data.deactivated_at = null;
+        }
       }
 
       console.log('getUserProfile: Fetched avatar_url from DB:', data.avatar_url);
@@ -330,7 +351,9 @@ export class AuthService {
         subcategories_count: data.subcategories_count || 0,
         dealbreakers_count: data.dealbreakers_count || 0,
         created_at: data.created_at,
-        updated_at: data.updated_at
+        updated_at: data.updated_at,
+        is_active: data.is_active !== undefined ? data.is_active : true,
+        deactivated_at: data.deactivated_at || undefined
       };
 
       console.log('getUserProfile: Returning profile with avatar_url:', profile.avatar_url);

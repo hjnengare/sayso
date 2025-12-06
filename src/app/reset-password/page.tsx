@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { AuthService } from "../lib/auth";
 import { useToast } from "../contexts/ToastContext";
 import { AlertCircle } from "react-feather";
 import { getBrowserSupabase } from "../lib/supabase/client";
+import { useScrollReveal } from "../hooks/useScrollReveal";
+import { usePredefinedPageTitle } from "../hooks/usePageTitle";
 
 // Import shared components
 import { authStyles } from "../components/Auth/Shared/authStyles";
@@ -27,28 +29,53 @@ export default function ResetPasswordPage() {
 
   const router = useRouter();
   const { showToast } = useToast();
+  const containerRef = useRef(null);
+
+  // Initialize scroll reveal (runs once per page load)
+  useScrollReveal({ threshold: 0.1, rootMargin: "0px 0px -50px 0px", once: true });
+  usePredefinedPageTitle('resetPassword');
 
   useEffect(() => {
-    // Check if we have a valid session (should be set by auth callback)
+    // Check if we have a valid session or need to exchange code for session
     const checkSession = async () => {
       try {
         const supabase = getBrowserSupabase();
+        
+        // Check for code parameter in URL
+        const searchParams = new URLSearchParams(window.location.search);
+        const code = searchParams.get('code');
+        const verified = searchParams.get('verified');
 
-        // Check for existing session (from callback redirect)
+        // If we have a code parameter, redirect to auth callback to handle exchange server-side
+        // This is required because password reset codes need server-side exchange (no PKCE)
+        if (code) {
+          console.log('Reset password page - redirecting to auth callback for code exchange');
+          // Redirect to auth callback with type=recovery so it knows to redirect back here
+          const callbackUrl = new URL('/auth/callback', window.location.origin);
+          callbackUrl.searchParams.set('code', code);
+          callbackUrl.searchParams.set('type', 'recovery');
+          callbackUrl.searchParams.set('next', '/reset-password');
+          window.location.href = callbackUrl.toString();
+          return; // Don't continue, let the redirect happen
+        }
+
+        // Check for existing session (from callback redirect or already logged in)
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
-        console.log('Reset password page - session check:', {
-          hasSession: !!session,
-          error: sessionError
-        });
+        if (sessionError) {
+          console.error('Session check error:', sessionError);
+          setError("Invalid or expired reset link. Please request a new one.");
+          showToast("Invalid or expired reset link", 'sage', 4000);
+          setIsChecking(false);
+          return;
+        }
 
         if (session) {
           // Valid session exists, user can reset password
           setIsValidToken(true);
           
           // Clear the verified parameter from URL for security
-          const searchParams = new URLSearchParams(window.location.search);
-          if (searchParams.has('verified')) {
+          if (verified) {
             window.history.replaceState(null, '', window.location.pathname);
           }
         } else {
@@ -65,7 +92,8 @@ export default function ResetPasswordPage() {
     };
 
     checkSession();
-  }, [router, showToast]); // Only run once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount - router and showToast are stable
 
   const getPasswordError = () => {
     if (!passwordTouched) return "";
@@ -159,27 +187,36 @@ export default function ResetPasswordPage() {
     return (
       <>
         <style dangerouslySetInnerHTML={{ __html: authStyles }} />
-        <div className="min-h-[100dvh] bg-off-white flex flex-col relative overflow-hidden ios-inertia hide-scrollbar safe-area-full">
+        <div ref={containerRef} className="min-h-[100dvh] bg-off-white flex flex-col relative overflow-hidden ios-inertia hide-scrollbar safe-area-full">
+          {/* Premium floating orbs background */}
+          <div className="floating-orb floating-orb-1" aria-hidden="true" />
+          <div className="floating-orb floating-orb-2" aria-hidden="true" />
+          <div className="floating-orb floating-orb-3" aria-hidden="true" />
+          <div className="floating-orb floating-orb-4" aria-hidden="true" />
+          <div className="floating-orb floating-orb-5" aria-hidden="true" />
+          <div className="floating-orb floating-orb-6" aria-hidden="true" />
+
           <AuthHeader
             backLink="/login"
             title="Invalid link"
             subtitle="This reset link is invalid or has expired"
           />
 
-          <div className="w-full max-w-sm sm:max-w-md lg:max-w-lg mx-auto relative z-10 flex-1 flex flex-col justify-center py-8 sm:py-12">
-            <div className="bg-off-white/95 rounded-lg p-5 sm:p-7 md:p-9 mb-4 relative overflow-hidden border border-white/30 backdrop-blur-lg shadow-[0_10px_30px_rgba(0,0,0,0.06),0_22px_70px_rgba(0,0,0,0.10)] animate-scale-in">
-              <div className="text-center space-y-4">
-                <div className="w-16 h-16 mx-auto bg-red-50 rounded-full flex items-center justify-center">
-                  <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-full sm:max-w-md lg:max-w-lg sm:mx-auto relative z-10 flex-1 flex flex-col justify-center py-8 sm:py-12 px-0 sm:px-2">
+            <section data-section>
+            <div className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden backdrop-blur-md shadow-md px-2 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10 lg:px-12 lg:py-10 xl:px-16 xl:py-12">
+              <div className="text-center space-y-4 relative z-10">
+                <div className="w-16 h-16 mx-auto bg-orange-50 rounded-full flex items-center justify-center">
+                  <svg className="w-8 h-8 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </div>
 
                 <div className="space-y-2">
-                  <h2 className="font-urbanist text-xl font-700 text-charcoal">
+                  <h2 className="text-heading-md font-bold text-white" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 700 }}>
                     Link expired
                   </h2>
-                  <p className="font-urbanist text-sm text-charcoal/70">
+                  <p className="text-body-sm text-white/90" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                     This password reset link is invalid or has expired. Please request a new one.
                   </p>
                 </div>
@@ -187,20 +224,23 @@ export default function ResetPasswordPage() {
                 <div className="pt-4 space-y-3">
                   <button
                     onClick={() => router.push('/forgot-password')}
-                    className="w-full btn-premium text-white text-base font-semibold py-3 px-6 rounded-full transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-sage/30 transform hover:scale-105 active:scale-95"
+                    className="w-full bg-gradient-to-r from-coral to-coral/80 text-white text-body font-semibold py-4 px-2 rounded-full hover:from-coral/90 hover:to-coral transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-sage/30 transform hover:scale-105 active:scale-95 btn-target btn-press"
+                    style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
                   >
                     Request new link
                   </button>
 
                   <button
                     onClick={() => router.push('/login')}
-                    className="w-full text-sm text-sage hover:text-coral transition-colors duration-300 font-500"
+                    className="w-full text-sm text-white hover:text-coral transition-colors duration-300 font-medium"
+                    style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 500 }}
                   >
                     Back to Login
                   </button>
                 </div>
               </div>
             </div>
+            </section>
           </div>
         </div>
       </>
@@ -211,16 +251,25 @@ export default function ResetPasswordPage() {
     return (
       <>
         <style dangerouslySetInnerHTML={{ __html: authStyles }} />
-        <div className="min-h-[100dvh] bg-off-white flex flex-col relative overflow-hidden ios-inertia hide-scrollbar safe-area-full">
+        <div ref={containerRef} className="min-h-[100dvh] bg-off-white flex flex-col relative overflow-hidden ios-inertia hide-scrollbar safe-area-full">
+          {/* Premium floating orbs background */}
+          <div className="floating-orb floating-orb-1" aria-hidden="true" />
+          <div className="floating-orb floating-orb-2" aria-hidden="true" />
+          <div className="floating-orb floating-orb-3" aria-hidden="true" />
+          <div className="floating-orb floating-orb-4" aria-hidden="true" />
+          <div className="floating-orb floating-orb-5" aria-hidden="true" />
+          <div className="floating-orb floating-orb-6" aria-hidden="true" />
+
           <AuthHeader
             backLink="/login"
             title="Success!"
             subtitle="Your password has been reset"
           />
 
-          <div className="w-full max-w-sm sm:max-w-md lg:max-w-lg mx-auto relative z-10 flex-1 flex flex-col justify-center py-8 sm:py-12">
-            <div className="bg-off-white/95 rounded-lg p-5 sm:p-7 md:p-9 mb-4 relative overflow-hidden border border-white/30 backdrop-blur-lg shadow-[0_10px_30px_rgba(0,0,0,0.06),0_22px_70px_rgba(0,0,0,0.10)] animate-scale-in">
-              <div className="text-center space-y-4">
+          <div className="w-full sm:max-w-md lg:max-w-lg sm:mx-auto relative z-10 flex-1 flex flex-col justify-center py-8 sm:py-12 px-0 sm:px-2">
+            <section data-section>
+            <div className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden backdrop-blur-md shadow-md px-2 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10 lg:px-12 lg:py-10 xl:px-16 xl:py-12">
+              <div className="text-center space-y-4 relative z-10">
                 <div className="w-16 h-16 mx-auto bg-green-50 rounded-full flex items-center justify-center">
                   <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -228,10 +277,10 @@ export default function ResetPasswordPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <h2 className="font-urbanist text-xl font-700 text-charcoal">
+                  <h2 className="text-heading-md font-bold text-white" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 700 }}>
                     Password reset!
                   </h2>
-                  <p className="font-urbanist text-sm text-charcoal/70">
+                  <p className="text-body-sm text-white/90" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                     Your password has been successfully reset. Redirecting you to home...
                   </p>
                 </div>
@@ -239,13 +288,15 @@ export default function ResetPasswordPage() {
                 <div className="pt-4">
                   <button
                     onClick={() => router.push('/home')}
-                    className="w-full btn-premium text-white text-base font-semibold py-3 px-6 rounded-full transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-sage/30 transform hover:scale-105 active:scale-95"
+                    className="w-full bg-gradient-to-r from-coral to-coral/80 text-white text-body font-semibold py-4 px-2 rounded-full hover:from-coral/90 hover:to-coral transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-sage/30 transform hover:scale-105 active:scale-95 btn-target btn-press"
+                    style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
                   >
                     Continue to Home
                   </button>
                 </div>
               </div>
             </div>
+            </section>
           </div>
         </div>
       </>
@@ -255,7 +306,15 @@ export default function ResetPasswordPage() {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: authStyles }} />
-      <div className="min-h-[100dvh] bg-off-white flex flex-col relative overflow-hidden ios-inertia hide-scrollbar safe-area-full">
+      <div ref={containerRef} className="min-h-[100dvh] bg-off-white flex flex-col relative overflow-hidden ios-inertia hide-scrollbar safe-area-full">
+
+        {/* Premium floating orbs background */}
+        <div className="floating-orb floating-orb-1" aria-hidden="true" />
+        <div className="floating-orb floating-orb-2" aria-hidden="true" />
+        <div className="floating-orb floating-orb-3" aria-hidden="true" />
+        <div className="floating-orb floating-orb-4" aria-hidden="true" />
+        <div className="floating-orb floating-orb-5" aria-hidden="true" />
+        <div className="floating-orb floating-orb-6" aria-hidden="true" />
 
         <AuthHeader
           backLink="/login"
@@ -263,19 +322,21 @@ export default function ResetPasswordPage() {
           subtitle="Enter your new password"
         />
 
-        <div className="w-full max-w-sm sm:max-w-md lg:max-w-lg mx-auto relative z-10 flex-1 flex flex-col justify-center py-8 sm:py-12">
-          <div className="bg-off-white/95 rounded-lg p-5 sm:p-7 md:p-9 mb-4 relative overflow-hidden border border-white/30 backdrop-blur-lg shadow-[0_10px_30px_rgba(0,0,0,0.06),0_22px_70px_rgba(0,0,0,0.10)] hover:shadow-[0_12px_36px_rgba(0,0,0,0.08),0_30px_90px_rgba(0,0,0,0.14)] transition-shadow duration-300 animate-scale-in">
+        <div className="w-full sm:max-w-md lg:max-w-lg sm:mx-auto relative z-10 flex-1 flex flex-col justify-center py-8 sm:py-12 px-0 sm:px-2">
+          {/* Form Card */}
+          <section data-section>
+          <div className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden backdrop-blur-md shadow-md px-2 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10 lg:px-12 lg:py-10 xl:px-16 xl:py-12">
 
             <form onSubmit={handleSubmit} className="space-y-4 relative z-10">
               {/* Error Message */}
               {error && (
-                <div className="bg-red-50 border border-red-200 rounded-[12px] p-4 text-center">
-                  <p className="font-urbanist text-[14px] font-600 text-red-600">{error}</p>
+                <div className="bg-orange-50 border border-orange-200 rounded-[12px] p-4 text-center">
+                  <p className="text-caption font-semibold text-orange-600" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>{error}</p>
                 </div>
               )}
 
               <div className="mb-4 text-center">
-                <p className="font-urbanist text-sm text-charcoal/70">
+                <p className="text-body-sm text-white/90" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                   Create a strong password with at least 8 characters, including uppercase, lowercase, and numbers.
                 </p>
               </div>
@@ -294,7 +355,7 @@ export default function ResetPasswordPage() {
                 touched={passwordTouched}
               />
               {getPasswordError() && passwordTouched && (
-                <p className="text-xs text-red-600 flex items-center gap-1 mt-1" role="alert">
+                <p className="text-xs text-orange-600 flex items-center gap-1 mt-1" role="alert" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                   <AlertCircle className="w-3 h-3" />
                   {getPasswordError()}
                 </p>
@@ -314,7 +375,7 @@ export default function ResetPasswordPage() {
                 touched={confirmPasswordTouched}
               />
               {getConfirmPasswordError() && confirmPasswordTouched && (
-                <p className="text-xs text-red-600 flex items-center gap-1 mt-1" role="alert">
+                <p className="text-xs text-orange-600 flex items-center gap-1 mt-1" role="alert" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                   <AlertCircle className="w-3 h-3" />
                   {getConfirmPasswordError()}
                 </p>
@@ -326,37 +387,37 @@ export default function ResetPasswordPage() {
                   <button
                     type="submit"
                     disabled={isSubmitting || !password || !confirmPassword}
-                    style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif' }}
-                    className={`group block w-full text-base font-semibold py-3 px-6 rounded-full transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-offset-2 relative overflow-hidden text-center min-h-[48px] whitespace-nowrap transform hover:scale-105 active:scale-95 ${
-                      isSubmitting || !password || !confirmPassword
-                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-50'
-                        : 'btn-premium text-white focus:ring-sage/30'
-                    }`}
+                    style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
+                    className="w-full bg-gradient-to-r from-coral to-coral/80 text-white text-body font-semibold py-4 px-2 rounded-full hover:from-coral/90 hover:to-coral transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 btn-target btn-press"
                   >
-                    <span className="relative z-10 flex items-center justify-center gap-2">
-                      {isSubmitting && <InlineLoader size="xs" />}
-                      {isSubmitting ? "Resetting..." : "Reset password"}
-                    </span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-coral to-coral/90 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full"></div>
+                    {isSubmitting ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                        Resetting...
+                      </>
+                    ) : (
+                      "Reset password"
+                    )}
                   </button>
                 </div>
               </div>
             </form>
 
             {/* Footer */}
-            <div className="text-center mt-4 pt-4 border-t border-light-gray/30">
-              <div className="font-urbanist text-sm sm:text-base font-600 text-charcoal/70">
+            <div className="text-center mt-6 pt-6 border-t border-white/20">
+              <div className="text-body-sm sm:text-body text-white" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 400 }}>
                 Remember your password?{" "}
                 <Link
                   href="/login"
-                  className="text-coral font-600 hover:text-coral/80 transition-colors duration-300 relative group"
+                  className="text-white font-semibold hover:text-coral transition-colors duration-300 relative group"
+                  style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 600 }}
                 >
-                  <span>Sign in</span>
-                  <div className="absolute inset-x-0 -bottom-1 h-0.5 bg-coral/30 group-hover:bg-coral/60 transition-colors duration-300 rounded-full"></div>
+                  Sign in
                 </Link>
               </div>
             </div>
           </div>
+          </section>
         </div>
       </div>
     </>
