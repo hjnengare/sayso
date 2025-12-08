@@ -896,7 +896,7 @@ function ProfileContent() {
                                     alt={displayLabel}
                                     width={120}
                                     height={120}
-                                    className="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded-full border-4 border-white shadow-xl ring-4 ring-white/50"
+                                    className="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded-full border-4 border-coral shadow-xl"
                                     priority
                                     onError={() => setImgError(true)}
                                   />
@@ -909,7 +909,7 @@ function ProfileContent() {
                                   )}
                                 </div>
                               ) : (
-                                <div className="w-24 h-24 sm:w-32 sm:h-32 flex items-center justify-center bg-sage/20 rounded-full border-4 border-white shadow-xl ring-4 ring-white/50">
+                                <div className="w-24 h-24 sm:w-32 sm:h-32 flex items-center justify-center bg-sage/20 rounded-full border-4 border-coral shadow-xl">
                                   <User className="text-navbar-bg" size={44} strokeWidth={2.5} />
                                 </div>
                               )}
