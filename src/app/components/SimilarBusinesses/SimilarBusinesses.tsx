@@ -7,6 +7,7 @@ import { Briefcase } from "react-feather";
 
 interface SimilarBusinessesProps {
   currentBusinessId: string;
+  currentBusinessSlug?: string;
   category: string;
   location?: string;
   limit?: number;
@@ -14,6 +15,7 @@ interface SimilarBusinessesProps {
 
 export default function SimilarBusinesses({
   currentBusinessId,
+  currentBusinessSlug,
   category,
   location,
   limit = 3,
@@ -36,10 +38,11 @@ export default function SimilarBusinesses({
     // First pass: filter out current business (by both ID and slug) and collect unique businesses
     businesses.forEach((b) => {
       // Check if this business is the current one by comparing both ID and slug
+      // This ensures we exclude the current business whether it's identified by ID or slug
       const isCurrentBusiness = 
         b.id === currentBusinessId || 
-        b.slug === currentBusinessId ||
-        b.id === currentBusinessId ||
+        (currentBusinessSlug && b.slug === currentBusinessSlug) ||
+        (currentBusinessSlug && b.slug === currentBusinessId) ||
         (b.slug && b.slug === currentBusinessId);
       
       // Only add if it's not the current business and not already in the map
@@ -55,7 +58,7 @@ export default function SimilarBusinesses({
         ...b,
         href: `/business/${b.slug || b.id}`,
       }));
-  }, [businesses, currentBusinessId, limit]);
+  }, [businesses, currentBusinessId, currentBusinessSlug, limit]);
 
   if (loading) {
     return (

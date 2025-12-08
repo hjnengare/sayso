@@ -68,16 +68,16 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
 
   const variantStyles = {
     danger: {
-      icon: 'bg-navbar-bg/20 text-navbar-bg',
-      button: 'bg-navbar-bg hover:bg-navbar-bg/90 text-white',
+      icon: 'bg-coral/20 text-coral',
+      button: 'bg-gradient-to-br from-coral to-coral/90 hover:from-coral/90 hover:to-coral/80 text-white',
     },
     warning: {
-      icon: 'bg-navbar-bg/20 text-navbar-bg',
-      button: 'bg-navbar-bg hover:bg-navbar-bg/90 text-white',
+      icon: 'bg-amber-500/20 text-amber-600',
+      button: 'bg-gradient-to-br from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white',
     },
     info: {
-      icon: 'bg-blue-500/20 text-blue-500',
-      button: 'bg-blue-500 hover:bg-blue-600 text-white',
+      icon: 'bg-sage/20 text-sage',
+      button: 'bg-gradient-to-br from-sage to-sage/90 hover:from-sage/90 hover:to-sage/80 text-white',
     },
   };
 
@@ -87,13 +87,13 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
+          {/* Backdrop - No blur overlay, just a subtle transparent background */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 bg-charcoal/60 z-[9998]"
+            className="fixed inset-0 bg-charcoal/20 z-[9998]"
             onClick={onClose}
           />
 
@@ -109,7 +109,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
                 stiffness: 300,
                 damping: 25
               }}
-              className="bg-card-bg rounded-lg shadow-lg max-w-md w-full relative border border-white/30"
+              className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-lg max-w-md w-full relative"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Content */}
@@ -122,28 +122,29 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
                 </div>
 
                 {/* Title */}
-                <h3 className="text-xl font-bold text-white text-center mb-3">
+                <h3 className="text-xl font-semibold text-charcoal text-center mb-3" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                   {title}
                 </h3>
 
                 {/* Message */}
-                <p className="text-sm text-white/90 text-center mb-6">
+                <p className="text-sm text-charcoal/80 text-center mb-6" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                   {message}
                 </p>
 
                 {/* Confirm Input (if required) */}
                 {requireConfirmText && (
                   <div className="mb-6">
-                    <label className="block text-xs font-semibold text-white mb-2">
-                      Type <span className="font-mono bg-white/20 px-2 py-1 rounded">{requireConfirmText}</span> to confirm:
+                    <label className="block text-xs font-semibold text-charcoal mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                      Type <span className="font-mono bg-sage/20 text-charcoal px-2 py-1 rounded">{requireConfirmText}</span> to confirm:
                     </label>
                     <input
                       type="text"
                       value={confirmInput}
                       onChange={(e) => setConfirmInput(e.target.value)}
-                      className="w-full px-4 py-2 rounded-lg text-sm text-charcoal border border-white/30 bg-white focus:border-sage focus:outline-none focus:ring-2 focus:ring-sage/20 transition-all duration-200"
+                      className="w-full px-4 py-2 rounded-lg text-sm text-charcoal border border-charcoal/20 bg-white focus:border-sage focus:outline-none focus:ring-2 focus:ring-sage/20 transition-all duration-200"
                       placeholder={requireConfirmText}
                       autoFocus
+                      style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                     />
                   </div>
                 )}
@@ -160,7 +161,8 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
                   <button
                     onClick={onClose}
                     disabled={isLoading}
-                    className="flex-1 px-6 py-3 rounded-full text-sm font-semibold bg-white/20 text-white hover:bg-white/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 px-6 py-3 rounded-full text-sm font-semibold bg-charcoal/10 text-charcoal hover:bg-charcoal/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                   >
                     {cancelText}
                   </button>
@@ -168,6 +170,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
                     onClick={handleConfirm}
                     disabled={isLoading || !canConfirm}
                     className={`flex-1 px-6 py-3 rounded-full text-sm font-semibold ${styles.button} transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed`}
+                    style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                   >
                     {isLoading ? 'Processing...' : confirmText}
                   </button>

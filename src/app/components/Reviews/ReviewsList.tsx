@@ -3,6 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { AlertCircle, MessageCircle } from 'lucide-react';
+import Link from 'next/link';
 import ReviewCard from './ReviewCard';
 import type { ReviewWithUser } from '../../lib/types/database';
 
@@ -13,6 +14,12 @@ interface ReviewsListProps {
   showBusinessInfo?: boolean;
   onUpdate?: () => void;
   emptyMessage?: string;
+  emptyStateAction?: {
+    label: string;
+    href: string;
+    disabled?: boolean;
+  };
+  isOwnerView?: boolean; // If true, pass to ReviewCard for owner-specific actions
 }
 
 export default function ReviewsList({
@@ -21,7 +28,9 @@ export default function ReviewsList({
   error = null,
   showBusinessInfo = false,
   onUpdate,
-  emptyMessage = "No reviews yet. Be the first to share your experience!"
+  emptyMessage = "No reviews yet. Be the first to share your experience!",
+  emptyStateAction,
+  isOwnerView = false,
 }: ReviewsListProps) {
   if (loading) {
     return (
@@ -104,6 +113,25 @@ export default function ReviewsList({
           >
             {emptyMessage}
           </p>
+          {emptyStateAction && (
+            <Link
+              href={emptyStateAction.href}
+              className={`inline-block px-6 py-3 rounded-full text-body font-semibold transition-colors ${
+                emptyStateAction.disabled
+                  ? 'bg-charcoal/20 text-charcoal/50 cursor-not-allowed'
+                  : 'bg-coral text-white hover:bg-coral/90'
+              }`}
+              style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+              onClick={(e) => {
+                if (emptyStateAction.disabled) {
+                  e.preventDefault();
+                }
+              }}
+              aria-disabled={emptyStateAction.disabled}
+            >
+              {emptyStateAction.label}
+            </Link>
+          )}
         </div>
       </div>
     );
@@ -122,6 +150,7 @@ export default function ReviewsList({
             review={review}
             onUpdate={onUpdate}
             showBusinessInfo={showBusinessInfo}
+            isOwnerView={isOwnerView}
           />
         </motion.div>
       ))}

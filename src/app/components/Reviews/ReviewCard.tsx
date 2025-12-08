@@ -11,17 +11,20 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useReviewSubmission } from '../../hooks/useReviews';
 import { useSavedItems } from '../../contexts/SavedItemsContext';
 import { getDisplayUsername } from '../../utils/generateUsername';
+import { ConfirmationDialog } from '../../../components/molecules/ConfirmationDialog/ConfirmationDialog';
 
 interface ReviewCardProps {
   review: ReviewWithUser;
   onUpdate?: () => void;
   showBusinessInfo?: boolean;
+  isOwnerView?: boolean; // If true, show owner-specific actions like "Message Customer"
 }
 
 export default function ReviewCard({
   review,
   onUpdate,
-  showBusinessInfo = false
+  showBusinessInfo = false,
+  isOwnerView = false
 }: ReviewCardProps) {
   const { user } = useAuth();
   const router = useRouter();
@@ -65,6 +68,9 @@ export default function ReviewCard({
   const [editingReplyId, setEditingReplyId] = useState<string | null>(null);
   const [editReplyText, setEditReplyText] = useState('');
   const [deletingReplyId, setDeletingReplyId] = useState<string | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showDeleteReplyDialog, setShowDeleteReplyDialog] = useState(false);
+  const [replyToDelete, setReplyToDelete] = useState<string | null>(null);
   const replyFormRef = useRef<HTMLDivElement>(null);
 
   // Fetch helpful status and count on mount
@@ -182,13 +188,15 @@ export default function ReviewCard({
     router.push(`/business/${businessSlugOrId}/review?edit=${review.id}`);
   };
 
-  const handleDelete = async () => {
-    const confirmed = confirm('Are you sure you want to delete this review?');
-    if (confirmed) {
-      const success = await deleteReview(review.id);
-      if (success && onUpdate) {
-        onUpdate();
-      }
+  const handleDelete = () => {
+    setShowDeleteDialog(true);
+  };
+
+  const confirmDelete = async () => {
+    setShowDeleteDialog(false);
+    const success = await deleteReview(review.id);
+    if (success && onUpdate) {
+      onUpdate();
     }
   };
 
@@ -263,10 +271,16 @@ export default function ReviewCard({
     }
   };
 
-  const handleDeleteReply = async (replyId: string) => {
-    if (!confirm('Are you sure you want to delete this reply?')) return;
-    if (!user) return;
+  const handleDeleteReply = (replyId: string) => {
+    setReplyToDelete(replyId);
+    setShowDeleteReplyDialog(true);
+  };
 
+  const confirmDeleteReply = async () => {
+    if (!replyToDelete || !user) return;
+    setShowDeleteReplyDialog(false);
+    const replyId = replyToDelete;
+    setReplyToDelete(null);
     setDeletingReplyId(replyId);
     try {
       const res = await fetch(`/api/reviews/${review.id}/replies`, {
@@ -371,7 +385,7 @@ export default function ReviewCard({
                       stroke={i < review.rating ? "none" : "currentColor"}
                       viewBox="0 0 24 24"
                       style={{
-                        color: i < review.rating ? "#f59e0b" : "#9ca3af",
+                        color: i < review.rating ? "#722F37" : "#9ca3af",
                       }}
                     >
                       <path
@@ -544,101 +558,122 @@ export default function ReviewCard({
           {/* Actions */}
           <div className="flex items-center justify-between pt-3 border-t border-sage/10">
             <div className="flex items-center gap-3">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={handleLike}
-                className={`flex items-center space-x-2 px-3 py-2 rounded-full transition-all duration-300 ${
-                  isLiked
-                    ? 'bg-sage/10 text-sage'
-                    : 'text-charcoal/60 hover:bg-sage/10 hover:text-sage'
-                } ${loadingHelpful ? 'opacity-60 cursor-not-allowed' : ''}`}
-                disabled={!user || loadingHelpful}
-              >
-                <Heart size={18} fill={isLiked ? "currentColor" : "none"} />
-                <span className="font-urbanist text-sm font-500">
-                  Helpful ({helpfulCount})
-                </span>
-              </motion.button>
+              {!isOwnerView && (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleLike}
+                  className={`flex items-center space-x-2 px-3 py-2 rounded-full transition-all duration-300 ${
+                    isLiked
+                      ? 'bg-sage/10 text-sage'
+                      : 'text-charcoal/60 hover:bg-sage/10 hover:text-sage'
+                  } ${loadingHelpful ? 'opacity-60 cursor-not-allowed' : ''}`}
+                  disabled={!user || loadingHelpful}
+                >
+                  <Heart size={18} fill={isLiked ? "currentColor" : "none"} />
+                  <span className="font-urbanist text-sm font-500">
+                    Helpful ({helpfulCount})
+                  </span>
+                </motion.button>
+              )}
 
-              {/* Reply functionality commented out */}
-              {/* <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setShowReplyForm(!showReplyForm)}
-                className="flex items-center space-x-2 px-3 py-2 rounded-full transition-all duration-300 text-charcoal/60 hover:bg-sage/10 hover:text-sage"
-                disabled={!user}
-              >
-                <MessageCircle size={18} />
-                <span className="font-urbanist text-sm font-500">
-                  Reply {replies.length > 0 && `(${replies.length})`}
-                </span>
-              </motion.button> */}
+              {/* Owner-specific actions */}
+              {isOwnerView && user && (
+                <div className="flex items-center gap-2">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setShowReplyForm(!showReplyForm)}
+                    className="flex items-center space-x-2 px-4 py-2 rounded-full transition-all duration-300 bg-sage text-white hover:bg-sage/90 font-semibold"
+                  >
+                    <MessageCircle size={16} />
+                    <span className="font-urbanist text-sm">
+                      {replies.length > 0 ? 'Edit Reply' : 'Write a Reply'}
+                    </span>
+                  </motion.button>
+                  {review.user_id && (
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => router.push(`/dm/${review.user_id}?business_id=${review.business_id}`)}
+                      className="flex items-center space-x-2 px-4 py-2 rounded-full transition-all duration-300 bg-coral text-white hover:bg-coral/90 font-semibold"
+                    >
+                      <MessageCircle size={16} />
+                      <span className="font-urbanist text-sm">
+                        Message Customer
+                      </span>
+                    </motion.button>
+                  )}
+                </div>
+              )}
             </div>
 
-            {!user && (
+            {!user && !isOwnerView && (
               <span className="font-urbanist text-sm sm:text-xs text-charcoal/40">
                 Login to interact
               </span>
             )}
           </div>
 
-          {/* Reply Form - Commented out */}
-          {/* <AnimatePresence>
-            {showReplyForm && user && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="mt-4 pt-4 border-t border-sage/10"
-                ref={replyFormRef}
-              >
-                <div className="space-y-3">
-                  <textarea
-                    value={replyText}
-                    onChange={(e) => setReplyText(e.target.value)}
-                    placeholder="Write a reply..."
-                    className="w-full px-4 py-3 rounded-lg border border-sage/20 bg-off-white/50 focus:outline-none focus:ring-2 focus:ring-sage/30 focus:border-sage/40 resize-none font-urbanist text-sm"
-                    rows={3}
-                    disabled={submittingReply}
-                  />
-                  <div className="flex items-center justify-end gap-2">
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => {
-                        setShowReplyForm(false);
-                        setReplyText('');
-                      }}
-                      className="px-4 py-2 text-sm font-bold bg-navbar-bg text-white rounded-lg hover:bg-navbar-bg/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          {/* Reply Form - Show for owners */}
+          {isOwnerView && (
+            <AnimatePresence>
+              {showReplyForm && user && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="mt-4 pt-4 border-t border-sage/10"
+                  ref={replyFormRef}
+                >
+                  <div className="space-y-3">
+                    <textarea
+                      value={replyText}
+                      onChange={(e) => setReplyText(e.target.value)}
+                      placeholder="Write a public reply to this review..."
+                      className="w-full px-4 py-3 rounded-lg border border-sage/20 bg-off-white/50 focus:outline-none focus:ring-2 focus:ring-sage/30 focus:border-sage/40 resize-none font-urbanist text-sm"
+                      rows={3}
                       disabled={submittingReply}
-                    >
-                      Cancel
-                    </motion.button>
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={handleSubmitReply}
-                      disabled={!replyText.trim() || submittingReply}
-                      className="px-4 py-2 text-sm font-bold bg-navbar-bg text-white rounded-lg hover:bg-navbar-bg/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                    >
-                      <Send size={16} />
-                      <span>{submittingReply ? 'Sending...' : 'Send'}</span>
-                    </motion.button>
+                    />
+                    <div className="flex items-center justify-end gap-2">
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => {
+                          setShowReplyForm(false);
+                          setReplyText('');
+                        }}
+                        className="px-4 py-2 text-sm font-semibold bg-charcoal/10 text-charcoal rounded-lg hover:bg-charcoal/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={submittingReply}
+                        style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                      >
+                        Cancel
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={handleSubmitReply}
+                        disabled={!replyText.trim() || submittingReply}
+                        className="px-4 py-2 text-sm font-semibold bg-sage text-white rounded-lg hover:bg-sage/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                      >
+                        <Send size={16} />
+                        <span>{submittingReply ? 'Sending...' : 'Save Reply'}</span>
+                      </motion.button>
+                    </div>
                   </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence> */}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          )}
 
-          {/* Replies List - Commented out */}
-          {/* {replies.length > 0 && (
+          {/* Replies List - Show for owners */}
+          {isOwnerView && replies.length > 0 && (
             <div className="mt-4 pt-4 border-t border-sage/10 space-y-3">
-              <h5 className="font-urbanist text-sm font-bold text-charcoal/70 mb-3">
-                Replies ({replies.length})
+              <h5 className="font-urbanist text-sm font-semibold text-charcoal/70 mb-3" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                Owner Reply
               </h5>
               {replies.map((reply) => {
-                const isOwner = user?.id === reply.user_id;
                 const isEditing = editingReplyId === reply.id;
                 const isDeleting = deletingReplyId === reply.id;
 
@@ -658,13 +693,13 @@ export default function ReviewCard({
                           {formatDate(reply.created_at)}
                         </span>
                       </div>
-                      {isOwner && !isEditing && (
+                      {!isEditing && (
                         <div className="flex items-center gap-1">
                           <motion.button
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
                             onClick={() => handleEditReply(reply)}
-                            className="w-7 h-7 bg-navbar-bg rounded-full flex items-center justify-center hover:bg-navbar-bg/90 transition-colors"
+                            className="w-7 h-7 bg-sage rounded-full flex items-center justify-center hover:bg-sage/90 transition-colors"
                             aria-label="Edit reply"
                             title="Edit reply"
                           >
@@ -675,7 +710,7 @@ export default function ReviewCard({
                             whileTap={{ scale: 0.9 }}
                             onClick={() => handleDeleteReply(reply.id)}
                             disabled={isDeleting}
-                            className="w-7 h-7 bg-navbar-bg rounded-full flex items-center justify-center hover:bg-navbar-bg/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-7 h-7 bg-coral rounded-full flex items-center justify-center hover:bg-coral/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             aria-label="Delete reply"
                             title="Delete reply"
                           >
@@ -722,7 +757,7 @@ export default function ReviewCard({
                 );
               })}
             </div>
-          )} */}
+          )}
         </div>
       </div>
 
@@ -762,6 +797,33 @@ export default function ReviewCard({
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Delete Review Confirmation Dialog */}
+      <ConfirmationDialog
+        isOpen={showDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
+        onConfirm={confirmDelete}
+        title="Delete Review"
+        message="Are you sure you want to delete this review? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+      />
+
+      {/* Delete Reply Confirmation Dialog */}
+      <ConfirmationDialog
+        isOpen={showDeleteReplyDialog}
+        onClose={() => {
+          setShowDeleteReplyDialog(false);
+          setReplyToDelete(null);
+        }}
+        onConfirm={confirmDeleteReply}
+        title="Delete Reply"
+        message="Are you sure you want to delete this reply? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+      />
     </motion.div>
   );
 }

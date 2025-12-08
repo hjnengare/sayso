@@ -11,7 +11,8 @@ import {
     X,
     ChevronRight,
 } from "react-feather";
-import { PremiumReviewCard } from "../../components/Business/PremiumReviewCard";
+import ReviewsList from "../../components/Reviews/ReviewsList";
+import type { ReviewWithUser } from "../../lib/types/database";
 import { getCategoryPng, isPngIcon } from "../../utils/categoryToPngMapping";
 import Footer from "../../components/Footer/Footer";
 import { BusinessInfo } from "../../components/BusinessInfo/BusinessInfoModal";
@@ -378,70 +379,61 @@ export default function BusinessProfilePage() {
                             <section className="space-y-6" aria-labelledby="reviews-heading">
                                 <h2
                                     id="reviews-heading"
-                                    className="text-h3 font-semibold text-charcoal pb-2 px-3 sm:px-4 py-1 hover:bg-sage/5 rounded-lg cursor-default text-center justify-center"
+                                    className="text-h3 font-semibold text-charcoal pb-2 px-3 sm:px-4 py-1 rounded-lg cursor-default text-center justify-center"
                                     style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
                                 >
                                     Community Reviews
                                 </h2>
 
-                                {businessData.reviews.length > 0 ? (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        {businessData.reviews.map((review: any, index: number) => (
-                                            <div key={review.id || index} className="w-full">
-                                                <PremiumReviewCard
-                                                    reviewId={review.id}
-                                                    userId={review.userId}
-                                                    author={review.author}
-                                                    rating={review.rating}
-                                                    text={review.text}
-                                                    date={review.date}
-                                                    tags={review.tags}
-                                                    highlight={index === 0 ? "Top Reviewer" : "Local Guide"}
-                                                    verified={index < 2}
-                                                    profileImage={review.profileImage}
-                                                    reviewImages={review.reviewImages}
-                                                    onDelete={refetchBusiness}
-                                                />
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className="text-center py-12">
-                                        <div className="w-16 h-16 bg-charcoal/5 rounded-full flex items-center justify-center mx-auto mb-4">
-                                            <MessageSquare className="w-8 h-8 text-charcoal/40" />
-                                        </div>
-                                        <h3 className="text-h2 font-semibold text-charcoal mb-2" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
-                                            No reviews yet
-                                        </h3>
-                                        <p className="text-body text-charcoal/70 mb-6 max-w-[70ch] mx-auto text-center" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                                            Be the first to review this business!
-                                        </p>
-                                        <Link
-                                            href={hasReviewed ? '#' : `/business/${businessSlug}/review`}
-                                            prefetch={!hasReviewed}
-                                            className={`inline-block px-6 py-3 rounded-full text-body font-semibold transition-colors ${
-                                                hasReviewed
-                                                    ? 'bg-charcoal/20 text-charcoal/50 cursor-not-allowed'
-                                                    : 'bg-coral text-white hover:bg-coral/90'
-                                            }`}
-                                            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
-                                            onClick={(e) => {
-                                                if (hasReviewed) {
-                                                    e.preventDefault();
-                                                }
-                                            }}
-                                            aria-disabled={hasReviewed}
-                                            title={hasReviewed ? 'You have already reviewed this business' : 'Write First Review'}
-                                        >
-                                            {hasReviewed ? 'Already Reviewed' : 'Write First Review'}
-                                        </Link>
-                                    </div>
-                                )}
+                                {/* Reviews List Section */}
+                                <section
+                                    className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-lg p-6 sm:p-8"
+                                    aria-label="Business reviews"
+                                >
+                                    <ReviewsList
+                                        reviews={businessData.reviews.map((review: any): ReviewWithUser => ({
+                                            id: review.id || '',
+                                            business_id: businessId,
+                                            user_id: review.userId || review.user_id || '',
+                                            rating: review.rating || 0,
+                                            title: review.title,
+                                            content: review.text || review.content || '',
+                                            tags: review.tags || [],
+                                            helpful_count: review.helpful_count || 0,
+                                            created_at: review.date || review.created_at || new Date().toISOString(),
+                                            updated_at: review.updated_at || review.date || new Date().toISOString(),
+                                            user: {
+                                                id: review.userId || review.user_id || '',
+                                                display_name: review.author || review.user?.display_name || 'Anonymous',
+                                                avatar_url: review.profileImage || review.user?.avatar_url,
+                                                username: review.user?.username,
+                                                email: review.user?.email,
+                                            },
+                                            images: review.reviewImages?.map((img: string, idx: number) => ({
+                                                id: `img-${idx}`,
+                                                review_id: review.id || '',
+                                                image_url: img,
+                                                created_at: new Date().toISOString(),
+                                            })) || [],
+                                        }))}
+                                        loading={false}
+                                        error={null}
+                                        showBusinessInfo={false}
+                                        onUpdate={refetchBusiness}
+                                        emptyMessage="No reviews yet. Be the first to review this business!"
+                                        emptyStateAction={{
+                                            label: hasReviewed ? 'Already Reviewed' : 'Write First Review',
+                                            href: `/business/${businessSlug}/review`,
+                                            disabled: hasReviewed,
+                                        }}
+                                    />
+                                </section>
                             </section>
 
                             {/* Similar Businesses Section */}
                             <SimilarBusinesses
-                                currentBusinessId={businessId}
+                                currentBusinessId={businessData.id}
+                                currentBusinessSlug={businessData.slug}
                                 category={businessData.category}
                                 location={businessData.location}
                                 limit={3}
