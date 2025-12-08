@@ -157,7 +157,7 @@ export default function MenuModal({ isOpen, isVisible, onClose }: MenuModalProps
               <Edit className="w-5 h-5 text-coral" />
             </div>
             <div className="flex-1 text-left">
-              <span className="font-urbanist text-base font-600 text-charcoal group-hover:text-sage transition-colors duration-200">
+              <span className="font-urbanist text-base font-bold text-charcoal group-hover:text-sage transition-colors duration-200">
                 Write Review
               </span>
               <p className="text-sm text-charcoal/60 mt-1">
@@ -186,7 +186,7 @@ export default function MenuModal({ isOpen, isVisible, onClose }: MenuModalProps
               )}
             </div>
             <div className="flex-1 text-left">
-              <span className={`font-urbanist text-base font-600 transition-colors duration-200 ${
+              <span className={`font-urbanist text-base font-bold transition-colors duration-200 ${
                 isSavedActive ? 'text-sage' : 'text-charcoal group-hover:text-sage'
               }`}>
                 Saved Places
@@ -212,7 +212,7 @@ export default function MenuModal({ isOpen, isVisible, onClose }: MenuModalProps
               <Home className={`w-5 h-5 ${isHomeActive ? 'text-sage' : 'text-charcoal/60'}`} fill={isHomeActive ? 'currentColor' : 'none'} />
             </div>
             <div className="flex-1 text-left">
-              <span className={`font-urbanist text-base font-600 transition-colors duration-200 ${
+              <span className={`font-urbanist text-base font-bold transition-colors duration-200 ${
                 isHomeActive ? 'text-sage' : 'text-charcoal group-hover:text-sage'
               }`}>
                 Home
@@ -238,7 +238,7 @@ export default function MenuModal({ isOpen, isVisible, onClose }: MenuModalProps
               <User className={`w-5 h-5 ${isProfileActive ? 'text-sage' : 'text-charcoal/60'}`} fill={isProfileActive ? 'currentColor' : 'none'} />
             </div>
             <div className="flex-1 text-left">
-              <span className={`font-urbanist text-base font-600 transition-colors duration-200 ${
+              <span className={`font-urbanist text-base font-bold transition-colors duration-200 ${
                 isProfileActive ? 'text-sage' : 'text-charcoal group-hover:text-sage'
               }`}>
                 Profile
@@ -267,7 +267,7 @@ export default function MenuModal({ isOpen, isVisible, onClose }: MenuModalProps
               <Search className="w-5 h-5 text-sage" />
             </div>
             <div className="flex-1 text-left">
-              <span className="font-urbanist text-base font-600 text-charcoal group-hover:text-sage transition-colors duration-200">
+              <span className="font-urbanist text-base font-bold text-charcoal group-hover:text-sage transition-colors duration-200">
                 Search
               </span>
               <p className="text-sm text-charcoal/60 mt-1">
@@ -302,7 +302,7 @@ export default function MenuModal({ isOpen, isVisible, onClose }: MenuModalProps
                 className="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-sage/5 transition-all duration-200 group mobile-interaction"
               >
                 <Settings className="w-4 h-4 text-charcoal/60 group-hover:text-sage transition-colors duration-200" />
-                <span className="font-urbanist text-sm font-500 text-charcoal group-hover:text-sage transition-colors duration-200">
+                <span className="font-urbanist text-sm font-bold text-charcoal group-hover:text-sage transition-colors duration-200">
                   Settings
                 </span>
               </button>
@@ -312,7 +312,7 @@ export default function MenuModal({ isOpen, isVisible, onClose }: MenuModalProps
                 className="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-sage/5 transition-all duration-200 group mobile-interaction"
               >
                 <HelpCircle className="w-4 h-4 text-charcoal/60 group-hover:text-sage transition-colors duration-200" />
-                <span className="font-urbanist text-sm font-500 text-charcoal group-hover:text-sage transition-colors duration-200">
+                <span className="font-urbanist text-sm font-bold text-charcoal group-hover:text-sage transition-colors duration-200">
                   Help & Support
                 </span>
               </button>

@@ -786,36 +786,38 @@ export default function Header({
           </div>
 
           <nav className="flex flex-col py-2 px-3 overflow-y-auto flex-1 min-h-0">
-            {PRIMARY_LINKS.map(({ key, label, href }, index) => (
-              <OptimizedLink
-                key={key}
-                href={href}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={`px-3 py-2 rounded-[12px] text-base font-semibold text-white hover:text-white hover:bg-gradient-to-r hover:from-white/10 hover:to-white/5 transition-all duration-200 relative min-h-[44px] flex items-center justify-start ${mobileRevealClass}`}
-                style={{
-                  fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
-                  transitionDelay: `${index * 60}ms`,
-                }}
-              >
-                <span className="text-left">
-                  {label}
-                </span>
-              </OptimizedLink>
-            ))}
+            <div className="space-y-1">
+              {PRIMARY_LINKS.map(({ key, label, href }, index) => (
+                <OptimizedLink
+                  key={key}
+                  href={href}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`px-3 py-2 rounded-[12px] text-base font-bold text-white hover:text-white hover:bg-gradient-to-r hover:from-white/10 hover:to-white/5 transition-all duration-200 relative min-h-[44px] flex items-center justify-start ${mobileRevealClass}`}
+                  style={{
+                    fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                    transitionDelay: `${index * 60}ms`,
+                  }}
+                >
+                  <span className="text-left uppercase">
+                    {label}
+                  </span>
+                </OptimizedLink>
+              ))}
+            </div>
 
             <div className="h-px bg-charcoal/10 my-2 mx-3" />
 
             <div className="px-3 py-1">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-sm font-semibold text-white/80 tracking-wide">Discover</span>
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-sm font-semibold text-white/80 tracking-wide uppercase">Discover</span>
               </div>
-              <div className="space-y-1">
+              <div className="space-y-1 pl-4">
                 {DISCOVER_LINKS.map(({ key, label, href }, index) => (
                   <OptimizedLink
                     key={key}
                     href={href}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`px-3 py-2 rounded-[12px] text-base font-medium text-white/90 hover:text-white hover:bg-gradient-to-r hover:from-white/10 hover:to-white/5 transition-all duration-200 min-h-[44px] flex items-center justify-start ${mobileRevealClass}`}
+                    className={`py-2 rounded-[12px] text-base font-semibold text-white/90 hover:text-white hover:bg-gradient-to-r hover:from-white/10 hover:to-white/5 transition-all duration-200 min-h-[44px] flex items-center justify-start ${mobileRevealClass}`}
                     style={{
                       fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                       transitionDelay: `${(primaryCount + index) * 60}ms`,
@@ -829,44 +831,42 @@ export default function Header({
             
             <div className="h-px bg-charcoal/10 my-2 mx-3" />
             
-            {/* Manage Business Link */}
-            <OptimizedLink
-              href="/manage-business"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className={`px-3 py-2 rounded-[12px] text-base font-semibold text-white hover:text-white hover:bg-off-white/10 transition-colors relative min-h-[44px] flex items-center justify-start ${mobileRevealClass}`}
-              style={{
-                fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
-                transitionDelay: `${(primaryCount + discoverCount) * 60}ms`,
-              }}
-            >
-              <span className="text-left">Manage Business</span>
-            </OptimizedLink>
-            
-            <div className="h-px bg-charcoal/10 my-2 mx-3" />
-            <OptimizedLink
-              href="/dm"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className={`px-3 py-2 rounded-lg text-base font-semibold text-white hover:text-white flex items-center justify-start transition-colors duration-200 min-h-[44px] ${mobileRevealClass}`}
-              style={{
-                fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
-                fontWeight: 500,
-                transitionDelay: `${(primaryCount + discoverCount + 1) * 60}ms`,
-              }}
-            >
-              <span className="text-left">Messages</span>
-            </OptimizedLink>
-            <OptimizedLink
-              href="/profile"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className={`px-3 py-2 rounded-lg text-base font-semibold text-white hover:text-white flex items-center justify-start transition-colors duration-200 min-h-[44px] ${mobileRevealClass}`}
-              style={{
-                fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
-                fontWeight: 500,
-                transitionDelay: `${(primaryCount + discoverCount + 2) * 60}ms`,
-              }}
-            >
-              <span className="text-left">Profile</span>
-            </OptimizedLink>
+            <div className="space-y-1">
+              {/* Manage Business Link */}
+              <OptimizedLink
+                href="/manage-business"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`px-3 py-2 rounded-[12px] text-base font-semibold text-white hover:text-white hover:bg-off-white/10 transition-colors relative min-h-[44px] flex items-center justify-start ${mobileRevealClass}`}
+                style={{
+                  fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                  transitionDelay: `${(primaryCount + discoverCount) * 60}ms`,
+                }}
+              >
+                <span className="text-left uppercase">Manage Business</span>
+              </OptimizedLink>
+              <OptimizedLink
+                href="/dm"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`px-3 py-2 rounded-lg text-base font-bold text-white hover:text-white flex items-center justify-start transition-colors duration-200 min-h-[44px] ${mobileRevealClass}`}
+                style={{
+                  fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                  transitionDelay: `${(primaryCount + discoverCount + 1) * 60}ms`,
+                }}
+              >
+                <span className="text-left uppercase">Messages</span>
+              </OptimizedLink>
+              <OptimizedLink
+                href="/profile"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`px-3 py-2 rounded-lg text-base font-bold text-white hover:text-white flex items-center justify-start transition-colors duration-200 min-h-[44px] ${mobileRevealClass}`}
+                style={{
+                  fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                  transitionDelay: `${(primaryCount + discoverCount + 2) * 60}ms`,
+                }}
+              >
+                <span className="text-left uppercase">Profile</span>
+              </OptimizedLink>
+            </div>
           </nav>
         </div>
       </div>
