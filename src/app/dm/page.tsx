@@ -721,7 +721,7 @@ export default function DMChatListPage() {
                 className="relative z-10 mx-auto w-full max-w-[2000px] px-4 sm:px-6 pt-20 sm:pt-24 flex flex-col min-h-[calc(100vh-80px)]"
               >
                 {/* Breadcrumb Navigation */}
-                <nav className="mb-4 sm:mb-6 px-2 flex-shrink-0" aria-label="Breadcrumb">
+                <nav className="mb-4 sm:mb-6 flex-shrink-0" aria-label="Breadcrumb">
                   <ol className="flex items-center gap-2 text-sm sm:text-base">
                     <li>
                       <Link href="/home" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>

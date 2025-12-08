@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useRef, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "../../contexts/AuthContext";
 import { useToast } from "../../contexts/ToastContext";
 import { usePrefersReducedMotion } from "../../utils/hooks/usePrefersReducedMotion";
@@ -15,9 +15,11 @@ import { AuthHeader } from "../../components/Auth/Shared/AuthHeader";
 import { EmailInput } from "../../components/Auth/Shared/EmailInput";
 import { PasswordInput } from "../../components/Auth/Shared/PasswordInput";
 import { SocialLoginButtons } from "../../components/Auth/Shared/SocialLoginButtons";
+import { PageLoader } from "../../components/Loader";
 
-export default function BusinessLoginPage() {
+function BusinessLoginPageContent() {
   const prefersReduced = usePrefersReducedMotion();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -91,18 +93,21 @@ export default function BusinessLoginPage() {
         // Update auth context (this will trigger auth state change)
         await login(email, password);
         
+        // Get redirect URL from query params
+        const redirectTo = searchParams?.get('redirect') || '/claim-business';
+        
         if (ownedBusinesses.length > 0) {
           showToast("Welcome back to your business account!", 'success', 2000);
-          // Redirect to claim business page
+          // Redirect to claim business page or specified redirect
           setTimeout(() => {
-            router.push('/claim-business');
+            router.push(redirectTo);
           }, 500);
         } else {
           // User doesn't have verified businesses
           showToast("You don't have any verified business accounts. Claim a business to get started.", 'sage', 5000);
-          // Redirect to claim business page
+          // Redirect to claim business page or specified redirect
           setTimeout(() => {
-            router.push('/claim-business');
+            router.push(redirectTo);
           }, 2000);
         }
       } else {
@@ -231,5 +236,13 @@ export default function BusinessLoginPage() {
         </div>
       </div>
     </>
+  );
+}
+
+export default function BusinessLoginPage() {
+  return (
+    <Suspense fallback={<PageLoader size="lg" variant="wavy" color="sage" fullPage />}>
+      <BusinessLoginPageContent />
+    </Suspense>
   );
 }

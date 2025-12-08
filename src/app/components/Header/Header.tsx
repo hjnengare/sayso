@@ -292,13 +292,12 @@ export default function Header({
     ({ href }) => pathname === href || pathname?.startsWith(href)
   );
 
-  const isClaimBusinessActive = pathname === '/claim-business' || pathname?.startsWith('/claim-business');
-
   // Icon active states
   const isNotificationsActive = pathname === '/notifications' || pathname?.startsWith('/notifications');
   const isSavedActive = pathname === '/saved' || pathname?.startsWith('/saved');
   const isMessagesActive = pathname === '/dm' || pathname?.startsWith('/dm');
   const isProfileActive = pathname === '/profile' || pathname?.startsWith('/profile');
+  const isClaimBusinessActive = pathname === '/claim-business' || pathname?.startsWith('/claim-business');
 
   // Padding classes
   const currentPaddingClass = reducedPadding ? "py-3.5 md:py-4" : "py-3.5 md:py-6";
@@ -651,12 +650,23 @@ export default function Header({
             
             <div className="space-y-1">
               <OptimizedLink
-                href="/dm"
+                href="/claim-business"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className={`px-3 py-2 rounded-lg text-base font-bold text-white hover:text-white flex items-center justify-start transition-colors duration-200 min-h-[44px] ${mobileRevealClass}`}
                 style={{
                   fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                   transitionDelay: `${(primaryCount + discoverCount + 1) * 60}ms`,
+                }}
+              >
+                <span className="text-left uppercase">Claim Business</span>
+              </OptimizedLink>
+              <OptimizedLink
+                href="/dm"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`px-3 py-2 rounded-lg text-base font-bold text-white hover:text-white flex items-center justify-start transition-colors duration-200 min-h-[44px] ${mobileRevealClass}`}
+                style={{
+                  fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                  transitionDelay: `${(primaryCount + discoverCount + 2) * 60}ms`,
                 }}
               >
                 <span className="text-left uppercase">Messages</span>
@@ -667,7 +677,7 @@ export default function Header({
                 className={`px-3 py-2 rounded-lg text-base font-bold text-white hover:text-white flex items-center justify-start transition-colors duration-200 min-h-[44px] ${mobileRevealClass}`}
                 style={{
                   fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
-                  transitionDelay: `${(primaryCount + discoverCount + 2) * 60}ms`,
+                  transitionDelay: `${(primaryCount + discoverCount + 3) * 60}ms`,
                 }}
               >
                 <span className="text-left uppercase">Profile</span>
