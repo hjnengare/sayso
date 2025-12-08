@@ -26,14 +26,17 @@ export interface BusinessOwner {
 }
 
 export class BusinessOwnershipService {
-  private static supabase = getBrowserSupabase();
+  private static getSupabase() {
+    return getBrowserSupabase();
+  }
 
   /**
    * Check if a user owns a business
    */
   static async isBusinessOwner(userId: string, businessId: string): Promise<boolean> {
     try {
-      const { data, error } = await this.supabase
+      const supabase = this.getSupabase();
+      const { data, error } = await supabase
         .from('business_owners')
         .select('id')
         .eq('business_id', businessId)
@@ -57,13 +60,18 @@ export class BusinessOwnershipService {
    */
   static async getBusinessesForOwner(userId: string): Promise<Business[]> {
     try {
-      const { data: owners, error: ownersError } = await this.supabase
+      const supabase = this.getSupabase();
+      const { data: owners, error: ownersError } = await supabase
         .from('business_owners')
         .select('business_id')
         .eq('user_id', userId);
 
       if (ownersError) {
         console.error('Error fetching business owners:', ownersError);
+        // Handle network errors
+        if (ownersError.message?.includes('fetch') || ownersError.message?.includes('network')) {
+          throw new Error('Network error: Unable to fetch business data. Please check your connection.');
+        }
         return [];
       }
 
@@ -73,7 +81,7 @@ export class BusinessOwnershipService {
 
       const businessIds = owners.map(o => o.business_id);
 
-      const { data: businesses, error: businessesError } = await this.supabase
+      const { data: businesses, error: businessesError } = await supabase
         .from('businesses')
         .select('*')
         .in('id', businessIds)
@@ -81,12 +89,20 @@ export class BusinessOwnershipService {
 
       if (businessesError) {
         console.error('Error fetching businesses:', businessesError);
+        // Handle network errors
+        if (businessesError.message?.includes('fetch') || businessesError.message?.includes('network')) {
+          throw new Error('Network error: Unable to fetch business data. Please check your connection.');
+        }
         return [];
       }
 
       return (businesses || []) as Business[];
     } catch (error) {
       console.error('Error getting businesses for owner:', error);
+      // Re-throw network errors so they can be handled upstream
+      if (error instanceof TypeError && error.message === 'Failed to fetch') {
+        throw error;
+      }
       return [];
     }
   }
@@ -101,8 +117,9 @@ export class BusinessOwnershipService {
     verificationData?: Record<string, any>
   ): Promise<{ success: boolean; request?: BusinessOwnershipRequest; error?: string }> {
     try {
+      const supabase = this.getSupabase();
       // Check if there's already a pending request
-      const { data: existingRequest } = await this.supabase
+      const { data: existingRequest } = await supabase
         .from('business_ownership_requests')
         .select('*')
         .eq('business_id', businessId)
@@ -127,7 +144,7 @@ export class BusinessOwnershipService {
       }
 
       // Create the request
-      const { data, error } = await this.supabase
+      const { data, error } = await supabase
         .from('business_ownership_requests')
         .insert({
           business_id: businessId,
@@ -148,7 +165,7 @@ export class BusinessOwnershipService {
       }
 
       // Update business to mark verification as requested
-      await this.supabase
+      await supabase
         .from('businesses')
         .update({
           owner_verification_requested_at: new Date().toISOString()
@@ -173,7 +190,8 @@ export class BusinessOwnershipService {
    */
   static async getUserOwnershipRequests(userId: string): Promise<BusinessOwnershipRequest[]> {
     try {
-      const { data, error } = await this.supabase
+      const supabase = this.getSupabase();
+      const { data, error } = await supabase
         .from('business_ownership_requests')
         .select('*')
         .eq('user_id', userId)
@@ -196,7 +214,8 @@ export class BusinessOwnershipService {
    */
   static async getOwnershipRequest(requestId: string): Promise<BusinessOwnershipRequest | null> {
     try {
-      const { data, error } = await this.supabase
+      const supabase = this.getSupabase();
+      const { data, error } = await supabase
         .from('business_ownership_requests')
         .select('*')
         .eq('id', requestId)
@@ -219,7 +238,8 @@ export class BusinessOwnershipService {
    */
   static async cancelOwnershipRequest(requestId: string, userId: string): Promise<{ success: boolean; error?: string }> {
     try {
-      const { error } = await this.supabase
+      const supabase = this.getSupabase();
+      const { error } = await supabase
         .from('business_ownership_requests')
         .update({ status: 'cancelled' })
         .eq('id', requestId)
@@ -249,7 +269,8 @@ export class BusinessOwnershipService {
    */
   static async getBusinessOwner(businessId: string): Promise<BusinessOwner | null> {
     try {
-      const { data, error } = await this.supabase
+      const supabase = this.getSupabase();
+      const { data, error } = await supabase
         .from('business_owners')
         .select('*')
         .eq('business_id', businessId)
@@ -276,7 +297,8 @@ export class BusinessOwnershipService {
    */
   static async isOwnershipVerified(businessId: string): Promise<boolean> {
     try {
-      const { data, error } = await this.supabase
+      const supabase = this.getSupabase();
+      const { data, error } = await supabase
         .from('businesses')
         .select('owner_verified')
         .eq('id', businessId)

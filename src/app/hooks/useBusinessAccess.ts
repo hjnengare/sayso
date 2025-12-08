@@ -91,6 +91,11 @@ export function useRequireBusinessOwner(options: BusinessGuardOptions = {}) {
         }
       } catch (error) {
         console.error("Error verifying business ownership access:", error);
+        
+        // Handle network errors gracefully
+        if (error instanceof TypeError && error.message === 'Failed to fetch') {
+          console.warn("Network error: Unable to connect to server. Please check your connection.");
+        }
 
         if (!cancelled) {
           setState({ isChecking: false, hasAccess: false, businesses: [] });

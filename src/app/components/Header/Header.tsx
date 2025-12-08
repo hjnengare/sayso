@@ -32,7 +32,6 @@ const DISCOVER_LINKS = [
 const BUSINESS_LINKS = [
   { key: "business-login", label: "Business Login", description: "Access your business account", href: "/business/login" },
   { key: "claim-business", label: "Claim Business", description: "Add your business to sayso", href: "/claim-business" },
-  { key: "manage-business", label: "Manage Business", description: "Update and track performance", href: "/manage-business" },
 ] as const;
 
 export default function Header({
@@ -832,18 +831,6 @@ export default function Header({
             <div className="h-px bg-charcoal/10 my-2 mx-3" />
             
             <div className="space-y-1">
-              {/* Manage Business Link */}
-              <OptimizedLink
-                href="/manage-business"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={`px-3 py-2 rounded-[12px] text-base font-semibold text-white hover:text-white hover:bg-off-white/10 transition-colors relative min-h-[44px] flex items-center justify-start ${mobileRevealClass}`}
-                style={{
-                  fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
-                  transitionDelay: `${(primaryCount + discoverCount) * 60}ms`,
-                }}
-              >
-                <span className="text-left uppercase">Manage Business</span>
-              </OptimizedLink>
               <OptimizedLink
                 href="/dm"
                 onClick={() => setIsMobileMenuOpen(false)}

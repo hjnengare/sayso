@@ -93,9 +93,9 @@ export default function BusinessLoginPage() {
         
         if (ownedBusinesses.length > 0) {
           showToast("Welcome back to your business account!", 'success', 2000);
-          // Redirect to manage business page
+          // Redirect to claim business page
           setTimeout(() => {
-            router.push('/manage-business');
+            router.push('/claim-business');
           }, 500);
         } else {
           // User doesn't have verified businesses
