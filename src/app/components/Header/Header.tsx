@@ -4,7 +4,7 @@
 import { useRef, useState, useEffect, useLayoutEffect, useCallback, Fragment } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { createPortal } from "react-dom";
-import { User, X, Briefcase, ChevronDown, Compass, Bookmark, Bell, Edit, MessageCircle } from "react-feather";
+import { User, X, ChevronDown, Compass, Bookmark, Bell, Edit, MessageCircle } from "react-feather";
 import FilterModal, { FilterState } from "../FilterModal/FilterModal";
 import SearchInput from "../SearchInput/SearchInput";
 import { useSavedItems } from "../../contexts/SavedItemsContext";
@@ -29,10 +29,6 @@ const DISCOVER_LINKS = [
   { key: "events-specials", label: "Events & Specials", description: "Seasonal happenings & offers", href: "/events-specials" },
 ] as const;
 
-const BUSINESS_LINKS = [
-  { key: "business-login", label: "Business Login", description: "Access your business account", href: "/business/login" },
-  { key: "claim-business", label: "Claim Business", description: "Add your business to sayso", href: "/claim-business" },
-] as const;
 
 export default function Header({
   showSearch = true,
@@ -68,9 +64,6 @@ export default function Header({
     }
     return false;
   });
-  const [isBusinessDropdownOpen, setIsBusinessDropdownOpen] = useState(false);
-  const [isBusinessDropdownClosing, setIsBusinessDropdownClosing] = useState(false);
-  const [menuPos, setMenuPos] = useState<{left:number; top:number} | null>(null);
   const [discoverMenuPos, setDiscoverMenuPos] = useState<{left:number; top:number} | null>(null);
   const { savedCount } = useSavedItems();
   const { unreadCount } = useNotifications();
@@ -78,7 +71,6 @@ export default function Header({
 
   // Use refs to track state without causing re-renders
   const isFilterVisibleRef = useRef(isFilterVisible);
-  const isBusinessDropdownOpenRef = useRef(isBusinessDropdownOpen);
   const isDiscoverDropdownOpenRef = useRef(isDiscoverDropdownOpen);
   const showSearchBarRef = useRef(showSearchBar);
 
@@ -86,10 +78,6 @@ export default function Header({
   useEffect(() => {
     isFilterVisibleRef.current = isFilterVisible;
   }, [isFilterVisible]);
-
-  useEffect(() => {
-    isBusinessDropdownOpenRef.current = isBusinessDropdownOpen;
-  }, [isBusinessDropdownOpen]);
 
   useEffect(() => {
     isDiscoverDropdownOpenRef.current = isDiscoverDropdownOpen;
@@ -109,14 +97,10 @@ export default function Header({
   // Anchor for the dropdown FilterModal to hang under
   const headerRef = useRef<HTMLElement>(null);
   const searchWrapRef = useRef<HTMLDivElement>(null);
-  const businessDropdownRef = useRef<HTMLDivElement>(null);
-  const businessMenuPortalRef = useRef<HTMLDivElement>(null);
-  const btnRef = useRef<HTMLButtonElement>(null);
   const discoverDropdownRef = useRef<HTMLDivElement>(null);
   const discoverMenuPortalRef = useRef<HTMLDivElement>(null);
   const discoverBtnRef = useRef<HTMLButtonElement>(null);
   const discoverHoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const businessHoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const clearDiscoverHoverTimeout = useCallback(() => {
     if (discoverHoverTimeoutRef.current) {
@@ -125,12 +109,6 @@ export default function Header({
     }
   }, []);
 
-  const clearBusinessHoverTimeout = useCallback(() => {
-    if (businessHoverTimeoutRef.current) {
-      clearTimeout(businessHoverTimeoutRef.current);
-      businessHoverTimeoutRef.current = null;
-    }
-  }, []);
 
   const openDiscoverDropdown = useCallback(() => {
     clearDiscoverHoverTimeout();
@@ -153,33 +131,12 @@ export default function Header({
     }, 100);
   }, [clearDiscoverHoverTimeout, closeDiscoverDropdown]);
 
-  const openBusinessDropdown = useCallback(() => {
-    clearBusinessHoverTimeout();
-    setIsBusinessDropdownClosing(false);
-    setIsBusinessDropdownOpen(true);
-  }, [clearBusinessHoverTimeout]);
-
-  const closeBusinessDropdown = useCallback(() => {
-    setIsBusinessDropdownClosing(true);
-    setTimeout(() => {
-      setIsBusinessDropdownOpen(false);
-      setIsBusinessDropdownClosing(false);
-    }, 300);
-  }, []);
-
-  const scheduleBusinessDropdownClose = useCallback(() => {
-    clearBusinessHoverTimeout();
-    businessHoverTimeoutRef.current = setTimeout(() => {
-      closeBusinessDropdown();
-    }, 120);
-  }, [clearBusinessHoverTimeout, closeBusinessDropdown]);
 
   useEffect(() => {
     return () => {
       clearDiscoverHoverTimeout();
-      clearBusinessHoverTimeout();
     };
-  }, [clearDiscoverHoverTimeout, clearBusinessHoverTimeout]);
+  }, [clearDiscoverHoverTimeout]);
 
   // Header always visible (scroll effects removed)
   // Previously had scroll-based hide/show logic, now permanently visible
@@ -188,10 +145,6 @@ export default function Header({
   // Close all modals on scroll - memoized with useCallback
   const closeModalsOnScroll = useCallback(() => {
     // Only close if they're actually open to avoid unnecessary state updates
-    if (isBusinessDropdownOpenRef.current) {
-      clearBusinessHoverTimeout();
-      closeBusinessDropdown();
-    }
   if (isDiscoverDropdownOpenRef.current) {
     clearDiscoverHoverTimeout();
     closeDiscoverDropdown();
@@ -203,7 +156,7 @@ export default function Header({
       setIsFilterOpen(false);
       setTimeout(() => setIsFilterVisible(false), 150);
     }
-}, [clearBusinessHoverTimeout, closeBusinessDropdown, clearDiscoverHoverTimeout, closeDiscoverDropdown, forceSearchOpen, isStackedLayout]);
+}, [clearDiscoverHoverTimeout, closeDiscoverDropdown, forceSearchOpen, isStackedLayout]);
 
   useEffect(() => {
     const options: AddEventListenerOptions = { passive: true };
@@ -214,28 +167,6 @@ export default function Header({
     };
   }, [closeModalsOnScroll]);
 
-  // Close business dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Node;
-      const clickedInsideButtonWrap = businessDropdownRef.current?.contains(target);
-      const clickedInsidePortalMenu = businessMenuPortalRef.current?.contains(target);
-
-      if (!clickedInsideButtonWrap && !clickedInsidePortalMenu) {
-        clearBusinessHoverTimeout();
-        closeBusinessDropdown();
-      }
-    };
-
-    if (isBusinessDropdownOpen) {
-      // use 'click' instead of 'mousedown' so Link can process first
-      document.addEventListener('click', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('click', handleClickOutside);
-    };
-  }, [isBusinessDropdownOpen, clearBusinessHoverTimeout, closeBusinessDropdown]);
 
   // Close discover dropdown when clicking outside
   useEffect(() => {
@@ -259,26 +190,6 @@ export default function Header({
     };
   }, [isDiscoverDropdownOpen, clearDiscoverHoverTimeout, closeDiscoverDropdown]);
 
-  // Measure button position when dropdown opens
-  useLayoutEffect(() => {
-    if (isBusinessDropdownOpen && btnRef.current && headerRef.current) {
-      const buttonRect = btnRef.current.getBoundingClientRect();
-      const headerRect = headerRef.current.getBoundingClientRect();
-      const dropdownWidth = 560; // min-w-[560px]
-      const viewportWidth = window.innerWidth;
-      const padding = 16; // padding from edge
-      const center = buttonRect.left + buttonRect.width / 2;
-      let leftPos = center - dropdownWidth / 2;
-      const maxLeft = viewportWidth - dropdownWidth - padding;
-      leftPos = Math.max(padding, Math.min(leftPos, maxLeft));
-
-      // Position dropdown below the navbar's bottom margin
-      const gap = 8; // Gap below navbar
-      setMenuPos({ left: leftPos, top: headerRect.bottom + gap });
-    } else {
-      setMenuPos(null);
-    }
-  }, [isBusinessDropdownOpen]);
 
   useLayoutEffect(() => {
      if (isDiscoverDropdownOpen && discoverBtnRef.current && headerRef.current) {
@@ -376,16 +287,12 @@ export default function Header({
 
   const primaryCount = PRIMARY_LINKS.length;
   const discoverCount = DISCOVER_LINKS.length;
-  const businessCount = BUSINESS_LINKS.length;
-
   // Active state helpers
   const isDiscoverActive = DISCOVER_LINKS.some(
     ({ href }) => pathname === href || pathname?.startsWith(href)
   );
 
-  const isBusinessActive = BUSINESS_LINKS.some(
-    ({ href }) => pathname === href || pathname?.startsWith(href)
-  );
+  const isClaimBusinessActive = pathname === '/claim-business' || pathname?.startsWith('/claim-business');
 
   // Icon active states
   const isNotificationsActive = pathname === '/notifications' || pathname?.startsWith('/notifications');
@@ -522,108 +429,20 @@ export default function Header({
                 );
               })}
 
-              {/* For Businesses Dropdown (desktop) */}
-              <div
-                className="relative"
-                ref={businessDropdownRef}
-                onMouseEnter={() => {
-                  openBusinessDropdown();
-                }}
-                onMouseLeave={() => {
-                  scheduleBusinessDropdownClose();
-                }}
+              {/* Claim Business Link (desktop) */}
+              <OptimizedLink
+                href="/claim-business"
+                className={`group capitalize px-2.5 lg:px-3.5 py-1.5 rounded-lg text-sm sm:text-xs sm:text-sm md:text-sm sm:text-xs lg:text-sm sm:text-xs font-semibold transition-all duration-200 relative ${
+                  isClaimBusinessActive
+                    ? 'text-sage'
+                    : whiteText
+                      ? 'text-white hover:text-white/90 hover:bg-white/10'
+                      : 'text-charcoal/90 md:text-charcoal/95 hover:text-sage hover:bg-sage/5'
+                }`}
+                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
               >
-                <button
-                  ref={btnRef}
-                  onClick={() => {
-                    if (isBusinessDropdownOpen) {
-                      clearBusinessHoverTimeout();
-                      closeBusinessDropdown();
-                    } else {
-                      openBusinessDropdown();
-                    }
-                  }}
-                  className={`group capitalize px-3 lg:px-4 py-1.5 rounded-lg text-sm sm:text-xs sm:text-sm md:text-sm sm:text-xs lg:text-sm sm:text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 relative ${
-                    isBusinessActive
-                      ? 'text-sage'
-                      : whiteText
-                        ? 'text-white hover:text-white/85 hover:bg-white/10'
-                        : 'text-charcoal/90 md:text-charcoal/95 hover:text-sage hover:bg-sage/5'
-                  }`}
-                  style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
-                >
-                  <span className="whitespace-nowrap relative z-10">For Businesses</span>
-                  <ChevronDown className={`w-4 h-4 sm:w-4 sm:h-4 transition-transform duration-300 relative z-10 ${isBusinessDropdownOpen ? 'rotate-180' : ''}`} />
-                </button>
-
-                {isBusinessDropdownOpen && menuPos &&
-                  createPortal(
-                    <div
-                      ref={businessMenuPortalRef}
-                      className={`fixed z-[1000] bg-off-white rounded-[12px] border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.12),0_4px_16px_rgba(0,0,0,0.08)] overflow-hidden min-w-[560px] whitespace-normal break-keep transition-all duration-300 ease-out backdrop-blur-xl ${
-                        isBusinessDropdownClosing ? 'opacity-0 scale-95 translate-y-[-8px]' : 'opacity-100 scale-100 translate-y-0'
-                      }`}
-                      style={{
-                        left: menuPos.left,
-                        top: menuPos.top,
-                        fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
-                        animation: isBusinessDropdownClosing ? 'none' : 'fadeInScale 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-                        transformOrigin: 'top center',
-                      }}
-                      onClick={(e) => e.stopPropagation()}
-                      onMouseEnter={() => {
-                        clearBusinessHoverTimeout();
-                      }}
-                      onMouseLeave={() => {
-                        scheduleBusinessDropdownClose();
-                      }}
-                    >
-                      <div className="relative flex items-center justify-between px-5 sm:px-6 pt-4 pb-3 border-b border-charcoal/10 bg-off-white">
-                        <div className="relative z-10 flex items-center gap-2">
-                          <h3 className="text-sm md:text-base font-semibold text-charcoal" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>For Businesses</h3>
-                        </div>
-                        <button
-                          onClick={() => {
-                            clearBusinessHoverTimeout();
-                            closeBusinessDropdown();
-                          }}
-                          className="relative z-10 w-11 h-11 sm:w-9 sm:h-9 rounded-full border border-charcoal/10 bg-off-white/70 hover:bg-sage/10 hover:text-sage text-charcoal/80 flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-sage/30 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0"
-                          aria-label="Close menu"
-                        >
-                          <X className="w-5 h-5 md:w-6 md:h-6" />
-                        </button>
-                      </div>
-
-                      <div className="px-5 sm:px-6 py-4 space-y-1.5" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                        {BUSINESS_LINKS.map(({ key, label, description, href }) => {
-                          const isActive = pathname === href || pathname?.startsWith(href);
-                          return (
-                          <OptimizedLink
-                            key={key}
-                            href={href}
-                            className={`group flex items-start gap-3 px-4 py-3 rounded-[12px] hover:bg-gradient-to-r hover:from-sage/10 hover:to-coral/5 transition-all duration-200 ${isActive ? 'bg-gradient-to-r from-sage/10 to-sage/5' : ''}`}
-                          style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
-                          onClick={() => {
-                            clearBusinessHoverTimeout();
-                            closeBusinessDropdown();
-                          }}
-                        >
-                          <div className="flex-1">
-                              <div className={`text-sm font-semibold ${isActive ? 'text-sage' : 'text-charcoal group-hover:text-coral'} transition-colors`}>
-                                {label}
-                          </div>
-                              <div className="text-sm sm:text-xs text-charcoal/60 mt-0.5">
-                                {description}
-                          </div>
-                          </div>
-                          </OptimizedLink>
-                          );
-                        })}
-                      </div>
-                    </div>,
-                    document.body
-                  )}
-              </div>
+                <span className="relative z-10">Claim Business</span>
+              </OptimizedLink>
             </nav>
 
             {/* Right side */}

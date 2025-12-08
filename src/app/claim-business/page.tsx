@@ -99,18 +99,10 @@ export default function ClaimBusinessPage() {
         whiteText={true}
       />
 
-      <div className="bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white">
-        <div className="pt-16 sm:pt-20 md:pt-24">
-          {/* Main Content Section */}
-          <section
-            className="relative"
-            style={{
-              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif',
-            }}
-          >
-            <div className="mx-auto w-full max-w-[2000px] min-h-dvh px-4 sm:px-6 lg:px-8 relative z-10">
-              {/* Breadcrumb Navigation */}
-              <nav className="pt-4 sm:pt-0 mb-4 sm:mb-6 md:pt-2" aria-label="Breadcrumb">
+      <main className="pt-20 sm:pt-24 pb-28">
+        <div className="mx-auto w-full max-w-[2000px] px-2">
+          {/* Breadcrumb Navigation */}
+          <nav className="mb-4 sm:mb-6 px-2" aria-label="Breadcrumb">
                 <ol className="flex items-center gap-2 text-sm sm:text-base">
                   <li>
                     <Link href="/home" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
@@ -128,8 +120,10 @@ export default function ClaimBusinessPage() {
                 </ol>
               </nav>
 
-              <div className="max-w-6xl mx-auto pt-4 sm:pt-6 md:pt-8 pb-6 sm:pb-8">
-                <div className="max-w-[800px] mx-auto">
+              <div className="py-3 sm:py-4">
+                <div className="pt-4 sm:pt-6 md:pt-10">
+                  <div className="max-w-6xl mx-auto">
+                    <div className="max-w-[800px] mx-auto">
 
                 {/* Header Section */}
                 <div className="py-12 text-center">
@@ -256,16 +250,16 @@ export default function ClaimBusinessPage() {
                             style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                       Learn More
                     </button>
+                    </div>
                   </div>
-                </div>
                 </div>
               </div>
             </div>
-          </section>
+          </div>
         </div>
+      </main>
 
-        <Footer />
-      </div>
+      <Footer />
 
       {/* Verification Form Modal */}
       {showVerificationForm && selectedBusiness && (
