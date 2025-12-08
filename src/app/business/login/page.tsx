@@ -241,7 +241,7 @@ function BusinessLoginPageContent() {
 
 export default function BusinessLoginPage() {
   return (
-    <Suspense fallback={<PageLoader size="lg" variant="wavy" color="sage" fullPage />}>
+    <Suspense fallback={<PageLoader size="lg" variant="wavy" color="sage" />}>
       <BusinessLoginPageContent />
     </Suspense>
   );

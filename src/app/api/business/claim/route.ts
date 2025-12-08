@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSupabase } from '@/app/lib/supabase/server';
+import { EmailService } from '@/app/lib/services/emailService';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -92,6 +93,35 @@ export async function POST(req: NextRequest) {
         { error: 'Failed to create claim request' },
         { status: 500 }
       );
+    }
+
+    // Get business details for email
+    const { data: business } = await supabase
+      .from('businesses')
+      .select('name, category, location')
+      .eq('id', business_id)
+      .single();
+
+    // Get user email and profile
+    const userEmail = user.email || email;
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('display_name, username')
+      .eq('user_id', user.id)
+      .single();
+
+    // Send confirmation email (non-blocking)
+    if (userEmail && business) {
+      EmailService.sendClaimReceivedEmail({
+        recipientEmail: userEmail,
+        recipientName: profile?.display_name || profile?.username || undefined,
+        businessName: business.name,
+        businessCategory: business.category,
+        businessLocation: business.location,
+      }).catch((error) => {
+        // Log but don't fail the request if email fails
+        console.error('Failed to send claim received email:', error);
+      });
     }
 
     return NextResponse.json(
