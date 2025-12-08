@@ -94,20 +94,20 @@ function BusinessLoginPageContent() {
         await login(email, password);
         
         // Get redirect URL from query params
-        const redirectTo = searchParams?.get('redirect') || '/claim-business';
+        const redirectTo = searchParams?.get('redirect');
         
         if (ownedBusinesses.length > 0) {
           showToast("Welcome back to your business account!", 'success', 2000);
-          // Redirect to claim business page or specified redirect
+          // Redirect to owners dashboard or specified redirect
           setTimeout(() => {
-            router.push(redirectTo);
+            router.push(redirectTo || '/owners');
           }, 500);
         } else {
-          // User doesn't have verified businesses
+          // User doesn't have verified businesses - go to normal home
           showToast("You don't have any verified business accounts. Claim a business to get started.", 'sage', 5000);
-          // Redirect to claim business page or specified redirect
+          // Redirect to specified redirect or home
           setTimeout(() => {
-            router.push(redirectTo);
+            router.push(redirectTo || '/home');
           }, 2000);
         }
       } else {

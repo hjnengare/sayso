@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useRef, useEffect, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, Search, User, Check, Edit3, MessageSquare, Send, MoreVertical, Trash2, AlertTriangle, UserX, ArrowLeft, ChevronRight, X } from "react-feather";
 import { createPortal } from "react-dom";
@@ -113,6 +113,7 @@ function ChatItem({ chat, index, isSelected, onClick }: { chat: BusinessChat; in
 
 export default function DMChatListPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useAuth();
   const [chats, setChats] = useState<BusinessChat[]>([]);
   const [chatsLoading, setChatsLoading] = useState(true);
@@ -127,12 +128,18 @@ export default function DMChatListPage() {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const menuButtonRef = useRef<HTMLDivElement>(null);
 
+  // Get businessId from URL query params
+  const businessId = searchParams?.get('businessId');
+
   // Fetch conversations from API
   useEffect(() => {
     const fetchConversations = async () => {
       try {
         setChatsLoading(true);
-        const response = await fetch('/api/messages/conversations');
+        const url = businessId 
+          ? `/api/messages/conversations?businessId=${businessId}`
+          : '/api/messages/conversations';
+        const response = await fetch(url);
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
           console.error('API Error:', errorData);
@@ -168,8 +175,10 @@ export default function DMChatListPage() {
       }
     };
 
-    fetchConversations();
-  }, []);
+    if (user) {
+      fetchConversations();
+    }
+  }, [user, businessId]);
 
   const filteredChats = chats.filter((chat) =>
     chat.businessName.toLowerCase().includes(searchQuery.toLowerCase())

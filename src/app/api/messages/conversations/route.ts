@@ -45,9 +45,12 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Get conversations where user is either the user or owner
-    // First try with relationships, if that fails, fetch businesses separately
-    let { data: conversations, error: conversationsError } = await supabase
+    // Get businessId from query params (for owner filtering)
+    const { searchParams } = new URL(req.url);
+    const businessId = searchParams.get('businessId');
+
+    // Build query - filter by business if provided
+    let query = supabase
       .from('conversations')
       .select(`
         id,
@@ -63,7 +66,16 @@ export async function GET(req: NextRequest) {
           verified
         )
       `)
-      .or(`user_id.eq.${user.id},owner_id.eq.${user.id}`)
+      .or(`user_id.eq.${user.id},owner_id.eq.${user.id}`);
+
+    // If businessId is provided, filter by it (for owners viewing their business conversations)
+    if (businessId) {
+      query = query.eq('business_id', businessId);
+    }
+
+    // Get conversations where user is either the user or owner
+    // First try with relationships, if that fails, fetch businesses separately
+    let { data: conversations, error: conversationsError } = await query
       .order('last_message_at', { ascending: false });
 
     // If the relationship query fails, try without it
