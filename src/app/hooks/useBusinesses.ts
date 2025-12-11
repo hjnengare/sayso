@@ -107,7 +107,8 @@ export function useBusinesses(options: UseBusinessesOptions = {}): UseBusinesses
       }
 
       const data = await response.json();
-      setBusinesses(data.data || []);
+      // API returns { businesses: [...], cursorId: ... }
+      setBusinesses(data.businesses || data.data || []);
     } catch (err: any) {
       console.error('Error fetching businesses:', err);
       setError(err.message || 'Failed to fetch businesses');
