@@ -273,11 +273,11 @@ export default function OnboardingPage() {
 
           {/* Main content */}
           <div className="text-center flex-1 flex flex-col justify-center min-h-0 py-4 space-y-6 md:space-y-8">
-            <div data-reveal className="title-no-break">
+            <div data-reveal className="title-no-break w-full block">
               <WavyTypedTitle
                 text="Discover local gems near you!"
-                as="h2"
-                className={`${swanky.className} text-4xl md:text-5xl font-semibold mb-5 md:mb-6 leading-[1.2] tracking-tight px-2 text-charcoal no-hyphens`}
+                as="h3"
+                className={`${swanky.className} text-4xl md:text-5xl font-semibold mb-5 md:mb-6 leading-[1.2] tracking-tight px-2 text-charcoal no-hyphens block w-full`}
                 typingSpeedMs={40}
                 startDelayMs={300}
                 waveVariant="subtle"
@@ -292,6 +292,8 @@ export default function OnboardingPage() {
                   hyphens: 'none',
                   WebkitHyphens: 'none',
                   msHyphens: 'none',
+                  display: 'block',
+                  width: '100%',
                 }}
               />
             </div>
