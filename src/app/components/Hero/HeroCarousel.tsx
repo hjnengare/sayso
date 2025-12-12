@@ -5,6 +5,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import type { CSSProperties } from "react";
 import Image from "next/image";
 import Header from "../Header/Header";
+import WavyTypedTitle from "../../../components/Animations/WavyTypedTitle";
 
 interface HeroSlide {
   id: string;
@@ -268,15 +269,18 @@ export default function HeroCarousel() {
                <div className="max-w-lg sm:max-w-lg lg:max-w-2xl xl:max-w-3xl">
                  {/* Text Content */}
                  <div className="relative">
-                  <h1
+                  <WavyTypedTitle
+                     text={slide.title}
+                     as="h1"
                      className="text-off-white leading-[1.1] mb-6 sm:mb-6 font-extrabold tracking-tight whitespace-normal lg:whitespace-nowrap"
+                     typingSpeedMs={40}
+                     startDelayMs={300}
+                     waveVariant="subtle"
+                     loopWave={true}
                      style={{
-                       fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                        fontSize: "clamp(36px, 6vw, 48px)",
                      }}
-                   >
-                     {slide.title}
-                   </h1>
+                   />
            <p
              className="text-off-white/90 leading-relaxed mb-8 whitespace-normal lg:whitespace-nowrap lg:max-w-none"
              style={{

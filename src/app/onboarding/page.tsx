@@ -2,10 +2,18 @@
 
 import Link from "next/link";
 import { useEffect } from "react";
+import { Fontdiner_Swanky } from "next/font/google";
 import { useMounted } from "../hooks/useMounted";
 import { useScrollReveal } from "../hooks/useScrollReveal";
 import Logo from "../components/Logo/Logo";
 import OnboardingCarousel from "../components/Onboarding/OnboardingCarousel";
+import WavyTypedTitle from "../../components/Animations/WavyTypedTitle";
+
+const swanky = Fontdiner_Swanky({
+  weight: "400",
+  subsets: ["latin"],
+  display: "swap",
+});
 
 const styles = `
   @keyframes fadeInUp {
@@ -241,13 +249,22 @@ export default function OnboardingPage() {
 
           {/* Main content */}
           <div className="text-center flex-1 flex flex-col justify-center min-h-0 py-4 space-y-6 md:space-y-8">
-            <h2
-              data-reveal
-              className="text-4xl md:text-5xl font-semibold mb-5 md:mb-6 leading-[1.2] tracking-tight px-2 text-charcoal no-hyphens"
-              style={{ fontFamily: "'Fontdiner Swanky', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
-            >
-              Discover local gems near you!
-            </h2>
+            <div data-reveal>
+              <WavyTypedTitle
+                text="Discover local gems near you!"
+                as="h2"
+                className={`${swanky.className} text-4xl md:text-5xl font-semibold mb-5 md:mb-6 leading-[1.2] tracking-tight px-2 text-charcoal no-hyphens`}
+                typingSpeedMs={40}
+                startDelayMs={300}
+                waveVariant="subtle"
+                loopWave={false}
+                style={{ 
+                  // CRITICAL: Fontdiner Swanky MUST be applied - override ALL other styles
+                  fontFamily: swanky.style.fontFamily,
+                  // Remove any font-family from global CSS by explicitly setting it
+                }}
+              />
+            </div>
 
             <p
               data-reveal
