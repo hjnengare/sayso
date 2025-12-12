@@ -16,20 +16,24 @@ interface SimilarBusinessesProps {
   currentBusinessId: string;
   category: string;
   location?: string;
+  interestId?: string | null;
+  subInterestId?: string | null;
   limit?: number;
 }
 
-type SearchStrategy = 'both' | 'category' | 'location';
+type SearchStrategy = 'both' | 'category' | 'location' | 'interest';
 
 export default function SimilarBusinesses({
   currentBusinessId,
   category,
   location,
+  interestId,
+  subInterestId,
   limit = 3,
 }: SimilarBusinessesProps) {
   const [searchStrategy, setSearchStrategy] = useState<SearchStrategy>('both');
   const hasTriedFallbacksRef = useRef(false);
-  const lastPropsRef = useRef({ currentBusinessId, category, location });
+  const lastPropsRef = useRef({ currentBusinessId, category, location, interestId, subInterestId });
   
   // Get user preferences for personalization
   const { interests, subcategories, dealbreakers } = useUserPreferences();
@@ -44,18 +48,20 @@ export default function SimilarBusinesses({
     const propsChanged = 
       lastPropsRef.current.currentBusinessId !== currentBusinessId ||
       lastPropsRef.current.category !== category ||
-      lastPropsRef.current.location !== location;
+      lastPropsRef.current.location !== location ||
+      lastPropsRef.current.interestId !== interestId ||
+      lastPropsRef.current.subInterestId !== subInterestId;
     
     if (propsChanged) {
       console.log('[SimilarBusinesses] Props changed, resetting strategy', {
         old: lastPropsRef.current,
-        new: { currentBusinessId, category, location },
+        new: { currentBusinessId, category, location, interestId, subInterestId },
       });
       setSearchStrategy('both');
       hasTriedFallbacksRef.current = false;
-      lastPropsRef.current = { currentBusinessId, category, location };
+      lastPropsRef.current = { currentBusinessId, category, location, interestId, subInterestId };
     }
-  }, [currentBusinessId, category, location]);
+  }, [currentBusinessId, category, location, interestId, subInterestId]);
 
   // Strategy 1: Try with both category and location (most relevant)
   const { 
@@ -94,18 +100,34 @@ export default function SimilarBusinesses({
     skip: searchStrategy !== 'location' || !location,
   });
 
+  // Strategy 4: Fallback to same interest_id (sibling categories/subcategories within same interest)
+  const { 
+    businesses: businessesInterest, 
+    loading: loadingInterest 
+  } = useBusinesses({
+    interestIds: interestId ? [interestId] : undefined,
+    limit: limit + 1,
+    sortBy: "total_rating",
+    sortOrder: "desc",
+    skip: searchStrategy !== 'interest' || !interestId,
+  });
+
   // Determine which businesses to use based on current strategy
   const rawBusinesses = useMemo(() => {
     if (searchStrategy === 'both') return businessesBoth || [];
     if (searchStrategy === 'category') return businessesCategory || [];
-    return businessesLocation || [];
-  }, [searchStrategy, businessesBoth, businessesCategory, businessesLocation]);
+    if (searchStrategy === 'location') return businessesLocation || [];
+    if (searchStrategy === 'interest') return businessesInterest || [];
+    return [];
+  }, [searchStrategy, businessesBoth, businessesCategory, businessesLocation, businessesInterest]);
 
   const loading = useMemo(() => {
     if (searchStrategy === 'both') return loadingBoth;
     if (searchStrategy === 'category') return loadingCategory;
-    return loadingLocation;
-  }, [searchStrategy, loadingBoth, loadingCategory, loadingLocation]);
+    if (searchStrategy === 'location') return loadingLocation;
+    if (searchStrategy === 'interest') return loadingInterest;
+    return false;
+  }, [searchStrategy, loadingBoth, loadingCategory, loadingLocation, loadingInterest]);
 
   // Filter out current business, remove duplicates, apply personalization, and limit results
   const similarBusinesses = useMemo(() => {
@@ -217,17 +239,28 @@ export default function SimilarBusinesses({
         console.log('[SimilarBusinesses] ⚠ No results with category only, falling back to location only');
         setSearchStrategy('location');
         hasTriedFallbacksRef.current = true;
+      } else if (searchStrategy === 'location' && interestId) {
+        console.log('[SimilarBusinesses] ⚠ No results with location only, falling back to same interest (sibling categories/subcategories)');
+        setSearchStrategy('interest');
+        hasTriedFallbacksRef.current = true;
       } else {
         // All strategies exhausted
         console.log('[SimilarBusinesses] ✗ All strategies exhausted. No similar businesses found.', {
           category,
           location,
+          interestId,
+          subInterestId,
           currentBusinessId,
-          triedStrategies: ['both', 'category', location ? 'location' : null].filter(Boolean),
+          triedStrategies: [
+            'both', 
+            'category', 
+            location ? 'location' : null,
+            interestId ? 'interest' : null
+          ].filter(Boolean),
         });
       }
     }
-  }, [loading, rawBusinesses, similarBusinesses, searchStrategy, category, location, currentBusinessId]);
+  }, [loading, rawBusinesses, similarBusinesses, searchStrategy, category, location, interestId, subInterestId, currentBusinessId]);
 
   if (loading) {
     return (

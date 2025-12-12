@@ -4,9 +4,11 @@ import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { X, Phone, Globe, MapPin, Mail, CheckCircle, DollarSign } from "react-feather";
 
+type Description = string | { raw: string; friendly: string } | null | undefined;
+
 export interface BusinessInfo {
   name?: string;
-  description?: string;
+  description?: Description;
   category?: string;
   location?: string;
   address?: string;
@@ -95,7 +97,14 @@ export default function BusinessInfoModal({
           <div className="text-sm text-charcoal/70" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
             <p className="font-medium text-charcoal/60 mb-1">Description</p>
             <p className={`leading-relaxed ${!businessInfo.description ? 'italic text-charcoal/40' : ''}`}>
-              {businessInfo.description || 'No description available'}
+              {(() => {
+                const desc = businessInfo.description;
+                if (!desc) return 'No description available';
+                if (typeof desc === 'string') return desc;
+                if (typeof desc === 'object' && 'friendly' in desc) return desc.friendly || desc.raw || 'No description available';
+                if (typeof desc === 'object' && 'raw' in desc) return desc.raw || 'No description available';
+                return 'No description available';
+              })()}
             </p>
           </div>
 

@@ -1,11 +1,48 @@
 // src/components/BusinessDetail/BusinessDescription.tsx
 "use client";
 
+type Description = 
+  | string 
+  | { raw: string; friendly: string }
+  | null 
+  | undefined;
+
 interface BusinessDescriptionProps {
-  description: string;
+  description: Description;
 }
 
 export default function BusinessDescription({ description }: BusinessDescriptionProps) {
+  // Extract the text to display - handle both string and object shapes
+  const getDescriptionText = (): string => {
+    if (!description) {
+      return "Discover this exceptional business offering quality services and experiences. Visit us to see what makes us special!";
+    }
+    
+    if (typeof description === "string") {
+      return description || "Discover this exceptional business offering quality services and experiences. Visit us to see what makes us special!";
+    }
+    
+    // Handle object shape { raw, friendly }
+    if (typeof description === "object" && "friendly" in description) {
+      const friendly = description.friendly?.trim();
+      const raw = description.raw?.trim();
+      if (friendly) return friendly;
+      if (raw) return raw;
+      return "Discover this exceptional business offering quality services and experiences. Visit us to see what makes us special!";
+    }
+    
+    // Fallback for any other object shape
+    if (typeof description === "object" && "raw" in description) {
+      const raw = description.raw?.trim();
+      if (raw) return raw;
+      return "Discover this exceptional business offering quality services and experiences. Visit us to see what makes us special!";
+    }
+    
+    return "Discover this exceptional business offering quality services and experiences. Visit us to see what makes us special!";
+  };
+
+  const descriptionText = getDescriptionText();
+
   return (
     <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] ring-1 ring-white/30 p-4 sm:p-6 relative overflow-hidden">
       {/* Gradient overlays matching user profile */}
@@ -23,8 +60,8 @@ export default function BusinessDescription({ description }: BusinessDescription
           className="text-body text-charcoal/70 leading-relaxed"
           style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
         >
-        {description || "Discover this exceptional business offering quality services and experiences. Visit us to see what makes us special!"}
-      </p>
+          {descriptionText}
+        </p>
       </div>
     </div>
   );

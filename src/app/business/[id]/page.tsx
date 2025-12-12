@@ -65,7 +65,15 @@ export default function BusinessProfilePage() {
         if (!business) return;
 
         const businessName = business.name || 'Unnamed Business';
-        const businessDescription = business.description || `${business.category || 'Business'} located in ${business.location || 'Cape Town'}`;
+        // Handle description as string or object { raw, friendly }
+        const getDescriptionText = (desc: any): string => {
+            if (!desc) return `${business.category || 'Business'} located in ${business.location || 'Cape Town'}`;
+            if (typeof desc === 'string') return desc;
+            if (typeof desc === 'object' && 'friendly' in desc) return desc.friendly || desc.raw || '';
+            if (typeof desc === 'object' && 'raw' in desc) return desc.raw || '';
+            return `${business.category || 'Business'} located in ${business.location || 'Cape Town'}`;
+        };
+        const businessDescription = getDescriptionText(business.description);
 
         if (navigator.share) {
             navigator.share({
@@ -90,9 +98,17 @@ export default function BusinessProfilePage() {
     const [error, setError] = useState<string | null>(null);
 
     // Update page title dynamically - must be called before any conditional returns
+    const getDescriptionForTitle = (desc: any): string => {
+        if (!desc) return "Read reviews and see photos";
+        if (typeof desc === 'string') return desc;
+        if (typeof desc === 'object' && 'friendly' in desc) return desc.friendly || desc.raw || "Read reviews and see photos";
+        if (typeof desc === 'object' && 'raw' in desc) return desc.raw || "Read reviews and see photos";
+        return "Read reviews and see photos";
+    };
+    
     usePageTitle(
         business?.name || "Loading...",
-        business?.description || "Read reviews and see photos"
+        getDescriptionForTitle(business?.description)
     );
 
     const fetchBusiness = async (forceRefresh = false) => {
@@ -222,7 +238,14 @@ export default function BusinessProfilePage() {
         id: business.id || businessId,
         slug: business.slug || businessId, // Use slug if available, fallback to ID
         name: business.name || 'Unnamed Business',
-        description: business.description || `${business.category || 'Business'} located in ${business.location || 'Cape Town'}`,
+        description: (() => {
+            const desc = business.description;
+            if (!desc) return `${business.category || 'Business'} located in ${business.location || 'Cape Town'}`;
+            if (typeof desc === 'string') return desc;
+            if (typeof desc === 'object' && 'friendly' in desc) return desc.friendly || desc.raw || '';
+            if (typeof desc === 'object' && 'raw' in desc) return desc.raw || '';
+            return `${business.category || 'Business'} located in ${business.location || 'Cape Town'}`;
+        })(),
         category: business.category || 'Business',
         location: business.location || 'Cape Town',
         address: business.address,
@@ -490,6 +513,8 @@ export default function BusinessProfilePage() {
                                 currentBusinessId={businessId}
                                 category={businessData.category}
                                 location={businessData.location}
+                                interestId={business?.interest_id || business?.interestId}
+                                subInterestId={business?.sub_interest_id || business?.subInterestId}
                                 limit={3}
                             />
                         </section>
