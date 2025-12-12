@@ -68,7 +68,7 @@ export default function SimilarBusinessCard({
 
   return (
     <div
-      className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-visible group cursor-pointer w-full flex flex-col border border-white/60 backdrop-blur-xl ring-1 ring-white/30 shadow-premiumElevated transition-all duration-300 hover:border-white/80 hover:-translate-y-1 hover:shadow-premiumElevatedHover h-[650px] sm:h-auto md:w-[340px]"
+      className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-visible group cursor-pointer w-full flex flex-col border border-white/60 backdrop-blur-xl ring-1 ring-white/30 shadow-md shadow-premiumElevated transition-all duration-300 hover:border-white/80 hover:-translate-y-1 hover:shadow-premiumElevatedHover h-[650px] sm:h-auto md:w-[340px]"
       style={{
         maxWidth: "540px",
       } as React.CSSProperties}
@@ -129,7 +129,7 @@ export default function SimilarBusinessCard({
         
           {hasRating && displayRating !== undefined && (
             <div className="absolute right-4 top-4 z-20 inline-flex items-center gap-1 rounded-full bg-off-white/95 backdrop-blur-xl px-3 py-1.5 text-charcoal border border-white/40">
-              <Star className="w-3.5 h-3.5 text-navbar-bg fill-navbar-bg" aria-hidden />
+              <Star className="rounded-full p-1 w-3.5 h-3.5 text-navbar-bg fill-navbar-bg shadow-md" aria-hidden />
               <span className="text-sm font-semibold text-charcoal" style={{ 
               fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', 
                 fontWeight: 600
@@ -203,7 +203,7 @@ export default function SimilarBusinessCard({
                       aria-label={`Open ${name} in maps`}
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <MapPin className="w-3 h-3 text-navbar-bg/90 stroke-[2.5] transition-colors duration-200 group-hover:text-navbar-bg/90 flex-shrink-0" />
+                      <MapPin className="rounded-full p-1 w-3 h-3 text-navbar-bg/90 stroke-[2.5] transition-colors duration-200 group-hover:text-navbar-bg/90 flex-shrink-0 shadow-md" />
                       <span className="truncate max-w-[8rem] sm:max-w-[10rem]">{location || address}</span>
                     </a>
                   </>

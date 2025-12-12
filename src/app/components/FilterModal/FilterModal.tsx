@@ -82,7 +82,8 @@ export default function FilterModal({
     const rect = anchor.getBoundingClientRect();
     const isMobile = window.innerWidth < 768; // Use md breakpoint (768px)
     
-    const gap = isMobile ? 8 : 8; // Small space below the input
+    // On mobile, use negative gap to account for border and eliminate visual space
+    const gap = isMobile ? -2 : 8; // Negative gap on mobile to overlap border, small gap on desktop
     const horizontalPadding = isMobile ? 16 : 16; // Consistent padding on both sides
 
     // Always use full device width minus padding
@@ -369,23 +370,24 @@ export default function FilterModal({
 
         {/* footer */}
         <div 
-          className="flex items-center gap-3 px-4 sm:px-5 md:px-6 py-2 border-t border-white/60 bg-navbar-bg backdrop-blur-sm flex-shrink-0"
+          className="flex items-center justify-center gap-3 px-4 sm:px-5 md:px-6 border-t border-white/60 bg-navbar-bg backdrop-blur-sm flex-shrink-0"
           style={{
+            paddingTop: typeof window !== 'undefined' && window.innerWidth < 768 ? '1rem' : '0.5rem',
             paddingBottom: typeof window !== 'undefined' && window.innerWidth < 768 
-              ? `max(1rem, calc(1rem + env(safe-area-inset-bottom, 0px) + 32px))` 
-              : undefined,
+              ? `max(1rem, calc(1rem + env(safe-area-inset-bottom, 0px) + 10px))` 
+              : '0.5rem',
           }}
         >
-            <button
+          <button
             onClick={handleClearAll}
-            className="flex-1 rounded-full bg-off-white text-charcoal border border-charcoal/15 hover:bg-charcoal/5 active:bg-charcoal/10 font-semibold py-3 sm:py-2.5 px-4 text-base sm:text-sm md:text-xs transition-colors focus:outline-none focus:ring-2 focus:ring-sage/30 min-h-[48px] sm:min-h-0 touch-manipulation"
+            className="flex-1 rounded-full bg-off-white text-charcoal border border-charcoal/15 hover:bg-charcoal/5 active:bg-charcoal/10 font-semibold py-3 sm:py-2.5 px-4 text-base sm:text-sm md:text-xs transition-colors focus:outline-none focus:ring-2 focus:ring-sage/30 min-h-[48px] sm:min-h-0 touch-manipulation flex items-center justify-center"
             style={{ fontFamily: '"Urbanist", system-ui, sans-serif', letterSpacing: '-0.01em' }}
           >
             Clear
           </button>
           <button
             onClick={handleApply}
-            className="flex-1 rounded-full bg-sage hover:bg-sage/90 active:bg-sage/80 text-white font-semibold py-3 sm:py-2.5 px-4 text-base sm:text-sm md:text-xs border border-sage transition-colors focus:outline-none focus:ring-2 focus:ring-sage/30 min-h-[48px] sm:min-h-0 touch-manipulation"
+            className="flex-1 rounded-full bg-sage hover:bg-sage/90 active:bg-sage/80 text-white font-semibold py-3 sm:py-2.5 px-4 text-base sm:text-sm md:text-xs border border-sage transition-colors focus:outline-none focus:ring-2 focus:ring-sage/30 min-h-[48px] sm:min-h-0 touch-manipulation flex items-center justify-center"
             style={{ fontFamily: '"Urbanist", system-ui, sans-serif', letterSpacing: '-0.01em' }}
           >
             Apply
