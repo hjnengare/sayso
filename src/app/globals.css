@@ -116,6 +116,11 @@
     font-family: 'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
     color: hsl(0, 0%, 0%);
     background-color: #E5E0E5;
+    background-image: url('/bg.svg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
     margin: 0;
     padding: 0;
     width: 100%;
@@ -318,13 +323,21 @@
 
   /* Background styling */
   body {
-    background: #E5E0E5;
+    background-color: #E5E0E5;
+    background-image: url('/bg.svg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     background-attachment: fixed;
-    background-image: none !important; /* Remove any PNG overlay or background images */
   }
 
   html {
-    background-image: none !important; /* Remove any PNG overlay or background images */
+    background-color: #E5E0E5;
+    background-image: url('/bg.svg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
   }
 
   /* Normal carousel scrolling */
