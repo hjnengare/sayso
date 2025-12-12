@@ -111,23 +111,25 @@ const styles = `
   /* Prevent word breaking in title on mobile */
   .title-no-break {
     word-break: keep-all;
-    overflow-wrap: normal;
+    overflow-wrap: break-word;
     white-space: normal;
+    hyphens: none;
   }
 
   @media (max-width: 768px) {
     .title-no-break {
       word-break: keep-all;
-      overflow-wrap: normal;
-      white-space: nowrap;
+      overflow-wrap: break-word;
+      white-space: normal;
       max-width: 100%;
     }
     
-    /* Prevent breaking within words - ensure the title doesn't break */
+    /* Prevent breaking within words - allow wrapping at word boundaries */
     .title-no-break h2 {
-      white-space: nowrap;
+      white-space: normal;
       word-break: keep-all;
-      overflow-wrap: normal;
+      overflow-wrap: break-word;
+      hyphens: none;
     }
   }
 
@@ -273,7 +275,7 @@ export default function OnboardingPage() {
           <div className="text-center flex-1 flex flex-col justify-center min-h-0 py-4 space-y-6 md:space-y-8">
             <div data-reveal className="title-no-break">
               <WavyTypedTitle
-                text="Discover gems near you!"
+                text="Discover local gems near you!"
                 as="h2"
                 className={`${swanky.className} text-4xl md:text-5xl font-semibold mb-5 md:mb-6 leading-[1.2] tracking-tight px-2 text-charcoal no-hyphens`}
                 typingSpeedMs={40}
@@ -283,10 +285,13 @@ export default function OnboardingPage() {
                 style={{ 
                   // CRITICAL: Fontdiner Swanky MUST be applied - override ALL other styles
                   fontFamily: swanky.style.fontFamily,
-                  // Prevent word breaking on mobile
+                  // Allow wrapping at word boundaries, prevent breaking within words
                   wordBreak: 'keep-all',
-                  overflowWrap: 'normal',
+                  overflowWrap: 'break-word',
                   whiteSpace: 'normal',
+                  hyphens: 'none',
+                  WebkitHyphens: 'none',
+                  msHyphens: 'none',
                 }}
               />
             </div>
