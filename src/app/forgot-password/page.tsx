@@ -124,7 +124,7 @@ export default function ForgotPasswordPage() {
           </div>
 
           {/* Header with premium styling and animations */}
-          <div className="text-center mb-4 pt-16 sm:pt-20">
+          <div className="text-center mb-4 pt-16 sm:pt-20 title-no-break">
             <div className="inline-block relative mb-4 animate-fade-in-up animate-delay-400">
               <WavyTypedTitle
                 text="Check your email"
@@ -231,7 +231,7 @@ export default function ForgotPasswordPage() {
         </div>
 
         {/* Header with premium styling and animations */}
-        <div className="text-center mb-4 pt-16 sm:pt-20">
+        <div className="text-center mb-4 pt-16 sm:pt-20 title-no-break">
           <div className="inline-block relative mb-4 animate-fade-in-up animate-delay-400">
             <WavyTypedTitle
               text="Forgot password?"

@@ -36,7 +36,7 @@ export default function InterestHeader({ isOnline }: InterestHeaderProps) {
         </div>
       )}
 
-      <div className="text-center mb-4 pt-4 sm:pt-6 enter-fade" style={{ animationDelay: "0.05s" }}>
+      <div className="text-center mb-4 pt-4 sm:pt-6 enter-fade title-no-break" style={{ animationDelay: "0.05s" }}>
         <div className="inline-block relative mb-2">
           <WavyTypedTitle
             text="What interests you?"

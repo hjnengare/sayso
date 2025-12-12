@@ -3,6 +3,7 @@
 
 import { useRouter } from "next/navigation";
 import { Award, ArrowRight } from "react-feather";
+import { Fontdiner_Swanky } from "next/font/google";
 import ReviewerCard from "../ReviewerCard/ReviewerCard";
 import BusinessOfTheMonthCard from "../BusinessCard/BusinessOfTheMonthCard";
 import ScrollableSection from "../ScrollableSection/ScrollableSection";
@@ -11,6 +12,12 @@ import {
   Reviewer,
   BusinessOfTheMonth,
 } from "../../data/communityHighlightsData";
+
+const swanky = Fontdiner_Swanky({
+  weight: "400",
+  subsets: ["latin"],
+  display: "swap",
+});
 
 // Sample review texts for variety
 const sampleReviewTexts = [
@@ -81,8 +88,8 @@ export default function CommunityHighlights({
           <div className="mt-1">
             <div className="pb-4 sm:pb-8 md:pb-10 flex flex-wrap items-center justify-between gap-2">
                 <h3
-                  className="text-base font-bold text-charcoal transition-all duration-300 px-3 sm:px-4 py-1 rounded-lg cursor-none"
-                  style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                  className={`${swanky.className} text-base font-bold text-charcoal transition-all duration-300 px-3 sm:px-4 py-1 rounded-lg cursor-none`}
+                  style={{ fontFamily: swanky.style.fontFamily }}
                 >
                   <span className="sm:hidden">Top Contributors</span>
                   <span className="hidden sm:inline">Top Contributors This Month</span>
@@ -147,8 +154,8 @@ export default function CommunityHighlights({
             <div className="mx-auto w-full max-w-[2000px] relative z-10">
               <div className="pb-4 sm:pb-8 md:pb-10 flex flex-wrap items-center justify-between gap-2">
                 <h3
-                  className="text-base font-bold text-charcoal transition-all duration-300 px-3 sm:px-4 py-1 rounded-lg cursor-default"
-                  style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                  className={`${swanky.className} text-base font-bold text-charcoal transition-all duration-300 px-3 sm:px-4 py-1 rounded-lg cursor-default`}
+                  style={{ fontFamily: swanky.style.fontFamily }}
                 >
                   <span className="sm:hidden">Featured Businesses</span>
                   <span className="hidden sm:inline">Featured Businesses of the Month by Category</span>

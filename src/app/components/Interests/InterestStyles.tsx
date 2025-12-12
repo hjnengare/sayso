@@ -124,6 +124,13 @@ const entranceStyles = `
     animation: float1 19s ease-in-out infinite reverse;
   }
 
+  /* Prevent word breaking in titles on mobile */
+  .title-no-break {
+    word-break: keep-all;
+    overflow-wrap: normal;
+    white-space: normal;
+  }
+
   @media (max-width: 768px) {
     .floating-orb {
       filter: blur(40px);
@@ -135,6 +142,20 @@ const entranceStyles = `
     .floating-orb-4 { width: 140px; height: 140px; }
     .floating-orb-5 { width: 160px; height: 160px; }
     .floating-orb-6 { width: 120px; height: 120px; }
+    
+    .title-no-break {
+      word-break: keep-all;
+      overflow-wrap: normal;
+      white-space: nowrap;
+      max-width: 100%;
+    }
+    
+    /* Prevent breaking within words - ensure the title doesn't break */
+    .title-no-break h2 {
+      white-space: nowrap;
+      word-break: keep-all;
+      overflow-wrap: normal;
+    }
   }
 `;
 

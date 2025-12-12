@@ -203,6 +203,28 @@ const styles = `
     opacity: 0;
   }
 
+  /* Prevent word breaking in titles on mobile */
+  .title-no-break {
+    word-break: keep-all;
+    overflow-wrap: normal;
+    white-space: normal;
+  }
+
+  @media (max-width: 768px) {
+    .title-no-break {
+      word-break: keep-all;
+      overflow-wrap: normal;
+      white-space: nowrap;
+      max-width: 100%;
+    }
+    
+    .title-no-break h2 {
+      white-space: nowrap;
+      word-break: keep-all;
+      overflow-wrap: normal;
+    }
+  }
+
   /* Respect reduced motion preferences */
   @media (prefers-reduced-motion: reduce) {
     .animate-fade-in-up,

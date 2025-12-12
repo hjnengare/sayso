@@ -19,6 +19,29 @@ const entranceStyles = `
   }
   .animate-micro-bounce { animation: microBounce 0.28s ease-out; }
 
+  /* Prevent word breaking in titles on mobile */
+  .title-no-break {
+    word-break: keep-all;
+    overflow-wrap: normal;
+    white-space: normal;
+  }
+
+  @media (max-width: 768px) {
+    .title-no-break {
+      word-break: keep-all;
+      overflow-wrap: normal;
+      white-space: nowrap;
+      max-width: 100%;
+    }
+    
+    /* Prevent breaking within words - ensure the title doesn't break */
+    .title-no-break h2 {
+      white-space: nowrap;
+      word-break: keep-all;
+      overflow-wrap: normal;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     * { animation: none !important; transition: none !important; }
   }

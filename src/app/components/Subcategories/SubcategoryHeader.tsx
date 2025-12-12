@@ -1,22 +1,34 @@
 "use client";
 
+import { Fontdiner_Swanky } from "next/font/google";
+import WavyTypedTitle from "../../../components/Animations/WavyTypedTitle";
+
+const swanky = Fontdiner_Swanky({
+  weight: "400",
+  subsets: ["latin"],
+  display: "swap",
+});
+
 export default function SubcategoryHeader() {
-  const titleStyle = {
-    fontFamily: '"Urbanist", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
-  } as React.CSSProperties;
   const bodyStyle = {
     fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
     fontWeight: 400,
   } as React.CSSProperties;
 
   return (
-    <div className="text-center mb-6 pt-4 sm:pt-6 enter-fade">
-      <h2
-        className="text-2xl md:text-3xl lg:text-4xl font-bold text-charcoal mb-2 tracking-tight"
-        style={titleStyle}
-      >
-        Choose your subcategories
-      </h2>
+    <div className="text-center mb-6 pt-4 sm:pt-6 enter-fade title-no-break">
+      <WavyTypedTitle
+        text="Choose your subcategories"
+        as="h2"
+        className={`${swanky.className} text-2xl md:text-3xl lg:text-4xl font-bold mb-2 tracking-tight text-charcoal`}
+        typingSpeedMs={40}
+        startDelayMs={300}
+        waveVariant="subtle"
+        loopWave={false}
+        style={{ 
+          fontFamily: swanky.style.fontFamily,
+        }}
+      />
       <p
         className="text-sm md:text-base text-charcoal/70 leading-relaxed px-4 max-w-lg mx-auto"
         style={bodyStyle}

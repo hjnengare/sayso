@@ -104,7 +104,24 @@ export class AuthService {
         };
       }
 
-      // Profile will be created by database trigger, no need to create manually
+      // Ensure profile is created (fallback if database trigger fails, especially on mobile)
+      // Use a small delay to allow trigger to run first, then check and create if needed
+      try {
+        // Wait a bit for the trigger to potentially create the profile
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Try to ensure profile exists via API (non-blocking, won't fail registration)
+        fetch('/api/user/profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        }).catch((err) => {
+          // Silently fail - profile creation is best effort
+          console.warn('Failed to ensure profile creation:', err);
+        });
+      } catch (profileError) {
+        // Don't fail registration if profile creation check fails
+        console.warn('Error ensuring profile creation:', profileError);
+      }
 
       return {
         user: {

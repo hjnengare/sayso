@@ -3,11 +3,19 @@
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { Fontdiner_Swanky } from "next/font/google";
 import { Smile, Star, Check, ArrowRight, CheckCircle } from "react-feather";
 import { useAuth } from "../contexts/AuthContext";
 import { useReducedMotion } from "../utils/useReducedMotion";
 import OnboardingLayout from "../components/Onboarding/OnboardingLayout";
 import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
+import WavyTypedTitle from "../../components/Animations/WavyTypedTitle";
+
+const swanky = Fontdiner_Swanky({
+  weight: "400",
+  subsets: ["latin"],
+  display: "swap",
+});
 
 // 🎨 Additional animations + highlight removal
 const completeStyles = `
@@ -22,6 +30,28 @@ const completeStyles = `
   .float-anim { animation: float 4s ease-in-out infinite; }
   .float-anim.delay-400 { animation-delay: .4s; }
   .float-anim.delay-800 { animation-delay: .8s; }
+
+  /* Prevent word breaking in titles on mobile */
+  .title-no-break {
+    word-break: keep-all;
+    overflow-wrap: normal;
+    white-space: normal;
+  }
+
+  @media (max-width: 768px) {
+    .title-no-break {
+      word-break: keep-all;
+      overflow-wrap: normal;
+      white-space: nowrap;
+      max-width: 100%;
+    }
+    
+    .title-no-break h1 {
+      white-space: nowrap;
+      word-break: keep-all;
+      overflow-wrap: normal;
+    }
+  }
 
   @media (prefers-reduced-motion: reduce) {
     .float-anim { animation: none !important; }
@@ -141,13 +171,20 @@ function CompletePageContent() {
           }
         >
           {/* Heading */}
-          <h1
-            className="font-urbanist text-lg md:text-4xl lg:text-5xl font-700 text-charcoal mb-4 tracking-tight leading-snug"
-            aria-live="polite"
-            style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
-          >
-            You&apos;re all set!
-          </h1>
+          <div className="title-no-break">
+            <WavyTypedTitle
+              text="You're all set!"
+              as="h1"
+              className={`${swanky.className} text-lg md:text-4xl lg:text-5xl font-700 mb-4 tracking-tight leading-snug text-charcoal`}
+            typingSpeedMs={40}
+            startDelayMs={300}
+            waveVariant="subtle"
+            loopWave={false}
+            style={{ 
+              fontFamily: swanky.style.fontFamily,
+            }}
+          />
+          </div>
           <p className="text-base md:text-lg font-normal text-charcoal/70 mb-4 leading-relaxed" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
             Time to discover what&apos;s out there.
           </p>
