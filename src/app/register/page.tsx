@@ -288,10 +288,10 @@ export default function RegisterPage() {
         </div>
 
         {/* Header with premium styling and animations */}
-        <div className="text-center mb-4">
+        <div className="text-center mb-4 pt-16 sm:pt-20">
           <div className="inline-block relative mb-4 animate-fade-in-up animate-delay-400">
             <WavyTypedTitle
-              text="Create your account"
+              text="Create an account"
               as="h2"
               className={`${swanky.className} text-3xl md:text-4xl font-semibold mb-2 text-center leading-[1.2] px-2 tracking-tight text-charcoal`}
               typingSpeedMs={40}

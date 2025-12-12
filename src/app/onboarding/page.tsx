@@ -120,8 +120,15 @@ const styles = `
     .title-no-break {
       word-break: keep-all;
       overflow-wrap: normal;
-      white-space: normal;
+      white-space: nowrap;
       max-width: 100%;
+    }
+    
+    /* Prevent breaking within words - ensure the title doesn't break */
+    .title-no-break h2 {
+      white-space: nowrap;
+      word-break: keep-all;
+      overflow-wrap: normal;
     }
   }
 

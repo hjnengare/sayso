@@ -146,7 +146,7 @@ export default function LoginPage() {
         </div>
 
         {/* Header with premium styling and animations */}
-        <div className="text-center mb-4">
+        <div className="text-center mb-4 pt-16 sm:pt-20">
           <div className="inline-block relative mb-4 animate-fade-in-up animate-delay-400">
             <WavyTypedTitle
               text="Welcome back"
