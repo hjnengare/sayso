@@ -277,27 +277,7 @@ export default function OnboardingPage() {
               <h2 className={`${swanky.className} text-4xl md:text-5xl font-semibold mb-5 md:mb-6 leading-[1.2] tracking-tight px-6 sm:px-4 md:px-2 text-charcoal no-hyphens block w-full`} style={{ fontFamily: swanky.style.fontFamily }}>
                 <div className="block">
                   <WavyTypedTitle
-                    text="Discover local gems"
-                    as="span"
-                    className="inline-block"
-                    typingSpeedMs={40}
-                    startDelayMs={300}
-                    waveVariant="subtle"
-                    loopWave={false}
-                    style={{ 
-                      fontFamily: swanky.style.fontFamily,
-                      wordBreak: 'keep-all',
-                      overflowWrap: 'break-word',
-                      whiteSpace: 'normal',
-                      hyphens: 'none',
-                      WebkitHyphens: 'none',
-                      msHyphens: 'none',
-                    }}
-                  />
-                </div>
-                <div className="block">
-                  <WavyTypedTitle
-                    text="near you!"
+                    text="Discover local gems near you!"
                     as="span"
                     className="inline-block"
                     typingSpeedMs={40}
