@@ -174,13 +174,26 @@ export function useTrendingBusinesses(
 /**
  * Hook to fetch businesses for "For You" section personalized based on user interests
  */
-export function useForYouBusinesses(limit: number = 20): UseBusinessesResult {
+export function useForYouBusinesses(
+  limit: number = 20,
+  overrideInterestIds?: string[] | undefined
+): UseBusinessesResult {
   const { interests, subcategories, dealbreakers } = useUserPreferences();
 
-  // Combine interests and subcategories into a single list of IDs
-  const interestIds = interests.map((i) => i.id).concat(
-    subcategories.map((s) => s.id)
-  );
+  // Use overrideInterestIds if provided, otherwise use user preferences
+  const interestIds = useMemo(() => {
+    if (overrideInterestIds !== undefined) {
+      // If overrideInterestIds is an empty array, don't filter (show all)
+      // If it has values, use those
+      return overrideInterestIds.length > 0 ? overrideInterestIds : undefined;
+    }
+    // Default: use user preferences
+    const userInterestIds = interests.map((i) => i.id).concat(
+      subcategories.map((s) => s.id)
+    );
+    return userInterestIds.length > 0 ? userInterestIds : undefined;
+  }, [overrideInterestIds, interests, subcategories]);
+
   const dealbreakerIds = dealbreakers.map((d) => d.id);
 
   const preferredPriceRanges = useMemo(() => {
@@ -194,7 +207,7 @@ export function useForYouBusinesses(limit: number = 20): UseBusinessesResult {
     limit,
     sortBy: 'total_reviews', // Prioritize businesses with reviews first
     sortOrder: 'desc',
-    interestIds: interestIds.length > 0 ? interestIds : undefined, // Filter if user has preferences
+    interestIds, // Use computed interestIds (either override or user preferences)
     priceRanges: preferredPriceRanges,
     dealbreakerIds: dealbreakerIds.length > 0 ? dealbreakerIds : undefined,
     feedStrategy: 'mixed',

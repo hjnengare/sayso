@@ -212,8 +212,8 @@ export default function Home() {
     return undefined;
   }, [selectedInterestIds]);
 
-  const { businesses: forYouBusinesses, loading: forYouLoading, error: forYouError } = useForYouBusinesses(10);
-  const { businesses: trendingBusinesses, loading: trendingLoading, error: trendingError } = useTrendingBusinesses(10);
+  const { businesses: forYouBusinesses, loading: forYouLoading, error: forYouError } = useForYouBusinesses(10, activeInterestIds);
+  const { businesses: trendingBusinesses, loading: trendingLoading, error: trendingError } = useTrendingBusinesses(10, { interestIds: activeInterestIds });
   const { events, loading: eventsLoading } = useEvents({ limit: 5, upcoming: true });
   const { businesses: allBusinesses, loading: allBusinessesLoading } = useBusinesses({ 
     limit: 500, // Increased to ensure we get businesses from more subcategories
