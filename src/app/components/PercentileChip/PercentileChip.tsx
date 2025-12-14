@@ -37,9 +37,9 @@ function PercentileChip({ label, value }: PercentileChipProps) {
 
   const tooltipText = getTooltipText();
 
-  // Render icon based on label with coral stroke (outlined, not filled)
+  // Render icon based on label with coral color
   const renderIcon = () => {
-    const baseClasses = "w-4 h-4 sm:w-2.5 sm:h-2.5 flex-shrink-0 text-coral";
+    const baseClasses = "w-5 h-5 sm:w-3.5 sm:h-3.5 flex-shrink-0 text-coral";
 
     switch (normalizedLabel) {
       case 'punctuality':

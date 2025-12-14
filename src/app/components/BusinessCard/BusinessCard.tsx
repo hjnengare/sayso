@@ -2,7 +2,8 @@
 
 import React, { useMemo, useState, useEffect, useRef, memo } from "react";
 import { useRouter } from "next/navigation";
-import { Image as ImageIcon, Star, Edit, Share2, MapPin, Bookmark, Globe, Tag, Info } from "react-feather";
+import { Image as ImageIcon, Star, Edit, Share2, Bookmark, Globe, Tag, Info } from "react-feather";
+import Image from "next/image";
 import Stars from "../Stars/Stars";
 import PercentileChip from "../PercentileChip/PercentileChip";
 import VerifiedBadge from "../VerifiedBadge/VerifiedBadge";
@@ -601,7 +602,13 @@ function BusinessCard({
                         className="inline-flex items-center gap-1 text-caption sm:text-xs font-semibold text-charcoal/60 transition-colors duration-200 hover:text-navbar-bg/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-coral/30 rounded-full px-2 py-1 min-w-0 max-w-[12rem] sm:max-w-[14rem]"
                         aria-label={`Open ${business.name} in maps`}
                       >
-                        <MapPin className="rounded-full p-1 w-5 h-5 text-navbar-bg/90 stroke-[2.5] transition-colors duration-200 group-hover:text-navbar-bg/90 flex-shrink-0 shadow-md" />
+                        <Image
+                          src="/businessCard/pin.png"
+                          alt="Location"
+                          width={20}
+                          height={20}
+                          className="w-5 h-5 flex-shrink-0"
+                        />
                         <span
                           className="truncate block overflow-hidden text-ellipsis whitespace-nowrap"
                           style={{ maxWidth: '8rem' }}
@@ -705,7 +712,7 @@ function BusinessCard({
                 </div>
 
                 {/* Percentile chips - Inside wrapper */}
-                <div className="flex items-center justify-between sm:justify-center gap-2 sm:gap-1 flex-nowrap min-h-[28px] sm:min-h-[28px] py-1 md:bg-off-white/50 md:backdrop-blur-sm md:rounded-[20px] md:border md:border-white/40 overflow-hidden">
+                <div className="flex items-center justify-between sm:justify-center gap-4 sm:gap-3 flex-nowrap min-h-[28px] sm:min-h-[28px] py-1 md:bg-off-white/50 md:backdrop-blur-sm md:rounded-[20px] md:border md:border-white/40 overflow-hidden w-[90%] mx-auto">
                   <PercentileChip
                     label="punctuality"
                     value={business.percentiles?.punctuality || 0}
