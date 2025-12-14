@@ -12,6 +12,7 @@ import {
 } from "react-feather";
 
 export interface FilterState {
+  categories?: string[];
   minRating: number | null;
   distance: string | null;
 }

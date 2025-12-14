@@ -232,7 +232,7 @@ export default function Header({
   const handleApplyFilters = (f: FilterState) => {
     // Navigate to explore page with filters applied via URL params
     const params = new URLSearchParams();
-    if (f.categories.length > 0) {
+    if (f.categories && f.categories.length > 0) {
       params.set('categories', f.categories.join(','));
     }
     if (f.minRating !== null) {
