@@ -25,6 +25,8 @@ export default function DealBreakerHeader() {
         startDelayMs={300}
         waveVariant="subtle"
         loopWave={false}
+        triggerOnTypingComplete={true}
+        enableScrollTrigger={false}
         style={{ 
           fontFamily: swanky.style.fontFamily,
         }}

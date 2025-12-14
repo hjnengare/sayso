@@ -176,14 +176,16 @@ function CompletePageContent() {
               text="You're all set!"
               as="h1"
               className={`${swanky.className} text-lg md:text-4xl lg:text-5xl font-700 mb-4 tracking-tight leading-snug text-charcoal`}
-            typingSpeedMs={40}
-            startDelayMs={300}
-            waveVariant="subtle"
-            loopWave={false}
-            style={{ 
-              fontFamily: swanky.style.fontFamily,
-            }}
-          />
+              typingSpeedMs={40}
+              startDelayMs={300}
+              waveVariant="subtle"
+              loopWave={false}
+              triggerOnTypingComplete={true}
+              enableScrollTrigger={false}
+              style={{ 
+                fontFamily: swanky.style.fontFamily,
+              }}
+            />
           </div>
           <p className="text-base md:text-lg font-normal text-charcoal/70 mb-4 leading-relaxed" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
             Time to discover what&apos;s out there.

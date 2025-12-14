@@ -89,7 +89,8 @@ export default function BusinessRow({
             typingSpeedMs={40}
             startDelayMs={300}
             waveVariant="subtle"
-            loopWave={true}
+            loopWave={false}
+            enableScrollTrigger={true}
             style={{ 
               fontFamily: swanky.style.fontFamily,
             }}

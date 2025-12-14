@@ -156,6 +156,8 @@ export default function LoginPage() {
               startDelayMs={300}
               waveVariant="subtle"
               loopWave={false}
+              triggerOnTypingComplete={true}
+              enableScrollTrigger={false}
               style={{ 
                 fontFamily: swanky.style.fontFamily,
               }}

@@ -29,6 +29,10 @@ export interface WavyTypedTitleProps {
   waveStaggerMs?: number;
   /** Whether wave loops infinitely */
   loopWave?: boolean;
+  /** If true, wave triggers automatically once after typing completes (for onboarding) */
+  triggerOnTypingComplete?: boolean;
+  /** If true, wave triggers on scroll (for home page). Defaults to true if triggerOnTypingComplete is false */
+  enableScrollTrigger?: boolean;
 }
 
 // =============================================================================
@@ -47,6 +51,8 @@ export const WavyTypedTitle: React.FC<WavyTypedTitleProps> = ({
   waveDurationMs,
   waveStaggerMs,
   loopWave = true,
+  triggerOnTypingComplete = false,
+  enableScrollTrigger,
 }) => {
   // Wave configuration based on variant (matches Loader exactly for 'subtle')
   const waveConfig = useMemo(() => {
@@ -82,8 +88,17 @@ export const WavyTypedTitle: React.FC<WavyTypedTitleProps> = ({
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const [isScrolling, setIsScrolling] = useState(false);
   const [hasStartedTyping, setHasStartedTyping] = useState(false);
+  const [shouldWave, setShouldWave] = useState(false);
+  const [waveHasCompleted, setWaveHasCompleted] = useState(false);
   const elementRef = useRef<HTMLElement | null>(null);
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const waveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const waveCompletionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Determine if scroll trigger should be enabled
+  const shouldEnableScrollTrigger = enableScrollTrigger !== undefined 
+    ? enableScrollTrigger 
+    : !triggerOnTypingComplete;
 
   // Check for reduced motion preference
   useEffect(() => {
@@ -100,9 +115,47 @@ export const WavyTypedTitle: React.FC<WavyTypedTitleProps> = ({
     }
   }, []);
 
-  // Scroll detection - trigger typing and wave on scroll
+  // Auto-start typing for onboarding mode (triggerOnTypingComplete)
   useEffect(() => {
-    if (prefersReducedMotion) return;
+    if (triggerOnTypingComplete && !hasStartedTyping && !prefersReducedMotion) {
+      // Small delay to ensure component is mounted
+      const timer = setTimeout(() => {
+        setHasStartedTyping(true);
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [triggerOnTypingComplete, hasStartedTyping, prefersReducedMotion]);
+
+  // Trigger wave automatically after typing completes (for onboarding)
+  useEffect(() => {
+    if (triggerOnTypingComplete && isTypingComplete && !prefersReducedMotion && !waveHasCompleted) {
+      // Trigger wave immediately after typing completes
+      setShouldWave(true);
+      // Calculate total wave duration: base duration + stagger for last letter
+      // The last letter starts animating at (text.length - 1) * stagger, then takes duration to complete
+      const totalWaveDuration = duration + ((text.length - 1) * stagger);
+      // Mark wave as completed after it finishes
+      waveTimeoutRef.current = setTimeout(() => {
+        setShouldWave(false);
+        setWaveHasCompleted(true);
+      }, totalWaveDuration);
+      
+      return () => {
+        if (waveTimeoutRef.current) {
+          clearTimeout(waveTimeoutRef.current);
+        }
+      };
+    }
+    return () => {
+      if (waveTimeoutRef.current) {
+        clearTimeout(waveTimeoutRef.current);
+      }
+    };
+  }, [triggerOnTypingComplete, isTypingComplete, prefersReducedMotion, waveHasCompleted, duration, stagger, text.length]);
+
+  // Scroll detection - trigger typing and wave on scroll (for home page)
+  useEffect(() => {
+    if (prefersReducedMotion || !shouldEnableScrollTrigger) return;
 
     const handleScroll = () => {
       if (elementRef.current) {
@@ -114,18 +167,29 @@ export const WavyTypedTitle: React.FC<WavyTypedTitleProps> = ({
           setHasStartedTyping(true);
         }
 
-        // Set scrolling state (for wave animation)
-        if (isInView) {
+        // Set scrolling state (for wave animation) - only if typing is complete
+        if (isInView && isTypingComplete) {
+          setShouldWave(true);
           setIsScrolling(true);
 
-          // Clear existing timeout
+          // Clear existing timeouts
           if (scrollTimeoutRef.current) {
             clearTimeout(scrollTimeoutRef.current);
           }
+          if (waveCompletionTimeoutRef.current) {
+            clearTimeout(waveCompletionTimeoutRef.current);
+          }
 
-          // Stop wave animation after scroll stops (300ms delay)
+          // After scroll stops (300ms delay), let wave complete one iteration then stop
           scrollTimeoutRef.current = setTimeout(() => {
             setIsScrolling(false);
+            // Calculate total wave duration: base duration + stagger for last letter
+            // The last letter starts animating at (text.length - 1) * stagger, then takes duration to complete
+            const totalWaveDuration = duration + ((text.length - 1) * stagger);
+            // Stop wave after it completes one full iteration
+            waveCompletionTimeoutRef.current = setTimeout(() => {
+              setShouldWave(false);
+            }, totalWaveDuration);
           }, 300);
         }
       }
@@ -171,11 +235,14 @@ export const WavyTypedTitle: React.FC<WavyTypedTitleProps> = ({
       if (scrollTimeoutRef.current) {
         clearTimeout(scrollTimeoutRef.current);
       }
+      if (waveCompletionTimeoutRef.current) {
+        clearTimeout(waveCompletionTimeoutRef.current);
+      }
       if (observer) {
         observer.disconnect();
       }
     };
-  }, [prefersReducedMotion, hasStartedTyping]);
+  }, [prefersReducedMotion, hasStartedTyping, shouldEnableScrollTrigger, isTypingComplete, duration, stagger, text.length]);
 
   // Split text into characters (preserve spaces)
   const characters = useMemo(() => {
@@ -294,8 +361,10 @@ export const WavyTypedTitle: React.FC<WavyTypedTitleProps> = ({
           {characters.map((char, index) => {
             const isVisible = index < visibleCount;
             const isSpace = char === " ";
-            // Wave only animates during scrolling and stops after scroll stops
-            const shouldAnimate = isTypingComplete && !prefersReducedMotion && isScrolling;
+            // Wave animates based on trigger mode:
+            // - If triggerOnTypingComplete: animates once after typing completes
+            // - If enableScrollTrigger: animates on scroll when typing is complete
+            const shouldAnimate = isTypingComplete && !prefersReducedMotion && shouldWave;
 
             return (
               <span
@@ -309,11 +378,13 @@ export const WavyTypedTitle: React.FC<WavyTypedTitleProps> = ({
                     ? `opacity 200ms ease-out, transform 200ms ease-out`
                     : "none",
                   // Use separate animation properties to avoid mixing shorthand and non-shorthand
+                  // Force animation restart by using a unique animation name when shouldWave changes
                   animationName: shouldAnimate ? animationName : "none",
                   animationDuration: shouldAnimate ? `${duration}ms` : "0ms",
                   animationTimingFunction: shouldAnimate ? "ease-in-out" : "ease",
                   animationIterationCount: shouldAnimate && loopWave ? "infinite" : shouldAnimate ? "1" : "0",
                   animationDelay: shouldAnimate ? `${index * stagger}ms` : "0ms",
+                  animationFillMode: shouldAnimate ? "both" : "none",
                   willChange: shouldAnimate ? "transform" : "auto",
                   // Preserve space width even when hidden
                   minWidth: isSpace ? "0.25em" : "auto",
