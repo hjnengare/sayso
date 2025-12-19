@@ -4,7 +4,6 @@ import React, { useMemo, useState, useEffect, useRef, memo } from "react";
 import { useRouter } from "next/navigation";
 import { Image as ImageIcon, Star, Edit, Share2, Bookmark, Globe, Tag, Info } from "react-feather";
 import Image from "next/image";
-import Stars from "../Stars/Stars";
 import PercentileChip from "../PercentileChip/PercentileChip";
 import VerifiedBadge from "../VerifiedBadge/VerifiedBadge";
 import OptimizedImage from "../Performance/OptimizedImage";
@@ -100,13 +99,13 @@ function BusinessCard({
 
   // Prefetch on hover with debouncing
   const hoverTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
-  
+
   const handleMouseEnter = () => {
     // Clear any existing timeout
     if (hoverTimeoutRef.current) {
       clearTimeout(hoverTimeoutRef.current);
     }
-    
+
     // Prefetch after a short delay to avoid prefetching on accidental hovers
     hoverTimeoutRef.current = setTimeout(() => {
       router.prefetch(businessProfileRoute);
@@ -139,23 +138,23 @@ function BusinessCard({
       router.push(reviewRoute);
     }
   };
-  
+
   const handleBookmark = async () => {
     const wasSaved = isItemSaved(business.id);
     const success = await toggleSavedItem(business.id);
-    
+
     if (success) {
       // Toast notification is handled by SavedItemsContext
     }
-    
+
     setShowInfoPopup(false);
   };
-  
+
   const handleShare = async () => {
     try {
       const shareUrl = `${window.location.origin}${businessProfileRoute}`;
       const shareText = `Check out ${business.name} on sayso!`;
-      
+
       // Try Web Share API first (mobile/native apps)
       if (navigator.share && navigator.canShare && navigator.canShare({ title: business.name, text: shareText, url: shareUrl })) {
         try {
@@ -175,12 +174,12 @@ function BusinessCard({
           // If share failed, fall through to clipboard
         }
       }
-      
+
       // Fallback to clipboard
       try {
         await navigator.clipboard.writeText(shareUrl);
         showToast('Link copied to clipboard!', 'success', 2000);
-        
+
         // Show visual feedback on button
         const shareBtn = infoPopupRef.current?.querySelector('[data-share-btn]') as HTMLElement;
         if (shareBtn) {
@@ -190,7 +189,7 @@ function BusinessCard({
             if (originalText) shareBtn.setAttribute('aria-label', originalText);
           }, 2000);
         }
-        
+
         setShowInfoPopup(false);
       } catch (clipboardError) {
         // Clipboard API failed - show error
@@ -294,10 +293,10 @@ function BusinessCard({
   };
 
   const mediaBaseClass =
-    "relative overflow-hidden z-10 cursor-pointer rounded-t-[20px] bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 border-b border-white/60 backdrop-blur-xl";
+    "relative overflow-hidden z-10 cursor-pointer rounded-t-[20px] bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl";
   const mediaClass = compact
-    ? `${mediaBaseClass} h-[300px] lg:h-[260px]`
-    : `${mediaBaseClass} h-[490px] sm:h-[320px] md:h-[240px]`;
+    ? `${mediaBaseClass} h-[280px] md:h-[300px] lg:h-[340px]`
+    : `${mediaBaseClass} h-[460px] sm:h-[300px] md:h-[300px] lg:h-[340px]`;
 
   return (
     <li
@@ -310,8 +309,8 @@ function BusinessCard({
       }}
     >
       <div
-        className={`relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 ${inGrid && !compact ? 'rounded-t-[20px] rounded-b-none' : 'rounded-[20px]'} overflow-visible group cursor-pointer w-full flex flex-col border border-white/60 backdrop-blur-xl ring-1 ring-white/30 shadow-md transition-all duration-300 ${compact ? "md:h-[416px]" : "h-[650px] sm:h-auto md:w-[340px]"
-          }`}
+        className={`px-4 sm:px-5 pt-2 pb-0 rounded-[20px] ${compact ? "lg:py-3 lg:pb-2 lg:min-h-[200px]" : "flex-1"
+          } relative flex-shrink-0 flex flex-col justify-between bg-sage z-10`}
         style={{
           maxWidth: compact ? "100%" : "540px",
         } as React.CSSProperties}
@@ -327,7 +326,7 @@ function BusinessCard({
           }
         }}
       >
-      
+
         <div
           className={mediaClass}
           onClick={handleCardClick}
@@ -335,7 +334,7 @@ function BusinessCard({
           <div className="relative w-full h-full">
             {!imgError && displayImage ? (
               isImagePng || displayImage.includes('/png/') || displayImage.endsWith('.png') || usingFallback ? (
-                <div className="relative w-full h-full flex items-center justify-center bg-gradient-to-br from-off-white/95 to-off-white/85">
+                <div className="relative w-full h-full rounded-[20px] flex items-center justify-center bg-gradient-to-br from-off-white/95 to-off-white/85">
                   <OptimizedImage
                     src={usingFallback ? getCategoryPng(categoryKey) : displayImage}
                     alt={displayAlt}
@@ -349,7 +348,7 @@ function BusinessCard({
                   />
                 </div>
               ) : (
-                <div className="relative w-full h-full overflow-hidden">
+                <div className="relative w-full h-full rounded-[20px] overflow-hidden">
                   <OptimizedImage
                     src={displayImage}
                     alt={displayAlt}
@@ -401,10 +400,10 @@ function BusinessCard({
           )}
 
           {!hideStar && hasRating && displayRating !== undefined && (
-            <div className="absolute right-4 top-4 z-20 inline-flex items-center gap-1 rounded-full bg-off-white/95 backdrop-blur-xl px-3 py-1.5 text-charcoal border border-white/40 shadow-md">
+            <div className="absolute right-4 top-4 z-20 inline-flex items-center gap-1 rounded-full bg-off-white/95 backdrop-blur-xl px-3 py-1.5 text-charcoal shadow-md">
               <Star className="rounded-full p-1 w-3.5 h-3.5 text-navbar-bg fill-navbar-bg shadow-md" strokeWidth={2.5} aria-hidden />
-              <span className="text-sm font-semibold text-charcoal" style={{ 
-                fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', 
+              <span className="text-sm font-semibold text-charcoal" style={{
+                fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                 fontWeight: 600
               }}>
                 {Number(displayRating).toFixed(1)}
@@ -414,8 +413,8 @@ function BusinessCard({
 
           {!hideStar && !hasRating && (
             <div className="absolute right-4 top-4 z-20 inline-flex items-center gap-1 rounded-full bg-off-white/95 backdrop-blur-xl px-3 py-1.5 text-charcoal border border-white/40 shadow-md">
-              <span className="text-sm font-semibold text-charcoal" style={{ 
-                fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', 
+              <span className="text-sm font-semibold text-charcoal" style={{
+                fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                 fontWeight: 600
               }}>
                 New
@@ -499,9 +498,9 @@ function BusinessCard({
           <div className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-20 flex-col items-center gap-2 transition-all duration-300 ease-out translate-x-12 opacity-0 md:group-hover:translate-x-0 md:group-hover:opacity-100">
             <button
               className={`w-12 h-10 bg-navbar-bg rounded-[20px] flex items-center justify-center transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40 shadow-md ${hasReviewed
-                  ? 'opacity-50 cursor-not-allowed'
-                  : 'hover:bg-navbar-bg/90 hover:scale-110'
-              }`}
+                ? 'opacity-50 cursor-not-allowed'
+                : 'hover:bg-navbar-bg/90 hover:scale-110'
+                }`}
               onClick={(e) => {
                 e.stopPropagation();
                 handleWriteReview();
@@ -542,17 +541,17 @@ function BusinessCard({
 
         {/* CONTENT - Minimal, premium spacing */}
         <div
-          className={`px-4 sm:px-5 pt-2 pb-2 ${compact ? "lg:py-3 lg:pb-4 lg:min-h-[200px]" : "flex-1"
-            } relative flex-shrink-0 flex flex-col justify-between bg-sage/10 z-10 ${inGrid && !compact ? 'rounded-b-none' : 'rounded-b-[20px]'}`}
+          className={`px-4 sm:px-5 pt-1 md:pt-2 lg:pt-3 pb-0 ${compact ? "lg:py-1 lg:pt-2 lg:pb-0 lg:min-h-[160px]" : "flex-1"
+            } relative flex-shrink-0 flex flex-col md:justify-start justify-between bg-sage/10 z-10`}
         >
           <div className={`${compact ? "flex flex-col" : "flex-1 flex flex-col"}`}>
             {/* Info Wrapper */}
             <div className="relative overflow-hidden">
               {/* Content - Centered */}
-              <div className="flex flex-col items-center text-center relative z-10 space-y-1">
+              <div className="flex flex-col items-center text-center relative z-10 space-y-0.5">
                 {/* Business Name - Inside wrapper */}
-                <div className="flex items-center justify-center w-full min-w-0 h-[2.5rem] sm:h-[3rem] relative">
-                 
+                <div className="flex items-center justify-center w-full min-w-0 h-[2rem] sm:h-[2.5rem] relative">
+
                   <Tooltip content={business.name} position="top">
                     <button
                       type="button"
@@ -687,9 +686,9 @@ function BusinessCard({
                           }
                         }}
                         className={`inline-flex items-center justify-center text-sm font-normal underline-offset-2 min-w-[92px] text-center transition-colors duration-200 ${hasReviewed
-                            ? 'text-charcoal/50 cursor-not-allowed'
-                            : 'text-charcoal cursor-pointer hover:text-coral'
-                        } ${compact ? 'lg:order-1 lg:mb-1' : ''}`}
+                          ? 'text-charcoal/50 cursor-not-allowed'
+                          : 'text-charcoal cursor-pointer hover:text-coral'
+                          } ${compact ? 'lg:order-1 lg:mb-1' : ''}`}
                         style={{
                           fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                           fontWeight: 400
@@ -700,14 +699,6 @@ function BusinessCard({
                         {hasReviewed ? 'Already reviewed' : 'Be the first to review'}
                       </span>
                     )}
-                  </div>
-                  <div className={`flex items-center justify-center gap-2 ${compact ? 'lg:flex-col lg:items-center lg:gap-1.5' : ''}`}>
-                    <div
-                      className={`flex items-center justify-center gap-2 text-charcoal transition-all duration-300 ${compact ? 'lg:order-2' : ''}`}
-                      aria-label={hasRating && displayRating !== undefined ? `View ${business.reviews} reviews for ${business.name}` : `Be the first to review ${business.name}`}
-                    >
-                      <Stars value={hasRating && displayRating !== undefined ? displayRating : 0} color="navbar-bg" size={18} spacing={2.5} />
-                    </div>
                   </div>
                 </div>
 
@@ -736,12 +727,12 @@ function BusinessCard({
           </div>
 
           {/* Mobile actions - Minimal */}
-          <div className="flex md:hidden items-center justify-center pt-4 border-t border-off-white/30">
+          <div className="flex md:hidden items-center justify-center pt-2 pb-2">
             <button
               className={`flex-1 flex items-center justify-center gap-1.5 px-4 py-3 rounded-full text-caption sm:text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-sage/40 border transition-all min-h-[48px] shadow-md ${hasReviewed
-                  ? 'bg-charcoal/20 text-charcoal/50 cursor-not-allowed border-charcoal/20'
-                  : 'bg-gradient-to-br from-navbar-bg to-navbar-bg/90 text-white border-sage/50 active:scale-95'
-              }`}
+                ? 'bg-charcoal/20 text-charcoal/50 cursor-not-allowed border-charcoal/20'
+                : 'bg-gradient-to-br from-navbar-bg to-navbar-bg/90 text-white border-sage/50 active:scale-95'
+                }`}
               onClick={(e) => {
                 e.stopPropagation();
                 if (!hasReviewed) {
