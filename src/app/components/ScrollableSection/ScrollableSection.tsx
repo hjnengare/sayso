@@ -2,6 +2,10 @@
 
 import { useRef, useState, useEffect } from "react";
 
+// Default visible card count - matches BusinessRowSkeleton default
+// This represents the typical number of cards visible in the viewport before scrolling
+export const DEFAULT_VISIBLE_CARD_COUNT = 4;
+
 interface ScrollableSectionProps {
   children: React.ReactNode;
   className?: string;
@@ -68,6 +72,7 @@ export default function ScrollableSection({
     if (!scrollRef.current) return;
     const container = scrollRef.current;
     // On mobile: scroll by 1 full card (100vw minus padding), on larger screens: scroll by 1 card (25% width)
+    // Note: Default visible card count is DEFAULT_VISIBLE_CARD_COUNT (4 cards)
     const isMobile = window.innerWidth < 640; // sm breakpoint
     const cardWidth = isMobile ? container.clientWidth : container.clientWidth * 0.25;
     const gap = isMobile ? 8 : 12; // gap-2 on mobile, gap-3 on larger screens
@@ -79,6 +84,7 @@ export default function ScrollableSection({
     if (!scrollRef.current) return;
     const container = scrollRef.current;
     // On mobile: scroll by 1 full card (100vw minus padding), on larger screens: scroll by 1 card (25% width)
+    // Note: Default visible card count is DEFAULT_VISIBLE_CARD_COUNT (4 cards)
     const isMobile = window.innerWidth < 640; // sm breakpoint
     const cardWidth = isMobile ? container.clientWidth : container.clientWidth * 0.25;
     const gap = isMobile ? 8 : 12; // gap-2 on mobile, gap-3 on larger screens

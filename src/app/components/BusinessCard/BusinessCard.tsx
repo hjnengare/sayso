@@ -295,13 +295,13 @@ function BusinessCard({
   const mediaBaseClass =
     "relative overflow-hidden z-10 cursor-pointer rounded-t-[20px] bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl";
   const mediaClass = compact
-    ? `${mediaBaseClass} h-[280px] md:h-[300px] lg:h-[340px]`
-    : `${mediaBaseClass} h-[460px] sm:h-[300px] md:h-[300px] lg:h-[340px]`;
+    ? `${mediaBaseClass} h-[490px] sm:h-[320px] md:h-[240px]`
+    : `${mediaBaseClass} h-[490px] sm:h-[320px] md:h-[240px]`;
 
   return (
     <li
       id={idForSnap}
-      className={`snap-start snap-always flex-shrink-0 ${compact ? 'w-auto' : 'w-[100vw] sm:w-auto sm:min-w-[25%] md:min-w-[25%] xl:min-w-[25%]'
+      className={`snap-start snap-always flex-shrink-0 ${compact ? 'w-auto' : 'w-[240px] sm:w-[260px] md:w-[340px]'
         }`}
       style={{
         fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
@@ -310,9 +310,9 @@ function BusinessCard({
     >
       <div
         className={`px-4 sm:px-5 pt-2 pb-0 rounded-[20px] ${compact ? "lg:py-3 lg:pb-2 lg:min-h-[200px]" : "flex-1"
-          } relative flex-shrink-0 flex flex-col justify-between bg-sage z-10 shadow-md group`}
+          } relative flex-shrink-0 flex flex-col justify-between bg-sage z-10 shadow-md group w-full h-[650px] sm:h-auto`}
         style={{
-          maxWidth: compact ? "100%" : "540px",
+          maxWidth: compact ? "100%" : undefined,
         } as React.CSSProperties}
         role="link"
         tabIndex={0}
@@ -542,7 +542,7 @@ function BusinessCard({
         {/* CONTENT - Minimal, premium spacing */}
         <div
           className={`px-4 sm:px-5 pt-1 md:pt-2 lg:pt-3 pb-0 ${compact ? "lg:py-1 lg:pt-2 lg:pb-0 lg:min-h-[160px]" : "flex-1"
-            } relative flex-shrink-0 flex flex-col md:justify-start justify-between bg-sage/10 z-10`}
+            } relative flex-shrink-0 flex flex-col md:justify-start justify-between bg-sage/10 z-10 rounded-b-[20px]`}
         >
           <div className={`${compact ? "flex flex-col" : "flex-1 flex flex-col"}`}>
             {/* Info Wrapper */}
@@ -703,7 +703,7 @@ function BusinessCard({
                 </div>
 
                 {/* Percentile chips - Inside wrapper */}
-                <div className="flex items-center justify-between sm:justify-center gap-4 sm:gap-3 flex-nowrap min-h-[28px] sm:min-h-[28px] py-1 md:bg-off-white/50 md:backdrop-blur-sm md:rounded-[20px] md:border md:border-white/40 overflow-hidden w-[90%] mx-auto">
+                <div className="flex items-center justify-between sm:justify-center gap-4 sm:gap-3 flex-nowrap min-h-[28px] sm:min-h-[28px] py-1 md:bg-off-white/50 md:backdrop-blur-sm md:rounded-[20px] md:border md:border-white/40 overflow-hidden w-[90%] mx-auto md:mb-2">
                   <PercentileChip
                     label="punctuality"
                     value={business.percentiles?.punctuality || 0}

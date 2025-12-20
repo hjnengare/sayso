@@ -167,8 +167,8 @@ export const WavyTypedTitle: React.FC<WavyTypedTitleProps> = ({
           setHasStartedTyping(true);
         }
 
-        // Set scrolling state (for wave animation) - only if typing is complete
-        if (isInView && isTypingComplete) {
+        // Set scrolling state (for wave animation) - only if typing is complete and wave hasn't completed yet
+        if (isInView && isTypingComplete && !waveHasCompleted) {
           setShouldWave(true);
           setIsScrolling(true);
 
@@ -186,9 +186,10 @@ export const WavyTypedTitle: React.FC<WavyTypedTitleProps> = ({
             // Calculate total wave duration: base duration + stagger for last letter
             // The last letter starts animating at (text.length - 1) * stagger, then takes duration to complete
             const totalWaveDuration = duration + ((text.length - 1) * stagger);
-            // Stop wave after it completes one full iteration
+            // Stop wave after it completes one full iteration and mark as completed
             waveCompletionTimeoutRef.current = setTimeout(() => {
               setShouldWave(false);
+              setWaveHasCompleted(true);
             }, totalWaveDuration);
           }, 300);
         }
@@ -242,7 +243,7 @@ export const WavyTypedTitle: React.FC<WavyTypedTitleProps> = ({
         observer.disconnect();
       }
     };
-  }, [prefersReducedMotion, hasStartedTyping, shouldEnableScrollTrigger, isTypingComplete, duration, stagger, text.length]);
+  }, [prefersReducedMotion, hasStartedTyping, shouldEnableScrollTrigger, isTypingComplete, waveHasCompleted, duration, stagger, text.length]);
 
   // Split text into characters (preserve spaces)
   const characters = useMemo(() => {
