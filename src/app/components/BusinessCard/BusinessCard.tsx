@@ -309,7 +309,7 @@ function BusinessCard({
       }}
     >
       <div
-        className={`px-2 sm:px-5 pt-2 pb-0 rounded-[20px] ${compact ? "lg:py-3 lg:pb-2 lg:min-h-[200px]" : "flex-1"
+        className={`px-2 sm:px-2 pt-2 pb-0 rounded-[20px] ${compact ? "lg:py-3 lg:pb-2 lg:min-h-[200px]" : "flex-1"
           } relative flex-shrink-0 flex flex-col justify-between bg-sage z-10 shadow-md group w-full h-[650px] sm:h-auto`}
         style={{
           maxWidth: compact ? "100%" : undefined,
@@ -334,7 +334,7 @@ function BusinessCard({
           <div className="relative w-full h-full">
             {!imgError && displayImage ? (
               isImagePng || displayImage.includes('/png/') || displayImage.endsWith('.png') || usingFallback ? (
-                <div className="relative w-full h-full rounded-[20px] flex items-center justify-center bg-gradient-to-br from-off-white/95 to-off-white/85">
+                <div className="relative w-full h-full rounded-[20px] flex items-center justify-center bg-gradient-to-br from-off-white/95 to-off-white/85 shadow-sm">
                   <OptimizedImage
                     src={usingFallback ? getCategoryPng(categoryKey) : displayImage}
                     alt={displayAlt}
@@ -703,7 +703,7 @@ function BusinessCard({
                 </div>
 
                 {/* Percentile chips - Inside wrapper */}
-                <div className="flex items-center justify-between sm:justify-center gap-4 sm:gap-3 flex-nowrap min-h-[28px] sm:min-h-[28px] py-1 md:bg-off-white/50 md:backdrop-blur-sm md:rounded-[20px] md:border md:border-white/40 overflow-hidden w-[90%] mx-auto md:mb-2">
+                <div className="flex items-center justify-between sm:justify-center gap-4 sm:gap-3 flex-nowrap min-h-[28px] sm:min-h-[28px] py-1 md:bg-off-white/50 md:backdrop-blur-sm md:rounded-[20px] overflow-hidden w-[90%] mx-auto md:mb-2 shadow-sm">
                   <PercentileChip
                     label="punctuality"
                     value={business.percentiles?.punctuality || 0}

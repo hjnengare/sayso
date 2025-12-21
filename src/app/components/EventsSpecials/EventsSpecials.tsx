@@ -6,7 +6,7 @@ import { ArrowRight } from "react-feather";
 import { Fontdiner_Swanky } from "next/font/google";
 import EventCard from "../EventCard/EventCard";
 import EventCardSkeleton from "../EventCard/EventCardSkeleton";
-import { Event } from "../../data/eventsData";
+import { Event, EVENTS_AND_SPECIALS } from "../../data/eventsData";
 import ScrollableSection from "../ScrollableSection/ScrollableSection";
 import { useToast } from "../../contexts/ToastContext";
 import WavyTypedTitle from "../../../components/Animations/WavyTypedTitle";
@@ -95,10 +95,14 @@ export default function EventsSpecials({
     );
   }
 
-  // Show empty state if not loading and no events
-  if (!loading && (!events || events.length === 0)) {
-    // Return null to hide the section when there are no events
-    // (Alternatively, you could show an empty state component here)
+  // Use fallback static events if API returns no events
+  const displayEvents = (!loading && (!events || events.length === 0)) 
+    ? EVENTS_AND_SPECIALS.slice(0, 4) 
+    : (events || []).slice(0, 4);
+
+  // Show section even when empty, but use fallback events if API fails
+  if (!loading && displayEvents.length === 0) {
+    // Only hide if we truly have no events (neither API nor fallback)
     return null;
   }
 
@@ -138,12 +142,12 @@ export default function EventsSpecials({
           </button>
         </div>
 
-        <div className="pt-2">
+          <div className="pt-2">
           {/* Mobile: Scrollable section with one card at a time */}
           <div className="md:hidden">
             <ScrollableSection>
               <div className="flex gap-3 items-stretch">
-                {events.slice(0, 4).map((event) => (
+                {displayEvents.map((event) => (
                   <div key={event.id} className="snap-start snap-always flex-shrink-0 w-[100vw] list-none flex">
                     <EventCard event={event} onBookmark={handleBookmark} />
                   </div>
@@ -154,7 +158,7 @@ export default function EventsSpecials({
           
           {/* Desktop: Grid layout */}
           <div className="hidden md:grid md:grid-cols-2 xl:grid-cols-4 gap-3">
-            {events.slice(0, 4).map((event) => (
+            {displayEvents.map((event) => (
               <div key={event.id} className="list-none flex">
                 <EventCard event={event} onBookmark={handleBookmark} />
               </div>
