@@ -64,7 +64,7 @@ export default function PersonalizationInsights({ business }: PersonalizationIns
   const warnings = score.insights.filter(i => i.startsWith('⚠️'));
 
   return (
-    <div className="bg-gradient-to-br from-sage/10 via-sage/5 to-transparent border border-sage/20 rounded-xl p-4 space-y-3">
+    <div className="bg-gradient-to-br from-sage/10 via-sage/5 to-transparent border border-sage/20 rounded-[20px] p-4 space-y-3">
       <div className="flex items-center gap-2">
         <Info className="w-4 h-4 text-sage" />
         <h3 className="text-sm font-semibold text-charcoal">Personalized for You</h3>
