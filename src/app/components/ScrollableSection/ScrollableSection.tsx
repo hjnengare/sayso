@@ -81,8 +81,8 @@ export default function ScrollableSection({
     } else {
       const cardWidth = container.clientWidth * 0.25;
       const gap = 12; // gap-3 on larger screens
-      const scrollAmount = cardWidth + gap;
-      container.scrollLeft += scrollAmount;
+    const scrollAmount = cardWidth + gap;
+    container.scrollLeft += scrollAmount;
     }
   };
 
@@ -99,8 +99,8 @@ export default function ScrollableSection({
     } else {
       const cardWidth = container.clientWidth * 0.25;
       const gap = 12; // gap-3 on larger screens
-      const scrollAmount = cardWidth + gap;
-      container.scrollLeft -= scrollAmount;
+    const scrollAmount = cardWidth + gap;
+    container.scrollLeft -= scrollAmount;
     }
   };
 

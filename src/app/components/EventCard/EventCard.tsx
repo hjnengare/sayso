@@ -1,6 +1,7 @@
 "use client";
 
 import type { MouseEvent, CSSProperties } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Event } from "../../data/eventsData";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -86,11 +87,74 @@ export default function EventCard({ event, onBookmark }: EventCardProps) {
   const iconPng = getEventIconPng(event.icon);
   const mediaImage = getEventMediaImage(event);
   
+  // Image rotation state
+  const [imageRotation, setImageRotation] = useState(0);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastScrollY = useRef(0);
+  
   const handleLearnMoreClick = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
     router.push(`/event/${event.id}`);
   };
+
+  // Desktop: Rotate image on hover
+  const handleMouseEnter = () => {
+    if (typeof window !== 'undefined' && window.innerWidth >= 768) {
+      const rotationAngle = (event.id.charCodeAt(0) % 2 === 0 ? 1.5 : -1.5);
+      setImageRotation(rotationAngle);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (typeof window !== 'undefined' && window.innerWidth >= 768) {
+      setImageRotation(0);
+    }
+  };
+
+  // Mobile: Track scroll direction for image rotation
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    const isMobileDevice = window.innerWidth < 768;
+    if (!isMobileDevice) return;
+
+    lastScrollY.current = window.scrollY;
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      const scrollDelta = currentScrollY - lastScrollY.current;
+      
+      if (Math.abs(scrollDelta) < 5) {
+        return;
+      }
+      
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+      
+      if (scrollDelta > 0) {
+        setImageRotation(0.8);
+      } else {
+        setImageRotation(-0.8);
+      }
+      
+      lastScrollY.current = currentScrollY;
+      
+      scrollTimeoutRef.current = setTimeout(() => {
+        setImageRotation(0);
+      }, 300);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, []);
   
   return (
     <li
@@ -110,11 +174,23 @@ export default function EventCard({ event, onBookmark }: EventCardProps) {
             "--height": "600",
           } as CSSProperties
         }
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
          
           {/* MEDIA - Full bleed with premium overlay */}
           <div className="relative px-2 sm:px-2 pt-2 pb-0 overflow-hidden flex-1 sm:flex-initial h-[300px] sm:h-[320px] lg:h-[240px] xl:h-[220px] z-10">
-            <div className="relative w-full h-full">
+            <div 
+              className="relative w-full h-full"
+              style={{
+                transform: `perspective(1000px) rotateZ(${imageRotation}deg)`,
+                transformStyle: 'preserve-3d',
+                transition: 'transform 0.4s cubic-bezier(0.33, 0.85, 0.4, 0.96)',
+                willChange: 'transform',
+                padding: '8px',
+                boxSizing: 'border-box',
+              }}
+            >
               <div className="relative w-full h-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-off-white/95 to-off-white/85 rounded-[20px] shadow-sm">
                 <Image
                   src={mediaImage}

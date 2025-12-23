@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Image as ImageIcon, Star, Edit, Bookmark, Share2, MapPin, Award } from "react-feather";
 import Stars from "../Stars/Stars";
@@ -22,6 +22,11 @@ export default function BusinessOfTheMonthCard({ business }: { business: Busines
   const idForSnap = useMemo(() => `business-month-${business.id}`, [business.id]);
   const [imgError, setImgError] = useState(false);
   const [usingFallback, setUsingFallback] = useState(false);
+  
+  // Image rotation state
+  const [imageRotation, setImageRotation] = useState(0);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastScrollY = useRef(0);
   
   // Get business identifier for routing (slug or ID)
   const businessIdentifier = (business as any).slug || business.id;
@@ -144,6 +149,64 @@ export default function BusinessOfTheMonthCard({ business }: { business: Busines
     router.push(businessProfileRoute);
   };
 
+  // Desktop: Rotate image on hover
+  const handleMouseEnter = () => {
+    if (typeof window !== 'undefined' && window.innerWidth >= 768) {
+      const rotationAngle = (business.id.charCodeAt(0) % 2 === 0 ? 1.5 : -1.5);
+      setImageRotation(rotationAngle);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (typeof window !== 'undefined' && window.innerWidth >= 768) {
+      setImageRotation(0);
+    }
+  };
+
+  // Mobile: Track scroll direction for image rotation
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    const isMobileDevice = window.innerWidth < 768;
+    if (!isMobileDevice) return;
+
+    lastScrollY.current = window.scrollY;
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      const scrollDelta = currentScrollY - lastScrollY.current;
+      
+      if (Math.abs(scrollDelta) < 5) {
+        return;
+      }
+      
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+      
+      if (scrollDelta > 0) {
+        setImageRotation(0.8);
+      } else {
+        setImageRotation(-0.8);
+      }
+      
+      lastScrollY.current = currentScrollY;
+      
+      scrollTimeoutRef.current = setTimeout(() => {
+        setImageRotation(0);
+      }, 300);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, []);
+
   return (
     <li
       id={idForSnap}
@@ -161,6 +224,8 @@ export default function BusinessOfTheMonthCard({ business }: { business: Busines
         role="link"
         tabIndex={0}
         onClick={handleCardClick}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
@@ -174,7 +239,17 @@ export default function BusinessOfTheMonthCard({ business }: { business: Busines
           className="relative overflow-hidden z-10 cursor-pointer rounded-[20px] bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 border-b border-white/60 backdrop-blur-xl h-[490px] sm:h-[320px] md:h-[240px] shadow-sm"
           onClick={handleCardClick}
         >
-          <div className="relative w-full h-full">
+          <div 
+            className="relative w-full h-full"
+            style={{
+              transform: `perspective(1000px) rotateZ(${imageRotation}deg)`,
+              transformStyle: 'preserve-3d',
+              transition: 'transform 0.4s cubic-bezier(0.33, 0.85, 0.4, 0.96)',
+              willChange: 'transform',
+              padding: '8px',
+              boxSizing: 'border-box',
+            }}
+          >
             {!imgError && displayImage ? (
               isImagePng || displayImage.includes('/png/') || displayImage.endsWith('.png') || usingFallback ? (
                 <div className="relative w-full h-full flex items-center justify-center bg-gradient-to-br from-off-white/95 to-off-white/85">

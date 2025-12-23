@@ -142,7 +142,7 @@ export default function EventsSpecials({
           </button>
         </div>
 
-          <div className="pt-2">
+        <div className="pt-2">
           {/* Mobile: Scrollable section with one card at a time */}
           <div className="md:hidden">
             <ScrollableSection>
