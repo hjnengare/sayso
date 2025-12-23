@@ -236,7 +236,7 @@ export default function BusinessOfTheMonthCard({ business }: { business: Busines
        
         {/* MEDIA - Full bleed with premium overlay */}
         <div
-          className="relative overflow-hidden z-10 cursor-pointer rounded-[20px] bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 border-b border-white/60 backdrop-blur-xl h-[490px] sm:h-[320px] md:h-[240px] shadow-sm"
+          className="relative overflow-hidden z-10 cursor-pointer rounded-[20px] bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl h-[490px] sm:h-[320px] md:h-[240px] shadow-sm"
           onClick={handleCardClick}
         >
           <div 
