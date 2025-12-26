@@ -85,11 +85,6 @@ function BusinessCard({
   const [usingFallback, setUsingFallback] = useState(false);
   const [showInfoPopup, setShowInfoPopup] = useState(false);
   const infoPopupRef = useRef<HTMLDivElement>(null);
-  
-  // Image rotation state
-  const [imageRotation, setImageRotation] = useState(0);
-  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const lastScrollY = useRef(0);
 
   // Use slug for SEO-friendly URLs, fallback to ID
   const businessIdentifier = business.slug || business.id;
@@ -116,12 +111,6 @@ function BusinessCard({
       router.prefetch(businessProfileRoute);
       router.prefetch(reviewRoute);
     }, 100);
-
-    // Desktop: Rotate image on hover (subtle angle: -2 to 2 degrees, random direction per card)
-    if (typeof window !== 'undefined' && window.innerWidth >= 768) {
-      const rotationAngle = (business.id.charCodeAt(0) % 2 === 0 ? 1.5 : -1.5);
-      setImageRotation(rotationAngle);
-    }
   };
 
   const handleMouseLeave = () => {
@@ -129,73 +118,13 @@ function BusinessCard({
     if (hoverTimeoutRef.current) {
       clearTimeout(hoverTimeoutRef.current);
     }
-
-    // Desktop: Reset rotation on hover out
-    if (typeof window !== 'undefined' && window.innerWidth >= 768) {
-      setImageRotation(0);
-    }
   };
-
-  // Mobile: Track scroll direction for image rotation
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    
-    // Only add scroll listener on mobile
-    const isMobileDevice = window.innerWidth < 768;
-    if (!isMobileDevice) return;
-
-    // Initialize scroll position
-    lastScrollY.current = window.scrollY;
-
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      const scrollDelta = currentScrollY - lastScrollY.current;
-      
-      // Only react to meaningful scroll movements (threshold: 5px)
-      if (Math.abs(scrollDelta) < 5) {
-        return;
-      }
-      
-      // Clear existing timeout
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current);
-      }
-      
-      // Determine rotation based on scroll direction (subtle: -1 to 1 degrees)
-      if (scrollDelta > 0) {
-        // Scrolling down - rotate slightly clockwise
-        setImageRotation(0.8);
-      } else {
-        // Scrolling up - rotate slightly counter-clockwise
-        setImageRotation(-0.8);
-      }
-      
-      lastScrollY.current = currentScrollY;
-      
-      // Reset rotation after scroll stops (300ms delay)
-      scrollTimeoutRef.current = setTimeout(() => {
-        setImageRotation(0);
-      }, 300);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current);
-      }
-    };
-  }, []);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (hoverTimeoutRef.current) {
         clearTimeout(hoverTimeoutRef.current);
-      }
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current);
       }
     };
   }, []);
@@ -405,10 +334,6 @@ function BusinessCard({
           <div 
             className="relative w-full h-full"
             style={{
-              transform: `perspective(1000px) rotateZ(${imageRotation}deg)`,
-              transformStyle: 'preserve-3d',
-              transition: 'transform 0.4s cubic-bezier(0.33, 0.85, 0.4, 0.96)',
-              willChange: 'transform',
               padding: '8px',
               boxSizing: 'border-box',
             }}
