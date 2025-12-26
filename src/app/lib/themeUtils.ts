@@ -1,42 +1,38 @@
 /**
- * Theme utilities for dynamic theme color management
- * Following design system colors: off-white (#FDFCF7) for light, charcoal (#404040) for dark
+ * Theme utilities - LOCKED TO LIGHT MODE ONLY
+ * Sayso is a light-first, brand-controlled experience.
+ * Accessibility is handled via contrast & typography — not OS theming.
+ * 
+ * All dark mode detection and switching has been neutralized.
  */
 
-export type ThemeMode = 'light' | 'dark' | 'system';
+export type ThemeMode = 'light'; // Only light mode supported
 
 export const THEME_COLORS = {
   light: {
-    background: '#FDFCF7',  // off-white
+    background: '#E5E0E5',  // off-white (Sayso brand color)
     surface: '#FFFFFF',
-    text: '#211e1d',        // charcoal for text
-    accent: '#749176',      // sage
-    secondary: '#FF7A5C',   // coral
-  },
-  dark: {
-    background: '#404040',  // charcoal
-    surface: '#4A4A4A',
-    text: '#FDFCF7',       // off-white for text
-    accent: '#749176',      // sage
-    secondary: '#FF7A5C',   // coral
+    text: '#2D2D2D',        // charcoal for text
+    accent: '#7D9B76',      // sage
+    secondary: '#722F37',   // coral/burgundy
   },
 } as const;
 
 /**
- * Updates the theme-color meta tag dynamically
- * @param isDark - Whether dark mode is active
+ * Updates the theme-color meta tag (always light)
  */
-export const updateThemeColor = (isDark: boolean): void => {
+export const updateThemeColor = (): void => {
   if (typeof document === 'undefined') return;
 
-  const themeColor = isDark ? THEME_COLORS.dark.background : THEME_COLORS.light.background;
+  const themeColor = THEME_COLORS.light.background;
 
   // Update existing theme-color meta tags
   const metaTags = document.querySelectorAll('meta[name="theme-color"]');
   metaTags.forEach((tag) => {
     const metaTag = tag as HTMLMetaElement;
     if (metaTag.media) {
-      // Keep media-specific tags as they are for browser preference detection
+      // Keep media-specific tags but set to light color
+      metaTag.content = themeColor;
       return;
     }
     metaTag.content = themeColor;
@@ -50,121 +46,84 @@ export const updateThemeColor = (isDark: boolean): void => {
     document.head.appendChild(meta);
   }
 
-  // Update CSS custom properties for runtime theme switching
+  // Update CSS custom properties (always light)
   document.documentElement.style.setProperty('--theme-bg', themeColor);
-  document.documentElement.style.setProperty(
-    '--theme-surface',
-    isDark ? THEME_COLORS.dark.surface : THEME_COLORS.light.surface
-  );
-  document.documentElement.style.setProperty(
-    '--theme-text',
-    isDark ? THEME_COLORS.dark.text : THEME_COLORS.light.text
-  );
+  document.documentElement.style.setProperty('--theme-surface', THEME_COLORS.light.surface);
+  document.documentElement.style.setProperty('--theme-text', THEME_COLORS.light.text);
 };
 
 /**
- * Detects the current system color scheme preference
- * @returns boolean indicating if dark mode is preferred
+ * Neutralized: Always returns false (light mode only)
  */
 export const getSystemPrefersDark = (): boolean => {
-  if (typeof window === 'undefined') return false;
-  return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  return false; // Always light mode
 };
 
 /**
- * Sets up a listener for system color scheme changes
- * @param callback - Function to call when system preference changes
- * @returns cleanup function
+ * Neutralized: Returns no-op cleanup function
  */
-export const onSystemThemeChange = (callback: (isDark: boolean) => void): (() => void) => {
-  if (typeof window === 'undefined') return () => {};
-
-  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-  const handler = (e: MediaQueryListEvent) => callback(e.matches);
-
-  mediaQuery.addEventListener('change', handler);
-
-  return () => mediaQuery.removeEventListener('change', handler);
+export const onSystemThemeChange = (_callback: (isDark: boolean) => void): (() => void) => {
+  // No-op: we don't listen to system theme changes
+  return () => {};
 };
 
 /**
- * Gets the effective theme mode based on user preference and system settings
- * @param userPreference - User's theme preference
- * @returns the effective theme mode
+ * Neutralized: Always returns 'light'
  */
-export const getEffectiveTheme = (userPreference: ThemeMode): 'light' | 'dark' => {
-  if (userPreference === 'system') {
-    return getSystemPrefersDark() ? 'dark' : 'light';
-  }
-  return userPreference;
+export const getEffectiveTheme = (_userPreference?: ThemeMode): 'light' => {
+  return 'light'; // Always light mode
 };
 
 /**
- * Updates document class and theme color based on theme mode
- * @param mode - The theme mode to apply
+ * Neutralized: Always applies light theme, never adds dark class
  */
-export const applyTheme = (mode: ThemeMode): void => {
-  const effectiveTheme = getEffectiveTheme(mode);
-  const isDark = effectiveTheme === 'dark';
-
+export const applyTheme = (_mode?: ThemeMode): void => {
   if (typeof document === 'undefined') return;
 
-  // Update document class for Tailwind dark mode
-  document.documentElement.classList.toggle('dark', isDark);
-  document.documentElement.classList.toggle('light', !isDark);
+  // Ensure dark class is never added
+  document.documentElement.classList.remove('dark');
+  document.documentElement.classList.add('light');
 
-  // Update theme color
-  updateThemeColor(isDark);
+  // Update theme color (always light)
+  updateThemeColor();
 };
 
 /**
- * Initializes theme on app load
- * @param initialMode - Initial theme mode preference
+ * Initializes theme on app load (always light)
  */
-export const initializeTheme = (initialMode: ThemeMode = 'system'): void => {
-  applyTheme(initialMode);
-
-  // Listen for system theme changes if using system preference
-  if (initialMode === 'system') {
-    onSystemThemeChange((isDark) => {
-      updateThemeColor(isDark);
-      if (typeof document !== 'undefined') {
-        document.documentElement.classList.toggle('dark', isDark);
-        document.documentElement.classList.toggle('light', !isDark);
-      }
-    });
-  }
+export const initializeTheme = (): void => {
+  applyTheme('light');
+  // No system theme listener - we're locked to light mode
 };
 
 /**
- * Hook for React components to use theme utilities
- * Returns theme utilities and current state
+ * Hook for React components - always returns light mode
  */
 export const createThemeManager = () => {
-  let currentMode: ThemeMode = 'system';
-  let listeners: Array<(mode: ThemeMode) => void> = [];
+  const currentMode: ThemeMode = 'light';
+  const listeners: Array<(mode: ThemeMode) => void> = [];
 
-  const setMode = (mode: ThemeMode) => {
-    currentMode = mode;
-    applyTheme(mode);
-    listeners.forEach(listener => listener(mode));
+  const setMode = (_mode: ThemeMode) => {
+    // No-op: always light mode
+    applyTheme('light');
+    listeners.forEach(listener => listener('light'));
   };
 
   const subscribe = (listener: (mode: ThemeMode) => void) => {
     listeners.push(listener);
     return () => {
-      listeners = listeners.filter(l => l !== listener);
+      // Cleanup
     };
   };
 
-  const getMode = () => currentMode;
-  const getEffectiveMode = () => getEffectiveTheme(currentMode);
+  const getMode = () => 'light' as ThemeMode;
+  const getEffectiveMode = () => 'light' as const;
 
   return {
     setMode,
     getMode,
     getEffectiveMode,
     subscribe,
-    initialize: () => initializeTheme(currentMode),
+    initialize: () => initializeTheme(),
   };
 };

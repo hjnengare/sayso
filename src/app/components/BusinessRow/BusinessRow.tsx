@@ -91,6 +91,7 @@ export default function BusinessRow({
             waveVariant="subtle"
             loopWave={false}
             enableScrollTrigger={true}
+            disableWave={true}
             style={{ 
               fontFamily: swanky.style.fontFamily,
             }}

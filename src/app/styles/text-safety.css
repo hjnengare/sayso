@@ -212,13 +212,7 @@ input[type="email"], input[type="url"] {
 }
 
 /* === DARK MODE CONSIDERATIONS === */
-
-@media (prefers-color-scheme: dark) {
-  /* Improve text contrast in dark mode */
-  body {
-    -webkit-font-smoothing: subpixel-antialiased;
-  }
-}
+/* REMOVED: Sayso is light-mode only. Brand controls color, not OS. */
 
 /* === PRINT STYLES === */
 

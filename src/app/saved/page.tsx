@@ -31,18 +31,40 @@ export default function SavedPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [isPaginationLoading, setIsPaginationLoading] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const previousPageRef = useRef(currentPage);
 
-  // Calculate pagination
+  // Extract unique categories from saved businesses
+  const categories = useMemo(() => {
+    const uniqueCategories = Array.from(
+      new Set(savedBusinesses.map(b => b.category).filter(Boolean))
+    ).sort();
+    return ['All', ...uniqueCategories];
+  }, [savedBusinesses]);
+
+  // Filter businesses by selected category
+  const filteredBusinesses = useMemo(() => {
+    if (!selectedCategory || selectedCategory === 'All') {
+      return savedBusinesses;
+    }
+    return savedBusinesses.filter(b => b.category === selectedCategory);
+  }, [savedBusinesses, selectedCategory]);
+
+  // Calculate pagination based on filtered businesses
   const totalPages = useMemo(
-    () => Math.ceil(savedBusinesses.length / ITEMS_PER_PAGE),
-    [savedBusinesses.length]
+    () => Math.ceil(filteredBusinesses.length / ITEMS_PER_PAGE),
+    [filteredBusinesses.length]
   );
   const currentBusinesses = useMemo(() => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
-    return savedBusinesses.slice(startIndex, endIndex);
-  }, [savedBusinesses, currentPage]);
+    return filteredBusinesses.slice(startIndex, endIndex);
+  }, [filteredBusinesses, currentPage]);
+
+  // Reset to page 1 when category changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategory]);
 
   useEffect(() => {
     const fetchSavedBusinesses = async () => {
@@ -316,9 +338,50 @@ export default function SavedPage() {
                           "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                       }}
                     >
-                      {savedBusinesses.length} {savedBusinesses.length === 1 ? "business" : "businesses"} saved
+                      {filteredBusinesses.length} {filteredBusinesses.length === 1 ? "business" : "businesses"} saved
+                      {selectedCategory && selectedCategory !== 'All' && ` in ${selectedCategory}`}
                     </p>
                   </div>
+
+                  {/* Category Filters */}
+                  {categories.length > 1 && (
+                    <div className="mb-6 px-2">
+                      <div 
+                        className="flex items-center gap-2 overflow-x-auto scrollbar-hide -mx-2 px-2"
+                        style={{ 
+                          WebkitOverflowScrolling: 'touch',
+                          scrollBehavior: 'smooth',
+                        }}
+                      >
+                        {categories.map((category) => {
+                          const isSelected = selectedCategory === category || (!selectedCategory && category === 'All');
+                          const count = category === 'All' 
+                            ? savedBusinesses.length 
+                            : savedBusinesses.filter(b => b.category === category).length;
+                          
+                          return (
+                            <button
+                              key={category}
+                              onClick={() => setSelectedCategory(category === 'All' ? null : category)}
+                              className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-full font-urbanist font-600 text-body-sm sm:text-body transition-all duration-200 active:scale-95 flex-shrink-0 whitespace-nowrap ${
+                                isSelected
+                                  ? "bg-coral text-white shadow-lg"
+                                  : "bg-sage/10 text-charcoal/70 hover:bg-sage/20 hover:text-sage border border-sage/30"
+                              }`}
+                              style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                            >
+                              {category}
+                              {count > 0 && (
+                                <span className="ml-2 text-xs sm:text-sm opacity-80">
+                                  ({count})
+                                </span>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
 
                   {/* Loading Spinner Overlay for Pagination */}
                   {isPaginationLoading && (

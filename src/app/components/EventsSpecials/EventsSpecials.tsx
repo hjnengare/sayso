@@ -124,6 +124,8 @@ export default function EventsSpecials({
             startDelayMs={300}
             waveVariant="subtle"
             loopWave={true}
+            enableScrollTrigger={true}
+            disableWave={true}
             style={{ 
               fontFamily: swanky.style.fontFamily,
             }}

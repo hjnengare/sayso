@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronRight } from "react-feather";
+import { useAuth } from "../../contexts/AuthContext";
 import {
   ArrowLeft,
   Calendar,
@@ -26,6 +27,7 @@ import {
 import { EVENTS_AND_SPECIALS, Event } from "../../data/eventsData";
 import { useToast } from "../../contexts/ToastContext";
 import { PageLoader } from "../../components/Loader";
+import Header from "../../components/Header/Header";
 
 interface SpecialDetailPageProps {
   params: Promise<{
@@ -40,6 +42,27 @@ export default function SpecialDetailPage({ params }: SpecialDetailPageProps) {
   const [isLiked, setIsLiked] = useState(false);
   const router = useRouter();
   const { showToast } = useToast();
+  const { user } = useAuth();
+
+  // Check if special is already saved on mount
+  useEffect(() => {
+    if (!special) return;
+
+    const checkSavedStatus = async () => {
+      try {
+        const response = await fetch(`/api/user/saved-events?event_id=${special.id}`);
+        if (response.ok) {
+          const data = await response.json();
+          setIsLiked(data.isSaved || false);
+        }
+      } catch (error) {
+        // Silently fail - user might not be logged in
+        console.log('Could not check saved status:', error);
+      }
+    };
+
+    checkSavedStatus();
+  }, [special]);
 
   // Unwrap the params Promise using React.use()
   const resolvedParams = use(params);
@@ -61,12 +84,77 @@ export default function SpecialDetailPage({ params }: SpecialDetailPageProps) {
     );
   };
 
-  const handleLike = () => {
-    setIsLiked(!isLiked);
-    showToast(
-      isLiked ? "Removed from favorites" : "Added to favorites",
-      "success"
-    );
+  const handleLike = async () => {
+    if (!special) return;
+    
+    // Check if user is authenticated
+    if (!user) {
+      showToast("Please log in to save specials", "error");
+      return;
+    }
+    
+    const newLikedState = !isLiked;
+    setIsLiked(newLikedState);
+    
+    try {
+      if (newLikedState) {
+        // Save the event/special
+        const response = await fetch('/api/user/saved-events', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ event_id: special.id }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          
+          // Handle specific error cases
+          if (response.status === 401) {
+            showToast("Please log in to save specials", "error");
+            setIsLiked(!newLikedState);
+            return;
+          }
+          
+          if (response.status === 500 && errorData.code === '42P01') {
+            showToast("Saving specials is not available at the moment", "error");
+            setIsLiked(!newLikedState);
+            return;
+          }
+          
+          throw new Error(errorData.error || errorData.details || 'Failed to save special');
+        }
+
+        showToast("Special saved to favorites", "success");
+      } else {
+        // Unsave the event/special
+        const response = await fetch(`/api/user/saved-events?event_id=${special.id}`, {
+          method: 'DELETE',
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          
+          // Handle specific error cases
+          if (response.status === 401) {
+            showToast("Please log in to manage saved specials", "error");
+            setIsLiked(!newLikedState);
+            return;
+          }
+          
+          throw new Error(errorData.error || errorData.details || 'Failed to unsave special');
+        }
+
+        showToast("Special removed from favorites", "success");
+      }
+    } catch (error) {
+      // Revert the state on error
+      setIsLiked(!newLikedState);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update favorites';
+      showToast(errorMessage, "error");
+      console.error('Error saving/unsaving special:', error);
+    }
   };
 
   const handleShare = () => {
@@ -112,46 +200,14 @@ export default function SpecialDetailPage({ params }: SpecialDetailPageProps) {
         </div>
 
         {/* Header */}
-        <motion.header
-          initial={{ y: -80, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ type: "spring", stiffness: 80, damping: 20 }}
-          className="bg-off-white/95 backdrop-blur-xl border-b border-white/30 relative z-10 fixed top-0 left-0 right-0"
-        >
-          <div className="mx-auto w-full max-w-[2000px] px-2 py-4">
-            <div className="flex items-center justify-between">
-              <Link href="/events-specials" className="group flex items-center">
-                <div className="w-10 h-10 bg-gradient-to-br from-charcoal/10 to-charcoal/5 hover:from-coral/20 hover:to-coral/10 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 border border-charcoal/5 hover:border-coral/20 mr-3">
-                  <ArrowLeft className="text-charcoal/70 group-hover:text-coral transition-colors duration-300" size={20} />
-                </div>
-                <span className="text-sm font-medium text-charcoal group-hover:text-coral transition-colors duration-300" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                  Back to Specials
-                </span>
-              </Link>
-
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={handleShare}
-                  className="w-10 h-10 bg-gradient-to-br from-sage/10 to-sage/5 hover:from-sage/20 hover:to-sage/10 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 border border-sage/5 hover:border-sage/20"
-                  aria-label="Share special"
-                >
-                  <Share2 className="text-sage" size={18} />
-                </button>
-                <button
-                  onClick={handleBookmark}
-                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 border ${
-                    isBookmarked
-                      ? "bg-coral text-white border-coral"
-                      : "bg-gradient-to-br from-charcoal/10 to-charcoal/5 hover:from-coral/20 hover:to-coral/10 border-charcoal/5 hover:border-coral/20"
-                  }`}
-                  aria-label="Bookmark special"
-                >
-                  <Bookmark className={isBookmarked ? "text-white" : "text-charcoal/70"} size={18} />
-                </button>
-              </div>
-            </div>
-          </div>
-        </motion.header>
+        <Header
+          showSearch={false}
+          variant="white"
+          backgroundClassName="bg-navbar-bg"
+          topPosition="top-0"
+          reducedPadding={true}
+          whiteText={true}
+        />
 
         {/* Main Content */}
         <div className="relative z-10 mx-auto w-full max-w-[2000px] px-2 pt-20 sm:pt-24 py-4 sm:py-6 md:py-8 pb-12 sm:pb-16">

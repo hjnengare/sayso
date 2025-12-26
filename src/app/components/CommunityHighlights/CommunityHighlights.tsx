@@ -84,6 +84,8 @@ export default function CommunityHighlights({
             startDelayMs={300}
             waveVariant="subtle"
             loopWave={true}
+            enableScrollTrigger={true}
+            disableWave={true}
             style={{ 
               fontFamily: swanky.style.fontFamily,
             }}

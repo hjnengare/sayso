@@ -347,6 +347,7 @@ export async function PUT(
       website,
       priceRange,
       hours,
+      uploaded_image,
     } = body;
 
     // Build update object (only include fields that are provided)
@@ -362,6 +363,7 @@ export async function PUT(
     if (email !== undefined) updateData.email = email;
     if (website !== undefined) updateData.website = website;
     if (priceRange !== undefined) updateData.price_range = priceRange;
+    if (uploaded_image !== undefined) updateData.uploaded_image = uploaded_image;
     // Store hours as JSON if provided
     if (hours !== undefined) {
       updateData.hours = hours; // Assuming hours is stored as JSONB

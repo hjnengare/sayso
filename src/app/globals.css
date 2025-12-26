@@ -99,6 +99,18 @@
     max-width: 100%;
   }
 
+  /* ============================================
+     LIGHT MODE LOCK - Brand controls color, not OS
+     ============================================ */
+  
+  :root {
+    color-scheme: light;
+    /* Disables OS dark-mode form overrides */
+    /* Prevents Safari/Chrome auto-darkening inputs */
+    /* Keeps scrollbars light */
+    /* Stops weird autofill colors */
+  }
+
   html {
     font-family: 'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
     font-size: 100%;
@@ -109,6 +121,8 @@
     scroll-behavior: smooth;
     color-scheme: light;
     /* Ensures browser UI (scrollbars, form controls) adapts to light theme */
+    background-color: #E5E0E5;
+    overflow-x: hidden;
   }
 
   body {
@@ -130,6 +144,35 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     line-height: 1.6;
+    color-scheme: light;
+  }
+
+  /* Force form controls to stay light */
+  input,
+  textarea,
+  select,
+  button {
+    color-scheme: light;
+  }
+
+  /* Fix autofill - prevent browser dark mode heuristics */
+  input:-webkit-autofill,
+  textarea:-webkit-autofill,
+  select:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0px 1000px #FFFFFF inset;
+    -webkit-text-fill-color: #2D2D2D;
+    color-scheme: light;
+  }
+
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill:hover,
+  textarea:-webkit-autofill:focus,
+  select:-webkit-autofill:hover,
+  select:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0px 1000px #FFFFFF inset;
+    -webkit-text-fill-color: #2D2D2D;
+    color-scheme: light;
   }
   
   /* Body text and card text use Urbanist - headers (h1-h6) keep their own font-family styles */

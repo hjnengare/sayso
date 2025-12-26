@@ -5,6 +5,8 @@ module.exports = {
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
+  // Lock to light mode only - brand controls color, not OS
+  darkMode: false,
   // Performance optimizations
   future: {
     hoverOnlyWhenSupported: true,

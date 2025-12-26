@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Calendar, ChevronRight } from "react-feather";
 import { Event } from "../../data/eventsData";
 import { useToast } from "../../contexts/ToastContext";
+import { useAuth } from "../../contexts/AuthContext";
 import nextDynamic from "next/dynamic";
 import { PageLoader, Loader } from "../../components/Loader";
 import Header from "../../components/Header/Header";
@@ -37,6 +38,27 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
   const [loading, setLoading] = useState(true);
   const [isLiked, setIsLiked] = useState(false);
   const { showToast } = useToast();
+  const { user } = useAuth();
+
+  // Check if event is already saved on mount
+  useEffect(() => {
+    if (!event) return;
+
+    const checkSavedStatus = async () => {
+      try {
+        const response = await fetch(`/api/user/saved-events?event_id=${event.id}`);
+        if (response.ok) {
+          const data = await response.json();
+          setIsLiked(data.isSaved || false);
+        }
+      } catch (error) {
+        // Silently fail - user might not be logged in
+        console.log('Could not check saved status:', error);
+      }
+    };
+
+    checkSavedStatus();
+  }, [event]);
 
   // Unwrap the params Promise using React.use()
   const resolvedParams = use(params);
@@ -136,12 +158,77 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
     fetchEvent();
   }, [resolvedParams.id]);
 
-  const handleLike = () => {
-    setIsLiked(!isLiked);
-    showToast(
-      isLiked ? "Removed from favorites" : "Added to favorites",
-      "success"
-    );
+  const handleLike = async () => {
+    if (!event) return;
+    
+    // Check if user is authenticated
+    if (!user) {
+      showToast("Please log in to save events", "error");
+      return;
+    }
+    
+    const newLikedState = !isLiked;
+    setIsLiked(newLikedState);
+    
+    try {
+      if (newLikedState) {
+        // Save the event
+        const response = await fetch('/api/user/saved-events', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ event_id: event.id }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          
+          // Handle specific error cases
+          if (response.status === 401) {
+            showToast("Please log in to save events", "error");
+            setIsLiked(!newLikedState);
+            return;
+          }
+          
+          if (response.status === 500 && errorData.code === '42P01') {
+            showToast("Saving events is not available at the moment", "error");
+            setIsLiked(!newLikedState);
+            return;
+          }
+          
+          throw new Error(errorData.error || errorData.details || 'Failed to save event');
+        }
+
+        showToast("Event saved to favorites", "success");
+      } else {
+        // Unsave the event
+        const response = await fetch(`/api/user/saved-events?event_id=${event.id}`, {
+          method: 'DELETE',
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          
+          // Handle specific error cases
+          if (response.status === 401) {
+            showToast("Please log in to manage saved events", "error");
+            setIsLiked(!newLikedState);
+            return;
+          }
+          
+          throw new Error(errorData.error || errorData.details || 'Failed to unsave event');
+        }
+
+        showToast("Event removed from favorites", "success");
+      }
+    } catch (error) {
+      // Revert the state on error
+      setIsLiked(!newLikedState);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update favorites';
+      showToast(errorMessage, "error");
+      console.error('Error saving/unsaving event:', error);
+    }
   };
 
   // Loading state - show full page loader with transition
@@ -198,7 +285,14 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
         }}
       >
       {/* Header */}
-      <Header whiteText={true} />
+      <Header
+        showSearch={false}
+        variant="white"
+        backgroundClassName="bg-navbar-bg"
+        topPosition="top-0"
+        reducedPadding={true}
+        whiteText={true}
+      />
 
       <div className="bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white">
         <div className="pt-20 sm:pt-24">

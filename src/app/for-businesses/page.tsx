@@ -382,10 +382,10 @@ function ClaimBusinessPageContent() {
                                 style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                         Contact Support
                       </button>
-                      <button className="w-full sm:w-auto px-6 py-2.5 min-h-[44px] bg-gradient-to-br from-coral to-coral/90 text-white text-sm font-semibold font-urbanist rounded-full hover:from-coral/90 hover:to-coral/80 transition-all duration-300 hover:shadow-lg active:scale-[0.98] touch-manipulation whitespace-nowrap"
+                      <Link href="/add-business" className="w-full sm:w-auto px-6 py-2.5 min-h-[44px] bg-gradient-to-br from-coral to-coral/90 text-white text-sm font-semibold font-urbanist rounded-full hover:from-coral/90 hover:to-coral/80 transition-all duration-300 hover:shadow-lg active:scale-[0.98] touch-manipulation whitespace-nowrap inline-flex items-center justify-center"
                               style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                        Learn More
-                      </button>
+                        Add Service
+                      </Link>
                     </div>
                   </div>
                 </div>
