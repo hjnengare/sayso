@@ -554,7 +554,7 @@ function WriteReviewContent() {
                         {/* Review Form Section - Separated from images */}
                           <AnimatedElement index={1} direction="right">
                         <article className="w-full sm:mx-0 flex items-center justify-center" aria-labelledby="review-form-heading">
-                              <div className="bg-card-bg border-0 sm:border border-white/60 rounded-[12px] shadow-none sm:shadow-lg relative overflow-hidden mx-auto w-full">
+                              <div className="bg-card-bg border-0 sm:border border-white/60 rounded-[20px] shadow-none sm:shadow-lg relative overflow-hidden mx-auto w-full">
                             <div className="relative z-10">
                               {/* Review Form */}
                               <div className="p-4 md:p-6">
@@ -613,6 +613,7 @@ function WriteReviewContent() {
                               startDelayMs={300}
                               waveVariant="subtle"
                               loopWave={true}
+                              disableWave={true}
                               style={{ 
                                 fontFamily: swanky.style.fontFamily,
                               }}

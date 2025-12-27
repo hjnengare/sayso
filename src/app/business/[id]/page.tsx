@@ -346,7 +346,7 @@ export default function BusinessProfilePage() {
                                         </li>
                                     </ol>
                                 </nav>
-                                <div className="pt-2 pb-12 sm:pb-16 md:pb-20">
+                                <div className="pt-2">
                                     <StaggeredContainer>
                                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-6 lg:gap-8">
                                             {/* Left Column - Main Content */}
@@ -439,7 +439,7 @@ export default function BusinessProfilePage() {
                                 </div>
                             </div>
                         </section>
-                        <section className="mx-auto w-full max-w-[2000px] px-2 relative z-10 border-t border-charcoal/10 pt-12 sm:pt-16 pb-12 sm:pb-16">
+                        <section className="mx-auto w-full max-w-[2000px] px-2 relative z-10">
 
                             {/* Reviews Section */}
                             <section className="space-y-6" aria-labelledby="reviews-heading">
@@ -453,6 +453,7 @@ export default function BusinessProfilePage() {
                                         startDelayMs={300}
                                         waveVariant="subtle"
                                         loopWave={true}
+                                        disableWave={true}
                                         style={{ 
                                             fontFamily: swanky.style.fontFamily,
                                         }}
@@ -461,7 +462,7 @@ export default function BusinessProfilePage() {
 
                                 {/* Reviews List Section */}
                                 <section
-                                    className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-md p-6 sm:p-8"
+                                    className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-6 sm:p-8"
                                     aria-label="Business reviews"
                                 >
                                     <ReviewsList
