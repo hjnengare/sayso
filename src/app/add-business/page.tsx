@@ -35,6 +35,12 @@ import { getBrowserSupabase } from "../lib/supabase/client";
 import { authStyles } from "../components/Auth/Shared/authStyles";
 import { Fontdiner_Swanky } from "next/font/google";
 import WavyTypedTitle from "../../components/Animations/WavyTypedTitle";
+import dynamic from "next/dynamic";
+
+const LocationPicker = dynamic(() => import("../components/AddBusiness/LocationPicker"), {
+    ssr: false,
+    loading: () => null,
+});
 
 const swanky = Fontdiner_Swanky({
     weight: "400",
@@ -129,6 +135,8 @@ export default function AddBusinessPage() {
     const categoryButtonRef = useRef<HTMLButtonElement>(null);
     const categoryModalRef = useRef<HTMLDivElement>(null);
     const [categoryModalPos, setCategoryModalPos] = useState<{left: number; top: number} | null>(null);
+    const [isLocationPickerOpen, setIsLocationPickerOpen] = useState(false);
+    const [isGeocoding, setIsGeocoding] = useState(false);
 
     // Redirect if not authenticated
     useEffect(() => {
@@ -191,6 +199,49 @@ export default function AddBusinessPage() {
             setCategoryModalPos(null);
         }
     }, [isCategoryModalOpen]);
+
+    // Geocode address to get coordinates
+    const handleGeocodeAddress = async () => {
+        const fullAddress = formData.address || formData.location || '';
+        if (!fullAddress.trim()) {
+            showToast('Please enter an address first', 'sage', 3000);
+            return;
+        }
+
+        setIsGeocoding(true);
+        try {
+            const response = await fetch(`/api/geocode?address=${encodeURIComponent(fullAddress)}`);
+            const data = await response.json();
+
+            if (data.success && data.lat && data.lng) {
+                setFormData(prev => ({
+                    ...prev,
+                    lat: data.lat.toString(),
+                    lng: data.lng.toString(),
+                }));
+                showToast('Coordinates found!', 'success', 2000);
+            } else {
+                showToast(data.error || 'Could not find coordinates for this address', 'sage', 3000);
+            }
+        } catch (error) {
+            console.error('Geocoding error:', error);
+            showToast('Failed to get coordinates. Try using the map picker instead.', 'sage', 3000);
+        } finally {
+            setIsGeocoding(false);
+        }
+    };
+
+    // Handle location selection from map picker
+    const handleLocationSelect = (lat: number, lng: number, formattedAddress?: string) => {
+        setFormData(prev => ({
+            ...prev,
+            lat: lat.toString(),
+            lng: lng.toString(),
+            // Update address if we got a formatted address from reverse geocoding
+            ...(formattedAddress && !prev.address ? { address: formattedAddress } : {}),
+        }));
+        showToast('Location selected!', 'success', 2000);
+    };
 
     // Close category modal when clicking outside
     useEffect(() => {
@@ -414,10 +465,11 @@ export default function AddBusinessPage() {
         if (formData.phone && !validateField("phone", formData.phone)) {
             isValid = false;
         }
-        if (formData.lat && !validateField("lat", formData.lat)) {
+        // Lat/lng are optional - only validate if provided
+        if (formData.lat && formData.lat.trim() && !validateField("lat", formData.lat)) {
             isValid = false;
         }
-        if (formData.lng && !validateField("lng", formData.lng)) {
+        if (formData.lng && formData.lng.trim() && !validateField("lng", formData.lng)) {
             isValid = false;
         }
 
@@ -962,52 +1014,78 @@ export default function AddBusinessPage() {
                                                         </div>
                                                     )}
 
-                                                    {/* Coordinates (Optional) - Only show for physical location */}
+                                                    {/* Location Selection - Only show for physical location */}
                                                     {formData.businessType === 'physical' && (
-                                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                        <div>
+                                                        <div className="space-y-4">
                                                             <label className="block text-sm font-semibold text-white mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
-                                                                Latitude (Optional)
+                                                                Location Coordinates (Optional)
                                                             </label>
-                                                            <input
-                                                                type="text"
-                                                                value={formData.lat}
-                                                                onChange={(e) => handleInputChange('lat', e.target.value)}
-                                                                onBlur={() => handleBlur('lat')}
-                                                                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
-                                                                className={`w-full bg-white/95 backdrop-blur-sm border pl-4 pr-4 py-3 sm:py-4 md:py-5 text-body font-semibold text-charcoal placeholder-charcoal/50 placeholder:font-normal focus:outline-none focus:ring-2 transition-all duration-300 hover:border-sage/50 input-mobile rounded-full ${
-                                                                    errors.lat
-                                                                        ? 'border-navbar-bg focus:border-navbar-bg focus:ring-navbar-bg/20'
-                                                                        : 'border-white/60 focus:ring-navbar-bg/30 focus:border-navbar-bg'
-                                                                }`}
-                                                                placeholder="e.g., -33.9249"
-                                                            />
-                                                            {touched.lat && errors.lat && (
-                                                                <p className="mt-2 text-sm text-navbar-bg font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>{errors.lat}</p>
+                                                            
+                                                            {/* Action Buttons */}
+                                                            <div className="flex flex-col sm:flex-row gap-3">
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={handleGeocodeAddress}
+                                                                    disabled={isGeocoding || (!formData.address && !formData.location)}
+                                                                    className="flex-1 px-4 py-3 bg-white/95 text-charcoal rounded-full hover:bg-white border border-white/60 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-all"
+                                                                    style={{ fontFamily: 'Urbanist, sans-serif', fontWeight: 600 }}
+                                                                >
+                                                                    {isGeocoding ? (
+                                                                        <>
+                                                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                                                            Getting coordinates...
+                                                                        </>
+                                                                    ) : (
+                                                                        <>
+                                                                            <MapPin className="w-4 h-4" />
+                                                                            Get from Address
+                                                                        </>
+                                                                    )}
+                                                                </button>
+                                                                
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => setIsLocationPickerOpen(true)}
+                                                                    className="flex-1 px-4 py-3 bg-sage text-white rounded-full hover:bg-sage/90 flex items-center justify-center gap-2 transition-all"
+                                                                    style={{ fontFamily: 'Urbanist, sans-serif', fontWeight: 600 }}
+                                                                >
+                                                                    <MapPin className="w-4 h-4" />
+                                                                    Pick on Map
+                                                                </button>
+                                                            </div>
+
+                                                            {/* Display selected coordinates (read-only) */}
+                                                            {(formData.lat || formData.lng) && (
+                                                                <div className="mt-3 p-3 bg-white/20 rounded-lg border border-white/30">
+                                                                    <p className="text-xs text-white/80 mb-1" style={{ fontFamily: 'Urbanist, sans-serif' }}>
+                                                                        Selected Coordinates:
+                                                                    </p>
+                                                                    <p className="text-sm font-semibold text-white" style={{ fontFamily: 'Urbanist, sans-serif' }}>
+                                                                        {formData.lat && formData.lng 
+                                                                            ? `${parseFloat(formData.lat).toFixed(6)}, ${parseFloat(formData.lng).toFixed(6)}`
+                                                                            : formData.lat 
+                                                                            ? `Lat: ${formData.lat}` 
+                                                                            : `Lng: ${formData.lng}`
+                                                                        }
+                                                                    </p>
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => {
+                                                                            setFormData(prev => ({ ...prev, lat: '', lng: '' }));
+                                                                            showToast('Coordinates cleared', 'sage', 2000);
+                                                                        }}
+                                                                        className="mt-2 text-xs text-white/70 hover:text-white underline"
+                                                                        style={{ fontFamily: 'Urbanist, sans-serif' }}
+                                                                    >
+                                                                        Clear coordinates
+                                                                    </button>
+                                                                </div>
                                                             )}
+
+                                                            <p className="text-xs text-white/60" style={{ fontFamily: 'Urbanist, sans-serif' }}>
+                                                                Tip: Enter your address above and click "Get from Address", or click "Pick on Map" to select a location visually.
+                                                            </p>
                                                         </div>
-                                                        <div>
-                                                            <label className="block text-sm font-semibold text-white mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
-                                                                Longitude (Optional)
-                                                            </label>
-                                                            <input
-                                                                type="text"
-                                                                value={formData.lng}
-                                                                onChange={(e) => handleInputChange('lng', e.target.value)}
-                                                                onBlur={() => handleBlur('lng')}
-                                                                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
-                                                                className={`w-full bg-white/95 backdrop-blur-sm border pl-4 pr-4 py-3 sm:py-4 md:py-5 text-body font-semibold text-charcoal placeholder-charcoal/50 placeholder:font-normal focus:outline-none focus:ring-2 transition-all duration-300 hover:border-sage/50 input-mobile rounded-full ${
-                                                                    errors.lng
-                                                                        ? 'border-navbar-bg focus:border-navbar-bg focus:ring-navbar-bg/20'
-                                                                        : 'border-white/60 focus:ring-navbar-bg/30 focus:border-navbar-bg'
-                                                                }`}
-                                                                placeholder="e.g., 18.4241"
-                                                            />
-                                                            {touched.lng && errors.lng && (
-                                                                <p className="mt-2 text-sm text-navbar-bg font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>{errors.lng}</p>
-                                                            )}
-                                                        </div>
-                                                    </div>
                                                     )}
                                                 </div>
                                             </div>
@@ -1260,6 +1338,18 @@ export default function AddBusinessPage() {
 
                 <Footer />
             </div>
+
+            {/* Location Picker Modal */}
+            {isLocationPickerOpen && (
+                <LocationPicker
+                    address={formData.address}
+                    location={formData.location}
+                    lat={formData.lat ? parseFloat(formData.lat) : null}
+                    lng={formData.lng ? parseFloat(formData.lng) : null}
+                    onLocationSelect={handleLocationSelect}
+                    onClose={() => setIsLocationPickerOpen(false)}
+                />
+            )}
         </>
     );
 }
