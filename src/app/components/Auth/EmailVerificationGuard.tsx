@@ -24,9 +24,11 @@ export default function EmailVerificationGuard({
   const [isResending, setIsResending] = useState(false);
   const searchParams = useSearchParams();
   const emailVerifiedParam = searchParams?.get('email_verified');
+  const verifiedParam = searchParams?.get('verified');
 
   // Optimistically allow access if URL param indicates verification
-  const isVerifiedFromUrl = emailVerifiedParam === 'true';
+  // Check both 'email_verified' and 'verified' params to handle different redirect scenarios
+  const isVerifiedFromUrl = emailVerifiedParam === 'true' || verifiedParam === '1';
 
   // Force refresh user state if we detect verification from URL
   useEffect(() => {
@@ -40,7 +42,18 @@ export default function EmailVerificationGuard({
         // Silently fail - will be handled by normal flow
       });
     }
-  }, [isVerifiedFromUrl, user, updateUser]);
+    // Also refresh if we have verified param but user state hasn't updated yet
+    if ((verifiedParam === '1' || emailVerifiedParam === 'true') && user && !user.email_verified) {
+      // Refresh user state to get latest verification status
+      AuthService.getCurrentUser().then(freshUser => {
+        if (freshUser?.email_verified) {
+          updateUser({ email_verified: true });
+        }
+      }).catch(() => {
+        // Silently fail - will be handled by normal flow
+      });
+    }
+  }, [isVerifiedFromUrl, user, updateUser, verifiedParam, emailVerifiedParam]);
 
   // More accurate user existence check - check if we have user data, not just the object
   const userExists = !!(user && (user.email || user.id));

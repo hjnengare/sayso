@@ -68,8 +68,23 @@ export function NotificationsProvider({ children }: NotificationsProviderProps) 
       setIsLoading(true);
       const response = await fetch('/api/notifications');
       
+      // Handle authentication errors gracefully (user might not have session yet)
       if (!response.ok) {
-        throw new Error('Failed to fetch notifications');
+        // 401/403 means user is not authenticated - this is expected during transitions
+        if (response.status === 401 || response.status === 403) {
+          console.log('Notifications: User not authenticated yet, skipping fetch');
+          setNotifications([]);
+          setReadNotifications(new Set());
+          setIsLoading(false);
+          return;
+        }
+        
+        // For other errors, log but don't throw
+        const errorText = await response.text().catch(() => 'Unknown error');
+        console.error('Error fetching notifications:', response.status, errorText);
+        setNotifications([]);
+        setIsLoading(false);
+        return;
       }
 
       const data = await response.json();
@@ -89,6 +104,7 @@ export function NotificationsProvider({ children }: NotificationsProviderProps) 
       
       setIsLoading(false);
     } catch (error) {
+      // Network errors or other exceptions - handle gracefully
       console.error('Error fetching notifications:', error);
       setNotifications([]);
       setIsLoading(false);

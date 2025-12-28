@@ -38,7 +38,17 @@ export default function OnboardingGuard({ children }: OnboardingGuardProps) {
 
     // If user is already onboarded and trying to access ANY onboarding route, redirect to home
     // EXCEPT for the complete page, which should be allowed as the final step
+    // AND EXCEPT for /interests if user hasn't selected interests yet (handles email verification flow)
     if (user?.profile?.onboarding_complete && pathname !== "/complete") {
+      // Allow access to /interests if user hasn't selected interests yet
+      // This handles the case where user is coming from email verification
+      // Check both interests array and interests_count to be safe
+      const hasNoInterests = (!user.interests || user.interests.length === 0) && 
+                            (!user.profile?.interests_count || user.profile.interests_count === 0);
+      if (pathname === "/interests" && hasNoInterests) {
+        console.log('OnboardingGuard: User on /interests with no interests, allowing access');
+        return;
+      }
       router.replace("/home");
       return;
     }

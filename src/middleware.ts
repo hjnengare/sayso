@@ -155,18 +155,28 @@ export async function middleware(request: NextRequest) {
 
   // Check if user has completed onboarding and redirect from onboarding routes
   // BUT allow access to /complete page (the celebration page)
+  // AND allow access to /interests if user hasn't selected interests yet (even if step is 'complete')
   if (isOnboardingRoute && user && request.nextUrl.pathname !== '/complete') {
     try {
       const { data: profile } = await supabase
         .from('profiles')
-        .select('onboarding_step')
+        .select('onboarding_step, interests_count')
         .eq('user_id', user.id)
         .single();
 
-      if (profile?.onboarding_step === 'complete') {
+      // Only redirect if user has actually completed onboarding (step is 'complete' AND has interests)
+      // This allows users coming from email verification to access /interests even if there's a data inconsistency
+      if (profile?.onboarding_step === 'complete' && profile?.interests_count && profile.interests_count > 0) {
         console.log('Middleware: User completed onboarding, redirecting from onboarding route to home');
         const redirectUrl = new URL('/home', request.url);
         return NextResponse.redirect(redirectUrl);
+      }
+      
+      // If user is on /interests and hasn't selected interests yet, allow access
+      // This handles the case where user is coming from email verification
+      if (request.nextUrl.pathname === '/interests' && (!profile?.interests_count || profile.interests_count === 0)) {
+        console.log('Middleware: User on /interests with no interests selected, allowing access');
+        return response;
       }
     } catch (error) {
       console.error('Middleware: Error checking onboarding status:', error);
