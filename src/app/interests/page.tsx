@@ -62,7 +62,6 @@ function InterestsContent() {
   const {
     selectedInterests,
     setSelectedInterests,
-    nextStep,
     isLoading: onboardingLoading,
     error: onboardingError,
   } = useOnboarding();
@@ -175,19 +174,57 @@ function InterestsContent() {
 
   const handleNext = useCallback(async () => {
     if (!canProceed) return;
-    setIsNavigating(true);
-
-    console.log("Analytics: Next button clicked", {
-      selections: selectedInterests.length,
+    
+    const clickTime = performance.now();
+    console.log('[Interests] Submit clicked', { 
+      timestamp: clickTime,
+      selections: selectedInterests.length 
     });
 
+    setIsNavigating(true);
+
     try {
-      await nextStep();
+      const requestStart = performance.now();
+      
+      // Minimal write: save interests only
+      const response = await fetch('/api/onboarding/interests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ interests: selectedInterests })
+      });
+
+      const requestEnd = performance.now();
+      const requestTime = requestEnd - requestStart;
+      
+      console.log('[Interests] Save completed', {
+        requestTime: `${requestTime.toFixed(2)}ms`,
+        timestamp: requestEnd
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to save interests');
+      }
+
+      const navStart = performance.now();
+      
+      // Navigate immediately after save succeeds - don't wait for anything else
+      router.prefetch('/subcategories');
+      router.replace('/subcategories');
+      
+      const navEnd = performance.now();
+      console.log('[Interests] Navigation started', {
+        navTime: `${(navEnd - navStart).toFixed(2)}ms`,
+        totalTime: `${(navEnd - clickTime).toFixed(2)}ms`,
+        timestamp: navEnd
+      });
+
     } catch (error) {
-      console.error("Error proceeding to next step:", error);
+      console.error('[Interests] Error saving interests:', error);
+      showToast(error instanceof Error ? error.message : 'Failed to save interests. Please try again.', 'error');
       setIsNavigating(false);
     }
-  }, [canProceed, nextStep, selectedInterests.length]);
+  }, [canProceed, selectedInterests, router, showToast]);
 
   const hydratedSelected = mounted ? selectedInterests : [];
   const list = INTERESTS;

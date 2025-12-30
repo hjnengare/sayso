@@ -182,10 +182,13 @@ export async function middleware(request: NextRequest) {
     }
   };
 
-  // Check onboarding status for authenticated users
+  // Lightweight profile check - only fetch essential fields
+  // Don't join large tables or compute aggregations
   let profile = null;
   if (user) {
     try {
+      // Only fetch minimal fields needed for routing decisions
+      // Lightweight check - no joins, no aggregations
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('onboarding_step, onboarding_complete, interests_count, subcategories_count, dealbreakers_count')

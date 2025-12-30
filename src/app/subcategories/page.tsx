@@ -52,34 +52,58 @@ function SubcategoriesContent() {
 
   const MAX_SELECTIONS = 10;
 
-  const selectedInterests = useMemo(() => {
+  // Fetch user's saved interests from profile (lightweight check)
+  const userInterests = useMemo(() => {
+    // Get from user profile if available, otherwise from URL params (fallback)
+    if (user?.profile?.interests_count && user.profile.interests_count > 0) {
+      // We'll fetch the actual interest IDs from the API
+      return null; // Signal to fetch from API
+    }
     const interestsParam = searchParams.get('interests');
     return interestsParam ? interestsParam.split(',').map(s => s.trim()) : [];
-  }, [searchParams]);
+  }, [user, searchParams]);
 
   // Enforce prerequisite: user must have selected interests before accessing subcategories
   useEffect(() => {
     if (user) {
       const interestsCount = user.profile?.interests_count || 0;
-      if (interestsCount === 0) {
-        console.log('SubcategoriesPage: No interests selected, redirecting to interests');
+      if (interestsCount === 0 && userInterests.length === 0) {
+        console.log('[Subcategories] No interests selected, redirecting to interests');
         router.replace('/interests');
         return;
       }
     }
-  }, [user, router]);
+  }, [user, router, userInterests]);
 
+  // Fetch subcategories on page load - show skeleton immediately
   useEffect(() => {
     const loadSubcategories = async () => {
-      if (selectedInterests.length === 0) {
-        // If no interests in URL params, redirect to interests page
-        router.replace('/interests');
-        return;
-      }
+      const fetchStart = performance.now();
+      console.log('[Subcategories] Fetch started', { timestamp: fetchStart });
 
       try {
         setLoading(true);
-        const response = await fetch(`/api/subcategories?interests=${selectedInterests.join(',')}`);
+        
+        // Fetch user's interests first if we don't have them
+        let interestsToUse = userInterests;
+        
+        if (!interestsToUse || interestsToUse.length === 0) {
+          // Fetch from API
+          const interestsResponse = await fetch('/api/user/onboarding');
+          if (interestsResponse.ok) {
+            const interestsData = await interestsResponse.json();
+            interestsToUse = interestsData.interests || [];
+          }
+        }
+
+        if (!interestsToUse || interestsToUse.length === 0) {
+          router.replace('/interests');
+          return;
+        }
+
+        const apiStart = performance.now();
+        const response = await fetch(`/api/subcategories?interests=${interestsToUse.join(',')}`);
+        const apiEnd = performance.now();
 
         if (!response.ok) {
           throw new Error('Failed to load subcategories');
@@ -87,8 +111,16 @@ function SubcategoriesContent() {
 
         const data = await response.json();
         setSubcategories(data.subcategories || []);
+
+        const fetchEnd = performance.now();
+        console.log('[Subcategories] Fetch completed', {
+          apiTime: `${(apiEnd - apiStart).toFixed(2)}ms`,
+          totalTime: `${(fetchEnd - fetchStart).toFixed(2)}ms`,
+          subcategoriesCount: data.subcategories?.length || 0,
+          timestamp: fetchEnd
+        });
       } catch (error) {
-        console.error('Error loading subcategories:', error);
+        console.error('[Subcategories] Error loading subcategories:', error);
         showToast('Failed to load subcategories', 'error');
       } finally {
         setLoading(false);
@@ -96,7 +128,7 @@ function SubcategoriesContent() {
     };
 
     loadSubcategories();
-  }, [selectedInterests, router, showToast]);
+  }, [userInterests, router, showToast]);
 
   const groupedSubcategories = useMemo(() => {
     const grouped: GroupedSubcategories = {};
@@ -131,36 +163,96 @@ function SubcategoriesContent() {
   const handleNext = useCallback(async () => {
     if (!selectedSubcategories || selectedSubcategories.length === 0) return;
 
+    const clickTime = performance.now();
+    console.log('[Subcategories] Submit clicked', { 
+      timestamp: clickTime,
+      selections: selectedSubcategories.length 
+    });
+
     setIsNavigating(true);
 
-    // Prefetch next page for instant navigation
-    const interestParams = selectedInterests.length > 0 
-      ? `interests=${selectedInterests.join(',')}` 
-      : '';
-    const subcategoryParams = selectedSubcategories.join(',');
-    
-    const urlParams = [interestParams, `subcategories=${subcategoryParams}`]
-      .filter(Boolean)
-      .join('&');
-    
-    const nextUrl = `/deal-breakers?${urlParams}`;
-    
-    // Prefetch before navigating
-    router.prefetch(nextUrl);
-    
-    // Use replace for faster navigation (no history entry)
-    router.replace(nextUrl);
-  }, [selectedSubcategories, selectedInterests, router]);
+    try {
+      const requestStart = performance.now();
+      
+      // Minimal write: save subcategories only
+      // Map to format expected by API
+      const subcategoryData = selectedSubcategories.map(subId => {
+        // Find the subcategory to get its interest_id
+        const sub = subcategories.find(s => s.id === subId);
+        return {
+          subcategory_id: subId,
+          interest_id: sub?.interest_id || 'food-drink' // fallback
+        };
+      });
+
+      const response = await fetch('/api/onboarding/subcategories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subcategories: subcategoryData })
+      });
+
+      const requestEnd = performance.now();
+      const requestTime = requestEnd - requestStart;
+      
+      console.log('[Subcategories] Save completed', {
+        requestTime: `${requestTime.toFixed(2)}ms`,
+        timestamp: requestEnd
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to save subcategories');
+      }
+
+      const navStart = performance.now();
+      
+      // Navigate immediately - pass data via URL for deal-breakers
+      const subcategoryParams = selectedSubcategories.join(',');
+      const nextUrl = `/deal-breakers?subcategories=${subcategoryParams}`;
+      
+      router.prefetch(nextUrl);
+      router.replace(nextUrl);
+      
+      const navEnd = performance.now();
+      console.log('[Subcategories] Navigation started', {
+        navTime: `${(navEnd - navStart).toFixed(2)}ms`,
+        totalTime: `${(navEnd - clickTime).toFixed(2)}ms`,
+        timestamp: navEnd
+      });
+
+    } catch (error) {
+      console.error('[Subcategories] Error saving subcategories:', error);
+      showToast(error instanceof Error ? error.message : 'Failed to save subcategories. Please try again.', 'error');
+      setIsNavigating(false);
+    }
+  }, [selectedSubcategories, subcategories, router, showToast]);
 
   const canProceed = (selectedSubcategories?.length || 0) > 0 && !isNavigating;
 
+  // Show skeleton immediately while loading
   if (loading) {
     return (
-      <OnboardingLayout step={2} backHref="/interests">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <Loader size="md" variant="wavy" color="sage" />
-        </div>
-      </OnboardingLayout>
+      <>
+        <SubcategoryStyles />
+        <OnboardingLayout step={2} backHref="/interests">
+          <SubcategoryHeader />
+          <div className="enter-fade">
+            <div className="space-y-4">
+              {/* Skeleton for subcategory groups */}
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="animate-pulse">
+                  <div className="h-6 bg-gray-200 rounded w-1/3 mb-3"></div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {[1, 2, 3, 4].map((j) => (
+                      <div key={j} className="h-20 bg-gray-100 rounded-lg"></div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </OnboardingLayout>
+      </>
     );
   }
 
