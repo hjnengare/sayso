@@ -1,7 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSupabase } from '../../../lib/supabase/server';
-import { invalidateBusinessCache } from '../../../lib/utils/optimizedQueries';
+import { invalidateBusinessCache, fetchBusinessOptimized } from '../../../lib/utils/optimizedQueries';
 import { notifyBusinessUpdated } from '../../../lib/utils/businessUpdateEvents';
+
+/**
+ * GET /api/businesses/[id]
+ * Fetches a single business by ID or slug (public access)
+ */
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id: businessIdentifier } = await params;
+    
+    // Use optimized query function that handles both slug and ID lookups
+    const business = await fetchBusinessOptimized(businessIdentifier, req, false);
+    
+    if (!business) {
+      return NextResponse.json(
+        { error: 'Business not found' },
+        { status: 404 }
+      );
+    }
+    
+    return NextResponse.json(business);
+  } catch (error: any) {
+    console.error('[API] Error in GET business:', error);
+    return NextResponse.json(
+      { error: 'Internal server error', details: error.message },
+      { status: 500 }
+    );
+  }
+}
 
 /**
  * PUT /api/businesses/[id]
@@ -31,6 +62,13 @@ export async function PUT(
       .select('id, owner_id, slug')
       .eq('id', businessId)
       .single();
+
+    if (businessError || !business) {
+      return NextResponse.json(
+        { error: 'Business not found' },
+        { status: 404 }
+      );
+    }
 
     if (businessError || !business) {
       return NextResponse.json(
@@ -127,12 +165,6 @@ export async function PUT(
     }
 
     return response;
-
-    return NextResponse.json({
-      success: true,
-      business: updatedBusiness,
-      message: 'Business updated successfully',
-    });
   } catch (error: any) {
     console.error('[API] Error in PUT business:', error);
     return NextResponse.json(
@@ -168,7 +200,7 @@ export async function DELETE(
     // Verify user owns this business
     const { data: business, error: businessError } = await supabase
       .from('businesses')
-      .select('id, owner_id')
+      .select('id, owner_id, slug')
       .eq('id', businessId)
       .single();
 
@@ -208,7 +240,7 @@ export async function DELETE(
       const storagePaths = extractStoragePaths(businessData.uploaded_images);
 
       if (storagePaths.length > 0) {
-          const { STORAGE_BUCKETS } = await import('../../../../lib/utils/storageBucketConfig');
+          const { STORAGE_BUCKETS } = await import('@/app/lib/utils/storageBucketConfig');
           const { error: storageError } = await supabase.storage
             .from(STORAGE_BUCKETS.BUSINESS_IMAGES)
             .remove(storagePaths);

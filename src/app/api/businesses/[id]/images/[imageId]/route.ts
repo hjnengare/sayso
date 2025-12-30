@@ -83,7 +83,7 @@ export async function DELETE(
 
     // Delete from storage bucket (if path can be extracted)
     if (storagePath) {
-      const { STORAGE_BUCKETS } = await import('../../../../../../lib/utils/storageBucketConfig');
+      const { STORAGE_BUCKETS } = await import('@/app/lib/utils/storageBucketConfig');
       const { error: storageError } = await supabase.storage
         .from(STORAGE_BUCKETS.BUSINESS_IMAGES)
         .remove([storagePath]);

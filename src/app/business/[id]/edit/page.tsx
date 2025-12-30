@@ -25,6 +25,7 @@ import {
 import { PageLoader } from "../../../components/Loader";
 import Header from "../../../components/Header/Header";
 import { useRequireBusinessOwner } from "../../../hooks/useBusinessAccess";
+import { getBrowserSupabase } from "../../../lib/supabase/client";
 
 // CSS animations to match business profile page
 const animations = `
@@ -98,6 +99,8 @@ export default function BusinessEditPage() {
 
     const [isSaving, setIsSaving] = useState(false);
     const [uploadingImages, setUploadingImages] = useState(false);
+    const [deletingImageIndex, setDeletingImageIndex] = useState<number | null>(null);
+    const [reorderingImage, setReorderingImage] = useState<number | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -145,7 +148,7 @@ export default function BusinessEditPage() {
                         saturday: "",
                         sunday: "",
                     },
-                    images: data.images || [],
+                    images: data.uploaded_images || data.images || [], // Use uploaded_images array
                     specials: [], // Specials would need separate API endpoint
                 });
             } catch (err: any) {
@@ -179,27 +182,201 @@ export default function BusinessEditPage() {
         }));
     };
 
-    const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files;
-        if (files) {
-            setUploadingImages(true);
-            // Simulate upload
-            setTimeout(() => {
-                const newImages = Array.from(files).map(file => URL.createObjectURL(file));
+        if (!files || files.length === 0 || !businessId) return;
+
+        // Check image limit before uploading (max 10 images per business)
+        const MAX_IMAGES = 10;
+        const currentCount = formData.images.length;
+        const newCount = files.length;
+        
+        if (currentCount >= MAX_IMAGES) {
+            showToast(`Maximum image limit reached (${MAX_IMAGES} images). Please delete some images before adding new ones.`, 'error', 5000);
+            event.target.value = '';
+            return;
+        }
+        
+        if (currentCount + newCount > MAX_IMAGES) {
+            const remainingSlots = MAX_IMAGES - currentCount;
+            showToast(`You can only add ${remainingSlots} more image(s). Maximum limit is ${MAX_IMAGES} images per business.`, 'sage', 5000);
+            event.target.value = '';
+            return;
+        }
+
+        setUploadingImages(true);
+        try {
+            // Validate image files
+            const { validateImageFiles, getFirstValidationError } = await import('@/lib/utils/imageValidation');
+            const validationResults = validateImageFiles(Array.from(files));
+            const invalidFiles = validationResults.filter(r => !r.valid);
+            
+            if (invalidFiles.length > 0) {
+                const firstError = getFirstValidationError(Array.from(files));
+                if (firstError) {
+                    showToast(firstError, 'error', 6000);
+                } else {
+                    showToast('Some image files are invalid. Please upload only JPG, PNG, WebP, or GIF images under 5MB each.', 'error', 6000);
+                }
+                setUploadingImages(false);
+                event.target.value = '';
+                return;
+            }
+
+            const supabase = getBrowserSupabase();
+            const uploadedUrls: string[] = [];
+            const { STORAGE_BUCKETS } = await import('../../../lib/utils/storageBucketConfig');
+
+            // Upload each file (respecting the limit)
+            const filesToUpload = Array.from(files).slice(0, MAX_IMAGES - currentCount);
+            for (let i = 0; i < filesToUpload.length; i++) {
+                const file = filesToUpload[i];
+                const fileExt = file.name.split('.').pop() || 'jpg';
+                const timestamp = Date.now();
+                const fileName = `${businessId}_${Date.now()}_${i}.${fileExt}`;
+                const filePath = `${businessId}/${fileName}`;
+
+                // Upload to Supabase Storage
+                const { error: uploadError } = await supabase.storage
+                    .from(STORAGE_BUCKETS.BUSINESS_IMAGES)
+                    .upload(filePath, file, {
+                        contentType: file.type,
+                    });
+
+                if (uploadError) {
+                    console.error('[Edit Business] Error uploading image:', uploadError);
+                    showToast(`Failed to upload image ${i + 1}: ${uploadError.message}`, 'error', 5000);
+                    continue;
+                }
+
+                // Get public URL
+                const { data: { publicUrl } } = supabase.storage
+                    .from(STORAGE_BUCKETS.BUSINESS_IMAGES)
+                    .getPublicUrl(filePath);
+
+                if (publicUrl) {
+                    uploadedUrls.push(publicUrl);
+                }
+            }
+
+            if (uploadedUrls.length > 0) {
+                // Add images via API
+                const response = await fetch(`/api/businesses/${businessId}/images`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        images: uploadedUrls.map(url => ({ url }))
+                    }),
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to save images');
+                }
+
+                // Update local state
                 setFormData(prev => ({
                     ...prev,
-                    images: [...prev.images, ...newImages]
+                    images: [...prev.images, ...uploadedUrls]
                 }));
-                setUploadingImages(false);
-            }, 1000);
+
+                showToast(`Successfully uploaded ${uploadedUrls.length} image(s)!`, 'success', 3000);
+                
+                // Notify other components
+                const { notifyBusinessUpdated } = await import('../../../lib/utils/businessUpdateEvents');
+                notifyBusinessUpdated(businessId);
+            }
+        } catch (error: any) {
+            console.error('Error uploading images:', error);
+            showToast(error.message || 'Failed to upload images', 'error', 5000);
+        } finally {
+            setUploadingImages(false);
+            // Reset file input
+            event.target.value = '';
         }
     };
 
-    const removeImage = (index: number) => {
-        setFormData(prev => ({
-            ...prev,
-            images: prev.images.filter((_, i) => i !== index)
-        }));
+    const removeImage = async (index: number) => {
+        if (!businessId || index < 0 || index >= formData.images.length) return;
+
+        const imageUrl = formData.images[index];
+        if (!imageUrl) return;
+
+        setDeletingImageIndex(index);
+        try {
+            // Encode the image URL for the API
+            const encodedUrl = encodeURIComponent(imageUrl);
+            
+            const response = await fetch(`/api/businesses/${businessId}/images/${encodedUrl}`, {
+                method: 'DELETE',
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to delete image');
+            }
+
+            const result = await response.json();
+            
+            // Update local state
+            setFormData(prev => ({
+                ...prev,
+                images: prev.images.filter((_, i) => i !== index)
+            }));
+
+            showToast(result.message || 'Image deleted successfully', 'success', 3000);
+            
+            // Notify other components
+            const { notifyBusinessUpdated } = await import('../../../lib/utils/businessUpdateEvents');
+            notifyBusinessUpdated(businessId);
+        } catch (error: any) {
+            console.error('Error deleting image:', error);
+            showToast(error.message || 'Failed to delete image', 'error', 5000);
+        } finally {
+            setDeletingImageIndex(null);
+        }
+    };
+
+    const setAsPrimary = async (index: number) => {
+        if (!businessId || index < 0 || index >= formData.images.length || index === 0) return;
+
+        setReorderingImage(index);
+        try {
+            // Reorder images: move selected image to first position
+            const newImages = [...formData.images];
+            const [movedImage] = newImages.splice(index, 1);
+            newImages.unshift(movedImage);
+
+            // Update uploaded_images array directly via Supabase
+            const supabase = getBrowserSupabase();
+            const { error: updateError } = await supabase
+                .from('businesses')
+                .update({ uploaded_images: newImages })
+                .eq('id', businessId);
+
+            if (updateError) {
+                throw new Error(updateError.message || 'Failed to reorder images');
+            }
+
+            // Update local state
+            setFormData(prev => ({
+                ...prev,
+                images: newImages
+            }));
+
+            showToast('Primary image updated successfully!', 'success', 3000);
+            
+            // Notify other components
+            const { notifyBusinessUpdated } = await import('../../../lib/utils/businessUpdateEvents');
+            notifyBusinessUpdated(businessId);
+        } catch (error: any) {
+            console.error('Error reordering images:', error);
+            showToast(error.message || 'Failed to set primary image', 'error', 5000);
+        } finally {
+            setReorderingImage(null);
+        }
     };
 
     const addSpecial = () => {
@@ -412,7 +589,7 @@ export default function BusinessEditPage() {
                                 <div className="max-w-6xl mx-auto pt-8 pb-8">
                     <div className="space-y-6">
                         {/* Basic Information Section */}
-                        <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[20px] overflow-hidden backdrop-blur-md shadow-md px-2 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10 lg:px-12 lg:py-10 xl:px-16 xl:py-12 relative animate-fade-in-up animate-delay-100">
+                        <div className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[20px] overflow-hidden border border-white/50 backdrop-blur-md shadow-md ring-1 ring-white/20 px-2 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10 lg:px-12 lg:py-10 xl:px-16 xl:py-12 animate-fade-in-up animate-delay-100">
                             <div className="relative z-10">
                                 <h3 className="font-urbanist text-base font-600 text-charcoal mb-6 flex items-center gap-3">
                                     <span className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-sage/20 to-sage/10">
@@ -461,7 +638,7 @@ export default function BusinessEditPage() {
                         </div>
 
                         {/* Images Section */}
-                        <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[20px] overflow-hidden backdrop-blur-md shadow-md px-2 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10 lg:px-12 lg:py-10 xl:px-16 xl:py-12 relative animate-fade-in-up animate-delay-200">
+                        <div className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[20px] overflow-hidden border border-white/50 backdrop-blur-md shadow-md ring-1 ring-white/20 px-2 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10 lg:px-12 lg:py-10 xl:px-16 xl:py-12 animate-fade-in-up animate-delay-200">
                             <div className="relative z-10">
                                 <h3 className="font-urbanist text-base font-600 text-charcoal mb-6 flex items-center gap-3">
                                     <span className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-coral/20 to-coral/10">
@@ -473,39 +650,88 @@ export default function BusinessEditPage() {
                                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-6">
                                     {formData.images.map((image, index) => (
                                         <div key={index} className="relative group">
-                                            <div className="aspect-square rounded-lg overflow-hidden bg-white/20 border border-white/50">
-                                                <Image
-                                                    src={image}
-                                                    alt={`Business photo ${index + 1}`}
-                                                    width={200}
-                                                    height={200}
-                                                    className="w-full h-full object-cover"
-                                                />
+                                            <div className="aspect-square rounded-lg overflow-hidden bg-white/20 border border-white/50 relative">
+                                                {deletingImageIndex === index ? (
+                                                    <div className="w-full h-full flex items-center justify-center bg-charcoal/20">
+                                                        <PageLoader size="sm" variant="wavy" color="sage" />
+                                                    </div>
+                                                ) : (
+                                                    <Image
+                                                        src={image}
+                                                        alt={`Business photo ${index + 1}`}
+                                                        width={200}
+                                                        height={200}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                )}
+                                                {index === 0 && (
+                                                    <div className="absolute top-2 left-2 bg-sage text-white text-xs px-2 py-1 rounded-full font-semibold">
+                                                        Primary
+                                                    </div>
+                                                )}
                                             </div>
-                                            <button
-                                                onClick={() => removeImage(index)}
-                                                className="absolute top-2 right-2 w-7 h-7 bg-gradient-to-br from-charcoal to-charcoal/90 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110 border border-white/30 shadow-lg"
-                                                aria-label="Remove image"
-                                            >
-                                                <X className="w-4 h-4" strokeWidth={2.5} />
-                                            </button>
+                                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-200 rounded-lg flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
+                                                {index !== 0 && (
+                                                    <button
+                                                        onClick={() => setAsPrimary(index)}
+                                                        disabled={reorderingImage === index}
+                                                        className="bg-sage hover:bg-sage/90 text-white px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+                                                        aria-label="Set as primary image"
+                                                    >
+                                                        {reorderingImage === index ? (
+                                                            <>
+                                                                <PageLoader size="xs" variant="wavy" color="white" />
+                                                                <span>Setting...</span>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <Edit3 className="w-3 h-3" />
+                                                                <span>Set Primary</span>
+                                                            </>
+                                                        )}
+                                                    </button>
+                                                )}
+                                                <button
+                                                    onClick={() => removeImage(index)}
+                                                    disabled={deletingImageIndex === index}
+                                                    className="bg-gradient-to-br from-charcoal to-charcoal/90 hover:from-charcoal/90 hover:to-charcoal/80 text-white px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+                                                    aria-label="Remove image"
+                                                >
+                                                    {deletingImageIndex === index ? (
+                                                        <>
+                                                            <PageLoader size="xs" variant="wavy" color="white" />
+                                                            <span>Deleting...</span>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <X className="w-3 h-3" strokeWidth={2.5} />
+                                                            <span>Delete</span>
+                                                        </>
+                                                    )}
+                                                </button>
+                                            </div>
                                         </div>
                                     ))}
                                     
-                                    <label className="aspect-square rounded-lg border-2 border-dashed border-charcoal/30 flex items-center justify-center cursor-pointer hover:border-sage hover:bg-sage/5 transition-all duration-200">
-                                        <div className="text-center">
-                                            <Upload className="w-8 h-8 text-charcoal/60 mx-auto mb-2" />
-                                            <span className="font-urbanist text-sm text-charcoal/60">Add Photo</span>
-                                        </div>
-                                        <input
-                                            type="file"
-                                            multiple
-                                            accept="image/*"
-                                            onChange={handleImageUpload}
-                                            className="hidden"
-                                            disabled={uploadingImages}
-                                        />
-                                    </label>
+                                    {formData.images.length < 10 && (
+                                        <label className="aspect-square rounded-lg border-2 border-dashed border-charcoal/30 flex items-center justify-center cursor-pointer hover:border-sage hover:bg-sage/5 transition-all duration-200">
+                                            <div className="text-center">
+                                                <Upload className="w-8 h-8 text-charcoal/60 mx-auto mb-2" />
+                                                <span className="font-urbanist text-sm text-charcoal/60">Add Photo</span>
+                                                <span className="font-urbanist text-xs text-charcoal/40 block mt-1">
+                                                    {10 - formData.images.length} remaining
+                                                </span>
+                                            </div>
+                                            <input
+                                                type="file"
+                                                multiple
+                                                accept="image/*"
+                                                onChange={handleImageUpload}
+                                                className="hidden"
+                                                disabled={uploadingImages || formData.images.length >= 10}
+                                            />
+                                        </label>
+                                    )}
                                 </div>
 
                                 {uploadingImages && (
@@ -517,7 +743,7 @@ export default function BusinessEditPage() {
                         </div>
 
                         {/* Contact Information Section */}
-                        <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[20px] overflow-hidden backdrop-blur-md shadow-md px-2 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10 lg:px-12 lg:py-10 xl:px-16 xl:py-12 relative animate-fade-in-up animate-delay-300">
+                        <div className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[20px] overflow-hidden border border-white/50 backdrop-blur-md shadow-md ring-1 ring-white/20 px-2 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10 lg:px-12 lg:py-10 xl:px-16 xl:py-12 animate-fade-in-up animate-delay-300">
                             <div className="relative z-10">
                                 <h3 className="font-urbanist text-base font-600 text-charcoal mb-6 flex items-center gap-3">
                                     <span className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-coral/20 to-coral/10">
@@ -603,7 +829,7 @@ export default function BusinessEditPage() {
                         </div>
 
                         {/* Business Hours Section */}
-                        <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[20px] overflow-hidden backdrop-blur-md shadow-md px-2 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10 lg:px-12 lg:py-10 xl:px-16 xl:py-12 relative animate-fade-in-up">
+                        <div className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[20px] overflow-hidden border border-white/50 backdrop-blur-md shadow-md ring-1 ring-white/20 px-2 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10 lg:px-12 lg:py-10 xl:px-16 xl:py-12 animate-fade-in-up">
                             <div className="relative z-10">
                                 <h3 className="font-urbanist text-base font-600 text-charcoal mb-6 flex items-center gap-3">
                                     <span className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-sage/20 to-sage/10">
@@ -630,7 +856,7 @@ export default function BusinessEditPage() {
                         </div>
 
                         {/* Specials Section */}
-                        <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[20px] overflow-hidden backdrop-blur-md shadow-md px-2 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10 lg:px-12 lg:py-10 xl:px-16 xl:py-12 relative animate-fade-in-up">
+                        <div className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[20px] overflow-hidden border border-white/50 backdrop-blur-md shadow-md ring-1 ring-white/20 px-2 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10 lg:px-12 lg:py-10 xl:px-16 xl:py-12 animate-fade-in-up">
                             <div className="relative z-10">
                                 <div className="flex items-center justify-between mb-6">
                                     <h3 className="font-urbanist text-base font-600 text-charcoal flex items-center gap-3">

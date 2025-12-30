@@ -4,7 +4,7 @@
 import { useRef, useState, useEffect, useLayoutEffect, useCallback, Fragment } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { createPortal } from "react-dom";
-import { User, X, ChevronDown, Compass, Bookmark, Bell, Edit, MessageCircle, Briefcase } from "react-feather";
+import { User, X, ChevronDown, Compass, Bookmark, Bell, Edit, MessageCircle } from "react-feather";
 import FilterModal, { FilterState } from "../FilterModal/FilterModal";
 import SearchInput from "../SearchInput/SearchInput";
 import { useSavedItems } from "../../contexts/SavedItemsContext";
@@ -453,24 +453,6 @@ export default function Header({
                 );
               })}
 
-              {/* Business Owner Links (desktop) - Only show for authenticated business owners */}
-              {!isCheckingBusinessOwner && isBusinessOwner && (
-                <OptimizedLink
-                  href="/owners"
-                  className={`group capitalize px-2.5 lg:px-3.5 py-1.5 rounded-lg text-sm sm:text-xs sm:text-sm md:text-sm sm:text-xs lg:text-sm sm:text-xs font-semibold transition-all duration-200 relative flex items-center gap-1.5 ${
-                    pathname?.startsWith('/owners')
-                      ? 'text-sage'
-                      : whiteText
-                        ? 'text-white hover:text-white/90 hover:bg-white/10'
-                        : 'text-charcoal/90 md:text-charcoal/95 hover:text-sage hover:bg-sage/5'
-                  }`}
-                  style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
-                >
-                  <Briefcase className="w-4 h-4" />
-                  <span className="relative z-10">My Businesses</span>
-                </OptimizedLink>
-              )}
-
               {/* For Businesses Link (desktop) */}
               <OptimizedLink
                 href="/for-businesses"
@@ -702,28 +684,13 @@ export default function Header({
             <div className="h-px bg-charcoal/10 my-2 mx-3" />
             
             <div className="space-y-1">
-              {/* Business Owner Link (mobile) - Only show for authenticated business owners */}
-              {!isCheckingBusinessOwner && isBusinessOwner && (
-                <OptimizedLink
-                  href="/owners"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`px-3 py-2 rounded-lg text-base font-normal text-white hover:text-white flex items-center gap-2 justify-start transition-colors duration-200 min-h-[44px] ${mobileRevealClass}`}
-                  style={{
-                    fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
-                    transitionDelay: `${(primaryCount + discoverCount + 1) * 60}ms`,
-                  }}
-                >
-                  <Briefcase className="w-5 h-5" />
-                  <span className="text-left">My Businesses</span>
-                </OptimizedLink>
-              )}
               <OptimizedLink
                 href="/for-businesses"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className={`px-3 py-2 rounded-lg text-base font-normal text-white hover:text-white flex items-center justify-start transition-colors duration-200 min-h-[44px] ${mobileRevealClass}`}
                 style={{
                   fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
-                  transitionDelay: `${(primaryCount + discoverCount + (isBusinessOwner ? 2 : 1)) * 60}ms`,
+                  transitionDelay: `${(primaryCount + discoverCount + 1) * 60}ms`,
                 }}
               >
                 <span className="text-left">For Businesses</span>

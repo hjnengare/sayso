@@ -594,7 +594,14 @@ export default function AddBusinessPage() {
                 throw new Error(errorMessage);
             }
 
+            // CRITICAL FIX: Validate business ID from API response
+            if (!data.business || !data.business.id) {
+                console.error('[Add Business] Business ID missing from API response:', data);
+                throw new Error('Business was created but ID is missing. Please try again.');
+            }
+
             const businessId = data.business.id;
+            console.log(`[Add Business] Business created successfully with ID: ${businessId}`);
 
             // Upload images if any were selected
             if (images.length > 0) {
@@ -642,8 +649,6 @@ export default function AddBusinessPage() {
                             console.error('[Add Business] Error uploading image:', uploadError);
                             console.error('[Add Business] Upload error details:', {
                                 message: uploadError.message,
-                                statusCode: uploadError.statusCode,
-                                error: uploadError.error,
                                 filePath,
                                 bucket: STORAGE_BUCKETS.BUSINESS_IMAGES,
                             });
@@ -691,30 +696,10 @@ export default function AddBusinessPage() {
                     if (uploadedUrls.length > 0) {
                         console.log(`[Add Business] Preparing to save ${uploadedUrls.length} image URLs to database...`);
                         try {
-                            // CRITICAL FIX: Verify business still exists before saving URLs
-                            // Prevents orphaned URLs if business was deleted during upload
-                            const { data: businessCheck, error: businessCheckError } = await supabase
-                                .from('businesses')
-                                .select('id')
-                                .eq('id', businessId)
-                                .single();
-
-                            if (businessCheckError || !businessCheck) {
-                                console.error('[Add Business] Business not found during image save:', businessCheckError);
-                                
-                                // Business was deleted - cleanup storage files
-                                const { extractStoragePaths } = await import('../../lib/utils/storagePathExtraction');
-                                const storagePaths = extractStoragePaths(uploadedUrls);
-                                
-                                if (storagePaths.length > 0) {
-                                    await supabase.storage
-                                        .from(STORAGE_BUCKETS.BUSINESS_IMAGES)
-                                        .remove(storagePaths);
-                                    console.log(`[Add Business] Cleaned up ${storagePaths.length} storage files - business was deleted`);
-                                }
-                                
-                                showToast('Something went wrong while saving your business. The uploaded images have been removed. Please try creating your business again.', 'error', 6000);
-                                return;
+                            // CRITICAL FIX: Validate businessId before proceeding
+                            if (!businessId) {
+                                console.error('[Add Business] Missing businessId before saving images.');
+                                throw new Error('Missing businessId. Cannot save images.');
                             }
 
                             // Check image limit (max 10 images per business)
@@ -735,24 +720,10 @@ export default function AddBusinessPage() {
                                 showToast(`You can upload up to ${MAX_IMAGES} images per business. Only the first ${MAX_IMAGES} images were saved. You can delete images later to add new ones.`, 'sage', 5000);
                             }
 
-                            // Update business with uploaded_images array
-                            // First image in array is the primary/cover image
+                            // CRITICAL FIX: Use business ID directly from API response - NO REFETCH NEEDED
+                            // The business was just created and returned by the API, so we can trust the ID
                             console.log(`[Add Business] Saving ${uploadedUrls.length} image URLs to database for business ${businessId}`);
                             console.log('[Add Business] Image URLs to save:', uploadedUrls);
-                            
-                            // First verify business exists and get current state
-                            const { data: currentBusiness, error: fetchError } = await supabase
-                                .from('businesses')
-                                .select('id, uploaded_images')
-                                .eq('id', businessId)
-                                .single();
-                            
-                            if (fetchError || !currentBusiness) {
-                                console.error('[Add Business] Business not found when trying to save images:', fetchError);
-                                throw new Error('Business not found. Cannot save images.');
-                            }
-                            
-                            console.log('[Add Business] Current business state:', currentBusiness);
                             
                             const { data: updatedBusiness, error: imagesError } = await supabase
                                 .from('businesses')
@@ -770,13 +741,16 @@ export default function AddBusinessPage() {
                                     hint: imagesError.hint,
                                     businessId,
                                     uploadedUrlsCount: uploadedUrls.length,
-                                    currentBusinessState: currentBusiness,
+                                    errorObject: JSON.stringify(imagesError, null, 2),
                                 });
                                 
                                 // Check if it's a column error
                                 if (imagesError.message?.includes('column') || imagesError.message?.includes('does not exist')) {
                                     console.error('[Add Business] CRITICAL: uploaded_images column may not exist in database!');
-                                    showToast('Database configuration error. Please contact support.', 'error', 6000);
+                                    showToast('Database configuration error. The uploaded_images column may not exist. Please contact support.', 'error', 6000);
+                                } else if (imagesError.message?.includes('row-level security') || imagesError.message?.includes('RLS') || imagesError.message?.includes('policy')) {
+                                    console.error('[Add Business] CRITICAL: RLS policy blocking UPDATE on businesses table!');
+                                    showToast('Permission denied. Please make sure you\'re logged in and try again. If the problem persists, contact support.', 'error', 6000);
                                 }
                                 
                                 // CRITICAL FIX: Clean up orphaned storage files on DB update failure
