@@ -8,7 +8,8 @@ export const runtime = 'nodejs';
 /**
  * DELETE /api/businesses/[id]/images/[imageId]
  * Delete a business image (requires business owner authentication)
- * Deletes from both storage bucket and database, and promotes next image if primary was deleted
+ * imageId is the URL of the image to delete (URL-encoded)
+ * Deletes from both storage bucket and uploaded_images array
  */
 export async function DELETE(
   req: NextRequest,
@@ -28,10 +29,10 @@ export async function DELETE(
       );
     }
 
-    // Verify user owns this business (check both business_owners and businesses.owner_id)
+    // Verify user owns this business
     const { data: business, error: businessError } = await supabase
       .from('businesses')
-      .select('id, owner_id')
+      .select('id, owner_id, uploaded_images')
       .eq('id', businessId)
       .single();
 
@@ -42,7 +43,7 @@ export async function DELETE(
       );
     }
 
-    // Check ownership via business_owners table or owner_id
+    // Check ownership
     const { data: ownerCheck } = await supabase
       .from('business_owners')
       .select('id')
@@ -59,28 +60,32 @@ export async function DELETE(
       );
     }
 
-    // Get image details before deletion (need URL for storage deletion and is_primary for promotion)
-    const { data: imageData, error: imageCheckError } = await supabase
-      .from('business_images')
-      .select('id, business_id, url, is_primary')
-      .eq('id', imageId)
-      .eq('business_id', businessId)
-      .single();
+    // Decode the imageId (which is the URL)
+    const imageUrl = decodeURIComponent(imageId);
 
-    if (imageCheckError || !imageData) {
+    // Check if image exists in uploaded_images array
+    const uploadedImages = business.uploaded_images && Array.isArray(business.uploaded_images)
+      ? business.uploaded_images
+      : [];
+
+    const imageIndex = uploadedImages.indexOf(imageUrl);
+    if (imageIndex === -1) {
       return NextResponse.json(
-        { error: 'Image not found or does not belong to this business' },
+        { error: 'Image not found in business images' },
         { status: 404 }
       );
     }
 
-    // Extract storage path from URL using robust extraction utility
-    const storagePath = extractStoragePath(imageData.url);
+    const wasPrimary = imageIndex === 0;
+
+    // Extract storage path from URL
+    const storagePath = extractStoragePath(imageUrl);
 
     // Delete from storage bucket (if path can be extracted)
     if (storagePath) {
+      const { STORAGE_BUCKETS } = await import('../../../../../../lib/utils/storageBucketConfig');
       const { error: storageError } = await supabase.storage
-        .from('business-images')
+        .from(STORAGE_BUCKETS.BUSINESS_IMAGES)
         .remove([storagePath]);
 
       if (storageError) {
@@ -90,29 +95,31 @@ export async function DELETE(
         console.log(`[API] Successfully deleted storage file: ${storagePath}`);
       }
     } else {
-      console.warn('[API] Could not extract storage path from URL, skipping storage deletion:', imageData.url);
+      console.warn('[API] Could not extract storage path from URL, skipping storage deletion:', imageUrl);
     }
 
-    // Delete from database (trigger will automatically promote next image if this was primary)
-    const { error: deleteError } = await supabase
-      .from('business_images')
-      .delete()
-      .eq('id', imageId)
-      .eq('business_id', businessId);
+    // Remove image from uploaded_images array
+    const updatedImages = uploadedImages.filter((url: string) => url !== imageUrl);
 
-    if (deleteError) {
-      console.error('[API] Error deleting business image from database:', deleteError);
+    // Update business with updated uploaded_images array
+    const { error: updateError } = await supabase
+      .from('businesses')
+      .update({ uploaded_images: updatedImages })
+      .eq('id', businessId);
+
+    if (updateError) {
+      console.error('[API] Error updating business images:', updateError);
       return NextResponse.json(
-        { error: 'Failed to delete image', details: deleteError.message },
+        { error: 'Failed to delete image', details: updateError.message },
         { status: 500 }
       );
     }
 
     return NextResponse.json({ 
       success: true,
-      was_primary: imageData.is_primary,
-      message: imageData.is_primary 
-        ? 'Primary image deleted. Next image has been automatically promoted.' 
+      was_primary: wasPrimary,
+      message: wasPrimary && updatedImages.length > 0
+        ? 'Primary image deleted. Next image is now the primary image.' 
         : 'Image deleted successfully.'
     });
   } catch (error: any) {
@@ -123,4 +130,3 @@ export async function DELETE(
     );
   }
 }
-

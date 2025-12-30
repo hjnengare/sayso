@@ -208,7 +208,7 @@ export class ImageUploadService {
       case 'review':
         return `review-images/${id}_${index || 0}_${timestamp}.webp`;
       case 'business':
-        return `business-images/${id}_${timestamp}.webp`;
+        return `business_images/${id}_${timestamp}.webp`;
       case 'avatar':
         return `avatars/${id}_${timestamp}.webp`;
       default:

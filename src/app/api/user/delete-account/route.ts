@@ -58,8 +58,52 @@ export async function DELETE(req: Request) {
       // Continue with account deletion even if storage deletion fails
     }
 
+    // Delete business images from storage
+    // Note: Businesses will be cascade deleted when user is deleted,
+    // but we need to clean up storage files first
+    try {
+      const { data: businesses } = await supabase
+        .from('businesses')
+        .select('id, uploaded_images')
+        .eq('owner_id', user.id);
+
+      if (businesses && businesses.length > 0) {
+        const { extractStoragePaths } = await import('../../../../lib/utils/storagePathExtraction');
+        const allImageUrls: string[] = [];
+
+        // Collect all image URLs from uploaded_images arrays
+        for (const business of businesses) {
+          if (business.uploaded_images && Array.isArray(business.uploaded_images)) {
+            allImageUrls.push(...business.uploaded_images);
+          }
+        }
+
+        if (allImageUrls.length > 0) {
+          const storagePaths = extractStoragePaths(allImageUrls);
+
+          if (storagePaths.length > 0) {
+            const { STORAGE_BUCKETS } = await import('../../../../lib/utils/storageBucketConfig');
+            const { error: storageError } = await supabase.storage
+              .from(STORAGE_BUCKETS.BUSINESS_IMAGES)
+              .remove(storagePaths);
+
+            if (storageError) {
+              console.warn('Error deleting business images from storage (continuing with account deletion):', storageError);
+              // Continue with account deletion even if storage deletion fails
+            } else {
+              console.log(`Deleted ${storagePaths.length} business image files for user ${user.id}`);
+            }
+          }
+        }
+      }
+    } catch (storageError) {
+      console.error('Error deleting business images:', storageError);
+      // Continue with account deletion even if storage deletion fails
+    }
+
     // Delete the user from auth.users
-    // This will cascade delete all related data in profiles, user_interests, reviews, etc.
+    // This will cascade delete all related data in profiles, user_interests, reviews, businesses, etc.
+    // Note: Businesses owned by the user will be cascade deleted along with their images, stats, etc.
     const { error } = await supabase.rpc('delete_user_account', {
       p_user_id: user.id
     });

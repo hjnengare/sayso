@@ -143,14 +143,11 @@ interface BusinessRPCResult {
 
 const BUSINESS_SELECT = `
   id, name, description, category, interest_id, sub_interest_id, location, address,
-  phone, email, website, image_url, uploaded_image,
+  phone, email, website, image_url, uploaded_image, uploaded_images,
   verified, price_range, badge, slug, latitude, longitude,
   created_at, updated_at,
   business_stats (
     total_reviews, average_rating, percentiles
-  ),
-  business_images (
-    id, url, type, sort_order, is_primary, created_at
   )
 `;
 
@@ -390,13 +387,10 @@ export async function GET(req: Request) {
         .from('businesses')
         .select(`
           id, name, description, category, interest_id, sub_interest_id, location, address, 
-          phone, email, website, image_url, uploaded_image,
+          phone, email, website, image_url, uploaded_image, uploaded_images,
           verified, price_range, badge, slug, created_at, updated_at,
           business_stats (
             total_reviews, average_rating, percentiles
-          ),
-          business_images (
-            id, url, type, sort_order, is_primary, created_at
           )
         `);
 
@@ -501,7 +495,7 @@ export async function GET(req: Request) {
           total_reviews: b.business_stats?.[0]?.total_reviews || 0,
           average_rating: b.business_stats?.[0]?.average_rating || 0,
           percentiles: b.business_stats?.[0]?.percentiles || null,
-          business_images: b.business_images || [], // Include business_images array
+          uploaded_images: b.uploaded_images || [], // Include uploaded_images array
           distance_km: distanceKm,
           cursor_id: b.id,
           cursor_created_at: b.created_at,

@@ -265,6 +265,13 @@ export default function BusinessEditPage() {
             const result = await response.json();
             showToast('Business updated successfully!', 'success', 2000);
             
+            // Notify other components about the update
+            const { notifyBusinessUpdated } = await import('../../../lib/utils/businessUpdateEvents');
+            notifyBusinessUpdated(businessId);
+            
+            // Invalidate Next.js router cache and redirect
+            router.refresh(); // Invalidate all cached data
+            
             // Redirect to business page after short delay
             setTimeout(() => {
                 router.push(`/business/${businessId}`);

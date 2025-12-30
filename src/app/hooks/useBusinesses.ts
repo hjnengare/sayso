@@ -2,9 +2,10 @@
  * Hook to fetch businesses from the API
  */
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Business } from '../components/BusinessCard/BusinessCard';
 import { useUserPreferences } from './useUserPreferences';
+import { businessUpdateEvents } from '../lib/utils/businessUpdateEvents';
 
 export interface UseBusinessesOptions {
   limit?: number;
@@ -44,7 +45,7 @@ export function useBusinesses(options: UseBusinessesOptions = {}): UseBusinesses
   const [loading, setLoading] = useState(!options.skip);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchBusinesses = async () => {
+  const fetchBusinesses = useCallback(async () => {
     if (options.skip) {
       setLoading(false);
       return;
@@ -116,15 +117,8 @@ export function useBusinesses(options: UseBusinessesOptions = {}): UseBusinesses
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    if (options.skip) {
-      setLoading(false);
-      return;
-    }
-    fetchBusinesses();
   }, [
+    options.skip,
     options.limit,
     options.category,
     options.sortBy,
@@ -133,19 +127,47 @@ export function useBusinesses(options: UseBusinessesOptions = {}): UseBusinesses
     options.badge,
     options.location,
     options.priceRange,
-    options.interestIds?.join(','), // Include interestIds in dependency array
+    options.interestIds?.join(','),
     options.priceRanges?.join(','),
     options.dealbreakerIds?.join(','),
     options.feedStrategy,
-    options.skip,
     options.minRating,
     options.radius,
     options.radiusKm,
     options.latitude,
     options.longitude,
-    options.searchQuery, // Include search query in dependencies
-    options.sort, // Include sort in dependencies
+    options.searchQuery,
+    options.sort,
   ]);
+
+  useEffect(() => {
+    if (options.skip) {
+      setLoading(false);
+      return;
+    }
+    fetchBusinesses();
+  }, [fetchBusinesses, options.skip]);
+
+  // Listen for business update events and refetch
+  useEffect(() => {
+    if (options.skip) return;
+
+    const unsubscribeUpdate = businessUpdateEvents.onUpdate(() => {
+      // Refetch businesses when any business is updated
+      // This ensures listing pages show updated data
+      fetchBusinesses();
+    });
+
+    const unsubscribeDelete = businessUpdateEvents.onDelete((deletedBusinessId: string) => {
+      // Remove deleted business from state immediately
+      setBusinesses(prev => prev.filter(b => b.id !== deletedBusinessId));
+    });
+
+    return () => {
+      unsubscribeUpdate();
+      unsubscribeDelete();
+    };
+  }, [options.skip, fetchBusinesses]);
 
   return {
     businesses,

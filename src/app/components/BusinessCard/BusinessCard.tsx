@@ -20,14 +20,6 @@ type Percentiles = {
   trustworthiness?: number;
 };
 
-type BusinessImage = {
-  id: string;
-  url: string;
-  type: 'cover' | 'logo' | 'gallery';
-  sort_order: number;
-  is_primary: boolean;
-};
-
 type Business = {
   id: string;
   slug?: string;
@@ -36,7 +28,7 @@ type Business = {
   image_url?: string;
   uploaded_image?: string;
   uploadedImage?: string;
-  business_images?: BusinessImage[]; // New: array of images from business_images table
+  uploaded_images?: string[]; // Array of image URLs from uploaded_images field
   alt: string;
   category: string;
   subInterestId?: string;
@@ -239,18 +231,17 @@ function BusinessCard({
     business.subInterestLabel || formatCategoryLabel(categoryKey);
 
   const getDisplayImage = useMemo(() => {
-    // Priority 1: Check business_images table (new source of truth)
-    // Get primary image first, then first image if no primary
-    if (business.business_images && Array.isArray(business.business_images) && business.business_images.length > 0) {
-      const primaryImage = business.business_images.find(img => img.is_primary);
-      const firstImage = primaryImage || business.business_images[0];
+    // Priority 1: Check uploaded_images array (new source of truth)
+    // First image in array is the primary/cover image
+    if (business.uploaded_images && Array.isArray(business.uploaded_images) && business.uploaded_images.length > 0) {
+      const firstImageUrl = business.uploaded_images[0];
       
-      if (firstImage && firstImage.url && 
-          typeof firstImage.url === 'string' && 
-          firstImage.url.trim() !== '' &&
-          !isPngIcon(firstImage.url) &&
-          !firstImage.url.includes('/png/')) {
-        return { image: firstImage.url, isPng: false };
+      if (firstImageUrl && 
+          typeof firstImageUrl === 'string' && 
+          firstImageUrl.trim() !== '' &&
+          !isPngIcon(firstImageUrl) &&
+          !firstImageUrl.includes('/png/')) {
+        return { image: firstImageUrl, isPng: false };
       }
     }
 
@@ -284,7 +275,7 @@ function BusinessCard({
     const categoryPng = getCategoryPngFromLabels([business.subInterestId, business.subInterestLabel, business.category, categoryKey]);
     return { image: categoryPng, isPng: true };
   }, [
-    business.business_images,
+    business.uploaded_images,
     business.uploaded_image,
     business.uploadedImage,
     business.image_url,

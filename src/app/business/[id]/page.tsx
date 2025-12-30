@@ -144,6 +144,12 @@ export default function BusinessProfilePage() {
             if (!response.ok) {
                 if (response.status === 404) {
                     setError('Business not found');
+                    // Business might have been deleted - emit deletion event
+                    import('../../lib/utils/businessUpdateEvents').then(({ notifyBusinessDeleted }) => {
+                        notifyBusinessDeleted(businessId);
+                    }).catch(err => {
+                        console.error('Error emitting deletion event:', err);
+                    });
                 } else {
                     setError('Failed to load business');
                 }
@@ -177,6 +183,57 @@ export default function BusinessProfilePage() {
     useEffect(() => {
         fetchBusiness();
     }, [businessId, router]);
+
+    // Refetch when page becomes visible (e.g., returning from edit page)
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible' && businessId) {
+                // Small delay to ensure edit page has finished redirecting
+                setTimeout(() => {
+                    fetchBusiness(true);
+                }, 100);
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        
+        // Also refetch on focus (when user returns to tab)
+        const handleFocus = () => {
+            if (businessId) {
+                fetchBusiness(true);
+            }
+        };
+        
+        window.addEventListener('focus', handleFocus);
+
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('focus', handleFocus);
+        };
+    }, [businessId]);
+
+    // Listen for business deletion events
+    useEffect(() => {
+        let unsubscribe: (() => void) | undefined;
+        
+        import('../../lib/utils/businessUpdateEvents').then(({ businessUpdateEvents }) => {
+            unsubscribe = businessUpdateEvents.onDelete((deletedBusinessId: string) => {
+                // If this business was deleted, redirect to home
+                if (deletedBusinessId === businessId) {
+                    showToast('This business has been deleted', 'sage', 3000);
+                    setTimeout(() => {
+                        router.push('/home');
+                    }, 1000);
+                }
+            });
+        }).catch(err => {
+            console.error('Error loading business update events:', err);
+        });
+
+        return () => {
+            if (unsubscribe) unsubscribe();
+        };
+    }, [businessId, router, showToast]);
 
     // Refetch function for after delete
     const refetchBusiness = () => {
@@ -231,23 +288,15 @@ export default function BusinessProfilePage() {
     // Check if current user is the business owner
     const isBusinessOwner = user && business.owner_id && user.id === business.owner_id;
 
-    // Prepare image data - prioritize business_images table, fallback to legacy fields
+    // Prepare image data - prioritize uploaded_images array, fallback to legacy fields
     let allImages: string[] = [];
     let primaryImage = '';
     
-    // Use business_images table if available (new structure)
-    if (business.business_images && Array.isArray(business.business_images) && business.business_images.length > 0) {
-        // Get primary image first, then others ordered by sort_order
-        const primaryImg = business.business_images.find((img: any) => img.is_primary);
-        const otherImages = business.business_images
-            .filter((img: any) => !img.is_primary)
-            .sort((a: any, b: any) => (a.sort_order || 0) - (b.sort_order || 0));
-        
-        allImages = [
-            ...(primaryImg ? [primaryImg.url] : []),
-            ...otherImages.map((img: any) => img.url)
-        ].filter((url: string) => url && url.trim() !== '' && !isPngIcon(url));
-        
+    // Use uploaded_images array if available (new structure)
+    // First image in array is the primary/cover image
+    if (business.uploaded_images && Array.isArray(business.uploaded_images) && business.uploaded_images.length > 0) {
+        allImages = business.uploaded_images
+            .filter((url: string) => url && typeof url === 'string' && url.trim() !== '' && !isPngIcon(url));
         primaryImage = allImages[0] || '';
     } else {
         // Fallback to legacy fields for backward compatibility
@@ -311,7 +360,7 @@ export default function BusinessProfilePage() {
         rating: business.stats?.average_rating || 0,
         image: primaryImage,
         images: galleryImages,
-        business_images: business.business_images || [], // Preserve business_images array
+        uploaded_images: business.uploaded_images || [], // Preserve uploaded_images array
         uploaded_image: business.uploaded_image || business.uploadedImage || null, // Preserve for backward compatibility
         trust: business.trust || business.stats?.percentiles?.trustworthiness || 85,
         punctuality: business.punctuality || business.stats?.percentiles?.punctuality || 85,

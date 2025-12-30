@@ -42,6 +42,59 @@ export default function OwnersPage() {
     fetchBusinesses();
   }, [user, authLoading, router]);
 
+  // Refetch when page becomes visible (e.g., returning from edit page)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && user) {
+        // Small delay to ensure edit page has finished redirecting
+        setTimeout(async () => {
+          try {
+            const ownedBusinesses = await BusinessOwnershipService.getBusinessesForOwner(user.id);
+            setBusinesses(ownedBusinesses);
+          } catch (error) {
+            console.error('Error refetching businesses:', error);
+          }
+        }, 100);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    // Also refetch on focus (when user returns to tab)
+    const handleFocus = () => {
+      if (user) {
+        BusinessOwnershipService.getBusinessesForOwner(user.id)
+          .then(setBusinesses)
+          .catch(error => console.error('Error refetching businesses:', error));
+      }
+    };
+    
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [user]);
+
+  // Listen for business deletion events and remove from list
+  useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
+    
+    import('../lib/utils/businessUpdateEvents').then(({ businessUpdateEvents }) => {
+      unsubscribe = businessUpdateEvents.onDelete((deletedBusinessId: string) => {
+        // Remove deleted business from the list immediately
+        setBusinesses(prev => prev.filter(b => b.id !== deletedBusinessId));
+      });
+    }).catch(err => {
+      console.error('Error loading business update events:', err);
+    });
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, []);
+
   if (authLoading || isLoading) {
     return <PageLoader size="lg" variant="wavy" color="sage" />;
   }

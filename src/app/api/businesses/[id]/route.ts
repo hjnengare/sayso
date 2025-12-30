@@ -1,5 +1,146 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSupabase } from '../../../lib/supabase/server';
+import { invalidateBusinessCache } from '../../../lib/utils/optimizedQueries';
+import { notifyBusinessUpdated } from '../../../lib/utils/businessUpdateEvents';
+
+/**
+ * PUT /api/businesses/[id]
+ * Updates business details (requires business owner authentication)
+ */
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id: businessId } = await params;
+    const supabase = await getServerSupabase(req);
+
+    // Get authenticated user
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    // Verify user owns this business
+    const { data: business, error: businessError } = await supabase
+      .from('businesses')
+      .select('id, owner_id, slug')
+      .eq('id', businessId)
+      .single();
+
+    if (businessError || !business) {
+      return NextResponse.json(
+        { error: 'Business not found' },
+        { status: 404 }
+      );
+    }
+
+    // Check ownership
+    const { data: ownerCheck } = await supabase
+      .from('business_owners')
+      .select('id')
+      .eq('business_id', businessId)
+      .eq('user_id', user.id)
+      .single();
+
+    const isOwner = ownerCheck || business.owner_id === user.id;
+
+    if (!isOwner) {
+      return NextResponse.json(
+        { error: 'You do not have permission to update this business' },
+        { status: 403 }
+      );
+    }
+
+    // Parse request body
+    const body = await req.json();
+    const {
+      name,
+      description,
+      category,
+      address,
+      phone,
+      email,
+      website,
+      priceRange,
+      hours,
+    } = body;
+
+    // Build update object (only include provided fields)
+    const updateData: any = {
+      updated_at: new Date().toISOString(),
+    };
+
+    if (name !== undefined) updateData.name = name.trim();
+    if (description !== undefined) updateData.description = description?.trim() || null;
+    if (category !== undefined) updateData.category = category.trim();
+    if (address !== undefined) updateData.address = address?.trim() || null;
+    if (phone !== undefined) updateData.phone = phone?.trim() || null;
+    if (email !== undefined) updateData.email = email?.trim() || null;
+    if (website !== undefined) updateData.website = website?.trim() || null;
+    if (priceRange !== undefined) updateData.price_range = priceRange;
+    if (hours !== undefined) updateData.hours = hours;
+
+    // Update business
+    const { data: updatedBusiness, error: updateError } = await supabase
+      .from('businesses')
+      .update(updateData)
+      .eq('id', businessId)
+      .select('id, slug')
+      .single();
+
+    if (updateError) {
+      console.error('[API] Error updating business:', updateError);
+      return NextResponse.json(
+        { error: 'Failed to update business', details: updateError.message },
+        { status: 500 }
+      );
+    }
+
+    // Invalidate cache for this business
+    try {
+      invalidateBusinessCache(businessId, business.slug || undefined);
+    } catch (cacheError) {
+      // Log but don't fail - cache invalidation is non-critical
+      console.warn('[API] Error invalidating cache:', cacheError);
+    }
+
+    // Note: notifyBusinessUpdated is client-side only, so we'll handle it in the edit page
+    // The response headers will signal the client to trigger the event
+
+    // Return response with cache invalidation headers
+    const response = NextResponse.json({
+      success: true,
+      business: updatedBusiness,
+      message: 'Business updated successfully',
+    });
+
+    // Add headers to signal clients to refresh
+    response.headers.set('X-Business-Updated', 'true');
+    response.headers.set('X-Business-Id', businessId);
+    if (business.slug) {
+      response.headers.set('X-Business-Slug', business.slug);
+    }
+
+    return response;
+
+    return NextResponse.json({
+      success: true,
+      business: updatedBusiness,
+      message: 'Business updated successfully',
+    });
+  } catch (error: any) {
+    console.error('[API] Error in PUT business:', error);
+    return NextResponse.json(
+      { error: 'Internal server error', details: error.message },
+      { status: 500 }
+    );
+  }
+}
 
 /**
  * DELETE /api/businesses/[id]
@@ -56,19 +197,21 @@ export async function DELETE(
     }
 
     // CRITICAL FIX: Delete storage files before deleting business
-    const { data: images, error: imagesError } = await supabase
-      .from('business_images')
-      .select('url')
-      .eq('business_id', businessId);
+    const { data: businessData, error: businessDataError } = await supabase
+      .from('businesses')
+      .select('uploaded_images')
+      .eq('id', businessId)
+      .single();
 
-    if (images && images.length > 0) {
+    if (businessData && businessData.uploaded_images && Array.isArray(businessData.uploaded_images) && businessData.uploaded_images.length > 0) {
       const { extractStoragePaths } = await import('../../../../lib/utils/storagePathExtraction');
-      const storagePaths = extractStoragePaths(images.map(img => img.url));
+      const storagePaths = extractStoragePaths(businessData.uploaded_images);
 
       if (storagePaths.length > 0) {
-        const { error: storageError } = await supabase.storage
-          .from('business-images')
-          .remove(storagePaths);
+          const { STORAGE_BUCKETS } = await import('../../../../lib/utils/storageBucketConfig');
+          const { error: storageError } = await supabase.storage
+            .from(STORAGE_BUCKETS.BUSINESS_IMAGES)
+            .remove(storagePaths);
 
         if (storageError) {
           console.warn('[API] Error deleting storage files (continuing with business deletion):', storageError);
@@ -93,10 +236,25 @@ export async function DELETE(
       );
     }
 
-    return NextResponse.json({
+    // Invalidate cache for this business
+    try {
+      invalidateBusinessCache(businessId, business.slug || undefined);
+    } catch (cacheError) {
+      // Log but don't fail - cache invalidation is non-critical
+      console.warn('[API] Error invalidating cache:', cacheError);
+    }
+
+    // Return response with deletion headers
+    const response = NextResponse.json({
       success: true,
       message: 'Business and all associated images deleted successfully.',
     });
+
+    // Add headers to signal clients about deletion
+    response.headers.set('X-Business-Deleted', 'true');
+    response.headers.set('X-Business-Id', businessId);
+
+    return response;
   } catch (error: any) {
     console.error('[API] Error in DELETE business:', error);
     return NextResponse.json(

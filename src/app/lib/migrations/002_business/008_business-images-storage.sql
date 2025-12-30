@@ -8,7 +8,7 @@
 -- 
 -- Go to Supabase Dashboard > Storage > Create Bucket
 -- 
--- Bucket Name: business-images
+-- Bucket Name: business_images (note: uses underscore, not hyphen)
 -- Public: ✅ Yes (recommended for public business listings)
 -- File Size Limit: 5MB (or as needed)
 -- Allowed MIME Types: image/jpeg, image/png, image/webp, image/gif
@@ -28,14 +28,14 @@ DROP POLICY IF EXISTS "Business owners can delete their images" ON storage.objec
 CREATE POLICY "Public read access to business images"
 ON storage.objects FOR SELECT
 TO public
-USING (bucket_id = 'business-images');
+USING (bucket_id = 'business_images');
 
 -- Policy: Allow authenticated users to upload business images
 -- Only authenticated users can upload (business owners)
 CREATE POLICY "Authenticated users can upload business images"
 ON storage.objects FOR INSERT
 TO authenticated
-WITH CHECK (bucket_id = 'business-images');
+WITH CHECK (bucket_id = 'business_images');
 
 -- Policy: Allow business owners to update their own business images
 -- Users can only update images in their own business folder
@@ -43,13 +43,13 @@ CREATE POLICY "Business owners can update their images"
 ON storage.objects FOR UPDATE
 TO authenticated
 USING (
-  bucket_id = 'business-images' AND
+  bucket_id = 'business_images' AND
   (storage.foldername(name))[1] IN (
     SELECT id::text FROM businesses WHERE owner_id = auth.uid()
   )
 )
 WITH CHECK (
-  bucket_id = 'business-images' AND
+  bucket_id = 'business_images' AND
   (storage.foldername(name))[1] IN (
     SELECT id::text FROM businesses WHERE owner_id = auth.uid()
   )
@@ -61,7 +61,7 @@ CREATE POLICY "Business owners can delete their images"
 ON storage.objects FOR DELETE
 TO authenticated
 USING (
-  bucket_id = 'business-images' AND
+  bucket_id = 'business_images' AND
   (storage.foldername(name))[1] IN (
     SELECT id::text FROM businesses WHERE owner_id = auth.uid()
   )
@@ -73,8 +73,8 @@ USING (
 -- 
 -- After creating the bucket and running the policies above, verify:
 -- 
--- 1. Bucket exists: SELECT * FROM storage.buckets WHERE id = 'business-images';
--- 2. Policies are active: SELECT * FROM storage.policies WHERE bucket_id = 'business-images';
+-- 1. Bucket exists: SELECT * FROM storage.buckets WHERE id = 'business_images';
+-- 2. Policies are active: SELECT * FROM storage.policies WHERE bucket_id = 'business_images';
 -- 3. Test upload: Try uploading an image via the add-business page
 -- 4. Test public access: Check if uploaded image URL is accessible without auth
 --
@@ -83,10 +83,10 @@ USING (
 -- ============================================================================
 -- 
 -- Images are stored with the following structure:
--- business-images/{business_id}/{business_id}_{index}_{timestamp}.{ext}
+-- business_images/{business_id}/{business_id}_{index}_{timestamp}.{ext}
 -- 
 -- Example:
--- business-images/123e4567-e89b-12d3-a456-426614174000/123e4567-e89b-12d3-a456-426614174000_0_1699123456789.jpg
+-- business_images/123e4567-e89b-12d3-a456-426614174000/123e4567-e89b-12d3-a456-426614174000_0_1699123456789.jpg
 -- 
 -- This structure:
 -- - Organizes images by business ID

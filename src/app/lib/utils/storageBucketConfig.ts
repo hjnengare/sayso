@@ -7,7 +7,7 @@
  * Storage bucket names used throughout the application
  */
 export const STORAGE_BUCKETS = {
-  BUSINESS_IMAGES: 'business-images',
+  BUSINESS_IMAGES: 'business_images', // Note: Uses underscore, not hyphen
   REVIEW_IMAGES: 'review_images',
 } as const;
 
@@ -45,7 +45,7 @@ export async function verifyBucketExists(
 }
 
 /**
- * Get the public URL for a file in the business-images bucket
+ * Get the public URL for a file in the business_images bucket
  */
 export function getBusinessImageUrl(filePath: string): string {
   // This will be constructed using Supabase client's getPublicUrl method

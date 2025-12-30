@@ -22,6 +22,12 @@
 --   - search_history (user_id)
 --   - saved_searches (user_id)
 --   - user_stats (user_id)
+--   - businesses (owner_id) -> which cascades to:
+--       * business_stats (business_id)
+--       * business_owners (business_id and user_id)
+--       * business_ownership_requests (business_id and user_id)
+--   Note: Business images stored in businesses.uploaded_images array are cleaned up
+--   by the delete account route before user deletion (storage files are removed)
 --
 -- Note: review_flags.reviewed_by uses ON DELETE SET NULL to preserve
 -- flag records even if the reviewing admin account is deleted.

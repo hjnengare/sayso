@@ -6,7 +6,7 @@ export const runtime = 'nodejs';
 
 /**
  * GET /api/businesses/[id]/images
- * Fetch all images for a business
+ * Fetch all images for a business from uploaded_images array
  */
 export async function GET(
   req: NextRequest,
@@ -23,13 +23,12 @@ export async function GET(
       );
     }
 
-    // Fetch business images ordered by primary first, then sort_order
-    const { data: images, error } = await supabase
-      .from('business_images')
-      .select('id, url, type, sort_order, is_primary, created_at')
-      .eq('business_id', businessId)
-      .order('is_primary', { ascending: false })
-      .order('sort_order', { ascending: true });
+    // Fetch business with uploaded_images array
+    const { data: business, error } = await supabase
+      .from('businesses')
+      .select('uploaded_images')
+      .eq('id', businessId)
+      .single();
 
     if (error) {
       console.error('[API] Error fetching business images:', error);
@@ -39,7 +38,16 @@ export async function GET(
       );
     }
 
-    return NextResponse.json({ images: images || [] });
+    // Return images as array of URLs (first image is primary/cover)
+    const images = business?.uploaded_images && Array.isArray(business.uploaded_images)
+      ? business.uploaded_images.map((url: string, index: number) => ({
+          url,
+          is_primary: index === 0,
+          sort_order: index,
+        }))
+      : [];
+
+    return NextResponse.json({ images });
   } catch (error: any) {
     console.error('[API] Error in GET business images:', error);
     return NextResponse.json(
@@ -52,6 +60,7 @@ export async function GET(
 /**
  * POST /api/businesses/[id]/images
  * Add images to a business (requires business owner authentication)
+ * Appends URLs to uploaded_images array
  */
 export async function POST(
   req: NextRequest,
@@ -72,94 +81,9 @@ export async function POST(
     }
 
     // Verify user owns this business
-    const { data: ownerCheck, error: ownerError } = await supabase
-      .from('business_owners')
-      .select('id')
-      .eq('business_id', businessId)
-      .eq('user_id', user.id)
-      .single();
-
-    if (ownerError || !ownerCheck) {
-      return NextResponse.json(
-        { error: 'You do not have permission to add images to this business' },
-        { status: 403 }
-      );
-    }
-
-    // Parse request body
-    const body = await req.json();
-    const { images } = body; // Array of { url, type?, sort_order?, is_primary? }
-
-    if (!Array.isArray(images) || images.length === 0) {
-      return NextResponse.json(
-        { error: 'Images array is required' },
-        { status: 400 }
-      );
-    }
-
-    // Prepare image records
-    const imageRecords = images.map((img: any, index: number) => ({
-      business_id: businessId,
-      url: img.url,
-      type: img.type || (index === 0 ? 'cover' : 'gallery'),
-      sort_order: img.sort_order !== undefined ? img.sort_order : index,
-      is_primary: img.is_primary !== undefined ? img.is_primary : (index === 0),
-    }));
-
-    // Insert images
-    const { data: insertedImages, error: insertError } = await supabase
-      .from('business_images')
-      .insert(imageRecords)
-      .select();
-
-    if (insertError) {
-      console.error('[API] Error inserting business images:', insertError);
-      return NextResponse.json(
-        { error: 'Failed to add images', details: insertError.message },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json({
-      success: true,
-      images: insertedImages,
-    }, { status: 201 });
-  } catch (error: any) {
-    console.error('[API] Error in POST business images:', error);
-    return NextResponse.json(
-      { error: 'Internal server error', details: error.message },
-      { status: 500 }
-    );
-  }
-}
-
-/**
- * DELETE /api/businesses/[id]/images/[imageId]
- * Delete a business image (requires business owner authentication)
- * Deletes from both storage bucket and database, and promotes next image if primary was deleted
- */
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string; imageId: string }> }
-) {
-  try {
-    const { id: businessId, imageId } = await params;
-    const supabase = await getServerSupabase(req);
-
-    // Get authenticated user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    // Verify user owns this business (check both business_owners and businesses.owner_id)
     const { data: business, error: businessError } = await supabase
       .from('businesses')
-      .select('id, owner_id')
+      .select('id, owner_id, uploaded_images')
       .eq('id', businessId)
       .single();
 
@@ -170,7 +94,7 @@ export async function DELETE(
       );
     }
 
-    // Check ownership via business_owners table or owner_id
+    // Check ownership
     const { data: ownerCheck } = await supabase
       .from('business_owners')
       .select('id')
@@ -182,78 +106,205 @@ export async function DELETE(
 
     if (!isOwner) {
       return NextResponse.json(
-        { error: 'You do not have permission to delete images from this business' },
+        { error: 'You do not have permission to add images to this business' },
         { status: 403 }
       );
     }
 
-    // Get image details before deletion (need URL for storage deletion and is_primary for promotion)
-    const { data: imageData, error: imageCheckError } = await supabase
-      .from('business_images')
-      .select('id, business_id, url, is_primary')
-      .eq('id', imageId)
-      .eq('business_id', businessId)
-      .single();
+    // Parse request body
+    const body = await req.json();
+    const { images } = body; // Array of { url } objects
 
-    if (imageCheckError || !imageData) {
+    if (!Array.isArray(images) || images.length === 0) {
       return NextResponse.json(
-        { error: 'Image not found or does not belong to this business' },
-        { status: 404 }
+        { error: 'Images array is required' },
+        { status: 400 }
       );
     }
 
-    // Extract storage path from URL
-    // URL format: https://[project].supabase.co/storage/v1/object/public/business-images/{path}
-    const url = imageData.url;
-    let storagePath: string | null = null;
-    
-    if (url.includes('/business-images/')) {
-      const pathMatch = url.match(/\/business-images\/(.+)$/);
-      if (pathMatch && pathMatch[1]) {
-        storagePath = pathMatch[1];
+    // Extract URLs from images array
+    const newUrls = images.map((img: any) => {
+      if (typeof img === 'string') {
+        return img;
       }
-    }
+      return img.url;
+    }).filter((url: string) => url && typeof url === 'string');
 
-    // Delete from storage bucket (if path can be extracted)
-    if (storagePath) {
-      const { error: storageError } = await supabase.storage
-        .from('business-images')
-        .remove([storagePath]);
-
-      if (storageError) {
-        console.warn('[API] Error deleting image from storage (continuing with DB delete):', storageError);
-        // Continue with DB deletion even if storage deletion fails
-      }
-    }
-
-    // Delete from database (trigger will automatically promote next image if this was primary)
-    const { error: deleteError } = await supabase
-      .from('business_images')
-      .delete()
-      .eq('id', imageId)
-      .eq('business_id', businessId);
-
-    if (deleteError) {
-      console.error('[API] Error deleting business image from database:', deleteError);
+    if (newUrls.length === 0) {
       return NextResponse.json(
-        { error: 'Failed to delete image', details: deleteError.message },
+        { error: 'Valid image URLs are required' },
+        { status: 400 }
+      );
+    }
+
+    // Get existing uploaded_images array or initialize as empty
+    const existingImages = (business.uploaded_images && Array.isArray(business.uploaded_images))
+      ? business.uploaded_images
+      : [];
+
+    // Check image limit (max 10 images per business)
+    const MAX_IMAGES = 10;
+    const currentCount = existingImages.length;
+    const newCount = newUrls.length;
+    
+    if (currentCount + newCount > MAX_IMAGES) {
+      const remainingSlots = MAX_IMAGES - currentCount;
+      if (remainingSlots <= 0) {
+        return NextResponse.json(
+          { error: `Maximum image limit reached (${MAX_IMAGES} images). Please delete some images before adding new ones.` },
+          { status: 400 }
+        );
+      }
+      // Truncate to fit within limit
+      newUrls.splice(remainingSlots);
+      return NextResponse.json(
+        { 
+          error: `Only ${remainingSlots} image(s) can be added. Maximum limit is ${MAX_IMAGES} images.`,
+          warning: true,
+          max_images: MAX_IMAGES,
+          current_count: currentCount,
+          attempted_count: newCount,
+          remaining_slots: remainingSlots
+        },
+        { status: 400 }
+      );
+    }
+
+    // CRITICAL FIX: Use PostgreSQL array concatenation operator (||) for atomic updates
+    // This prevents race conditions with concurrent uploads
+    // COALESCE handles NULL arrays by treating them as empty arrays
+    const { data: updatedBusiness, error: updateError } = await supabase
+      .rpc('append_business_images', {
+        p_business_id: businessId,
+        p_image_urls: newUrls
+      });
+
+    // Fallback to standard update if RPC function doesn't exist
+    if (updateError && updateError.code === '42883') { // Function does not exist
+      console.warn('[API] append_business_images function not found, using fallback method (may have race conditions)');
+      
+      // Re-fetch business to get latest state (helps reduce race conditions)
+      const { data: refreshedBusiness } = await supabase
+        .from('businesses')
+        .select('uploaded_images')
+        .eq('id', businessId)
+        .single();
+      
+      if (!refreshedBusiness) {
+        return NextResponse.json(
+          { error: 'Business not found' },
+          { status: 404 }
+        );
+      }
+      
+      const latestImages = (refreshedBusiness.uploaded_images && Array.isArray(refreshedBusiness.uploaded_images))
+        ? refreshedBusiness.uploaded_images
+        : [];
+      
+      // Check limit again with latest count
+      if (latestImages.length + newUrls.length > MAX_IMAGES) {
+        const remainingSlots = MAX_IMAGES - latestImages.length;
+        if (remainingSlots <= 0) {
+          return NextResponse.json(
+            { error: `Maximum image limit reached (${MAX_IMAGES} images). Please delete some images before adding new ones.` },
+            { status: 400 }
+          );
+        }
+        newUrls.splice(remainingSlots);
+      }
+      
+      const updatedImages = [...latestImages, ...newUrls];
+      
+      const { data: fallbackBusiness, error: fallbackError } = await supabase
+        .from('businesses')
+        .update({ uploaded_images: updatedImages })
+        .eq('id', businessId)
+        .select('uploaded_images')
+        .single();
+      
+      if (fallbackError) {
+        return NextResponse.json(
+          { error: 'Failed to add images', details: fallbackError.message },
+          { status: 500 }
+        );
+      }
+      
+      // Use fallback result
+      const finalImages = fallbackBusiness?.uploaded_images || [];
+      
+      // Return the new images (last N images added)
+      const addedImages = finalImages.slice(-newUrls.length).map((url: string, index: number) => ({
+        url,
+        is_primary: finalImages.indexOf(url) === 0,
+        sort_order: finalImages.indexOf(url),
+      }));
+
+      return NextResponse.json({
+        success: true,
+        images: addedImages,
+        warning: 'Used fallback update method - consider creating append_business_images function for better concurrency',
+      }, { status: 201 });
+    }
+    
+    if (updateError) {
+      console.error('[API] Error updating business images:', updateError);
+      return NextResponse.json(
+        { error: 'Failed to add images', details: updateError.message },
+        { status: 500 }
+      );
+    }
+    
+    // Get final images from result
+    let finalImages: string[] = [];
+    
+    if (updatedBusiness && updatedBusiness.uploaded_images) {
+      finalImages = Array.isArray(updatedBusiness.uploaded_images) 
+        ? updatedBusiness.uploaded_images 
+        : [];
+    } else {
+      // Re-fetch to get final state if RPC didn't return it
+      const { data: finalBusiness } = await supabase
+        .from('businesses')
+        .select('uploaded_images')
+        .eq('id', businessId)
+        .single();
+      
+      if (!finalBusiness) {
+        return NextResponse.json(
+          { error: 'Failed to retrieve updated business images' },
+          { status: 500 }
+        );
+      }
+      
+      finalImages = (finalBusiness.uploaded_images && Array.isArray(finalBusiness.uploaded_images))
+        ? finalBusiness.uploaded_images
+        : [];
+    }
+
+    if (updateError) {
+      console.error('[API] Error updating business images:', updateError);
+      return NextResponse.json(
+        { error: 'Failed to add images', details: updateError.message },
         { status: 500 }
       );
     }
 
-    return NextResponse.json({ 
+    // Return the new images (last N images added)
+    const addedImages = finalImages.slice(-newUrls.length).map((url: string, index: number) => ({
+      url,
+      is_primary: finalImages.indexOf(url) === 0,
+      sort_order: finalImages.indexOf(url),
+    }));
+
+    return NextResponse.json({
       success: true,
-      was_primary: imageData.is_primary,
-      message: imageData.is_primary 
-        ? 'Primary image deleted. Next image has been automatically promoted.' 
-        : 'Image deleted successfully.'
-    });
+      images: addedImages,
+    }, { status: 201 });
   } catch (error: any) {
-    console.error('[API] Error in DELETE business image:', error);
+    console.error('[API] Error in POST business images:', error);
     return NextResponse.json(
       { error: 'Internal server error', details: error.message },
       { status: 500 }
     );
   }
 }
-

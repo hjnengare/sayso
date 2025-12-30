@@ -35,6 +35,7 @@ import { getBrowserSupabase } from "../lib/supabase/client";
 import { authStyles } from "../components/Auth/Shared/authStyles";
 import { Fontdiner_Swanky } from "next/font/google";
 import WavyTypedTitle from "../../components/Animations/WavyTypedTitle";
+import { STORAGE_BUCKETS } from "../lib/utils/storageBucketConfig";
 
 const LocationPicker = dynamic(() => import("../components/AddBusiness/LocationPicker"), {
     ssr: false,
@@ -87,6 +88,23 @@ interface Subcategory {
     label: string;
     interest_id: string;
 }
+
+// Helper function to get user-friendly field labels
+const getFieldLabel = (fieldName: string): string => {
+    const labels: Record<string, string> = {
+        name: 'business name',
+        category: 'category',
+        location: 'location',
+        email: 'email address',
+        website: 'website URL',
+        phone: 'phone number',
+        address: 'address',
+        description: 'description',
+        lat: 'latitude',
+        lng: 'longitude',
+    };
+    return labels[fieldName] || fieldName;
+};
 
 export default function AddBusinessPage() {
     const router = useRouter();
@@ -374,49 +392,53 @@ export default function AddBusinessPage() {
         switch (field) {
             case "name":
                 if (!value.trim()) {
-                    error = "Business name is required";
+                    error = "Please enter your business name";
                 } else if (value.trim().length < 2) {
-                    error = "Business name must be at least 2 characters";
+                    error = "Business name is too short. Please enter at least 2 characters";
                 } else if (value.trim().length > 100) {
-                    error = "Business name must be less than 100 characters";
+                    error = "Business name is too long. Please keep it under 100 characters";
                 }
                 break;
             case "category":
                 if (!value) {
-                    error = "Category is required";
+                    error = "Please select a category for your business";
                 }
                 break;
             case "location":
                 // Location is required only for physical and service-area businesses
                 if (formData.businessType !== 'online-only' && !value.trim()) {
-                    error = formData.businessType === 'service-area' ? "Service area is required" : "Location is required";
+                    if (formData.businessType === 'service-area') {
+                        error = "Please enter the service area where your business operates";
+                    } else {
+                        error = "Please enter the location of your business (e.g., Cape Town, South Africa)";
+                    }
                 } else if (value && value.trim().length < 2) {
-                    error = "Location must be at least 2 characters";
+                    error = "Location is too short. Please enter a complete location (e.g., City, Country)";
                 }
                 break;
             case "email":
                 if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-                    error = "Please enter a valid email address";
+                    error = "Please enter a valid email address (e.g., contact@yourbusiness.com)";
                 }
                 break;
             case "website":
                 if (value && !/^https?:\/\/.+\..+/.test(value)) {
-                    error = "Please enter a valid website URL (e.g., https://example.com)";
+                    error = "Please enter a complete website URL starting with http:// or https:// (e.g., https://www.yourbusiness.com)";
                 }
                 break;
             case "phone":
                 if (value && !/^[\d\s\-\+\(\)]+$/.test(value)) {
-                    error = "Please enter a valid phone number";
+                    error = "Please enter a valid phone number (e.g., +27 21 123 4567 or (021) 123-4567)";
                 }
                 break;
             case "lat":
                 if (value && (isNaN(Number(value)) || Number(value) < -90 || Number(value) > 90)) {
-                    error = "Latitude must be between -90 and 90";
+                    error = "Invalid latitude. Please enter a number between -90 and 90, or use the map to select your location";
                 }
                 break;
             case "lng":
                 if (value && (isNaN(Number(value)) || Number(value) < -180 || Number(value) > 180)) {
-                    error = "Longitude must be between -180 and 180";
+                    error = "Invalid longitude. Please enter a number between -180 and 180, or use the map to select your location";
                 }
                 break;
         }
@@ -487,7 +509,29 @@ export default function AddBusinessPage() {
         });
 
         if (!validateForm()) {
-            showToast('Please fix the errors in the form', 'sage', 3000);
+            // Count errors and provide helpful message
+            const errorCount = Object.keys(errors).length;
+            const errorFields = Object.keys(errors);
+            
+            if (errorCount === 1) {
+                const fieldName = errorFields[0];
+                const fieldLabel = getFieldLabel(fieldName);
+                showToast(`Please fix the error in ${fieldLabel}`, 'sage', 4000);
+            } else if (errorCount > 1) {
+                showToast(`Please fix ${errorCount} errors in the form before submitting`, 'sage', 4000);
+            } else {
+                showToast('Please check the form and fix any errors before submitting', 'sage', 4000);
+            }
+            
+            // Scroll to first error field
+            const firstErrorField = errorFields[0];
+            if (firstErrorField) {
+                const errorElement = document.querySelector(`[name="${firstErrorField}"], [id="${firstErrorField}"]`);
+                if (errorElement) {
+                    errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    (errorElement as HTMLElement).focus();
+                }
+            }
             return;
         }
 
@@ -532,7 +576,22 @@ export default function AddBusinessPage() {
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.error || 'Failed to create business');
+                // Provide user-friendly error messages based on response
+                let errorMessage = 'Failed to create business';
+                
+                if (data.error) {
+                    if (data.error.includes('required')) {
+                        errorMessage = 'Please fill in all required fields';
+                    } else if (data.error.includes('Unauthorized') || data.error.includes('log in')) {
+                        errorMessage = 'Please log in to create a business';
+                    } else if (data.error.includes('duplicate') || data.error.includes('already exists')) {
+                        errorMessage = 'A business with this name may already exist. Please try a different name';
+                    } else {
+                        errorMessage = data.error;
+                    }
+                }
+                
+                throw new Error(errorMessage);
             }
 
             const businessId = data.business.id;
@@ -548,13 +607,20 @@ export default function AddBusinessPage() {
                     
                     if (invalidFiles.length > 0) {
                         const firstError = getFirstValidationError(images);
-                        showToast(firstError || 'One or more files are invalid. Please upload only image files (JPG, PNG, WebP, GIF) under 5MB.', 'error', 5000);
+                        if (firstError) {
+                            showToast(firstError, 'error', 6000);
+                        } else {
+                            showToast('Some image files are invalid. Please upload only JPG, PNG, WebP, or GIF images under 5MB each.', 'error', 6000);
+                        }
                         setUploadingImages(false);
                         return;
                     }
 
                     const supabase = getBrowserSupabase();
                     const uploadedUrls: string[] = [];
+                    const uploadedFilePaths: string[] = []; // Track file paths for cleanup if needed
+
+                    console.log(`[Add Business] Starting upload of ${images.length} images for business ${businessId}`);
 
                     for (let i = 0; i < images.length; i++) {
                         const image = images[i];
@@ -562,66 +628,165 @@ export default function AddBusinessPage() {
                         const timestamp = Date.now();
                         const fileName = `${businessId}_${i}_${timestamp}.${fileExt}`;
                         const filePath = `${businessId}/${fileName}`;
+                        
+                        console.log(`[Add Business] Uploading image ${i + 1}/${images.length}: ${image.name} (${(image.size / 1024 / 1024).toFixed(2)}MB) to path: ${filePath}`);
 
-                        // Upload to Supabase Storage
-                        // Bucket name: 'business-images' (must match Supabase Storage bucket)
+                        // Upload to Supabase Storage (following review images pattern)
                         const { error: uploadError } = await supabase.storage
-                            .from('business-images')
+                            .from(STORAGE_BUCKETS.BUSINESS_IMAGES)
                             .upload(filePath, image, {
-                                cacheControl: '3600',
-                                upsert: false
+                                contentType: image.type,
                             });
 
                         if (uploadError) {
                             console.error('[Add Business] Error uploading image:', uploadError);
+                            console.error('[Add Business] Upload error details:', {
+                                message: uploadError.message,
+                                statusCode: uploadError.statusCode,
+                                error: uploadError.error,
+                                filePath,
+                                bucket: STORAGE_BUCKETS.BUSINESS_IMAGES,
+                            });
                             
                             // CRITICAL FIX: Better error messages for storage quota
                             if (uploadError.message?.includes('quota') || uploadError.message?.includes('storage limit') || uploadError.message?.includes('exceeded')) {
-                                showToast('Storage limit reached. Please delete old images or contact support.', 'error', 5000);
+                                showToast('Storage limit reached. Please try uploading fewer images or contact support for assistance.', 'error', 6000);
                             } else if (uploadError.message?.includes('Bucket not found') || uploadError.message?.includes('not found')) {
-                                showToast('Storage bucket not configured. Please contact support.', 'error', 5000);
+                                showToast('Image storage bucket not found. Please contact support.', 'error', 6000);
+                            } else if (uploadError.message?.includes('row-level security') || uploadError.message?.includes('RLS') || uploadError.message?.includes('policy')) {
+                                showToast('Permission denied. Please make sure you\'re logged in and try again. If the problem persists, contact support.', 'error', 6000);
+                            } else if (uploadError.message?.includes('size') || uploadError.message?.includes('too large')) {
+                                showToast('Image file is too large. Please upload images smaller than 5MB each.', 'error', 6000);
+                            } else if (uploadError.message?.includes('network') || uploadError.message?.includes('timeout')) {
+                                showToast('Network error while uploading image. Please check your connection and try again.', 'error', 6000);
                             } else {
-                                showToast(`Failed to upload image: ${uploadError.message}`, 'error', 5000);
+                                showToast(`Unable to upload image: ${uploadError.message || 'Unknown error'}. Please try again or contact support.`, 'error', 6000);
                             }
                             continue;
                         }
 
-                        // Get public URL
+                        // Get public URL (following review images pattern)
                         const { data: { publicUrl } } = supabase.storage
-                            .from('business-images')
+                            .from(STORAGE_BUCKETS.BUSINESS_IMAGES)
                             .getPublicUrl(filePath);
 
+                        if (!publicUrl) {
+                            console.error('[Add Business] Failed to get public URL for image:', filePath);
+                            showToast('Failed to generate image URL. Please try uploading again.', 'error', 5000);
+                            // Remove the uploaded file since we can't get URL
+                            await supabase.storage
+                                .from(STORAGE_BUCKETS.BUSINESS_IMAGES)
+                                .remove([filePath]);
+                            continue;
+                        }
+
                         uploadedUrls.push(publicUrl);
+                        uploadedFilePaths.push(filePath);
+                        console.log(`[Add Business] ✓ Successfully uploaded image ${i + 1}/${images.length}:`, publicUrl);
                     }
 
-                    // Save images to business_images table (REQUIRED - this is the source of truth)
-                    if (uploadedUrls.length > 0) {
-                        try {
-                            // Prepare image records for business_images table
-                            const imageRecords = uploadedUrls.map((url, index) => ({
-                                business_id: businessId,
-                                url: url,
-                                type: index === 0 ? 'cover' : 'gallery', // First image is cover
-                                sort_order: index,
-                                is_primary: index === 0, // First image is primary
-                            }));
+                    console.log(`[Add Business] Upload complete. ${uploadedUrls.length}/${images.length} images uploaded successfully.`);
 
-                            // Insert all images into business_images table
-                            const { error: imagesError } = await supabase
-                                .from('business_images')
-                                .insert(imageRecords);
+                    // Save images to businesses.uploaded_images array (REQUIRED - this is the source of truth)
+                    if (uploadedUrls.length > 0) {
+                        console.log(`[Add Business] Preparing to save ${uploadedUrls.length} image URLs to database...`);
+                        try {
+                            // CRITICAL FIX: Verify business still exists before saving URLs
+                            // Prevents orphaned URLs if business was deleted during upload
+                            const { data: businessCheck, error: businessCheckError } = await supabase
+                                .from('businesses')
+                                .select('id')
+                                .eq('id', businessId)
+                                .single();
+
+                            if (businessCheckError || !businessCheck) {
+                                console.error('[Add Business] Business not found during image save:', businessCheckError);
+                                
+                                // Business was deleted - cleanup storage files
+                                const { extractStoragePaths } = await import('../../lib/utils/storagePathExtraction');
+                                const storagePaths = extractStoragePaths(uploadedUrls);
+                                
+                                if (storagePaths.length > 0) {
+                                    await supabase.storage
+                                        .from(STORAGE_BUCKETS.BUSINESS_IMAGES)
+                                        .remove(storagePaths);
+                                    console.log(`[Add Business] Cleaned up ${storagePaths.length} storage files - business was deleted`);
+                                }
+                                
+                                showToast('Something went wrong while saving your business. The uploaded images have been removed. Please try creating your business again.', 'error', 6000);
+                                return;
+                            }
+
+                            // Check image limit (max 10 images per business)
+                            const MAX_IMAGES = 10;
+                            if (uploadedUrls.length > MAX_IMAGES) {
+                                // Truncate to limit
+                                const excessUrls = uploadedUrls.splice(MAX_IMAGES);
+                                const { extractStoragePaths } = await import('../../lib/utils/storagePathExtraction');
+                                const excessPaths = extractStoragePaths(excessUrls);
+                                
+                                // Delete excess files
+                                if (excessPaths.length > 0) {
+                                    await supabase.storage
+                                        .from(STORAGE_BUCKETS.BUSINESS_IMAGES)
+                                        .remove(excessPaths);
+                                }
+                                
+                                showToast(`You can upload up to ${MAX_IMAGES} images per business. Only the first ${MAX_IMAGES} images were saved. You can delete images later to add new ones.`, 'sage', 5000);
+                            }
+
+                            // Update business with uploaded_images array
+                            // First image in array is the primary/cover image
+                            console.log(`[Add Business] Saving ${uploadedUrls.length} image URLs to database for business ${businessId}`);
+                            console.log('[Add Business] Image URLs to save:', uploadedUrls);
+                            
+                            // First verify business exists and get current state
+                            const { data: currentBusiness, error: fetchError } = await supabase
+                                .from('businesses')
+                                .select('id, uploaded_images')
+                                .eq('id', businessId)
+                                .single();
+                            
+                            if (fetchError || !currentBusiness) {
+                                console.error('[Add Business] Business not found when trying to save images:', fetchError);
+                                throw new Error('Business not found. Cannot save images.');
+                            }
+                            
+                            console.log('[Add Business] Current business state:', currentBusiness);
+                            
+                            const { data: updatedBusiness, error: imagesError } = await supabase
+                                .from('businesses')
+                                .update({ uploaded_images: uploadedUrls })
+                                .eq('id', businessId)
+                                .select('id, uploaded_images')
+                                .single();
 
                             if (imagesError) {
-                                console.error('[Add Business] Error saving images to business_images table:', imagesError);
+                                console.error('[Add Business] Error saving images to uploaded_images:', imagesError);
+                                console.error('[Add Business] Update error details:', {
+                                    message: imagesError.message,
+                                    code: imagesError.code,
+                                    details: imagesError.details,
+                                    hint: imagesError.hint,
+                                    businessId,
+                                    uploadedUrlsCount: uploadedUrls.length,
+                                    currentBusinessState: currentBusiness,
+                                });
                                 
-                                // CRITICAL FIX: Clean up orphaned storage files on DB insert failure
-                                console.log('[Add Business] Cleaning up orphaned storage files due to DB insert failure...');
+                                // Check if it's a column error
+                                if (imagesError.message?.includes('column') || imagesError.message?.includes('does not exist')) {
+                                    console.error('[Add Business] CRITICAL: uploaded_images column may not exist in database!');
+                                    showToast('Database configuration error. Please contact support.', 'error', 6000);
+                                }
+                                
+                                // CRITICAL FIX: Clean up orphaned storage files on DB update failure
+                                console.log('[Add Business] Cleaning up orphaned storage files due to DB update failure...');
                                 const { extractStoragePaths } = await import('../../lib/utils/storagePathExtraction');
                                 const storagePaths = extractStoragePaths(uploadedUrls);
                                 
                                 if (storagePaths.length > 0) {
                                     const { error: cleanupError } = await supabase.storage
-                                        .from('business-images')
+                                        .from(STORAGE_BUCKETS.BUSINESS_IMAGES)
                                         .remove(storagePaths);
                                     
                                     if (cleanupError) {
@@ -631,9 +796,17 @@ export default function AddBusinessPage() {
                                     }
                                 }
                                 
-                                showToast('Images uploaded but failed to save to database. Uploaded files have been removed. Please try again.', 'error', 5000);
+                                showToast('Images were uploaded but couldn\'t be saved. The files have been removed automatically. Your business was created successfully - you can add images later from the edit page.', 'error', 6000);
                             } else {
-                                console.log(`[Add Business] Successfully saved ${uploadedUrls.length} images to business_images table`);
+                                console.log(`[Add Business] Successfully saved ${uploadedUrls.length} images to uploaded_images array`);
+                                console.log('[Add Business] Updated business data:', updatedBusiness);
+                                
+                                // Verify the update worked
+                                if (updatedBusiness && updatedBusiness.uploaded_images) {
+                                    console.log('[Add Business] Verified: uploaded_images array contains', updatedBusiness.uploaded_images.length, 'images');
+                                } else {
+                                    console.warn('[Add Business] WARNING: uploaded_images array is empty or null after update!');
+                                }
                             }
                         } catch (imageSaveError: any) {
                             console.error('[Add Business] Error saving images:', imageSaveError);
@@ -645,7 +818,7 @@ export default function AddBusinessPage() {
                                 
                                 if (storagePaths.length > 0) {
                                     await supabase.storage
-                                        .from('business-images')
+                                        .from(STORAGE_BUCKETS.BUSINESS_IMAGES)
                                         .remove(storagePaths);
                                     console.log(`[Add Business] Cleaned up ${storagePaths.length} orphaned storage files after exception`);
                                 }
@@ -653,13 +826,13 @@ export default function AddBusinessPage() {
                                 console.error('[Add Business] Failed to cleanup orphaned storage files:', cleanupError);
                             }
                             
-                            showToast('Images uploaded but failed to save to database. Uploaded files have been removed. Please try again.', 'error', 5000);
+                            showToast('Images were uploaded but couldn\'t be saved. The files have been removed automatically. Your business was created successfully - you can add images later from the edit page.', 'error', 6000);
                         }
                     }
                 } catch (imageError: any) {
                     console.error('Error uploading images:', imageError);
                     // Don't fail the whole operation if image upload fails
-                    showToast('Business created, but some images failed to upload', 'sage', 4000);
+                    showToast('Your business was created successfully! Some images couldn\'t be uploaded. You can add them later from the business edit page.', 'sage', 5000);
                 } finally {
                     setUploadingImages(false);
                 }
@@ -679,7 +852,19 @@ export default function AddBusinessPage() {
             }, 1000);
         } catch (error: any) {
             console.error('Error creating business:', error);
-            showToast(error.message || 'Failed to create business. Please try again.', 'sage', 4000);
+            
+            // Provide user-friendly error messages
+            let errorMessage = 'Failed to create business. Please try again.';
+            
+            if (error.message) {
+                errorMessage = error.message;
+            } else if (error instanceof TypeError && error.message.includes('fetch')) {
+                errorMessage = 'Network error. Please check your internet connection and try again.';
+            } else if (error.message?.includes('timeout')) {
+                errorMessage = 'Request timed out. Please try again.';
+            }
+            
+            showToast(errorMessage, 'error', 5000);
         } finally {
             setIsSubmitting(false);
         }

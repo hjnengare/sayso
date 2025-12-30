@@ -142,6 +142,100 @@ export default function OwnerBusinessDashboard() {
     fetchData();
   }, [businessId]); // TEMPORARY: Removed user and authLoading dependencies for UI development
 
+  // Refetch when page becomes visible (e.g., returning from edit page)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && businessId) {
+        // Small delay to ensure edit page has finished redirecting
+        setTimeout(() => {
+          const fetchData = async () => {
+            try {
+              const supabase = getBrowserSupabase();
+              const { data: businessData, error: businessError } = await supabase
+                .from('businesses')
+                .select('*')
+                .eq('id', businessId)
+                .single();
+
+              if (!businessError && businessData) {
+                setBusiness(businessData as Business);
+              }
+
+              // Refresh stats
+              const { data: statsData, error: statsError } = await supabase
+                .from('business_stats')
+                .select('average_rating, total_reviews')
+                .eq('business_id', businessId)
+                .single();
+
+              if (!statsError && statsData) {
+                setStats({
+                  average_rating: statsData.average_rating,
+                  total_reviews: statsData.total_reviews || 0,
+                });
+              }
+            } catch (error) {
+              console.error('Error refetching business data:', error);
+            }
+          };
+          fetchData();
+        }, 100);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    // Also refetch on focus (when user returns to tab)
+    const handleFocus = () => {
+      if (businessId) {
+        const fetchData = async () => {
+          try {
+            const supabase = getBrowserSupabase();
+            const { data: businessData, error: businessError } = await supabase
+              .from('businesses')
+              .select('*')
+              .eq('id', businessId)
+              .single();
+
+            if (!businessError && businessData) {
+              setBusiness(businessData as Business);
+            }
+          } catch (error) {
+            console.error('Error refetching business data:', error);
+          }
+        };
+        fetchData();
+      }
+    };
+    
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [businessId]);
+
+  // Listen for business deletion events
+  useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
+    
+    import('../../../lib/utils/businessUpdateEvents').then(({ businessUpdateEvents }) => {
+      unsubscribe = businessUpdateEvents.onDelete((deletedBusinessId: string) => {
+        // If this business was deleted, redirect to owners list
+        if (deletedBusinessId === businessId) {
+          router.push('/owners');
+        }
+      });
+    }).catch(err => {
+      console.error('Error loading business update events:', err);
+    });
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, [businessId, router]);
+
   // TEMPORARY: Bypass auth loading check for UI development
   // if (authLoading || isLoading) {
   if (isLoading) {

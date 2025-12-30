@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS businesses (
   email TEXT,
   website TEXT,
   image_url TEXT,
-  uploaded_image TEXT,
+  uploaded_images TEXT[],
   verified BOOLEAN DEFAULT false,
   price_range TEXT DEFAULT '$$' CHECK (price_range IN ('$', '$$', '$$$', '$$$$')),
   status TEXT DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'pending')),
