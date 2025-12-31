@@ -37,14 +37,17 @@ export default function BusinessOfTheMonthCard({ business }: { business: Busines
 
   // Image fallback logic with edge case handling
   const getDisplayImage = useMemo(() => {
-    // Priority 1: Check for uploaded business image (not a PNG icon)
-    const uploadedImage = (business as any).uploaded_image || (business as any).uploadedImage;
-    if (uploadedImage && 
-        typeof uploadedImage === 'string' && 
-        uploadedImage.trim() !== '' &&
-        !isPngIcon(uploadedImage) &&
-        !uploadedImage.includes('/png/')) {
-      return { image: uploadedImage, isPng: false };
+    // Priority 1: Check for uploaded business images array (not a PNG icon)
+    const uploadedImages = (business as any).uploaded_images;
+    if (uploadedImages && Array.isArray(uploadedImages) && uploadedImages.length > 0) {
+      const firstImage = uploadedImages[0];
+      if (firstImage && 
+          typeof firstImage === 'string' && 
+          firstImage.trim() !== '' &&
+          !isPngIcon(firstImage) &&
+          !firstImage.includes('/png/')) {
+        return { image: firstImage, isPng: false };
+      }
     }
 
     // Priority 2: Check image_url (API compatibility)

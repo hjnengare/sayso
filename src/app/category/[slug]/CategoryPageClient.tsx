@@ -32,7 +32,7 @@ export default function CategoryPageClient({
       category: categoryName,
       location: business.location || 'Cape Town',
       image_url: business.image_url,
-      uploaded_image: business.uploaded_image,
+      uploaded_images: business.uploaded_images,
       alt: `${business.name} - ${categoryName} in ${business.location || 'Cape Town'}`,
       rating: business.average_rating?.[0]?.average_rating || 0,
       reviews: 0,

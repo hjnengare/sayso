@@ -741,11 +741,11 @@ export default function AddBusinessPage() {
                                 console.warn('[Add Business] append_business_images function not found, using fallback method');
                                 
                                 const { data: fallbackData, error: fallbackError } = await supabase
-                                    .from('businesses')
-                                    .update({ uploaded_images: uploadedUrls })
-                                    .eq('id', businessId)
-                                    .select('id, uploaded_images')
-                                    .single();
+                                .from('businesses')
+                                .update({ uploaded_images: uploadedUrls })
+                                .eq('id', businessId)
+                                .select('id, uploaded_images')
+                                .single();
                                 
                                 imagesError = fallbackError;
                                 updatedBusiness = fallbackData;

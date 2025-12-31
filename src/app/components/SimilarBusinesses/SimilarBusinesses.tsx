@@ -371,7 +371,7 @@ export default function SimilarBusinesses({
                   name={business.name}
                   image={business.image}
                   image_url={business.image_url}
-                  uploaded_image={business.uploaded_image}
+                  uploaded_images={business.uploaded_images}
                   category={business.category}
                   location={business.location}
                   address={business.address}

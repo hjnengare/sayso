@@ -162,7 +162,7 @@ function LeaderboardPage() {
       return {
         id: b.id,
         name: b.name,
-        image: b.image || b.image_url || b.uploaded_image || b.uploadedImage || "",
+        image: b.image || b.image_url || (b.uploaded_images && b.uploaded_images.length > 0 ? b.uploaded_images[0] : null) || "",
         alt: b.alt || b.name,
         category: b.category || "Business",
         interestId: interestId,

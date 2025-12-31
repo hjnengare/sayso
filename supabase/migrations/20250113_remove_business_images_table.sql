@@ -65,12 +65,9 @@ BEGIN
   END IF;
 END $$;
 
--- Step 4: Keep uploaded_image for backward compatibility (single image)
--- But uploaded_images (array) is now the primary source of truth
+-- Step 4: uploaded_images (array) is now the primary source of truth
+-- Note: The uploaded_image column has been removed in a later migration
 -- Add comment to document the change
 COMMENT ON COLUMN public.businesses.uploaded_images IS 
 'Array of uploaded image URLs from business-images storage bucket. This is the primary source of truth for business images. First image in array is the primary/cover image.';
-
-COMMENT ON COLUMN public.businesses.uploaded_image IS 
-'Legacy single image URL field. Kept for backward compatibility. Use uploaded_images array instead.';
 

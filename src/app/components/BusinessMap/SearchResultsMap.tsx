@@ -19,8 +19,7 @@ interface Business {
     reviews: number; // Required by BusinessCard (number, not array)
     image?: string;
     image_url?: string;
-    uploaded_image?: string;
-    uploadedImage?: string;
+    uploaded_images?: string[];
     [key: string]: any;
 }
 

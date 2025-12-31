@@ -1,16 +1,16 @@
--- Migration: Fix materialized views to use uploaded_images instead of uploaded_image
--- NOTE: This migration creates materialized views with an alias column 'uploaded_image' 
--- computed from uploaded_images[1]. This was later superseded by migration 20250117
--- which removes the alias entirely and uses uploaded_images directly.
--- The views will use the first image from uploaded_images array (uploaded_images[1])
+-- Migration: Remove uploaded_image column from materialized views
+-- The views will now only expose uploaded_images array or computed fields
+-- This matches the new schema where uploaded_image column is deprecated
 
--- Drop all materialized views that depend on uploaded_image (CASCADE will drop dependent objects)
+-- Drop all materialized views that depend on uploaded_image
 DROP MATERIALIZED VIEW IF EXISTS mv_top_rated_businesses CASCADE;
 DROP MATERIALIZED VIEW IF EXISTS mv_trending_businesses CASCADE;
 DROP MATERIALIZED VIEW IF EXISTS mv_new_businesses CASCADE;
 
--- Recreate the materialized view with updated column reference
--- Check if latitude/longitude columns exist and create view accordingly
+-- =============================================
+-- 1. Recreate mv_top_rated_businesses WITHOUT uploaded_image column
+-- =============================================
+
 DO $$
 DECLARE
   v_has_geo_columns BOOLEAN;
@@ -23,8 +23,7 @@ BEGIN
     AND column_name = 'lat'
   ) INTO v_has_geo_columns;
 
-  -- Build CREATE VIEW statement based on available columns
-  -- Use first image from uploaded_images array (uploaded_images[1])
+  -- Build CREATE VIEW statement - NO uploaded_image column
   IF v_has_geo_columns THEN
     v_create_view_sql := '
       CREATE MATERIALIZED VIEW mv_top_rated_businesses AS
@@ -34,11 +33,7 @@ BEGIN
         b.category,
         b.location,
         b.image_url,
-        CASE 
-          WHEN b.uploaded_images IS NOT NULL AND array_length(b.uploaded_images, 1) > 0 
-          THEN b.uploaded_images[1]
-          ELSE NULL
-        END AS uploaded_image,
+        b.uploaded_images, -- Use the full array instead of single uploaded_image
         b.verified,
         b.price_range,
         b.badge,
@@ -71,11 +66,7 @@ BEGIN
         b.category,
         b.location,
         b.image_url,
-        CASE 
-          WHEN b.uploaded_images IS NOT NULL AND array_length(b.uploaded_images, 1) > 0 
-          THEN b.uploaded_images[1]
-          ELSE NULL
-        END AS uploaded_image,
+        b.uploaded_images, -- Use the full array instead of single uploaded_image
         b.verified,
         b.price_range,
         b.badge,
@@ -114,7 +105,7 @@ CREATE INDEX IF NOT EXISTS idx_mv_top_rated_businesses_category
 CREATE INDEX IF NOT EXISTS idx_mv_top_rated_businesses_score 
   ON mv_top_rated_businesses(weighted_score DESC);
 
--- Recreate the get_top_rated_businesses function if it was dropped
+-- Recreate the get_top_rated_businesses function
 CREATE OR REPLACE FUNCTION get_top_rated_businesses(
   p_limit INTEGER DEFAULT 20,
   p_category TEXT DEFAULT NULL
@@ -135,7 +126,7 @@ GRANT SELECT ON mv_top_rated_businesses TO authenticated, anon;
 GRANT EXECUTE ON FUNCTION get_top_rated_businesses TO authenticated, anon;
 
 -- =============================================
--- 2. Fix mv_trending_businesses
+-- 2. Recreate mv_trending_businesses WITHOUT uploaded_image column
 -- =============================================
 
 DO $$
@@ -150,7 +141,7 @@ BEGIN
     AND column_name = 'lat'
   ) INTO v_has_geo_columns;
 
-  -- Build CREATE VIEW statement
+  -- Build CREATE VIEW statement - NO uploaded_image column
   IF v_has_geo_columns THEN
     v_create_view_sql := '
       CREATE MATERIALIZED VIEW mv_trending_businesses AS
@@ -160,11 +151,7 @@ BEGIN
         b.category,
         b.location,
         b.image_url,
-        CASE 
-          WHEN b.uploaded_images IS NOT NULL AND array_length(b.uploaded_images, 1) > 0 
-          THEN b.uploaded_images[1]
-          ELSE NULL
-        END AS uploaded_image,
+        b.uploaded_images, -- Use the full array instead of single uploaded_image
         b.verified,
         b.price_range,
         b.badge,
@@ -190,12 +177,7 @@ BEGIN
       WHERE 
         b.status = ''active''
         AND b.created_at <= NOW() - INTERVAL ''7 days''
-      GROUP BY b.id, b.name, b.category, b.location, b.image_url, 
-               CASE 
-                 WHEN b.uploaded_images IS NOT NULL AND array_length(b.uploaded_images, 1) > 0 
-                 THEN b.uploaded_images[1]
-                 ELSE NULL
-               END,
+      GROUP BY b.id, b.name, b.category, b.location, b.image_url, b.uploaded_images,
                b.verified, b.price_range, b.badge, b.slug, b.lat, b.lng,
                bs.total_reviews, bs.average_rating, bs.percentiles
       HAVING 
@@ -211,11 +193,7 @@ BEGIN
         b.category,
         b.location,
         b.image_url,
-        CASE 
-          WHEN b.uploaded_images IS NOT NULL AND array_length(b.uploaded_images, 1) > 0 
-          THEN b.uploaded_images[1]
-          ELSE NULL
-        END AS uploaded_image,
+        b.uploaded_images, -- Use the full array instead of single uploaded_image
         b.verified,
         b.price_range,
         b.badge,
@@ -241,12 +219,7 @@ BEGIN
       WHERE 
         b.status = ''active''
         AND b.created_at <= NOW() - INTERVAL ''7 days''
-      GROUP BY b.id, b.name, b.category, b.location, b.image_url,
-               CASE 
-                 WHEN b.uploaded_images IS NOT NULL AND array_length(b.uploaded_images, 1) > 0 
-                 THEN b.uploaded_images[1]
-                 ELSE NULL
-               END,
+      GROUP BY b.id, b.name, b.category, b.location, b.image_url, b.uploaded_images,
                b.verified, b.price_range, b.badge, b.slug,
                bs.total_reviews, bs.average_rating, bs.percentiles
       HAVING 
@@ -284,8 +257,12 @@ AS $$
   LIMIT p_limit;
 $$;
 
+-- Grant permissions
+GRANT SELECT ON mv_trending_businesses TO authenticated, anon;
+GRANT EXECUTE ON FUNCTION get_trending_businesses TO authenticated, anon;
+
 -- =============================================
--- 3. Fix mv_new_businesses
+-- 3. Recreate mv_new_businesses WITHOUT uploaded_image column
 -- =============================================
 
 DO $$
@@ -300,7 +277,7 @@ BEGIN
     AND column_name = 'lat'
   ) INTO v_has_geo_columns;
 
-  -- Build CREATE VIEW statement
+  -- Build CREATE VIEW statement - NO uploaded_image column
   IF v_has_geo_columns THEN
     v_create_view_sql := '
       CREATE MATERIALIZED VIEW mv_new_businesses AS
@@ -310,11 +287,7 @@ BEGIN
         b.category,
         b.location,
         b.image_url,
-        CASE 
-          WHEN b.uploaded_images IS NOT NULL AND array_length(b.uploaded_images, 1) > 0 
-          THEN b.uploaded_images[1]
-          ELSE NULL
-        END AS uploaded_image,
+        b.uploaded_images, -- Use the full array instead of single uploaded_image
         b.verified,
         b.price_range,
         b.badge,
@@ -343,11 +316,7 @@ BEGIN
         b.category,
         b.location,
         b.image_url,
-        CASE 
-          WHEN b.uploaded_images IS NOT NULL AND array_length(b.uploaded_images, 1) > 0 
-          THEN b.uploaded_images[1]
-          ELSE NULL
-        END AS uploaded_image,
+        b.uploaded_images, -- Use the full array instead of single uploaded_image
         b.verified,
         b.price_range,
         b.badge,
@@ -398,6 +367,10 @@ AS $$
   LIMIT p_limit;
 $$;
 
+-- Grant permissions
+GRANT SELECT ON mv_new_businesses TO authenticated, anon;
+GRANT EXECUTE ON FUNCTION get_new_businesses TO authenticated, anon;
+
 -- =============================================
 -- 4. Refresh Function
 -- =============================================
@@ -439,13 +412,13 @@ REFRESH MATERIALIZED VIEW mv_new_businesses;
 
 -- Add comments
 COMMENT ON MATERIALIZED VIEW mv_top_rated_businesses IS 
-'Pre-computed top rated businesses with weighted scores. Uses uploaded_images[1] (first image from array). Refreshed every 15 minutes via pg_cron.';
+'Pre-computed top rated businesses with weighted scores. Uses uploaded_images array (no uploaded_image column). Refreshed every 15 minutes via pg_cron.';
 
 COMMENT ON MATERIALIZED VIEW mv_trending_businesses IS 
-'Pre-computed trending businesses based on recent review activity. Uses uploaded_images[1] (first image from array). Refreshed every 15 minutes via pg_cron.';
+'Pre-computed trending businesses based on recent review activity. Uses uploaded_images array (no uploaded_image column). Refreshed every 15 minutes via pg_cron.';
 
 COMMENT ON MATERIALIZED VIEW mv_new_businesses IS 
-'Pre-computed new businesses (last 90 days). Uses uploaded_images[1] (first image from array). Refreshed every 15 minutes via pg_cron.';
+'Pre-computed new businesses (last 90 days). Uses uploaded_images array (no uploaded_image column). Refreshed every 15 minutes via pg_cron.';
 
 COMMENT ON FUNCTION refresh_business_views() IS 
 'Refreshes all business materialized views concurrently. Can be called manually or scheduled via pg_cron.';

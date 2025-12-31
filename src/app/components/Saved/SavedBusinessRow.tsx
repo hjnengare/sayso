@@ -54,7 +54,7 @@ export default function SavedBusinessRow({
               console.log('SavedBusinessRow - Rendering business:', {
                 id: business.id,
                 name: business.name,
-                hasImage: !!(business.image || business.image_url || business.uploaded_image),
+                hasImage: !!(business.image || business.image_url || (business.uploaded_images && business.uploaded_images.length > 0)),
                 hasRating: business.hasRating,
                 verified: business.verified
               });

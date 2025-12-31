@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     // Fetch business data
     const { data } = await supabase
       .from('businesses')
-      .select('name, description, image_url, uploaded_image, slug, category')
+      .select('name, description, image_url, uploaded_images, slug, category')
       .eq('id', actualId)
       .eq('status', 'active')
       .single();
@@ -55,7 +55,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   }
 
   const businessSlug = business.slug || id;
-  const image = business.uploaded_image || business.image_url || undefined;
+  const image = (business.uploaded_images && business.uploaded_images.length > 0 ? business.uploaded_images[0] : null) || business.image_url || undefined;
   const description = business.description || `Discover ${business.name} - read reviews, view photos, and get all the information you need.`;
 
   return generateSEOMetadata({
@@ -96,7 +96,7 @@ export default async function BusinessLayout({
         name,
         description,
         image_url,
-        uploaded_image,
+        uploaded_images,
         slug,
         category,
         phone,
@@ -119,7 +119,7 @@ export default async function BusinessLayout({
       const businessSchema = generateLocalBusinessSchema({
         name: business.name,
         description: business.description || `${business.category || 'Business'} located in ${business.location || 'Cape Town'}`,
-        image: business.uploaded_image || business.image_url || undefined,
+        image: (business.uploaded_images && business.uploaded_images.length > 0 ? business.uploaded_images[0] : null) || business.image_url || undefined,
         url: `${baseUrl}/business/${businessSlug}`,
         telephone: business.phone || undefined,
         email: business.email || undefined,

@@ -12,7 +12,7 @@ interface SimilarBusinessCardProps {
   name: string;
   image?: string;
   image_url?: string;
-  uploaded_image?: string;
+  uploaded_images?: string[];
   category: string;
   location: string;
   address?: string;
@@ -33,7 +33,7 @@ export default function SimilarBusinessCard({
   name,
   image,
   image_url,
-  uploaded_image,
+  uploaded_images,
   category,
   location,
   address,
@@ -49,8 +49,8 @@ export default function SimilarBusinessCard({
 }: SimilarBusinessCardProps) {
   const router = useRouter();
   
-  // Determine display image
-  const displayImage = uploaded_image || image_url || image || getCategoryPng(category);
+  // Determine display image - use first image from uploaded_images array if available
+  const displayImage = (uploaded_images && uploaded_images.length > 0 ? uploaded_images[0] : null) || image_url || image || getCategoryPng(category);
   const isImagePng = isPngIcon(displayImage) || displayImage.includes('/png/');
 
   // Use slug for SEO-friendly URLs, fallback to ID

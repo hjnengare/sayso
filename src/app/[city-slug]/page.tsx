@@ -76,7 +76,7 @@ export default async function CityPage({ params }: CityPageProps) {
   const supabase = await getServerSupabase();
   let query = supabase
     .from('businesses')
-    .select('id, name, slug, description, image_url, uploaded_image, location, category, average_rating:business_stats(average_rating)')
+    .select('id, name, slug, description, image_url, uploaded_images, location, category, average_rating:business_stats(average_rating)')
     .ilike('location', `%${displayCityName}%`)
     .eq('status', 'active');
   
@@ -101,7 +101,7 @@ export default async function CityPage({ params }: CityPageProps) {
     (businesses || []).map((business: any) => ({
       name: business.name,
       url: `${baseUrl}/business/${business.slug || business.id}`,
-      image: business.uploaded_image || business.image_url,
+      image: (business.uploaded_images && business.uploaded_images.length > 0 ? business.uploaded_images[0] : null) || business.image_url,
       rating: business.average_rating?.[0]?.average_rating || 0,
     }))
   );

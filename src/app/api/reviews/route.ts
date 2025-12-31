@@ -419,7 +419,7 @@ export async function GET(req: Request) {
           id,
           name,
           image_url,
-          uploaded_image,
+          uploaded_images,
           slug
         ),
         review_images (

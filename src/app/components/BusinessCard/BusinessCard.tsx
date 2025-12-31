@@ -26,8 +26,6 @@ type Business = {
   name: string;
   image?: string;
   image_url?: string;
-  uploaded_image?: string;
-  uploadedImage?: string;
   uploaded_images?: string[]; // Array of image URLs from uploaded_images field
   alt: string;
   category: string;
@@ -245,17 +243,7 @@ function BusinessCard({
       }
     }
 
-    // Priority 2: Legacy uploaded_image field (backward compatibility)
-    const uploadedImage = business.uploaded_image || business.uploadedImage;
-    if (uploadedImage &&
-      typeof uploadedImage === 'string' &&
-      uploadedImage.trim() !== '' &&
-      !isPngIcon(uploadedImage) &&
-      !uploadedImage.includes('/png/')) {
-      return { image: uploadedImage, isPng: false };
-    }
-
-    // Priority 3: External image_url
+    // Priority 2: External image_url
     if (business.image_url &&
       typeof business.image_url === 'string' &&
       business.image_url.trim() !== '' &&
@@ -263,7 +251,7 @@ function BusinessCard({
       return { image: business.image_url, isPng: false };
     }
 
-    // Priority 4: Legacy image field
+    // Priority 3: Legacy image field
     if (business.image &&
       typeof business.image === 'string' &&
       business.image.trim() !== '' &&
@@ -271,13 +259,11 @@ function BusinessCard({
       return { image: business.image, isPng: false };
     }
 
-    // Priority 5: Category PNG fallback
+    // Priority 4: Category PNG fallback
     const categoryPng = getCategoryPngFromLabels([business.subInterestId, business.subInterestLabel, business.category, categoryKey]);
     return { image: categoryPng, isPng: true };
   }, [
     business.uploaded_images,
-    business.uploaded_image,
-    business.uploadedImage,
     business.image_url,
     business.image,
     categoryKey,

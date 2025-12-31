@@ -33,6 +33,7 @@ import { useRoutePrefetch } from "../hooks/useRoutePrefetch";
 import { useDebounce } from "../hooks/useDebounce";
 import { useUserPreferences } from "../hooks/useUserPreferences";
 import CategoryFilterPills from "../components/Home/CategoryFilterPills";
+import { useAuth } from "../contexts/AuthContext";
 
 // Note: dynamic and revalidate cannot be exported from client components
 // Client components are automatically dynamic
@@ -185,6 +186,7 @@ export default function Home() {
   const [isMapMode, setIsMapMode] = useState(false);
   const searchWrapRef = useRef<HTMLDivElement | null>(null);
   const { interests, subcategories } = useUserPreferences();
+  const { isLoading: authLoading } = useAuth(); // Get auth loading state
 
   // Debounce search query for real-time filtering (300ms delay)
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
@@ -226,8 +228,15 @@ export default function Home() {
     return undefined;
   }, [selectedInterestIds]);
 
-  const { businesses: forYouBusinesses, loading: forYouLoading, error: forYouError, refetch: refetchForYou } = useForYouBusinesses(10, activeInterestIds);
-  const { businesses: trendingBusinesses, loading: trendingLoading, error: trendingError } = useTrendingBusinesses(10, { interestIds: activeInterestIds });
+  // ✅ CRITICAL: Skip fetching until auth is ready
+  // This prevents fetching as anon user before session is established
+  const { businesses: forYouBusinesses, loading: forYouLoading, error: forYouError, refetch: refetchForYou } = useForYouBusinesses(10, activeInterestIds, {
+    skip: authLoading, // ✅ Wait for auth to be ready
+  });
+  const { businesses: trendingBusinesses, loading: trendingLoading, error: trendingError } = useTrendingBusinesses(10, { 
+    interestIds: activeInterestIds,
+    skip: authLoading, // ✅ Wait for auth to be ready
+  });
   const { events, loading: eventsLoading } = useEvents({ limit: 5, upcoming: true });
   const { businesses: allBusinesses, loading: allBusinessesLoading, refetch: refetchAllBusinesses } = useBusinesses({ 
     limit: 500, // Increased to ensure we get businesses from more subcategories
@@ -241,6 +250,7 @@ export default function Home() {
     radiusKm: radiusKm,
     latitude: userLocation?.lat ?? null,
     longitude: userLocation?.lng ?? null,
+    skip: authLoading, // ✅ Wait for auth to be ready
   });
 
   // Check if search is active
@@ -400,7 +410,7 @@ export default function Home() {
       return {
         id: b.id,
         name: b.name,
-        image: b.image || b.image_url || b.uploaded_image || b.uploadedImage || "",
+        image: b.image || b.image_url || (b.uploaded_images && b.uploaded_images.length > 0 ? b.uploaded_images[0] : null) || "",
         alt: b.alt || b.name,
         category: b.category || "Business",
         location: b.location || b.address || "Cape Town",
@@ -417,6 +427,38 @@ export default function Home() {
     results.sort((a, b) => b.totalRating - a.totalRating || b.reviews - a.reviews);
     return results;
   })();
+
+  // Debug logging for business counts (placed after featuredByCategory is defined)
+  useEffect(() => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('📊 [Home Page] Business Counts Summary');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('[Home Page] For You:', {
+      count: forYouBusinesses.length,
+      loading: forYouLoading,
+      error: forYouError,
+    });
+    console.log('[Home Page] Trending:', {
+      count: trendingBusinesses.length,
+      loading: trendingLoading,
+      error: trendingError,
+    });
+    console.log('[Home Page] All Businesses:', {
+      count: allBusinesses.length,
+      loading: allBusinessesLoading,
+      firstBusiness: allBusinesses[0] ? {
+        id: allBusinesses[0].id,
+        name: allBusinesses[0].name,
+        hasImage: !!(allBusinesses[0].image || allBusinesses[0].image_url || allBusinesses[0].uploaded_images),
+      } : null,
+    });
+    console.log('[Home Page] Featured by Category:', {
+      count: featuredByCategory.length,
+      categories: featuredByCategory.map(f => f.category),
+    });
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  }, [forYouBusinesses, trendingBusinesses, allBusinesses, forYouLoading, trendingLoading, allBusinessesLoading, featuredByCategory]);
+
   useRoutePrefetch([
     "/for-you",
     "/trending",

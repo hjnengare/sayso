@@ -43,7 +43,7 @@ export async function GET(req: Request) {
           email,
           website,
           image_url,
-          uploaded_image,
+          uploaded_images,
           verified,
           price_range,
           badge,
@@ -145,7 +145,7 @@ export async function GET(req: Request) {
         return {
           id: business.id,
           name: business.name,
-          image: business.image_url || business.uploaded_image,
+          image: business.image_url || (business.uploaded_images && business.uploaded_images.length > 0 ? business.uploaded_images[0] : null),
           alt: `${business.name} - ${business.category} in ${business.location}`,
           category: business.category,
           location: business.location,

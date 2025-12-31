@@ -146,7 +146,7 @@ export default function DMPage() {
                             id: ownerId,
                             businessId: business.id,
                             businessName: business.name,
-                            businessImage: business.image_url || business.uploaded_image || '',
+                            businessImage: business.image_url || (business.uploaded_images && business.uploaded_images.length > 0 ? business.uploaded_images[0] : null) || '',
                             category: business.category,
                             location: business.address || business.location || 'Cape Town',
                             verified: business.verified || false,

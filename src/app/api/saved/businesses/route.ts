@@ -51,7 +51,7 @@ export async function GET(req: NextRequest) {
           email,
           website,
           image_url,
-          uploaded_image,
+          uploaded_images,
           verified,
           price_range,
           badge,
@@ -82,13 +82,20 @@ export async function GET(req: NextRequest) {
         hint: savedError.hint,
       });
       
-      // Check if table doesn't exist
-      if (savedError.code === '42P01' || savedError.message?.includes('relation') || savedError.message?.includes('does not exist')) {
+      // Check if table doesn't exist (42P01) or column doesn't exist (42703)
+      if (savedError.code === '42P01' || savedError.code === '42703' || 
+          savedError.message?.includes('relation') || 
+          savedError.message?.includes('does not exist') ||
+          savedError.message?.includes('column') ||
+          savedError.message?.includes('undefined_column')) {
         return NextResponse.json(
           { 
-            error: 'Saved businesses table not found',
-            details: 'The saved_businesses table does not exist. Please run the database migration.',
-            code: savedError.code
+            error: 'Database schema error',
+            details: savedError.code === '42703' 
+              ? 'A required column is missing. Please run database migrations.'
+              : 'The saved_businesses table or a related table does not exist. Please run the database migration.',
+            code: savedError.code,
+            message: savedError.message
           },
           { status: 503 }
         );
@@ -171,7 +178,7 @@ export async function GET(req: NextRequest) {
           email: business.email || null,
           website: business.website || null,
           image_url: business.image_url || null,
-          uploaded_image: business.uploaded_image || null,
+          uploaded_images: business.uploaded_images || null,
           verified: business.verified || false,
           price_range: business.price_range || '$$',
           badge: business.badge || null,

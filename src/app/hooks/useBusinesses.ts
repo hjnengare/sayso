@@ -46,7 +46,15 @@ export function useBusinesses(options: UseBusinessesOptions = {}): UseBusinesses
   const [error, setError] = useState<string | null>(null);
 
   const fetchBusinesses = useCallback(async () => {
+    console.log('[useBusinesses] fetchBusinesses called', {
+      skip: options.skip,
+      limit: options.limit,
+      interestIds: options.interestIds,
+      category: options.category,
+    });
+    
     if (options.skip) {
+      console.log('[useBusinesses] Skipping fetch (skip=true)');
       setLoading(false);
       return;
     }
@@ -54,6 +62,7 @@ export function useBusinesses(options: UseBusinessesOptions = {}): UseBusinesses
     try {
       setLoading(true);
       setError(null);
+      console.log('[useBusinesses] Starting fetch...');
 
       const params = new URLSearchParams();
       
@@ -101,7 +110,12 @@ export function useBusinesses(options: UseBusinessesOptions = {}): UseBusinesses
         params.set('lng', options.longitude.toString());
       }
 
-      const response = await fetch(`/api/businesses?${params.toString()}`);
+      const url = `/api/businesses?${params.toString()}`;
+      console.log('[useBusinesses] Fetching businesses from:', url);
+      console.log('[useBusinesses] ⚠️ NOTE: API route logs appear in SERVER TERMINAL, not browser console!');
+      console.log('[useBusinesses] Check your Next.js dev server terminal for detailed API logs.');
+      
+      const response = await fetch(url);
       
       if (!response.ok) {
         const contentType = response.headers.get("content-type") || "";
@@ -139,7 +153,41 @@ export function useBusinesses(options: UseBusinessesOptions = {}): UseBusinesses
 
       const data = await response.json();
       // API returns { businesses: [...], cursorId: ... }
-      setBusinesses(data.businesses || data.data || []);
+      const businessesList = data.businesses || data.data || [];
+      
+      // Prominent logging for debugging
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('🔍 [useBusinesses] API RESPONSE RECEIVED');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('[useBusinesses] Response structure:', {
+        hasBusinesses: 'businesses' in data,
+        hasData: 'data' in data,
+        businessesCount: data.businesses?.length || 0,
+        dataCount: data.data?.length || 0,
+        finalCount: businessesList.length,
+      });
+      console.log('[useBusinesses] Businesses received:', {
+        count: businessesList.length,
+        hasBusinesses: businessesList.length > 0,
+        firstBusiness: businessesList[0] ? {
+          id: businessesList[0].id,
+          name: businessesList[0].name,
+          hasImage: !!(businessesList[0].image || businessesList[0].image_url || businessesList[0].uploaded_images),
+          uploadedImagesCount: businessesList[0].uploaded_images?.length || 0,
+        } : 'none',
+        sampleIds: businessesList.slice(0, 3).map(b => b.id),
+      });
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      
+      if (businessesList.length === 0) {
+        console.warn('⚠️ [useBusinesses] WARNING: Received 0 businesses from API!');
+        console.warn('⚠️ Check SERVER TERMINAL for detailed API logs:');
+        console.warn('⚠️ Look for: [BUSINESSES API] Raw active businesses count');
+        console.warn('⚠️ Look for: [BUSINESSES API] Mixed feed buckets');
+        console.warn('⚠️ Look for: [BUSINESSES API] Final transformed businesses');
+      }
+      
+      setBusinesses(businessesList);
     } catch (err: any) {
       console.error('[useBusinesses] Error fetching businesses:', err);
       setError(err.message || 'Failed to fetch businesses');
@@ -171,10 +219,26 @@ export function useBusinesses(options: UseBusinessesOptions = {}): UseBusinesses
   ]);
 
   useEffect(() => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🚀 [useBusinesses] useEffect triggered');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('[useBusinesses] Options:', {
+      skip: options.skip,
+      willFetch: !options.skip,
+      limit: options.limit,
+      feedStrategy: options.feedStrategy,
+      interestIds: options.interestIds?.length || 0,
+      category: options.category,
+      sortBy: options.sortBy,
+      sortOrder: options.sortOrder,
+    });
+    
     if (options.skip) {
+      console.log('[useBusinesses] ⏭️ Skipping fetch (skip=true)');
       setLoading(false);
       return;
     }
+    console.log('[useBusinesses] ✅ Calling fetchBusinesses from useEffect');
     fetchBusinesses();
   }, [fetchBusinesses, options.skip]);
 
@@ -228,7 +292,8 @@ export function useTrendingBusinesses(
  */
 export function useForYouBusinesses(
   limit: number = 20,
-  overrideInterestIds?: string[] | undefined
+  overrideInterestIds?: string[] | undefined,
+  extraOptions: Partial<UseBusinessesOptions> = {}
 ): UseBusinessesResult {
   const { interests, subcategories, dealbreakers } = useUserPreferences();
 
@@ -237,13 +302,25 @@ export function useForYouBusinesses(
     if (overrideInterestIds !== undefined) {
       // If overrideInterestIds is an empty array, don't filter (show all)
       // If it has values, use those
-      return overrideInterestIds.length > 0 ? overrideInterestIds : undefined;
+      const result = overrideInterestIds.length > 0 ? overrideInterestIds : undefined;
+      console.log('[useForYouBusinesses] Using overrideInterestIds', {
+        overrideInterestIds,
+        result,
+      });
+      return result;
     }
     // Default: use user preferences
     const userInterestIds = interests.map((i) => i.id).concat(
       subcategories.map((s) => s.id)
     );
-    return userInterestIds.length > 0 ? userInterestIds : undefined;
+    const result = userInterestIds.length > 0 ? userInterestIds : undefined;
+    console.log('[useForYouBusinesses] Using user preferences', {
+      interestsCount: interests.length,
+      subcategoriesCount: subcategories.length,
+      userInterestIds,
+      result,
+    });
+    return result;
   }, [overrideInterestIds, interests, subcategories]);
 
   const dealbreakerIds = dealbreakers.map((d) => d.id);
@@ -263,6 +340,7 @@ export function useForYouBusinesses(
     priceRanges: preferredPriceRanges,
     dealbreakerIds: dealbreakerIds.length > 0 ? dealbreakerIds : undefined,
     feedStrategy: 'mixed',
+    ...extraOptions, // ✅ Allow skip and other options to be passed through
   });
 }
 

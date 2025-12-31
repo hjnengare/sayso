@@ -31,7 +31,7 @@ export default function CityPageClient({
       category: business.category || categoryName || 'Business',
       location: business.location || cityName,
       image_url: business.image_url,
-      uploaded_image: business.uploaded_image,
+      uploaded_images: business.uploaded_images,
       alt: `${business.name} - ${business.category || categoryName || 'Business'} in ${business.location || cityName}`,
       rating: business.average_rating?.[0]?.average_rating || 0,
       reviews: 0,

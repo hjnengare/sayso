@@ -43,7 +43,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   const supabase = await getServerSupabase();
   const { data: businesses, error } = await supabase
     .from('businesses')
-    .select('id, name, slug, description, image_url, uploaded_image, location, average_rating:business_stats(average_rating)')
+    .select('id, name, slug, description, image_url, uploaded_images, location, average_rating:business_stats(average_rating)')
     .eq('category', categoryName)
     .eq('status', 'active')
     .limit(50)
@@ -62,7 +62,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     (businesses || []).map((business: any) => ({
       name: business.name,
       url: `${baseUrl}/business/${business.slug || business.id}`,
-      image: business.uploaded_image || business.image_url,
+      image: (business.uploaded_images && business.uploaded_images.length > 0 ? business.uploaded_images[0] : null) || business.image_url,
       rating: business.average_rating?.[0]?.average_rating || 0,
     }))
   );

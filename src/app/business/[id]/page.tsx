@@ -292,26 +292,16 @@ export default function BusinessProfilePage() {
     let allImages: string[] = [];
     let primaryImage = '';
     
-    // Use uploaded_images array if available (new structure)
+    // Use uploaded_images array (new structure)
     // First image in array is the primary/cover image
     if (business.uploaded_images && Array.isArray(business.uploaded_images) && business.uploaded_images.length > 0) {
         allImages = business.uploaded_images
             .filter((url: string) => url && typeof url === 'string' && url.trim() !== '' && !isPngIcon(url));
         primaryImage = allImages[0] || '';
-    } else {
-        // Fallback to legacy fields for backward compatibility
-        // Add uploaded_image first (highest priority)
-        if (business.uploaded_image && typeof business.uploaded_image === 'string' && business.uploaded_image.trim() !== '' && !isPngIcon(business.uploaded_image)) {
-            allImages.push(business.uploaded_image);
-        }
-        
-        // Add uploadedImage (alternative field name)
-        if (business.uploadedImage && typeof business.uploadedImage === 'string' && business.uploadedImage.trim() !== '' && !isPngIcon(business.uploadedImage) && !allImages.includes(business.uploadedImage)) {
-            allImages.push(business.uploadedImage);
-        }
-        
-        // Add image_url if not already included
-        if (business.image_url && typeof business.image_url === 'string' && business.image_url.trim() !== '' && !isPngIcon(business.image_url) && !allImages.includes(business.image_url)) {
+    }
+    
+    // Add image_url if not already included
+    if (business.image_url && typeof business.image_url === 'string' && business.image_url.trim() !== '' && !isPngIcon(business.image_url) && !allImages.includes(business.image_url)) {
             allImages.push(business.image_url);
         }
         
@@ -361,7 +351,6 @@ export default function BusinessProfilePage() {
         image: primaryImage,
         images: galleryImages,
         uploaded_images: business.uploaded_images || [], // Preserve uploaded_images array
-        uploaded_image: business.uploaded_image || business.uploadedImage || null, // Preserve for backward compatibility
         trust: business.trust || business.stats?.percentiles?.trustworthiness || 85,
         punctuality: business.punctuality || business.stats?.percentiles?.punctuality || 85,
         friendliness: business.friendliness || business.stats?.percentiles?.friendliness || 85,
