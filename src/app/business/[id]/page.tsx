@@ -302,25 +302,24 @@ export default function BusinessProfilePage() {
     
     // Add image_url if not already included
     if (business.image_url && typeof business.image_url === 'string' && business.image_url.trim() !== '' && !isPngIcon(business.image_url) && !allImages.includes(business.image_url)) {
-            allImages.push(business.image_url);
-        }
-        
-        // Add images from images array if provided
-        if (Array.isArray(business.images)) {
-            business.images.forEach((img: string) => {
-                if (img && typeof img === 'string' && img.trim() !== '' && !isPngIcon(img) && !allImages.includes(img)) {
-                    allImages.push(img);
-                }
-            });
-        }
-        
-        // Add business.image as last fallback
-        if (business.image && typeof business.image === 'string' && business.image.trim() !== '' && !isPngIcon(business.image) && !allImages.includes(business.image)) {
-            allImages.push(business.image);
-        }
-        
-        primaryImage = allImages[0] || '';
+        allImages.push(business.image_url);
     }
+    
+    // Add images from images array if provided
+    if (Array.isArray(business.images)) {
+        business.images.forEach((img: string) => {
+            if (img && typeof img === 'string' && img.trim() !== '' && !isPngIcon(img) && !allImages.includes(img)) {
+                allImages.push(img);
+            }
+        });
+    }
+    
+    // Add business.image as last fallback
+    if (business.image && typeof business.image === 'string' && business.image.trim() !== '' && !isPngIcon(business.image) && !allImages.includes(business.image)) {
+        allImages.push(business.image);
+    }
+    
+    primaryImage = allImages[0] || '';
 
     const galleryImages = allImages;
 
