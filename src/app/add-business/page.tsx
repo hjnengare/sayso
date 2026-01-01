@@ -692,9 +692,9 @@ export default function AddBusinessPage() {
 
                     console.log(`[Add Business] Upload complete. ${uploadedUrls.length}/${images.length} images uploaded successfully.`);
 
-                    // Save images to businesses.uploaded_images array (REQUIRED - this is the source of truth)
+                    // Save images to business_images table (REQUIRED - this is the source of truth)
                     if (uploadedUrls.length > 0) {
-                        console.log(`[Add Business] Preparing to save ${uploadedUrls.length} image URLs to database...`);
+                        console.log(`[Add Business] Preparing to save ${uploadedUrls.length} image records to business_images table...`);
                         try {
                             // CRITICAL FIX: Validate businessId before proceeding
                             if (!businessId) {
@@ -704,9 +704,11 @@ export default function AddBusinessPage() {
 
                             // Check image limit (max 10 images per business)
                             const MAX_IMAGES = 10;
+                            let urlsToSave = uploadedUrls;
                             if (uploadedUrls.length > MAX_IMAGES) {
                                 // Truncate to limit
-                                const excessUrls = uploadedUrls.splice(MAX_IMAGES);
+                                const excessUrls = uploadedUrls.slice(MAX_IMAGES);
+                                urlsToSave = uploadedUrls.slice(0, MAX_IMAGES);
                                 const { extractStoragePaths } = await import('../../lib/utils/storagePathExtraction');
                                 const excessPaths = extractStoragePaths(excessUrls);
                                 
@@ -720,96 +722,41 @@ export default function AddBusinessPage() {
                                 showToast(`You can upload up to ${MAX_IMAGES} images per business. Only the first ${MAX_IMAGES} images were saved. You can delete images later to add new ones.`, 'sage', 5000);
                             }
 
-                            // CRITICAL FIX: Use business ID directly from API response - NO REFETCH NEEDED
-                            // The business was just created and returned by the API, so we can trust the ID
-                            console.log(`[Add Business] Saving ${uploadedUrls.length} image URLs to database for business ${businessId}`);
-                            console.log('[Add Business] Image URLs to save:', uploadedUrls);
-                            
-                            // Try using RPC function first (atomic, prevents race conditions)
-                            let imagesError: any = null;
-                            let updatedBusiness: any = null;
-                            let usedRpcFunction = false;
-                            
-                            const { data: rpcData, error: rpcError } = await supabase
-                                .rpc('append_business_images', {
-                                    p_business_id: businessId,
-                                    p_image_urls: uploadedUrls
-                                });
-                            
-                            // If RPC function doesn't exist (code 42883), fallback to direct update
-                            if (rpcError && rpcError.code === '42883') {
-                                console.warn('[Add Business] append_business_images function not found, using fallback method');
-                                
-                                const { data: fallbackData, error: fallbackError } = await supabase
-                                .from('businesses')
-                                .update({ uploaded_images: uploadedUrls })
-                                .eq('id', businessId)
-                                .select('id, uploaded_images')
-                                .single();
-                                
-                                imagesError = fallbackError;
-                                updatedBusiness = fallbackData;
-                                usedRpcFunction = false;
-                            } else {
-                                imagesError = rpcError;
-                                usedRpcFunction = true;
-                                // RPC function returns table with uploaded_images array
-                                if (rpcData && rpcData.length > 0) {
-                                    updatedBusiness = {
-                                        id: businessId,
-                                        uploaded_images: rpcData[0].uploaded_images
-                                    };
-                                }
-                            }
+                            // Insert image records into business_images table
+                            // First image is primary (is_primary=true), others are gallery
+                            const imageRecords = urlsToSave.map((url, index) => ({
+                                business_id: businessId,
+                                url: url,
+                                type: index === 0 ? 'cover' : 'gallery',
+                                sort_order: index,
+                                is_primary: index === 0, // First image is primary
+                            }));
 
-                            if (imagesError) {
-                                // Better error serialization - handle PostgrestError and other error types
-                                const errorDetails: any = {
-                                    message: imagesError.message || String(imagesError),
-                                    code: (imagesError as any).code,
-                                    details: (imagesError as any).details,
-                                    hint: (imagesError as any).hint,
-                                    businessId,
-                                    uploadedUrlsCount: uploadedUrls.length,
-                                    errorSource: usedRpcFunction ? 'RPC function (append_business_images)' : 'Direct update (fallback)',
-                                };
+                            console.log(`[Add Business] Inserting ${imageRecords.length} image records into business_images table for business ${businessId}`);
+                            
+                            const { data: insertedImages, error: insertError } = await supabase
+                                .from('business_images')
+                                .insert(imageRecords)
+                                .select('id, url, is_primary, sort_order');
+
+                            if (insertError) {
+                                console.error('[Add Business] Error inserting images into business_images table:', insertError);
                                 
-                                // Try to serialize the full error object
-                                try {
-                                    errorDetails.errorString = JSON.stringify(imagesError, Object.getOwnPropertyNames(imagesError));
-                                } catch (e) {
-                                    errorDetails.errorString = String(imagesError);
-                                }
-                                
-                                // Try to get all properties
-                                try {
-                                    const errorProps: any = {};
-                                    for (const key in imagesError) {
-                                        if (imagesError.hasOwnProperty(key)) {
-                                            errorProps[key] = (imagesError as any)[key];
-                                        }
-                                    }
-                                    errorDetails.errorProperties = errorProps;
-                                } catch (e) {
-                                    // Ignore
-                                }
-                                
-                                console.error('[Add Business] Error saving images to uploaded_images:', errorDetails);
-                                console.error('[Add Business] Raw error object:', imagesError);
-                                
-                                // Check if it's a column error
-                                if (imagesError.message?.includes('column') || imagesError.message?.includes('does not exist')) {
-                                    console.error('[Add Business] CRITICAL: uploaded_images column may not exist in database!');
-                                    showToast('Database configuration error. The uploaded_images column may not exist. Please contact support.', 'error', 6000);
-                                } else if (imagesError.message?.includes('row-level security') || imagesError.message?.includes('RLS') || imagesError.message?.includes('policy')) {
-                                    console.error('[Add Business] CRITICAL: RLS policy blocking UPDATE on businesses table!');
+                                // Better error handling
+                                if (insertError.message?.includes('row-level security') || insertError.message?.includes('RLS') || insertError.message?.includes('policy')) {
+                                    console.error('[Add Business] CRITICAL: RLS policy blocking INSERT on business_images table!');
                                     showToast('Permission denied. Please make sure you\'re logged in and try again. If the problem persists, contact support.', 'error', 6000);
+                                } else if (insertError.message?.includes('does not exist') || insertError.message?.includes('relation')) {
+                                    console.error('[Add Business] CRITICAL: business_images table may not exist in database!');
+                                    showToast('Database configuration error. The business_images table may not exist. Please contact support.', 'error', 6000);
+                                } else {
+                                    showToast(`Failed to save images: ${insertError.message || 'Unknown error'}. Please try again or contact support.`, 'error', 6000);
                                 }
                                 
-                                // CRITICAL FIX: Clean up orphaned storage files on DB update failure
-                                console.log('[Add Business] Cleaning up orphaned storage files due to DB update failure...');
+                                // CRITICAL FIX: Clean up orphaned storage files on DB insert failure
+                                console.log('[Add Business] Cleaning up orphaned storage files due to DB insert failure...');
                                 const { extractStoragePaths } = await import('../../lib/utils/storagePathExtraction');
-                                const storagePaths = extractStoragePaths(uploadedUrls);
+                                const storagePaths = extractStoragePaths(urlsToSave);
                                 
                                 if (storagePaths.length > 0) {
                                     const { error: cleanupError } = await supabase.storage
@@ -825,14 +772,13 @@ export default function AddBusinessPage() {
                                 
                                 showToast('Images were uploaded but couldn\'t be saved. The files have been removed automatically. Your business was created successfully - you can add images later from the edit page.', 'error', 6000);
                             } else {
-                                console.log(`[Add Business] Successfully saved ${uploadedUrls.length} images to uploaded_images array`);
-                                console.log('[Add Business] Updated business data:', updatedBusiness);
-                                
-                                // Verify the update worked
-                                if (updatedBusiness && updatedBusiness.uploaded_images) {
-                                    console.log('[Add Business] Verified: uploaded_images array contains', updatedBusiness.uploaded_images.length, 'images');
-                                } else {
-                                    console.warn('[Add Business] WARNING: uploaded_images array is empty or null after update!');
+                                console.log(`[Add Business] Successfully inserted ${insertedImages?.length || 0} image records into business_images table`);
+                                if (insertedImages && insertedImages.length > 0) {
+                                    console.log('[Add Business] Inserted images:', insertedImages);
+                                    const primaryImage = insertedImages.find(img => img.is_primary);
+                                    if (primaryImage) {
+                                        console.log('[Add Business] Primary image set:', primaryImage.url);
+                                    }
                                 }
                             }
                         } catch (imageSaveError: any) {
