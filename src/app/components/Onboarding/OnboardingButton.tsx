@@ -59,6 +59,7 @@ export default function OnboardingButton({
 
   return (
     <button
+      type="button"
       className={`w-full text-sm font-600 py-4 px-4 rounded-full transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 btn-target btn-press shadow-md ${getButtonColor()}`}
       onClick={onClick}
       disabled={!canProceed || isProcessing}

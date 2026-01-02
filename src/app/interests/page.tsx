@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo, useRef, Suspense } from "rea
 import { useRouter, useSearchParams } from "next/navigation";
 import { useOnboarding } from "../contexts/OnboardingContext";
 import { useToast } from "../contexts/ToastContext";
+import { useAuth } from "../contexts/AuthContext";
 import OnboardingLayout from "../components/Onboarding/OnboardingLayout";
 import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
 import { Loader } from "../components/Loader";
@@ -48,6 +49,7 @@ function InterestsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { showToast, showToastOnce } = useToast();
+  const { user, isLoading: authLoading } = useAuth();
 
   // Prefetch all onboarding pages immediately on mount for faster navigation
   useEffect(() => {
@@ -55,6 +57,18 @@ function InterestsContent() {
     router.prefetch("/deal-breakers");
     router.prefetch("/complete");
   }, [router]);
+
+  // Check if user already has interests and redirect to subcategories if they do
+  useEffect(() => {
+    if (authLoading || !user) return;
+    
+    const interestsCount = user.profile?.interests_count || 0;
+    if (interestsCount > 0) {
+      // User already has interests, redirect to subcategories
+      console.log('[Interests] User already has interests, redirecting to subcategories');
+      router.replace('/subcategories');
+    }
+  }, [user, authLoading, router]);
 
   const MIN_SELECTIONS = 3;
   const MAX_SELECTIONS = 6;
@@ -172,8 +186,14 @@ function InterestsContent() {
     return hasMinimumSelection && !isNavigating;
   }, [selectedInterests.length, isNavigating]);
 
-  const handleNext = useCallback(async () => {
-    if (!canProceed) return;
+  const handleNext = useCallback(async (e?: React.MouseEvent) => {
+    // Prevent any default form submission behavior
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    if (!canProceed || isNavigating) return;
     
     const clickTime = performance.now();
     console.log('[Interests] Submit clicked', { 
@@ -186,7 +206,7 @@ function InterestsContent() {
     try {
       const requestStart = performance.now();
       
-      // Minimal write: save interests only
+      // Save interests to database
       const response = await fetch('/api/onboarding/interests', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -206,10 +226,16 @@ function InterestsContent() {
         throw new Error(errorData.error || 'Failed to save interests');
       }
 
+      // Verify the response indicates success
+      const result = await response.json().catch(() => ({}));
+      if (!result.ok && result.ok !== undefined) {
+        throw new Error(result.error || 'Failed to save interests');
+      }
+
       const navStart = performance.now();
       
-      // Navigate immediately after save succeeds - don't wait for anything else
-      router.prefetch('/subcategories');
+      // Navigate to subcategories after successful save
+      // Use replace to prevent back navigation to interests page
       router.replace('/subcategories');
       
       const navEnd = performance.now();
@@ -219,12 +245,16 @@ function InterestsContent() {
         timestamp: navEnd
       });
 
+      // Note: We don't reset isNavigating here because we're navigating away
+      // If navigation fails, the error handler will reset it
+
     } catch (error) {
       console.error('[Interests] Error saving interests:', error);
       showToast(error instanceof Error ? error.message : 'Failed to save interests. Please try again.', 'error');
       setIsNavigating(false);
+      // Don't navigate on error - user stays on interests page
     }
-  }, [canProceed, selectedInterests, router, showToast]);
+  }, [canProceed, selectedInterests, router, showToast, isNavigating]);
 
   const hydratedSelected = mounted ? selectedInterests : [];
   const list = INTERESTS;

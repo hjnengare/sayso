@@ -375,7 +375,7 @@ export async function GET(req: Request) {
 
     // Check if RPC function exists, if not fallback to regular query
     try {
-      const { data, error: rpcError } = await supabase.rpc('list_businesses_optimized', {
+      const rpcParams = {
         p_limit: limit,
         p_cursor_id: cursorId,
         p_cursor_created_at: cursorCreatedAt,
@@ -391,7 +391,14 @@ export async function GET(req: Request) {
         p_radius_km: radius,
         p_sort_by: sortBy,
         p_sort_order: sortOrder,
-      });
+      };
+      
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('🔍 [BUSINESSES API] Calling RPC with params:');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('[BUSINESSES API] RPC params:', JSON.stringify(rpcParams, null, 2));
+      
+      const { data, error: rpcError } = await supabase.rpc('list_businesses_optimized', rpcParams);
 
       if (rpcError) {
         console.error('[BUSINESSES API] RPC error:', {
@@ -419,7 +426,16 @@ export async function GET(req: Request) {
       // RPC succeeded - process results
       if (data && Array.isArray(data)) {
         if (data.length > 0) {
-          console.log('[BUSINESSES API] RPC returned', data.length, 'businesses');
+          console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+          console.log('✅ [BUSINESSES API] RPC returned', data.length, 'businesses');
+          console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+          console.log('[BUSINESSES API] Sample businesses:', data.slice(0, 3).map(b => ({
+            id: b.id,
+            name: b.name,
+            category: b.category,
+            location: b.location,
+            uploaded_images_count: Array.isArray(b.uploaded_images) ? b.uploaded_images.length : 0,
+          })));
           
           // Calculate distance for RPC results if lat/lng provided
           if (lat !== null && lng !== null && isValidLatitude(lat) && isValidLongitude(lng)) {
@@ -441,13 +457,28 @@ export async function GET(req: Request) {
           }
         } else {
           // RPC returned empty array - this is valid, not an error
-          console.log('[BUSINESSES API] RPC returned 0 businesses (empty result)', {
+          console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+          console.log('⚠️  [BUSINESSES API] RPC returned 0 businesses (empty result)');
+          console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+          console.log('[BUSINESSES API] Query filters:', {
             category,
             location,
             sortBy,
             sortOrder,
             limit,
+            verified,
+            priceRange,
+            badge,
+            minRating,
+            search,
+            lat,
+            lng,
+            radius,
           });
+          console.log('[BUSINESSES API] This could mean:');
+          console.log('[BUSINESSES API]   1. No businesses match the filters');
+          console.log('[BUSINESSES API]   2. Category/location values don\'t match database values');
+          console.log('[BUSINESSES API]   3. RLS policies are blocking results');
           businesses = [];
         }
       } else {
@@ -457,7 +488,20 @@ export async function GET(req: Request) {
       error = null;
     } catch (rpcError: any) {
       // Fallback to regular query if RPC doesn't exist
-      console.log('[BUSINESSES API] Using fallback query method');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('🔄 [BUSINESSES API] Using fallback query method');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('[BUSINESSES API] Fallback query filters:', {
+        category,
+        location,
+        verified,
+        priceRange,
+        badge,
+        minRating,
+        sortBy,
+        sortOrder,
+        limit,
+      });
       
       let query = supabase
         .from('businesses')
@@ -477,17 +521,24 @@ export async function GET(req: Request) {
 
       // Apply filters (only if methods exist)
       if (typeof (query as any).eq === 'function') {
-        // Use case-insensitive matching for category to handle variations
+        // Use exact match for category (case-sensitive)
+        // Note: RPC function uses ILIKE for case-insensitive matching
         if (category) {
-          if (typeof (query as any).ilike === 'function') {
-            query = (query as any).ilike('category', category);
-          } else {
-            query = (query as any).eq('category', category);
-          }
+          console.log('[BUSINESSES API] Fallback: Applying category filter:', category);
+          query = (query as any).eq('category', category);
         }
-        if (badge) query = (query as any).eq('badge', badge);
-        if (verified !== null) query = (query as any).eq('verified', verified);
-        if (priceRange) query = (query as any).eq('price_range', priceRange);
+        if (badge) {
+          console.log('[BUSINESSES API] Fallback: Applying badge filter:', badge);
+          query = (query as any).eq('badge', badge);
+        }
+        if (verified !== null) {
+          console.log('[BUSINESSES API] Fallback: Applying verified filter:', verified);
+          query = (query as any).eq('verified', verified);
+        }
+        if (priceRange) {
+          console.log('[BUSINESSES API] Fallback: Applying priceRange filter:', priceRange);
+          query = (query as any).eq('price_range', priceRange);
+        }
       }
       
       // Interest-based filtering: filter by subcategories mapped from interests
@@ -497,6 +548,7 @@ export async function GET(req: Request) {
       }
       
       if (typeof (query as any).ilike === 'function' && location) {
+        console.log('[BUSINESSES API] Fallback: Applying location filter (ILIKE):', location);
         query = (query as any).ilike('location', `%${location}%`);
       }
       
@@ -546,6 +598,16 @@ export async function GET(req: Request) {
       }
 
       const { data: fallbackData, error: fallbackError } = await query;
+      
+      console.log('[BUSINESSES API] Fallback query result:', {
+        dataLength: fallbackData?.length || 0,
+        hasError: !!fallbackError,
+        error: fallbackError ? {
+          message: fallbackError.message,
+          code: fallbackError.code,
+          details: fallbackError.details,
+        } : null,
+      });
       
       if (fallbackError) {
         console.error('[BUSINESSES API] Fallback query error:', fallbackError);
@@ -1675,6 +1737,8 @@ function transformBusinessForCard(business: BusinessRPCResult) {
     console.log('[BUSINESSES API] transformBusinessForCard: Successfully transformed:', {
       ...transformLog,
       finalImage: transformed.image ? 'present' : 'missing',
+      uploadedImagesArray: transformed.uploaded_images?.length || 0,
+      uploadedImagesSample: transformed.uploaded_images?.slice(0, 2) || [],
     });
   }
 

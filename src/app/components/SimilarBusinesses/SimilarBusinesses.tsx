@@ -139,10 +139,26 @@ export default function SimilarBusinesses({
 
   // Filter out current business, remove duplicates, apply personalization, and limit results
   const similarBusinesses = useMemo(() => {
-    if (!rawBusinesses || rawBusinesses.length === 0) return [];
+    if (!rawBusinesses || rawBusinesses.length === 0) {
+      console.log('[SimilarBusinesses] No raw businesses to filter', {
+        rawBusinessesLength: rawBusinesses?.length || 0,
+        currentBusinessId,
+        category,
+        location,
+        searchStrategy,
+      });
+      return [];
+    }
+    
+    console.log('[SimilarBusinesses] Filtering businesses', {
+      rawCount: rawBusinesses.length,
+      currentBusinessId,
+      rawBusinesses: rawBusinesses.map(b => ({ id: b.id, slug: b.slug, name: b.name })),
+    });
     
     // Create a Map to track unique businesses by ID
     const uniqueBusinessesMap = new Map<string, typeof rawBusinesses[0]>();
+    let filteredOutCount = 0;
     
     // Filter out current business and collect unique businesses
     rawBusinesses.forEach((b) => {
@@ -150,6 +166,16 @@ export default function SimilarBusinesses({
       const isCurrentBusiness = 
         b.id === currentBusinessId || 
         (b.slug && b.slug === currentBusinessId);
+      
+      if (isCurrentBusiness) {
+        filteredOutCount++;
+        console.log('[SimilarBusinesses] Filtered out current business', {
+          businessId: b.id,
+          businessSlug: b.slug,
+          currentBusinessId,
+          matchType: b.id === currentBusinessId ? 'id' : 'slug',
+        });
+      }
       
       // Only add if it's not the current business and not already in the map
       if (!isCurrentBusiness && !uniqueBusinessesMap.has(b.id)) {
@@ -159,6 +185,12 @@ export default function SimilarBusinesses({
     
     // Convert Map values to array
     let filtered = Array.from(uniqueBusinessesMap.values());
+    
+    console.log('[SimilarBusinesses] After filtering', {
+      filteredCount: filtered.length,
+      filteredOutCount,
+      remaining: filtered.map(b => ({ id: b.id, slug: b.slug, name: b.name })),
+    });
     
     // Apply personalization if user has preferences
     if (userPreferences.interestIds.length > 0 || userPreferences.subcategoryIds.length > 0) {
@@ -192,12 +224,26 @@ export default function SimilarBusinesses({
     }
     
     // Limit results and add href
-    return filtered
+    const limited = filtered
       .slice(0, limit)
       .map((b) => ({
         ...b,
         href: `/business/${b.slug || b.id}`,
       }));
+    
+    console.log('[SimilarBusinesses] Final similar businesses', {
+      count: limited.length,
+      businesses: limited.map(b => ({ 
+        id: b.id, 
+        slug: b.slug, 
+        name: b.name,
+        uploaded_images: b.uploaded_images?.length || 0,
+        image_url: !!b.image_url,
+        image: !!b.image,
+      })),
+    });
+    
+    return limited;
   }, [rawBusinesses, currentBusinessId, limit, userPreferences]);
 
   // Handle fallback strategies when current strategy returns no results
