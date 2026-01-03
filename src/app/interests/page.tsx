@@ -49,7 +49,7 @@ function InterestsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { showToast, showToastOnce } = useToast();
-  const { user, isLoading: authLoading } = useAuth();
+  const { user, isLoading: authLoading, refreshUser } = useAuth();
 
   // Prefetch all onboarding pages immediately on mount for faster navigation
   useEffect(() => {
@@ -232,6 +232,10 @@ function InterestsContent() {
         throw new Error(result.error || 'Failed to save interests');
       }
 
+      // Refresh user profile to get updated interests_count before navigation
+      // This ensures guards don't redirect back to interests page
+      await refreshUser();
+
       const navStart = performance.now();
       
       // Navigate to subcategories after successful save
@@ -254,7 +258,7 @@ function InterestsContent() {
       setIsNavigating(false);
       // Don't navigate on error - user stays on interests page
     }
-  }, [canProceed, selectedInterests, router, showToast, isNavigating]);
+  }, [canProceed, selectedInterests, router, showToast, isNavigating, refreshUser]);
 
   const hydratedSelected = mounted ? selectedInterests : [];
   const list = INTERESTS;

@@ -13,6 +13,7 @@ interface AuthContextType {
   register: (email: string, password: string, username: string) => Promise<boolean>;
   logout: () => Promise<void>;
   updateUser: (userData: Partial<AuthUser>) => Promise<void>;
+  refreshUser: () => Promise<void>;
   resendVerificationEmail: (email: string) => Promise<boolean>;
   isLoading: boolean;
   error: string | null;
@@ -414,6 +415,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  const refreshUser = useCallback(async (): Promise<void> => {
+    if (!user) return;
+    
+    try {
+      const currentUser = await AuthService.getCurrentUser();
+      if (currentUser) {
+        setUser(currentUser);
+      }
+    } catch (error: unknown) {
+      console.warn('AuthContext: Error refreshing user:', error);
+      // Don't set error state for refresh failures - just log it
+    }
+  }, [user]);
+
   const resendVerificationEmail = async (email: string): Promise<boolean> => {
     setIsLoading(true);
     setError(null);
@@ -443,10 +458,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
     register,
     logout,
     updateUser,
+    refreshUser,
     resendVerificationEmail,
     isLoading,
     error
-  }), [user, isLoading, error]);
+  }), [user, isLoading, error, refreshUser]);
 
   return (
     <AuthContext.Provider value={value}>
