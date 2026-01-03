@@ -66,35 +66,37 @@ export default function ReviewsList({
 
   if (error) {
     return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-red-50 border border-red-200 rounded-lg p-6 text-center"
-      >
-        <div className="flex items-center justify-center mb-3">
-          <AlertCircle size={24} className="text-red-500" />
-        </div>
-        <h3 className="font-urbanist text-lg font-600 text-red-800 mb-2">
-          Unable to load reviews
-        </h3>
-        <p className="font-urbanist text-sm text-red-600">
-          {error}
-        </p>
-      </motion.div>
+      <div className="flex flex-1 items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-red-50 border border-red-200 rounded-lg p-6 text-center"
+        >
+          <div className="flex items-center justify-center mb-3">
+            <AlertCircle size={24} className="text-red-500" />
+          </div>
+          <h3 className="font-urbanist text-lg font-600 text-red-800 mb-2">
+            Unable to load reviews
+          </h3>
+          <p className="font-urbanist text-sm text-red-600">
+            {error}
+          </p>
+        </motion.div>
+      </div>
     );
   }
 
   if (!reviews || reviews.length === 0) {
     return (
       <div
-        className="mx-auto w-full max-w-[2000px] px-2 font-urbanist w-full"
+        className="mx-auto w-full max-w-[2000px] px-2 font-urbanist flex flex-1 items-center justify-center"
         style={{
           fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
         }}
       >
-        <div className="text-center w-full">
-          <div className="w-20 h-20 mx-auto mb-6 bg-sage/10 rounded-full flex items-center justify-center">
-            <MessageCircle className="w-8 h-8 text-sage" />
+        <div className="text-center w-full max-w-md">
+          <div className="w-20 h-20 mx-auto mb-3 bg-sage/10 rounded-full flex items-center justify-center">
+            <MessageCircle className="w-8 h-8 text-navbar-bg/90" />
           </div>
           <h3 
             className="text-h2 font-semibold text-charcoal mb-2"
@@ -105,10 +107,9 @@ export default function ReviewsList({
             No reviews yet
           </h3>
           <p 
-            className="text-body-sm text-charcoal/60 mb-6 max-w-md mx-auto"
+            className="text-body-sm text-charcoal/60 mb-6 font-medium"
             style={{
               fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
-              fontWeight: 500,
             }}
           >
             {emptyMessage}
@@ -116,7 +117,7 @@ export default function ReviewsList({
           {emptyStateAction && (
             <Link
               href={emptyStateAction.href}
-              className={`inline-block px-6 py-3 rounded-full text-body font-semibold transition-colors ${
+              className={`inline-block px-6 py-3 rounded-full text-body font-semibold transition-colors mb-6 ${
                 emptyStateAction.disabled
                   ? 'bg-charcoal/20 text-charcoal/50 cursor-not-allowed'
                   : 'bg-coral text-white hover:bg-coral/90'

@@ -550,7 +550,7 @@ function BusinessCard({
                     aria-label={`Share ${business.name}`}
                   >
                     <div className="w-10 h-10 bg-sage/10 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Share2 className="w-5 h-5 text-sage" strokeWidth={2.5} />
+                      <Share2 className="w-5 h-5 text-navbar-bg/90" strokeWidth={2.5} />
                     </div>
                     <span className="text-sm font-semibold text-charcoal whitespace-nowrap" style={{
                       fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',

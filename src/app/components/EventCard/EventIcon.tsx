@@ -5,7 +5,7 @@ interface EventIconProps {
   className?: string;
 }
 
-export default function EventIcon({ iconName, className = "w-16 h-16 text-sage drop-shadow-sm" }: EventIconProps) {
+export default function EventIcon({ iconName, className = "w-16 h-16 text-navbar-bg/90 drop-shadow-sm" }: EventIconProps) {
   const getIconComponent = (name: string) => {
     switch (name) {
       case "paint-brush-outline":

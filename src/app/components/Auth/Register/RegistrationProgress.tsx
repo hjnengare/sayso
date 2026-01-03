@@ -38,7 +38,7 @@ export function RegistrationProgress({
               ? 'bg-gradient-to-br from-white via-white to-white/95 backdrop-blur-xl border border-white/60 ring-1 ring-white/30 shadow-sm'
               : 'bg-white/10 backdrop-blur-sm border border-white/20'
           }`}>
-            {usernameValid ? <CheckCircle className="w-4 h-4 text-sage" /> : <Circle className="w-4 h-4 text-white/40" />}
+            {usernameValid ? <CheckCircle className="w-4 h-4 text-navbar-bg/90" /> : <Circle className="w-4 h-4 text-white/40" />}
           </div>
           <span className={`text-sm sm:text-xs font-medium transition-colors duration-300 ${usernameValid ? 'text-white' : 'text-white/50'}`} style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 600 }}>
             Username
@@ -51,7 +51,7 @@ export function RegistrationProgress({
               ? 'bg-gradient-to-br from-white via-white to-white/95 backdrop-blur-xl border border-white/60 ring-1 ring-white/30 shadow-sm'
               : 'bg-white/10 backdrop-blur-sm border border-white/20'
           }`}>
-            {emailValid ? <CheckCircle className="w-4 h-4 text-sage" /> : <Circle className="w-4 h-4 text-white/40" />}
+            {emailValid ? <CheckCircle className="w-4 h-4 text-navbar-bg/90" /> : <Circle className="w-4 h-4 text-white/40" />}
           </div>
           <span className={`text-sm sm:text-xs font-medium transition-colors duration-300 ${emailValid ? 'text-white' : 'text-white/50'}`} style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 600 }}>
             Email
@@ -64,7 +64,7 @@ export function RegistrationProgress({
               ? 'bg-gradient-to-br from-white via-white to-white/95 backdrop-blur-xl border border-white/60 ring-1 ring-white/30 shadow-sm'
               : 'bg-white/10 backdrop-blur-sm border border-white/20'
           }`}>
-            {passwordStrong ? <CheckCircle className="w-4 h-4 text-sage" /> : <Circle className="w-4 h-4 text-white/40" />}
+            {passwordStrong ? <CheckCircle className="w-4 h-4 text-navbar-bg/90" /> : <Circle className="w-4 h-4 text-white/40" />}
           </div>
           <span className={`text-sm sm:text-xs font-medium transition-colors duration-300 ${passwordStrong ? 'text-white' : 'text-white/50'}`} style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 600 }}>
             Password
@@ -77,7 +77,7 @@ export function RegistrationProgress({
               ? 'bg-gradient-to-br from-white via-white to-white/95 backdrop-blur-xl border border-white/60 ring-1 ring-white/30 shadow-sm'
               : 'bg-white/10 backdrop-blur-sm border border-white/20'
           }`}>
-            {consentGiven ? <CheckCircle className="w-4 h-4 text-sage" /> : <Circle className="w-4 h-4 text-white/40" />}
+            {consentGiven ? <CheckCircle className="w-4 h-4 text-navbar-bg/90" /> : <Circle className="w-4 h-4 text-white/40" />}
           </div>
           <span className={`text-sm sm:text-xs font-medium transition-colors duration-300 ${consentGiven ? 'text-white' : 'text-white/50'}`} style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 600 }}>
             Terms

@@ -393,9 +393,9 @@ export default function ImageUpload({
               }
             `}>
               {isDragging ? (
-                <Upload className="w-7 h-7 sm:w-8 sm:h-8 text-sage animate-bounce" strokeWidth={2} />
+                <Upload className="w-7 h-7 sm:w-8 sm:h-8 text-navbar-bg/90 animate-bounce" strokeWidth={2} />
               ) : (
-                <ImageIcon className="w-7 h-7 sm:w-8 sm:h-8 text-charcoal/60 group-hover:text-sage transition-colors duration-300" strokeWidth={2} />
+                <ImageIcon className="w-7 h-7 sm:w-8 sm:h-8 text-charcoal/60 group-hover:text-navbar-bg/90 transition-colors duration-300" strokeWidth={2} />
               )}
             </div>
             

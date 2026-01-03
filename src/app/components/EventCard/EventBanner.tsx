@@ -40,7 +40,7 @@ export default function EventBanner({
           </>
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-sage/5 to-sage/10 rounded-t-lg">
-            <ImageIcon className="w-12 h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 text-sage/40" />
+            <ImageIcon className="w-12 h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 text-navbar-bg/40" />
           </div>
         )}
       </div>

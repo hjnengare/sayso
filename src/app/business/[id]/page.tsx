@@ -40,8 +40,6 @@ import {
 } from "../../components/BusinessDetail";
 import BusinessLocation from "../../components/BusinessDetail/BusinessLocation";
 import Header from "../../components/Header/Header";
-import StaggeredContainer from "../../components/Animations/StaggeredContainer";
-import AnimatedElement from "../../components/Animations/AnimatedElement";
 
 export default function BusinessProfilePage() {
     const params = useParams();
@@ -432,112 +430,92 @@ export default function BusinessProfilePage() {
                                     </ol>
                                 </nav>
                                 <div className="pt-2">
-                                    <StaggeredContainer>
-                                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-6 lg:gap-8">
-                                            {/* Left Column - Main Content */}
-                                            <div className="lg:col-span-2 space-y-4 sm:space-y-6 lg:space-y-8">
-                                                <AnimatedElement index={0} direction="bottom">
-                                                    <BusinessHeroImage
-                                                        image={businessData.image || businessData.images[0] || ""}
-                                                        alt={businessData.name}
-                                                        rating={businessData.rating}
-                                                        verified={businessData.verified}
-                                                    />
-                                                </AnimatedElement>
-                                                <AnimatedElement index={1} direction="bottom">
-                                                    <BusinessInfoComponent
-                                                        name={businessData.name}
-                                                        rating={businessData.rating}
-                                                        location={businessData.location}
-                                                        category={businessData.category}
-                                                    />
-                                                </AnimatedElement>
-                                                <AnimatedElement index={2} direction="bottom">
-                                                    <BusinessDescription description={businessData.description} />
-                                                </AnimatedElement>
-                                                <AnimatedElement index={3} direction="bottom">
-                                                    <BusinessDetailsCard
-                                                        priceRange={businessData.price_range}
-                                                        verified={businessData.verified}
-                                                        hours={business.hours || business.opening_hours || business.openingHours || undefined}
-                                                    />
-                                                </AnimatedElement>
+                                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-6 lg:gap-8">
+                                        {/* Left Column - Main Content */}
+                                        <div className="lg:col-span-2 space-y-4 sm:space-y-6 lg:space-y-8">
+                                            <BusinessHeroImage
+                                                image={businessData.image || businessData.images[0] || ""}
+                                                alt={businessData.name}
+                                                rating={businessData.rating}
+                                                verified={businessData.verified}
+                                            />
+                                            <BusinessInfoComponent
+                                                name={businessData.name}
+                                                rating={businessData.rating}
+                                                location={businessData.location}
+                                                category={businessData.category}
+                                            />
+                                            <BusinessDescription description={businessData.description} />
+                                            <BusinessDetailsCard
+                                                priceRange={businessData.price_range}
+                                                verified={businessData.verified}
+                                                hours={business.hours || business.opening_hours || business.openingHours || undefined}
+                                            />
 
-                                                {/* Location Map */}
-                                                <AnimatedElement index={3.5} direction="bottom">
-                                                    <div ref={mapSectionRef}>
-                                                        <BusinessLocation
-                                                            name={businessData.name}
-                                                            address={businessData.address}
-                                                            location={businessData.location}
-                                                            latitude={businessData.latitude}
-                                                            longitude={businessData.longitude}
-                                                        />
-                                                    </div>
-                                                </AnimatedElement>
-
-                                                {/* Contact Information - Mobile Only */}
-                                                <AnimatedElement index={4} direction="bottom">
-                                                    <div className="lg:hidden">
-                                                        <BusinessContactInfo
-                                                            phone={businessData.phone}
-                                                            website={businessData.website}
-                                                            address={businessData.address}
-                                                            email={businessData.email}
-                                                            location={businessData.location}
-                                                            onViewMap={scrollToMap}
-                                                            showMapLink={!!(businessData.address || businessData.location || businessData.latitude)}
-                                                        />
-                                                    </div>
-                                                </AnimatedElement>
+                                            {/* Location Map */}
+                                            <div ref={mapSectionRef}>
+                                                <BusinessLocation
+                                                    name={businessData.name}
+                                                    address={businessData.address}
+                                                    location={businessData.location}
+                                                    latitude={businessData.latitude}
+                                                    longitude={businessData.longitude}
+                                                />
                                             </div>
 
-                                            {/* Right Column - Sidebar */}
-                                            <div className="space-y-4 sm:space-y-6">
-                                                <AnimatedElement index={5} direction="bottom">
-                                                    <BusinessActionCard
-                                                        businessSlug={businessSlug}
-                                                        businessId={businessId}
-                                                        isBusinessOwner={isBusinessOwner}
-                                                        hasReviewed={hasReviewed}
-                                                    />
-                                                </AnimatedElement>
-                                                
-                                                {/* Personalization Insights */}
-                                                <AnimatedElement index={5.5} direction="bottom">
-                                                    <PersonalizationInsights
-                                                        business={{
-                                                            id: businessData.id,
-                                                            interestId: business.interest_id,
-                                                            subInterestId: business.sub_interest_id,
-                                                            category: businessData.category,
-                                                            priceRange: businessData.price_range,
-                                                            averageRating: businessData.rating,
-                                                            totalReviews: business.reviews?.length || 0,
-                                                            distanceKm: null, // Could add geolocation later
-                                                            percentiles: business.stats?.percentiles || null,
-                                                            verified: businessData.verified,
-                                                        }}
-                                                    />
-                                                </AnimatedElement>
-                                                
-                                                {/* Contact Information - Desktop Only */}
-                                                <AnimatedElement index={6} direction="bottom">
-                                                    <div className="hidden lg:block">
-                                                        <BusinessContactInfo
-                                                            phone={businessData.phone}
-                                                            website={businessData.website}
-                                                            address={businessData.address}
-                                                            email={businessData.email}
-                                                            location={businessData.location}
-                                                            onViewMap={scrollToMap}
-                                                            showMapLink={!!(businessData.address || businessData.location || businessData.latitude)}
-                                                        />
-                                                    </div>
-                                                </AnimatedElement>
+                                            {/* Contact Information - Mobile Only */}
+                                            <div className="lg:hidden">
+                                                <BusinessContactInfo
+                                                    phone={businessData.phone}
+                                                    website={businessData.website}
+                                                    address={businessData.address}
+                                                    email={businessData.email}
+                                                    location={businessData.location}
+                                                    onViewMap={scrollToMap}
+                                                    showMapLink={!!(businessData.address || businessData.location || businessData.latitude)}
+                                                />
                                             </div>
                                         </div>
-                                    </StaggeredContainer>
+
+                                        {/* Right Column - Sidebar */}
+                                        <div className="space-y-4 sm:space-y-6">
+                                            <BusinessActionCard
+                                                businessSlug={businessSlug}
+                                                businessId={businessId}
+                                                isBusinessOwner={isBusinessOwner}
+                                                hasReviewed={hasReviewed}
+                                            />
+                                            
+                                            {/* Personalization Insights */}
+                                            <PersonalizationInsights
+                                                business={{
+                                                    id: businessData.id,
+                                                    interestId: business.interest_id,
+                                                    subInterestId: business.sub_interest_id,
+                                                    category: businessData.category,
+                                                    priceRange: businessData.price_range,
+                                                    averageRating: businessData.rating,
+                                                    totalReviews: business.reviews?.length || 0,
+                                                    distanceKm: null, // Could add geolocation later
+                                                    percentiles: business.stats?.percentiles || null,
+                                                    verified: businessData.verified,
+                                                }}
+                                            />
+                                            
+                                            {/* Contact Information - Desktop Only */}
+                                            <div className="hidden lg:block">
+                                                <BusinessContactInfo
+                                                    phone={businessData.phone}
+                                                    website={businessData.website}
+                                                    address={businessData.address}
+                                                    email={businessData.email}
+                                                    location={businessData.location}
+                                                    onViewMap={scrollToMap}
+                                                    showMapLink={!!(businessData.address || businessData.location || businessData.latitude)}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </section>
@@ -553,8 +531,6 @@ export default function BusinessProfilePage() {
                                         className={`${swanky.className} text-lg sm:text-xl font-semibold text-charcoal rounded-lg cursor-default`}
                                         typingSpeedMs={40}
                                         startDelayMs={300}
-                                        waveVariant="subtle"
-                                        loopWave={true}
                                         disableWave={true}
                                         style={{ 
                                             fontFamily: swanky.style.fontFamily,
