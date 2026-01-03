@@ -18,7 +18,7 @@ export default function SubcategoryHeader() {
   return (
     <div className="text-center mb-6 pt-4 sm:pt-6 enter-fade title-no-break">
       <WavyTypedTitle
-        text="Choose your subcategories"
+        text="Pick your subcategories"
         as="h2"
         className={`${swanky.className} text-2xl md:text-3xl lg:text-4xl font-bold mb-2 tracking-tight px-6 sm:px-4 md:px-2 text-charcoal`}
         typingSpeedMs={40}

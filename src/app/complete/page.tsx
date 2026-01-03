@@ -76,14 +76,14 @@ function CompletePageContent() {
   const redirectTimerRef = useRef<NodeJS.Timeout | null>(null);
   const hasRedirectedRef = useRef(false);
 
-  // Auto-redirect to home after 2 seconds
+  // Auto-redirect to home after a while
   useEffect(() => {
     redirectTimerRef.current = setTimeout(() => {
       if (!hasRedirectedRef.current) {
         hasRedirectedRef.current = true;
         router.push('/home');
       }
-    }, 2000);
+    }, 3500);
 
     return () => {
       if (redirectTimerRef.current) {
