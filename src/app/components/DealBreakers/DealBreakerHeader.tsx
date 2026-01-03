@@ -32,7 +32,7 @@ export default function DealBreakerHeader() {
         }}
       />
       <p
-        className="text-sm md:text-base text-charcoal/70 leading-relaxed px-4 max-w-lg mx-auto"
+        className="text-sm md:text-base text-charcoal/70 leading-relaxed px-4 max-w-lg mx-auto break-words whitespace-normal"
         style={bodyStyle}
       >
         Select what matters most to you in a business

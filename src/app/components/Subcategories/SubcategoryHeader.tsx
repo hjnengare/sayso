@@ -32,7 +32,7 @@ export default function SubcategoryHeader() {
         }}
       />
       <p
-        className="text-sm md:text-base text-charcoal/70 leading-relaxed px-4 max-w-lg mx-auto"
+        className="text-sm md:text-base text-charcoal/70 leading-relaxed px-4 max-w-lg mx-auto break-words whitespace-normal"
         style={bodyStyle}
       >
         Select specific areas within your interests

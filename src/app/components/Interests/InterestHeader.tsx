@@ -54,7 +54,7 @@ export default function InterestHeader({ isOnline }: InterestHeaderProps) {
           />
         </div>
         <p
-          className="text-sm md:text-base font-normal text-charcoal/70 leading-relaxed px-4 max-w-lg md:max-w-lg mx-auto"
+          className="text-sm md:text-base font-normal text-charcoal/70 leading-relaxed px-4 max-w-lg md:max-w-lg mx-auto break-words whitespace-normal"
           style={bodyStyle}
         >
           Pick a few things you love and let&apos;s personalise your experience!
