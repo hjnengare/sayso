@@ -691,8 +691,8 @@ export default function AddBusinessPage() {
                                 <nav className="mb-4 sm:mb-6 px-2" aria-label="Breadcrumb">
                                     <ol className="flex items-center gap-2 text-sm sm:text-base">
                                         <li>
-                                            <Link href="/home" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                                                Home
+                                            <Link href="/for-businesses" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                                for businesses
                                             </Link>
                                         </li>
                                         <li className="flex items-center">
@@ -914,7 +914,7 @@ export default function AddBusinessPage() {
                                                                             <button
                                                                                 type="button"
                                                                                 onClick={() => handleInputChange('intent', 'owner')}
-                                                                                className={`flex items-center gap-3 p-4 rounded-[20px] border-2 transition-all duration-200 ${
+                                                                                className={`flex items-center gap-3 p-4 rounded-full border-2 transition-all duration-200 ${
                                                                                     formData.intent === 'owner'
                                                                                         ? 'bg-gradient-to-br from-coral/20 to-coral/10 border-coral text-white'
                                                                                         : 'bg-white/10 border-white/30 text-white/80 hover:border-white/50 hover:bg-white/15'
@@ -926,7 +926,7 @@ export default function AddBusinessPage() {
                                                                             <button
                                                                                 type="button"
                                                                                 onClick={() => handleInputChange('intent', 'adding-place')}
-                                                                                className={`flex items-center gap-3 p-4 rounded-[20px] border-2 transition-all duration-200 ${
+                                                                                className={`flex items-center gap-3 p-4 rounded-full border-2 transition-all duration-200 ${
                                                                                     formData.intent === 'adding-place'
                                                                                         ? 'bg-gradient-to-br from-coral/20 to-coral/10 border-coral text-white'
                                                                                         : 'bg-white/10 border-white/30 text-white/80 hover:border-white/50 hover:bg-white/15'

@@ -2,6 +2,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   Heart,
@@ -9,7 +10,12 @@ import {
 import Logo from "../Logo/Logo";
 
 export default function Footer() {
-  const currentYear = new Date().getFullYear();
+  // Use useState and useEffect to set year only on client to avoid hydration mismatch
+  const [currentYear, setCurrentYear] = useState<number>(2025);
+
+  useEffect(() => {
+    setCurrentYear(new Date().getFullYear());
+  }, []);
 
   const footerLinks = {
     company: [

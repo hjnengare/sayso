@@ -671,24 +671,26 @@ function BusinessCard({
                 </div>
                 {/* Category with icon - Stacked layout */}
                 <div className="flex flex-col items-center gap-1.5 w-full">
-                  {/* Category row with icon */}
-                  <div
-                    className="flex items-center justify-center gap-1.5 text-caption sm:text-xs text-charcoal/60"
-                    style={{
-                      fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
-                      fontWeight: 600,
-                      WebkitFontSmoothing: 'antialiased',
-                      MozOsxFontSmoothing: 'grayscale',
-                      textRendering: 'optimizeLegibility',
-                      letterSpacing: '0.01em'
-                    }}
-                  >
+                  {/* Category row with icon - Pill badge style */}
+                  <div className="inline-flex items-center justify-center gap-1.5 rounded-full bg-gradient-to-br from-sage/10 to-sage/5 border border-sage/30 px-3 py-1.5 backdrop-blur-sm shadow-sm">
                     {(() => {
                       const CategoryIcon = getCategoryIcon(business.category, business.subInterestId, business.subInterestLabel);
                       return (
                         <>
-                          <CategoryIcon className="w-3.5 h-3.5 flex-shrink-0 text-charcoal/50" strokeWidth={2.5} />
-                          <span className="truncate">{displayCategoryLabel}</span>
+                          <CategoryIcon className="w-3.5 h-3.5 flex-shrink-0 text-charcoal/70" strokeWidth={2.5} />
+                          <span 
+                            className="truncate text-caption sm:text-xs text-charcoal/80 font-semibold"
+                            style={{
+                              fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                              fontWeight: 600,
+                              WebkitFontSmoothing: 'antialiased',
+                              MozOsxFontSmoothing: 'grayscale',
+                              textRendering: 'optimizeLegibility',
+                              letterSpacing: '0.01em'
+                            }}
+                          >
+                            {displayCategoryLabel}
+                          </span>
                         </>
                       );
                     })()}

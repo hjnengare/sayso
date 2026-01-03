@@ -33,16 +33,58 @@ export class BusinessOwnershipService {
   /**
    * Check if a user owns a business
    * Checks both the business_owners table and direct owner_id on businesses table
+   * Supports both UUID and slug identifiers
    */
-  static async isBusinessOwner(userId: string, businessId: string): Promise<boolean> {
+  static async isBusinessOwner(userId: string, businessIdentifier: string): Promise<boolean> {
     // Early return guards to prevent unnecessary queries
-    if (!userId || !businessId) {
+    if (!userId || !businessIdentifier) {
       return false;
     }
 
     try {
       const supabase = this.getSupabase();
       
+      // Resolve business identifier (slug or UUID) to actual UUID
+      let businessId: string | null = null;
+      
+      // Validate UUID format
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      const isUUID = uuidRegex.test(businessIdentifier);
+      
+      if (isUUID) {
+        // It's already a UUID, use it directly
+        businessId = businessIdentifier;
+      } else {
+        // Try to resolve slug to UUID
+        const { data: slugData, error: slugError } = await supabase
+          .from('businesses')
+          .select('id')
+          .eq('slug', businessIdentifier)
+          .eq('status', 'active')
+          .maybeSingle();
+
+        if (slugError) {
+          console.error('Error resolving business slug to ID:', {
+            slug: businessIdentifier,
+            error: slugError,
+          });
+          return false;
+        }
+
+        if (slugData?.id && typeof slugData.id === 'string') {
+          businessId = slugData.id;
+        } else {
+          // Slug not found
+          return false;
+        }
+      }
+
+      // Verify businessId is a valid UUID before using it in queries
+      if (!businessId || typeof businessId !== 'string' || !uuidRegex.test(businessId)) {
+        console.error('Invalid business ID format:', businessId);
+        return false;
+      }
+
       // First check: business_owners table (using maybeSingle to avoid PGRST116)
       const { data: ownerData, error: ownerError } = await supabase
         .from('business_owners')

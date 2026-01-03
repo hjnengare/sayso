@@ -229,34 +229,59 @@ export default function BusinessEditPage() {
 
             // Upload each file (respecting the limit)
             const filesToUpload = Array.from(files).slice(0, MAX_IMAGES - currentCount);
+            const uploadErrors: string[] = [];
+            
             for (let i = 0; i < filesToUpload.length; i++) {
                 const file = filesToUpload[i];
-                const fileExt = file.name.split('.').pop() || 'jpg';
-                const timestamp = Date.now();
-                const fileName = `${businessId}_${Date.now()}_${i}.${fileExt}`;
-                const filePath = `${businessId}/${fileName}`;
+                try {
+                    const fileExt = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+                    // Path pattern: {business_id}/{timestamp}_{index}.{ext} (matching API pattern)
+                    const timestamp = Date.now();
+                    const filePath = `${businessId}/${timestamp}_${i}.${fileExt}`;
 
-                // Upload to Supabase Storage
-                const { error: uploadError } = await supabase.storage
-                    .from(STORAGE_BUCKETS.BUSINESS_IMAGES)
-                    .upload(filePath, file, {
-                        contentType: file.type,
-                    });
+                    // Upload to Supabase Storage
+                    const { error: uploadError } = await supabase.storage
+                        .from(STORAGE_BUCKETS.BUSINESS_IMAGES)
+                        .upload(filePath, file, {
+                            contentType: file.type,
+                            upsert: false, // Don't overwrite existing files
+                        });
 
-                if (uploadError) {
-                    console.error('[Edit Business] Error uploading image:', uploadError);
-                    showToast(`Failed to upload image ${i + 1}: ${uploadError.message}`, 'error', 5000);
-                    continue;
+                    if (uploadError) {
+                        // Handle specific error cases
+                        if (uploadError.message.includes('already exists')) {
+                            uploadErrors.push(`Image ${i + 1} already exists`);
+                            continue;
+                        }
+                        console.error('[Edit Business] Error uploading image:', uploadError);
+                        uploadErrors.push(`Failed to upload image ${i + 1}: ${uploadError.message}`);
+                        continue;
+                    }
+
+                    // Get public URL
+                    const { data: { publicUrl } } = supabase.storage
+                        .from(STORAGE_BUCKETS.BUSINESS_IMAGES)
+                        .getPublicUrl(filePath);
+
+                    if (publicUrl) {
+                        uploadedUrls.push(publicUrl);
+                    } else {
+                        uploadErrors.push(`Failed to get URL for image ${i + 1}`);
+                    }
+                } catch (fileError: any) {
+                    console.error(`[Edit Business] Error processing image ${i + 1}:`, fileError);
+                    uploadErrors.push(`Error processing image ${i + 1}: ${fileError.message || 'Unknown error'}`);
                 }
+            }
 
-                // Get public URL
-                const { data: { publicUrl } } = supabase.storage
-                    .from(STORAGE_BUCKETS.BUSINESS_IMAGES)
-                    .getPublicUrl(filePath);
-
-                if (publicUrl) {
-                    uploadedUrls.push(publicUrl);
-                }
+            // Show warnings if some uploads failed
+            if (uploadErrors.length > 0 && uploadedUrls.length === 0) {
+                showToast(`Failed to upload images: ${uploadErrors[0]}`, 'error', 6000);
+                setUploadingImages(false);
+                event.target.value = '';
+                return;
+            } else if (uploadErrors.length > 0) {
+                showToast(`Some images failed to upload (${uploadErrors.length} error(s))`, 'sage', 5000);
             }
 
             if (uploadedUrls.length > 0) {
@@ -605,7 +630,7 @@ export default function BusinessEditPage() {
                                             </Link>
                                         </li>
                                         <li className="flex items-center flex-shrink-0">
-                                            <ChevronRight className="w-4 h-4 text-charcoal/40" />
+                                            <ChevronRight className="w-4 h-4 text-navbar-bg" />
                                         </li>
                                         <li className="min-w-0 flex-1">
                                             <span className="text-charcoal font-semibold truncate block" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
@@ -621,29 +646,29 @@ export default function BusinessEditPage() {
                             <div className="relative z-10">
                                 <h3 className="font-urbanist text-base font-600 text-charcoal mb-6 flex items-center gap-3">
                                     <span className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-sage/20 to-sage/10">
-                                        <Store className="w-4 h-4 text-sage" />
+                                        <Store className="w-4 h-4 text-navbar-bg" />
                                     </span>
                                     Basic Information
                                 </h3>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label className="block font-urbanist text-sm font-600 text-charcoal mb-2">Business Name</label>
+                                        <label className="block text-sm font-semibold text-white mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>Business Name</label>
                                         <input
                                             type="text"
                                             value={formData.name}
                                             onChange={(e) => handleInputChange('name', e.target.value)}
-                                            className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-[20px] text-sm placeholder:text-charcoal/50 font-urbanist text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
+                                            className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-full text-sm placeholder:text-charcoal/50 font-urbanist text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
                                             placeholder="Enter business name"
                                         />
                                     </div>
 
                                     <div>
-                                        <label className="block font-urbanist text-sm font-600 text-charcoal mb-2">Category</label>
+                                        <label className="block text-sm font-semibold text-white mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>Category</label>
                                         <select
                                             value={formData.category}
                                             onChange={(e) => handleInputChange('category', e.target.value)}
-                                            className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-[20px] text-sm font-urbanist text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
+                                            className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-full text-sm font-urbanist text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
                                         >
                                             {categories.map(category => (
                                                 <option key={category} value={category}>{category}</option>
@@ -652,7 +677,7 @@ export default function BusinessEditPage() {
                                     </div>
 
                                     <div className="md:col-span-2">
-                                        <label className="block font-urbanist text-sm font-600 text-charcoal mb-2">Description</label>
+                                        <label className="block text-sm font-semibold text-white mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>Description</label>
                                         <textarea
                                             value={formData.description}
                                             onChange={(e) => handleInputChange('description', e.target.value)}
@@ -669,8 +694,8 @@ export default function BusinessEditPage() {
                         <div className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[20px] overflow-hidden border border-white/50 backdrop-blur-md shadow-md ring-1 ring-white/20 px-2 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10 lg:px-12 lg:py-10 xl:px-16 xl:py-12 animate-fade-in-up animate-delay-200">
                             <div className="relative z-10">
                                 <h3 className="font-urbanist text-base font-600 text-charcoal mb-6 flex items-center gap-3">
-                                    <span className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-coral/20 to-coral/10">
-                                        <ImageIcon className="w-4 h-4 text-coral" />
+                                    <span className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-sage/20 to-sage/10">
+                                        <ImageIcon className="w-4 h-4 text-navbar-bg" />
                                     </span>
                                     Business Photos
                                 </h3>
@@ -678,7 +703,7 @@ export default function BusinessEditPage() {
                                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-6">
                                     {formData.images.map((image, index) => (
                                         <div key={index} className="relative group">
-                                            <div className="aspect-square rounded-lg overflow-hidden bg-white/20 border border-white/50 relative">
+                                            <div className="aspect-square rounded-sm overflow-hidden bg-white/20 border border-white/50 relative">
                                                 {deletingImageIndex === index ? (
                                                     <div className="w-full h-full flex items-center justify-center bg-charcoal/20">
                                                         <PageLoader size="sm" variant="wavy" color="sage" />
@@ -698,12 +723,12 @@ export default function BusinessEditPage() {
                                                     </div>
                                                 )}
                                             </div>
-                                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-200 rounded-lg flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
+                                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-200 rounded-sm flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
                                                 {index !== 0 && (
                                                     <button
                                                         onClick={() => setAsPrimary(index)}
                                                         disabled={reorderingImage === index}
-                                                        className="bg-sage hover:bg-sage/90 text-white px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+                                                        className="bg-sage hover:bg-sage/90 text-white px-3 py-1.5 rounded-sm text-xs font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
                                                         aria-label="Set as primary image"
                                                     >
                                                         {reorderingImage === index ? (
@@ -713,7 +738,7 @@ export default function BusinessEditPage() {
                                                             </>
                                                         ) : (
                                                             <>
-                                                                <Edit3 className="w-3 h-3" />
+                                                                <Edit3 className="w-3 h-3 text-navbar-bg" />
                                                                 <span>Set Primary</span>
                                                             </>
                                                         )}
@@ -732,7 +757,7 @@ export default function BusinessEditPage() {
                                                         </>
                                                     ) : (
                                                         <>
-                                                            <X className="w-3 h-3" strokeWidth={2.5} />
+                                                            <X className="w-3 h-3 text-navbar-bg" strokeWidth={2.5} />
                                                             <span>Delete</span>
                                                         </>
                                                     )}
@@ -742,9 +767,9 @@ export default function BusinessEditPage() {
                                     ))}
                                     
                                     {formData.images.length < 10 && (
-                                        <label className="aspect-square rounded-lg border-2 border-dashed border-charcoal/30 flex items-center justify-center cursor-pointer hover:border-sage hover:bg-sage/5 transition-all duration-200">
+                                        <label className="aspect-square rounded-sm border-2 border-dashed border-charcoal/30 flex items-center justify-center cursor-pointer hover:border-sage hover:bg-sage/5 transition-all duration-200">
                                             <div className="text-center">
-                                                <Upload className="w-8 h-8 text-charcoal/60 mx-auto mb-2" />
+                                                <Upload className="w-8 h-8 text-navbar-bg mx-auto mb-2" />
                                                 <span className="font-urbanist text-sm text-charcoal/60">Add Photo</span>
                                                 <span className="font-urbanist text-xs text-charcoal/40 block mt-1">
                                                     {10 - formData.images.length} remaining
@@ -774,78 +799,78 @@ export default function BusinessEditPage() {
                         <div className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[20px] overflow-hidden border border-white/50 backdrop-blur-md shadow-md ring-1 ring-white/20 px-2 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10 lg:px-12 lg:py-10 xl:px-16 xl:py-12 animate-fade-in-up animate-delay-300">
                             <div className="relative z-10">
                                 <h3 className="font-urbanist text-base font-600 text-charcoal mb-6 flex items-center gap-3">
-                                    <span className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-coral/20 to-coral/10">
-                                        <Phone className="w-4 h-4 text-coral" />
+                                    <span className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-sage/20 to-sage/10">
+                                        <Phone className="w-4 h-4 text-navbar-bg" />
                                     </span>
                                     Contact Information
                                 </h3>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label className="block font-urbanist text-sm font-600 text-charcoal mb-2 flex items-center gap-2">
-                                            <MapPin className="w-4 h-4 text-charcoal/60" />
+                                        <label className="block text-sm font-semibold text-white mb-2 flex items-center gap-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
+                                            <MapPin className="w-4 h-4 text-navbar-bg" />
                                             Address
                                         </label>
                                         <input
                                             type="text"
                                             value={formData.address}
                                             onChange={(e) => handleInputChange('address', e.target.value)}
-                                            className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-[20px] text-sm placeholder:text-charcoal/50 font-urbanist text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
+                                            className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-full text-sm placeholder:text-charcoal/50 font-urbanist text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
                                             placeholder="Enter business address"
                                         />
                                     </div>
 
                                     <div>
-                                        <label className="block font-urbanist text-sm font-600 text-charcoal mb-2 flex items-center gap-2">
-                                            <Phone className="w-4 h-4 text-charcoal/60" />
+                                        <label className="block text-sm font-semibold text-white mb-2 flex items-center gap-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
+                                            <Phone className="w-4 h-4 text-navbar-bg" />
                                             Phone Number
                                         </label>
                                         <input
                                             type="tel"
                                             value={formData.phone}
                                             onChange={(e) => handleInputChange('phone', e.target.value)}
-                                            className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-[20px] text-sm placeholder:text-charcoal/50 font-urbanist text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
+                                            className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-full text-sm placeholder:text-charcoal/50 font-urbanist text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
                                             placeholder="Enter phone number"
                                         />
                                     </div>
 
                                     <div>
-                                        <label className="block font-urbanist text-sm font-600 text-charcoal mb-2 flex items-center gap-2">
-                                            <Mail className="w-4 h-4 text-charcoal/60" />
+                                        <label className="block text-sm font-semibold text-white mb-2 flex items-center gap-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
+                                            <Mail className="w-4 h-4 text-navbar-bg" />
                                             Email
                                         </label>
                                         <input
                                             type="email"
                                             value={formData.email}
                                             onChange={(e) => handleInputChange('email', e.target.value)}
-                                            className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-[20px] text-sm placeholder:text-charcoal/50 font-urbanist text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
+                                            className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-full text-sm placeholder:text-charcoal/50 font-urbanist text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
                                             placeholder="Enter email address"
                                         />
                                     </div>
 
                                     <div>
-                                        <label className="block font-urbanist text-sm font-600 text-charcoal mb-2 flex items-center gap-2">
-                                            <Globe className="w-4 h-4 text-charcoal/60" />
+                                        <label className="block text-sm font-semibold text-white mb-2 flex items-center gap-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
+                                            <Globe className="w-4 h-4 text-navbar-bg" />
                                             Website
                                         </label>
                                         <input
                                             type="url"
                                             value={formData.website}
                                             onChange={(e) => handleInputChange('website', e.target.value)}
-                                            className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-[20px] text-sm placeholder:text-charcoal/50 font-urbanist text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
+                                            className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-full text-sm placeholder:text-charcoal/50 font-urbanist text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
                                             placeholder="Enter website URL"
                                         />
                                     </div>
 
                                     <div>
-                                        <label className="block font-urbanist text-sm font-600 text-charcoal mb-2 flex items-center gap-2">
-                                            <DollarSign className="w-4 h-4 text-charcoal/60" />
+                                        <label className="block text-sm font-semibold text-white mb-2 flex items-center gap-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
+                                            <DollarSign className="w-4 h-4 text-navbar-bg" />
                                             Price Range
                                         </label>
                                         <select
                                             value={formData.priceRange}
                                             onChange={(e) => handleInputChange('priceRange', e.target.value)}
-                                            className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-[20px] text-sm font-urbanist text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
+                                            className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-full text-sm font-urbanist text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
                                         >
                                             {priceRanges.map(range => (
                                                 <option key={range} value={range}>{range}</option>
@@ -861,7 +886,7 @@ export default function BusinessEditPage() {
                             <div className="relative z-10">
                                 <h3 className="font-urbanist text-base font-600 text-charcoal mb-6 flex items-center gap-3">
                                     <span className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-sage/20 to-sage/10">
-                                        <Clock className="w-4 h-4 text-sage" />
+                                        <Clock className="w-4 h-4 text-navbar-bg" />
                                     </span>
                                     Business Hours
                                 </h3>
@@ -869,12 +894,12 @@ export default function BusinessEditPage() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                     {days.map(day => (
                                         <div key={day.key} className="flex items-center gap-3">
-                                            <label className="w-24 font-urbanist text-sm font-600 text-charcoal">{day.label}</label>
+                                            <label className="w-24 text-sm font-semibold text-white" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>{day.label}</label>
                                             <input
                                                 type="text"
                                                 value={formData.hours[day.key as keyof typeof formData.hours]}
                                                 onChange={(e) => handleHoursChange(day.key, e.target.value)}
-                                                className="flex-1 px-3 py-2 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-lg text-sm font-urbanist text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
+                                                className="flex-1 px-3 py-2 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-full text-sm font-urbanist text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
                                                 placeholder="e.g., 9:00 AM - 5:00 PM"
                                             />
                                         </div>
@@ -889,7 +914,7 @@ export default function BusinessEditPage() {
                                 <div className="flex items-center justify-between mb-6">
                                     <h3 className="font-urbanist text-base font-600 text-charcoal flex items-center gap-3">
                                         <span className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-sage/20 to-sage/10">
-                                            <Tag className="w-4 h-4 text-sage" />
+                                            <Tag className="w-4 h-4 text-navbar-bg" />
                                         </span>
                                         Specials & Offers
                                     </h3>
@@ -897,39 +922,39 @@ export default function BusinessEditPage() {
                                         onClick={addSpecial}
                                         className="bg-sage hover:bg-sage/90 text-white px-4 py-2 rounded-full text-sm font-600 font-urbanist transition-all duration-300 flex items-center gap-2"
                                     >
-                                        <Plus className="w-4 h-4" />
+                                        <Plus className="w-4 h-4 text-navbar-bg" />
                                         Add Special
                                     </button>
                                 </div>
 
                                 <div className="space-y-4">
                                     {formData.specials.map((special) => (
-                                        <div key={special.id} className="bg-white/40 backdrop-blur-sm rounded-lg p-4 border border-white/50 group relative">
+                                        <div key={special.id} className="bg-white/40 backdrop-blur-sm rounded-full p-4 border border-white/50 group relative">
                                             <button
                                                 onClick={() => removeSpecial(special.id)}
                                                 className="absolute -top-2 -right-2 w-7 h-7 bg-gradient-to-br from-charcoal to-charcoal/90 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110 border border-white/30 shadow-lg z-10"
                                                 aria-label="Remove special"
                                             >
-                                                <X className="w-4 h-4" strokeWidth={2.5} />
+                                                <X className="w-4 h-4 text-navbar-bg" strokeWidth={2.5} />
                                             </button>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                                 <div>
-                                                    <label className="block font-urbanist text-sm font-600 text-charcoal mb-2">Name</label>
+                                                    <label className="block text-sm font-semibold text-white mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>Name</label>
                                                     <input
                                                         type="text"
                                                         value={special.name}
                                                         onChange={(e) => updateSpecial(special.id, 'name', e.target.value)}
-                                                        className="w-full px-3 py-2 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-lg text-sm font-urbanist text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
+                                                        className="w-full px-3 py-2 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-full text-sm font-urbanist text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
                                                         placeholder="Special name"
                                                     />
                                                 </div>
                                                 <div>
-                                                    <label className="block font-urbanist text-sm font-600 text-charcoal mb-2">Description</label>
+                                                    <label className="block text-sm font-semibold text-white mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>Description</label>
                                                     <input
                                                         type="text"
                                                         value={special.description}
                                                         onChange={(e) => updateSpecial(special.id, 'description', e.target.value)}
-                                                        className="w-full px-3 py-2 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-lg text-sm font-urbanist text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
+                                                        className="w-full px-3 py-2 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-full text-sm font-urbanist text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
                                                         placeholder="When available"
                                                     />
                                                 </div>
@@ -953,7 +978,7 @@ export default function BusinessEditPage() {
                                 disabled={isSaving}
                                 className="px-6 py-3 bg-sage hover:bg-sage/90 text-white rounded-full text-sm font-600 font-urbanist transition-all duration-300 flex items-center gap-2 disabled:opacity-50"
                             >
-                                <Save className="w-4 h-4" />
+                                <Save className="w-4 h-4 text-navbar-bg" />
                                 {isSaving ? "Saving..." : "Save Changes"}
                             </button>
                         </div>

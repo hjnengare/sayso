@@ -59,7 +59,7 @@ export async function POST(req: Request) {
     }
 
     const formData = await req.formData();
-    const business_id = formData.get('business_id')?.toString();
+    const businessIdentifier = formData.get('business_id')?.toString();
     const ratingRaw = formData.get('rating')?.toString();
     const rating = ratingRaw ? parseInt(ratingRaw, 10) : null;
     const title = formData.get('title')?.toString() || null;
@@ -70,9 +70,72 @@ export async function POST(req: Request) {
       .filter((file): file is File => file instanceof File && file.size > 0);
 
     // Validate required fields
-    if (!business_id) {
+    if (!businessIdentifier) {
       return NextResponse.json(
         { error: 'Business ID is required' },
+        { status: 400 }
+      );
+    }
+
+    // Resolve business identifier (slug or ID) to UUID and get business data
+    let business_id: string | null = null;
+    let business: { id: string; name: string; slug: string | null } | null = null;
+    
+    // Try slug first
+    const { data: slugData, error: slugError } = await supabase
+      .from('businesses')
+      .select('id, name, slug')
+      .eq('slug', businessIdentifier)
+      .eq('status', 'active')
+      .maybeSingle();
+
+    if (slugError) {
+      console.error('[API] Error checking slug in POST reviews endpoint:', slugError);
+    } else if (slugData && typeof slugData === 'object' && 'id' in slugData && typeof slugData.id === 'string' && 'name' in slugData && typeof slugData.name === 'string') {
+      business_id = slugData.id;
+      business = {
+        id: slugData.id,
+        name: slugData.name,
+        slug: ('slug' in slugData && (typeof slugData.slug === 'string' || slugData.slug === null)) ? slugData.slug : null
+      };
+    } else {
+      // Validate UUID format before trying ID lookup
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (uuidRegex.test(businessIdentifier)) {
+        // Check if business exists
+        const { data: idData, error: idError } = await supabase
+          .from('businesses')
+          .select('id, name, slug')
+          .eq('id', businessIdentifier)
+          .eq('status', 'active')
+          .maybeSingle();
+
+        if (idError) {
+          console.error('[API] Error checking business ID in POST reviews endpoint:', idError);
+        } else if (idData && typeof idData === 'object' && 'id' in idData && typeof idData.id === 'string' && 'name' in idData && typeof idData.name === 'string') {
+          business_id = idData.id;
+          business = {
+            id: idData.id,
+            name: idData.name,
+            slug: ('slug' in idData && (typeof idData.slug === 'string' || idData.slug === null)) ? idData.slug : null
+          };
+        }
+      }
+    }
+
+    if (!business_id || !business) {
+      return NextResponse.json(
+        { error: 'Business not found', details: 'Invalid business identifier' },
+        { status: 404 }
+      );
+    }
+
+    // Verify business_id is a valid UUID format before using it in database queries
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (typeof business_id !== 'string' || !uuidRegex.test(business_id)) {
+      console.error('[API] Invalid UUID format for business_id in POST:', business_id, typeof business_id);
+      return NextResponse.json(
+        { error: 'Invalid business identifier format' },
         { status: 400 }
       );
     }
@@ -114,20 +177,6 @@ export async function POST(req: Request) {
 
     // Use sanitized content
     const finalContent = moderationResult.sanitizedContent || sanitizedContent;
-
-    // Check if business exists
-    const { data: business, error: businessError } = await supabase
-      .from('businesses')
-      .select('id, name, slug')
-      .eq('id', business_id)
-      .single();
-
-    if (businessError || !business) {
-      return NextResponse.json(
-        { error: 'Business not found' },
-        { status: 404 }
-      );
-    }
 
     // Check if user has already reviewed this business
     const { data: existingReview } = await supabase
@@ -385,13 +434,73 @@ export async function GET(req: Request) {
     const supabase = await getServerSupabase(req);
     const { searchParams } = new URL(req.url);
     
-    const businessId = searchParams.get('business_id');
+    const businessIdentifier = searchParams.get('business_id');
     const userId = searchParams.get('user_id');
     // Enforce pagination limits (max 50 reviews per request)
     const requestedLimit = parseInt(searchParams.get('limit') || '10');
     const limit = Math.min(Math.max(requestedLimit, 1), 50);
     const requestedOffset = parseInt(searchParams.get('offset') || '0');
     const offset = Math.max(requestedOffset, 0);
+
+    // Resolve business identifier (slug or ID) to UUID
+    let businessId: string | null = null;
+    if (businessIdentifier) {
+      // Try slug first
+      const { data: slugData, error: slugError } = await supabase
+        .from('businesses')
+        .select('id')
+        .eq('slug', businessIdentifier)
+        .eq('status', 'active')
+        .maybeSingle();
+
+      if (slugError) {
+        console.error('[API] Error checking slug in reviews endpoint:', slugError);
+      } else if (slugData?.id) {
+        businessId = slugData.id;
+      } else {
+        // Validate UUID format before trying ID lookup
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        if (uuidRegex.test(businessIdentifier)) {
+          // Check if business exists
+          const { data: idData, error: idError } = await supabase
+            .from('businesses')
+            .select('id')
+            .eq('id', businessIdentifier)
+            .eq('status', 'active')
+            .maybeSingle();
+
+          if (idError) {
+            console.error('[API] Error checking business ID in reviews endpoint:', idError);
+          } else if (idData?.id) {
+            businessId = businessIdentifier;
+          }
+        }
+      }
+
+      // Verify businessId is a valid UUID string before using it in queries
+      if (businessId) {
+        if (typeof businessId !== 'string') {
+          console.error('[API] businessId is not a string:', businessId, typeof businessId);
+          return NextResponse.json(
+            { error: 'Invalid business identifier type' },
+            { status: 400 }
+          );
+        }
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        if (!uuidRegex.test(businessId)) {
+          console.error('[API] Invalid UUID format for businessId:', businessId);
+          return NextResponse.json(
+            { error: 'Invalid business identifier format' },
+            { status: 400 }
+          );
+        }
+      } else {
+        return NextResponse.json(
+          { error: 'Business not found', details: 'Invalid business identifier' },
+          { status: 404 }
+        );
+      }
+    }
 
     // Optimize: Select only necessary fields for faster queries
     // Include business data when fetching user reviews (for profile page)
@@ -468,40 +577,73 @@ export async function GET(req: Request) {
     if (error) {
       console.error('Error fetching reviews:', error);
       return NextResponse.json(
-        { error: 'Failed to fetch reviews' },
+        { error: 'Failed to fetch reviews', details: error.message },
         { status: 500 }
       );
     }
 
-    // Import username generation utility
-    const { getDisplayUsername } = await import('../../lib/utils/generateUsernameServer');
+    // Import username generation utility with error handling
+    let getDisplayUsername: any;
+    try {
+      const usernameModule = await import('../../lib/utils/generateUsernameServer');
+      getDisplayUsername = usernameModule.getDisplayUsername;
+    } catch (importError) {
+      console.error('Error importing getDisplayUsername:', importError);
+      // Fallback: use simple display name logic
+      getDisplayUsername = (username: string | null, displayName: string | null, email: string | null, userId: string) => {
+        return displayName || username || `User ${userId?.slice(0, 8)}` || 'User';
+      };
+    }
     
     // Transform reviews to ensure user data is properly structured
     const transformedReviews = (reviews || []).map((review: any) => {
-      const profile = review.profile || {};
-      const user_id = profile.user_id || review.user_id;
-      
-      // Generate display username using same logic as migration
-      const displayName = getDisplayUsername(
-        profile.username,
-        profile.display_name,
-        null, // Email not available in profile join
-        user_id
-      );
-      
-      return {
-        ...review,
-        user: {
-          id: user_id,
-          name: displayName,
-          username: profile.username || null,
-          display_name: profile.display_name || null,
-          email: null, // Email not included in profile join for security
-          avatar_url: profile.avatar_url || null,
-        },
-        // Include business data if available (for profile page)
-        business: review.business || null,
-      };
+      try {
+        const profile = review.profile || {};
+        const user_id = profile.user_id || review.user_id;
+        
+        // Generate display username using same logic as migration
+        let displayName: string;
+        try {
+          displayName = getDisplayUsername(
+            profile.username,
+            profile.display_name,
+            null, // Email not available in profile join
+            user_id
+          );
+        } catch (nameError) {
+          console.error('Error generating display name:', nameError);
+          displayName = profile.display_name || profile.username || `User ${user_id?.slice(0, 8)}` || 'User';
+        }
+        
+        return {
+          ...review,
+          user: {
+            id: user_id,
+            name: displayName,
+            username: profile.username || null,
+            display_name: profile.display_name || null,
+            email: null, // Email not included in profile join for security
+            avatar_url: profile.avatar_url || null,
+          },
+          // Include business data if available (for profile page)
+          business: review.business || null,
+        };
+      } catch (transformError) {
+        console.error('Error transforming review:', transformError, { review_id: review?.id });
+        // Return a minimal valid review structure
+        return {
+          ...review,
+          user: {
+            id: review.user_id || 'unknown',
+            name: 'User',
+            username: null,
+            display_name: null,
+            email: null,
+            avatar_url: null,
+          },
+          business: review.business || null,
+        };
+      }
     });
 
     return NextResponse.json({
@@ -511,9 +653,16 @@ export async function GET(req: Request) {
     });
 
   } catch (error) {
-    console.error('Error in reviews API:', error);
+    console.error('Error in reviews API GET:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { 
+        error: 'Internal server error',
+        details: process.env.NODE_ENV === 'development' ? errorMessage : undefined,
+        stack: process.env.NODE_ENV === 'development' ? errorStack : undefined
+      },
       { status: 500 }
     );
   }
