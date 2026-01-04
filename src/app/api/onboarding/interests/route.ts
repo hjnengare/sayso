@@ -3,6 +3,41 @@ import { getServerSupabase } from '../../../lib/supabase/server';
 import { performance as nodePerformance } from 'perf_hooks';
 
 /**
+ * Helper function to update profile onboarding step with verification
+ */
+async function updateProfileStep(
+  supabase: any,
+  userId: string,
+  step: string
+) {
+  const { data, error } = await supabase
+    .from('profiles')
+    .update({
+      onboarding_step: step,
+      updated_at: new Date().toISOString()
+    })
+    .eq('user_id', userId)
+    .select('onboarding_step')
+    .single();
+
+  if (error) {
+    console.error('[Interests API] Profile update error:', {
+      error: error.message,
+      code: error.code,
+      details: error.details,
+    });
+    throw error;
+  }
+
+  // Verify the update actually worked
+  if (!data || data.onboarding_step !== step) {
+    throw new Error(`Profile onboarding_step did not update correctly. Expected: ${step}, Got: ${data?.onboarding_step}`);
+  }
+
+  return data;
+}
+
+/**
  * POST /api/onboarding/interests
  * Lightweight endpoint to save interests and mark step as done
  * Returns immediately after minimal write operations
@@ -43,18 +78,13 @@ export async function POST(req: Request) {
       );
     }
 
-    // Update profile to mark interests step as done
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .update({
-        onboarding_step: 'subcategories',
-        updated_at: new Date().toISOString()
-      })
-      .eq('user_id', user.id);
-
-    if (profileError) {
+    // Update profile to mark interests step as done (with verification)
+    try {
+      await updateProfileStep(supabase, user.id, 'subcategories');
+    } catch (profileError: any) {
       console.error('[Interests API] Error updating profile:', profileError);
-      // Don't fail if profile update fails - interests are saved
+      // Interests are saved, but profile update failed - throw to ensure user knows
+      throw new Error(`Failed to update profile step: ${profileError.message}`);
     }
 
     const writeTime = nodePerformance.now() - writeStart;

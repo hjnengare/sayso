@@ -3,6 +3,41 @@ import { getServerSupabase } from '../../../lib/supabase/server';
 import { performance as nodePerformance } from 'perf_hooks';
 
 /**
+ * Helper function to update profile onboarding step with verification
+ */
+async function updateProfileStep(
+  supabase: any,
+  userId: string,
+  step: string
+) {
+  const { data, error } = await supabase
+    .from('profiles')
+    .update({
+      onboarding_step: step,
+      updated_at: new Date().toISOString()
+    })
+    .eq('user_id', userId)
+    .select('onboarding_step')
+    .single();
+
+  if (error) {
+    console.error('[Subcategories API] Profile update error:', {
+      error: error.message,
+      code: error.code,
+      details: error.details,
+    });
+    throw error;
+  }
+
+  // Verify the update actually worked
+  if (!data || data.onboarding_step !== step) {
+    throw new Error(`Profile onboarding_step did not update correctly. Expected: ${step}, Got: ${data?.onboarding_step}`);
+  }
+
+  return data;
+}
+
+/**
  * POST /api/onboarding/subcategories
  * Lightweight endpoint to save subcategories and mark step as done
  */
@@ -48,18 +83,13 @@ export async function POST(req: Request) {
       );
     }
 
-    // Update profile to mark subcategories step as done
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .update({
-        onboarding_step: 'deal-breakers',
-        updated_at: new Date().toISOString()
-      })
-      .eq('user_id', user.id);
-
-    if (profileError) {
+    // Update profile to mark subcategories step as done (with verification)
+    try {
+      await updateProfileStep(supabase, user.id, 'deal-breakers');
+    } catch (profileError: any) {
       console.error('[Subcategories API] Error updating profile:', profileError);
-      // Don't fail if profile update fails - subcategories are saved
+      // Subcategories are saved, but profile update failed - throw to ensure user knows
+      throw new Error(`Failed to update profile step: ${profileError.message}`);
     }
 
     const writeTime = nodePerformance.now() - writeStart;

@@ -209,6 +209,9 @@ function SubcategoriesContent() {
       router.prefetch('/deal-breakers');
       router.replace('/deal-breakers');
       
+      // Force refresh to clear Next.js cache and ensure middleware sees updated profile
+      router.refresh();
+      
       const navEnd = performance.now();
       console.log('[Subcategories] Navigation started', {
         navTime: `${(navEnd - navStart).toFixed(2)}ms`,

@@ -207,6 +207,9 @@ function DealBreakersContent() {
 
       // Navigate after successful save
       router.replace('/complete');
+      
+      // Force refresh to clear Next.js cache and ensure middleware sees updated profile
+      router.refresh();
 
       const navEnd = performance.now();
       console.log('[DealBreakers] Navigation started', {

@@ -154,23 +154,46 @@ export async function middleware(request: NextRequest) {
   }
 
   // Helper function to determine next incomplete onboarding step
+  // PRIMARY SOURCE OF TRUTH: onboarding_step field
+  // Falls back to counts only if onboarding_step is missing/invalid
   const getNextOnboardingStep = (profile: any): string => {
     // If no profile, user needs to start at interests
     if (!profile) {
       return 'interests';
     }
 
-    // Check onboarding completion status
-    if (profile.onboarding_complete && profile.onboarding_step === 'complete') {
-      return 'complete'; // User has completed onboarding
+    // PRIMARY: Check onboarding_step field first (this is what APIs update)
+    const currentStep = profile.onboarding_step;
+    
+    // If onboarding is marked complete, user is done
+    if (profile.onboarding_complete && currentStep === 'complete') {
+      return 'complete';
     }
 
-    // Check step-by-step progress
+    // Map onboarding_step to next step
+    // If step is 'interests', next is 'subcategories'
+    // If step is 'subcategories', next is 'deal-breakers'
+    // If step is 'deal-breakers', next is 'complete'
+    if (currentStep) {
+      const stepMap: { [key: string]: string } = {
+        'interests': 'subcategories',
+        'subcategories': 'deal-breakers',
+        'deal-breakers': 'complete',
+        'complete': 'complete'
+      };
+      
+      // If we have a valid step, return the next step
+      if (stepMap[currentStep]) {
+        return stepMap[currentStep];
+      }
+    }
+
+    // FALLBACK: Only use counts if onboarding_step is missing or invalid
+    // This handles edge cases where step wasn't set but data exists
     const interestsCount = profile.interests_count || 0;
     const subcategoriesCount = profile.subcategories_count || 0;
     const dealbreakersCount = profile.dealbreakers_count || 0;
 
-    // Determine next step based on what's been completed
     if (interestsCount === 0) {
       return 'interests';
     } else if (subcategoriesCount === 0) {
@@ -189,6 +212,7 @@ export async function middleware(request: NextRequest) {
     try {
       // Only fetch minimal fields needed for routing decisions
       // Lightweight check - no joins, no aggregations
+      // CRITICAL: Use cache: 'no-store' to avoid stale data after profile updates
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('onboarding_step, onboarding_complete, interests_count, subcategories_count, dealbreakers_count')

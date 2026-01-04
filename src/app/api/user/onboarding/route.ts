@@ -2,6 +2,52 @@ import { NextResponse } from "next/server";
 import { getServerSupabase } from "../../../lib/supabase/server";
 import { performance as nodePerformance } from 'perf_hooks';
 
+/**
+ * Helper function to update profile onboarding status with verification
+ * Uses .select().single() to ensure the update actually succeeded
+ */
+async function updateProfileOnboarding(
+  supabase: any,
+  userId: string,
+  step: string,
+  complete: boolean
+) {
+  const { data, error } = await supabase
+    .from('profiles')
+    .update({
+      onboarding_step: step,
+      onboarding_complete: complete,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('user_id', userId)
+    .select('onboarding_step, onboarding_complete')
+    .single();
+
+  if (error) {
+    console.error('[Onboarding API] Profile update error:', {
+      error: error.message,
+      code: error.code,
+      details: error.details,
+      hint: error.hint,
+    });
+    throw error;
+  }
+
+  // Hard assert: verify the update actually worked
+  if (!data || data.onboarding_step !== step || data.onboarding_complete !== complete) {
+    const errorMessage = `Profile onboarding fields did not update correctly. Expected: step=${step}, complete=${complete}, Got: step=${data?.onboarding_step}, complete=${data?.onboarding_complete}`;
+    console.error('[Onboarding API]', errorMessage);
+    throw new Error(errorMessage);
+  }
+
+  console.log('[Onboarding API] Profile update verified:', {
+    onboarding_step: data.onboarding_step,
+    onboarding_complete: data.onboarding_complete,
+  });
+
+  return data;
+}
+
 export async function POST(req: Request) {
   const startTime = nodePerformance.now();
   const supabase = await getServerSupabase();
@@ -85,45 +131,15 @@ export async function POST(req: Request) {
         hint: completeError?.hint,
       });
 
-      // Verify atomic function succeeded
+      // Always update profile after atomic function succeeds
+      // Even though atomic function should update it, we verify and force-update to be bulletproof
       if (!completeError) {
-        console.log('[Onboarding API] Atomic function succeeded, verifying profile update...');
-        
-        // Verify profile was updated correctly
-        const { data: profile, error: profileCheckError } = await supabase
-          .from('profiles')
-          .select('onboarding_complete, onboarding_step, interests_count, subcategories_count, dealbreakers_count')
-          .eq('user_id', user.id)
-          .single();
-
-        if (profileCheckError) {
-          console.error('[Onboarding API] Error verifying profile update:', profileCheckError);
-        } else {
-          console.log('[Onboarding API] Profile verification:', {
-            onboarding_complete: profile.onboarding_complete,
-            onboarding_step: profile.onboarding_step,
-            interests_count: profile.interests_count,
-            subcategories_count: profile.subcategories_count,
-            dealbreakers_count: profile.dealbreakers_count,
-          });
-
-          // If profile wasn't updated by atomic function, update it manually
-          if (!profile.onboarding_complete || profile.onboarding_step !== 'complete') {
-            console.warn('[Onboarding API] Profile not fully updated by atomic function, updating manually...');
-            const { error: profileUpdateError } = await supabase
-              .from('profiles')
-              .update({
-                onboarding_step: 'complete',
-                onboarding_complete: true,
-                updated_at: new Date().toISOString()
-              })
-              .eq('user_id', user.id);
-
-            if (profileUpdateError) {
-              console.error('[Onboarding API] Error manually updating profile:', profileUpdateError);
-              throw profileUpdateError;
-            }
-          }
+        console.log('[Onboarding API] Atomic function succeeded, updating profile...');
+        try {
+          await updateProfileOnboarding(supabase, user.id, 'complete', true);
+        } catch (profileError) {
+          console.error('[Onboarding API] Failed to update profile after atomic function:', profileError);
+          throw profileError;
         }
       }
 
@@ -174,20 +190,8 @@ export async function POST(req: Request) {
           }
         }
 
-        // Update profile
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .update({
-            onboarding_step: 'complete',
-            onboarding_complete: true,
-            updated_at: new Date().toISOString()
-          })
-          .eq('user_id', user.id);
-
-        if (profileError) {
-          console.error('Error updating profile:', profileError);
-          throw profileError;
-        }
+        // Update profile with verification
+        await updateProfileOnboarding(supabase, user.id, 'complete', true);
       }
 
       const writeTime = nodePerformance.now() - writeStart;
@@ -246,20 +250,8 @@ export async function POST(req: Request) {
         }
       }
 
-      // Update profile step (only for individual steps)
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({
-          onboarding_step: step,
-          onboarding_complete: step === 'complete',
-          updated_at: new Date().toISOString()
-        })
-        .eq('user_id', user.id);
-
-      if (profileError) {
-        console.error('Error updating profile:', profileError);
-        throw profileError;
-      }
+      // Update profile step (only for individual steps) with verification
+      await updateProfileOnboarding(supabase, user.id, step, step === 'complete');
     }
 
     const totalTime = nodePerformance.now() - startTime;

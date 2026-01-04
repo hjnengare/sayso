@@ -236,6 +236,9 @@ function InterestsContent() {
 
       // Navigate after successful save
       router.replace('/subcategories');
+      
+      // Force refresh to clear Next.js cache and ensure middleware sees updated profile
+      router.refresh();
 
       const navEnd = performance.now();
       console.log('[Interests] Navigation started', {
