@@ -88,60 +88,18 @@ export async function GET() {
       dealbreakersIds = dealbreakersData.map(d => d.dealbreaker_id);
     }
 
-    // Get the actual names/details for interests
-    let interestDetails: any[] = [];
-    if (interestIds.length > 0) {
-      console.log('[Preferences API] Fetching interest details for IDs:', interestIds);
-      const { data, error } = await supabase
-        .from('interests')
-        .select('id, name')
-        .in('id', interestIds);
-
-      console.log('[Preferences API] interests table query result:', {
-        hasData: !!data,
-        dataLength: data?.length || 0,
-        data: data,
-        error: error?.message,
-      });
-
-      if (error) {
-        console.warn('[Preferences API] Warning fetching interest details:', error.message);
-      } else {
-        interestDetails = data || [];
-      }
-    } else {
-      console.log('[Preferences API] No interest IDs to fetch details for');
-    }
-
-    // Get the actual names/details for subcategories
-    let subcategoryDetails: any[] = [];
-    if (subcategoryIds.length > 0) {
-      const { data, error } = await supabase
-        .from('subcategories')
-        .select('id, name')
-        .in('id', subcategoryIds);
-
-      if (error) {
-        console.warn('[Preferences API] Warning fetching subcategory details:', error.message);
-      } else {
-        subcategoryDetails = data || [];
-      }
-    }
-
-    // Get the actual names/details for deal-breakers
-    let dealbreakersDetails: any[] = [];
-    if (dealbreakersIds.length > 0) {
-      const { data, error } = await supabase
-        .from('dealbreakers')
-        .select('id, name')
-        .in('id', dealbreakersIds);
-
-      if (error) {
-        console.warn('[Preferences API] Warning fetching dealbreaker details:', error.message);
-      } else {
-        dealbreakersDetails = data || [];
-      }
-    }
+    // Return preferences as IDs only - catalog tables don't exist
+    // The frontend can map IDs to names using hardcoded lists if needed
+    // This prevents errors from querying non-existent tables
+    const interestDetails = interestIds.map(id => ({ id, name: id })); // Use ID as name fallback
+    const subcategoryDetails = subcategoryIds.map(id => ({ id, name: id })); // Use ID as name fallback
+    const dealbreakersDetails = dealbreakersIds.map(id => ({ id, name: id })); // Use ID as name fallback
+    
+    console.log('[Preferences API] Returning preferences as IDs:', {
+      interests: interestDetails.length,
+      subcategories: subcategoryDetails.length,
+      dealbreakers: dealbreakersDetails.length,
+    });
 
     console.log('[Preferences API] Successfully fetched preferences:', {
       interests: interestDetails.length,

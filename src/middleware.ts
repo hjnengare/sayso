@@ -268,7 +268,9 @@ export async function middleware(request: NextRequest) {
 
     // CRITICAL: Always allow access to /complete page - users should see the celebration page
     // This must be checked BEFORE the "redirect if completed" check
+    // Allow even if onboarding_complete is true (user can revisit celebration page)
     if (currentPath === '/complete') {
+      console.log('Middleware: Allowing access to /complete page');
       // Allow access to complete page - prerequisites are checked in OnboardingGuard
       return response;
     }

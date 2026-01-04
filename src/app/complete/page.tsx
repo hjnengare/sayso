@@ -76,12 +76,19 @@ function CompletePageContent() {
   const redirectTimerRef = useRef<NodeJS.Timeout | null>(null);
   const hasRedirectedRef = useRef(false);
 
-  // Auto-redirect to home after a while
+  // Auto-redirect to home after a while, but only if onboarding is actually complete
   useEffect(() => {
     redirectTimerRef.current = setTimeout(() => {
-      if (!hasRedirectedRef.current) {
+      // Only auto-redirect if onboarding is actually marked complete
+      // This prevents redirect loops if profile wasn't updated yet
+      const isComplete = user?.profile?.onboarding_complete && 
+                        user?.profile?.onboarding_step === 'complete';
+      
+      if (!hasRedirectedRef.current && isComplete) {
         hasRedirectedRef.current = true;
-        router.push('/home');
+        router.replace('/home');
+      } else if (!isComplete) {
+        console.log('[Complete Page] Onboarding not marked complete yet, skipping auto-redirect');
       }
     }, 3500);
 
@@ -90,7 +97,7 @@ function CompletePageContent() {
         clearTimeout(redirectTimerRef.current);
       }
     };
-  }, [router]);
+  }, [router, user?.profile?.onboarding_complete, user?.profile?.onboarding_step]);
 
   // Handle manual redirect when button is clicked
   const handleContinueClick = (e: React.MouseEvent) => {
@@ -100,7 +107,9 @@ function CompletePageContent() {
     }
     if (!hasRedirectedRef.current) {
       hasRedirectedRef.current = true;
-      router.push('/home');
+      // Always use replace to avoid back button issues
+      // Middleware will handle redirect if onboarding isn't complete
+      router.replace('/home');
     }
   };
 
