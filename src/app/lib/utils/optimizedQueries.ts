@@ -6,6 +6,7 @@
 import { getPooledSupabaseClient, createParallelClients } from "../supabase/pool";
 import { executeParallelQueries, batchFetchByIds, executeWithRetry } from "./asyncQueries";
 import { queryCache } from "../cache/queryCache";
+import { getDisplayUsername } from "./generateUsernameServer";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 /**
@@ -144,7 +145,7 @@ export async function fetchBusinessOptimized(
           async () => {
             const result = await client1
               .from('review_images')
-              .select('review_id, image_url, storage_path')
+              .select('id, review_id, image_url, storage_path, alt_text, created_at')
               .in('review_id', reviewIds)
               .order('created_at', { ascending: true })
               .limit(100); // Limit total images to prevent large payloads (first image per review)
@@ -216,10 +217,34 @@ export async function fetchBusinessOptimized(
       // Ensure profile is always an object (even if empty) for consistent API handling
       const profileData = profile || null;
       
+      // Generate display name using the same logic as API
+      const displayName = getDisplayUsername(
+        profileData?.username,
+        profileData?.display_name,
+        null, // Email not available in profile join
+        review.user_id
+      );
+      
+      // Normalize images to include id, image_url, alt_text format expected by ReviewCard
+      const normalizedImages = images.map((img: any) => ({
+        id: img.id || `${review.id}-img`,
+        review_id: img.review_id || review.id,
+        image_url: img.image_url,
+        alt_text: img.alt_text || null,
+        created_at: img.created_at || null,
+      }));
+      
       return {
         ...review,
-        profile: profileData,
-        images,
+        profile: profileData ? {
+          ...profileData,
+          // Add computed name field for consistency with API
+          name: displayName,
+        } : null,
+        // Transform images array to expected format
+        images: normalizedImages,
+        // Also include legacy reviewImages for backward compatibility (string array)
+        reviewImages: normalizedImages.map((img: any) => img.image_url),
       };
     });
   }

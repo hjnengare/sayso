@@ -71,8 +71,25 @@ export default function OnboardingGuard({ children }: OnboardingGuardProps) {
       return;
     }
 
-    // If user has completed onboarding, redirect to home (except from /complete page)
-    if (user.profile?.onboarding_complete && pathname !== "/complete") {
+    // CRITICAL: Always allow access to /complete page if prerequisites are met
+    // This must be checked BEFORE the "redirect if completed" check
+    if (pathname === "/complete") {
+      const interestsCount = user.profile?.interests_count || 0;
+      const subcategoriesCount = user.profile?.subcategories_count || 0;
+      // Allow access to complete page if user has completed interests and subcategories
+      // Even if onboarding_complete is true, we want to show the celebration page
+      if (interestsCount === 0 || subcategoriesCount === 0) {
+        const nextStep = getNextOnboardingStep(user.profile);
+        router.replace(`/${nextStep}`);
+        return;
+      }
+      // User has completed prerequisites, allow them to see complete page
+      // This allows the page to show even if onboarding_complete is already true
+      return;
+    }
+
+    // If user has completed onboarding, redirect to home (but not if they're on /complete, which is handled above)
+    if (user.profile?.onboarding_complete) {
       router.replace("/home");
       return;
     }
@@ -118,20 +135,6 @@ export default function OnboardingGuard({ children }: OnboardingGuardProps) {
         router.replace("/subcategories");
         return;
       }
-    }
-
-    if (pathname === "/complete") {
-      const interestsCount = user.profile?.interests_count || 0;
-      const subcategoriesCount = user.profile?.subcategories_count || 0;
-      // Allow access to complete page if user has completed interests and subcategories
-      // Dealbreakers may still be saving in the background, so we allow access
-      // The refreshUser call in dealbreakers page will update the counts
-      if (interestsCount === 0 || subcategoriesCount === 0) {
-        router.replace(`/${nextStep}`);
-        return;
-      }
-      // If user has interests and subcategories, allow them to see complete page
-      // even if dealbreakers count is 0 (data is being saved in background)
     }
   }, [user, isLoading, pathname, router, isOnboardingRoute, getNextOnboardingStep]);
 

@@ -18,6 +18,7 @@ import {
   type BusinessForScoring,
   type UserPreferences,
 } from "@/app/lib/services/personalizationService";
+import { normalizeBusinessImages, type BusinessImage } from "@/app/lib/utils/businessImages";
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs'; // Use Node.js runtime to avoid Edge Runtime warnings with Supabase
@@ -143,11 +144,18 @@ interface BusinessRPCResult {
 
 const BUSINESS_SELECT = `
   id, name, description, category, interest_id, sub_interest_id, location, address,
-  phone, email, website, image_url, uploaded_images,
+  phone, email, website, image_url,
   verified, price_range, badge, slug, latitude, longitude,
   created_at, updated_at,
   business_stats (
     total_reviews, average_rating, percentiles
+  ),
+  business_images (
+    id,
+    url,
+    type,
+    sort_order,
+    is_primary
   )
 `;
 
@@ -166,7 +174,7 @@ type DatabaseBusinessRow = {
   email: string | null;
   website: string | null;
   image_url: string | null;
-  uploaded_images: string[] | null;
+  business_images?: BusinessImage[] | null;
   verified: boolean;
   price_range: string;
   badge: string | null;
@@ -507,10 +515,17 @@ export async function GET(req: Request) {
         .from('businesses')
         .select(`
           id, name, description, category, interest_id, sub_interest_id, location, address, 
-          phone, email, website, image_url, uploaded_images,
+          phone, email, website, image_url,
           verified, price_range, badge, slug, created_at, updated_at,
           business_stats (
             total_reviews, average_rating, percentiles
+          ),
+          business_images (
+            id,
+            url,
+            type,
+            sort_order,
+            is_primary
           )
         `);
 
@@ -1452,6 +1467,9 @@ function applyCommonFilters(query: any, options: BucketOptions) {
 function normalizeBusinessRows(rows: DatabaseBusinessRow[]): BusinessRPCResult[] {
   return rows.map((row) => {
     const stats = row.business_stats?.[0];
+    
+    // Normalize business_images to uploaded_images format
+    const { uploaded_images } = normalizeBusinessImages(row);
 
     return {
       id: row.id,
@@ -1466,7 +1484,7 @@ function normalizeBusinessRows(rows: DatabaseBusinessRow[]): BusinessRPCResult[]
       email: row.email,
       website: row.website,
       image_url: row.image_url,
-      uploaded_images: row.uploaded_images || [],
+      uploaded_images: uploaded_images || [],
       verified: row.verified,
       price_range: row.price_range,
       badge: row.badge,

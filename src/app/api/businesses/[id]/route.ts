@@ -229,15 +229,15 @@ export async function DELETE(
     }
 
     // CRITICAL FIX: Delete storage files before deleting business
-    const { data: businessData, error: businessDataError } = await supabase
-      .from('businesses')
-      .select('uploaded_images')
-      .eq('id', businessId)
-      .single();
+    const { data: businessImages, error: businessImagesError } = await supabase
+      .from('business_images')
+      .select('url')
+      .eq('business_id', businessId);
 
-    if (businessData && businessData.uploaded_images && Array.isArray(businessData.uploaded_images) && businessData.uploaded_images.length > 0) {
+    if (businessImages && businessImages.length > 0) {
       const { extractStoragePaths } = await import('../../../../lib/utils/storagePathExtraction');
-      const storagePaths = extractStoragePaths(businessData.uploaded_images);
+      const imageUrls = businessImages.map(img => img.url).filter(Boolean);
+      const storagePaths = extractStoragePaths(imageUrls);
 
       if (storagePaths.length > 0) {
           const { STORAGE_BUCKETS } = await import('@/app/lib/utils/storageBucketConfig');

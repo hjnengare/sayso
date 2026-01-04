@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSupabase } from '../../../lib/supabase/server';
+import { normalizeBusinessImages } from '../../../lib/utils/businessImages';
 
 type RouteContext = {
   params: Promise<{ id?: string }>;
@@ -51,13 +52,19 @@ export async function GET(req: NextRequest) {
           email,
           website,
           image_url,
-          uploaded_images,
           verified,
           price_range,
           badge,
           slug,
           created_at,
-          updated_at
+          updated_at,
+          business_images (
+            id,
+            url,
+            type,
+            sort_order,
+            is_primary
+          )
         )
       `, { count: 'exact' })
       .eq('user_id', user.id);
@@ -165,6 +172,9 @@ export async function GET(req: NextRequest) {
         const totalReviews = stats?.total_reviews || 0;
         const percentiles = stats?.percentiles;
 
+        // Normalize business_images to uploaded_images format
+        const { uploaded_images, cover_image, logo_url } = normalizeBusinessImages(business);
+
         return {
           id: business.id,
           name: business.name.trim(),
@@ -178,7 +188,9 @@ export async function GET(req: NextRequest) {
           email: business.email || null,
           website: business.website || null,
           image_url: business.image_url || null,
-          uploaded_images: business.uploaded_images || null,
+          uploaded_images: uploaded_images || [],
+          cover_image: cover_image || null,
+          logo_url: logo_url || null,
           verified: business.verified || false,
           price_range: business.price_range || '$$',
           badge: business.badge || null,

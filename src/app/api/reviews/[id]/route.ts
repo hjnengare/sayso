@@ -104,7 +104,7 @@ export async function GET(req: Request, { params }: RouteParams) {
 export async function PUT(req: Request, { params }: RouteParams) {
   try {
     const { id } = await params;
-    const supabase = await getServerSupabase();
+    const supabase = await getServerSupabase(req);
     
     // Check if user is authenticated
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -254,17 +254,22 @@ export async function PUT(req: Request, { params }: RouteParams) {
 export async function DELETE(req: Request, { params }: RouteParams) {
   try {
     const { id } = await params;
-    const supabase = await getServerSupabase();
+    const supabase = await getServerSupabase(req);
+    
+    console.log('[/api/reviews] DELETE request:', { id });
     
     // Check if user is authenticated
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
+      console.error('[/api/reviews] DELETE auth error:', authError);
       return NextResponse.json(
         { error: 'You must be logged in to delete a review' },
         { status: 401 }
       );
     }
+
+    console.log('[/api/reviews] DELETE authenticated user:', { user_id: user.id });
 
     // Check if review exists and user owns it
     const { data: review, error: reviewError } = await supabase
@@ -273,7 +278,21 @@ export async function DELETE(req: Request, { params }: RouteParams) {
       .eq('id', id)
       .single();
 
-    if (reviewError || !review) {
+    if (reviewError) {
+      console.error('[/api/reviews] DELETE review fetch error:', {
+        message: reviewError.message,
+        code: reviewError.code,
+        details: reviewError.details,
+        hint: reviewError.hint,
+      });
+      return NextResponse.json(
+        { error: 'Review not found', details: reviewError.message },
+        { status: 404 }
+      );
+    }
+
+    if (!review) {
+      console.error('[/api/reviews] DELETE review not found:', { id });
       return NextResponse.json(
         { error: 'Review not found' },
         { status: 404 }
@@ -281,6 +300,10 @@ export async function DELETE(req: Request, { params }: RouteParams) {
     }
 
     if (review.user_id !== user.id) {
+      console.error('[/api/reviews] DELETE unauthorized:', {
+        review_user_id: review.user_id,
+        current_user_id: user.id,
+      });
       return NextResponse.json(
         { error: 'You can only delete your own reviews' },
         { status: 403 }
@@ -337,12 +360,19 @@ export async function DELETE(req: Request, { params }: RouteParams) {
       .eq('id', id);
 
     if (deleteError) {
-      console.error('Error deleting review:', deleteError);
+      console.error('[/api/reviews] DELETE error deleting review:', {
+        message: deleteError.message,
+        code: deleteError.code,
+        details: deleteError.details,
+        hint: deleteError.hint,
+      });
       return NextResponse.json(
-        { error: 'Failed to delete review', details: deleteError.message },
+        { error: 'Failed to delete review', details: deleteError.message, code: deleteError.code },
         { status: 500 }
       );
     }
+
+    console.log('[/api/reviews] DELETE review deleted successfully:', { id, business_id: businessId });
 
     // Update business stats
     const { error: statsError } = await supabase.rpc('update_business_stats', {
@@ -350,7 +380,8 @@ export async function DELETE(req: Request, { params }: RouteParams) {
     });
 
     if (statsError) {
-      console.error('Error updating business stats via RPC:', statsError);
+      console.error('[/api/reviews] DELETE error updating business stats:', statsError);
+      // Don't fail the request if stats update fails
     }
 
     return NextResponse.json({
@@ -359,9 +390,15 @@ export async function DELETE(req: Request, { params }: RouteParams) {
     });
 
   } catch (error) {
-    console.error('Error in delete review API:', error);
+    console.error('[/api/reviews] DELETE unexpected error:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : undefined;
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { 
+        error: 'Internal server error',
+        details: process.env.NODE_ENV === 'development' ? errorMessage : undefined,
+        stack: process.env.NODE_ENV === 'development' ? errorStack : undefined
+      },
       { status: 500 }
     );
   }

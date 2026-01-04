@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getServerSupabase } from '../../../lib/supabase/server';
+import { normalizeBusinessImages } from '../../../lib/utils/businessImages';
 
 /**
  * GET /api/user/saved
@@ -43,13 +44,19 @@ export async function GET(req: Request) {
           email,
           website,
           image_url,
-          uploaded_images,
           verified,
           price_range,
           badge,
           slug,
           created_at,
-          updated_at
+          updated_at,
+          business_images (
+            id,
+            url,
+            type,
+            sort_order,
+            is_primary
+          )
         )
       `)
       .eq('user_id', user.id)
@@ -142,10 +149,13 @@ export async function GET(req: Request) {
         const totalReviews = stats?.total_reviews || 0;
         const percentiles = stats?.percentiles;
 
+        // Normalize business_images to uploaded_images format
+        const { uploaded_images, cover_image } = normalizeBusinessImages(business);
+
         return {
           id: business.id,
           name: business.name,
-          image: (business.uploaded_images && business.uploaded_images.length > 0 ? business.uploaded_images[0] : null) || business.image_url || null,
+          image: cover_image || (uploaded_images && uploaded_images.length > 0 ? uploaded_images[0] : null) || business.image_url || null,
           alt: `${business.name} - ${business.category} in ${business.location}`,
           category: business.category,
           location: business.location,

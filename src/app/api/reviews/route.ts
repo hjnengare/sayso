@@ -297,9 +297,23 @@ export async function POST(req: Request) {
 
           if (!imageError && imageRecord) {
             uploadedImages.push(imageRecord);
+            console.log(`[API] Successfully saved review image record:`, {
+              id: imageRecord.id,
+              review_id: review.id,
+              storage_path: filePath,
+            });
           } else if (imageError) {
-            console.error('Error saving image record:', imageError);
-            uploadErrors.push(`Failed to save image ${i + 1} metadata`);
+            console.error('[API] Error saving image record to database:', {
+              error: imageError,
+              message: imageError.message,
+              code: imageError.code,
+              details: imageError.details,
+              hint: imageError.hint,
+              review_id: review.id,
+              storage_path: filePath,
+              image_url: publicUrl,
+            });
+            uploadErrors.push(`Failed to save image ${i + 1} metadata: ${imageError.message}`);
           }
         } catch (error) {
           console.error('Error uploading image:', error);
@@ -352,15 +366,87 @@ export async function POST(req: Request) {
     // - If review creation succeeds but other operations fail, the review remains
     //   This is acceptable as images can be added later and stats can be recalculated
 
+    // Fetch the complete review with images and profile data
+    const { data: completeReviewData, error: fetchError } = await supabase
+      .from('reviews')
+      .select(`
+        *,
+        profile:profiles!reviews_user_id_fkey (
+          user_id,
+          display_name,
+          username,
+          avatar_url
+        ),
+        review_images (
+          id,
+          review_id,
+          image_url,
+          storage_path,
+          alt_text,
+          created_at
+        )
+      `)
+      .eq('id', review.id)
+      .single();
+
+    // Use the fetched review if available, otherwise fall back to the original
+    const reviewToReturn = completeReviewData || review;
+
+    // Import username generation utility with error handling (same as GET endpoint)
+    let getDisplayUsername: any;
+    try {
+      const usernameModule = await import('../../lib/utils/generateUsernameServer');
+      getDisplayUsername = usernameModule.getDisplayUsername;
+    } catch (importError) {
+      console.error('Error importing getDisplayUsername:', importError);
+      // Fallback: use simple display name logic
+      getDisplayUsername = (username: string | null, displayName: string | null, email: string | null, userId: string) => {
+        return displayName || username || `User ${userId?.slice(0, 8)}` || 'User';
+      };
+    }
+
+    // Transform review to ensure user data is properly structured (same logic as GET endpoint)
+    const profile = reviewToReturn.profile || {};
+    const user_id = profile.user_id || reviewToReturn.user_id || user.id;
+    
+    // Generate display username using same logic as GET endpoint
+    let displayName: string;
+    try {
+      displayName = getDisplayUsername(
+        profile.username,
+        profile.display_name,
+        null, // Email not available in profile join
+        user_id
+      );
+    } catch (nameError) {
+      console.error('Error generating display name:', nameError);
+      displayName = profile.display_name || profile.username || `User ${user_id?.slice(0, 8)}` || 'User';
+    }
+
     // Ensure review object is properly serializable
     // Handle profile relationship - it might be an array or object
-    let serializableReview: any = { ...review };
+    let serializableReview: any = { ...reviewToReturn };
     if (serializableReview.profile) {
       // If profile is an array, take the first element
       if (Array.isArray(serializableReview.profile)) {
         serializableReview.profile = serializableReview.profile[0] || null;
       }
     }
+
+    // Transform user data to match GET endpoint structure
+    serializableReview.user = {
+      id: user_id,
+      name: displayName,
+      username: profile.username || null,
+      display_name: profile.display_name || null,
+      email: null, // Email not included in profile join for security
+      avatar_url: profile.avatar_url || null,
+    };
+
+    // Include images in the response
+    // Map review_images to images (ReviewCard expects images array with full objects)
+    serializableReview.review_images = reviewToReturn.review_images || uploadedImages;
+    serializableReview.images = reviewToReturn.review_images || uploadedImages;
 
     // Remove any non-serializable properties
     try {
@@ -380,7 +466,16 @@ export async function POST(req: Request) {
         helpful_count: review.helpful_count,
         created_at: review.created_at,
         updated_at: review.updated_at,
-        profile: serializableReview.profile || null,
+        user: serializableReview.user || {
+          id: user_id,
+          name: displayName,
+          username: profile.username || null,
+          display_name: profile.display_name || null,
+          email: null,
+          avatar_url: profile.avatar_url || null,
+        },
+        review_images: serializableReview.review_images || uploadedImages,
+        images: serializableReview.images || uploadedImages,
       };
     }
 
@@ -441,6 +536,8 @@ export async function GET(req: Request) {
     const limit = Math.min(Math.max(requestedLimit, 1), 50);
     const requestedOffset = parseInt(searchParams.get('offset') || '0');
     const offset = Math.max(requestedOffset, 0);
+
+    console.log('[/api/reviews] GET request:', { businessIdentifier, userId, limit, offset });
 
     // Resolve business identifier (slug or ID) to UUID
     let businessId: string | null = null;
@@ -528,12 +625,15 @@ export async function GET(req: Request) {
           id,
           name,
           image_url,
-          uploaded_images,
           slug
         ),
         review_images (
+          id,
           review_id,
-          image_url
+          storage_path,
+          image_url,
+          alt_text,
+          created_at
         )
       `
       : `
@@ -553,8 +653,12 @@ export async function GET(req: Request) {
           avatar_url
         ),
         review_images (
+          id,
           review_id,
-          image_url
+          storage_path,
+          image_url,
+          alt_text,
+          created_at
         )
       `;
     
@@ -575,9 +679,22 @@ export async function GET(req: Request) {
     const { data: reviews, error } = await query;
 
     if (error) {
-      console.error('Error fetching reviews:', error);
+      console.error('[/api/reviews] GET error fetching reviews:', {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
+      });
       return NextResponse.json(
-        { error: 'Failed to fetch reviews', details: error.message },
+        { 
+          error: 'Failed to fetch reviews', 
+          details: error.message,
+          code: error.code,
+          supabase: {
+            message: error.message,
+            code: error.code,
+          }
+        },
         { status: 500 }
       );
     }
@@ -627,6 +744,8 @@ export async function GET(req: Request) {
           },
           // Include business data if available (for profile page)
           business: review.business || null,
+          // Map review_images to images (ReviewCard expects images array)
+          images: review.review_images || [],
         };
       } catch (transformError) {
         console.error('Error transforming review:', transformError, { review_id: review?.id });
@@ -642,6 +761,8 @@ export async function GET(req: Request) {
             avatar_url: null,
           },
           business: review.business || null,
+          // Map review_images to images (ReviewCard expects images array)
+          images: review.review_images || [],
         };
       }
     });
@@ -653,8 +774,8 @@ export async function GET(req: Request) {
     });
 
   } catch (error) {
-    console.error('Error in reviews API GET:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error('[/api/reviews] GET unexpected error:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
     const errorStack = error instanceof Error ? error.stack : undefined;
     
     return NextResponse.json(

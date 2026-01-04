@@ -64,18 +64,21 @@ export async function DELETE(req: Request) {
     try {
       const { data: businesses } = await supabase
         .from('businesses')
-        .select('id, uploaded_images')
+        .select('id')
         .eq('owner_id', user.id);
 
       if (businesses && businesses.length > 0) {
-        const { extractStoragePaths } = await import('../../../../lib/utils/storagePathExtraction');
-        const allImageUrls: string[] = [];
+        const businessIds = businesses.map(b => b.id);
+        
+        // Fetch business images from business_images table
+        const { data: businessImages } = await supabase
+          .from('business_images')
+          .select('url')
+          .in('business_id', businessIds);
 
-        // Collect all image URLs from uploaded_images arrays
-        for (const business of businesses) {
-          if (business.uploaded_images && Array.isArray(business.uploaded_images)) {
-            allImageUrls.push(...business.uploaded_images);
-          }
+        const allImageUrls: string[] = [];
+        if (businessImages) {
+          allImageUrls.push(...businessImages.map(img => img.url).filter(Boolean));
         }
 
         if (allImageUrls.length > 0) {

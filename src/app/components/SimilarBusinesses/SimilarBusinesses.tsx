@@ -198,7 +198,9 @@ export default function SimilarBusinesses({
               typingSpeedMs={40}
               startDelayMs={300}
               waveVariant="subtle"
-              loopWave={true}
+              loopWave={false}
+              triggerOnTypingComplete={false}
+              enableScrollTrigger={false}
               style={{ 
                 fontFamily: swanky.style.fontFamily,
               }}

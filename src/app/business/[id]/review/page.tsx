@@ -13,11 +13,9 @@ import { PageLoader } from "../../../components/Loader";
 import ReviewForm from "../../../components/ReviewForm/ReviewForm";
 import BusinessInfoAside from "../../../components/BusinessInfo/BusinessInfoAside";
 import BusinessInfoModal, { BusinessInfo } from "../../../components/BusinessInfo/BusinessInfoModal";
-import { PremiumReviewCard } from "../../../components/Business/PremiumReviewCard";
 import { TestimonialCarousel } from "../../../components/Business/TestimonialCarousel";
 import Footer from "../../../components/Footer/Footer";
 import Header from "../../../components/Header/Header";
-import { usePageTitle } from "../../../hooks/usePageTitle";
 import AnimatedElement from "../../../components/Animations/AnimatedElement";
 import WavyTypedTitle from "../../../../components/Animations/WavyTypedTitle";
 
@@ -673,13 +671,20 @@ function WriteReviewContent() {
                                 })
                                 .map((review: any, index: number) => {
                                   const profile = review.profile || {};
-                                  // Extract review images - API provides image_url
-                                  const reviewImages = review.review_images?.map((img: any) => img.image_url).filter(Boolean) || review.images || [];
+                                  // Extract review images - normalize to string[] for UI components
+                                  const reviewImages = review.review_images?.map((img: any) => img.image_url).filter(Boolean) || 
+                                                     review.images?.map((img: any) => typeof img === 'string' ? img : img.image_url).filter(Boolean) || 
+                                                     [];
                                   
                                   return {
                                     id: review.id,
                                     userId: review.user_id,
-                                    author: profile.display_name || profile.username || review.author,
+                                    // Use computed user.name if available, then fallback to profile fields
+                                    author: review.user?.name || 
+                                           profile.display_name || 
+                                           profile.username || 
+                                           review.author || 
+                                           'User',
                                     rating: review.rating,
                                     text: review.content || review.text || review.title || '',
                                     date: review.created_at ? new Date(review.created_at).toLocaleDateString('en-US', {

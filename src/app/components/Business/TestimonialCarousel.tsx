@@ -85,8 +85,13 @@ export function TestimonialCarousel({ reviews, onDelete }: TestimonialCarouselPr
       <div className="relative w-full max-w-5xl flex items-center justify-center" style={{ minHeight: '100%' }}>
         {reviews.map((review, index) => {
           const profile = review.profile || {};
+          // Use computed user.name if available, then fallback to profile fields
           const authorName =
-            profile.display_name || profile.username || review.author;
+            review.user?.name ||
+            profile.display_name || 
+            profile.username || 
+            review.author ||
+            'User';
           
           // All reviewers are authenticated, so we should always have a name
           if (!authorName) {

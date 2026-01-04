@@ -242,8 +242,16 @@ export async function middleware(request: NextRequest) {
 
     const currentStep = pathToStep[currentPath] || 'interests';
 
-    // If user has completed onboarding, redirect to home (except from /complete page)
-    if (nextStep === 'complete' && currentPath !== '/complete') {
+    // CRITICAL: Always allow access to /complete page - users should see the celebration page
+    // This must be checked BEFORE the "redirect if completed" check
+    if (currentPath === '/complete') {
+      // Allow access to complete page - prerequisites are checked in OnboardingGuard
+      return response;
+    }
+
+    // If user has completed onboarding, redirect other onboarding routes to home
+    // But we already allowed /complete above, so this only affects other onboarding routes
+    if (profile?.onboarding_complete) {
       console.log('Middleware: User completed onboarding, redirecting to home');
       const redirectUrl = new URL('/home', request.url);
       return NextResponse.redirect(redirectUrl);

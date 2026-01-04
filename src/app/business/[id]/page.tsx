@@ -561,10 +561,43 @@ export default function BusinessProfilePage() {
                                                 return new Date().toISOString();
                                             };
                                             
+                                            // Extract images from review.images (array of objects) or review.reviewImages (legacy string array)
+                                            const reviewImages = review.images || review.reviewImages || [];
+                                            const normalizedImages = Array.isArray(reviewImages) && reviewImages.length > 0
+                                                ? reviewImages.map((img: any, idx: number) => {
+                                                    // If it's already an object with image_url, use it
+                                                    if (typeof img === 'object' && img.image_url) {
+                                                        return {
+                                                            id: img.id || `img-${idx}`,
+                                                            review_id: img.review_id || review.id || '',
+                                                            image_url: img.image_url,
+                                                            alt_text: img.alt_text || null,
+                                                            created_at: img.created_at || new Date().toISOString(),
+                                                        };
+                                                    }
+                                                    // If it's a string URL, convert to object
+                                                    if (typeof img === 'string') {
+                                                        return {
+                                                            id: `img-${idx}`,
+                                                            review_id: review.id || '',
+                                                            image_url: img,
+                                                            alt_text: null,
+                                                            created_at: new Date().toISOString(),
+                                                        };
+                                                    }
+                                                    return null;
+                                                }).filter(Boolean)
+                                                : [];
+
+                                            // Generate display name using the same logic as API
+                                            const profile = review.profile || {};
+                                            const userId = review.userId || review.user_id || profile.user_id || '';
+                                            const displayName = profile.display_name || profile.username || review.author || review.user?.display_name || 'User';
+                                            
                                             return {
                                                 id: review.id || '',
                                                 business_id: businessId,
-                                                user_id: review.userId || review.user_id || '',
+                                                user_id: userId,
                                                 rating: review.rating || 0,
                                                 title: review.title,
                                                 content: review.text || review.content || '',
@@ -573,18 +606,14 @@ export default function BusinessProfilePage() {
                                                 created_at: getValidDate(review.created_at || review.date),
                                                 updated_at: getValidDate(review.updated_at || review.created_at || review.date),
                                                 user: {
-                                                    id: review.userId || review.user_id || '',
-                                                    display_name: review.author || review.user?.display_name || 'Anonymous',
-                                                    avatar_url: review.profileImage || review.user?.avatar_url,
-                                                    username: review.user?.username,
-                                                    email: review.user?.email,
+                                                    id: userId,
+                                                    name: displayName, // Use name field for consistency
+                                                    display_name: displayName,
+                                                    avatar_url: profile.avatar_url || review.profileImage || review.user?.avatar_url,
+                                                    username: profile.username || review.user?.username,
+                                                    email: review.user?.email || null,
                                                 },
-                                                images: review.reviewImages?.map((img: string, idx: number) => ({
-                                                    id: `img-${idx}`,
-                                                    review_id: review.id || '',
-                                                    image_url: img,
-                                                    created_at: new Date().toISOString(),
-                                                })) || [],
+                                                images: normalizedImages,
                                             };
                                         })}
                                         loading={false}

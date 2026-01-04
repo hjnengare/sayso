@@ -87,29 +87,27 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop - No blur overlay, just a subtle transparent background */}
+          {/* Backdrop - Transparent, no blur */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 bg-charcoal/20 z-[9998]"
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 bg-transparent z-[9998]"
             onClick={onClose}
           />
 
-          {/* Dialog */}
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6">
+          {/* Dialog - Centered vertically and horizontally */}
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 pointer-events-none">
             <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
               transition={{
-                duration: 0.4,
-                type: "spring",
-                stiffness: 300,
-                damping: 25
+                duration: 0.2,
+                ease: "easeOut"
               }}
-              className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-lg max-w-md w-full relative"
+              className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 border border-white/60 rounded-[20px] shadow-lg max-w-md w-full relative pointer-events-auto"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Content */}
