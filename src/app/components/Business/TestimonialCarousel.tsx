@@ -24,6 +24,12 @@ import { PremiumReviewCard } from "./PremiumReviewCard";
             avatar_url?: string;
             location?: string;
           };
+          user?: {
+            name?: string;
+            display_name?: string;
+            username?: string;
+            avatar_url?: string;
+          };
         }>;
         onDelete?: () => void;
       }
