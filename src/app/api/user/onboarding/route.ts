@@ -30,7 +30,32 @@ export async function POST(req: Request) {
       const subcategoryData = subcategories.map(sub => ({
         subcategory_id: sub.subcategory_id || sub.id,
         interest_id: sub.interest_id
-      }));
+      })).filter(sub => {
+        // Filter out subcategories with missing required fields
+        const isValid = sub.subcategory_id && sub.interest_id;
+        if (!isValid) {
+          console.warn('[Onboarding API] Invalid subcategory entry:', sub);
+        }
+        return isValid;
+      });
+
+      // Validate data before attempting save
+      if (interests.length === 0) {
+        return NextResponse.json(
+          { error: 'At least one interest is required' },
+          { status: 400 }
+        );
+      }
+
+      // Validate that all subcategories have interest_ids if provided
+      const invalidSubcategories = subcategoryData.filter(sub => !sub.interest_id || !sub.subcategory_id);
+      if (invalidSubcategories.length > 0 && subcategories.length > 0) {
+        console.error('[Onboarding API] Invalid subcategory data:', invalidSubcategories);
+        return NextResponse.json(
+          { error: 'All subcategories must have valid subcategory_id and interest_id' },
+          { status: 400 }
+        );
+      }
 
       console.log('[Onboarding API] Saving onboarding data:', {
         userId: user.id,
@@ -38,12 +63,14 @@ export async function POST(req: Request) {
         interestIdsType: Array.isArray(interests) ? 'array' : typeof interests,
         interestIdsLength: Array.isArray(interests) ? interests.length : 'N/A',
         subcategoryData: subcategoryData,
+        subcategoryDataLength: subcategoryData.length,
         dealbreakerIds: dealbreakers,
+        dealbreakersLength: dealbreakers.length,
       });
 
       // Try atomic function first, fallback to individual steps if function doesn't exist
       let useAtomic = true;
-      const { error: completeError } = await supabase.rpc('complete_onboarding_atomic', {
+      const { error: completeError, data: completeData } = await supabase.rpc('complete_onboarding_atomic', {
         p_user_id: user.id,
         p_interest_ids: interests,
         p_subcategory_data: subcategoryData,
@@ -51,9 +78,54 @@ export async function POST(req: Request) {
       });
 
       console.log('[Onboarding API] complete_onboarding_atomic result:', {
+        success: !completeError,
         error: completeError?.message,
         code: completeError?.code,
+        details: completeError?.details,
+        hint: completeError?.hint,
       });
+
+      // Verify atomic function succeeded
+      if (!completeError) {
+        console.log('[Onboarding API] Atomic function succeeded, verifying profile update...');
+        
+        // Verify profile was updated correctly
+        const { data: profile, error: profileCheckError } = await supabase
+          .from('profiles')
+          .select('onboarding_complete, onboarding_step, interests_count, subcategories_count, dealbreakers_count')
+          .eq('user_id', user.id)
+          .single();
+
+        if (profileCheckError) {
+          console.error('[Onboarding API] Error verifying profile update:', profileCheckError);
+        } else {
+          console.log('[Onboarding API] Profile verification:', {
+            onboarding_complete: profile.onboarding_complete,
+            onboarding_step: profile.onboarding_step,
+            interests_count: profile.interests_count,
+            subcategories_count: profile.subcategories_count,
+            dealbreakers_count: profile.dealbreakers_count,
+          });
+
+          // If profile wasn't updated by atomic function, update it manually
+          if (!profile.onboarding_complete || profile.onboarding_step !== 'complete') {
+            console.warn('[Onboarding API] Profile not fully updated by atomic function, updating manually...');
+            const { error: profileUpdateError } = await supabase
+              .from('profiles')
+              .update({
+                onboarding_step: 'complete',
+                onboarding_complete: true,
+                updated_at: new Date().toISOString()
+              })
+              .eq('user_id', user.id);
+
+            if (profileUpdateError) {
+              console.error('[Onboarding API] Error manually updating profile:', profileUpdateError);
+              throw profileUpdateError;
+            }
+          }
+        }
+      }
 
       if (completeError) {
         console.error('[Onboarding API] Atomic function failed, falling back to individual steps:', completeError);
@@ -206,12 +278,24 @@ export async function POST(req: Request) {
       }
     });
 
-  } catch (error) {
+  } catch (error: any) {
     const totalTime = nodePerformance.now() - startTime;
-    console.error('[Onboarding API] Error saving onboarding data:', error);
+    console.error('[Onboarding API] Error saving onboarding data:', {
+      error: error?.message || error,
+      code: error?.code,
+      details: error?.details,
+      hint: error?.hint,
+      stack: error?.stack,
+      totalTime: `${totalTime.toFixed(2)}ms`
+    });
+    
+    // Provide more specific error messages
+    const errorMessage = error?.message || error?.details || "Failed to save onboarding progress";
+    
     return NextResponse.json(
       { 
-        error: "Failed to save onboarding progress",
+        error: errorMessage,
+        errorCode: error?.code,
         performance: { totalTime }
       },
       { status: 500 }

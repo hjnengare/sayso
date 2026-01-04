@@ -125,19 +125,45 @@ function DealBreakersContent() {
       router.prefetch('/complete');
 
       // Prepare the data - use subcategoryData directly for proper mapping
+      // Validate data before sending
+      if (!interests || interests.length === 0) {
+        throw new Error('Interests are required. Please go back and select interests first.');
+      }
+
+      if (!subcategoryData || subcategoryData.length === 0) {
+        if (subcategories.length === 0) {
+          throw new Error('Subcategories are required. Please go back and select subcategories first.');
+        }
+        // Fallback: reconstruct from subcategory IDs
+        console.warn('[DealBreakers] Using fallback subcategory data construction');
+      }
+
+      const finalSubcategories = subcategoryData.length > 0 
+        ? subcategoryData 
+        : subcategories.map(subId => {
+            const interestId = getInterestIdForSubcategory(subId);
+            if (!interestId) {
+              console.error('[DealBreakers] Missing interest_id for subcategory:', subId);
+            }
+            return {
+              subcategory_id: subId,
+              interest_id: interestId || 'food-drink' // fallback
+            };
+          }).filter(sub => sub.subcategory_id && sub.interest_id);
+
       const requestData = {
         step: 'complete',
         interests: interests,
-        subcategories: subcategoryData.length > 0 
-          ? subcategoryData 
-          : subcategories.map(subId => ({
-              subcategory_id: subId,
-              interest_id: getInterestIdForSubcategory(subId)
-            })),
-        dealbreakers: selectedDealbreakers
+        subcategories: finalSubcategories,
+        dealbreakers: selectedDealbreakers || []
       };
 
-      console.log('[DealBreakers] Sending onboarding data:', requestData);
+      console.log('[DealBreakers] Sending onboarding data:', {
+        ...requestData,
+        interestsCount: requestData.interests.length,
+        subcategoriesCount: requestData.subcategories.length,
+        dealbreakersCount: requestData.dealbreakers.length,
+      });
 
       // Save data first - API should complete in <2 seconds
       const response = await fetch('/api/user/onboarding', {
@@ -155,9 +181,24 @@ function DealBreakersContent() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Failed to save onboarding data');
+        let errorMessage = 'Failed to save onboarding data';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorData.message || errorMessage;
+          console.error('[DealBreakers] API Error Response:', {
+            status: response.status,
+            statusText: response.statusText,
+            error: errorData,
+          });
+        } catch (parseError) {
+          console.error('[DealBreakers] Failed to parse error response:', parseError);
+          errorMessage = `Server error (${response.status}): ${response.statusText}`;
+        }
+        throw new Error(errorMessage);
       }
+
+      const responseData = await response.json().catch(() => ({}));
+      console.log('[DealBreakers] Save successful:', responseData);
 
       // Refresh user data after successful save to update profile counts
       await refreshUser();
@@ -179,7 +220,7 @@ function DealBreakersContent() {
       showToast(error instanceof Error ? error.message : 'Failed to save. Please try again.', 'error');
       setIsNavigating(false);
     }
-  }, [interests, subcategories, selectedDealbreakers, getInterestIdForSubcategory, router, refreshUser, showToast]);
+  }, [interests, subcategories, subcategoryData, selectedDealbreakers, getInterestIdForSubcategory, router, refreshUser, showToast]);
 
   const canProceed = selectedDealbreakers.length > 0 && !isNavigating;
 
