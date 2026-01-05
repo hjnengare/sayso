@@ -11,6 +11,7 @@ import SubcategoryStyles from "../components/Subcategories/SubcategoryStyles";
 import SubcategoryHeader from "../components/Subcategories/SubcategoryHeader";
 import SubcategorySelection from "../components/Subcategories/SubcategorySelection";
 import SubcategoryGrid from "../components/Subcategories/SubcategoryGrid";
+import SubcategoryGridSkeleton from "../components/Subcategories/SubcategoryGridSkeleton";
 import SubcategoryActions from "../components/Subcategories/SubcategoryActions";
 import { Loader } from "../components/Loader";
 
@@ -236,19 +237,16 @@ function SubcategoriesContent() {
         <OnboardingLayout step={2} backHref="/interests">
           <SubcategoryHeader />
           <div className="enter-fade">
-            <div className="space-y-4">
-              {/* Skeleton for subcategory groups */}
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="animate-pulse">
-                  <div className="h-6 bg-gray-200 rounded w-1/3 mb-3"></div>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {[1, 2, 3, 4].map((j) => (
-                      <div key={j} className="h-20 bg-gray-100 rounded-lg"></div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
+            <SubcategorySelection selectedCount={0} maxSelections={MAX_SELECTIONS}>
+              <SubcategoryGridSkeleton />
+            </SubcategorySelection>
+            <SubcategoryActions
+              canProceed={false}
+              isNavigating={false}
+              isLoading={false}
+              selectedCount={0}
+              onContinue={() => {}}
+            />
           </div>
         </OnboardingLayout>
       </>
@@ -301,11 +299,24 @@ export default function SubcategoriesPage() {
   return (
     <ProtectedRoute requiresAuth={true}>
       <Suspense fallback={
-        <OnboardingLayout step={2} backHref="/interests">
-          <div className="flex items-center justify-center min-h-[400px]">
-            <Loader size="md" variant="wavy" color="sage" />
-          </div>
-        </OnboardingLayout>
+        <>
+          <SubcategoryStyles />
+          <OnboardingLayout step={2} backHref="/interests">
+            <SubcategoryHeader />
+            <div className="enter-fade">
+              <SubcategorySelection selectedCount={0} maxSelections={10}>
+                <SubcategoryGridSkeleton />
+              </SubcategorySelection>
+              <SubcategoryActions
+                canProceed={false}
+                isNavigating={false}
+                isLoading={false}
+                selectedCount={0}
+                onContinue={() => {}}
+              />
+            </div>
+          </OnboardingLayout>
+        </>
       }>
         <SubcategoriesContent />
       </Suspense>

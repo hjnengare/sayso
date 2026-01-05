@@ -11,6 +11,7 @@ import DealBreakerStyles from "../components/DealBreakers/DealBreakerStyles";
 import DealBreakerHeader from "../components/DealBreakers/DealBreakerHeader";
 import DealBreakerSelection from "../components/DealBreakers/DealBreakerSelection";
 import DealBreakerGrid from "../components/DealBreakers/DealBreakerGrid";
+import DealBreakerGridSkeleton from "../components/DealBreakers/DealBreakerGridSkeleton";
 import DealBreakerActions from "../components/DealBreakers/DealBreakerActions";
 
 interface DealBreaker {
@@ -38,6 +39,7 @@ function DealBreakersContent() {
   const [interests, setInterests] = useState<string[]>([]);
   const [subcategories, setSubcategories] = useState<string[]>([]);
   const [subcategoryData, setSubcategoryData] = useState<Array<{ subcategory_id: string; interest_id: string }>>([]);
+  const [loading, setLoading] = useState(true);
 
   const MAX_SELECTIONS = 3;
 
@@ -45,6 +47,7 @@ function DealBreakersContent() {
   useEffect(() => {
     const fetchOnboardingData = async () => {
       try {
+        setLoading(true);
         const response = await fetch('/api/user/onboarding');
         if (response.ok) {
           const data = await response.json();
@@ -60,11 +63,15 @@ function DealBreakersContent() {
         }
       } catch (error) {
         console.error('[DealBreakers] Error fetching onboarding data:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
     if (user) {
       fetchOnboardingData();
+    } else {
+      setLoading(false);
     }
   }, [user]);
 
@@ -227,6 +234,29 @@ function DealBreakersContent() {
 
   const canProceed = selectedDealbreakers.length > 0 && !isNavigating;
 
+  // Show skeleton while loading
+  if (loading) {
+    return (
+      <>
+        <DealBreakerStyles />
+        <OnboardingLayout step={3} backHref={backHref}>
+          <DealBreakerHeader />
+          <div className="enter-fade">
+            <DealBreakerSelection selectedCount={0} maxSelections={MAX_SELECTIONS}>
+              <DealBreakerGridSkeleton />
+            </DealBreakerSelection>
+            <DealBreakerActions
+              canProceed={false}
+              isNavigating={false}
+              selectedCount={0}
+              onComplete={() => {}}
+            />
+          </div>
+        </OnboardingLayout>
+      </>
+    );
+  }
+
   return (
     <>
       <DealBreakerStyles />
@@ -259,11 +289,23 @@ export default function DealBreakersPage() {
   return (
     <ProtectedRoute requiresAuth={true}>
       <Suspense fallback={
-        <OnboardingLayout step={3} backHref="/interests">
-          <div className="flex items-center justify-center min-h-[400px]">
-            <Loader size="md" variant="wavy" color="sage" />
-          </div>
-        </OnboardingLayout>
+        <>
+          <DealBreakerStyles />
+          <OnboardingLayout step={3} backHref="/subcategories">
+            <DealBreakerHeader />
+            <div className="enter-fade">
+              <DealBreakerSelection selectedCount={0} maxSelections={3}>
+                <DealBreakerGridSkeleton />
+              </DealBreakerSelection>
+              <DealBreakerActions
+                canProceed={false}
+                isNavigating={false}
+                selectedCount={0}
+                onComplete={() => {}}
+              />
+            </div>
+          </OnboardingLayout>
+        </>
       }>
         <DealBreakersContent />
       </Suspense>

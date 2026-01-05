@@ -76,6 +76,14 @@ function CompletePageContent() {
   const redirectTimerRef = useRef<NodeJS.Timeout | null>(null);
   const hasRedirectedRef = useRef(false);
 
+  // Set a cookie to indicate user has visited the complete page
+  // This cookie is required by middleware before allowing access to /home
+  useEffect(() => {
+    // Set cookie immediately when page loads - indicates user has seen the celebration page
+    // Cookie expires in 1 day
+    document.cookie = `onboarding_complete_visited=true; path=/; max-age=${60 * 60 * 24}; SameSite=Lax`;
+  }, []); // Set once on mount
+
   // Auto-redirect to home after a while, but only if onboarding is actually complete
   useEffect(() => {
     redirectTimerRef.current = setTimeout(() => {
@@ -107,8 +115,13 @@ function CompletePageContent() {
     }
     if (!hasRedirectedRef.current) {
       hasRedirectedRef.current = true;
+      
+      // Ensure cookie is set before navigation (in case useEffect hasn't run yet)
+      // This cookie is required by middleware to allow access to /home
+      document.cookie = `onboarding_complete_visited=true; path=/; max-age=${60 * 60 * 24}; SameSite=Lax`;
+      
       // Always use replace to avoid back button issues
-      // Middleware will handle redirect if onboarding isn't complete
+      // Middleware will check for the cookie and allow access
       router.replace('/home');
     }
   };

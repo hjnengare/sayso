@@ -234,12 +234,26 @@ export async function middleware(request: NextRequest) {
 
   // CRITICAL: Block access to /home and other protected routes unless:
   // 1. Email is verified AND
-  // 2. Onboarding is fully completed
+  // 2. Onboarding is fully completed AND
+  // 3. User has visited the /complete page (onboarding_step === 'complete')
   // Only check this for /home, not for onboarding routes
   if (isProtectedRoute && !isOnboardingRoute && user && user.email_confirmed_at) {
-    // Check if onboarding is complete - if so, allow access to home
+    // Check if onboarding is complete
     if (profile?.onboarding_complete) {
-      // User has completed onboarding, allow access
+      // CRITICAL: Even if onboarding_complete is true, user MUST visit /complete page first
+      // The cookie is set when the /complete page loads, ensuring users see the celebration
+      const hasVisitedCompleteCookie = request.cookies.get('onboarding_complete_visited')?.value === 'true';
+      
+      // If onboarding is complete but cookie is not set, user hasn't visited /complete page yet
+      // Redirect them to /complete to see the celebration before accessing /home
+      if (!hasVisitedCompleteCookie) {
+        console.log('Middleware: Onboarding complete but user has not visited /complete page, redirecting to /complete');
+        const redirectUrl = new URL('/complete', request.url);
+        return NextResponse.redirect(redirectUrl);
+      }
+      
+      // User has completed onboarding AND visited complete page (cookie exists), allow access to home
+      // User has completed onboarding AND visited complete page, allow access to home
       return response;
     }
     

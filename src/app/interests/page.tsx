@@ -14,6 +14,7 @@ import InterestStyles from "../components/Interests/InterestStyles";
 import InterestHeader from "../components/Interests/InterestHeader";
 import InterestSelection from "../components/Interests/InterestSelection";
 import InterestGrid from "../components/Interests/InterestGrid";
+import InterestGridSkeleton from "../components/Interests/InterestGridSkeleton";
 import InterestActions from "../components/Interests/InterestActions";
 
 
@@ -308,11 +309,27 @@ export default function InterestsPage() {
   return (
     <ProtectedRoute requiresAuth={true}>
       <Suspense fallback={
-        <OnboardingLayout backHref="/register" step={1}>
-          <div className="flex items-center justify-center min-h-[400px]">
-            <Loader size="md" variant="wavy" color="sage" />
-          </div>
-        </OnboardingLayout>
+        <>
+          <InterestStyles />
+          <OnboardingLayout backHref="/register" step={1}>
+            <InterestHeader isOnline={true} />
+            <div className="enter-fade">
+              <InterestSelection 
+                selectedCount={0}
+                minSelections={3}
+                maxSelections={6}
+              />
+              <InterestGridSkeleton />
+              <InterestActions
+                canProceed={false}
+                isNavigating={false}
+                selectedCount={0}
+                minSelections={3}
+                onContinue={() => {}}
+              />
+            </div>
+          </OnboardingLayout>
+        </>
       }>
         <InterestsContent />
       </Suspense>
