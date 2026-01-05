@@ -64,6 +64,71 @@ const formatCategoryLabel = (value?: string) => {
     .join(" ");
 };
 
+// Map categories to background colors (matching IntentBrowser pattern)
+const getCategoryColor = (category: string, subInterestId?: string, subInterestLabel?: string): string => {
+  // Normalize category/label for matching
+  const normalizedCategory = (category || '').toLowerCase();
+  const normalizedSubInterest = (subInterestId || subInterestLabel || '').toLowerCase();
+  const searchTerm = normalizedSubInterest || normalizedCategory;
+  
+  // Food & Drink - coral
+  if (searchTerm.includes('restaurant') || searchTerm.includes('dining') || searchTerm.includes('food') || 
+      searchTerm.includes('bar') || searchTerm.includes('pub') || searchTerm.includes('eat')) {
+    return 'from-coral/20 to-coral/10';
+  }
+  // Coffee/Cafes - sage
+  if (searchTerm.includes('cafe') || searchTerm.includes('coffee') || searchTerm.includes('drink')) {
+    return 'from-sage/20 to-sage/10';
+  }
+  // Beauty & Wellness - purple
+  if (searchTerm.includes('spa') || searchTerm.includes('wellness') || searchTerm.includes('massage') ||
+      searchTerm.includes('salon') || searchTerm.includes('hairdresser') || searchTerm.includes('nail')) {
+    return 'from-purple-400/20 to-purple-400/10';
+  }
+  // Fitness/Activity - blue
+  if (searchTerm.includes('gym') || searchTerm.includes('fitness') || searchTerm.includes('workout') ||
+      searchTerm.includes('activity') || searchTerm.includes('sport')) {
+    return 'from-blue-400/20 to-blue-400/10';
+  }
+  // Health/Medical - red/pink
+  if (searchTerm.includes('health') || searchTerm.includes('medical') || searchTerm.includes('hospital')) {
+    return 'from-pink-400/20 to-pink-400/10';
+  }
+  // Shopping - pink
+  if (searchTerm.includes('shop') || searchTerm.includes('store') || searchTerm.includes('retail') || 
+      searchTerm.includes('fashion') || searchTerm.includes('clothing')) {
+    return 'from-pink-400/20 to-pink-400/10';
+  }
+  // Education - yellow
+  if (searchTerm.includes('education') || searchTerm.includes('school') || searchTerm.includes('learn') ||
+      searchTerm.includes('book') || searchTerm.includes('library')) {
+    return 'from-yellow-400/20 to-yellow-400/10';
+  }
+  // Finance/Business - gray
+  if (searchTerm.includes('finance') || searchTerm.includes('bank') || searchTerm.includes('insurance') ||
+      searchTerm.includes('business') || searchTerm.includes('office') || searchTerm.includes('professional')) {
+    return 'from-gray-400/20 to-gray-400/10';
+  }
+  // Entertainment - yellow
+  if (searchTerm.includes('music') || searchTerm.includes('concert') || searchTerm.includes('venue') ||
+      searchTerm.includes('movie') || searchTerm.includes('cinema') || searchTerm.includes('theater') ||
+      searchTerm.includes('art') || searchTerm.includes('gallery') || searchTerm.includes('museum')) {
+    return 'from-yellow-400/20 to-yellow-400/10';
+  }
+  // Travel/Transport - blue
+  if (searchTerm.includes('travel') || searchTerm.includes('transport') || searchTerm.includes('hotel') ||
+      searchTerm.includes('car') || searchTerm.includes('auto') || searchTerm.includes('vehicle')) {
+    return 'from-blue-400/20 to-blue-400/10';
+  }
+  // Home & Living - sage
+  if (searchTerm.includes('home') || searchTerm.includes('decor') || searchTerm.includes('furniture')) {
+    return 'from-sage/20 to-sage/10';
+  }
+  
+  // Default - gray
+  return 'from-gray-400/20 to-gray-400/10';
+};
+
 // Map categories to lucide-react icons
 const getCategoryIcon = (category: string, subInterestId?: string, subInterestLabel?: string): React.ComponentType<React.SVGProps<SVGSVGElement>> => {
   // Normalize category/label for matching
@@ -675,9 +740,12 @@ function BusinessCard({
                   <div className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5">
                     {(() => {
                       const CategoryIcon = getCategoryIcon(business.category, business.subInterestId, business.subInterestLabel);
+                      const categoryColor = getCategoryColor(business.category, business.subInterestId, business.subInterestLabel);
                       return (
                         <>
-                          <CategoryIcon className="w-3.5 h-3.5 flex-shrink-0 text-charcoal/70" strokeWidth={2.5} />
+                          <div className={`w-5 h-5 rounded-full bg-gradient-to-br ${categoryColor} flex items-center justify-center flex-shrink-0`}>
+                            <CategoryIcon className="w-3 h-3 text-charcoal/70" strokeWidth={2.5} />
+                          </div>
                           <span 
                             className="truncate text-caption sm:text-xs text-charcoal/80 font-semibold"
                             style={{
