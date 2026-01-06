@@ -71,6 +71,15 @@ function SubcategoriesContent() {
     }
   }, [user, router]);
 
+  // Defensive redirect: if subcategories are already saved, redirect to deal-breakers
+  // This prevents stale state, double clicks, and "stuck but completed" cases
+  useEffect(() => {
+    if (user && user.profile?.subcategories_count > 0) {
+      console.log('[Subcategories] Subcategories already saved, redirecting to deal-breakers');
+      router.replace('/deal-breakers');
+    }
+  }, [user, router]);
+
   // Fetch subcategories on page load - show skeleton immediately
   useEffect(() => {
     let cancelled = false;
@@ -174,7 +183,10 @@ function SubcategoriesContent() {
   }, [selectedSubcategories, setSelectedSubcategories, showToast]);
 
   const handleNext = useCallback(async () => {
-    if (!selectedSubcategories || selectedSubcategories.length === 0) return;
+    // Prevent double-clicks and ensure we have selections
+    if (isNavigating || !selectedSubcategories || selectedSubcategories.length === 0) {
+      return;
+    }
 
     const clickTime = performance.now();
     console.log('[Subcategories] Submit clicked', { 
@@ -187,7 +199,6 @@ function SubcategoriesContent() {
     try {
       const requestStart = performance.now();
       
-      // Minimal write: save subcategories only
       // Map to format expected by API
       const subcategoryData = selectedSubcategories.map(subId => {
         // Find the subcategory to get its interest_id
@@ -198,6 +209,7 @@ function SubcategoriesContent() {
         };
       });
 
+      // Save subcategories - API MUST always respond (no hanging requests)
       const response = await fetch('/api/onboarding/subcategories', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -207,42 +219,33 @@ function SubcategoriesContent() {
       const requestEnd = performance.now();
       const requestTime = requestEnd - requestStart;
       
-      console.log('[Subcategories] Save completed', {
-        requestTime: `${requestTime.toFixed(2)}ms`,
-        timestamp: requestEnd
-      });
+      // Parse response - handle both success and error cases
+      const data = await response.json().catch(() => ({}));
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Failed to save subcategories');
+        throw new Error(data?.error || data?.message || 'Failed to save subcategories');
       }
 
-      // Refresh user data after successful save to update profile counts
-      // This ensures OnboardingGuard allows access to deal-breakers page
-      await refreshUser();
-
-      const navStart = performance.now();
-      
-      // Navigate after successful save - no URL params needed, data is in DB
-      router.prefetch('/deal-breakers');
-      router.replace('/deal-breakers');
-      
-      // Force refresh to clear Next.js cache and ensure middleware sees updated profile
-      router.refresh();
-      
-      const navEnd = performance.now();
-      console.log('[Subcategories] Navigation started', {
-        navTime: `${(navEnd - navStart).toFixed(2)}ms`,
-        totalTime: `${(navEnd - clickTime).toFixed(2)}ms`,
-        timestamp: navEnd
+      console.log('[Subcategories] Save completed', {
+        requestTime: `${requestTime.toFixed(2)}ms`,
+        timestamp: requestEnd,
+        subcategoriesCount: data.subcategoriesCount
       });
+
+      // Navigate immediately after successful save
+      // Don't wait for refreshUser - middleware will handle routing based on join tables
+      router.replace('/deal-breakers');
 
     } catch (error) {
       console.error('[Subcategories] Error saving subcategories:', error);
-      showToast(error instanceof Error ? error.message : 'Failed to save subcategories. Please try again.', 'error');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to save subcategories. Please try again.';
+      showToast(errorMessage, 'error');
+    } finally {
+      // CRITICAL: This is what stops the infinite spinner
+      // Always clear loading state, even if navigation or API call fails
       setIsNavigating(false);
     }
-  }, [selectedSubcategories, subcategories, router, showToast, refreshUser]);
+  }, [selectedSubcategories, subcategories, router, showToast, isNavigating]);
 
   const canProceed = (selectedSubcategories?.length || 0) > 0 && !isNavigating;
 
