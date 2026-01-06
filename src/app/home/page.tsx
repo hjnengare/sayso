@@ -700,13 +700,13 @@ export default function Home() {
             >
               {/* ✅ For You Section - Only show when NOT filtered, NOT searching, AND prefs are ready */}
               {!isFiltered && !isSearchActive && !prefsLoading && (
-                <div className="relative z-10">
+              <div className="relative z-10">
                   {forYouLoading ? (
                     <BusinessRowSkeleton title="For You Now" />
                   ) : forYouError ? (
-                    <div className="mx-auto w-full max-w-[2000px] px-2 py-4 text-sm text-coral">
-                      Couldn't load personalized picks right now. We'll retry in the background.
-                    </div>
+                  <div className="mx-auto w-full max-w-[2000px] px-2 py-4 text-sm text-coral">
+                    Couldn't load personalized picks right now. We'll retry in the background.
+                  </div>
                   ) : forYouBusinesses.length > 0 ? (
                     <MemoizedBusinessRow 
                       title="For You Now" 
@@ -752,26 +752,26 @@ export default function Home() {
                     <div className="mx-auto w-full max-w-[2000px] px-2 py-4 text-sm text-charcoal/70">
                       No businesses match your filters. Try adjusting your selections.
                     </div>
-                  )}
-                </div>
+                )}
+              </div>
               )}
 
               {/* Trending Section - Only show when not filtered */}
               {!isFiltered && (
-                <div className="relative z-10">
-                  {trendingLoading && <BusinessRowSkeleton title="Trending Now" />}
-                  {!trendingLoading && hasTrendingBusinesses && (
-                    <MemoizedBusinessRow title="Trending Now" businesses={trendingBusinesses} cta="See More" href="/trending" />
-                  )}
-                  {!trendingLoading && !hasTrendingBusinesses && !trendingError && (
-                    <MemoizedBusinessRow title="Trending Now" businesses={[]} cta="See More" href="/trending" />
-                  )}
-                  {trendingError && !trendingLoading && (
-                    <div className="mx-auto w-full max-w-[2000px] px-2 py-4 text-sm text-coral">
-                      Trending businesses are still loading. Refresh to try again.
-                    </div>
-                  )}
-                </div>
+              <div className="relative z-10">
+                {trendingLoading && <BusinessRowSkeleton title="Trending Now" />}
+                {!trendingLoading && hasTrendingBusinesses && (
+                  <MemoizedBusinessRow title="Trending Now" businesses={trendingBusinesses} cta="See More" href="/trending" />
+                )}
+                {!trendingLoading && !hasTrendingBusinesses && !trendingError && (
+                  <MemoizedBusinessRow title="Trending Now" businesses={[]} cta="See More" href="/trending" />
+                )}
+                {trendingError && !trendingLoading && (
+                  <div className="mx-auto w-full max-w-[2000px] px-2 py-4 text-sm text-coral">
+                    Trending businesses are still loading. Refresh to try again.
+                  </div>
+                )}
+              </div>
               )}
 
               {/* Events & Specials */}

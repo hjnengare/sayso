@@ -27,7 +27,8 @@ export default function Stars({ value = 5, color = "amber", size = 15, spacing =
       </svg>
       {Array.from({ length: 5 }).map((_, i) => {
         const active = i < full;
-        const starColor = color === "navbar-bg" ? "#722F37" : color === "coral/90" ? "#f87171" : "#f59e0b";
+        // Use charcoal for all stars when color is "charcoal", otherwise use the original logic
+        const starColor = color === "charcoal" ? "#404040" : color === "navbar-bg" ? "#722F37" : color === "coral/90" ? "#f87171" : "#f59e0b";
         return (
           <span
             key={i}
@@ -36,12 +37,13 @@ export default function Stars({ value = 5, color = "amber", size = 15, spacing =
             aria-hidden
           >
             <Star
-              className="transition-all duration-200 shadow-md"
+              className="transition-all duration-200"
               style={{
                 width: size,
                 height: size,
                 stroke: starColor,
-                fill: active ? starColor : "transparent"
+                fill: active ? starColor : "transparent",
+                strokeWidth: 2.5 // bold
               }}
             />
           </span>

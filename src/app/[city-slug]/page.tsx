@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { getServerSupabase } from '../lib/supabase/server';
 import { generateSEOMetadata } from '../lib/utils/seoMetadata';
 import { generateItemListSchema } from '../lib/utils/schemaMarkup';
+import { normalizeBusinessImages } from '../lib/utils/businessImages';
 import CityPageClient from './CityPageClient';
 import SchemaMarkup from '../components/SEO/SchemaMarkup';
 
@@ -76,7 +77,7 @@ export default async function CityPage({ params }: CityPageProps) {
   const supabase = await getServerSupabase();
   let query = supabase
     .from('businesses')
-    .select('id, name, slug, description, image_url, uploaded_images, location, category, average_rating:business_stats(average_rating)')
+    .select('id, name, slug, description, image_url, location, category, average_rating:business_stats(average_rating), business_images(id, url, type, sort_order, is_primary)')
     .ilike('location', `%${displayCityName}%`)
     .eq('status', 'active');
   
@@ -92,13 +93,22 @@ export default async function CityPage({ params }: CityPageProps) {
     console.error('[City Page] Error fetching businesses:', error);
   }
 
+  // Normalize business_images to uploaded_images format for backward compatibility
+  const normalizedBusinesses = (businesses || []).map((business: any) => {
+    const normalized = normalizeBusinessImages(business);
+    return {
+      ...business,
+      uploaded_images: normalized.uploaded_images,
+    };
+  });
+
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://sayso-nine.vercel.app';
   
   // Generate ItemList schema
   const itemListSchema = generateItemListSchema(
     categoryName ? `Best ${categoryName}s in ${displayCityName}` : `Best Businesses in ${displayCityName}`,
     `Discover the top-rated ${categoryName?.toLowerCase() || 'businesses'} in ${displayCityName}.`,
-    (businesses || []).map((business: any) => ({
+    normalizedBusinesses.map((business: any) => ({
       name: business.name,
       url: `${baseUrl}/business/${business.slug || business.id}`,
       image: (business.uploaded_images && business.uploaded_images.length > 0 ? business.uploaded_images[0] : null) || business.image_url,
@@ -113,7 +123,7 @@ export default async function CityPage({ params }: CityPageProps) {
         cityName={displayCityName}
         categoryName={categoryName}
         citySlug={slug}
-        businesses={businesses || []}
+        businesses={normalizedBusinesses}
       />
     </>
   );

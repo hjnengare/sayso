@@ -9,17 +9,89 @@ import ReviewerStats from "./ReviewerStats";
 import ReviewContent from "./ReviewContent";
 import VerifiedBadge from "../VerifiedBadge/VerifiedBadge";
 
+// Generate a unique color for each badge based on reviewer ID
+// This ensures every badge has a different color
+const getUniqueBadgeColor = (reviewerId: string, badgeType: string): string => {
+  // Create a simple hash from the reviewer ID and badge type
+  const combined = `${reviewerId}-${badgeType}`;
+  let hash = 0;
+  for (let i = 0; i < combined.length; i++) {
+    const char = combined.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  
+  // Use absolute value and modulo to get a consistent index
+  const index = Math.abs(hash) % 12;
+  
+  // Palette of distinct colors for variety
+  const colorPalette = [
+    'from-coral/20 to-coral/10',           // 0 - Coral
+    'from-sage/20 to-sage/10',             // 1 - Sage
+    'from-purple-400/20 to-purple-400/10', // 2 - Purple
+    'from-blue-400/20 to-blue-400/10',     // 3 - Blue
+    'from-pink-400/20 to-pink-400/10',     // 4 - Pink
+    'from-yellow-400/20 to-yellow-400/10',  // 5 - Yellow
+    'from-indigo-400/20 to-indigo-400/10', // 6 - Indigo
+    'from-teal-400/20 to-teal-400/10',     // 7 - Teal
+    'from-orange-400/20 to-orange-400/10', // 8 - Orange
+    'from-rose-400/20 to-rose-400/10',     // 9 - Rose
+    'from-cyan-400/20 to-cyan-400/10',     // 10 - Cyan
+    'from-emerald-400/20 to-emerald-400/10', // 11 - Emerald
+  ];
+  
+  return colorPalette[index];
+};
+
+// Get badge icon from Lucide React
+const getBadgeIcon = (badgeType: string): React.ComponentType<React.SVGProps<SVGSVGElement>> => {
+  switch (badgeType) {
+    case "top":
+      return Trophy;
+    case "verified":
+      return CheckCircle;
+    case "local":
+      return MapPin;
+    default:
+      return Award;
+  }
+};
+
+// Get trophy badge icon from Lucide React
+const getTrophyBadgeIcon = (trophyType: string): React.ComponentType<React.SVGProps<SVGSVGElement>> => {
+  switch (trophyType) {
+    case "gold":
+      return Trophy;
+    case "silver":
+      return Award;
+    case "bronze":
+      return Award;
+    case "rising-star":
+      return Sparkles;
+    case "community-favorite":
+      return HeartIcon;
+    default:
+      return Trophy;
+  }
+};
+
 // react-feather icons
 import {
   User,
   Star,
-  Check,
   Users,
   Share2,
-  MapPin,
-  Award,
-  Heart,
 } from "react-feather";
+
+// Lucide React icons for badges
+import {
+  Award,
+  CheckCircle,
+  MapPin,
+  Trophy,
+  Sparkles,
+  Heart as HeartIcon,
+} from "lucide-react";
 
 interface ReviewerCardProps {
   review?: Review;
@@ -77,8 +149,11 @@ export default function ReviewerCard({
                     {/* Verified badge with pulse animation */}
                     {reviewerData?.badge === "verified" && (
                       <div className="absolute -right-0.5 -top-0.5 z-20">
-                        <div className="w-3.5 h-3.5 bg-blue-500 rounded-full flex items-center justify-center ring-2 ring-white/70 animate-pulse">
-                          <Check className="text-white" size={8} strokeWidth={3} />
+                        <div className={`w-3.5 h-3.5 rounded-full bg-gradient-to-br ${getUniqueBadgeColor(reviewerData?.id || '', 'verified')} flex items-center justify-center ring-2 ring-white/70 animate-pulse`}>
+                          {(() => {
+                            const BadgeIcon = getBadgeIcon('verified');
+                            return <BadgeIcon className="w-2 h-2 text-charcoal/70" strokeWidth={2.5} />;
+                          })()}
                         </div>
                       </div>
                     )}
@@ -153,24 +228,15 @@ export default function ReviewerCard({
 
             {/* Badges with entrance animation */}
             <div className="mt-auto flex items-center justify-between">
-              <div className="flex items-center gap-1 flex-wrap">
+              <div className="flex items-center gap-1.5 flex-wrap">
                 {reviewerData?.badge && (
-                  <div
-                    className={`px-1.5 py-0.5 rounded-full text-[10px] font-urbanist font-600 flex items-center gap-0.5 ${
-                      reviewerData.badge === "top"
-                        ? "bg-amber-100 text-amber-700"
-                        : reviewerData.badge === "verified"
-                        ? "bg-blue-100 text-blue-700"
-                        : "bg-sage/10 text-sage"
-                    }`}
-                  >
-                    {reviewerData.badge === "top" ? (
-                      <Award size={10} />
-                    ) : reviewerData.badge === "verified" ? (
-                      <Check size={10} />
-                    ) : (
-                      <MapPin size={10} />
-                    )}
+                  <div className="flex items-center gap-1.5">
+                    <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${getUniqueBadgeColor(reviewerData?.id || '', reviewerData.badge)} flex items-center justify-center flex-shrink-0`}>
+                      {(() => {
+                        const BadgeIcon = getBadgeIcon(reviewerData.badge);
+                        return <BadgeIcon className="w-4 h-4 text-charcoal/70" strokeWidth={2.5} />;
+                      })()}
+                    </div>
                     <span className="sr-only">
                       {reviewerData.badge === "top"
                         ? "Top"
@@ -182,30 +248,13 @@ export default function ReviewerCard({
                 )}
 
                 {reviewerData?.trophyBadge && (
-                  <div
-                    className={`px-1.5 py-0.5 rounded-full text-[10px] font-urbanist font-600 flex items-center gap-0.5 ${
-                      reviewerData.trophyBadge === "gold"
-                        ? "bg-yellow-50 text-yellow-700"
-                        : reviewerData.trophyBadge === "silver"
-                        ? "bg-gray-50 text-gray-700"
-                        : reviewerData.trophyBadge === "bronze"
-                        ? "bg-orange-50 text-orange-700"
-                        : reviewerData.trophyBadge === "rising-star"
-                        ? "bg-purple-50 text-purple-700"
-                        : "bg-pink-50 text-pink-700"
-                    }`}
-                  >
-                    {reviewerData.trophyBadge === "gold" ? (
-                      <Award size={10} />
-                    ) : reviewerData.trophyBadge === "silver" ? (
-                      <Award size={10} />
-                    ) : reviewerData.trophyBadge === "bronze" ? (
-                      <Award size={10} />
-                    ) : reviewerData.trophyBadge === "rising-star" ? (
-                      <Star size={10} />
-                    ) : (
-                      <Heart size={10} />
-                    )}
+                  <div className="flex items-center gap-1.5">
+                    <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${getUniqueBadgeColor(reviewerData?.id || '', reviewerData.trophyBadge)} flex items-center justify-center flex-shrink-0`}>
+                      {(() => {
+                        const TrophyIcon = getTrophyBadgeIcon(reviewerData.trophyBadge);
+                        return <TrophyIcon className="w-4 h-4 text-charcoal/70" strokeWidth={2.5} />;
+                      })()}
+                    </div>
                     <span className="sr-only">
                       {reviewerData.trophyBadge}
                     </span>

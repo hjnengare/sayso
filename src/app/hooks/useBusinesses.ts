@@ -338,9 +338,9 @@ export function useForYouBusinesses(
   // Build query options based on fallback level
   const buildQueryOptions = useCallback((level: 0 | 1 | 2 | 3): UseBusinessesOptions => {
     const baseOptions: UseBusinessesOptions = {
-      limit,
+    limit,
       sortBy: 'total_reviews',
-      sortOrder: 'desc',
+    sortOrder: 'desc',
       feedStrategy: 'mixed',
       ...extraOptions,
     };
@@ -350,8 +350,8 @@ export function useForYouBusinesses(
         return {
           ...baseOptions,
           interestIds,
-          priceRanges: preferredPriceRanges,
-          dealbreakerIds: dealbreakerIds.length > 0 ? dealbreakerIds : undefined,
+    priceRanges: preferredPriceRanges,
+    dealbreakerIds: dealbreakerIds.length > 0 ? dealbreakerIds : undefined,
         };
       case 1: // Relax: remove dealbreakers
         return {

@@ -41,17 +41,37 @@ export default function ProfilePicture({
     }
   };
 
-  const getBadgeColor = (badgeType: string) => {
-    switch (badgeType) {
-      case "top":
-        return "text-amber-500";
-      case "verified": 
-        return "text-blue-500";
-      case "local":
-        return "text-sage";
-      default:
-        return "";
+  // Generate a unique color for each badge based on alt (user identifier)
+  const getUniqueBadgeColor = (userIdentifier: string, badgeType: string): string => {
+    // Create a simple hash from the user identifier and badge type
+    const combined = `${userIdentifier}-${badgeType}`;
+    let hash = 0;
+    for (let i = 0; i < combined.length; i++) {
+      const char = combined.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32-bit integer
     }
+    
+    // Use absolute value and modulo to get a consistent index
+    const index = Math.abs(hash) % 12;
+    
+    // Palette of distinct colors for variety
+    const colorPalette = [
+      'from-coral/20 to-coral/10',           // 0 - Coral
+      'from-sage/20 to-sage/10',             // 1 - Sage
+      'from-purple-400/20 to-purple-400/10', // 2 - Purple
+      'from-blue-400/20 to-blue-400/10',     // 3 - Blue
+      'from-pink-400/20 to-pink-400/10',     // 4 - Pink
+      'from-yellow-400/20 to-yellow-400/10',  // 5 - Yellow
+      'from-indigo-400/20 to-indigo-400/10', // 6 - Indigo
+      'from-teal-400/20 to-teal-400/10',     // 7 - Teal
+      'from-orange-400/20 to-orange-400/10', // 8 - Orange
+      'from-rose-400/20 to-rose-400/10',     // 9 - Rose
+      'from-cyan-400/20 to-cyan-400/10',     // 10 - Cyan
+      'from-emerald-400/20 to-emerald-400/10', // 11 - Emerald
+    ];
+    
+    return colorPalette[index];
   };
 
   // If no src provided or error occurred, show placeholder
@@ -64,9 +84,10 @@ export default function ProfilePicture({
           />
         </div>
         {badge && (
-          <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-off-white rounded-full flex items-center justify-center border border-white/50 ring-1 ring-white/30">
+          <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-gradient-to-br ${getUniqueBadgeColor(alt, badge)} flex items-center justify-center border border-white/50 ring-1 ring-white/30`}>
             {React.createElement(getBadgeIcon(badge), {
-              className: `w-2.5 h-2.5 ${getBadgeColor(badge)}`
+              className: `w-2.5 h-2.5 text-charcoal/70`,
+              strokeWidth: 2.5
             })}
           </div>
         )}
@@ -87,9 +108,10 @@ export default function ProfilePicture({
       />
 
       {badge && (
-        <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-off-white   rounded-full flex items-center justify-center border border-gray-100">
+        <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-gradient-to-br ${getUniqueBadgeColor(alt, badge)} flex items-center justify-center border border-white/50 ring-1 ring-white/30`}>
           {React.createElement(getBadgeIcon(badge), {
-            className: `w-2.5 h-2.5 ${getBadgeColor(badge)}`
+            className: `w-2.5 h-2.5 text-charcoal/70`,
+            strokeWidth: 2.5
           })}
         </div>
       )}

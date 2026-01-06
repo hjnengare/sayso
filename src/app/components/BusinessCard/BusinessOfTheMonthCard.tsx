@@ -15,6 +15,39 @@ import { getCategoryPng, getCategoryPngFromLabels, isPngIcon } from "../../utils
 import { useSavedItems } from "../../contexts/SavedItemsContext";
 import { useToast } from "../../contexts/ToastContext";
 
+// Generate a unique color for each business based on its ID
+// This ensures every business card icon has a different color
+const getUniqueBusinessColor = (businessId: string): string => {
+  // Create a simple hash from the business ID
+  let hash = 0;
+  for (let i = 0; i < businessId.length; i++) {
+    const char = businessId.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  
+  // Use absolute value and modulo to get a consistent index
+  const index = Math.abs(hash) % 12;
+  
+  // Palette of distinct colors for variety
+  const colorPalette = [
+    'from-coral/20 to-coral/10',           // 0 - Coral
+    'from-sage/20 to-sage/10',             // 1 - Sage
+    'from-purple-400/20 to-purple-400/10', // 2 - Purple
+    'from-blue-400/20 to-blue-400/10',     // 3 - Blue
+    'from-pink-400/20 to-pink-400/10',     // 4 - Pink
+    'from-yellow-400/20 to-yellow-400/10',  // 5 - Yellow
+    'from-indigo-400/20 to-indigo-400/10', // 6 - Indigo
+    'from-teal-400/20 to-teal-400/10',     // 7 - Teal
+    'from-orange-400/20 to-orange-400/10', // 8 - Orange
+    'from-rose-400/20 to-rose-400/10',     // 9 - Rose
+    'from-cyan-400/20 to-cyan-400/10',     // 10 - Cyan
+    'from-emerald-400/20 to-emerald-400/10', // 11 - Emerald
+  ];
+  
+  return colorPalette[index];
+};
+
 // Map categories to lucide-react icons
 const getCategoryIcon = (category: string): React.ComponentType<React.SVGProps<SVGSVGElement>> => {
   // Normalize category for matching
@@ -346,8 +379,8 @@ export default function BusinessOfTheMonthCard({ business }: { business: Busines
           </div>
 
           {hasReviews && displayTotal > 0 ? (
-            <div className="absolute right-4 top-4 z-20 inline-flex items-center gap-1 rounded-full bg-off-white/95 backdrop-blur-xl px-3 py-1.5 text-charcoal border border-white/40 shadow-md">
-              <Star className="rounded-full p-1 w-3.5 h-3.5 text-navbar-bg fill-navbar-bg shadow-md" strokeWidth={2.5} aria-hidden />
+            <div className="absolute right-4 top-4 z-20 inline-flex items-center gap-1 rounded-full bg-off-white/95 backdrop-blur-xl px-3 py-1.5 text-charcoal border border-white/40">
+              <Star className="rounded-full p-1 w-3.5 h-3.5 text-charcoal fill-charcoal" strokeWidth={2.5} aria-hidden />
               <span className="text-sm font-semibold text-charcoal" style={{ 
                 fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', 
                 fontWeight: 600
@@ -444,12 +477,15 @@ export default function BusinessOfTheMonthCard({ business }: { business: Busines
                 {/* Category with icon */}
                 <div className="flex flex-col items-center gap-1.5 w-full">
                   {/* Category row with icon - Pill badge style */}
-                  <div className="inline-flex items-center justify-center gap-1.5 rounded-full bg-gradient-to-br from-sage/10 to-sage/5 border border-sage/30 px-3 py-1.5 backdrop-blur-sm shadow-sm">
+                  <div className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5">
                     {(() => {
                       const CategoryIcon = getCategoryIcon(business.category);
+                      const uniqueColor = getUniqueBusinessColor(business.id);
                       return (
                         <>
-                          <CategoryIcon className="w-3.5 h-3.5 flex-shrink-0 text-charcoal/70" strokeWidth={2.5} />
+                          <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${uniqueColor} flex items-center justify-center flex-shrink-0`}>
+                            <CategoryIcon className="w-4 h-4 text-charcoal/70" strokeWidth={2.5} />
+                          </div>
                           <span 
                             className="truncate text-caption sm:text-xs text-charcoal/80 font-semibold"
                             style={{
@@ -545,7 +581,7 @@ export default function BusinessOfTheMonthCard({ business }: { business: Busines
                   <div className="flex items-center justify-center gap-2 text-charcoal transition-all duration-300"
                     aria-label={hasReviews ? `View ${business.reviews} reviews for ${business.name}` : `Be the first to review ${business.name}`}
                   >
-                    <Stars value={hasReviews && displayTotal > 0 ? displayTotal : 0} color="navbar-bg" size={18} spacing={2.5} />
+                    <Stars value={hasReviews && displayTotal > 0 ? displayTotal : 0} color="charcoal" size={18} spacing={2.5} />
                   </div>
                 </div>
 

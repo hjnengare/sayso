@@ -64,69 +64,37 @@ const formatCategoryLabel = (value?: string) => {
     .join(" ");
 };
 
-// Map categories to background colors (matching IntentBrowser pattern)
-const getCategoryColor = (category: string, subInterestId?: string, subInterestLabel?: string): string => {
-  // Normalize category/label for matching
-  const normalizedCategory = (category || '').toLowerCase();
-  const normalizedSubInterest = (subInterestId || subInterestLabel || '').toLowerCase();
-  const searchTerm = normalizedSubInterest || normalizedCategory;
-  
-  // Food & Drink - coral
-  if (searchTerm.includes('restaurant') || searchTerm.includes('dining') || searchTerm.includes('food') || 
-      searchTerm.includes('bar') || searchTerm.includes('pub') || searchTerm.includes('eat')) {
-    return 'from-coral/20 to-coral/10';
-  }
-  // Coffee/Cafes - sage
-  if (searchTerm.includes('cafe') || searchTerm.includes('coffee') || searchTerm.includes('drink')) {
-    return 'from-sage/20 to-sage/10';
-  }
-  // Beauty & Wellness - purple
-  if (searchTerm.includes('spa') || searchTerm.includes('wellness') || searchTerm.includes('massage') ||
-      searchTerm.includes('salon') || searchTerm.includes('hairdresser') || searchTerm.includes('nail')) {
-    return 'from-purple-400/20 to-purple-400/10';
-  }
-  // Fitness/Activity - blue
-  if (searchTerm.includes('gym') || searchTerm.includes('fitness') || searchTerm.includes('workout') ||
-      searchTerm.includes('activity') || searchTerm.includes('sport')) {
-    return 'from-blue-400/20 to-blue-400/10';
-  }
-  // Health/Medical - red/pink
-  if (searchTerm.includes('health') || searchTerm.includes('medical') || searchTerm.includes('hospital')) {
-    return 'from-pink-400/20 to-pink-400/10';
-  }
-  // Shopping - pink
-  if (searchTerm.includes('shop') || searchTerm.includes('store') || searchTerm.includes('retail') || 
-      searchTerm.includes('fashion') || searchTerm.includes('clothing')) {
-    return 'from-pink-400/20 to-pink-400/10';
-  }
-  // Education - yellow
-  if (searchTerm.includes('education') || searchTerm.includes('school') || searchTerm.includes('learn') ||
-      searchTerm.includes('book') || searchTerm.includes('library')) {
-    return 'from-yellow-400/20 to-yellow-400/10';
-  }
-  // Finance/Business - gray
-  if (searchTerm.includes('finance') || searchTerm.includes('bank') || searchTerm.includes('insurance') ||
-      searchTerm.includes('business') || searchTerm.includes('office') || searchTerm.includes('professional')) {
-    return 'from-gray-400/20 to-gray-400/10';
-  }
-  // Entertainment - yellow
-  if (searchTerm.includes('music') || searchTerm.includes('concert') || searchTerm.includes('venue') ||
-      searchTerm.includes('movie') || searchTerm.includes('cinema') || searchTerm.includes('theater') ||
-      searchTerm.includes('art') || searchTerm.includes('gallery') || searchTerm.includes('museum')) {
-    return 'from-yellow-400/20 to-yellow-400/10';
-  }
-  // Travel/Transport - blue
-  if (searchTerm.includes('travel') || searchTerm.includes('transport') || searchTerm.includes('hotel') ||
-      searchTerm.includes('car') || searchTerm.includes('auto') || searchTerm.includes('vehicle')) {
-    return 'from-blue-400/20 to-blue-400/10';
-  }
-  // Home & Living - sage
-  if (searchTerm.includes('home') || searchTerm.includes('decor') || searchTerm.includes('furniture')) {
-    return 'from-sage/20 to-sage/10';
+// Generate a unique color for each business based on its ID
+// This ensures every business card icon has a different color
+const getUniqueBusinessColor = (businessId: string): string => {
+  // Create a simple hash from the business ID
+  let hash = 0;
+  for (let i = 0; i < businessId.length; i++) {
+    const char = businessId.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32-bit integer
   }
   
-  // Default - gray
-  return 'from-gray-400/20 to-gray-400/10';
+  // Use absolute value and modulo to get a consistent index
+  const index = Math.abs(hash) % 12;
+  
+  // Palette of distinct colors for variety
+  const colorPalette = [
+    'from-coral/20 to-coral/10',           // 0 - Coral
+    'from-sage/20 to-sage/10',             // 1 - Sage
+    'from-purple-400/20 to-purple-400/10', // 2 - Purple
+    'from-blue-400/20 to-blue-400/10',     // 3 - Blue
+    'from-pink-400/20 to-pink-400/10',     // 4 - Pink
+    'from-yellow-400/20 to-yellow-400/10',  // 5 - Yellow
+    'from-indigo-400/20 to-indigo-400/10', // 6 - Indigo
+    'from-teal-400/20 to-teal-400/10',     // 7 - Teal
+    'from-orange-400/20 to-orange-400/10', // 8 - Orange
+    'from-rose-400/20 to-rose-400/10',     // 9 - Rose
+    'from-cyan-400/20 to-cyan-400/10',     // 10 - Cyan
+    'from-emerald-400/20 to-emerald-400/10', // 11 - Emerald
+  ];
+  
+  return colorPalette[index];
 };
 
 // Map categories to lucide-react icons
@@ -556,8 +524,8 @@ function BusinessCard({
           )}
 
           {!hideStar && hasRating && displayRating !== undefined && (
-            <div className="absolute right-4 top-4 z-20 inline-flex items-center gap-1 rounded-full bg-off-white/95 backdrop-blur-xl px-3 py-1.5 text-charcoal shadow-md">
-              <Star className="rounded-full p-1 w-3.5 h-3.5 text-navbar-bg fill-navbar-bg shadow-md" strokeWidth={2.5} aria-hidden />
+            <div className="absolute right-4 top-4 z-20 inline-flex items-center gap-1 rounded-full bg-off-white/95 backdrop-blur-xl px-3 py-1.5 text-charcoal">
+              <Star className="rounded-full p-1 w-3.5 h-3.5 text-charcoal fill-charcoal" strokeWidth={2.5} aria-hidden />
               <span className="text-sm font-semibold text-charcoal" style={{
                 fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                 fontWeight: 600
@@ -740,10 +708,10 @@ function BusinessCard({
                   <div className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5">
                     {(() => {
                       const CategoryIcon = getCategoryIcon(business.category, business.subInterestId, business.subInterestLabel);
-                      const categoryColor = getCategoryColor(business.category, business.subInterestId, business.subInterestLabel);
+                      const uniqueColor = getUniqueBusinessColor(business.id);
                       return (
                         <>
-                          <div className={`w-6 h-6 rounded-full bg-gradient-to-br ${categoryColor} flex items-center justify-center flex-shrink-0`}>
+                          <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${uniqueColor} flex items-center justify-center flex-shrink-0`}>
                             <CategoryIcon className="w-4 h-4 text-charcoal/70" strokeWidth={2.5} />
                           </div>
                           <span 

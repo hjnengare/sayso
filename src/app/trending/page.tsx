@@ -20,6 +20,7 @@ import { List, Map as MapIcon } from "react-feather";
 import { Loader } from "../components/Loader/Loader";
 import { usePredefinedPageTitle } from "../hooks/usePageTitle";
 import CategoryFilterPills from "../components/Home/CategoryFilterPills";
+import BusinessGridSkeleton from "../components/Explore/BusinessGridSkeleton";
 import WavyTypedTitle from "../../components/Animations/WavyTypedTitle";
 
 const swanky = Fontdiner_Swanky({
@@ -424,11 +425,9 @@ export default function TrendingPage() {
 
           <div className="py-3 sm:py-4">
             <div className="pt-4 sm:pt-6 md:pt-10">
-            {/* ✅ Show loading while prefs are loading OR businesses are loading */}
+            {/* ✅ Show skeleton loader while prefs are loading OR businesses are loading */}
             {(loading || prefsLoading) && (
-              <div className="min-h-dvh bg-off-white flex items-center justify-center">
-                <Loader size="lg" variant="wavy" color="sage"  />
-              </div>
+              <BusinessGridSkeleton />
             )}
             {!loading && !prefsLoading && error && (
               <div className="bg-white border border-sage/20 rounded-3xl shadow-sm px-6 py-10 text-center space-y-4">

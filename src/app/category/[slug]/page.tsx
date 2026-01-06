@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { getServerSupabase } from '../../lib/supabase/server';
 import { generateSEOMetadata } from '../../lib/utils/seoMetadata';
 import { generateItemListSchema, generateOrganizationSchema } from '../../lib/utils/schemaMarkup';
+import { normalizeBusinessImages } from '../../lib/utils/businessImages';
 import CategoryPageClient from './CategoryPageClient';
 import SchemaMarkup from '../../components/SEO/SchemaMarkup';
 
@@ -43,7 +44,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   const supabase = await getServerSupabase();
   const { data: businesses, error } = await supabase
     .from('businesses')
-    .select('id, name, slug, description, image_url, uploaded_images, location, average_rating:business_stats(average_rating)')
+    .select('id, name, slug, description, image_url, location, average_rating:business_stats(average_rating), business_images(id, url, type, sort_order, is_primary)')
     .eq('category', categoryName)
     .eq('status', 'active')
     .limit(50)
@@ -53,13 +54,22 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     console.error('[Category Page] Error fetching businesses:', error);
   }
 
+  // Normalize business_images to uploaded_images format for backward compatibility
+  const normalizedBusinesses = (businesses || []).map((business: any) => {
+    const normalized = normalizeBusinessImages(business);
+    return {
+      ...business,
+      uploaded_images: normalized.uploaded_images,
+    };
+  });
+
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://sayso-nine.vercel.app';
   
   // Generate ItemList schema for category page
   const itemListSchema = generateItemListSchema(
     `${categoryName} Businesses`,
     `Discover the best ${categoryName.toLowerCase()} businesses in your area.`,
-    (businesses || []).map((business: any) => ({
+    normalizedBusinesses.map((business: any) => ({
       name: business.name,
       url: `${baseUrl}/business/${business.slug || business.id}`,
       image: (business.uploaded_images && business.uploaded_images.length > 0 ? business.uploaded_images[0] : null) || business.image_url,
@@ -75,7 +85,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
       <CategoryPageClient 
         categoryName={categoryName}
         categorySlug={slug}
-        businesses={businesses || []}
+        businesses={normalizedBusinesses}
       />
     </>
   );
