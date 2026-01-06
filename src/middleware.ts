@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { getOnboardingState } from '@/lib/onboarding/getOnboardingState';
 
 export async function middleware(request: NextRequest) {
   // CRITICAL: Disable caching for middleware to prevent stale profile data
@@ -166,127 +167,76 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  // Helper function to determine the REQUIRED onboarding route
-  // CRITICAL: Returns the step the user STILL NEEDS to do, not the next one
-  // PRIMARY SOURCE OF TRUTH: counts (because APIs update them atomically)
-  // SECONDARY: onboarding_step field (can be inconsistent if updates fail)
-  const getRequiredOnboardingRoute = (profile: any): string => {
-    // If no profile, user needs to start at interests
-    if (!profile) {
-      return 'interests';
-    }
-
-    // If complete, go home
-    if (profile.onboarding_complete === true) {
-      return 'home';
-    }
-
-    // ✅ COUNTS ARE THE TRUTH (because APIs update them atomically)
-    // Always validate against counts first to avoid step/count mismatch loops
-    const interests = profile.interests_count || 0;
-    const subs = profile.subcategories_count || 0;
-    const deals = profile.dealbreakers_count || 0;
-
-    // Determine required step based on counts
-    if (interests === 0) return 'interests';
-    if (subs === 0) return 'subcategories';
-    if (deals === 0) return 'deal-breakers';
-
-    // ✅ All counts > 0 but not marked complete yet - they need to visit /complete
-    // This handles the case where all data is saved but completion wasn't marked
-    return 'complete';
-  };
-
-  // Lightweight profile check - only fetch essential fields
-  // Don't join large tables or compute aggregations
-  let profile = null;
-  if (user) {
+  // Derive onboarding state from join tables (source of truth)
+  // This prevents state desync issues that occur when relying on onboarding_step field
+  let onboardingState = null;
+  let onboardingComplete = false;
+  if (user && user.email_confirmed_at) {
     try {
-      // Only fetch minimal fields needed for routing decisions
-      // Lightweight check - no joins, no aggregations
-      // CRITICAL: Use cache: 'no-store' to ensure fresh data in production (Vercel Edge caching)
-      // Use .maybeSingle() to handle missing profiles gracefully
-      // NOTE: If profile reads fail due to RLS (profileData is null), user will be redirected to /interests
-      // This is expected behavior but may cause loops if RLS is misconfigured
-      const { data: profileData, error: profileError } = await supabase
+      onboardingState = await getOnboardingState(supabase, user.id);
+      onboardingComplete = onboardingState.isComplete;
+      
+      console.log('Middleware: Onboarding state derived from join tables', {
+        interestsCount: onboardingState.interestsCount,
+        subcategoriesCount: onboardingState.subcategoriesCount,
+        dealbreakersCount: onboardingState.dealbreakersCount,
+        nextRoute: onboardingState.nextRoute,
+        isComplete: onboardingState.isComplete,
+        pathname: request.nextUrl.pathname
+      });
+    } catch (error) {
+      console.error('Middleware: Error deriving onboarding state:', error);
+      // On error, default to requiring interests step
+      onboardingState = {
+        interestsCount: 0,
+        subcategoriesCount: 0,
+        dealbreakersCount: 0,
+        nextRoute: '/interests' as const,
+        isComplete: false
+      };
+    }
+    
+    // Also check onboarding_complete flag from profiles (for backwards compatibility)
+    // This is only used to determine if user has visited /complete page
+    try {
+      const { data: profileData } = await supabase
         .from('profiles')
-        .select('onboarding_step, onboarding_complete, interests_count, subcategories_count, dealbreakers_count')
+        .select('onboarding_complete')
         .eq('user_id', user.id)
         .maybeSingle();
       
-      if (!profileError && profileData) {
-        profile = profileData;
-        
-        // CRITICAL: Log profile state for debugging onboarding issues
-        // Completion criteria: interests_count > 0 && subcategories_count > 0 && dealbreakers_count > 0
-        const completionCriteria = {
-          hasInterests: (profile.interests_count || 0) > 0,
-          hasSubcategories: (profile.subcategories_count || 0) > 0,
-          hasDealbreakers: (profile.dealbreakers_count || 0) > 0,
-          meetsCriteria: (profile.interests_count || 0) > 0 && 
-                        (profile.subcategories_count || 0) > 0 && 
-                        (profile.dealbreakers_count || 0) > 0,
-          isComplete: profile.onboarding_complete === true,
-          step: profile.onboarding_step
-        };
-        
-        console.log('Middleware: Profile fetched', {
-          onboarding_step: profile.onboarding_step,
-          onboarding_complete: profile.onboarding_complete,
-          interests_count: profile.interests_count,
-          subcategories_count: profile.subcategories_count,
-          dealbreakers_count: profile.dealbreakers_count,
-          completionCriteria,
-          pathname: request.nextUrl.pathname
-        });
-        
-        // WARN if state is inconsistent (meets criteria but not marked complete)
-        if (completionCriteria.meetsCriteria && !completionCriteria.isComplete && completionCriteria.step !== 'complete') {
-          console.warn('Middleware: ⚠️ INCONSISTENT STATE - User meets completion criteria but onboarding_complete is false', {
-            interests_count: profile.interests_count,
-            subcategories_count: profile.subcategories_count,
-            onboarding_step: profile.onboarding_step,
-            onboarding_complete: profile.onboarding_complete,
-            pathname: request.nextUrl.pathname
-          });
-        }
-      } else {
-        console.warn('Middleware: Profile not found or error fetching profile:', {
-          error: profileError?.message,
-          code: profileError?.code,
-          pathname: request.nextUrl.pathname
-        });
-        // Profile might not exist yet - allow access to interests page
-        profile = null;
+      // If profile says complete but join tables don't, trust join tables (they're source of truth)
+      // But if profile says complete AND join tables say complete, user is done
+      if (profileData?.onboarding_complete === true && onboardingState?.isComplete) {
+        onboardingComplete = true;
       }
     } catch (error) {
-      console.error('Middleware: Error fetching profile:', error);
-      profile = null;
+      console.warn('Middleware: Error checking onboarding_complete flag:', error);
+      // Continue with state derived from join tables
     }
   }
 
   // CRITICAL: Block access to /home and other protected routes unless:
   // 1. Email is verified AND
-  // 2. Onboarding is fully completed (onboarding_complete = true)
-  // This is the SINGLE SOURCE OF TRUTH for completion
+  // 2. Onboarding is fully completed (derived from join tables)
+  // Join tables are the SINGLE SOURCE OF TRUTH for completion
   if (isProtectedRoute && !isOnboardingRoute && user && user.email_confirmed_at) {
-    // STRICT CHECK: Only allow access if onboarding_complete is explicitly true
-    if (profile?.onboarding_complete === true) {
+    // STRICT CHECK: Only allow access if onboarding is complete (derived from join tables)
+    if (onboardingComplete && onboardingState?.isComplete) {
       console.log('Middleware: User has completed onboarding, allowing access to protected route');
       return response;
     }
     
-    // Otherwise, redirect to the REQUIRED onboarding step
-    const required = getRequiredOnboardingRoute(profile);
+    // Otherwise, redirect to the REQUIRED onboarding step (derived from join tables)
+    const nextRoute = onboardingState?.nextRoute || '/interests';
     console.log('Middleware: User has not completed onboarding', {
-      onboarding_complete: profile?.onboarding_complete,
-      onboarding_step: profile?.onboarding_step,
-      interests_count: profile?.interests_count,
-      subcategories_count: profile?.subcategories_count,
-      dealbreakers_count: profile?.dealbreakers_count,
-      redirecting_to: required
+      interestsCount: onboardingState?.interestsCount,
+      subcategoriesCount: onboardingState?.subcategoriesCount,
+      dealbreakersCount: onboardingState?.dealbreakersCount,
+      isComplete: onboardingState?.isComplete,
+      redirecting_to: nextRoute
     });
-    const redirectUrl = new URL(`/${required}`, request.url);
+    const redirectUrl = new URL(nextRoute, request.url);
     return NextResponse.redirect(redirectUrl);
   }
 
@@ -295,8 +245,8 @@ export async function middleware(request: NextRequest) {
   if (isOnboardingRoute && user && user.email_confirmed_at) {
     const currentPath = request.nextUrl.pathname;
 
-    // CRITICAL: If onboarding is complete, redirect to home (except /complete page for celebration)
-    if (profile?.onboarding_complete === true) {
+    // CRITICAL: If onboarding is complete (derived from join tables), redirect to home (except /complete page for celebration)
+    if (onboardingComplete && onboardingState?.isComplete) {
       // Allow /complete page for celebration, but redirect other onboarding routes to home
       if (currentPath !== '/complete') {
         console.log('Middleware: User completed onboarding, redirecting to home');
@@ -308,19 +258,35 @@ export async function middleware(request: NextRequest) {
       return response;
     }
 
-    // CRITICAL: Block /complete page unless onboarding is actually complete
-    if (currentPath === '/complete' && profile?.onboarding_complete !== true) {
-      const required = getRequiredOnboardingRoute(profile);
+    // CRITICAL: Block /complete page unless onboarding is actually complete (derived from join tables)
+    if (currentPath === '/complete' && !onboardingState?.isComplete) {
+      const nextRoute = onboardingState?.nextRoute || '/interests';
       console.log('Middleware: Blocking access to /complete page - onboarding not complete', {
-        onboarding_complete: profile?.onboarding_complete,
-        onboarding_step: profile?.onboarding_step,
-        redirecting_to: required
+        interestsCount: onboardingState?.interestsCount,
+        subcategoriesCount: onboardingState?.subcategoriesCount,
+        dealbreakersCount: onboardingState?.dealbreakersCount,
+        isComplete: onboardingState?.isComplete,
+        redirecting_to: nextRoute
       });
-      const redirectUrl = new URL(`/${required}`, request.url);
+      const redirectUrl = new URL(nextRoute, request.url);
       return NextResponse.redirect(redirectUrl);
     }
 
-    // Allow access to any onboarding step if not yet complete
+    // If user is on wrong onboarding step, redirect to correct one (derived from join tables)
+    const nextRoute = onboardingState?.nextRoute || '/interests';
+    if (currentPath !== nextRoute && currentPath !== '/complete') {
+      console.log('Middleware: Redirecting to correct onboarding step', {
+        currentPath,
+        nextRoute,
+        interestsCount: onboardingState?.interestsCount,
+        subcategoriesCount: onboardingState?.subcategoriesCount,
+        dealbreakersCount: onboardingState?.dealbreakersCount
+      });
+      const redirectUrl = new URL(nextRoute, request.url);
+      return NextResponse.redirect(redirectUrl);
+    }
+
+    // Allow access to correct onboarding step
     console.log('Middleware: Allowing access to onboarding route:', currentPath);
     return response;
   }
