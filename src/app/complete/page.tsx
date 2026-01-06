@@ -73,7 +73,6 @@ function CompletePageContent() {
   const { updateUser, user, refreshUser } = useAuth();
   const reducedMotion = useReducedMotion();
   const router = useRouter();
-  const redirectTimerRef = useRef<NodeJS.Timeout | null>(null);
   const hasRedirectedRef = useRef(false);
   const hasMarkedCompleteRef = useRef(false);
 
@@ -139,35 +138,12 @@ function CompletePageContent() {
     document.cookie = `onboarding_complete_visited=true; path=/; max-age=${60 * 60 * 24}; SameSite=Lax`;
   }, []); // Set once on mount
 
-  // Auto-redirect to home after a while, but only if onboarding is actually complete
-  useEffect(() => {
-    redirectTimerRef.current = setTimeout(() => {
-      // Only auto-redirect if onboarding is actually marked complete
-      // This prevents redirect loops if profile wasn't updated yet
-      const isComplete = user?.profile?.onboarding_complete && 
-                        user?.profile?.onboarding_step === 'complete';
-      
-      if (!hasRedirectedRef.current && isComplete) {
-        hasRedirectedRef.current = true;
-        router.replace('/home');
-      } else if (!isComplete) {
-        console.log('[Complete Page] Onboarding not marked complete yet, skipping auto-redirect');
-      }
-    }, 3500);
-
-    return () => {
-      if (redirectTimerRef.current) {
-        clearTimeout(redirectTimerRef.current);
-      }
-    };
-  }, [router, user?.profile?.onboarding_complete, user?.profile?.onboarding_step]);
+  // Removed auto-redirect - user must click "Continue to Home" button
+  // This gives users time to see the completion screen and celebrate
 
   // Handle manual redirect when button is clicked
   const handleContinueClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (redirectTimerRef.current) {
-      clearTimeout(redirectTimerRef.current);
-    }
     if (!hasRedirectedRef.current) {
       hasRedirectedRef.current = true;
       
@@ -175,8 +151,7 @@ function CompletePageContent() {
       // This cookie is required by middleware to allow access to /home
       document.cookie = `onboarding_complete_visited=true; path=/; max-age=${60 * 60 * 24}; SameSite=Lax`;
       
-      // Always use replace to avoid back button issues
-      // Middleware will check for the cookie and allow access
+      // Navigate to home page
       router.replace('/home');
     }
   };
