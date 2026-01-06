@@ -2,11 +2,18 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 export async function middleware(request: NextRequest) {
+  // CRITICAL: Disable caching for middleware to prevent stale profile data
+  // This is especially important in production (Vercel Edge) where responses can be cached
   let response = NextResponse.next({
     request: {
       headers: request.headers,
     },
   });
+  
+  // Add cache control headers to prevent caching of middleware responses
+  response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  response.headers.set('Pragma', 'no-cache');
+  response.headers.set('Expires', '0');
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
