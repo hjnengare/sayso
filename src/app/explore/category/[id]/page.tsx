@@ -248,11 +248,11 @@ function CategoryDetailContent() {
               Category not found
             </h1>
             <Link
-              href="/explore"
+              href="/home"
               className="text-sage hover:text-sage/80 font-semibold transition-colors"
               style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
             >
-              ← Back to Explore
+              ← Back to Home
             </Link>
           </div>
         </main>
@@ -286,8 +286,8 @@ function CategoryDetailContent() {
                 <ChevronRight className="w-4 h-4 text-charcoal/40" />
               </li>
               <li>
-                <Link href="/explore" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                  Explore
+                <Link href="/home" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                  Home
                 </Link>
               </li>
               <li className="flex items-center">
@@ -305,7 +305,7 @@ function CategoryDetailContent() {
           <div className="mb-8">
             <div className="flex items-center justify-center gap-4 mb-4 relative">
               <Link
-                href="/explore"
+                href="/home"
                 className="absolute left-0 w-10 h-10 rounded-full bg-sage hover:bg-sage/90 flex items-center justify-center transition-colors"
               >
                 <ChevronLeft className="w-5 h-5 text-white" />

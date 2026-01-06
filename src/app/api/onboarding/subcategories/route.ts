@@ -84,16 +84,46 @@ export async function POST(req: Request) {
     }
 
     // Update profile to mark subcategories step as done and update subcategories_count (with verification)
+    // CRITICAL: Check if onboarding should be marked complete
+    // Completion criteria: interests_count > 0 && subcategories_count > 0 && dealbreakers_count > 0
+    // ALL THREE STEPS ARE REQUIRED
     try {
+      // First, get current profile to check interests_count and dealbreakers_count
+      const { data: currentProfile } = await supabase
+        .from('profiles')
+        .select('interests_count, subcategories_count, dealbreakers_count')
+        .eq('user_id', user.id)
+        .single();
+
+      const interestsCount = currentProfile?.interests_count || 0;
+      const newSubcategoriesCount = subcategories.length;
+      const dealbreakersCount = currentProfile?.dealbreakers_count || 0;
+
+      // Determine if onboarding should be marked complete
+      // Criteria: interests_count > 0 && subcategories_count > 0 && dealbreakers_count > 0
+      // Since deal-breakers are required, this will always be false at this point
+      // User must complete deal-breakers before completion can be marked
+      const shouldMarkComplete = interestsCount > 0 && newSubcategoriesCount > 0 && dealbreakersCount > 0;
+
+      console.log('[Subcategories API] Checking completion criteria:', {
+        interestsCount,
+        subcategoriesCount: newSubcategoriesCount,
+        dealbreakersCount,
+        shouldMarkComplete,
+        criteria: 'interests_count > 0 && subcategories_count > 0 && dealbreakers_count > 0'
+      });
+
+      // Update profile with appropriate step and completion status
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .update({
-          onboarding_step: 'deal-breakers',
-          subcategories_count: subcategories.length,
+          onboarding_step: shouldMarkComplete ? 'complete' : 'deal-breakers',
+          onboarding_complete: shouldMarkComplete,
+          subcategories_count: newSubcategoriesCount,
           updated_at: new Date().toISOString()
         })
         .eq('user_id', user.id)
-        .select('onboarding_step, subcategories_count')
+        .select('onboarding_step, onboarding_complete, subcategories_count')
         .single();
 
       if (profileError) {
@@ -101,9 +131,20 @@ export async function POST(req: Request) {
       }
 
       // Verify the update actually worked
-      if (!profileData || profileData.onboarding_step !== 'deal-breakers') {
-        throw new Error(`Profile onboarding_step did not update correctly. Expected: deal-breakers, Got: ${profileData?.onboarding_step}`);
+      const expectedStep = shouldMarkComplete ? 'complete' : 'deal-breakers';
+      if (!profileData || profileData.onboarding_step !== expectedStep) {
+        throw new Error(`Profile onboarding_step did not update correctly. Expected: ${expectedStep}, Got: ${profileData?.onboarding_step}`);
       }
+
+      if (shouldMarkComplete && !profileData.onboarding_complete) {
+        throw new Error(`Profile onboarding_complete did not update correctly. Expected: true, Got: ${profileData?.onboarding_complete}`);
+      }
+
+      console.log('[Subcategories API] Profile updated:', {
+        onboarding_step: profileData.onboarding_step,
+        onboarding_complete: profileData.onboarding_complete,
+        subcategories_count: profileData.subcategories_count
+      });
     } catch (profileError: any) {
       console.error('[Subcategories API] Error updating profile:', profileError);
       // Subcategories are saved, but profile update failed - throw to ensure user knows

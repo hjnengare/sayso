@@ -61,21 +61,82 @@ export async function POST(req: Request) {
     const { step, interests, subcategories, dealbreakers, markComplete } = await req.json();
 
     // Handle case where we just want to mark onboarding as complete (from /complete page)
+    // CRITICAL: This is the SINGLE AUTHORITATIVE PLACE that marks onboarding as complete
     if (step === 'complete' && markComplete === true && !interests && !subcategories && !dealbreakers) {
-      console.log('[Onboarding API] Marking onboarding as complete only (no data to save)');
+      console.log('[Onboarding API] Marking onboarding as complete (server-side check)');
       
-      // Just update the profile to mark as complete
+      // CRITICAL: Verify completion criteria before marking complete
+      // Completion criteria: interests_count > 0 && subcategories_count > 0 && dealbreakers_count > 0
+      // ALL THREE STEPS ARE REQUIRED
+      const { data: currentProfile } = await supabase
+        .from('profiles')
+        .select('interests_count, subcategories_count, dealbreakers_count, onboarding_complete, onboarding_step')
+        .eq('user_id', user.id)
+        .single();
+
+      if (!currentProfile) {
+        return NextResponse.json(
+          { error: 'Profile not found' },
+          { status: 404 }
+        );
+      }
+
+      const interestsCount = currentProfile.interests_count || 0;
+      const subcategoriesCount = currentProfile.subcategories_count || 0;
+      const dealbreakersCount = currentProfile.dealbreakers_count || 0;
+      const meetsCriteria = interestsCount > 0 && subcategoriesCount > 0 && dealbreakersCount > 0;
+
+      console.log('[Onboarding API] Completion check:', {
+        interestsCount,
+        subcategoriesCount,
+        dealbreakersCount,
+        meetsCriteria,
+        current_onboarding_complete: currentProfile.onboarding_complete,
+        current_onboarding_step: currentProfile.onboarding_step,
+        criteria: 'interests_count > 0 && subcategories_count > 0 && dealbreakers_count > 0'
+      });
+
+      if (!meetsCriteria) {
+        console.warn('[Onboarding API] Completion criteria not met, cannot mark as complete', {
+          interestsCount,
+          subcategoriesCount,
+          dealbreakersCount,
+          required: 'interests_count > 0 && subcategories_count > 0 && dealbreakers_count > 0'
+        });
+        return NextResponse.json(
+          { 
+            error: 'Onboarding completion criteria not met',
+            details: {
+              interestsCount,
+              subcategoriesCount,
+              dealbreakersCount,
+              required: 'interests_count > 0 && subcategories_count > 0 && dealbreakers_count > 0'
+            }
+          },
+          { status: 400 }
+        );
+      }
+
+      // Mark as complete with verification
       await updateProfileOnboarding(supabase, user.id, 'complete', true);
       
       const totalTime = nodePerformance.now() - startTime;
-      console.log('[Onboarding API] Onboarding marked as complete', {
+      console.log('[Onboarding API] Onboarding marked as complete successfully', {
         userId: user.id,
+        interestsCount,
+        subcategoriesCount,
+        dealbreakersCount,
         totalTime: `${totalTime.toFixed(2)}ms`
       });
 
       return NextResponse.json({ 
         success: true,
-        message: 'Onboarding marked as complete'
+        message: 'Onboarding marked as complete',
+        data: {
+          interestsCount,
+          subcategoriesCount,
+          dealbreakersCount
+        }
       });
     }
 

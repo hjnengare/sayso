@@ -15,6 +15,12 @@ export async function middleware(request: NextRequest) {
   response.headers.set('Pragma', 'no-cache');
   response.headers.set('Expires', '0');
 
+  // CRITICAL: Using ANON KEY in middleware can break profile reads under RLS on Vercel Edge
+  // This relies on cookies/JWT being attached correctly at the edge
+  // If profile reads fail (profile comes back null), consider:
+  // 1. Using service role key (more secure but requires careful RLS setup)
+  // 2. Moving onboarding enforcement to server layouts/pages instead of middleware
+  // 3. Ensuring RLS policies allow authenticated users to read their own profiles
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -160,56 +166,35 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  // Helper function to determine next incomplete onboarding step
-  // PRIMARY SOURCE OF TRUTH: onboarding_step field
-  // Falls back to counts only if onboarding_step is missing/invalid
-  const getNextOnboardingStep = (profile: any): string => {
+  // Helper function to determine the REQUIRED onboarding route
+  // CRITICAL: Returns the step the user STILL NEEDS to do, not the next one
+  // PRIMARY SOURCE OF TRUTH: counts (because APIs update them atomically)
+  // SECONDARY: onboarding_step field (can be inconsistent if updates fail)
+  const getRequiredOnboardingRoute = (profile: any): string => {
     // If no profile, user needs to start at interests
     if (!profile) {
       return 'interests';
     }
 
-    // PRIMARY: Check onboarding_step field first (this is what APIs update)
-    const currentStep = profile.onboarding_step;
-    
-    // If onboarding is marked complete, user is done
-    if (profile.onboarding_complete && currentStep === 'complete') {
-      return 'complete';
+    // If complete, go home
+    if (profile.onboarding_complete === true) {
+      return 'home';
     }
 
-    // Map onboarding_step to next step
-    // If step is 'interests', next is 'subcategories'
-    // If step is 'subcategories', next is 'deal-breakers'
-    // If step is 'deal-breakers', next is 'complete'
-    if (currentStep) {
-      const stepMap: { [key: string]: string } = {
-        'interests': 'subcategories',
-        'subcategories': 'deal-breakers',
-        'deal-breakers': 'complete',
-        'complete': 'complete'
-      };
-      
-      // If we have a valid step, return the next step
-      if (stepMap[currentStep]) {
-        return stepMap[currentStep];
-      }
-    }
+    // ✅ COUNTS ARE THE TRUTH (because APIs update them atomically)
+    // Always validate against counts first to avoid step/count mismatch loops
+    const interests = profile.interests_count || 0;
+    const subs = profile.subcategories_count || 0;
+    const deals = profile.dealbreakers_count || 0;
 
-    // FALLBACK: Only use counts if onboarding_step is missing or invalid
-    // This handles edge cases where step wasn't set but data exists
-    const interestsCount = profile.interests_count || 0;
-    const subcategoriesCount = profile.subcategories_count || 0;
-    const dealbreakersCount = profile.dealbreakers_count || 0;
+    // Determine required step based on counts
+    if (interests === 0) return 'interests';
+    if (subs === 0) return 'subcategories';
+    if (deals === 0) return 'deal-breakers';
 
-    if (interestsCount === 0) {
-      return 'interests';
-    } else if (subcategoriesCount === 0) {
-      return 'subcategories';
-    } else if (dealbreakersCount === 0) {
-      return 'deal-breakers';
-    } else {
-      return 'complete';
-    }
+    // ✅ All counts > 0 but not marked complete yet - they need to visit /complete
+    // This handles the case where all data is saved but completion wasn't marked
+    return 'complete';
   };
 
   // Lightweight profile check - only fetch essential fields
@@ -219,9 +204,10 @@ export async function middleware(request: NextRequest) {
     try {
       // Only fetch minimal fields needed for routing decisions
       // Lightweight check - no joins, no aggregations
-      // CRITICAL: Add timestamp to bust cache in production (Vercel Edge caching)
+      // CRITICAL: Use cache: 'no-store' to ensure fresh data in production (Vercel Edge caching)
       // Use .maybeSingle() to handle missing profiles gracefully
-      const cacheBuster = Date.now();
+      // NOTE: If profile reads fail due to RLS (profileData is null), user will be redirected to /interests
+      // This is expected behavior but may cause loops if RLS is misconfigured
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('onboarding_step, onboarding_complete, interests_count, subcategories_count, dealbreakers_count')
@@ -230,19 +216,45 @@ export async function middleware(request: NextRequest) {
       
       if (!profileError && profileData) {
         profile = profileData;
+        
+        // CRITICAL: Log profile state for debugging onboarding issues
+        // Completion criteria: interests_count > 0 && subcategories_count > 0 && dealbreakers_count > 0
+        const completionCriteria = {
+          hasInterests: (profile.interests_count || 0) > 0,
+          hasSubcategories: (profile.subcategories_count || 0) > 0,
+          hasDealbreakers: (profile.dealbreakers_count || 0) > 0,
+          meetsCriteria: (profile.interests_count || 0) > 0 && 
+                        (profile.subcategories_count || 0) > 0 && 
+                        (profile.dealbreakers_count || 0) > 0,
+          isComplete: profile.onboarding_complete === true,
+          step: profile.onboarding_step
+        };
+        
         console.log('Middleware: Profile fetched', {
           onboarding_step: profile.onboarding_step,
           onboarding_complete: profile.onboarding_complete,
           interests_count: profile.interests_count,
           subcategories_count: profile.subcategories_count,
           dealbreakers_count: profile.dealbreakers_count,
-          cacheBuster
+          completionCriteria,
+          pathname: request.nextUrl.pathname
         });
+        
+        // WARN if state is inconsistent (meets criteria but not marked complete)
+        if (completionCriteria.meetsCriteria && !completionCriteria.isComplete && completionCriteria.step !== 'complete') {
+          console.warn('Middleware: ⚠️ INCONSISTENT STATE - User meets completion criteria but onboarding_complete is false', {
+            interests_count: profile.interests_count,
+            subcategories_count: profile.subcategories_count,
+            onboarding_step: profile.onboarding_step,
+            onboarding_complete: profile.onboarding_complete,
+            pathname: request.nextUrl.pathname
+          });
+        }
       } else {
         console.warn('Middleware: Profile not found or error fetching profile:', {
           error: profileError?.message,
           code: profileError?.code,
-          cacheBuster
+          pathname: request.nextUrl.pathname
         });
         // Profile might not exist yet - allow access to interests page
         profile = null;
@@ -255,59 +267,61 @@ export async function middleware(request: NextRequest) {
 
   // CRITICAL: Block access to /home and other protected routes unless:
   // 1. Email is verified AND
-  // 2. Onboarding is fully completed AND
-  // 3. User has visited the /complete page (onboarding_step === 'complete')
-  // Only check this for /home, not for onboarding routes
+  // 2. Onboarding is fully completed (onboarding_complete = true)
+  // This is the SINGLE SOURCE OF TRUTH for completion
   if (isProtectedRoute && !isOnboardingRoute && user && user.email_confirmed_at) {
-    // Check if onboarding is complete
-    if (profile?.onboarding_complete) {
-      // CRITICAL: Even if onboarding_complete is true, user MUST visit /complete page first
-      // The cookie is set when the /complete page loads, ensuring users see the celebration
-      const hasVisitedCompleteCookie = request.cookies.get('onboarding_complete_visited')?.value === 'true';
-      
-      // If onboarding is complete but cookie is not set, user hasn't visited /complete page yet
-      // Redirect them to /complete to see the celebration before accessing /home
-      if (!hasVisitedCompleteCookie) {
-        console.log('Middleware: Onboarding complete but user has not visited /complete page, redirecting to /complete');
-        const redirectUrl = new URL('/complete', request.url);
-        return NextResponse.redirect(redirectUrl);
-      }
-      
-      // User has completed onboarding AND visited complete page (cookie exists), allow access to home
-      // User has completed onboarding AND visited complete page, allow access to home
+    // STRICT CHECK: Only allow access if onboarding_complete is explicitly true
+    if (profile?.onboarding_complete === true) {
+      console.log('Middleware: User has completed onboarding, allowing access to protected route');
       return response;
     }
     
-    // Otherwise, determine next step and redirect
-    const nextStep = getNextOnboardingStep(profile);
-    console.log('Middleware: User has not completed onboarding, redirecting to next step:', nextStep);
-    const redirectUrl = new URL(`/${nextStep}`, request.url);
+    // Otherwise, redirect to the REQUIRED onboarding step
+    const required = getRequiredOnboardingRoute(profile);
+    console.log('Middleware: User has not completed onboarding', {
+      onboarding_complete: profile?.onboarding_complete,
+      onboarding_step: profile?.onboarding_step,
+      interests_count: profile?.interests_count,
+      subcategories_count: profile?.subcategories_count,
+      dealbreakers_count: profile?.dealbreakers_count,
+      redirecting_to: required
+    });
+    const redirectUrl = new URL(`/${required}`, request.url);
     return NextResponse.redirect(redirectUrl);
   }
 
-  // Allow access to onboarding routes - no step skipping prevention
-  // Users can navigate freely between onboarding steps
+  // Allow access to onboarding routes
+  // Users can navigate between onboarding steps, but completed users should go to home
   if (isOnboardingRoute && user && user.email_confirmed_at) {
     const currentPath = request.nextUrl.pathname;
 
-    // CRITICAL: Always allow access to /complete page - users should see the celebration page
-    // This must be checked BEFORE the "redirect if completed" check
-    // Allow even if onboarding_complete is true (user can revisit celebration page)
-    if (currentPath === '/complete') {
-      console.log('Middleware: Allowing access to /complete page');
-      // Allow access to complete page - prerequisites are checked in OnboardingGuard
+    // CRITICAL: If onboarding is complete, redirect to home (except /complete page for celebration)
+    if (profile?.onboarding_complete === true) {
+      // Allow /complete page for celebration, but redirect other onboarding routes to home
+      if (currentPath !== '/complete') {
+        console.log('Middleware: User completed onboarding, redirecting to home');
+        const redirectUrl = new URL('/home', request.url);
+        return NextResponse.redirect(redirectUrl);
+      }
+      // Allow /complete page even if already complete (for celebration)
+      console.log('Middleware: Allowing access to /complete page (celebration)');
       return response;
     }
 
-    // If user has completed onboarding, redirect other onboarding routes to home
-    // But we already allowed /complete above, so this only affects other onboarding routes
-    if (profile?.onboarding_complete) {
-      console.log('Middleware: User completed onboarding, redirecting to home');
-      const redirectUrl = new URL('/home', request.url);
+    // CRITICAL: Block /complete page unless onboarding is actually complete
+    if (currentPath === '/complete' && profile?.onboarding_complete !== true) {
+      const required = getRequiredOnboardingRoute(profile);
+      console.log('Middleware: Blocking access to /complete page - onboarding not complete', {
+        onboarding_complete: profile?.onboarding_complete,
+        onboarding_step: profile?.onboarding_step,
+        redirecting_to: required
+      });
+      const redirectUrl = new URL(`/${required}`, request.url);
       return NextResponse.redirect(redirectUrl);
     }
 
-    // Allow access to any onboarding step - no skipping prevention
+    // Allow access to any onboarding step if not yet complete
+    console.log('Middleware: Allowing access to onboarding route:', currentPath);
     return response;
   }
 

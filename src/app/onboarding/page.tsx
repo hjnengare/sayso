@@ -314,7 +314,7 @@ export default function OnboardingPage() {
             <div className="space-y-3 md:space-y-4 max-w-xs md:max-w-md mx-auto pt-2 md:pt-4">
               <div data-reveal>
                 <Link
-                  href="/explore"
+                  href="/register"
                   className="group relative block w-[200px] mx-auto rounded-full py-4 px-4 text-body font-semibold text-white text-center flex items-center justify-center bg-gradient-to-r from-coral to-coral/80 hover:from-sage hover:to-sage transition-all duration-300 btn-target btn-press shadow-md focus:outline-none focus-visible:ring-4 focus-visible:ring-sage/30 focus-visible:ring-offset-2"
                   style={{
                     fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
@@ -333,13 +333,6 @@ export default function OnboardingPage() {
                     fontWeight: 600,
                   }}
                 >
-                  <Link
-                    href="/register"
-                    className="text-coral hover:text-sage transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-sage/30 focus-visible:ring-offset-2 rounded"
-                  >
-                    Register
-                  </Link>
-                  {' or '}
                   <Link
                     href="/login"
                     className="text-coral hover:text-sage transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-sage/30 focus-visible:ring-offset-2 rounded"

@@ -77,14 +77,15 @@ function CompletePageContent() {
   const hasRedirectedRef = useRef(false);
   const hasMarkedCompleteRef = useRef(false);
 
-  // Mark onboarding as complete when this page shows
+  // Mark onboarding as complete when this page shows (server-side check)
+  // CRITICAL: This is the SINGLE AUTHORITATIVE PLACE that marks onboarding as complete
   useEffect(() => {
     if (!user || hasMarkedCompleteRef.current) return;
 
     const markComplete = async () => {
       try {
         // Check if already complete to avoid unnecessary API call
-        if (user.profile?.onboarding_complete && user.profile?.onboarding_step === 'complete') {
+        if (user.profile?.onboarding_complete === true && user.profile?.onboarding_step === 'complete') {
           console.log('[Complete Page] Onboarding already marked complete');
           hasMarkedCompleteRef.current = true;
           return;
@@ -92,33 +93,14 @@ function CompletePageContent() {
 
         console.log('[Complete Page] Marking onboarding as complete...');
         
-        // Fetch existing onboarding data first
-        const onboardingResponse = await fetch('/api/user/onboarding');
-        if (!onboardingResponse.ok) {
-          const errorText = await onboardingResponse.text();
-          console.error('[Complete Page] Failed to fetch onboarding data:', errorText);
-          throw new Error(`Failed to fetch onboarding data: ${onboardingResponse.status} ${errorText}`);
-        }
-        const onboardingData = await onboardingResponse.json();
-        
-        console.log('[Complete Page] Fetched onboarding data:', {
-          interestsCount: onboardingData.interests?.length || 0,
-          subcategoriesCount: onboardingData.subcategories?.length || 0,
-          dealbreakersCount: onboardingData.dealbreakers?.length || 0
-        });
-        
-        // Call API to mark onboarding as complete with existing data
+        // CRITICAL: Use server action to mark completion
+        // This ensures completion is marked atomically and verified
         const response = await fetch('/api/user/onboarding', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             step: 'complete',
-            interests: onboardingData.interests || [],
-            subcategories: (onboardingData.subcategories || []).map((sub: any) => ({
-              subcategory_id: sub.subcategory_id || sub.id,
-              interest_id: sub.interest_id
-            })),
-            dealbreakers: onboardingData.dealbreakers || []
+            markComplete: true
           })
         });
 
@@ -141,10 +123,8 @@ function CompletePageContent() {
         console.log('[Complete Page] Onboarding marked as complete successfully');
       } catch (error) {
         console.error('[Complete Page] Error marking onboarding as complete:', error);
-        // Even if API call fails, set the cookie so user can proceed
-        // This prevents infinite redirect loops
-        document.cookie = `onboarding_complete_visited=true; path=/; max-age=${60 * 60 * 24}; SameSite=Lax`;
-        console.log('[Complete Page] Set cookie as fallback to prevent redirect loop');
+        // Don't set cookie on error - let middleware handle redirect
+        // This ensures we don't bypass the completion check
       }
     };
 

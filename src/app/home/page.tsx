@@ -524,7 +524,6 @@ export default function Home() {
     "/trending",
     "/discover/reviews",
     "/events-specials",
-    "/explore",
     "/write-review",
     "/saved",
   ]);
@@ -746,7 +745,7 @@ export default function Home() {
                       title="Filtered Results" 
                       businesses={allBusinesses.slice(0, 10)} 
                       cta="See All" 
-                      href="/explore" 
+                      href="/for-you" 
                     />
                   ) : (
                     <div className="mx-auto w-full max-w-[2000px] px-2 py-4 text-sm text-charcoal/70">
