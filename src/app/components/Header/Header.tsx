@@ -24,9 +24,8 @@ const PRIMARY_LINKS = [
 ] as const;
 
 const DISCOVER_LINKS = [
-  { key: "explore", label: "Explore", description: "Browse all businesses", href: "/explore" },
   { key: "for-you", label: "For You", description: "Personalized picks", href: "/for-you" },
-  { key: "trending", label: "Trending", description: "What’s hot right now", href: "/trending" },
+  { key: "trending", label: "Trending", description: "What's hot right now", href: "/trending" },
   { key: "leaderboard", label: "Leaderboard", description: "Top community voices", href: "/leaderboard" },
   { key: "events-specials", label: "Events & Specials", description: "Seasonal happenings & offers", href: "/events-specials" },
 ] as const;
