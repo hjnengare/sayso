@@ -107,6 +107,20 @@ export async function POST(req: Request) {
       items: cleaned
     });
 
+    // Final validation: ensure no null/undefined subcategory_ids before insert
+    const invalidBeforeInsert = cleaned.filter(sub => 
+      !sub.subcategory_id || 
+      typeof sub.subcategory_id !== 'string' || 
+      sub.subcategory_id.trim().length === 0
+    );
+    if (invalidBeforeInsert.length > 0) {
+      console.error('[Subcategories API] CRITICAL: Invalid subcategories detected right before insert:', invalidBeforeInsert);
+      return NextResponse.json(
+        { error: `Cannot insert ${invalidBeforeInsert.length} invalid subcategory entries with null/undefined subcategory_id` },
+        { status: 400 }
+      );
+    }
+
     const writeStart = nodePerformance.now();
 
     // Use cleaned data for insert

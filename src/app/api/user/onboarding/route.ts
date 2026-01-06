@@ -152,17 +152,55 @@ export async function POST(req: Request) {
         );
       }
 
-      // Map subcategories to the format expected by the atomic function
-      const subcategoryData = subcategories.map(sub => ({
-        subcategory_id: sub.subcategory_id || sub.id,
-        interest_id: sub.interest_id
-      })).filter(sub => {
-        // Filter out subcategories with missing required fields
-        const isValid = sub.subcategory_id && sub.interest_id;
+      // CRITICAL: Hard-validate and clean subcategories BEFORE mapping
+      // Filter out any entries with null/undefined subcategory_id to prevent NOT NULL constraint violations
+      const cleanedSubcategories = subcategories.filter((sub) => {
+        // Must have a valid subcategory_id (either sub.subcategory_id or sub.id)
+        const subcategoryId = sub?.subcategory_id || sub?.id;
+        const isValid = 
+          subcategoryId && 
+          typeof subcategoryId === 'string' && 
+          subcategoryId.trim().length > 0 &&
+          sub?.interest_id &&
+          typeof sub.interest_id === 'string' &&
+          sub.interest_id.trim().length > 0;
+        
         if (!isValid) {
-          console.warn('[Onboarding API] Invalid subcategory entry:', sub);
+          console.error('[Onboarding API] Invalid subcategory entry (filtered out):', {
+            sub,
+            subcategoryId,
+            subcategoryIdType: typeof subcategoryId,
+            interestId: sub?.interest_id,
+            interestIdType: typeof sub?.interest_id
+          });
         }
         return isValid;
+      });
+
+      // Log if any entries were filtered out
+      if (cleanedSubcategories.length !== subcategories.length) {
+        console.error('[Onboarding API] Invalid subcategory payload detected:', {
+          originalCount: subcategories.length,
+          cleanedCount: cleanedSubcategories.length,
+          filteredOut: subcategories.length - cleanedSubcategories.length,
+          originalPayload: subcategories
+        });
+      }
+
+      // Map cleaned subcategories to the format expected by the atomic function
+      const subcategoryData = cleanedSubcategories.map(sub => {
+        const subcategoryId = (sub.subcategory_id || sub.id || '').trim();
+        const interestId = (sub.interest_id || '').trim();
+        
+        // Double-check (should never happen after filter, but defensive)
+        if (!subcategoryId || !interestId) {
+          throw new Error(`Invalid subcategory after cleaning: subcategory_id=${subcategoryId}, interest_id=${interestId}`);
+        }
+        
+        return {
+          subcategory_id: subcategoryId,
+          interest_id: interestId
+        };
       });
 
       // Validate data before attempting save
@@ -173,16 +211,19 @@ export async function POST(req: Request) {
         );
       }
 
-      // Validate that all subcategories have interest_ids if provided
-      const invalidSubcategories = subcategoryData.filter(sub => !sub.interest_id || !sub.subcategory_id);
-      if (invalidSubcategories.length > 0 && subcategories.length > 0) {
-        console.error('[Onboarding API] Invalid subcategory data:', invalidSubcategories);
+      // Validate that we have at least one valid subcategory after cleaning
+      if (subcategoryData.length === 0 && subcategories.length > 0) {
+        console.error('[Onboarding API] All subcategories were invalid after cleaning:', {
+          originalCount: subcategories.length,
+          originalPayload: subcategories
+        });
         return NextResponse.json(
-          { error: 'All subcategories must have valid subcategory_id and interest_id' },
+          { error: 'All subcategories were invalid. Each subcategory must have a valid subcategory_id and interest_id.' },
           { status: 400 }
         );
       }
 
+      // CRITICAL: Log payload right before insert to catch any remaining issues
       console.log('[Onboarding API] Saving onboarding data:', {
         userId: user.id,
         interestIds: interests,
@@ -193,6 +234,17 @@ export async function POST(req: Request) {
         dealbreakerIds: dealbreakers,
         dealbreakersLength: dealbreakers.length,
       });
+
+      // Final validation: ensure no null/undefined subcategory_ids before insert
+      const invalidBeforeInsert = subcategoryData.filter(sub => 
+        !sub.subcategory_id || 
+        typeof sub.subcategory_id !== 'string' || 
+        sub.subcategory_id.trim().length === 0
+      );
+      if (invalidBeforeInsert.length > 0) {
+        console.error('[Onboarding API] CRITICAL: Invalid subcategories detected right before insert:', invalidBeforeInsert);
+        throw new Error(`Cannot insert ${invalidBeforeInsert.length} invalid subcategory entries with null/undefined subcategory_id`);
+      }
 
       // Try atomic function first, fallback to individual steps if function doesn't exist
       let useAtomic = true;
@@ -303,18 +355,71 @@ export async function POST(req: Request) {
 
       // Save subcategories with their parent interest IDs
       if (subcategories && Array.isArray(subcategories)) {
-        const subcategoryData = subcategories.map(sub => ({
-          subcategory_id: sub.id,
-          interest_id: sub.interest_id
-        }));
-        
-        const { error } = await supabase.rpc('replace_user_subcategories', {
-          p_user_id: user.id,
-          p_subcategory_data: subcategoryData
+        // CRITICAL: Hard-validate and clean subcategories BEFORE mapping
+        // Filter out any entries with null/undefined subcategory_id to prevent NOT NULL constraint violations
+        const cleanedSubcategories = subcategories.filter((sub) => {
+          // Must have a valid subcategory_id (either sub.subcategory_id or sub.id)
+          const subcategoryId = sub?.subcategory_id || sub?.id;
+          const isValid = 
+            subcategoryId && 
+            typeof subcategoryId === 'string' && 
+            subcategoryId.trim().length > 0 &&
+            sub?.interest_id &&
+            typeof sub.interest_id === 'string' &&
+            sub.interest_id.trim().length > 0;
+          
+          if (!isValid) {
+            console.error('[Onboarding API] Invalid subcategory entry (filtered out):', {
+              sub,
+              subcategoryId,
+              subcategoryIdType: typeof subcategoryId,
+              interestId: sub?.interest_id,
+              interestIdType: typeof sub?.interest_id
+            });
+          }
+          return isValid;
         });
-        if (error) {
-          console.error('Error saving subcategories:', error);
-          throw error;
+
+        // Log if any entries were filtered out
+        if (cleanedSubcategories.length !== subcategories.length) {
+          console.error('[Onboarding API] Invalid subcategory payload detected (individual step):', {
+            originalCount: subcategories.length,
+            cleanedCount: cleanedSubcategories.length,
+            filteredOut: subcategories.length - cleanedSubcategories.length,
+            originalPayload: subcategories
+          });
+        }
+
+        // Map cleaned subcategories to the format expected by the RPC function
+        const subcategoryData = cleanedSubcategories.map(sub => {
+          const subcategoryId = (sub.subcategory_id || sub.id || '').trim();
+          const interestId = (sub.interest_id || '').trim();
+          
+          // Double-check (should never happen after filter, but defensive)
+          if (!subcategoryId || !interestId) {
+            throw new Error(`Invalid subcategory after cleaning: subcategory_id=${subcategoryId}, interest_id=${interestId}`);
+          }
+          
+          return {
+            subcategory_id: subcategoryId,
+            interest_id: interestId
+          };
+        });
+
+        // Only proceed if we have at least one valid subcategory
+        if (subcategoryData.length > 0) {
+          const { error } = await supabase.rpc('replace_user_subcategories', {
+            p_user_id: user.id,
+            p_subcategory_data: subcategoryData
+          });
+          if (error) {
+            console.error('[Onboarding API] Error saving subcategories:', error);
+            throw error;
+          }
+        } else if (subcategories.length > 0) {
+          // If we had subcategories but all were invalid, throw an error
+          console.error('[Onboarding API] All subcategories were invalid after cleaning (individual step)');
+          throw new Error('All subcategories were invalid. Each subcategory must have a valid subcategory_id and interest_id.');
         }
       }
 
