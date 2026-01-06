@@ -73,12 +73,15 @@ function SubcategoriesContent() {
 
   // Defensive redirect: if subcategories are already saved, redirect to deal-breakers
   // This prevents stale state, double clicks, and "stuck but completed" cases
+  // CRITICAL: Don't redirect while navigating (would fight with handleNext)
   useEffect(() => {
-    if (user && user.profile?.subcategories_count > 0) {
+    if (isNavigating) return; // Don't fight navigation
+    
+    if (user && (user.profile?.subcategories_count || 0) > 0) {
       console.log('[Subcategories] Subcategories already saved, redirecting to deal-breakers');
       router.replace('/deal-breakers');
     }
-  }, [user, router]);
+  }, [user, router, isNavigating]);
 
   // Fetch subcategories on page load - show skeleton immediately
   useEffect(() => {
@@ -248,6 +251,10 @@ function SubcategoriesContent() {
   }, [selectedSubcategories, subcategories, router, showToast, isNavigating]);
 
   const canProceed = (selectedSubcategories?.length || 0) > 0 && !isNavigating;
+  
+  // Use local loading state only - don't use global isLoading from context
+  // This prevents infinite spinner when context state gets stuck
+  const actionsLoading = loading || isNavigating;
 
   // Show skeleton immediately while loading
   if (loading) {
@@ -305,7 +312,7 @@ function SubcategoriesContent() {
           <SubcategoryActions
             canProceed={canProceed}
             isNavigating={isNavigating}
-            isLoading={isLoading}
+            isLoading={actionsLoading}
             selectedCount={selectedSubcategories?.length || 0}
             onContinue={handleNext}
           />
