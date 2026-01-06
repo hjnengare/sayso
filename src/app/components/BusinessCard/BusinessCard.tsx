@@ -743,8 +743,8 @@ function BusinessCard({
                       const categoryColor = getCategoryColor(business.category, business.subInterestId, business.subInterestLabel);
                       return (
                         <>
-                          <div className={`w-5 h-5 rounded-full bg-gradient-to-br ${categoryColor} flex items-center justify-center flex-shrink-0`}>
-                            <CategoryIcon className="w-3 h-3 text-charcoal/70" strokeWidth={2.5} />
+                          <div className={`w-6 h-6 rounded-full bg-gradient-to-br ${categoryColor} flex items-center justify-center flex-shrink-0`}>
+                            <CategoryIcon className="w-4 h-4 text-charcoal/70" strokeWidth={2.5} />
                           </div>
                           <span 
                             className="truncate text-caption sm:text-xs text-charcoal/80 font-semibold"
