@@ -58,7 +58,26 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { step, interests, subcategories, dealbreakers } = await req.json();
+    const { step, interests, subcategories, dealbreakers, markComplete } = await req.json();
+
+    // Handle case where we just want to mark onboarding as complete (from /complete page)
+    if (step === 'complete' && markComplete === true && !interests && !subcategories && !dealbreakers) {
+      console.log('[Onboarding API] Marking onboarding as complete only (no data to save)');
+      
+      // Just update the profile to mark as complete
+      await updateProfileOnboarding(supabase, user.id, 'complete', true);
+      
+      const totalTime = nodePerformance.now() - startTime;
+      console.log('[Onboarding API] Onboarding marked as complete', {
+        userId: user.id,
+        totalTime: `${totalTime.toFixed(2)}ms`
+      });
+
+      return NextResponse.json({ 
+        success: true,
+        message: 'Onboarding marked as complete'
+      });
+    }
 
     if (step === 'complete') {
       const writeStart = nodePerformance.now();
@@ -251,7 +270,8 @@ export async function POST(req: Request) {
       }
 
       // Update profile step (only for individual steps) with verification
-      await updateProfileOnboarding(supabase, user.id, step, step === 'complete');
+      // For deal-breakers step, save data but DON'T mark as complete - that happens on /complete page
+      await updateProfileOnboarding(supabase, user.id, step, false);
     }
 
     const totalTime = nodePerformance.now() - startTime;

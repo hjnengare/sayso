@@ -70,11 +70,66 @@ const sf = {
 } as const;
 
 function CompletePageContent() {
-  const { updateUser, user } = useAuth();
+  const { updateUser, user, refreshUser } = useAuth();
   const reducedMotion = useReducedMotion();
   const router = useRouter();
   const redirectTimerRef = useRef<NodeJS.Timeout | null>(null);
   const hasRedirectedRef = useRef(false);
+  const hasMarkedCompleteRef = useRef(false);
+
+  // Mark onboarding as complete when this page shows
+  useEffect(() => {
+    if (!user || hasMarkedCompleteRef.current) return;
+
+    const markComplete = async () => {
+      try {
+        // Check if already complete to avoid unnecessary API call
+        if (user.profile?.onboarding_complete && user.profile?.onboarding_step === 'complete') {
+          console.log('[Complete Page] Onboarding already marked complete');
+          hasMarkedCompleteRef.current = true;
+          return;
+        }
+
+        console.log('[Complete Page] Marking onboarding as complete...');
+        
+        // Fetch existing onboarding data first
+        const onboardingResponse = await fetch('/api/user/onboarding');
+        if (!onboardingResponse.ok) {
+          throw new Error('Failed to fetch onboarding data');
+        }
+        const onboardingData = await onboardingResponse.json();
+        
+        // Call API to mark onboarding as complete with existing data
+        const response = await fetch('/api/user/onboarding', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            step: 'complete',
+            interests: onboardingData.interests || [],
+            subcategories: (onboardingData.subcategories || []).map((sub: any) => ({
+              subcategory_id: sub.subcategory_id || sub.id,
+              interest_id: sub.interest_id
+            })),
+            dealbreakers: onboardingData.dealbreakers || []
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to mark onboarding as complete');
+        }
+
+        // Refresh user data to get updated profile
+        await refreshUser();
+        hasMarkedCompleteRef.current = true;
+        console.log('[Complete Page] Onboarding marked as complete');
+      } catch (error) {
+        console.error('[Complete Page] Error marking onboarding as complete:', error);
+        // Don't block the UI if this fails - user can still see the celebration
+      }
+    };
+
+    markComplete();
+  }, [user, refreshUser]);
 
   // Set a cookie to indicate user has visited the complete page
   // This cookie is required by middleware before allowing access to /home

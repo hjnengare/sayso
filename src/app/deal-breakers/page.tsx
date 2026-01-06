@@ -159,7 +159,7 @@ function DealBreakersContent() {
           }).filter(sub => sub.subcategory_id && sub.interest_id);
 
       const requestData = {
-        step: 'complete',
+        step: 'deal-breakers', // Save data but don't mark as complete yet - that happens on /complete page
         interests: interests,
         subcategories: finalSubcategories,
         dealbreakers: selectedDealbreakers || []
