@@ -78,11 +78,38 @@ function DealBreakersContent() {
     router.prefetch('/complete');
   }, [router]);
 
-  // Load saved dealbreakers from database on mount (for back navigation)
-  // CRITICAL: Only hydrate if user has actually saved dealbreakers (dealbreakers_count > 0)
-  // Brand-new users must see ZERO dealbreakers selected
+  // Load saved dealbreakers from URL params, localStorage, or database (for back navigation)
+  // Priority: URL params > localStorage > DB
   useEffect(() => {
     const loadSavedDealbreakers = async () => {
+      // First, check URL params (for forward navigation)
+      const params = parseOnboardingParams(searchParams);
+      if (params.dealbreakers.length > 0) {
+        console.log('[Deal-breakers] Loaded dealbreakers from URL params:', params.dealbreakers);
+        setSelectedDealbreakers(params.dealbreakers);
+        setContextDealbreakers(params.dealbreakers);
+        return;
+      }
+
+      // Second, check localStorage (for back navigation)
+      if (typeof window !== 'undefined') {
+        try {
+          const stored = localStorage.getItem('onboarding_dealbreakers');
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              console.log('[Deal-breakers] Loaded dealbreakers from localStorage:', parsed);
+              setSelectedDealbreakers(parsed);
+              setContextDealbreakers(parsed);
+              return; // Use localStorage data, skip DB check
+            }
+          }
+        } catch (error) {
+          console.warn('[Deal-breakers] Error reading from localStorage:', error);
+        }
+      }
+
+      // Fallback to DB if URL and localStorage are empty
       try {
         const response = await fetch('/api/user/onboarding');
         if (response && response.ok) {
@@ -112,7 +139,7 @@ function DealBreakersContent() {
     };
 
     loadSavedDealbreakers();
-  }, [setContextDealbreakers]);
+  }, [searchParams, setContextDealbreakers]);
 
   const handleDealbreakerToggle = useCallback((dealbreakerId: string) => {
     setSelectedDealbreakers(prev => {

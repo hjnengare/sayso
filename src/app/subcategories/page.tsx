@@ -61,7 +61,7 @@ function SubcategoriesContent() {
     router.prefetch('/deal-breakers');
   }, [router]);
 
-  // Load interests from URL params and validate
+  // Load data from URL params, with localStorage fallback for back navigation
   useEffect(() => {
     const loadData = () => {
       setLoading(true);
@@ -80,11 +80,38 @@ function SubcategoriesContent() {
         // Set interests from URL
         setSelectedInterests(params.interests);
         
-        // Set subcategories from URL if present (for back navigation)
+        // Priority: URL params > localStorage > empty
+        // Set subcategories from URL if present (for forward navigation)
         if (params.subcategories.length > 0) {
+          console.log('[Subcategories] Loaded subcategories from URL params:', params.subcategories);
           setSelectedSubcategories(params.subcategories);
+          // Also save to localStorage for back navigation
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('onboarding_subcategories', JSON.stringify(params.subcategories));
+          }
         } else {
-          setSelectedSubcategories([]);
+          // Check localStorage for back navigation
+          if (typeof window !== 'undefined') {
+            try {
+              const stored = localStorage.getItem('onboarding_subcategories');
+              if (stored) {
+                const parsed = JSON.parse(stored);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                  console.log('[Subcategories] Loaded subcategories from localStorage:', parsed);
+                  setSelectedSubcategories(parsed);
+                } else {
+                  setSelectedSubcategories([]);
+                }
+              } else {
+                setSelectedSubcategories([]);
+              }
+            } catch (error) {
+              console.warn('[Subcategories] Error reading from localStorage:', error);
+              setSelectedSubcategories([]);
+            }
+          } else {
+            setSelectedSubcategories([]);
+          }
         }
       } catch (error) {
         console.error('[Subcategories] Error loading data:', error);

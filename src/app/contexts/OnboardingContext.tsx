@@ -74,11 +74,41 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
   const [interests, setInterests] = useState<Interest[]>([]);
   const [subInterests, setSubInterests] = useState<Subcategory[]>([]);
 
-  // Start with empty state - no preselected content
-  const [selectedInterests, setSelectedInterestsState] = useState<string[]>([]);
+  // Initialize from localStorage if available (for back navigation)
+  const getInitialInterests = (): string[] => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const stored = localStorage.getItem('onboarding_interests');
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  };
 
-  const [selectedSubInterests, setSelectedSubInterestsState] = useState<string[]>([]);
-  const [selectedDealbreakers, setSelectedDealbreakerssState] = useState<string[]>([]);
+  const getInitialSubInterests = (): string[] => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const stored = localStorage.getItem('onboarding_subcategories');
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const getInitialDealbreakers = (): string[] => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const stored = localStorage.getItem('onboarding_dealbreakers');
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  };
+
+  // Initialize state from localStorage
+  const [selectedInterests, setSelectedInterestsState] = useState<string[]>(getInitialInterests);
+  const [selectedSubInterests, setSelectedSubInterestsState] = useState<string[]>(getInitialSubInterests);
+  const [selectedDealbreakers, setSelectedDealbreakerssState] = useState<string[]>(getInitialDealbreakers);
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

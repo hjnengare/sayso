@@ -68,11 +68,28 @@ function InterestsContent() {
     error: onboardingError,
   } = useOnboarding();
 
-  // Load saved interests from database on mount (for back navigation)
-  // CRITICAL: Only hydrate if user has actually saved interests (interests_count > 0)
-  // Brand-new users must see ZERO interests selected
+  // Load saved interests from localStorage first, then DB (for back navigation)
+  // Priority: localStorage > DB (localStorage has most recent selections)
   useEffect(() => {
     const loadSavedInterests = async () => {
+      // First, check localStorage (most recent selections)
+      if (typeof window !== 'undefined') {
+        try {
+          const stored = localStorage.getItem('onboarding_interests');
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              console.log('[Interests] Loaded interests from localStorage:', parsed);
+              setSelectedInterests(parsed);
+              return; // Use localStorage data, skip DB check
+            }
+          }
+        } catch (error) {
+          console.warn('[Interests] Error reading from localStorage:', error);
+        }
+      }
+
+      // Fallback to DB if localStorage is empty
       try {
         const response = await fetch('/api/user/onboarding');
         if (response.ok) {
