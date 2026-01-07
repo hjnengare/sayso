@@ -195,12 +195,6 @@ export async function middleware(request: NextRequest) {
     authError = error instanceof Error ? error : new Error(String(error));
   }
 
-  console.log('Middleware: Checking route', {
-    pathname: request.nextUrl.pathname,
-    user_exists: !!user,
-    email_confirmed_at: user?.email_confirmed_at
-  });
-
   // Protected routes - require authentication AND email verification
   // These routes should NOT be accessible to unauthenticated users
   const protectedRoutes = [
@@ -278,123 +272,87 @@ export async function middleware(request: NextRequest) {
   }
 
   // STRICT STATE MACHINE: Use onboarding_step as SINGLE source of truth
-  // Counts are for UI display only, NOT for routing decisions
-  // CRITICAL: Always read fresh data - no caching allowed
+  // OPTIMIZED: Single DB read for profile data (no duplicate queries)
   let onboardingAccess = null;
+  let profileData: { onboarding_step: string | null; onboarding_complete: boolean | null } | null = null;
+  
   if (user && user.email_confirmed_at) {
     try {
-      // Force fresh read - CRITICAL: Always read latest data, no caching
-      // Use maybeSingle() to handle cases where profile doesn't exist yet
-      const { data: profileData, error: profileError } = await supabase
+      // Single DB read - reuse this data throughout middleware
+      const { data, error: profileError } = await supabase
         .from('profiles')
         .select('onboarding_step, onboarding_complete')
         .eq('user_id', user.id)
         .maybeSingle();
       
+      profileData = data;
+      
       if (profileError) {
         console.error('[Middleware] Error reading profile:', profileError);
-        // On error, default to requiring interests step
         onboardingAccess = getOnboardingAccess(null);
-        console.log('[Middleware] Profile read error, defaulting to interests step');
       } else if (profileData) {
         onboardingAccess = getOnboardingAccess({
-          onboarding_step: profileData.onboarding_step,
+          onboarding_step: profileData.onboarding_step as any,
           onboarding_complete: profileData.onboarding_complete,
-        });
-        
-        const requestedPath = request.nextUrl.pathname;
-        const redirectRoute = onboardingAccess.redirectFor(requestedPath);
-        
-        console.log('[Middleware] Onboarding access determined:', {
-          onboarding_step: profileData.onboarding_step,
-          onboarding_complete: profileData.onboarding_complete,
-          requiredStep: onboardingAccess.step,
-          requiredRoute: onboardingAccess.currentRoute,
-          requestedPath,
-          willRedirect: redirectRoute !== null,
-          redirectTo: redirectRoute
         });
       } else {
-        // No profile found, default to requiring interests step
         onboardingAccess = getOnboardingAccess(null);
-        console.log('[Middleware] No profile found, defaulting to interests step');
       }
     } catch (error) {
       console.error('[Middleware] Error getting onboarding access:', error);
-      // On error, default to requiring interests step
       onboardingAccess = getOnboardingAccess(null);
     }
   }
 
   // STRICT: Block access to /home and other protected routes unless onboarding is complete
   if (isProtectedRoute && !isOnboardingRoute && user && user.email_confirmed_at) {
-    if (onboardingAccess && onboardingAccess.step === 'complete' && onboardingAccess.canAccess('/complete')) {
-      // Check if onboarding_complete flag is true (user finished /complete page)
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('onboarding_complete')
-        .eq('user_id', user.id)
-        .maybeSingle();
-      
-      if (profileData?.onboarding_complete === true) {
-        console.log('[Middleware] User has completed onboarding, allowing access to protected route');
-        return response;
-      }
+    // Use cached profileData - no additional DB read
+    if (profileData?.onboarding_complete === true) {
+      return response;
     }
     
-    // Otherwise, redirect to the REQUIRED onboarding step
+    // Redirect to the REQUIRED onboarding step
     const requiredRoute = onboardingAccess?.currentRoute || '/interests';
-    console.log('[Middleware] User has not completed onboarding, redirecting to required step:', {
-      requiredRoute,
-      pathname: request.nextUrl.pathname
-    });
     const redirectUrl = new URL(requiredRoute, request.url);
     return NextResponse.redirect(redirectUrl);
   }
 
-  // Onboarding route access rules - simplified to allow URL param flow
-  if (isOnboardingRoute && user && user.email_confirmed_at) {
+  // STRICT ONBOARDING ROUTE ENFORCEMENT
+  if (isOnboardingRoute && user && user.email_confirmed_at && onboardingAccess) {
     const currentPath = request.nextUrl.pathname;
 
-    // RULE 1: If onboarding_complete=true, redirect ALL onboarding routes to /home
-    const { data: profileData } = await supabase
-      .from('profiles')
-      .select('onboarding_complete')
-      .eq('user_id', user.id)
-      .maybeSingle();
-    
+    // RULE 1: If onboarding_complete=true, redirect onboarding routes to /home (except /complete)
+    // Use cached profileData - no additional DB read
     if (profileData?.onboarding_complete === true) {
-      // Allow /complete page for celebration, but redirect other onboarding routes to home
       if (currentPath !== '/complete') {
-        console.log('[Middleware] User completed onboarding, redirecting to home');
         const redirectUrl = new URL('/home', request.url);
         return NextResponse.redirect(redirectUrl);
       }
-      // Allow /complete page even if already complete (for celebration)
-      console.log('[Middleware] Allowing access to /complete page (celebration)');
+      // Allow /complete page for celebration
       return response;
     }
 
-    // RULE 2: Allow navigation between onboarding steps for authenticated users
-    // Pages themselves validate URL params and redirect if needed
-    // This allows the URL param flow where data is passed between steps without DB saves
-    console.log('[Middleware] Allowing access to onboarding route (pages validate URL params):', {
-      currentPath
-    });
+    // RULE 2: Enforce step-by-step access
+    const canAccessRoute = onboardingAccess.canAccess(currentPath);
+    const redirectRoute = onboardingAccess.redirectFor(currentPath);
+
+    if (!canAccessRoute && redirectRoute) {
+      const redirectUrl = new URL(redirectRoute, request.url);
+      return NextResponse.redirect(redirectUrl);
+    }
+
+    // Allow access to current step or earlier steps
     return response;
   }
 
   // Redirect unauthenticated users from protected routes
-  // But allow public routes even without authentication
   if (isProtectedRoute && !user && !isPublicRoute) {
-    console.log('Middleware: Redirecting unauthenticated user to onboarding');
     const redirectUrl = new URL('/onboarding', request.url);
     return NextResponse.redirect(redirectUrl);
   }
   
   // Allow public routes to proceed without authentication
   if (isPublicRoute) {
-    console.log('Middleware: Allowing access to public route:', request.nextUrl.pathname);
     return response;
   }
 

@@ -1,6 +1,13 @@
 "use client";
 
+import { Fontdiner_Swanky } from "next/font/google";
 import WavyTypedTitle from "../../../components/Animations/WavyTypedTitle";
+
+const swanky = Fontdiner_Swanky({
+  weight: "400",
+  subsets: ["latin"],
+  display: "swap",
+});
 
 export default function DealBreakerHeader() {
   const bodyStyle = {
@@ -13,7 +20,7 @@ export default function DealBreakerHeader() {
       <WavyTypedTitle
         text="What's your deal-breakers?"
         as="h2"
-        className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2 tracking-tight px-6 sm:px-4 md:px-2 text-charcoal"
+        className={`${swanky.className} text-2xl md:text-3xl lg:text-4xl font-bold mb-2 tracking-tight px-6 sm:px-4 md:px-2 text-charcoal`}
         typingSpeedMs={40}
         startDelayMs={300}
         waveVariant="subtle"
@@ -21,8 +28,7 @@ export default function DealBreakerHeader() {
         triggerOnTypingComplete={true}
         enableScrollTrigger={false}
         style={{ 
-          fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-          fontWeight: 700,
+          fontFamily: swanky.style.fontFamily,
         }}
       />
       <p

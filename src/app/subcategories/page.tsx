@@ -1,12 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo, Suspense } from "react";
+import { Suspense } from "react";
 import { motion } from "framer-motion";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useOnboarding } from "../contexts/OnboardingContext";
-import { useToast } from "../contexts/ToastContext";
-import { useAuth } from "../contexts/AuthContext";
-import { parseOnboardingParams, buildOnboardingUrl, validateOnboardingParams } from "../lib/onboarding/urlParams";
 import OnboardingLayout from "../components/Onboarding/OnboardingLayout";
 import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
 import SubcategoryStyles from "../components/Subcategories/SubcategoryStyles";
@@ -15,285 +10,26 @@ import SubcategorySelection from "../components/Subcategories/SubcategorySelecti
 import SubcategoryGrid from "../components/Subcategories/SubcategoryGrid";
 import SubcategoryActions from "../components/Subcategories/SubcategoryActions";
 import { Loader } from "../components/Loader";
+import { useSubcategoriesPage } from "../hooks/useSubcategoriesPage";
+import { OnboardingErrorBoundary } from "../components/Onboarding/OnboardingErrorBoundary";
 
-
-interface SubcategoryItem {
-  id: string;
-  label: string;
-  interest_id: string;
-}
-
-interface GroupedSubcategories {
-  [interestId: string]: {
-    title: string;
-    items: SubcategoryItem[];
-  };
-}
-
-const INTEREST_TITLES: { [key: string]: string } = {
-  'food-drink': 'Food & Drink',
-  'beauty-wellness': 'Beauty & Wellness',
-  'professional-services': 'Professional Services',
-  'outdoors-adventure': 'Outdoors & Adventure',
-  'experiences-entertainment': 'Entertainment & Experiences',
-  'arts-culture': 'Arts & Culture',
-  'family-pets': 'Family & Pets',
-  'shopping-lifestyle': 'Shopping & Lifestyle',
-};
+const MAX_SELECTIONS = 10;
 
 function SubcategoriesContent() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const { showToast } = useToast();
-  const { refreshUser } = useAuth();
-  const { selectedSubInterests: selectedSubcategories, setSelectedSubInterests: setSelectedSubcategories, isLoading, error } = useOnboarding();
+  const {
+    subcategories,
+    groupedSubcategories,
+    selectedSubcategories,
+    isNavigating,
+    shakingIds,
+    canProceed,
+    handleToggle,
+    handleNext,
+    isLoading,
+    error,
+  } = useSubcategoriesPage();
 
-  const [subcategories, setSubcategories] = useState<SubcategoryItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [isNavigating, setIsNavigating] = useState(false);
-  const [shakingIds, setShakingIds] = useState<Set<string>>(new Set());
-
-  const MAX_SELECTIONS = 10;
-
-  // Get interests from URL params for instant filtering
-  const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
-
-  // Prefetch next page immediately on mount
-  useEffect(() => {
-    router.prefetch('/deal-breakers');
-  }, [router]);
-
-  // Load data from URL params, with localStorage fallback for back navigation
-  useEffect(() => {
-    const loadData = () => {
-      setLoading(true);
-      try {
-        // Parse interests from URL params
-        const params = parseOnboardingParams(searchParams);
-        
-        // Validate that interests are present (required for subcategories page)
-        const validation = validateOnboardingParams(params, ['interests']);
-        if (!validation.valid) {
-          console.warn('[Subcategories] Missing interests param, redirecting to interests page');
-          router.replace('/interests');
-          return;
-        }
-
-        // Set interests from URL
-        setSelectedInterests(params.interests);
-        
-        // Priority: URL params > localStorage > empty
-        // Set subcategories from URL if present (for forward navigation)
-        if (params.subcategories.length > 0) {
-          console.log('[Subcategories] Loaded subcategories from URL params:', params.subcategories);
-          setSelectedSubcategories(params.subcategories);
-          // Also save to localStorage for back navigation
-          if (typeof window !== 'undefined') {
-            localStorage.setItem('onboarding_subcategories', JSON.stringify(params.subcategories));
-          }
-        } else {
-          // Check localStorage for back navigation
-          if (typeof window !== 'undefined') {
-            try {
-              const stored = localStorage.getItem('onboarding_subcategories');
-              if (stored) {
-                const parsed = JSON.parse(stored);
-                if (Array.isArray(parsed) && parsed.length > 0) {
-                  console.log('[Subcategories] Loaded subcategories from localStorage:', parsed);
-                  setSelectedSubcategories(parsed);
-                } else {
-                  setSelectedSubcategories([]);
-                }
-              } else {
-                setSelectedSubcategories([]);
-              }
-            } catch (error) {
-              console.warn('[Subcategories] Error reading from localStorage:', error);
-              setSelectedSubcategories([]);
-            }
-          } else {
-            setSelectedSubcategories([]);
-          }
-        }
-      } catch (error) {
-        console.error('[Subcategories] Error loading data:', error);
-        router.replace('/interests');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadData();
-  }, [searchParams, setSelectedInterests, setSelectedSubcategories, router]);
-
-  useEffect(() => {
-    // Load subcategories directly (static data) - no API call needed
-    // Use interests for filtering
-    if (selectedInterests.length === 0) {
-      setSubcategories([]);
-      return;
-    }
-    
-    // Static subcategories data - matches the API
-    const ALL_SUBCATEGORIES = [
-      // Food & Drink
-      { id: "restaurants", label: "Restaurants", interest_id: "food-drink" },
-      { id: "cafes", label: "Cafés & Coffee", interest_id: "food-drink" },
-      { id: "bars", label: "Bars & Pubs", interest_id: "food-drink" },
-      { id: "fast-food", label: "Fast Food", interest_id: "food-drink" },
-      { id: "fine-dining", label: "Fine Dining", interest_id: "food-drink" },
-      // Beauty & Wellness
-      { id: "gyms", label: "Gyms & Fitness", interest_id: "beauty-wellness" },
-      { id: "spas", label: "Spas", interest_id: "beauty-wellness" },
-      { id: "salons", label: "Hair Salons", interest_id: "beauty-wellness" },
-      { id: "wellness", label: "Wellness Centers", interest_id: "beauty-wellness" },
-      { id: "nail-salons", label: "Nail Salons", interest_id: "beauty-wellness" },
-      // Professional Services
-      { id: "education-learning", label: "Education & Learning", interest_id: "professional-services" },
-      { id: "transport-travel", label: "Transport & Travel", interest_id: "professional-services" },
-      { id: "finance-insurance", label: "Finance & Insurance", interest_id: "professional-services" },
-      { id: "plumbers", label: "Plumbers", interest_id: "professional-services" },
-      { id: "electricians", label: "Electricians", interest_id: "professional-services" },
-      { id: "legal-services", label: "Legal Services", interest_id: "professional-services" },
-      // Outdoors & Adventure
-      { id: "hiking", label: "Hiking", interest_id: "outdoors-adventure" },
-      { id: "cycling", label: "Cycling", interest_id: "outdoors-adventure" },
-      { id: "water-sports", label: "Water Sports", interest_id: "outdoors-adventure" },
-      { id: "camping", label: "Camping", interest_id: "outdoors-adventure" },
-      // Entertainment & Experiences
-      { id: "events-festivals", label: "Events & Festivals", interest_id: "experiences-entertainment" },
-      { id: "sports-recreation", label: "Sports & Recreation", interest_id: "experiences-entertainment" },
-      { id: "nightlife", label: "Nightlife", interest_id: "experiences-entertainment" },
-      { id: "comedy-clubs", label: "Comedy Clubs", interest_id: "experiences-entertainment" },
-      { id: "cinemas", label: "Cinemas", interest_id: "experiences-entertainment" },
-      // Arts & Culture
-      { id: "museums", label: "Museums", interest_id: "arts-culture" },
-      { id: "galleries", label: "Art Galleries", interest_id: "arts-culture" },
-      { id: "theaters", label: "Theaters", interest_id: "arts-culture" },
-      { id: "concerts", label: "Concerts", interest_id: "arts-culture" },
-      // Family & Pets
-      { id: "family-activities", label: "Family Activities", interest_id: "family-pets" },
-      { id: "pet-services", label: "Pet Services", interest_id: "family-pets" },
-      { id: "childcare", label: "Childcare", interest_id: "family-pets" },
-      { id: "veterinarians", label: "Veterinarians", interest_id: "family-pets" },
-      // Shopping & Lifestyle
-      { id: "fashion", label: "Fashion & Clothing", interest_id: "shopping-lifestyle" },
-      { id: "electronics", label: "Electronics", interest_id: "shopping-lifestyle" },
-      { id: "home-decor", label: "Home Decor", interest_id: "shopping-lifestyle" },
-      { id: "books", label: "Books & Media", interest_id: "shopping-lifestyle" }
-    ];
-
-    // Filter by selected interests
-    const filtered = ALL_SUBCATEGORIES.filter(sub => selectedInterests.includes(sub.interest_id));
-
-    // Set subcategories immediately
-    setSubcategories(filtered);
-  }, [selectedInterests]);
-
-  const groupedSubcategories = useMemo(() => {
-    const grouped: GroupedSubcategories = {};
-
-    subcategories.forEach(sub => {
-      if (!grouped[sub.interest_id]) {
-        grouped[sub.interest_id] = {
-          title: INTEREST_TITLES[sub.interest_id] || sub.interest_id,
-          items: []
-        };
-      }
-      grouped[sub.interest_id].items.push(sub);
-    });
-
-    return grouped;
-  }, [subcategories]);
-
-  const handleSubcategoryToggle = useCallback((subcategoryId: string, interestId: string) => {
-    const isSelected = selectedSubcategories.includes(subcategoryId);
-
-    if (isSelected) {
-      setSelectedSubcategories(selectedSubcategories.filter(s => s !== subcategoryId));
-    } else {
-      if (selectedSubcategories.length >= MAX_SELECTIONS) {
-        showToast(`Maximum ${MAX_SELECTIONS} subcategories allowed`, "warning", 2000);
-        // Trigger shake animation using framer-motion
-        setShakingIds((prev) => {
-          const next = new Set(prev);
-          next.add(subcategoryId);
-          return next;
-        });
-        setTimeout(() => {
-          setShakingIds((prev) => {
-            const next = new Set(prev);
-            next.delete(subcategoryId);
-            return next;
-          });
-        }, 600);
-        return;
-      }
-      setSelectedSubcategories([...selectedSubcategories, subcategoryId]);
-    }
-  }, [selectedSubcategories, setSelectedSubcategories, showToast]);
-
-  const handleNext = useCallback(async () => {
-    if (!selectedSubcategories || selectedSubcategories.length === 0) return;
-
-    setIsNavigating(true);
-
-    // Valid interest IDs (to ensure we don't accidentally send interests as subcategories)
-    const VALID_INTEREST_IDS = [
-      'food-drink',
-      'beauty-wellness',
-      'professional-services',
-      'outdoors-adventure',
-      'experiences-entertainment',
-      'arts-culture',
-      'family-pets',
-      'shopping-lifestyle'
-    ];
-
-    // Prepare subcategories data with interest_id for each subcategory
-    // CRITICAL: Filter out any subcategoryId that matches an interest ID
-    const subcategoriesData = selectedSubcategories
-      .filter(subcategoryId => {
-        // Ensure subcategoryId is NOT an interest ID
-        if (VALID_INTEREST_IDS.includes(subcategoryId)) {
-          console.warn('[Subcategories] Filtered out interest ID passed as subcategory:', subcategoryId);
-          return false;
-        }
-        return true;
-      })
-      .map(subcategoryId => {
-        const subcategory = subcategories.find(s => s.id === subcategoryId);
-        return {
-          subcategory_id: subcategoryId,
-          interest_id: subcategory?.interest_id || ''
-        };
-      })
-      .filter(item => {
-        // Filter out any without interest_id AND ensure subcategory_id is not an interest
-        return item.interest_id && !VALID_INTEREST_IDS.includes(item.subcategory_id);
-      });
-
-    console.log('[Subcategories] Submit clicked', {
-      selections: subcategoriesData.length,
-      subcategoriesData: subcategoriesData
-    });
-
-    // Get interests from URL to pass forward
-    const params = parseOnboardingParams(searchParams);
-    
-    // Navigate to deal-breakers with both interests and subcategories in URL (no DB save yet)
-    const subcategoryIds = subcategoriesData.map(item => item.subcategory_id);
-    const nextUrl = buildOnboardingUrl('/deal-breakers', {
-      interests: params.interests,
-      subcategories: subcategoryIds
-    });
-    
-    router.replace(nextUrl);
-  }, [selectedSubcategories, subcategories, searchParams, router]);
-
-  const canProceed = (selectedSubcategories?.length || 0) > 0 && !isNavigating;
-
-  if (loading) {
+  if (isLoading) {
     return (
       <OnboardingLayout step={2} backHref="/interests">
         <div className="flex items-center justify-center min-h-[400px]">
@@ -304,7 +40,7 @@ function SubcategoriesContent() {
   }
 
   return (
-    <>
+    <OnboardingErrorBoundary>
       <SubcategoryStyles />
       <OnboardingLayout step={2} backHref="/interests">
         <SubcategoryHeader />
@@ -326,12 +62,12 @@ function SubcategoriesContent() {
               }}
             >
               <p className="text-sm font-semibold text-red-600">
-                {typeof error === 'string' ? error : String(error || 'An error occurred')}
+                {error.message || 'An error occurred'}
               </p>
             </motion.div>
           )}
 
-          <SubcategorySelection selectedCount={selectedSubcategories?.length || 0} maxSelections={MAX_SELECTIONS}>
+          <SubcategorySelection selectedCount={selectedSubcategories.length} maxSelections={MAX_SELECTIONS}>
             <SubcategoryGrid
               groupedSubcategories={groupedSubcategories}
               selectedSubcategories={selectedSubcategories.map(id => {
@@ -339,9 +75,9 @@ function SubcategoriesContent() {
                 return { id, interest_id: subcategory?.interest_id || '' };
               })}
               maxSelections={MAX_SELECTIONS}
-              onToggle={handleSubcategoryToggle}
+              onToggle={handleToggle}
               subcategories={subcategories}
-              loading={loading}
+              loading={false}
               shakingIds={shakingIds}
             />
           </SubcategorySelection>
@@ -349,13 +85,13 @@ function SubcategoriesContent() {
           <SubcategoryActions
             canProceed={canProceed}
             isNavigating={isNavigating}
-            isLoading={isLoading}
-            selectedCount={selectedSubcategories?.length || 0}
+            isLoading={false}
+            selectedCount={selectedSubcategories.length}
             onContinue={handleNext}
           />
         </motion.div>
       </OnboardingLayout>
-    </>
+    </OnboardingErrorBoundary>
   );
 }
 

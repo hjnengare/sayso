@@ -37,8 +37,13 @@ interface OnboardingContextType {
   setSelectedInterests: (interests: string[]) => void;
   setSelectedSubInterests: (subInterests: string[]) => void;
   setSelectedDealbreakers: (dealbreakers: string[]) => void;
-  nextStep: () => Promise<void>;
-  completeOnboarding: () => Promise<void>;
+  
+  // Submit functions (save per step)
+  submitInterests: () => Promise<boolean>;
+  submitSubcategories: (subcategories?: string[]) => Promise<boolean>;
+  submitDealbreakers: () => Promise<boolean>;
+  submitComplete: () => Promise<boolean>;
+  
   resetOnboarding: () => void;
 }
 
@@ -47,13 +52,6 @@ const OnboardingContext = createContext<OnboardingContextType | undefined>(undef
 interface OnboardingProviderProps {
   children: ReactNode;
 }
-
-const ONBOARDING_STEPS = [
-  'interests',
-  'subcategories',
-  'deal-breakers',
-  'complete'
-];
 
 // Fallback data in case API fails
 const FALLBACK_INTERESTS: Interest[] = [
@@ -68,74 +66,21 @@ const FALLBACK_INTERESTS: Interest[] = [
 ];
 
 export function OnboardingProvider({ children }: OnboardingProviderProps) {
-  const { user, updateUser } = useAuth();
+  const { user, refreshUser } = useAuth();
   const { showToast } = useToast();
   const router = useRouter();
   const [interests, setInterests] = useState<Interest[]>([]);
   const [subInterests, setSubInterests] = useState<Subcategory[]>([]);
 
-  // Initialize from localStorage if available (for back navigation)
-  const getInitialInterests = (): string[] => {
-    if (typeof window === 'undefined') return [];
-    try {
-      const stored = localStorage.getItem('onboarding_interests');
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
-  };
-
-  const getInitialSubInterests = (): string[] => {
-    if (typeof window === 'undefined') return [];
-    try {
-      const stored = localStorage.getItem('onboarding_subcategories');
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
-  };
-
-  const getInitialDealbreakers = (): string[] => {
-    if (typeof window === 'undefined') return [];
-    try {
-      const stored = localStorage.getItem('onboarding_dealbreakers');
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
-  };
-
-  // Initialize state from localStorage
-  const [selectedInterests, setSelectedInterestsState] = useState<string[]>(getInitialInterests);
-  const [selectedSubInterests, setSelectedSubInterestsState] = useState<string[]>(getInitialSubInterests);
-  const [selectedDealbreakers, setSelectedDealbreakerssState] = useState<string[]>(getInitialDealbreakers);
+  // State for selections (no localStorage - DB is source of truth)
+  const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
+  const [selectedSubInterests, setSelectedSubInterests] = useState<string[]>([]);
+  const [selectedDealbreakers, setSelectedDealbreakers] = useState<string[]>([]);
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const currentStep = user?.profile?.onboarding_step || 'interests';
-
-  // Wrapper functions that persist to localStorage
-  const setSelectedInterests = useCallback((interests: string[]) => {
-    setSelectedInterestsState(interests);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('onboarding_interests', JSON.stringify(interests));
-    }
-  }, []);
-
-  const setSelectedSubInterests = useCallback((subcategories: string[]) => {
-    setSelectedSubInterestsState(subcategories);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('onboarding_subcategories', JSON.stringify(subcategories));
-    }
-  }, []);
-
-  const setSelectedDealbreakers = useCallback((dealbreakers: string[]) => {
-    setSelectedDealbreakerssState(dealbreakers);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('onboarding_dealbreakers', JSON.stringify(dealbreakers));
-    }
-  }, []);
 
   const loadInterests = useCallback(async () => {
     try {
@@ -187,142 +132,313 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
     }
   }, []);
 
-  const getNextStep = (current: string): string => {
-    const currentIndex = ONBOARDING_STEPS.indexOf(current);
-    if (currentIndex === -1 || currentIndex === ONBOARDING_STEPS.length - 1) {
-      return 'complete';
-    }
-    return ONBOARDING_STEPS[currentIndex + 1];
-  };
-
-  const getStepCompletionMessage = useCallback((step: string): string => {
-    switch (step) {
-      case 'interests':
-        return `Great! ${selectedInterests.length} interests selected. Let's explore sub-categories!`;
-      case 'subcategories':
-        return `Perfect! ${selectedSubInterests.length} sub-interests added. Now let's set your dealbreakers.`;
-      case 'deal-breakers':
-        return `Excellent! ${selectedDealbreakers.length} dealbreakers set. Almost done!`;
-      default:
-        return 'Step completed successfully!';
-    }
-  }, [selectedInterests.length, selectedSubInterests.length, selectedDealbreakers.length]);
-
   // Helper function to get interest_id for a subcategory
+  // First checks subInterests (loaded from API), then falls back to a static mapping
   const getInterestIdForSubcategory = useCallback((subcategoryId: string): string => {
+    // First try to find in loaded subInterests
     const subcategory = subInterests.find(sub => sub.id === subcategoryId);
-    return subcategory?.interest_id || '';
+    if (subcategory?.interest_id) {
+      return subcategory.interest_id;
+    }
+    
+    // Fallback to static mapping (matching the ALL_SUBCATEGORIES in useSubcategoriesPage)
+    const staticMapping: Record<string, string> = {
+      'restaurants': 'food-drink',
+      'cafes': 'food-drink',
+      'bars': 'food-drink',
+      'fast-food': 'food-drink',
+      'fine-dining': 'food-drink',
+      'gyms': 'beauty-wellness',
+      'spas': 'beauty-wellness',
+      'salons': 'beauty-wellness',
+      'wellness': 'beauty-wellness',
+      'nail-salons': 'beauty-wellness',
+      'education-learning': 'professional-services',
+      'transport-travel': 'professional-services',
+      'finance-insurance': 'professional-services',
+      'plumbers': 'professional-services',
+      'electricians': 'professional-services',
+      'legal-services': 'professional-services',
+      'hiking': 'outdoors-adventure',
+      'cycling': 'outdoors-adventure',
+      'water-sports': 'outdoors-adventure',
+      'camping': 'outdoors-adventure',
+      'events-festivals': 'experiences-entertainment',
+      'sports-recreation': 'experiences-entertainment',
+      'nightlife': 'experiences-entertainment',
+      'comedy-clubs': 'experiences-entertainment',
+      'cinemas': 'experiences-entertainment',
+      'museums': 'arts-culture',
+      'galleries': 'arts-culture',
+      'theaters': 'arts-culture',
+      'concerts': 'arts-culture',
+      'family-activities': 'family-pets',
+      'pet-services': 'family-pets',
+      'childcare': 'family-pets',
+      'veterinarians': 'family-pets',
+      'fashion': 'shopping-lifestyle',
+      'electronics': 'shopping-lifestyle',
+      'home-decor': 'shopping-lifestyle',
+      'books': 'shopping-lifestyle',
+    };
+    
+    return staticMapping[subcategoryId] || '';
   }, [subInterests]);
 
-  const nextStep = useCallback(async () => {
-    if (!user) return;
+  /**
+   * Submit interests step
+   * Saves interests to DB and advances onboarding_step to 'subcategories'
+   */
+  const submitInterests = useCallback(async (): Promise<boolean> => {
+    console.log('[OnboardingContext] submitInterests called', { 
+      hasUser: !!user, 
+      selectedCount: selectedInterests?.length || 0,
+      interests: selectedInterests 
+    });
 
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      const nextStepName = getNextStep(currentStep);
-
-      // Show success toast for step completion
-      const completionMessage = getStepCompletionMessage(currentStep);
-      showToast(completionMessage, 'success', 3000);
-
-      // Navigate to the next step - NO SAVING until final step
-      // Route to /complete (not /home) - /complete will save and then redirect to /home
-      if (nextStepName === 'complete') {
-        router.push('/complete');
-      } else if (nextStepName === 'subcategories' && currentStep === 'interests') {
-        // Pass selected interests as URL params to subcategories
-        const interestParams = selectedInterests.length > 0
-          ? `?interests=${selectedInterests.join(',')}`
-          : '';
-        router.push(`/subcategories${interestParams}`);
-      } else {
-        router.push(`/${nextStepName}`);
-      }
-    } catch (error) {
-      console.error('Error proceeding to next step:', error);
-      setError('Failed to navigate to next step');
-    } finally {
-      setIsLoading(false);
+    if (!user) {
+      console.error('[OnboardingContext] No user authenticated');
+      setError('User not authenticated');
+      return false;
     }
-  }, [user, currentStep, selectedInterests, showToast, getStepCompletionMessage, router]);
 
-  const completeOnboarding = useCallback(async () => {
-    if (!user) return;
-
-    // Prerequisite rule: no interests = no subcategories = no deal-breakers = no complete
-    // Bail out early if any prerequisite is missing (don't call API)
     if (!selectedInterests || selectedInterests.length === 0) {
-      console.warn('Cannot complete onboarding: interests are required');
-      setError('Interests are required to complete onboarding');
-      return;
-    }
-
-    if (!selectedSubInterests || selectedSubInterests.length === 0) {
-      console.warn('Cannot complete onboarding: subcategories are required');
-      setError('Subcategories are required to complete onboarding');
-      return;
-    }
-
-    if (!selectedDealbreakers || selectedDealbreakers.length === 0) {
-      console.warn('Cannot complete onboarding: deal-breakers are required');
-      setError('Deal-breakers are required to complete onboarding');
-      return;
+      console.error('[OnboardingContext] No interests selected');
+      setError('Please select at least one interest');
+      return false;
     }
 
     try {
       setIsLoading(true);
       setError(null);
 
-      // Use unified onboarding API to save all final data
-      const response = await fetch('/api/user/onboarding', {
+      console.log('[OnboardingContext] Calling API to save interests...');
+      const response = await fetch('/api/onboarding/interests', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          step: 'complete',
-          interests: selectedInterests,
-          subcategories: selectedSubInterests.map(subId => ({
-            subcategory_id: subId,
-            interest_id: getInterestIdForSubcategory(subId)
-          })),
+          interests: selectedInterests
+        })
+      });
+
+      console.log('[OnboardingContext] API response:', { 
+        ok: response.ok, 
+        status: response.status,
+        statusText: response.statusText 
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('[OnboardingContext] API error:', errorData);
+        throw new Error(errorData.error || 'Failed to save interests');
+      }
+
+      const data = await response.json();
+      console.log('[OnboardingContext] Interests saved successfully:', data);
+      
+      // Refresh profile in background to avoid blocking navigation
+      if (refreshUser) {
+        console.log('[OnboardingContext] Refreshing user profile in background...');
+        void refreshUser();
+      }
+
+      showToast(`Great! ${selectedInterests.length} interests selected.`, 'success', 3000);
+      
+      // Navigate to next step
+      console.log('[OnboardingContext] Navigating to /subcategories...');
+      router.push('/subcategories');
+      
+      return true;
+    } catch (error: any) {
+      console.error('[OnboardingContext] Error submitting interests:', error);
+      setError(error.message || 'Failed to save interests');
+      showToast(error.message || 'Failed to save interests', 'error', 3000);
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user, selectedInterests, showToast, router, refreshUser]);
+
+  /**
+   * Submit subcategories step
+   * Saves subcategories to DB and advances onboarding_step to 'deal-breakers'
+   * @param subcategories - Optional array of subcategory IDs. If not provided, uses selectedSubInterests from state.
+   */
+  const submitSubcategories = useCallback(async (subcategories?: string[]): Promise<boolean> => {
+    if (!user) {
+      setError('User not authenticated');
+      return false;
+    }
+
+    // Use provided subcategories or fall back to state
+    const subcategoriesToSubmit = subcategories || selectedSubInterests;
+
+    if (!subcategoriesToSubmit || subcategoriesToSubmit.length === 0) {
+      setError('Please select at least one subcategory');
+      return false;
+    }
+
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      // Update state if subcategories were provided
+      if (subcategories) {
+        setSelectedSubInterests(subcategories);
+      }
+
+      // Convert subcategory IDs to {subcategory_id, interest_id} format
+      const subcategoryData = subcategoriesToSubmit.map(subId => ({
+        subcategory_id: subId,
+        interest_id: getInterestIdForSubcategory(subId)
+      })).filter(item => item.interest_id); // Filter out any without valid interest_id
+
+      if (subcategoryData.length === 0) {
+        setError('Invalid subcategory selections');
+        return false;
+      }
+
+      const response = await fetch('/api/onboarding/subcategories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          subcategories: subcategoryData
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to save subcategories');
+      }
+
+      const data = await response.json();
+      
+      // Refresh profile in background to avoid blocking navigation
+      if (refreshUser) {
+        void refreshUser();
+      }
+
+      showToast(`Perfect! ${subcategoriesToSubmit.length} subcategories added.`, 'success', 3000);
+      
+      // Navigate to next step
+      router.push('/deal-breakers');
+      
+      return true;
+    } catch (error: any) {
+      console.error('Error submitting subcategories:', error);
+      setError(error.message || 'Failed to save subcategories');
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user, selectedSubInterests, getInterestIdForSubcategory, showToast, router, refreshUser]);
+
+  /**
+   * Submit deal-breakers step
+   * Saves dealbreakers to DB and advances onboarding_step to 'complete'
+   */
+  const submitDealbreakers = useCallback(async (): Promise<boolean> => {
+    if (!user) {
+      setError('User not authenticated');
+      return false;
+    }
+
+    if (!selectedDealbreakers || selectedDealbreakers.length === 0) {
+      setError('Please select at least one deal-breaker');
+      return false;
+    }
+
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await fetch('/api/onboarding/deal-breakers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           dealbreakers: selectedDealbreakers
         })
       });
 
       if (!response.ok) {
-        throw new Error('Failed to complete onboarding');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to save dealbreakers');
       }
 
-      // Clear localStorage after successful completion
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('onboarding_interests');
-        localStorage.removeItem('onboarding_subcategories');
-        localStorage.removeItem('onboarding_dealbreakers');
+      const data = await response.json();
+      
+      // Refresh profile in background to avoid blocking navigation
+      if (refreshUser) {
+        void refreshUser();
       }
 
-      // Show completion toast
-      showToast('🎉 Welcome to sayso! Your profile is now complete.', 'success', 4000);
-    } catch (error) {
-      console.error('Error completing onboarding:', error);
-      setError('Failed to complete onboarding');
+      showToast(`Excellent! ${selectedDealbreakers.length} dealbreakers set.`, 'success', 3000);
+      
+      // Navigate to complete step
+      router.push('/complete');
+      
+      return true;
+    } catch (error: any) {
+      console.error('Error submitting dealbreakers:', error);
+      setError(error.message || 'Failed to save dealbreakers');
+      return false;
     } finally {
       setIsLoading(false);
     }
-  }, [user, selectedInterests, selectedSubInterests, selectedDealbreakers, getInterestIdForSubcategory, showToast]);
+  }, [user, selectedDealbreakers, showToast, router, refreshUser]);
+
+  /**
+   * Submit complete step
+   * Marks onboarding_complete=true (data already saved at each step)
+   */
+  const submitComplete = useCallback(async (): Promise<boolean> => {
+    if (!user) {
+      setError('User not authenticated');
+      return false;
+    }
+
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await fetch('/api/onboarding/complete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}) // No data needed - just mark complete
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to complete onboarding');
+      }
+
+      // Refresh profile in background to avoid blocking navigation
+      if (refreshUser) {
+        void refreshUser();
+      }
+
+      showToast('🎉 Welcome to sayso! Your profile is now complete.', 'success', 4000);
+      
+      // Navigate to home
+      router.push('/home');
+      
+      return true;
+    } catch (error: any) {
+      console.error('Error completing onboarding:', error);
+      setError(error.message || 'Failed to complete onboarding');
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user, showToast, router, refreshUser]);
 
   const resetOnboarding = useCallback(() => {
     setSelectedInterests([]);
     setSelectedSubInterests([]);
     setSelectedDealbreakers([]);
     setError(null);
-    // Clear localStorage
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('onboarding_interests');
-      localStorage.removeItem('onboarding_subcategories');
-      localStorage.removeItem('onboarding_dealbreakers');
-    }
-  }, [setSelectedInterests, setSelectedSubInterests, setSelectedDealbreakers]);
+    // No localStorage to clear
+  }, []);
 
   const value: OnboardingContextType = {
     // Data
@@ -343,8 +459,13 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
     setSelectedInterests,
     setSelectedSubInterests,
     setSelectedDealbreakers,
-    nextStep,
-    completeOnboarding,
+    
+    // Submit functions
+    submitInterests,
+    submitSubcategories,
+    submitDealbreakers,
+    submitComplete,
+    
     resetOnboarding
   };
 

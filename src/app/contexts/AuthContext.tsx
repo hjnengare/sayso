@@ -364,15 +364,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  const updateUser = async (userData: Partial<AuthUser>): Promise<void> => {
+  const updateUser = async (userData?: Partial<AuthUser>): Promise<void> => {
     if (!user) return;
+    
+    // Early guard: prevent crashes if called without arguments or with undefined
+    if (!userData) return;
 
     setIsLoading(true);
     setError(null);
 
     try {
       // Update user profile in Supabase if profile data is being updated
-      if (userData.profile) {
+      if (userData?.profile) {
         // Prepare profile updates - only update fields that exist in the profiles table
         const profileUpdates: Record<string, any> = {
           updated_at: new Date().toISOString()
@@ -407,7 +410,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         if (error) throw error;
 
         // Handle interests separately using the dedicated API
-        if (userData.profile.interests && Array.isArray(userData.profile.interests)) {
+        if (userData?.profile?.interests && Array.isArray(userData.profile.interests)) {
           try {
             const response = await fetch('/api/user/interests', {
               method: 'POST',
@@ -423,7 +426,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
 
         // Handle subcategories separately using the dedicated API
-        if (userData.profile.sub_interests && Array.isArray(userData.profile.sub_interests)) {
+        if (userData?.profile?.sub_interests && Array.isArray(userData.profile.sub_interests)) {
           try {
             const response = await fetch('/api/user/subcategories', {
               method: 'POST',

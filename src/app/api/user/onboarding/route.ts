@@ -1,6 +1,15 @@
 import { NextResponse } from "next/server";
 import { getServerSupabase } from "../../../lib/supabase/server";
 
+/**
+ * @deprecated Use per-step endpoints instead:
+ * - POST /api/onboarding/interests
+ * - POST /api/onboarding/subcategories
+ * - POST /api/onboarding/deal-breakers
+ * - POST /api/onboarding/complete
+ * 
+ * This endpoint is kept for backward compatibility but should not be used for new code.
+ */
 export async function POST(req: Request) {
   const supabase = await getServerSupabase();
   const { data: { user } } = await supabase.auth.getUser();

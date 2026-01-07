@@ -1,17 +1,23 @@
 "use client";
 
-import Link from "next/link";
-import { useEffect, useRef, useState, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, Suspense } from "react";
+import { useRouter } from "next/navigation";
+import { Fontdiner_Swanky } from "next/font/google";
 import { ArrowRight, CheckCircle } from "react-feather";
 import { ShieldCheck, Clock, Smile, BadgeDollarSign } from "lucide-react";
-import { useAuth } from "../contexts/AuthContext";
 import { useReducedMotion } from "../utils/useReducedMotion";
 import OnboardingLayout from "../components/Onboarding/OnboardingLayout";
 import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
 import WavyTypedTitle from "../../components/Animations/WavyTypedTitle";
-import { parseOnboardingParams, validateOnboardingParams } from "../lib/onboarding/urlParams";
 import { Loader } from "../components/Loader";
+import { useCompletePage } from "../hooks/useCompletePage";
+import { OnboardingErrorBoundary } from "../components/Onboarding/OnboardingErrorBoundary";
+
+const swanky = Fontdiner_Swanky({
+  weight: "400",
+  subsets: ["latin"],
+  display: "swap",
+});
 
 // Dealbreaker icon mapping
 const DEALBREAKER_ICONS: { [key: string]: React.ComponentType<{ className?: string }> } = {
@@ -171,277 +177,26 @@ const sf = {
 } as const;
 
 function CompletePageContent() {
-  const { updateUser, user, refreshUser } = useAuth();
-  const reducedMotion = useReducedMotion();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const redirectTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const hasRedirectedRef = useRef(false);
-  const [selectedDealbreakers, setSelectedDealbreakers] = useState<string[]>([]);
-  const [isSaving, setIsSaving] = useState(false);
-  const [hasSaved, setHasSaved] = useState(false);
+  const reducedMotion = useReducedMotion();
+  const {
+    isSaving,
+    hasSaved,
+    error,
+    handleContinue,
+    dealbreakers: selectedDealbreakers,
+    isLoading,
+  } = useCompletePage();
 
-  // Parse URL params and save to database on mount
+  // Confetti celebration (guarded to avoid running while loading/saving)
   useEffect(() => {
-    const saveOnboardingData = async () => {
-      // Only save once
-      if (hasSaved || isSaving) return;
-
-      try {
-        // Parse all params from URL first
-        let params = parseOnboardingParams(searchParams);
-        
-        // If URL params are missing, try to load from localStorage (fallback for back navigation or direct access)
-        const hasAllUrlParams = params.interests.length > 0 && params.subcategories.length > 0 && params.dealbreakers.length > 0;
-        
-        if (!hasAllUrlParams) {
-          console.log('[Complete] URL params incomplete, checking localStorage...', {
-            urlInterests: params.interests.length,
-            urlSubcategories: params.subcategories.length,
-            urlDealbreakers: params.dealbreakers.length
-          });
-          
-          if (typeof window !== 'undefined') {
-            try {
-              const storedInterests = localStorage.getItem('onboarding_interests');
-              const storedSubcategories = localStorage.getItem('onboarding_subcategories');
-              const storedDealbreakers = localStorage.getItem('onboarding_dealbreakers');
-              
-              console.log('[Complete] localStorage check:', {
-                hasInterests: !!storedInterests,
-                hasSubcategories: !!storedSubcategories,
-                hasDealbreakers: !!storedDealbreakers
-              });
-              
-              // Use localStorage values if they exist, otherwise keep URL params (which might be empty)
-              if (storedInterests) {
-                try {
-                  params.interests = JSON.parse(storedInterests);
-                } catch (e) {
-                  console.warn('[Complete] Failed to parse interests from localStorage:', e);
-                }
-              }
-              
-              if (storedSubcategories) {
-                try {
-                  params.subcategories = JSON.parse(storedSubcategories);
-                } catch (e) {
-                  console.warn('[Complete] Failed to parse subcategories from localStorage:', e);
-                }
-              }
-              
-              if (storedDealbreakers) {
-                try {
-                  params.dealbreakers = JSON.parse(storedDealbreakers);
-                } catch (e) {
-                  console.warn('[Complete] Failed to parse dealbreakers from localStorage:', e);
-                }
-              }
-              
-              console.log('[Complete] Final params after localStorage merge:', {
-                interests: params.interests.length,
-                subcategories: params.subcategories.length,
-                dealbreakers: params.dealbreakers.length
-              });
-            } catch (error) {
-              console.warn('[Complete] Error reading from localStorage:', error);
-            }
-          }
-        }
-        
-        // Validate that all required params are present
-        const validation = validateOnboardingParams(params, ['interests', 'subcategories', 'dealbreakers']);
-        if (!validation.valid) {
-          console.error('[Complete] Missing required params after checking URL and localStorage, redirecting:', validation.missing);
-          // Redirect to the first missing step
-          if (validation.missing.includes('interests')) {
-            router.replace('/interests');
-          } else if (validation.missing.includes('subcategories')) {
-            router.replace('/subcategories');
-          } else if (validation.missing.includes('dealbreakers')) {
-            router.replace('/deal-breakers');
-          }
-          return;
-        }
-
-        setIsSaving(true);
-        console.log('[Complete] Saving onboarding data from URL params', {
-          interests: params.interests.length,
-          subcategories: params.subcategories.length,
-          dealbreakers: params.dealbreakers.length,
-          subcategoriesSample: params.subcategories.slice(0, 5),
-          subcategoriesType: typeof params.subcategories[0]
-        });
-
-        // Save all data to database via API (using unified endpoint)
-        const response = await fetch('/api/user/onboarding', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            step: 'complete',
-            interests: params.interests,
-            subcategories: params.subcategories, // String array from URL params
-            dealbreakers: params.dealbreakers
-          })
-        });
-
-        if (!response.ok) {
-          let errorMessage = 'Failed to save onboarding data';
-          const status = response.status;
-          
-          try {
-            // Clone response to read it without consuming the original
-            const responseClone = response.clone();
-            
-            // Try to get content type safely
-            let contentType = null;
-            try {
-              contentType = response.headers.get('content-type');
-            } catch (e) {
-              console.warn('[Complete] Could not read content-type header:', e);
-            }
-            
-            // Try to parse response body
-            if (contentType && contentType.includes('application/json')) {
-              try {
-                const errorData = await responseClone.json();
-                // Check if errorData is not empty
-                if (errorData && typeof errorData === 'object') {
-                  errorMessage = errorData.error || errorData.message || errorMessage;
-                  console.error('[Complete] API error response:', {
-                    status,
-                    error: errorData,
-                    errorMessage,
-                    hasError: !!errorData.error,
-                    hasMessage: !!errorData.message
-                  });
-                } else {
-                  // Empty object or invalid response
-                  errorMessage = `Server error (${status}). Please try again.`;
-                  console.error('[Complete] API returned empty or invalid JSON:', {
-                    status,
-                    errorData
-                  });
-                }
-              } catch (jsonError) {
-                // JSON parsing failed, try text
-                try {
-                  const errorText = await response.text();
-                  errorMessage = errorText || errorMessage;
-                  console.error('[Complete] API error (text after JSON parse failed):', {
-                    status,
-                    errorText,
-                    jsonError
-                  });
-                } catch (textError) {
-                  errorMessage = `Server error (${status}). Please try again.`;
-                  console.error('[Complete] Could not read response body:', {
-                    status,
-                    jsonError,
-                    textError
-                  });
-                }
-              }
-            } else {
-              // Not JSON, try text
-              try {
-                const errorText = await response.text();
-                errorMessage = errorText || errorMessage;
-                console.error('[Complete] API error (text):', {
-                  status,
-                  errorText,
-                  contentType
-                });
-              } catch (textError) {
-                errorMessage = `Server error (${status}). Please try again.`;
-                console.error('[Complete] Could not read response as text:', {
-                  status,
-                  textError,
-                  contentType
-                });
-              }
-            }
-          } catch (e) {
-            // If all parsing fails, use status code
-            errorMessage = `Server error (${status}). Please try again.`;
-            console.error('[Complete] API error (all parsing failed):', {
-              status,
-              error: e instanceof Error ? e.message : String(e),
-              stack: e instanceof Error ? e.stack : undefined
-            });
-          }
-          
-          throw new Error(errorMessage);
-        }
-
-        const result = await response.json();
-        console.log('[Complete] Onboarding data saved successfully', result);
-        
-        setHasSaved(true);
-        setSelectedDealbreakers(params.dealbreakers);
-        
-        // Refresh user context to get updated profile
-        if (refreshUser) {
-          await refreshUser();
-        }
-        
-        // Refresh router to invalidate cached data
-        router.refresh();
-      } catch (error) {
-        console.error('[Complete] Error saving onboarding data:', error);
-        // Show error but don't block the page - user can retry
-      } finally {
-        setIsSaving(false);
-      }
-    };
-
-    saveOnboardingData();
-  }, [searchParams, hasSaved, isSaving, router, refreshUser]);
-
-  // Auto-redirect to home after 3.5 seconds (fallback if user doesn't click) - only after save is complete
-  useEffect(() => {
-    if (!hasSaved) return; // ✅ wait until DB says done
+    if (isLoading || isSaving) return;
     
-    redirectTimerRef.current = setTimeout(() => {
-      if (!hasRedirectedRef.current) {
-        hasRedirectedRef.current = true;
-        console.log('[Complete] Auto-redirecting to home after 3.5 seconds');
-        window.location.assign('/home'); // ✅ most reliable
-      }
-    }, 3500);
-
-    return () => {
-      if (redirectTimerRef.current) {
-        clearTimeout(redirectTimerRef.current);
-        redirectTimerRef.current = null;
-      }
-    };
-  }, [hasSaved]);
-
-  // Handle manual redirect when button is clicked - only after save is complete
-  const handleContinueClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+    // Prefetch home to make transition instant after completion
+    try {
+      router?.prefetch?.('/home');
+    } catch {}
     
-    if (!hasSaved) {
-      console.log('[Complete] Save not complete yet, ignoring click');
-      return; // ✅ stop early clicks causing redirects back
-    }
-    
-    // Clear auto-redirect timer
-    if (redirectTimerRef.current) {
-      clearTimeout(redirectTimerRef.current);
-      redirectTimerRef.current = null;
-    }
-    
-    // Mark as redirected to prevent multiple navigations
-    hasRedirectedRef.current = true;
-    
-    console.log('[Complete] User clicked button, navigating to home immediately');
-    window.location.assign('/home'); // ✅ most reliable
-  };
-
-  useEffect(() => {
     // 🎉 Confetti rain effect
     if (!reducedMotion && typeof window !== 'undefined') {
       let cancelled = false;
@@ -486,7 +241,18 @@ function CompletePageContent() {
         cancelled = true;
       };
     }
-  }, [reducedMotion]);
+  }, [reducedMotion, isLoading, isSaving, router]);
+
+  // Show loading state while saving
+  if (isLoading || isSaving) {
+    return (
+      <OnboardingLayout step={4} showProgress={false}>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <Loader size="md" variant="wavy" color="sage" />
+        </div>
+      </OnboardingLayout>
+    );
+  }
 
   return (
     <>
@@ -512,7 +278,7 @@ function CompletePageContent() {
             <WavyTypedTitle
               text="You're all set!"
               as="h1"
-              className="text-lg md:text-4xl lg:text-5xl font-bold mb-4 tracking-tight leading-snug text-charcoal"
+              className={`${swanky.className} text-lg md:text-4xl lg:text-5xl font-700 mb-4 tracking-tight leading-snug text-charcoal`}
               typingSpeedMs={40}
               startDelayMs={300}
               waveVariant="subtle"
@@ -520,8 +286,7 @@ function CompletePageContent() {
               triggerOnTypingComplete={true}
               enableScrollTrigger={false}
               style={{ 
-                fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-                fontWeight: 700,
+                fontFamily: swanky.style.fontFamily,
               }}
             />
           </div>
@@ -551,23 +316,27 @@ function CompletePageContent() {
             </div>
           )}
 
+          {/* Error message */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-[20px] p-4 text-center mb-4">
+              <p className="text-sm font-semibold text-red-600">
+                {error}
+              </p>
+            </div>
+          )}
+
           {/* Continue CTA */}
           <div>
             <button
-              onClick={handleContinueClick}
+              onClick={handleContinue}
+              disabled={isSaving}
               data-testid="onboarding-complete-cta"
               aria-label="Go to Home"
-              className="group inline-flex items-center justify-center w-full sm:w-auto text-white text-sm font-semibold py-4 px-8 rounded-full transition-all duration-300"
+              className="relative block w-[200px] mx-auto rounded-full py-4 px-4 text-body font-semibold text-white text-center flex items-center justify-center bg-gradient-to-r from-coral to-coral/80 hover:from-sage hover:to-sage border border-white/30 ring-1 ring-coral/20 hover:ring-sage/20 backdrop-blur-sm transition-all duration-300 btn-target btn-press focus:outline-none focus-visible:ring-4 focus-visible:ring-sage/30 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
             >
-              <span
-                className="
-                  group relative block w-[200px] mx-auto rounded-full py-4 px-4 text-body font-semibold text-white text-center flex items-center justify-center bg-gradient-to-r from-coral to-coral/80 hover:from-sage hover:to-sage border border-white/30 ring-1 ring-coral/20 hover:ring-sage/20 backdrop-blur-sm transition-all duration-300 btn-target btn-press focus:outline-none focus-visible:ring-4 focus-visible:ring-sage/30 focus-visible:ring-offset-2
-                "
-              >
-                Continue to Home
-                <ArrowRight className="w-5 h-5 ml-2 inline-block" />
-              </span>
+              {isSaving ? 'Saving...' : 'Continue to Home'}
+              <ArrowRight className="w-5 h-5 ml-2 inline-block" />
             </button>
           </div>
 
@@ -589,15 +358,17 @@ function CompletePageContent() {
 export default function CompletePage() {
   return (
     <ProtectedRoute requiresAuth={true}>
-      <Suspense fallback={
-        <OnboardingLayout step={4} showProgress={false}>
-          <div className="flex items-center justify-center min-h-[400px]">
-            <Loader size="md" variant="wavy" color="sage" />
-          </div>
-        </OnboardingLayout>
-      }>
-        <CompletePageContent />
-      </Suspense>
+      <OnboardingErrorBoundary>
+        <Suspense fallback={
+          <OnboardingLayout step={4} showProgress={false}>
+            <div className="flex items-center justify-center min-h-[400px]">
+              <Loader size="md" variant="wavy" color="sage" />
+            </div>
+          </OnboardingLayout>
+        }>
+          <CompletePageContent />
+        </Suspense>
+      </OnboardingErrorBoundary>
     </ProtectedRoute>
   );
 }
