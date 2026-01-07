@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, Suspense } from "react";
+import { motion } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useOnboarding } from "../contexts/OnboardingContext";
 import { useToast } from "../contexts/ToastContext";
@@ -50,6 +51,7 @@ function SubcategoriesContent() {
   const [subcategories, setSubcategories] = useState<SubcategoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [isNavigating, setIsNavigating] = useState(false);
+  const [shakingIds, setShakingIds] = useState<Set<string>>(new Set());
 
   const MAX_SELECTIONS = 10;
 
@@ -212,6 +214,19 @@ function SubcategoriesContent() {
     } else {
       if (selectedSubcategories.length >= MAX_SELECTIONS) {
         showToast(`Maximum ${MAX_SELECTIONS} subcategories allowed`, "warning", 2000);
+        // Trigger shake animation using framer-motion
+        setShakingIds((prev) => {
+          const next = new Set(prev);
+          next.add(subcategoryId);
+          return next;
+        });
+        setTimeout(() => {
+          setShakingIds((prev) => {
+            const next = new Set(prev);
+            next.delete(subcategoryId);
+            return next;
+          });
+        }, 600);
         return;
       }
       setSelectedSubcategories([...selectedSubcategories, subcategoryId]);
@@ -294,13 +309,26 @@ function SubcategoriesContent() {
       <OnboardingLayout step={2} backHref="/interests">
         <SubcategoryHeader />
 
-        <div className="enter-fade">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+        >
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-[20px] p-4 text-center mb-4">
+            <motion.div
+              className="bg-red-50 border border-red-200 rounded-[20px] p-4 text-center mb-4"
+              initial={{ opacity: 0, y: -10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{
+                duration: 0.3,
+                ease: "easeOut",
+                delay: 0.1,
+              }}
+            >
               <p className="text-sm font-semibold text-red-600">
                 {typeof error === 'string' ? error : String(error || 'An error occurred')}
               </p>
-            </div>
+            </motion.div>
           )}
 
           <SubcategorySelection selectedCount={selectedSubcategories?.length || 0} maxSelections={MAX_SELECTIONS}>
@@ -314,6 +342,7 @@ function SubcategoriesContent() {
               onToggle={handleSubcategoryToggle}
               subcategories={subcategories}
               loading={loading}
+              shakingIds={shakingIds}
             />
           </SubcategorySelection>
 
@@ -324,7 +353,7 @@ function SubcategoriesContent() {
             selectedCount={selectedSubcategories?.length || 0}
             onContinue={handleNext}
           />
-        </div>
+        </motion.div>
       </OnboardingLayout>
     </>
   );

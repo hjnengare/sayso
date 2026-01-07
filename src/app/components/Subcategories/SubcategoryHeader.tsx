@@ -1,13 +1,23 @@
 "use client";
 
-import { Fontdiner_Swanky } from "next/font/google";
+import { motion } from "framer-motion";
 import WavyTypedTitle from "../../../components/Animations/WavyTypedTitle";
 
-const swanky = Fontdiner_Swanky({
-  weight: "400",
-  subsets: ["latin"],
-  display: "swap",
-});
+const headerVariants = {
+  hidden: {
+    opacity: 0,
+    y: 10,
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.4,
+      ease: [0.25, 0.8, 0.25, 1],
+      delay: 0.05,
+    },
+  },
+};
 
 export default function SubcategoryHeader() {
   const bodyStyle = {
@@ -16,11 +26,16 @@ export default function SubcategoryHeader() {
   } as React.CSSProperties;
 
   return (
-    <div className="text-center mb-6 pt-4 sm:pt-6 enter-fade title-no-break">
+    <motion.div
+      className="text-center mb-6 pt-4 sm:pt-6 title-no-break"
+      variants={headerVariants}
+      initial="hidden"
+      animate="visible"
+    >
       <WavyTypedTitle
         text="Pick your subcategories"
         as="h2"
-        className={`${swanky.className} text-2xl md:text-3xl lg:text-4xl font-bold mb-2 tracking-tight px-6 sm:px-4 md:px-2 text-charcoal`}
+        className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2 tracking-tight px-6 sm:px-4 md:px-2 text-charcoal"
         typingSpeedMs={40}
         startDelayMs={300}
         waveVariant="subtle"
@@ -28,7 +43,7 @@ export default function SubcategoryHeader() {
         triggerOnTypingComplete={true}
         enableScrollTrigger={false}
         style={{ 
-          fontFamily: swanky.style.fontFamily,
+          fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
         }}
       />
       <p
@@ -37,6 +52,6 @@ export default function SubcategoryHeader() {
       >
         Select specific areas within your interests
       </p>
-    </div>
+    </motion.div>
   );
 }

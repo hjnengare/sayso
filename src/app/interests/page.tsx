@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef, Suspense } from "react";
+import { motion } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useOnboarding } from "../contexts/OnboardingContext";
 import { useToast } from "../contexts/ToastContext";
@@ -46,6 +47,7 @@ function InterestsContent() {
   const [hasPrefetched, setHasPrefetched] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
   const [animatingIds, setAnimatingIds] = useState<Set<string>>(new Set());
+  const [shakingIds, setShakingIds] = useState<Set<string>>(new Set());
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -192,13 +194,19 @@ function InterestsContent() {
 
       if (!isCurrentlySelected && selectedInterests.length >= MAX_SELECTIONS) {
         showToast(`Maximum ${MAX_SELECTIONS} interests allowed`, "warning", 2000);
-        const button = document.querySelector(
-          `[data-interest-id="${interestId}"]`
-        );
-        if (button) {
-          button.classList.add("animate-shake");
-          setTimeout(() => button.classList.remove("animate-shake"), 600);
-        }
+        // Trigger shake animation using framer-motion
+        setShakingIds((prev) => {
+          const next = new Set(prev);
+          next.add(interestId);
+          return next;
+        });
+        setTimeout(() => {
+          setShakingIds((prev) => {
+            const next = new Set(prev);
+            next.delete(interestId);
+            return next;
+          });
+        }, 600);
         return;
       }
 
@@ -255,13 +263,26 @@ function InterestsContent() {
         <EmailVerificationBanner className="mb-4" />
         <InterestHeader isOnline={isOnline} />
 
-        <div className="enter-fade">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+        >
           {onboardingError && (
-            <div className="bg-red-50 border border-red-200 rounded-[20px] p-4 text-center mb-4 enter-fade" style={{ animationDelay: "0.1s" }}>
+            <motion.div
+              className="bg-red-50 border border-red-200 rounded-[20px] p-4 text-center mb-4"
+              initial={{ opacity: 0, y: -10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{
+                duration: 0.3,
+                ease: "easeOut",
+                delay: 0.1,
+              }}
+            >
               <p className="text-sm font-semibold text-red-600">
                 {typeof onboardingError === 'string' ? onboardingError : String(onboardingError || 'An error occurred')}
               </p>
-            </div>
+            </motion.div>
           )}
 
           <InterestSelection 
@@ -275,6 +296,7 @@ function InterestsContent() {
             selectedInterests={hydratedSelected}
             maxSelections={MAX_SELECTIONS}
             animatingIds={animatingIds}
+            shakingIds={shakingIds}
             onToggle={handleInterestToggle}
           />
 
@@ -285,7 +307,7 @@ function InterestsContent() {
             minSelections={MIN_SELECTIONS}
             onContinue={handleNext}
           />
-        </div>
+        </motion.div>
       </OnboardingLayout>
     </EmailVerificationGuard>
   );
