@@ -67,7 +67,8 @@ export function useInterestsPage(): UseInterestsPageReturn {
   }, [selectedInterests, setSelectedInterests]);
   
   const isLoading = dataLoading || contextLoading;
-  const error = dataError || contextError;
+  // Convert string error from context to Error object if needed
+  const error: Error | null = dataError || (contextError ? new Error(contextError) : null);
 
   // Prefetch next page
   useEffect(() => {

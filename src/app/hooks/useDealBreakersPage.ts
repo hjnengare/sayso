@@ -64,7 +64,8 @@ export function useDealBreakersPage(): UseDealBreakersPageReturn {
   }, [selectedDealbreakers, setSelectedDealbreakers]);
   
   const isLoading = dataLoading || contextLoading;
-  const error = dataError || contextError;
+  // Convert string error from context to Error object if needed
+  const error: Error | null = dataError || (contextError ? new Error(contextError) : null);
 
   // Note: Middleware handles routing - if user is not at correct step, they'll be redirected
   // We just ensure we have data loaded from DB
