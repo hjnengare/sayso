@@ -169,16 +169,24 @@ export async function middleware(request: NextRequest) {
 
   // STRICT STATE MACHINE: Use onboarding_step as SINGLE source of truth
   // Counts are for UI display only, NOT for routing decisions
+  // CRITICAL: Always read fresh data - no caching allowed
   let onboardingAccess = null;
   if (user && user.email_confirmed_at) {
     try {
-      const { data: profileData } = await supabase
+      // Force fresh read - CRITICAL: Always read latest data, no caching
+      // Use maybeSingle() to handle cases where profile doesn't exist yet
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('onboarding_step, onboarding_complete')
         .eq('user_id', user.id)
         .maybeSingle();
       
-      if (profileData) {
+      if (profileError) {
+        console.error('[Middleware] Error reading profile:', profileError);
+        // On error, default to requiring interests step
+        onboardingAccess = getOnboardingAccess(null);
+        console.log('[Middleware] Profile read error, defaulting to interests step');
+      } else if (profileData) {
         onboardingAccess = getOnboardingAccess({
           onboarding_step: profileData.onboarding_step,
           onboarding_complete: profileData.onboarding_complete,

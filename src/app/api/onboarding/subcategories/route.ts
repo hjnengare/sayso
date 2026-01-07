@@ -207,6 +207,36 @@ export async function POST(req: Request) {
         throw new Error(`Profile subcategories_count did not update correctly. Expected: ${newSubcategoriesCount}, Got: ${profileData.subcategories_count}`);
       }
 
+      // CRITICAL: Immediately re-read profile to verify update propagated (not cached)
+      // This ensures the database transaction is committed and visible
+      const { data: verifyData, error: verifyError } = await supabase
+        .from('profiles')
+        .select('onboarding_step, onboarding_complete, subcategories_count')
+        .eq('user_id', user.id)
+        .single();
+
+      if (verifyError) {
+        console.error('[Subcategories API] Verification read failed:', verifyError);
+        // Don't throw - the update might have worked, just verification failed
+      } else {
+        console.log('[Subcategories API] Verification read after update:', {
+          onboarding_step: verifyData?.onboarding_step,
+          expected: nextStep,
+          match: verifyData?.onboarding_step === nextStep,
+          subcategories_count: verifyData?.subcategories_count
+        });
+
+        if (verifyData?.onboarding_step !== nextStep) {
+          console.error('[Subcategories API] VERIFICATION FAILED - Update did not persist:', {
+            expected: nextStep,
+            actual: verifyData?.onboarding_step,
+            'This means middleware will see stale data!': true
+          });
+          // Still throw to prevent navigation with wrong state
+          throw new Error(`Profile onboarding_step verification failed. Expected: ${nextStep}, Got: ${verifyData?.onboarding_step}. Database update may not have committed.`);
+        }
+      }
+
       console.log('[Subcategories API] Profile updated:', {
         onboarding_step: profileData.onboarding_step,
         onboarding_complete: profileData.onboarding_complete,
