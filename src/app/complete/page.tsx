@@ -374,30 +374,15 @@ function CompletePageContent() {
     saveOnboardingData();
   }, [searchParams, hasSaved, isSaving, router, refreshUser]);
 
-  // Auto-redirect to home after 3.5 seconds (fallback if user doesn't click) - brute force
+  // Auto-redirect to home after 3.5 seconds (fallback if user doesn't click) - only after save is complete
   useEffect(() => {
+    if (!hasSaved) return; // ✅ wait until DB says done
+    
     redirectTimerRef.current = setTimeout(() => {
       if (!hasRedirectedRef.current) {
         hasRedirectedRef.current = true;
         console.log('[Complete] Auto-redirecting to home after 3.5 seconds');
-        
-        // Brute force navigation - try multiple methods
-        try {
-          router.replace('/home');
-        } catch (error) {
-          console.warn('[Complete] Auto-redirect router.replace failed, using window.location:', error);
-          if (typeof window !== 'undefined') {
-            window.location.href = '/home';
-          }
-        }
-        
-        // Backup: check if navigation worked after a delay
-        setTimeout(() => {
-          if (typeof window !== 'undefined' && window.location.pathname !== '/home') {
-            console.log('[Complete] Auto-redirect backup: forcing navigation');
-            window.location.href = '/home';
-          }
-        }, 200);
+        window.location.assign('/home'); // ✅ most reliable
       }
     }, 3500);
 
@@ -407,12 +392,17 @@ function CompletePageContent() {
         redirectTimerRef.current = null;
       }
     };
-  }, [router]);
+  }, [hasSaved]);
 
-  // Handle manual redirect when button is clicked - navigate immediately (brute force)
+  // Handle manual redirect when button is clicked - only after save is complete
   const handleContinueClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    
+    if (!hasSaved) {
+      console.log('[Complete] Save not complete yet, ignoring click');
+      return; // ✅ stop early clicks causing redirects back
+    }
     
     // Clear auto-redirect timer
     if (redirectTimerRef.current) {
@@ -424,33 +414,7 @@ function CompletePageContent() {
     hasRedirectedRef.current = true;
     
     console.log('[Complete] User clicked button, navigating to home immediately');
-    
-    // Brute force navigation - try multiple methods to ensure it works
-    try {
-      // Method 1: Use router.push (preferred)
-      router.push('/home');
-    } catch (error) {
-      console.warn('[Complete] router.push failed, trying window.location:', error);
-      // Method 2: Fallback to window.location (more reliable)
-      if (typeof window !== 'undefined') {
-        window.location.href = '/home';
-      }
-    }
-    
-    // Method 3: Also try router.replace as backup (in case push doesn't work)
-    setTimeout(() => {
-      if (typeof window !== 'undefined' && window.location.pathname !== '/home') {
-        console.log('[Complete] Fallback: Using router.replace');
-        try {
-          router.replace('/home');
-        } catch (error) {
-          console.warn('[Complete] router.replace also failed, using window.location:', error);
-          if (typeof window !== 'undefined') {
-            window.location.href = '/home';
-          }
-        }
-      }
-    }, 100);
+    window.location.assign('/home'); // ✅ most reliable
   };
 
   useEffect(() => {
