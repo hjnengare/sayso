@@ -195,13 +195,40 @@ function CompletePageContent() {
       if (hasSaved || isSaving) return;
 
       try {
-        // Parse all params from URL
-        const params = parseOnboardingParams(searchParams);
+        // Parse all params from URL first
+        let params = parseOnboardingParams(searchParams);
+        
+        // If URL params are missing, try to load from localStorage (fallback for back navigation or direct access)
+        if (!params.interests.length || !params.subcategories.length || !params.dealbreakers.length) {
+          console.log('[Complete] URL params incomplete, checking localStorage...');
+          if (typeof window !== 'undefined') {
+            try {
+              const storedInterests = localStorage.getItem('onboarding_interests');
+              const storedSubcategories = localStorage.getItem('onboarding_subcategories');
+              const storedDealbreakers = localStorage.getItem('onboarding_dealbreakers');
+              
+              if (storedInterests || storedSubcategories || storedDealbreakers) {
+                params = {
+                  interests: storedInterests ? JSON.parse(storedInterests) : params.interests,
+                  subcategories: storedSubcategories ? JSON.parse(storedSubcategories) : params.subcategories,
+                  dealbreakers: storedDealbreakers ? JSON.parse(storedDealbreakers) : params.dealbreakers,
+                };
+                console.log('[Complete] Loaded params from localStorage:', {
+                  interests: params.interests.length,
+                  subcategories: params.subcategories.length,
+                  dealbreakers: params.dealbreakers.length
+                });
+              }
+            } catch (error) {
+              console.warn('[Complete] Error reading from localStorage:', error);
+            }
+          }
+        }
         
         // Validate that all required params are present
         const validation = validateOnboardingParams(params, ['interests', 'subcategories', 'dealbreakers']);
         if (!validation.valid) {
-          console.error('[Complete] Missing required params, redirecting:', validation.missing);
+          console.error('[Complete] Missing required params after checking URL and localStorage, redirecting:', validation.missing);
           // Redirect to the first missing step
           if (validation.missing.includes('interests')) {
             router.replace('/interests');
