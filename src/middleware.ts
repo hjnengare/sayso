@@ -16,11 +16,8 @@ export async function middleware(request: NextRequest) {
   response.headers.set('Pragma', 'no-cache');
   response.headers.set('Expires', '0');
 
-  // Single-line bypass for celebration and home routes
+  // Note: We check /complete and /home routes below with proper onboarding completion checks
   const pathname = request.nextUrl.pathname;
-  if (pathname === '/home' || pathname === '/complete') {
-    return NextResponse.next();
-  }
 
   // CRITICAL: Using ANON KEY in middleware can break profile reads under RLS on Vercel Edge
   // This relies on cookies/JWT being attached correctly at the edge
@@ -355,16 +352,9 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  // STRICT STATE MACHINE: Enforce onboarding route access rules
+  // Onboarding route access rules - simplified to allow URL param flow
   if (isOnboardingRoute && user && user.email_confirmed_at) {
     const currentPath = request.nextUrl.pathname;
-
-    if (!onboardingAccess) {
-      // Fallback: redirect to interests if we can't determine access
-      console.log('[Middleware] Cannot determine onboarding access, redirecting to interests');
-      const redirectUrl = new URL('/interests', request.url);
-      return NextResponse.redirect(redirectUrl);
-    }
 
     // RULE 1: If onboarding_complete=true, redirect ALL onboarding routes to /home
     const { data: profileData } = await supabase
@@ -385,25 +375,11 @@ export async function middleware(request: NextRequest) {
       return response;
     }
 
-    // RULE 2: Check if user is trying to skip ahead (access later step)
-    const redirectRoute = onboardingAccess.redirectFor(currentPath);
-    if (redirectRoute) {
-      console.log('[Middleware] Blocking skip ahead - redirecting to required step:', {
-        currentPath,
-        requiredRoute: redirectRoute,
-        requiredStep: onboardingAccess.step
-      });
-      const redirectUrl = new URL(redirectRoute, request.url);
-      return NextResponse.redirect(redirectUrl);
-    }
-
-    // RULE 3: Allow access if:
-    // - User is on their required step (currentPath === requiredRoute)
-    // - User is going backward (currentPath is earlier step)
-    console.log('[Middleware] Allowing access to onboarding route:', {
-      currentPath,
-      requiredStep: onboardingAccess.step,
-      requiredRoute: onboardingAccess.currentRoute
+    // RULE 2: Allow navigation between onboarding steps for authenticated users
+    // Pages themselves validate URL params and redirect if needed
+    // This allows the URL param flow where data is passed between steps without DB saves
+    console.log('[Middleware] Allowing access to onboarding route (pages validate URL params):', {
+      currentPath
     });
     return response;
   }

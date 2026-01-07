@@ -61,8 +61,7 @@ export default function OnboardingGuard({ children }: OnboardingGuardProps) {
     [pathname, publicRoutes]
   );
 
-  // Simplified navigation logic - let middleware handle strict step enforcement
-  // This guard only handles basic auth/verification checks to avoid blocking legitimate progression
+  // Simplified navigation logic - minimal checks, let middleware and pages handle validation
   const handleNavigation = useCallback(() => {
     if (isLoading) return;
 
@@ -73,7 +72,7 @@ export default function OnboardingGuard({ children }: OnboardingGuardProps) {
       return;
     }
 
-    // Skip guard for public routes (unless they're onboarding routes that need special handling)
+    // Skip guard for public routes
     if (isPublicRoute && !isOnboardingRoute) return;
 
     // If user is already onboarded and trying to access ANY onboarding route, redirect to home
@@ -83,25 +82,14 @@ export default function OnboardingGuard({ children }: OnboardingGuardProps) {
       return;
     }
 
-    // If no user and trying to access protected steps, redirect to start
-    if (!user && pathname !== "/onboarding" && pathname !== "/register" && pathname !== "/login") {
-      router.replace("/onboarding");
-      return;
-    }
-
     // For protected onboarding steps, check email verification
-    // Note: We don't check step prerequisites here because:
-    // 1. Middleware handles strict step-by-step enforcement with fresh DB data
-    // 2. Client-side state is stale (data saves async, user state updates async)
-    // 3. Pages themselves handle showing appropriate UI if data isn't ready
     const protectedSteps = ["/interests", "/subcategories", "/deal-breakers", "/complete"];
     if (user && protectedSteps.includes(pathname) && !user.email_verified) {
       router.replace("/verify-email");
       return;
     }
 
-    // Allow navigation - middleware will handle step enforcement
-    // This prevents the guard from blocking legitimate progression due to stale client state
+    // Allow navigation - middleware and pages handle validation
   }, [user, isLoading, pathname, router, isOnboardingRoute, isProtectedRoute, isPublicRoute]);
 
   useEffect(() => {

@@ -217,7 +217,9 @@ function CompletePageContent() {
         console.log('[Complete] Saving onboarding data from URL params', {
           interests: params.interests.length,
           subcategories: params.subcategories.length,
-          dealbreakers: params.dealbreakers.length
+          dealbreakers: params.dealbreakers.length,
+          subcategoriesSample: params.subcategories.slice(0, 5),
+          subcategoriesType: typeof params.subcategories[0]
         });
 
         // Save all data to database via API (using unified endpoint)
@@ -233,8 +235,40 @@ function CompletePageContent() {
         });
 
         if (!response.ok) {
-          const errorText = await response.text().catch(() => 'Unknown error');
-          throw new Error(errorText || 'Failed to save onboarding data');
+          let errorMessage = 'Failed to save onboarding data';
+          const status = response.status;
+          
+          try {
+            // Try to parse as JSON first
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+              const errorData = await response.json();
+              errorMessage = errorData.error || errorData.message || errorMessage;
+              console.error('[Complete] API error response:', {
+                status,
+                error: errorData,
+                errorMessage
+              });
+            } else {
+              // Not JSON, try text
+              const errorText = await response.text();
+              errorMessage = errorText || errorMessage;
+              console.error('[Complete] API error (text):', {
+                status,
+                errorText,
+                errorMessage
+              });
+            }
+          } catch (e) {
+            // If parsing fails, use status code
+            errorMessage = `Server error (${status}). Please try again.`;
+            console.error('[Complete] API error (parse failed):', {
+              status,
+              error: e
+            });
+          }
+          
+          throw new Error(errorMessage);
         }
 
         const result = await response.json();
