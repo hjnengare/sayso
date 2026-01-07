@@ -199,26 +199,57 @@ function CompletePageContent() {
         let params = parseOnboardingParams(searchParams);
         
         // If URL params are missing, try to load from localStorage (fallback for back navigation or direct access)
-        if (!params.interests.length || !params.subcategories.length || !params.dealbreakers.length) {
-          console.log('[Complete] URL params incomplete, checking localStorage...');
+        const hasAllUrlParams = params.interests.length > 0 && params.subcategories.length > 0 && params.dealbreakers.length > 0;
+        
+        if (!hasAllUrlParams) {
+          console.log('[Complete] URL params incomplete, checking localStorage...', {
+            urlInterests: params.interests.length,
+            urlSubcategories: params.subcategories.length,
+            urlDealbreakers: params.dealbreakers.length
+          });
+          
           if (typeof window !== 'undefined') {
             try {
               const storedInterests = localStorage.getItem('onboarding_interests');
               const storedSubcategories = localStorage.getItem('onboarding_subcategories');
               const storedDealbreakers = localStorage.getItem('onboarding_dealbreakers');
               
-              if (storedInterests || storedSubcategories || storedDealbreakers) {
-                params = {
-                  interests: storedInterests ? JSON.parse(storedInterests) : params.interests,
-                  subcategories: storedSubcategories ? JSON.parse(storedSubcategories) : params.subcategories,
-                  dealbreakers: storedDealbreakers ? JSON.parse(storedDealbreakers) : params.dealbreakers,
-                };
-                console.log('[Complete] Loaded params from localStorage:', {
-                  interests: params.interests.length,
-                  subcategories: params.subcategories.length,
-                  dealbreakers: params.dealbreakers.length
-                });
+              console.log('[Complete] localStorage check:', {
+                hasInterests: !!storedInterests,
+                hasSubcategories: !!storedSubcategories,
+                hasDealbreakers: !!storedDealbreakers
+              });
+              
+              // Use localStorage values if they exist, otherwise keep URL params (which might be empty)
+              if (storedInterests) {
+                try {
+                  params.interests = JSON.parse(storedInterests);
+                } catch (e) {
+                  console.warn('[Complete] Failed to parse interests from localStorage:', e);
+                }
               }
+              
+              if (storedSubcategories) {
+                try {
+                  params.subcategories = JSON.parse(storedSubcategories);
+                } catch (e) {
+                  console.warn('[Complete] Failed to parse subcategories from localStorage:', e);
+                }
+              }
+              
+              if (storedDealbreakers) {
+                try {
+                  params.dealbreakers = JSON.parse(storedDealbreakers);
+                } catch (e) {
+                  console.warn('[Complete] Failed to parse dealbreakers from localStorage:', e);
+                }
+              }
+              
+              console.log('[Complete] Final params after localStorage merge:', {
+                interests: params.interests.length,
+                subcategories: params.subcategories.length,
+                dealbreakers: params.dealbreakers.length
+              });
             } catch (error) {
               console.warn('[Complete] Error reading from localStorage:', error);
             }
