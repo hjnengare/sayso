@@ -136,7 +136,7 @@ export default function LoginPage() {
             <WavyTypedTitle
               text="Welcome back"
               as="h2"
-              className="text-3xl md:text-4xl font-semibold mb-2 text-center leading-[1.2] px-2 tracking-tight text-charcoal"
+              className="text-3xl md:text-4xl font-bold mb-2 text-center leading-[1.2] px-2 tracking-tight text-charcoal"
               typingSpeedMs={40}
               startDelayMs={300}
               waveVariant="subtle"
@@ -145,6 +145,7 @@ export default function LoginPage() {
               enableScrollTrigger={false}
               style={{ 
                 fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                fontWeight: 700,
               }}
             />
           </div>

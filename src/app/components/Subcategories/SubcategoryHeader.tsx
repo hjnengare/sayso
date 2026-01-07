@@ -13,7 +13,7 @@ const headerVariants = {
     y: 0,
     transition: {
       duration: 0.4,
-      ease: [0.25, 0.8, 0.25, 1],
+      ease: [0.25, 0.8, 0.25, 1] as [number, number, number, number],
       delay: 0.05,
     },
   },
@@ -44,6 +44,7 @@ export default function SubcategoryHeader() {
         enableScrollTrigger={false}
         style={{ 
           fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+          fontWeight: 700,
         }}
       />
       <p

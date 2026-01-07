@@ -32,7 +32,7 @@ const groupVariants = {
     transition: {
       delay: groupIndex * 0.08,
       duration: 0.4,
-      ease: [0.25, 0.8, 0.25, 1],
+      ease: [0.25, 0.8, 0.25, 1] as [number, number, number, number],
       staggerChildren: 0.03,
       delayChildren: 0.05,
     },
@@ -49,7 +49,7 @@ const titleVariants = {
     x: 0,
     transition: {
       duration: 0.3,
-      ease: "easeOut",
+      ease: "easeOut" as const,
     },
   },
 };

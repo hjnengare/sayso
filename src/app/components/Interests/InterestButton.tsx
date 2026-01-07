@@ -32,14 +32,14 @@ const buttonVariants = {
     transition: {
       delay: Math.min(index, 8) * 0.03 + 0.1,
       duration: 0.4,
-      ease: [0.25, 0.8, 0.25, 1],
+      ease: [0.25, 0.8, 0.25, 1] as [number, number, number, number],
     },
   }),
   selected: {
     scale: 1.05,
     x: 0,
     transition: {
-      type: "spring",
+      type: "spring" as const,
       stiffness: 400,
       damping: 17,
     },
@@ -48,7 +48,7 @@ const buttonVariants = {
     scale: 1,
     x: 0,
     transition: {
-      type: "spring",
+      type: "spring" as const,
       stiffness: 400,
       damping: 17,
     },
@@ -56,7 +56,7 @@ const buttonVariants = {
   hover: {
     scale: 1.05,
     transition: {
-      type: "spring",
+      type: "spring" as const,
       stiffness: 400,
       damping: 17,
     },
@@ -68,14 +68,14 @@ const buttonVariants = {
     scale: [1, 1.08, 1],
     transition: {
       duration: 0.35,
-      ease: "easeOut",
+      ease: "easeOut" as const,
     },
   },
   shake: {
     x: [0, -4, 4, -3, 2, 0],
     transition: {
       duration: 0.35,
-      ease: "easeInOut",
+      ease: "easeInOut" as const,
     },
   },
 };
@@ -89,7 +89,7 @@ const checkIconVariants = {
     scale: 1,
     opacity: 1,
     transition: {
-      type: "spring",
+      type: "spring" as const,
       stiffness: 500,
       damping: 25,
     },

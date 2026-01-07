@@ -512,7 +512,7 @@ function CompletePageContent() {
             <WavyTypedTitle
               text="You're all set!"
               as="h1"
-              className="text-lg md:text-4xl lg:text-5xl font-700 mb-4 tracking-tight leading-snug text-charcoal"
+              className="text-lg md:text-4xl lg:text-5xl font-bold mb-4 tracking-tight leading-snug text-charcoal"
               typingSpeedMs={40}
               startDelayMs={300}
               waveVariant="subtle"
@@ -521,6 +521,7 @@ function CompletePageContent() {
               enableScrollTrigger={false}
               style={{ 
                 fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                fontWeight: 700,
               }}
             />
           </div>

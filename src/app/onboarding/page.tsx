@@ -154,7 +154,7 @@ export default function OnboardingPage() {
           {/* Main content */}
           <div className="text-center flex-1 flex flex-col justify-center min-h-0 py-4 space-y-6 md:space-y-8">
             <div data-reveal className="title-no-break w-full block overflow-hidden">
-              <h2 className="text-2xl sm:text-3xl md:text-5xl font-semibold mb-5 md:mb-6 leading-[1.2] tracking-tight px-6 sm:px-4 md:px-2 text-charcoal no-hyphens block w-full" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
+              <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-5 md:mb-6 leading-[1.2] tracking-tight px-6 sm:px-4 md:px-2 text-charcoal no-hyphens block w-full" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 700 }}>
                 <div className="block whitespace-nowrap">
                   <WavyTypedTitle
                     text="Discover gems near you!"
@@ -168,6 +168,7 @@ export default function OnboardingPage() {
                     enableScrollTrigger={false}
                     style={{ 
                       fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                      fontWeight: 700,
                       wordBreak: 'keep-all',
                       overflowWrap: 'normal',
                       whiteSpace: 'nowrap',

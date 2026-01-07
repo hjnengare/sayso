@@ -17,7 +17,7 @@ const headerVariants = {
     y: 0,
     transition: {
       duration: 0.4,
-      ease: [0.25, 0.8, 0.25, 1],
+      ease: [0.25, 0.8, 0.25, 1] as [number, number, number, number],
       delay: 0.05,
     },
   },
@@ -33,7 +33,7 @@ const offlineBadgeVariants = {
     scale: 1,
     transition: {
       duration: 0.3,
-      ease: "easeOut",
+      ease: "easeOut" as const,
       delay: 0.1,
     },
   },
@@ -86,6 +86,7 @@ export default function InterestHeader({ isOnline }: InterestHeaderProps) {
             enableScrollTrigger={false}
             style={{ 
               fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+              fontWeight: 700,
             }}
           />
         </div>

@@ -21,7 +21,7 @@ const actionsVariants = {
     y: 0,
     transition: {
       duration: 0.4,
-      ease: [0.25, 0.8, 0.25, 1],
+      ease: [0.25, 0.8, 0.25, 1] as [number, number, number, number],
       delay: 0.15,
     },
   },

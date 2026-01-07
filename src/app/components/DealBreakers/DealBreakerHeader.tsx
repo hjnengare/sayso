@@ -22,6 +22,7 @@ export default function DealBreakerHeader() {
         enableScrollTrigger={false}
         style={{ 
           fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+          fontWeight: 700,
         }}
       />
       <p

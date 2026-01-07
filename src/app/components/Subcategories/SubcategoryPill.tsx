@@ -28,13 +28,13 @@ const pillVariants = {
     transition: {
       delay: index * 0.03,
       duration: 0.3,
-      ease: [0.25, 0.8, 0.25, 1],
+      ease: [0.25, 0.8, 0.25, 1] as [number, number, number, number],
     },
   }),
   selected: {
     scale: 1.05,
     transition: {
-      type: "spring",
+      type: "spring" as const,
       stiffness: 400,
       damping: 17,
     },
@@ -43,7 +43,7 @@ const pillVariants = {
     scale: 1,
     x: 0,
     transition: {
-      type: "spring",
+      type: "spring" as const,
       stiffness: 400,
       damping: 17,
     },
@@ -51,7 +51,7 @@ const pillVariants = {
   hover: {
     scale: 1.05,
     transition: {
-      type: "spring",
+      type: "spring" as const,
       stiffness: 400,
       damping: 17,
     },
@@ -63,7 +63,7 @@ const pillVariants = {
     x: [0, -4, 4, -3, 2, 0],
     transition: {
       duration: 0.35,
-      ease: "easeInOut",
+      ease: "easeInOut" as const,
     },
   },
 };
@@ -77,7 +77,7 @@ const checkIconVariants = {
     scale: 1,
     opacity: 1,
     transition: {
-      type: "spring",
+      type: "spring" as const,
       stiffness: 500,
       damping: 25,
     },
