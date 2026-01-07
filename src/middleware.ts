@@ -78,41 +78,52 @@ export async function middleware(request: NextRequest) {
   try {
     const { data: { user: authUser }, error } = await supabase.auth.getUser();
     
-    // Handle invalid JWT/user errors - clear session
+    // Handle invalid JWT/user errors - only clear session for truly invalid cases
     if (error) {
       const errorMessage = error.message?.toLowerCase() || '';
-      if (
+      const isFatalError = (
         errorMessage.includes('user from sub claim') ||
         errorMessage.includes('jwt does not exist') ||
         errorMessage.includes('user does not exist') ||
         error.code === 'user_not_found'
-      ) {
-        console.warn('Middleware: Invalid user in JWT, clearing session:', error.message);
-        // Clear invalid session cookies
-        try {
-          response.cookies.delete('sb-access-token');
-          response.cookies.delete('sb-refresh-token');
-        } catch (clearError) {
-          console.warn('Middleware: Error clearing cookies:', clearError);
-        }
-        // Redirect to onboarding if trying to access protected route
+      );
+      
+      if (isFatalError) {
+        console.warn('Middleware: Invalid user in JWT:', error.message);
+        
+        // Only redirect protected routes - allow public routes to continue
         const protectedRoutes = ['/interests', '/subcategories', '/deal-breakers', '/complete', '/home', '/profile', '/reviews', '/write-review', '/leaderboard', '/saved', '/dm', '/reviewer'];
         const isProtectedRoute = protectedRoutes.some(route =>
           request.nextUrl.pathname.startsWith(route)
         );
+        
         if (isProtectedRoute) {
+          // Only clear cookies and redirect if accessing a protected route
+          try {
+            response.cookies.delete('sb-access-token');
+            response.cookies.delete('sb-refresh-token');
+          } catch (clearError) {
+            console.warn('Middleware: Error clearing cookies:', clearError);
+          }
           return NextResponse.redirect(new URL('/onboarding', request.url));
         }
+        
+        // For public routes, allow access even with invalid JWT
+        // Don't clear cookies here - let the client handle session refresh
+        console.log('Middleware: Invalid JWT on public route, allowing access');
         return response;
       }
-      // For other auth errors, continue without user
-      console.warn('Middleware: Auth error (non-fatal):', error.message);
+      
+      // For other auth errors (network issues, temporary failures), continue without user
+      // This allows pages to load and handle auth state client-side
+      console.warn('Middleware: Auth error (non-fatal), continuing without user:', error.message);
     } else {
       user = authUser;
     }
   } catch (error) {
     console.error('Middleware: Unexpected error getting user:', error);
-    // Continue without user - will redirect if needed below
+    // Continue without user - allow pages to load and handle auth client-side
+    // This prevents blocking access due to temporary middleware errors
   }
 
   console.log('Middleware: Checking route', {
