@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ReactNode } from "react";
 import { ArrowLeft } from "react-feather";
 
@@ -254,7 +254,15 @@ export default function OnboardingLayout({
   totalSteps = 4,
   showProgress = true,
 }: OnboardingLayoutProps) {
+  const router = useRouter();
   const progressPercentage = (step / totalSteps) * 100;
+
+  const handleBackClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (backHref) {
+      router.push(backHref);
+    }
+  };
 
   return (
     <>
@@ -286,14 +294,14 @@ export default function OnboardingLayout({
         {/* Back button */}
         {backHref && (
           <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-20 animate-fade-in-up delay-100">
-            <Link
-              href={backHref}
+            <button
+              onClick={handleBackClick}
               aria-label="Go back"
-              className="text-charcoal hover:text-charcoal/80 transition-all duration-300 p-2 hover:bg-off-white/50 rounded-lg block md:backdrop-blur-xl border border-white/30 hover:border-white/50"
+              className="text-charcoal hover:text-charcoal/80 transition-all duration-300 p-2 hover:bg-off-white/50 rounded-lg block md:backdrop-blur-xl border border-white/30 hover:border-white/50 cursor-pointer"
             >
               {/* ✅ Lucide back arrow */}
               <ArrowLeft className="w-6 h-6" strokeWidth={2.5} />
-            </Link>
+            </button>
           </div>
         )}
 

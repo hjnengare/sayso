@@ -315,12 +315,20 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(redirectUrl);
     }
 
-    // If user is on wrong onboarding step, redirect to correct one (derived from join tables)
+    // Only block skipping AHEAD - allow backward navigation to previous steps
     const nextRoute = onboardingState?.nextRoute || '/interests';
-    if (currentPath !== nextRoute && currentPath !== '/complete') {
-      console.log('Middleware: Redirecting to correct onboarding step', {
+    const stepOrder = ['/interests', '/subcategories', '/deal-breakers', '/complete'];
+    const currentIndex = stepOrder.indexOf(currentPath);
+    const nextRouteIndex = stepOrder.indexOf(nextRoute);
+    
+    // Only redirect if user is trying to skip ahead (forward) to a step they haven't reached yet
+    // Allow backward navigation (currentIndex < nextRouteIndex) and current step access
+    if (currentPath !== '/complete' && currentIndex > nextRouteIndex) {
+      console.log('Middleware: Blocking skip ahead - redirecting to correct onboarding step', {
         currentPath,
         nextRoute,
+        currentIndex,
+        nextRouteIndex,
         interestsCount: onboardingState?.interestsCount,
         subcategoriesCount: onboardingState?.subcategoriesCount,
         dealbreakersCount: onboardingState?.dealbreakersCount
@@ -328,6 +336,11 @@ export async function middleware(request: NextRequest) {
       const redirectUrl = new URL(nextRoute, request.url);
       return NextResponse.redirect(redirectUrl);
     }
+    
+    // Allow access if:
+    // 1. User is on their next required step (currentIndex === nextRouteIndex)
+    // 2. User is going backward (currentIndex < nextRouteIndex)
+    // 3. User is on /complete page (handled above)
 
     // Allow access to correct onboarding step
     console.log('Middleware: Allowing access to onboarding route:', currentPath);

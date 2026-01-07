@@ -135,12 +135,17 @@ export default function OnboardingGuard({ children }: OnboardingGuardProps) {
     };
 
     const current = pathToStep[pathname] || "interests";
+    const currentIndex = stepOrder.indexOf(current);
+    const nextStepIndex = stepOrder.indexOf(nextStep);
 
-    // Only block skipping AHEAD (your original behavior)
-    if (stepOrder.indexOf(current) > stepOrder.indexOf(nextStep)) {
+    // Allow backward navigation - user can always go back to previous steps
+    // Only block skipping AHEAD (forward) to steps they haven't completed yet
+    if (currentIndex > nextStepIndex) {
+      // User is trying to skip ahead - redirect to their actual next step
       router.replace(`/${nextStep}`);
       return;
     }
+    // If currentIndex <= nextStepIndex, allow navigation (including backward)
   }, [isLoading, isOnboardingRoute, user, pathname, router, profile, profileLoading, getNextOnboardingStep]);
 
   useEffect(() => {
