@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "../contexts/AuthContext";
-import { ONBOARDING_STEPS, OnboardingStep } from "../contexts/onboarding-steps";
+import { ONBOARDING_STEPS } from "../contexts/onboarding-steps";
 import { PageLoader } from "./Loader";
 
 // Simple loading component
@@ -24,12 +24,8 @@ export default function OnboardingGuard({ children }: OnboardingGuardProps) {
     [pathname]
   );
 
-  const currentStep = useMemo(() =>
-    ONBOARDING_STEPS.find(step => pathname === step.path),
-    [pathname]
-  );
-
-  // Simplified navigation logic to fix registration loop
+  // Simplified navigation logic - let middleware handle strict step enforcement
+  // This guard only handles basic auth/verification checks to avoid blocking legitimate progression
   const handleNavigation = useCallback(() => {
     if (isLoading) return;
 
@@ -49,33 +45,19 @@ export default function OnboardingGuard({ children }: OnboardingGuardProps) {
       return;
     }
 
-    // For registration flow - check email verification first
-    if (user && pathname === "/interests") {
-      // User must have verified email to access interests
-      if (!user.email_verified) {
-        router.replace("/verify-email");
-        return;
-      }
-      // User is logged in and email verified - allow it
+    // For protected onboarding steps, check email verification
+    // Note: We don't check step prerequisites here because:
+    // 1. Middleware handles strict step-by-step enforcement with fresh DB data
+    // 2. Client-side state is stale (data saves async, user state updates async)
+    // 3. Pages themselves handle showing appropriate UI if data isn't ready
+    const protectedSteps = ["/interests", "/subcategories", "/deal-breakers", "/complete"];
+    if (user && protectedSteps.includes(pathname) && !user.email_verified) {
+      router.replace("/verify-email");
       return;
     }
 
-    // For other steps, check basic requirements
-    if (pathname === "/subcategories" && user && (!user.interests || user.interests.length === 0)) {
-      router.replace("/interests");
-      return;
-    }
-
-    if (pathname === "/deal-breakers" && user && (!user.profile?.sub_interests || user.profile.sub_interests.length === 0)) {
-      router.replace("/subcategories");
-      return;
-    }
-
-    // For now, just check if user is authenticated for complete page
-    if (pathname === "/complete" && !user) {
-      router.replace("/deal-breakers");
-      return;
-    }
+    // Allow navigation - middleware will handle step enforcement
+    // This prevents the guard from blocking legitimate progression due to stale client state
   }, [user, isLoading, pathname, router, isOnboardingRoute]);
 
   useEffect(() => {
