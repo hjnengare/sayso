@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useOnboarding } from "../contexts/OnboardingContext";
 import { useToast } from "../contexts/ToastContext";
 import { useAuth } from "../contexts/AuthContext";
+import { buildOnboardingUrl } from "../lib/onboarding/urlParams";
 import OnboardingLayout from "../components/Onboarding/OnboardingLayout";
 import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
 import { Loader } from "../components/Loader";
@@ -215,37 +216,12 @@ function InterestsContent() {
       selectedInterests: selectedInterests
     });
 
-    try {
-      // Wait for API response to ensure data is saved before navigation
-      const response = await fetch('/api/onboarding/interests', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ interests: selectedInterests })
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text().catch(() => 'Unknown error');
-        console.error('[Interests] Failed to save interests:', errorText);
-        setIsNavigating(false);
-        return;
-      }
-
-      const result = await response.json();
-      console.log('[Interests] Interests saved successfully', result);
-
-      // 🔥 FORCE APP ROUTER TO RELOAD DATA - invalidates cached server components
-      router.refresh();
-
-      // 🔥 UPDATE AUTH CONTEXT IMMEDIATELY - refresh user profile to get latest onboarding_step
-      await refreshUser();
-
-      // Navigate to subcategories page with interests in URL for instant filtering
-      const interestsParam = selectedInterests.join(',');
-      router.replace(`/subcategories?interests=${interestsParam}`);
-    } catch (error) {
-      console.error('[Interests] Error saving interests:', error);
-      setIsNavigating(false);
-    }
+    // Navigate to subcategories with interests in URL params (no DB save yet)
+    const nextUrl = buildOnboardingUrl('/subcategories', {
+      interests: selectedInterests
+    });
+    
+    router.replace(nextUrl);
   }, [canProceed, selectedInterests, router]);
 
   const hydratedSelected = mounted ? selectedInterests : [];

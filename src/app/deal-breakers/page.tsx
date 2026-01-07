@@ -12,6 +12,7 @@ import DealBreakerSelection from "../components/DealBreakers/DealBreakerSelectio
 import DealBreakerGrid from "../components/DealBreakers/DealBreakerGrid";
 import DealBreakerActions from "../components/DealBreakers/DealBreakerActions";
 import { useOnboarding } from "../contexts/OnboardingContext";
+import { parseOnboardingParams, buildOnboardingUrl, validateOnboardingParams } from "../lib/onboarding/urlParams";
 
 // Safe wrapper for useOnboarding that doesn't throw if provider is missing
 function useOnboardingSafe() {
@@ -55,18 +56,22 @@ function DealBreakersContent() {
 
   const MAX_SELECTIONS = 3;
 
-  // Read URL parameters for interests and subcategories (for validation)
+  // Validate URL parameters on mount
   useEffect(() => {
-    const interestsParam = searchParams?.get('interests');
-    const subcategoriesParam = searchParams?.get('subcategories');
+    const params = parseOnboardingParams(searchParams);
     
-    if (interestsParam) {
-      console.log('[Deal-breakers] Interests from URL:', interestsParam);
+    // Validate that interests and subcategories are present
+    const validation = validateOnboardingParams(params, ['interests', 'subcategories']);
+    if (!validation.valid) {
+      console.warn('[Deal-breakers] Missing required params, redirecting:', validation.missing);
+      if (validation.missing.includes('interests')) {
+        router.replace('/interests');
+      } else if (validation.missing.includes('subcategories')) {
+        router.replace('/subcategories');
+      }
+      return;
     }
-    if (subcategoriesParam) {
-      console.log('[Deal-breakers] Subcategories from URL:', subcategoriesParam);
-    }
-  }, [searchParams]);
+  }, [searchParams, router]);
 
   // Prefetch complete page immediately on mount
   useEffect(() => {
@@ -131,47 +136,24 @@ function DealBreakersContent() {
     if (!selectedDealbreakers || selectedDealbreakers.length === 0) return;
 
     setIsNavigating(true);
-    setIsSaving(true);
 
     console.log('[Deal-breakers] Submit clicked', {
       selections: selectedDealbreakers.length,
       selectedDealbreakers: selectedDealbreakers
     });
 
-    try {
-      // Use the unified onboarding API to save all data and mark as complete
-      const response = await fetch('/api/user/onboarding', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          step: 'complete',
-          interests: selectedInterests || [],
-          subcategories: selectedSubInterests || [],
-          dealbreakers: selectedDealbreakers
-        })
-      });
-
-      if (!response || !response.ok) {
-        const errorText = response ? await response.text().catch(() => 'Unknown error') : 'Network error';
-        throw new Error(errorText || 'Failed to save onboarding data');
-      }
-
-      console.log('[Deal-breakers] Onboarding completed successfully');
-      
-      // Navigate to complete page after successful save
-      router.replace('/complete');
-    } catch (error) {
-      console.error('[Deal-breakers] Error completing onboarding:', error);
-      
-      // Show error toast but still allow navigation (graceful degradation)
-      showToast('Failed to save onboarding data, but continuing...', 'sage', 3000);
-      
-      // Still navigate to complete page even if API fails
-      router.replace('/complete');
-    } finally {
-      setIsSaving(false);
-    }
-  }, [selectedDealbreakers, selectedInterests, selectedSubInterests, router, showToast]);
+    // Get interests and subcategories from URL to pass forward
+    const params = parseOnboardingParams(searchParams);
+    
+    // Navigate to complete page with all selections in URL (no DB save yet)
+    const nextUrl = buildOnboardingUrl('/complete', {
+      interests: params.interests,
+      subcategories: params.subcategories,
+      dealbreakers: selectedDealbreakers
+    });
+    
+    router.replace(nextUrl);
+  }, [selectedDealbreakers, searchParams, router]);
 
   const canProceed = selectedDealbreakers.length > 0 && !isNavigating;
 

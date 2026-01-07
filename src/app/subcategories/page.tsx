@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useOnboarding } from "../contexts/OnboardingContext";
 import { useToast } from "../contexts/ToastContext";
 import { useAuth } from "../contexts/AuthContext";
+import { parseOnboardingParams, buildOnboardingUrl, validateOnboardingParams } from "../lib/onboarding/urlParams";
 import OnboardingLayout from "../components/Onboarding/OnboardingLayout";
 import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
 import SubcategoryStyles from "../components/Subcategories/SubcategoryStyles";
@@ -60,60 +61,41 @@ function SubcategoriesContent() {
     router.prefetch('/deal-breakers');
   }, [router]);
 
-  // Load interests and subcategories from database on mount
+  // Load interests from URL params and validate
   useEffect(() => {
-    const loadData = async () => {
+    const loadData = () => {
       setLoading(true);
       try {
-        // First, get interests from URL if available
-        const interestsParam = searchParams.get('interests');
-        let interests: string[] = [];
+        // Parse interests from URL params
+        const params = parseOnboardingParams(searchParams);
         
-        if (interestsParam) {
-          // Use interests from URL (instant)
-          interests = interestsParam.split(',').map(s => s.trim()).filter(Boolean);
-          setSelectedInterests(interests);
+        // Validate that interests are present (required for subcategories page)
+        const validation = validateOnboardingParams(params, ['interests']);
+        if (!validation.valid) {
+          console.warn('[Subcategories] Missing interests param, redirecting to interests page');
+          router.replace('/interests');
+          return;
+        }
+
+        // Set interests from URL
+        setSelectedInterests(params.interests);
+        
+        // Set subcategories from URL if present (for back navigation)
+        if (params.subcategories.length > 0) {
+          setSelectedSubcategories(params.subcategories);
         } else {
-          // Load interests from database (for back navigation)
-          // CRITICAL: Only hydrate if user has actually saved data
-          const response = await fetch('/api/user/onboarding');
-          if (response.ok) {
-            const data = await response.json();
-            const interestsCount = data.interests_count || 0;
-            const subcategoriesCount = data.subcategories_count || 0;
-            
-            // ONLY hydrate interests if user has explicitly saved them
-            if (interestsCount > 0) {
-              interests = data.interests || [];
-              setSelectedInterests(interests);
-            } else {
-              interests = [];
-              setSelectedInterests([]);
-            }
-            
-            // ONLY hydrate subcategories if user has explicitly saved them
-            if (subcategoriesCount > 0) {
-              const savedSubcategories = data.subcategories || [];
-              const subcategoryIds = savedSubcategories.map((item: { subcategory_id: string }) => item.subcategory_id);
-              if (subcategoryIds.length > 0) {
-                console.log('[Subcategories] Loaded saved subcategories from DB:', subcategoryIds);
-                setSelectedSubcategories(subcategoryIds);
-              }
-            } else {
-              // Brand-new user - ensure empty state
-              setSelectedSubcategories([]);
-            }
-          }
+          setSelectedSubcategories([]);
         }
       } catch (error) {
         console.error('[Subcategories] Error loading data:', error);
+        router.replace('/interests');
       } finally {
         setLoading(false);
       }
     };
 
     loadData();
-  }, [searchParams, setSelectedSubcategories]);
+  }, [searchParams, setSelectedInterests, setSelectedSubcategories, router]);
 
   useEffect(() => {
     // Load subcategories directly (static data) - no API call needed
@@ -254,37 +236,18 @@ function SubcategoriesContent() {
       subcategoriesData: subcategoriesData
     });
 
-    try {
-      // Wait for API response to ensure data is saved before navigation
-      const response = await fetch('/api/onboarding/subcategories', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ subcategories: subcategoriesData })
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text().catch(() => 'Unknown error');
-        console.error('[Subcategories] Failed to save subcategories:', errorText);
-        setIsNavigating(false);
-        return;
-      }
-
-      const result = await response.json();
-      console.log('[Subcategories] Subcategories saved successfully', result);
-
-      // 🔥 FORCE APP ROUTER TO RELOAD DATA - invalidates cached server components
-      router.refresh();
-
-      // 🔥 UPDATE AUTH CONTEXT IMMEDIATELY - refresh user profile to get latest onboarding_step
-      await refreshUser();
-
-      // Navigate to dealbreakers
-      router.replace('/deal-breakers');
-    } catch (error) {
-      console.error('[Subcategories] Error saving subcategories:', error);
-      setIsNavigating(false);
-    }
-  }, [selectedSubcategories, subcategories, router]);
+    // Get interests from URL to pass forward
+    const params = parseOnboardingParams(searchParams);
+    
+    // Navigate to deal-breakers with both interests and subcategories in URL (no DB save yet)
+    const subcategoryIds = subcategoriesData.map(item => item.subcategory_id);
+    const nextUrl = buildOnboardingUrl('/deal-breakers', {
+      interests: params.interests,
+      subcategories: subcategoryIds
+    });
+    
+    router.replace(nextUrl);
+  }, [selectedSubcategories, subcategories, searchParams, router]);
 
   const canProceed = (selectedSubcategories?.length || 0) > 0 && !isNavigating;
 

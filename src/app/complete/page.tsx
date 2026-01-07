@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Fontdiner_Swanky } from "next/font/google";
 import { ArrowRight, CheckCircle } from "react-feather";
 import { ShieldCheck, Clock, Smile, BadgeDollarSign, Star, Heart, Sparkles, Award } from "lucide-react";
@@ -11,6 +11,9 @@ import { useReducedMotion } from "../utils/useReducedMotion";
 import OnboardingLayout from "../components/Onboarding/OnboardingLayout";
 import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
 import WavyTypedTitle from "../../components/Animations/WavyTypedTitle";
+import { parseOnboardingParams, validateOnboardingParams } from "../lib/onboarding/urlParams";
+import { Loader } from "../components/Loader";
+import { Suspense } from "react";
 
 const swanky = Fontdiner_Swanky({
   weight: "400",
@@ -176,32 +179,87 @@ const sf = {
 } as const;
 
 function CompletePageContent() {
-  const { updateUser, user } = useAuth();
+  const { updateUser, user, refreshUser } = useAuth();
   const reducedMotion = useReducedMotion();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const redirectTimerRef = useRef<NodeJS.Timeout | null>(null);
   const hasRedirectedRef = useRef(false);
   const [selectedDealbreakers, setSelectedDealbreakers] = useState<string[]>([]);
+  const [isSaving, setIsSaving] = useState(false);
+  const [hasSaved, setHasSaved] = useState(false);
 
-  // Load selected dealbreakers from database
+  // Parse URL params and save to database on mount
   useEffect(() => {
-    const loadDealbreakers = async () => {
+    const saveOnboardingData = async () => {
+      // Only save once
+      if (hasSaved || isSaving) return;
+
       try {
-        const response = await fetch('/api/user/onboarding');
-        if (response.ok) {
-          const data = await response.json();
-          const dealbreakers = data.dealbreakers || [];
-          if (dealbreakers.length > 0) {
-            setSelectedDealbreakers(dealbreakers);
+        // Parse all params from URL
+        const params = parseOnboardingParams(searchParams);
+        
+        // Validate that all required params are present
+        const validation = validateOnboardingParams(params, ['interests', 'subcategories', 'dealbreakers']);
+        if (!validation.valid) {
+          console.error('[Complete] Missing required params, redirecting:', validation.missing);
+          // Redirect to the first missing step
+          if (validation.missing.includes('interests')) {
+            router.replace('/interests');
+          } else if (validation.missing.includes('subcategories')) {
+            router.replace('/subcategories');
+          } else if (validation.missing.includes('dealbreakers')) {
+            router.replace('/deal-breakers');
           }
+          return;
         }
+
+        setIsSaving(true);
+        console.log('[Complete] Saving onboarding data from URL params', {
+          interests: params.interests.length,
+          subcategories: params.subcategories.length,
+          dealbreakers: params.dealbreakers.length
+        });
+
+        // Save all data to database via API
+        const response = await fetch('/api/onboarding/complete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            interests: params.interests,
+            subcategories: params.subcategories,
+            dealbreakers: params.dealbreakers
+          })
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text().catch(() => 'Unknown error');
+          throw new Error(errorText || 'Failed to save onboarding data');
+        }
+
+        const result = await response.json();
+        console.log('[Complete] Onboarding data saved successfully', result);
+        
+        setHasSaved(true);
+        setSelectedDealbreakers(params.dealbreakers);
+        
+        // Refresh user context to get updated profile
+        if (refreshUser) {
+          await refreshUser();
+        }
+        
+        // Refresh router to invalidate cached data
+        router.refresh();
       } catch (error) {
-        console.error('[Complete] Error loading dealbreakers:', error);
+        console.error('[Complete] Error saving onboarding data:', error);
+        // Show error but don't block the page - user can retry
+      } finally {
+        setIsSaving(false);
       }
     };
 
-    loadDealbreakers();
-  }, []);
+    saveOnboardingData();
+  }, [searchParams, hasSaved, isSaving, router, refreshUser]);
 
   // Auto-redirect to home after 3.5 seconds (fallback if user doesn't click)
   useEffect(() => {
@@ -411,7 +469,15 @@ function CompletePageContent() {
 export default function CompletePage() {
   return (
     <ProtectedRoute requiresAuth={true}>
-      <CompletePageContent />
+      <Suspense fallback={
+        <OnboardingLayout step={4} showProgress={false}>
+          <div className="flex items-center justify-center min-h-[400px]">
+            <Loader size="md" variant="wavy" color="sage" />
+          </div>
+        </OnboardingLayout>
+      }>
+        <CompletePageContent />
+      </Suspense>
     </ProtectedRoute>
   );
 }
