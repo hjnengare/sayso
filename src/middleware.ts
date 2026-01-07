@@ -205,10 +205,34 @@ export async function middleware(request: NextRequest) {
   });
 
   // Protected routes - require authentication AND email verification
-  const protectedRoutes = ['/interests', '/subcategories', '/deal-breakers', '/complete', '/home', '/profile', '/reviews', '/write-review', '/leaderboard', '/saved', '/dm', '/reviewer'];
+  // These routes should NOT be accessible to unauthenticated users
+  const protectedRoutes = [
+    // Onboarding routes
+    '/interests', '/subcategories', '/deal-breakers', '/complete',
+    // Main app routes
+    '/home', '/profile', '/saved', '/dm', '/reviewer',
+    // Content discovery routes
+    '/explore', '/for-you', '/trending', '/events-specials',
+    // Review routes
+    '/write-review', '/reviews',
+    // Leaderboard
+    '/leaderboard',
+    // Business routes - note: /business/[id] viewing is public, but /business/[id]/review and /business/[id]/edit need auth
+    // We'll handle business routes more specifically below
+    // Event and special routes
+    '/event', '/special',
+    // User action routes
+    '/notifications', '/add-business', '/claim-business',
+  ];
+  
+  // Business routes that require authentication (review, edit, but NOT viewing)
+  const isBusinessReviewRoute = request.nextUrl.pathname.match(/^\/business\/[^\/]+\/review/);
+  const isBusinessViewRoute = request.nextUrl.pathname.match(/^\/business\/[^\/]+$/);
+  
+  // Check if route is protected (excluding public business viewing)
   const isProtectedRoute = protectedRoutes.some(route =>
     request.nextUrl.pathname.startsWith(route)
-  );
+  ) || isBusinessReviewRoute;
 
   // Business owner routes - require authentication, email verification, AND business ownership
   // Note: Ownership verification is done in components using useRequireBusinessOwner
@@ -430,6 +454,19 @@ export async function middleware(request: NextRequest) {
 
   if (isBusinessEditRoute && user && !user.email_confirmed_at) {
     console.log('Middleware: Redirecting unverified user from business edit route');
+    const redirectUrl = new URL('/verify-email', request.url);
+    return NextResponse.redirect(redirectUrl);
+  }
+
+  // Protect business review routes - require authentication and email verification
+  if (isBusinessReviewRoute && !user) {
+    console.log('Middleware: Redirecting unauthenticated user from business review route');
+    const redirectUrl = new URL('/onboarding', request.url);
+    return NextResponse.redirect(redirectUrl);
+  }
+
+  if (isBusinessReviewRoute && user && !user.email_confirmed_at) {
+    console.log('Middleware: Redirecting unverified user from business review route');
     const redirectUrl = new URL('/verify-email', request.url);
     return NextResponse.redirect(redirectUrl);
   }

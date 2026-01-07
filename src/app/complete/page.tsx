@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Fontdiner_Swanky } from "next/font/google";
 import { ArrowRight, CheckCircle } from "react-feather";
-import { ShieldCheck, Clock, Smile, BadgeDollarSign } from "lucide-react";
+import { ShieldCheck, Clock, Smile, BadgeDollarSign, Star, Heart, Sparkles, Award } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useReducedMotion } from "../utils/useReducedMotion";
 import OnboardingLayout from "../components/Onboarding/OnboardingLayout";
@@ -59,6 +59,60 @@ const completeStyles = `
   @keyframes floatIcon {
     0%, 100% { transform: translateY(0) scale(1); }
     50% { transform: translateY(-8px) scale(1.05); }
+  }
+
+  /* Horizontal floating decorative icons */
+  @keyframes floatHorizontal {
+    0%, 100% { transform: translateX(0) translateY(0) rotate(0deg); }
+    25% { transform: translateX(5px) translateY(-6px) rotate(5deg); }
+    50% { transform: translateX(-3px) translateY(-10px) rotate(-3deg); }
+    75% { transform: translateX(3px) translateY(-4px) rotate(2deg); }
+  }
+
+  .floating-icons-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    padding: 0 1rem;
+  }
+
+  .floating-icon-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 1;
+    animation: floatHorizontal 4s ease-in-out infinite;
+  }
+
+  .floating-icon-item:nth-child(1) {
+    animation-delay: 0s;
+  }
+
+  .floating-icon-item:nth-child(2) {
+    animation-delay: 0.4s;
+  }
+
+  .floating-icon-item:nth-child(3) {
+    animation-delay: 0.8s;
+  }
+
+  .floating-icon-item:nth-child(4) {
+    animation-delay: 1.2s;
+  }
+
+  .floating-icon-item:nth-child(5) {
+    animation-delay: 1.6s;
+  }
+
+  @media (max-width: 768px) {
+    .floating-icons-row {
+      gap: 0.875rem;
+      margin-bottom: 1.25rem;
+    }
   }
 
   .dealbreakers-icons-container {
@@ -289,6 +343,35 @@ function CompletePageContent() {
               })}
             </div>
           )}
+
+          {/* Horizontal floating decorative icons above button */}
+          <div className="floating-icons-row" aria-hidden="true">
+            <div className="floating-icon-item">
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-coral/25 to-coral/15 border-2 border-coral/30 flex items-center justify-center backdrop-blur-sm shadow-sm">
+                <Star className="w-5 h-5 md:w-6 md:h-6 text-coral fill-coral/30" />
+              </div>
+            </div>
+            <div className="floating-icon-item">
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-sage/25 to-sage/15 border-2 border-sage/30 flex items-center justify-center backdrop-blur-sm shadow-sm">
+                <Heart className="w-5 h-5 md:w-6 md:h-6 text-sage fill-sage/30" />
+              </div>
+            </div>
+            <div className="floating-icon-item">
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-coral/25 to-sage/25 border-2 border-coral/30 flex items-center justify-center backdrop-blur-sm shadow-sm">
+                <Sparkles className="w-5 h-5 md:w-6 md:h-6 text-coral" />
+              </div>
+            </div>
+            <div className="floating-icon-item">
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-sage/25 to-coral/25 border-2 border-sage/30 flex items-center justify-center backdrop-blur-sm shadow-sm">
+                <Award className="w-5 h-5 md:w-6 md:h-6 text-sage" />
+              </div>
+            </div>
+            <div className="floating-icon-item">
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-coral/25 to-coral/15 border-2 border-coral/30 flex items-center justify-center backdrop-blur-sm shadow-sm">
+                <Star className="w-5 h-5 md:w-6 md:h-6 text-coral fill-coral/30" />
+              </div>
+            </div>
+          </div>
 
           {/* Continue CTA */}
           <div>

@@ -26,10 +26,22 @@ export default function OnboardingGuard({ children }: OnboardingGuardProps) {
 
   // Protected routes that require authentication (matches middleware)
   const protectedRoutes = useMemo(() => [
-    '/interests', '/subcategories', '/deal-breakers', '/complete', 
-    '/home', '/profile', '/reviews', '/write-review', '/leaderboard', 
-    '/saved', '/dm', '/reviewer', '/explore', '/for-you', '/trending',
-    '/events-specials', '/business', '/event', '/special'
+    // Onboarding routes
+    '/interests', '/subcategories', '/deal-breakers', '/complete',
+    // Main app routes
+    '/home', '/profile', '/saved', '/dm', '/reviewer',
+    // Content discovery routes
+    '/explore', '/for-you', '/trending', '/events-specials',
+    // Review routes
+    '/write-review', '/reviews',
+    // Leaderboard
+    '/leaderboard',
+    // Event and special routes
+    '/event', '/special',
+    // User action routes
+    '/notifications', '/add-business', '/claim-business',
+    // Business review routes (business viewing is public, but review/edit need auth)
+    // Note: We check for /business/[id]/review pattern in the route matching
   ], []);
 
   const isProtectedRoute = useMemo(() =>
