@@ -146,15 +146,10 @@ export default function ReviewerCard({
                       priority={false}
                       onError={() => setImgError(true)}
                     />
-                    {/* Verified badge with pulse animation */}
+                    {/* Verified badge */}
                     {reviewerData?.badge === "verified" && (
                       <div className="absolute -right-0.5 -top-0.5 z-20">
-                        <div className={`w-3.5 h-3.5 rounded-full bg-gradient-to-br ${getUniqueBadgeColor(reviewerData?.id || '', 'verified')} flex items-center justify-center ring-2 ring-white/70 animate-pulse`}>
-                          {(() => {
-                            const BadgeIcon = getBadgeIcon('verified');
-                            return <BadgeIcon className="w-2 h-2 text-charcoal/70" strokeWidth={2.5} />;
-                          })()}
-                        </div>
+                        <VerifiedBadge size="sm" />
                       </div>
                     )}
                     {/* Subtle glow for top reviewers */}
