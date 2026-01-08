@@ -10,6 +10,7 @@ import { useOnboarding } from '../contexts/OnboardingContext';
 import { useToast } from '../contexts/ToastContext';
 import { validateSelectionCount, validateInterestIds } from '../lib/onboarding/validation';
 import { useOnboardingSafety } from './useOnboardingSafety';
+import { apiClient } from '../lib/api/apiClient';
 
 const INTERESTS: Array<{ id: string; name: string }> = [
   { id: 'food-drink', name: 'Food & Drink' },
@@ -43,7 +44,7 @@ export interface UseInterestsPageReturn {
 export function useInterestsPage(): UseInterestsPageReturn {
   const router = useRouter();
   const { showToast } = useToast();
-  const { setSelectedInterests, nextStep, isLoading: contextLoading, error: contextError } = useOnboarding();
+  const { setSelectedInterests, isLoading: contextLoading, error: contextError } = useOnboarding();
   const [isNavigating, setIsNavigating] = useState(false);
   const [animatingIds, setAnimatingIds] = useState<Set<string>>(new Set());
   const [shakingIds, setShakingIds] = useState<Set<string>>(new Set());
@@ -61,6 +62,7 @@ export function useInterestsPage(): UseInterestsPageReturn {
     isLoading: dataLoading,
     error: dataError,
     updateInterests,
+    refresh: refreshOnboardingData,
   } = useOnboardingData({
     loadFromDatabase: false, // Don't load from DB on first step to avoid pre-selecting old data for new users
   });
@@ -77,6 +79,14 @@ export function useInterestsPage(): UseInterestsPageReturn {
   const isLoading = dataLoading || contextLoading;
   // Convert string error from context to Error object if needed
   const error: Error | null = dataError || (contextError ? new Error(contextError) : null);
+
+  // Refresh onboarding data and clear cache when page mounts
+  useEffect(() => {
+    // Clear cache to ensure fresh data
+    apiClient.invalidateCache('/api/user/onboarding');
+    // Refresh data (even though we don't load from DB on interests page, this ensures cache is cleared)
+    refreshOnboardingData();
+  }, [refreshOnboardingData]);
 
   // Prefetch next page
   useEffect(() => {
@@ -220,20 +230,17 @@ export function useInterestsPage(): UseInterestsPageReturn {
         throw new Error(msg);
       }
 
-      console.log('[useInterestsPage] Save successful, navigating to next step...');
+      console.log('[useInterestsPage] Save successful, navigating to subcategories...');
       
-      // Navigate to next step (nextStep will show its own toast)
-      try {
-        await nextStep();
-      } catch (navError) {
-        console.error('[useInterestsPage] Navigation error:', navError);
-        // If navigation fails, reset state so user can try again
-        if (isMounted()) {
-          setIsNavigating(false);
-          showToast('Navigation failed. Please try again.', 'error', 3000);
-        }
-        return;
-      }
+      // Clear onboarding cache to ensure fresh data on next page
+      apiClient.invalidateCache('/api/user/onboarding');
+      
+      // Show success toast
+      showToast(`Great! ${selectedInterests.length} interests selected. Let's explore sub-categories!`, 'success', 2000);
+      
+      // ✅ Navigate directly to next step (DB is already updated)
+      router.replace('/subcategories');
+      router.refresh();
       
       // Reset navigating state after navigation completes
       // Use a timeout as safety in case navigation is delayed
@@ -259,7 +266,7 @@ export function useInterestsPage(): UseInterestsPageReturn {
         setIsNavigating(false);
       }
     }
-  }, [selectedInterests, setSelectedInterests, nextStep, showToast, router, isMounted, withTimeout]);
+  }, [selectedInterests, setSelectedInterests, showToast, router, isMounted, withTimeout]);
 
   // Wrap with double-submit prevention
   const handleNext = preventDoubleSubmit(handleNextInternal);

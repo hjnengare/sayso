@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { getServerSupabase } from "../../../lib/supabase/server";
 
+// Force dynamic rendering and disable caching for onboarding data
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 /**
  * @deprecated Use per-step endpoints instead:
  * - POST /api/onboarding/interests
@@ -11,7 +15,7 @@ import { getServerSupabase } from "../../../lib/supabase/server";
  * This endpoint is kept for backward compatibility but should not be used for new code.
  */
 export async function POST(req: Request) {
-  const supabase = await getServerSupabase();
+  const supabase = await getServerSupabase(req);
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
@@ -286,8 +290,8 @@ export async function POST(req: Request) {
 }
 
 // GET endpoint to retrieve user's onboarding data
-export async function GET() {
-  const supabase = await getServerSupabase();
+export async function GET(req: Request) {
+  const supabase = await getServerSupabase(req);
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {

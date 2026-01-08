@@ -1,6 +1,5 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
@@ -30,20 +29,49 @@ export async function GET(request: Request) {
   }
 
   if (code) {
-    const cookieStore = await cookies();
+    // Create response first so we can set cookies on it
+    let response = NextResponse.next();
+    
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
         cookies: {
           get(name: string) {
-            return cookieStore.get(name)?.value;
+            // Read from request cookies first (browser-sent cookies)
+            const requestCookie = request.headers.get('cookie');
+            if (requestCookie) {
+              const cookieMap = requestCookie.split(';').reduce((acc, cookie) => {
+                const [key, value] = cookie.trim().split('=');
+                if (key && value) acc[key] = decodeURIComponent(value);
+                return acc;
+              }, {} as Record<string, string>);
+              if (cookieMap[name]) return cookieMap[name];
+            }
+            // Fallback: try to get from cookieStore (server-set cookies)
+            // Note: cookies() is async, but get() is sync, so we can't await here
+            // This is okay because request cookies should have the session
+            return undefined;
           },
           set(name: string, value: string, options: Record<string, unknown>) {
-            cookieStore.set({ name, value, ...options });
+            // Set cookie with proper flags for security
+            response.cookies.set(name, value, {
+              ...options,
+              httpOnly: (options?.httpOnly as boolean | undefined) ?? true,
+              secure: (options?.secure as boolean | undefined) ?? process.env.NODE_ENV === 'production',
+              sameSite: (options?.sameSite as 'lax' | 'strict' | 'none' | undefined) ?? 'lax',
+              path: (options?.path as string | undefined) ?? '/',
+            });
           },
           remove(name: string, options: Record<string, unknown>) {
-            cookieStore.set({ name, value: '', ...options });
+            response.cookies.set(name, '', {
+              ...options,
+              httpOnly: (options?.httpOnly as boolean | undefined) ?? true,
+              secure: (options?.secure as boolean | undefined) ?? process.env.NODE_ENV === 'production',
+              sameSite: (options?.sameSite as 'lax' | 'strict' | 'none' | undefined) ?? 'lax',
+              path: (options?.path as string | undefined) ?? '/',
+              maxAge: 0,
+            });
           },
         },
       }
@@ -70,7 +98,12 @@ export async function GET(request: Request) {
           console.log('Password recovery callback - redirecting to reset-password');
           const resetUrl = new URL('/reset-password', request.url);
           resetUrl.searchParams.set('verified', '1');
-          return NextResponse.redirect(resetUrl);
+          // Copy cookies to redirect response
+          const redirectResponse = NextResponse.redirect(resetUrl);
+          response.cookies.getAll().forEach(cookie => {
+            redirectResponse.cookies.set(cookie);
+          });
+          return redirectResponse;
         }
 
         // Handle email change confirmation
@@ -79,7 +112,12 @@ export async function GET(request: Request) {
           // Redirect to profile page with success message
           const dest = new URL('/profile', request.url);
           dest.searchParams.set('email_changed', 'true');
-          return NextResponse.redirect(dest);
+          // Copy cookies to redirect response
+          const redirectResponse = NextResponse.redirect(dest);
+          response.cookies.getAll().forEach(cookie => {
+            redirectResponse.cookies.set(cookie);
+          });
+          return redirectResponse;
         }
 
         // Check if this is an email verification callback
@@ -93,11 +131,20 @@ export async function GET(request: Request) {
             const dest = new URL('/interests', request.url);
             dest.searchParams.set('verified', '1'); // one-time signal
             dest.searchParams.set('email_verified', 'true'); // additional flag for client-side
-            return NextResponse.redirect(dest);
+            // Copy cookies to redirect response
+            const redirectResponse = NextResponse.redirect(dest);
+            response.cookies.getAll().forEach(cookie => {
+              redirectResponse.cookies.set(cookie);
+            });
+            return redirectResponse;
           } else {
             console.log('Email not yet verified - redirecting to verify-email');
             // Email not verified, redirect to verify-email page
-            return NextResponse.redirect(new URL('/verify-email', request.url));
+            const redirectResponse = NextResponse.redirect(new URL('/verify-email', request.url));
+            response.cookies.getAll().forEach(cookie => {
+              redirectResponse.cookies.set(cookie);
+            });
+            return redirectResponse;
           }
         }
 
@@ -124,10 +171,19 @@ export async function GET(request: Request) {
             // Email is verified (Google emails are auto-verified), start onboarding
             const dest = new URL('/interests', request.url);
             dest.searchParams.set('verified', '1');
-            return NextResponse.redirect(dest);
+            // Copy cookies to redirect response
+            const redirectResponse = NextResponse.redirect(dest);
+            response.cookies.getAll().forEach(cookie => {
+              redirectResponse.cookies.set(cookie);
+            });
+            return redirectResponse;
           } else {
             // Email not verified, redirect to verify-email
-            return NextResponse.redirect(new URL('/verify-email', request.url));
+            const redirectResponse = NextResponse.redirect(new URL('/verify-email', request.url));
+            response.cookies.getAll().forEach(cookie => {
+              redirectResponse.cookies.set(cookie);
+            });
+            return redirectResponse;
           }
         } else {
           // Existing user - check onboarding status
@@ -135,7 +191,11 @@ export async function GET(request: Request) {
           if (profile.onboarding_complete === true) {
             // User has completed onboarding, redirect to home
             console.log('[Auth Callback] User completed onboarding, redirecting to home');
-            return NextResponse.redirect(new URL('/home', request.url));
+            const redirectResponse = NextResponse.redirect(new URL('/home', request.url));
+            response.cookies.getAll().forEach(cookie => {
+              redirectResponse.cookies.set(cookie);
+            });
+            return redirectResponse;
           } else {
             // User exists but onboarding incomplete - redirect to required step
             if (user.email_confirmed_at) {
@@ -159,16 +219,30 @@ export async function GET(request: Request) {
               if (requiredRoute === '/interests') {
                 dest.searchParams.set('verified', '1');
               }
-              return NextResponse.redirect(dest);
+              // Copy cookies to redirect response
+              const redirectResponse = NextResponse.redirect(dest);
+              response.cookies.getAll().forEach(cookie => {
+                redirectResponse.cookies.set(cookie);
+              });
+              return redirectResponse;
             } else {
               // Email not verified, redirect to verify-email
-              return NextResponse.redirect(new URL('/verify-email', request.url));
+              const redirectResponse = NextResponse.redirect(new URL('/verify-email', request.url));
+              response.cookies.getAll().forEach(cookie => {
+                redirectResponse.cookies.set(cookie);
+              });
+              return redirectResponse;
             }
           }
         }
       }
 
-      return NextResponse.redirect(new URL(next, request.url));
+      // Default redirect with cookies
+      const redirectResponse = NextResponse.redirect(new URL(next, request.url));
+      response.cookies.getAll().forEach(cookie => {
+        redirectResponse.cookies.set(cookie);
+      });
+      return redirectResponse;
     }
 
     console.error('Code exchange error:', exchangeError);

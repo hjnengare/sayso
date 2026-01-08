@@ -10,6 +10,7 @@ import { useOnboarding } from '../contexts/OnboardingContext';
 import { useToast } from '../contexts/ToastContext';
 import { validateSelectionCount } from '../lib/onboarding/validation';
 import { useOnboardingSafety } from './useOnboardingSafety';
+import { apiClient } from '../lib/api/apiClient';
 
 interface DealBreaker {
   id: string;
@@ -41,7 +42,7 @@ export interface UseDealBreakersPageReturn {
 export function useDealBreakersPage(): UseDealBreakersPageReturn {
   const router = useRouter();
   const { showToast } = useToast();
-  const { setSelectedDealbreakers, nextStep, isLoading: contextLoading, error: contextError } = useOnboarding();
+  const { setSelectedDealbreakers, isLoading: contextLoading, error: contextError } = useOnboarding();
   const [isNavigating, setIsNavigating] = useState(false);
   
   // Safety utilities
@@ -56,6 +57,7 @@ export function useDealBreakersPage(): UseDealBreakersPageReturn {
     isLoading: dataLoading,
     error: dataError,
     updateDealbreakers,
+    refresh: refreshOnboardingData,
   } = useOnboardingData({
     loadFromDatabase: true,
   });
@@ -77,6 +79,14 @@ export function useDealBreakersPage(): UseDealBreakersPageReturn {
 
   // Note: Middleware handles routing - if user is not at correct step, they'll be redirected
   // We just ensure we have data loaded from DB
+
+  // Refresh onboarding data and clear cache when page mounts
+  useEffect(() => {
+    // Clear cache to ensure fresh data
+    apiClient.invalidateCache('/api/user/onboarding');
+    // Refresh data from database
+    refreshOnboardingData();
+  }, [refreshOnboardingData]);
 
   // Prefetch complete page
   useEffect(() => {
@@ -150,17 +160,17 @@ export function useDealBreakersPage(): UseDealBreakersPageReturn {
         throw new Error(msg);
       }
 
-      // Navigate to next step
-      try {
-        await nextStep();
-      } catch (navError) {
-        console.error('[Deal-breakers] Navigation error:', navError);
-        if (isMounted()) {
-          setIsNavigating(false);
-          showToast('Navigation failed. Please try again.', 'error', 3000);
-        }
-        return;
-      }
+      // Clear onboarding cache to ensure fresh data on next page
+      apiClient.invalidateCache('/api/user/onboarding');
+
+      console.log('[useDealBreakersPage] Save successful, navigating to complete...');
+
+      // Show success toast
+      showToast(`Excellent! ${selectedDealbreakers.length} dealbreakers set. Almost done!`, 'success', 2000);
+
+      // ✅ Navigate directly to next step (DB is already updated)
+      router.replace('/complete');
+      router.refresh();
 
       // Reset navigating state after navigation completes
       setTimeout(() => {
@@ -185,7 +195,7 @@ export function useDealBreakersPage(): UseDealBreakersPageReturn {
         setIsNavigating(false);
       }
     }
-  }, [selectedDealbreakers, setSelectedDealbreakers, nextStep, showToast, router, isMounted, withTimeout]);
+  }, [selectedDealbreakers, setSelectedDealbreakers, showToast, router, isMounted, withTimeout]);
 
   // Wrap with double-submit prevention
   const handleNext = preventDoubleSubmit(handleNextInternal);

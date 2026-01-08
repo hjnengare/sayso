@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server';
 import { getServerSupabase } from '../../../lib/supabase/server';
 import { performance as nodePerformance } from 'perf_hooks';
 
+// Force dynamic rendering and disable caching for onboarding data
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 /**
  * POST /api/onboarding/subcategories
  * Saves subcategories to user_subcategories table and updates onboarding_step
@@ -10,7 +14,7 @@ export async function POST(req: Request) {
   const startTime = nodePerformance.now();
   
   try {
-    const supabase = await getServerSupabase();
+    const supabase = await getServerSupabase(req);
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {

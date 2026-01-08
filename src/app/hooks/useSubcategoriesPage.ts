@@ -9,6 +9,7 @@ import { useOnboardingData } from './useOnboardingData';
 import { useOnboarding } from '../contexts/OnboardingContext';
 import { useToast } from '../contexts/ToastContext';
 import { useOnboardingSafety } from './useOnboardingSafety';
+import { apiClient } from '../lib/api/apiClient';
 
 interface SubcategoryItem {
   id: string;
@@ -105,7 +106,7 @@ export interface UseSubcategoriesPageReturn {
 export function useSubcategoriesPage(): UseSubcategoriesPageReturn {
   const router = useRouter();
   const { showToast } = useToast();
-  const { setSelectedSubInterests, setSelectedInterests, nextStep, isLoading: contextLoading, error: contextError } = useOnboarding();
+  const { setSelectedSubInterests, setSelectedInterests, isLoading: contextLoading, error: contextError } = useOnboarding();
   const [isNavigating, setIsNavigating] = useState(false);
   const [shakingIds, setShakingIds] = useState<Set<string>>(new Set());
   
@@ -121,6 +122,7 @@ export function useSubcategoriesPage(): UseSubcategoriesPageReturn {
     isLoading: dataLoading,
     error: dataError,
     updateSubcategories,
+    refresh: refreshOnboardingData,
   } = useOnboardingData({
     loadFromDatabase: true, // Load from DB to get saved interests
   });
@@ -144,6 +146,14 @@ export function useSubcategoriesPage(): UseSubcategoriesPageReturn {
 
   // Note: Middleware handles routing - if user is not at correct step, they'll be redirected
   // We just ensure we have interests loaded from DB
+
+  // Refresh onboarding data and clear cache when page mounts
+  useEffect(() => {
+    // Clear cache to ensure fresh data
+    apiClient.invalidateCache('/api/user/onboarding');
+    // Refresh data from database
+    refreshOnboardingData();
+  }, [refreshOnboardingData]);
 
   // Prefetch next page
   useEffect(() => {
@@ -276,17 +286,17 @@ export function useSubcategoriesPage(): UseSubcategoriesPageReturn {
         throw new Error(msg);
       }
 
-      // Navigate to next step
-      try {
-        await nextStep();
-      } catch (navError) {
-        console.error('[Subcategories] Navigation error:', navError);
-        if (isMounted()) {
-          setIsNavigating(false);
-          showToast('Navigation failed. Please try again.', 'error', 3000);
-        }
-        return;
-      }
+      // Clear onboarding cache to ensure fresh data on next page
+      apiClient.invalidateCache('/api/user/onboarding');
+
+      console.log('[useSubcategoriesPage] Save successful, navigating to deal-breakers...');
+
+      // Show success toast
+      showToast(`Perfect! ${validSubcategories.length} sub-interests added. Now let's set your dealbreakers.`, 'success', 2000);
+
+      // ✅ Navigate directly to next step (DB is already updated)
+      router.replace('/deal-breakers');
+      router.refresh();
 
       // Reset navigating state after navigation completes
       setTimeout(() => {
@@ -311,7 +321,7 @@ export function useSubcategoriesPage(): UseSubcategoriesPageReturn {
         setIsNavigating(false);
       }
     }
-  }, [selectedSubcategories, setSelectedSubInterests, nextStep, showToast, router, isMounted, withTimeout]);
+  }, [selectedSubcategories, setSelectedSubInterests, showToast, router, isMounted, withTimeout]);
 
   // Wrap with double-submit prevention
   const handleNext = preventDoubleSubmit(handleNextInternal);

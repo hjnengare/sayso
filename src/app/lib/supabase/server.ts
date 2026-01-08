@@ -15,7 +15,7 @@ export async function getServerSupabase(request?: Request) {
     return getPooledSupabaseClient(request);
   }
 
-  // Fallback to standard client creation
+  // Fallback to standard client creation (for Server Components)
   const cookieStore = await cookies();
 
   return createServerClient(
@@ -29,7 +29,16 @@ export async function getServerSupabase(request?: Request) {
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value, options }) => {
             try {
-              cookieStore.set({ name, value, ...options });
+              cookieStore.set({ 
+                name, 
+                value, 
+                ...options,
+                // Ensure proper cookie flags for security
+                httpOnly: options?.httpOnly ?? true,
+                secure: options?.secure ?? process.env.NODE_ENV === 'production',
+                sameSite: (options?.sameSite as 'lax' | 'strict' | 'none') ?? 'lax',
+                path: options?.path ?? '/',
+              });
             } catch (error) {
               // The `set` method was called from a Server Component.
               // This can be ignored if you have middleware refreshing

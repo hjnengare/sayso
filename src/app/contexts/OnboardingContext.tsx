@@ -201,11 +201,22 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
       // Add a small delay to allow toast to be visible, then navigate
       // Navigate to the next step - NO SAVING until final step
       // Use replace for faster navigation and prefetch for instant loading
-      setTimeout(() => {
-        if (nextStepName === 'complete') {
-          router.prefetch('/home');
-          router.replace('/home');
-        } else if (nextStepName === 'subcategories' && currentStep === 'interests') {
+      setTimeout(async () => {
+        // Use exact step-to-route mapping to ensure correct navigation
+        const STEP_TO_ROUTE: Record<string, string> = {
+          'interests': '/interests',
+          'subcategories': '/subcategories',
+          'deal-breakers': '/deal-breakers',
+          'complete': '/complete',
+        };
+        
+        console.log('[OnboardingContext] Navigating to next step:', {
+          currentStep,
+          nextStepName,
+          nextRoute: STEP_TO_ROUTE[nextStepName] || `/${nextStepName}`,
+        });
+        
+        if (nextStepName === 'subcategories' && currentStep === 'interests') {
           // Pass selected interests as URL params to subcategories
           const interestParams = selectedInterests.length > 0
             ? `?interests=${selectedInterests.join(',')}`
@@ -213,10 +224,14 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
           const nextUrl = `/subcategories${interestParams}`;
           router.prefetch(nextUrl);
           router.replace(nextUrl);
+          router.refresh();
         } else {
-          const nextUrl = `/${nextStepName}`;
+          const nextUrl = STEP_TO_ROUTE[nextStepName] || `/${nextStepName}`;
+          console.log('[OnboardingContext] Navigating to:', nextUrl);
           router.prefetch(nextUrl);
           router.replace(nextUrl);
+          // Refresh to ensure middleware reads fresh onboarding state
+          router.refresh();
         }
       }, 500);
     } catch (error) {
@@ -236,7 +251,11 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
 
       // Load data from database first (single source of truth)
       // This ensures we have the latest saved data, not stale context state
-      const dbDataResponse = await fetch('/api/user/onboarding');
+      // Disable caching to ensure we get fresh data during onboarding
+      const dbDataResponse = await fetch('/api/user/onboarding', {
+        cache: 'no-store',
+        credentials: 'include',
+      });
       let dbInterests: string[] = [];
       let dbSubcategories: any[] = [];
       let dbDealbreakers: string[] = [];
@@ -262,10 +281,15 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
+        cache: 'no-store',
       });
 
       let payload: any = null;
       try { payload = await response.json(); } catch {}
+
+      // Clear onboarding cache after completion
+      const { apiClient } = await import('../lib/api/apiClient');
+      apiClient.invalidateCache('/api/user/onboarding');
 
       if (response.status === 401) {
         setError('Your session expired. Please log in again.');

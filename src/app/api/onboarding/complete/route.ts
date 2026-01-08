@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server';
 import { getServerSupabase } from '../../../lib/supabase/server';
 import { performance as nodePerformance } from 'perf_hooks';
 
+// Force dynamic rendering and disable caching for onboarding data
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 /**
  * POST /api/onboarding/complete
  * Marks onboarding as complete by setting onboarding_complete=true
@@ -17,7 +21,7 @@ export async function POST(req: Request) {
   const startTime = nodePerformance.now();
   
   try {
-    const supabase = await getServerSupabase();
+    const supabase = await getServerSupabase(req);
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {

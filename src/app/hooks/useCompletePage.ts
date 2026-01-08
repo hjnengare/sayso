@@ -8,6 +8,7 @@ import { useOnboarding } from '../contexts/OnboardingContext';
 import { useToast } from '../contexts/ToastContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useOnboardingData } from './useOnboardingData';
+import { apiClient } from '../lib/api/apiClient';
 
 export interface UseCompletePageReturn {
   isSaving: boolean;
@@ -29,9 +30,17 @@ export function useCompletePage(): UseCompletePageReturn {
   const [error, setError] = useState<string | null>(null);
 
   // Load data from DB to display on complete page (refresh-proof)
-  const { data, isLoading: dataLoading } = useOnboardingData({
+  const { data, isLoading: dataLoading, refresh: refreshOnboardingData } = useOnboardingData({
     loadFromDatabase: true,
   });
+
+  // Refresh onboarding data and clear cache when page mounts
+  useEffect(() => {
+    // Clear cache to ensure fresh data
+    apiClient.invalidateCache('/api/user/onboarding');
+    // Refresh data from database
+    refreshOnboardingData();
+  }, [refreshOnboardingData]);
 
   const interests: string[] = data.interests || [];
   const subcategories: string[] = data.subcategories || [];
@@ -62,6 +71,9 @@ export function useCompletePage(): UseCompletePageReturn {
         // Submit to API (marks onboarding_complete=true)
         // Data should already be saved from previous steps
         await completeOnboarding();
+        
+        // Clear onboarding cache after successful completion
+        apiClient.invalidateCache('/api/user/onboarding');
         
         // If no error was thrown, consider it successful
         if (!contextError) {

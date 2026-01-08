@@ -19,7 +19,11 @@ export function useUserInterests(): string[] {
 
     const fetchUserInterests = async () => {
       try {
-        const response = await fetch("/api/user/onboarding");
+        // NEVER cache onboarding data - always fetch fresh
+        const response = await fetch("/api/user/onboarding", {
+          cache: 'no-store',
+          credentials: 'include',
+        });
         if (response.ok) {
           const data = await response.json();
           setInterests(data.interests || []);

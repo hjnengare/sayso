@@ -16,7 +16,8 @@ import { apiClient } from '../api/apiClient';
  */
 export async function loadFromDatabase(): Promise<Partial<OnboardingData>> {
   try {
-    // Use shared API client with deduplication and caching
+    // Use shared API client with deduplication but NO caching for onboarding
+    // Onboarding data changes frequently during the flow, so we need fresh data
     const data = await apiClient.fetch<{
       interests?: string[];
       subcategories?: { subcategory_id: string }[];
@@ -25,8 +26,8 @@ export async function loadFromDatabase(): Promise<Partial<OnboardingData>> {
       '/api/user/onboarding',
       {},
       {
-        ttl: 10000, // 10 second cache
-        useCache: true,
+        ttl: 0, // No cache TTL
+        useCache: false, // Disable caching for onboarding data
         cacheKey: '/api/user/onboarding',
       }
     );
