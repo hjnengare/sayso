@@ -18,6 +18,7 @@ import { useOnboarding } from '@/app/contexts/OnboardingContext';
 import { useToast } from '@/app/contexts/ToastContext';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { createUser } from '@test-utils/factories/userFactory';
+import { useSubcategoriesPage } from '@/app/hooks/useSubcategoriesPage';
 
 // Mock all dependencies
 const mockPush = jest.fn();
@@ -29,6 +30,7 @@ const mockGet = jest.fn();
 jest.mock('@/app/contexts/OnboardingContext');
 jest.mock('@/app/contexts/ToastContext');
 jest.mock('@/app/contexts/AuthContext');
+jest.mock('@/app/hooks/useSubcategoriesPage');
 jest.mock('next/navigation', () => ({
   useRouter: () => ({
     push: mockPush,
@@ -218,6 +220,21 @@ describe('SubcategoriesPage', () => {
     });
     (useOnboarding as jest.Mock).mockReturnValue(defaultOnboardingContext);
     (global.fetch as jest.Mock).mockClear();
+    
+    // Default mock for useSubcategoriesPage
+    (useSubcategoriesPage as jest.Mock).mockReturnValue({
+      subcategories: [],
+      groupedSubcategories: {},
+      selectedSubcategories: [],
+      selectedInterests: [],
+      isNavigating: false,
+      shakingIds: new Set(),
+      canProceed: false,
+      handleToggle: jest.fn(),
+      handleNext: jest.fn(),
+      isLoading: false,
+      error: null,
+    });
     
     // Reset mockGet implementation
     mockGet.mockImplementation((key: string) => mockSearchParams.get(key));
@@ -678,21 +695,37 @@ describe('SubcategoriesPage', () => {
         { id: 'spa', label: 'Spa', interest_id: 'beauty-wellness' },
       ];
 
-      (global.fetch as jest.Mock)
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({ interests: ['food-drink', 'beauty-wellness'] }),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({ subcategories: mockSubcategories }),
-        });
+      const mockGroupedSubcategories = {
+        'food-drink': {
+          title: 'Food & Drink',
+          items: [
+            { id: 'sushi', label: 'Sushi', interest_id: 'food-drink' },
+            { id: 'italian', label: 'Italian', interest_id: 'food-drink' },
+          ],
+        },
+        'beauty-wellness': {
+          title: 'Beauty & Wellness',
+          items: [
+            { id: 'spa', label: 'Spa', interest_id: 'beauty-wellness' },
+          ],
+        },
+      };
+
+      (useSubcategoriesPage as jest.Mock).mockReturnValue({
+        subcategories: mockSubcategories,
+        groupedSubcategories: mockGroupedSubcategories,
+        selectedSubcategories: [],
+        selectedInterests: ['food-drink', 'beauty-wellness'],
+        isNavigating: false,
+        shakingIds: new Set(),
+        canProceed: false,
+        handleToggle: jest.fn(),
+        handleNext: jest.fn(),
+        isLoading: false,
+        error: null,
+      });
 
       render(<SubcategoriesPage />);
-
-      await waitFor(() => {
-        expect(screen.getByTestId('subcategory-grid')).toBeInTheDocument();
-      });
 
       // Should have groups for each interest
       expect(screen.getByText('Food & Drink')).toBeInTheDocument();

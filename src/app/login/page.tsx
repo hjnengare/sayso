@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useState, useRef } from "react";
-import { Fontdiner_Swanky } from "next/font/google";
 import { ArrowLeft } from "react-feather";
 import { useAuth } from "../contexts/AuthContext";
 import { useToast } from "../contexts/ToastContext";
@@ -16,12 +15,6 @@ import { authStyles } from "../components/Auth/Shared/authStyles";
 import { EmailInput } from "../components/Auth/Shared/EmailInput";
 import { PasswordInput } from "../components/Auth/Shared/PasswordInput";
 import { SocialLoginButtons } from "../components/Auth/Shared/SocialLoginButtons";
-
-const swanky = Fontdiner_Swanky({
-  weight: "400",
-  subsets: ["latin"],
-  display: "swap",
-});
 
 export default function LoginPage() {
   usePredefinedPageTitle('login');
@@ -143,7 +136,7 @@ export default function LoginPage() {
             <WavyTypedTitle
               text="Welcome back"
               as="h2"
-              className={`${swanky.className} text-3xl md:text-4xl font-semibold mb-2 text-center leading-[1.2] px-2 tracking-tight text-charcoal`}
+              className="font-urbanist text-3xl md:text-4xl font-700 mb-2 text-center leading-[1.2] px-2 tracking-tight text-charcoal"
               typingSpeedMs={40}
               startDelayMs={300}
               waveVariant="subtle"
@@ -151,7 +144,8 @@ export default function LoginPage() {
               triggerOnTypingComplete={true}
               enableScrollTrigger={false}
               style={{ 
-                fontFamily: swanky.style.fontFamily,
+                fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                fontWeight: 700,
               }}
             />
           </div>

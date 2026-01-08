@@ -89,12 +89,19 @@ if (typeof window !== 'undefined') {
   }
 } else {
   // We're in Node.js environment (API route tests)
-  // Node 20+ has native Request/Response/Headers - do NOT polyfill
-  // If they're missing, something is wrong with the environment
-  if (typeof global.Request === 'undefined' || typeof global.Response === 'undefined') {
-    console.warn(
-      'Request/Response not available. Ensure Node.js 20+ is being used and testEnvironment is set to "node" for API tests.'
-    );
+  // Node 20+ has native Request/Response/Headers, but Jest might not expose them globally
+  // Polyfill from undici if missing (for Jest compatibility)
+  if (typeof global.Request === 'undefined') {
+    try {
+      const { Request, Response, Headers } = require('undici');
+      global.Request = Request;
+      global.Response = Response;
+      global.Headers = Headers;
+    } catch (e) {
+      console.warn(
+        'Request/Response not available. Ensure Node.js 20+ is being used and undici is installed.'
+      );
+    }
   }
 }
 
