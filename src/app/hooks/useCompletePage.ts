@@ -23,7 +23,7 @@ export interface UseCompletePageReturn {
 export function useCompletePage(): UseCompletePageReturn {
   const { showToast } = useToast();
   const { user } = useAuth();
-  const { submitComplete, isLoading: contextLoading, error: contextError } = useOnboarding();
+  const { completeOnboarding, isLoading: contextLoading, error: contextError } = useOnboarding();
   const [isSaving, setIsSaving] = useState(false);
   const [hasSaved, setHasSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -61,11 +61,11 @@ export function useCompletePage(): UseCompletePageReturn {
       try {
         // Submit to API (marks onboarding_complete=true)
         // Data should already be saved from previous steps
-        const success = await submitComplete();
+        await completeOnboarding();
         
-        if (success) {
+        // If no error was thrown, consider it successful
+        if (!contextError) {
           setHasSaved(true);
-          // Navigation happens in submitComplete
         } else {
           setError(contextError || 'Failed to complete onboarding');
         }
@@ -78,7 +78,7 @@ export function useCompletePage(): UseCompletePageReturn {
         setIsSaving(false);
       }
     },
-    [isSaving, hasSaved, submitComplete, contextError, showToast]
+    [isSaving, hasSaved, completeOnboarding, contextError, showToast]
   );
 
   return {

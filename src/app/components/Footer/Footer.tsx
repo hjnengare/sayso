@@ -35,7 +35,7 @@ export default function Footer() {
 
 
   return (
-    <footer className="relative overflow-hidden pb-safe-area-bottom bg-gradient-to-b from-charcoal via-charcoal to-charcoal/95 text-off-white rounded-3xl p-4 m-2 shadow-md">
+    <footer className="relative overflow-hidden pb-safe-area-bottom bg-gradient-to-b from-charcoal via-charcoal to-charcoal/95 text-off-white rounded-3xl p-4 mx-2 shadow-md">
       {/* Decorative background elements */}
       <div className="absolute inset-0 opacity-5 rounded-3xl overflow-hidden">
         <div className="absolute top-0 left-0 w-96 h-96 bg-sage rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bell, Check, X, MessageSquare, Star, Heart, TrendingUp, Clock, ChevronRight, ChevronUp } from "react-feather";
 import Header from "../components/Header/Header";
@@ -14,6 +14,7 @@ export default function NotificationsPage() {
   usePredefinedPageTitle('notifications');
   const { notifications, isLoading, readNotifications, markAsRead, markAllAsRead, deleteNotification } = useNotifications();
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [filterType, setFilterType] = useState<'All' | 'Unread' | 'Read'>('All');
 
   // Handle scroll to top button visibility
   useEffect(() => {
@@ -45,12 +46,34 @@ export default function NotificationsPage() {
     }
   };
 
-  const getNotificationColor = (type: string) => {
-    // All icons use charcoal color like the heart icon
-    return 'bg-charcoal/10 text-charcoal border-charcoal/20';
+  const getNotificationColor = (type: string, isRead: boolean) => {
+    if (isRead) {
+      return 'bg-charcoal/5 text-charcoal/50 border-charcoal/10';
+    }
+    switch (type) {
+      case 'review':
+        return 'bg-sage/10 text-sage border-sage/30';
+      case 'business':
+        return 'bg-coral/10 text-coral border-coral/30';
+      case 'user':
+        return 'bg-purple-400/10 text-purple-400 border-purple-400/30';
+      case 'highlyRated':
+        return 'bg-yellow-400/10 text-yellow-400 border-yellow-400/30';
+      default:
+        return 'bg-sage/10 text-sage border-sage/30';
+    }
   };
 
   const unreadCount = notifications.filter(n => !readNotifications.has(n.id)).length;
+
+  // Filter notifications based on selected filter
+  const filteredNotifications = useMemo(() => {
+    if (filterType === 'All') return notifications;
+    if (filterType === 'Unread') {
+      return notifications.filter(n => !readNotifications.has(n.id));
+    }
+    return notifications.filter(n => readNotifications.has(n.id));
+  }, [notifications, readNotifications, filterType]);
 
   return (
     <div
@@ -114,22 +137,36 @@ export default function NotificationsPage() {
             </div>
           ) : notifications.length === 0 ? (
             <div className="relative z-10 min-h-[calc(100vh-200px)] flex items-center justify-center">
-              <div className="p-16 text-center">
-                <div className="w-20 h-20 mx-auto mb-6 bg-charcoal/10 rounded-full flex items-center justify-center">
-                  <Bell className="w-10 h-10 text-charcoal/60" strokeWidth={1.5} />
+              <div
+                className="mx-auto w-full max-w-[2000px] px-2 font-urbanist w-full"
+                style={{
+                  fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                }}
+              >
+                <div className="text-center w-full">
+                  <div className="w-20 h-20 mx-auto mb-6 bg-charcoal/10 rounded-full flex items-center justify-center">
+                    <Bell className="w-10 h-10 text-charcoal/60" strokeWidth={1.5} />
+                  </div>
+
+                  <h3 
+                    className="text-h2 font-semibold text-charcoal mb-2"
+                    style={{
+                      fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                    }}
+                  >
+                    No notifications yet
+                  </h3>
+
+                  <p 
+                    className="text-body-sm text-charcoal/60 mb-6 max-w-md mx-auto"
+                    style={{
+                      fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                      fontWeight: 500,
+                    }}
+                  >
+                    When you receive notifications, they'll appear here
+                  </p>
                 </div>
-                <h3 
-                  className="text-h2 font-semibold text-charcoal mb-2"
-                  style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
-                >
-                  No notifications yet
-                </h3>
-                <p 
-                  className="text-body-sm text-charcoal/60 max-w-md mx-auto"
-                  style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 500 }}
-                >
-                  When you receive notifications, they'll appear here
-                </p>
               </div>
             </div>
           ) : (
@@ -137,57 +174,123 @@ export default function NotificationsPage() {
               <div className="mx-auto w-full max-w-[2000px] px-2">
                 {/* Title */}
                 <div className="mb-6 sm:mb-8 px-2">
-                  <h1
-                    className="text-h2 sm:text-h1 font-bold text-charcoal"
-                    style={{
-                      fontFamily:
-                        "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-                    }}
-                  >
-                    Notifications
-                  </h1>
-                  <p
-                    className="text-body-sm text-charcoal/60 mt-2"
-                    style={{
-                      fontFamily:
-                        "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-                    }}
-                  >
-                    {notifications.length} {notifications.length === 1 ? "notification" : "notifications"}
-                  </p>
+                  <div className="flex items-center justify-between gap-4 flex-wrap">
+                    <div>
+                      <h1
+                        className="text-h2 sm:text-h1 font-bold text-charcoal"
+                        style={{
+                          fontFamily:
+                            "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                        }}
+                      >
+                        Notifications
+                      </h1>
+                      <p
+                        className="text-body-sm text-charcoal/60 mt-2"
+                        style={{
+                          fontFamily:
+                            "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                        }}
+                      >
+                        {filteredNotifications.length} {filteredNotifications.length === 1 ? "notification" : "notifications"}
+                        {filterType !== 'All' && ` (${filterType.toLowerCase()})`}
+                      </p>
+                    </div>
+                    {unreadCount > 0 && (
+                      <button
+                        onClick={markAllAsRead}
+                        className="px-4 sm:px-6 py-2 sm:py-2.5 rounded-full font-urbanist font-600 text-body-sm sm:text-body transition-all duration-200 active:scale-95 bg-sage/10 text-sage hover:bg-sage/20 hover:text-sage border border-sage/30 whitespace-nowrap"
+                        style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                      >
+                        Mark all as read
+                      </button>
+                    )}
+                  </div>
                 </div>
 
-                <div className="pb-12 sm:pb-16 md:pb-20">
-                  <div className="space-y-3 sm:space-y-4">
-                        {notifications.map((notification) => {
+                {/* Filter Pills */}
+                <div className="mb-6 px-2">
+                  <div 
+                    className="flex items-center gap-2 overflow-x-auto scrollbar-hide -mx-2 px-2"
+                    style={{ 
+                      WebkitOverflowScrolling: 'touch',
+                      scrollBehavior: 'smooth',
+                    }}
+                  >
+                    {(['All', 'Unread', 'Read'] as const).map((filter) => {
+                      const isSelected = filterType === filter;
+                      const count = filter === 'All' 
+                        ? notifications.length 
+                        : filter === 'Unread'
+                        ? unreadCount
+                        : notifications.length - unreadCount;
+                      
+                      return (
+                        <button
+                          key={filter}
+                          onClick={() => setFilterType(filter)}
+                          className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-full font-urbanist font-600 text-body-sm sm:text-body transition-all duration-200 active:scale-95 flex-shrink-0 whitespace-nowrap ${
+                            isSelected
+                              ? "bg-coral text-white shadow-lg"
+                              : "bg-sage/10 text-charcoal/70 hover:bg-sage/20 hover:text-sage border border-sage/30"
+                          }`}
+                          style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                        >
+                          {filter}
+                          {count > 0 && (
+                            <span className="ml-2 text-xs sm:text-sm opacity-80">
+                              ({count})
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {filteredNotifications.length === 0 ? (
+                  <div className="pb-12 sm:pb-16 md:pb-20 text-center py-12">
+                    <p 
+                      className="font-urbanist text-body-sm text-charcoal/60"
+                      style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                    >
+                      No {filterType.toLowerCase()} notifications yet
+                    </p>
+                  </div>
+                ) : (
+                  <div className="pb-12 sm:pb-16 md:pb-20">
+                    <AnimatePresence mode="wait" initial={false}>
+                      <div className="space-y-3 sm:space-y-4" key={filterType}>
+                        {filteredNotifications.map((notification, index) => {
                           const isRead = readNotifications.has(notification.id);
                           const Icon = getNotificationIcon(notification.type);
-                          const colorClass = getNotificationColor(notification.type);
+                          const colorClass = getNotificationColor(notification.type, isRead);
 
                           return (
                             <motion.div
                               key={notification.id}
-                              initial={{ opacity: 0, x: -20 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              exit={{ opacity: 0, x: 20 }}
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -20 }}
+                              transition={{ delay: index * 0.05 }}
                               className={`
-                                bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-lg p-4 sm:p-6
-                                transition-all duration-300 hover:shadow-xl hover:border-white/80
-                                ${isRead ? 'opacity-60' : ''}
+                                bg-white rounded-2xl border border-charcoal/10 shadow-sm p-4 sm:p-6
+                                transition-all duration-300 hover:shadow-lg hover:border-sage/30 hover:-translate-y-1
+                                ${isRead ? 'opacity-70' : 'ring-1 ring-sage/20'}
                               `}
                             >
                               <div className="flex items-start gap-4">
                                 {/* Icon */}
-                                <div className={`flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center border ${colorClass}`}>
+                                <div className={`flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center border-2 ${colorClass} transition-all duration-300`}>
                                   <Icon className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={2.5} />
                                 </div>
 
                                 {/* Content */}
                                 <div className="flex-1 min-w-0">
-                                  <div className="flex items-start justify-between gap-2 mb-1">
+                                  <div className="flex items-start justify-between gap-2 mb-2">
                                     <div className="flex-1 min-w-0">
                                       <p 
-                                        className={`text-body font-semibold text-charcoal mb-1 ${isRead ? 'line-through' : ''}`}
+                                        className={`text-body font-semibold text-charcoal mb-1.5 ${isRead ? '' : 'font-bold'}`}
                                         style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                                       >
                                         {notification.message} {notification.title}
@@ -201,22 +304,22 @@ export default function NotificationsPage() {
                                     </div>
 
                                     {/* Actions */}
-                                    <div className="flex items-center gap-2 flex-shrink-0">
+                                    <div className="flex items-center gap-1 flex-shrink-0">
                                       {!isRead && (
                                         <button
                                           onClick={() => markAsRead(notification.id)}
-                                          className="p-2 hover:bg-charcoal/10 rounded-full transition-colors"
+                                          className="p-2 hover:bg-sage/10 rounded-full transition-all duration-200 hover:scale-110 group"
                                           aria-label="Mark as read"
                                         >
-                                          <Check className="w-4 h-4 text-charcoal" strokeWidth={2.5} />
+                                          <Check className="w-4 h-4 text-sage group-hover:text-sage transition-colors" strokeWidth={2.5} />
                                         </button>
                                       )}
                                       <button
                                         onClick={() => deleteNotification(notification.id)}
-                                        className="p-2 hover:bg-charcoal/10 rounded-full transition-colors"
+                                        className="p-2 hover:bg-coral/10 rounded-full transition-all duration-200 hover:scale-110 group"
                                         aria-label="Delete notification"
                                       >
-                                        <X className="w-4 h-4 text-charcoal/60" strokeWidth={2.5} />
+                                        <X className="w-4 h-4 text-charcoal/60 group-hover:text-coral transition-colors" strokeWidth={2.5} />
                                       </button>
                                     </div>
                                   </div>
@@ -225,8 +328,10 @@ export default function NotificationsPage() {
                             </motion.div>
                           );
                         })}
+                      </div>
+                    </AnimatePresence>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           )}

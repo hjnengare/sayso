@@ -40,7 +40,7 @@ export interface UseDealBreakersPageReturn {
 export function useDealBreakersPage(): UseDealBreakersPageReturn {
   const router = useRouter();
   const { showToast } = useToast();
-  const { submitDealbreakers, setSelectedDealbreakers, isLoading: contextLoading, error: contextError } = useOnboarding();
+  const { setSelectedDealbreakers, nextStep, isLoading: contextLoading, error: contextError } = useOnboarding();
   const [isNavigating, setIsNavigating] = useState(false);
 
   const {
@@ -112,22 +112,28 @@ export function useDealBreakersPage(): UseDealBreakersPageReturn {
       // Ensure OnboardingContext has latest selections
       setSelectedDealbreakers(selectedDealbreakers);
       
-      // Submit to API (saves to DB and advances onboarding_step)
-      const success = await submitDealbreakers();
-      
-      if (!success) {
-        setIsNavigating(false);
-        // Error already set in context
-        return;
+      // Save to API
+      const response = await fetch('/api/user/onboarding', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          step: 'deal-breakers',
+          dealbreakers: selectedDealbreakers
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save dealbreakers');
       }
-      
-      // Navigation happens in submitDealbreakers
+
+      // Navigate to next step
+      await nextStep();
     } catch (error) {
       console.error('[Deal-breakers] Submit error:', error);
       showToast('Failed to save dealbreakers. Please try again.', 'error', 3000);
       setIsNavigating(false);
     }
-  }, [selectedDealbreakers, submitDealbreakers, setSelectedDealbreakers, showToast]);
+  }, [selectedDealbreakers, setSelectedDealbreakers, nextStep, showToast]);
 
   // Check if can proceed
   const canProceed = useMemo(() => {

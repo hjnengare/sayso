@@ -42,7 +42,7 @@ export interface UseInterestsPageReturn {
 export function useInterestsPage(): UseInterestsPageReturn {
   const router = useRouter();
   const { showToast } = useToast();
-  const { submitInterests, setSelectedInterests, isLoading: contextLoading, error: contextError } = useOnboarding();
+  const { setSelectedInterests, nextStep, isLoading: contextLoading, error: contextError } = useOnboarding();
   const [isNavigating, setIsNavigating] = useState(false);
   const [animatingIds, setAnimatingIds] = useState<Set<string>>(new Set());
   const [shakingIds, setShakingIds] = useState<Set<string>>(new Set());
@@ -181,28 +181,30 @@ export function useInterestsPage(): UseInterestsPageReturn {
       console.log('[useInterestsPage] Syncing selections to context...');
       setSelectedInterests(selectedInterests);
       
-      // Submit to API (saves to DB and advances onboarding_step)
-      console.log('[useInterestsPage] Calling submitInterests...');
-      const success = await submitInterests();
-      
-      console.log('[useInterestsPage] submitInterests result:', success);
-      
-      if (!success) {
-        console.error('[useInterestsPage] Submit failed, resetting navigating state');
-        setIsNavigating(false);
-        // Error already set in context
-        return;
+      // Save to API
+      console.log('[useInterestsPage] Saving interests to API...');
+      const response = await fetch('/api/user/onboarding', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          step: 'interests',
+          interests: selectedInterests
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save interests');
       }
-      
-      console.log('[useInterestsPage] Submit successful, navigation should happen in submitInterests');
-      // Navigation happens in submitInterests, but we can also let middleware handle it
-      // setIsNavigating will be reset on unmount
+
+      console.log('[useInterestsPage] Save successful, navigating to next step...');
+      // Navigate to next step
+      await nextStep();
     } catch (error) {
       console.error('[useInterestsPage] Unexpected error in handleNext:', error);
       showToast('Failed to save interests. Please try again.', 'error', 3000);
       setIsNavigating(false);
     }
-  }, [selectedInterests, submitInterests, setSelectedInterests, showToast]);
+  }, [selectedInterests, setSelectedInterests, nextStep, showToast]);
 
   // Check if can proceed
   const canProceed = useMemo(() => {

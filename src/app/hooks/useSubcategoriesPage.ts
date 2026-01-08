@@ -104,7 +104,7 @@ export interface UseSubcategoriesPageReturn {
 export function useSubcategoriesPage(): UseSubcategoriesPageReturn {
   const router = useRouter();
   const { showToast } = useToast();
-  const { submitSubcategories, setSelectedSubInterests, setSelectedInterests, isLoading: contextLoading, error: contextError } = useOnboarding();
+  const { setSelectedSubInterests, setSelectedInterests, nextStep, isLoading: contextLoading, error: contextError } = useOnboarding();
   const [isNavigating, setIsNavigating] = useState(false);
   const [shakingIds, setShakingIds] = useState<Set<string>>(new Set());
 
@@ -235,23 +235,31 @@ export function useSubcategoriesPage(): UseSubcategoriesPageReturn {
     setIsNavigating(true);
 
     try {
-      // Submit to API (saves to DB and advances onboarding_step)
-      // Pass subcategories directly to avoid state update race condition
-      const success = await submitSubcategories(validSubcategories);
+      // Ensure OnboardingContext has latest selections
+      setSelectedSubInterests(validSubcategories);
       
-      if (!success) {
-        setIsNavigating(false);
-        // Error already set in context
-        return;
+      // Save to API
+      const response = await fetch('/api/user/onboarding', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          step: 'subcategories',
+          subcategories: subcategoriesWithInterestIds
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save subcategories');
       }
-      
-      // Navigation happens in submitSubcategories
+
+      // Navigate to next step
+      await nextStep();
     } catch (error) {
       console.error('[Subcategories] Submit error:', error);
       showToast('Failed to save subcategories. Please try again.', 'error', 3000);
       setIsNavigating(false);
     }
-  }, [selectedSubcategories, submitSubcategories, showToast]);
+  }, [selectedSubcategories, setSelectedSubInterests, nextStep, showToast]);
 
   // Check if can proceed
   const canProceed = useMemo(() => {
