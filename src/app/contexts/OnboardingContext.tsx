@@ -236,17 +236,18 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
       const data = await response.json();
       console.log('[OnboardingContext] Interests saved successfully:', data);
       
-      // Refresh profile in background to avoid blocking navigation
+      // Refresh profile before navigation to ensure client state is updated
       if (refreshUser) {
-        console.log('[OnboardingContext] Refreshing user profile in background...');
-        void refreshUser();
+        console.log('[OnboardingContext] Refreshing user profile before navigation...');
+        await refreshUser();
+        console.log('[OnboardingContext] User profile refreshed');
       }
 
       showToast(`Great! ${selectedInterests.length} interests selected.`, 'success', 3000);
       
-      // Navigate to next step
+      // Navigate to next step (use replace to avoid adding to history)
       console.log('[OnboardingContext] Navigating to /subcategories...');
-      router.push('/subcategories');
+      router.replace('/subcategories');
       
       return true;
     } catch (error: any) {
@@ -313,15 +314,17 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
 
       const data = await response.json();
       
-      // Refresh profile in background to avoid blocking navigation
+      // Refresh profile before navigation to ensure client state is updated
       if (refreshUser) {
-        void refreshUser();
+        console.log('[OnboardingContext] Refreshing user profile before navigation...');
+        await refreshUser();
+        console.log('[OnboardingContext] User profile refreshed');
       }
 
       showToast(`Perfect! ${subcategoriesToSubmit.length} subcategories added.`, 'success', 3000);
       
-      // Navigate to next step
-      router.push('/deal-breakers');
+      // Navigate to next step (use replace to avoid adding to history)
+      router.replace('/deal-breakers');
       
       return true;
     } catch (error: any) {
@@ -367,15 +370,17 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
 
       const data = await response.json();
       
-      // Refresh profile in background to avoid blocking navigation
+      // Refresh profile before navigation to ensure client state is updated
       if (refreshUser) {
-        void refreshUser();
+        console.log('[OnboardingContext] Refreshing user profile before navigation...');
+        await refreshUser();
+        console.log('[OnboardingContext] User profile refreshed');
       }
 
       showToast(`Excellent! ${selectedDealbreakers.length} dealbreakers set.`, 'success', 3000);
       
-      // Navigate to complete step
-      router.push('/complete');
+      // Navigate to complete step (use replace to avoid adding to history)
+      router.replace('/complete');
       
       return true;
     } catch (error: any) {
@@ -412,15 +417,17 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
         throw new Error(errorData.error || 'Failed to complete onboarding');
       }
 
-      // Refresh profile in background to avoid blocking navigation
+      // Refresh profile before navigation to ensure client state is updated
       if (refreshUser) {
-        void refreshUser();
+        console.log('[OnboardingContext] Refreshing user profile before navigation...');
+        await refreshUser();
+        console.log('[OnboardingContext] User profile refreshed');
       }
 
       showToast('🎉 Welcome to sayso! Your profile is now complete.', 'success', 4000);
       
-      // Navigate to home
-      router.push('/home');
+      // Navigate to home (use replace to avoid adding to history)
+      router.replace('/home');
       
       return true;
     } catch (error: any) {
