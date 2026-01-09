@@ -80,17 +80,14 @@ export function useDealBreakersPage(): UseDealBreakersPageReturn {
   // Note: Middleware handles routing - if user is not at correct step, they'll be redirected
   // We just ensure we have data loaded from DB
 
-  // Refresh onboarding data and clear cache when page mounts
-  useEffect(() => {
-    // Clear cache to ensure fresh data
-    apiClient.invalidateCache('/api/user/onboarding');
-    // Refresh data from database
-    refreshOnboardingData();
-  }, [refreshOnboardingData]);
+  // Load data only once on mount - useOnboardingData already handles loading
+  // Avoid unnecessary cache invalidation that causes redundant API calls
+  // Data is loaded by useOnboardingData hook automatically
 
-  // Prefetch complete page
+  // Early prefetching of complete page for instant navigation
   useEffect(() => {
     router.prefetch('/complete');
+    router.prefetch('/home'); // Also prefetch home for after completion
   }, [router]);
 
   // Handle dealbreaker toggle
@@ -160,8 +157,8 @@ export function useDealBreakersPage(): UseDealBreakersPageReturn {
         throw new Error(msg);
       }
 
-      // Clear onboarding cache to ensure fresh data on next page
-      apiClient.invalidateCache('/api/user/onboarding');
+      // Don't invalidate cache - next page will handle its own data loading
+      // Removing cache invalidation reduces unnecessary API calls
 
       console.log('[useDealBreakersPage] Save successful, navigating to complete...');
 
@@ -169,8 +166,8 @@ export function useDealBreakersPage(): UseDealBreakersPageReturn {
       showToast(`Excellent! ${selectedDealbreakers.length} dealbreakers set. Almost done!`, 'success', 2000);
 
       // ✅ Navigate directly to next step (DB is already updated)
+      // Don't call router.refresh() - it causes unnecessary re-renders and delays
       router.replace('/complete');
-      router.refresh();
 
       // Reset navigating state after navigation completes
       setTimeout(() => {

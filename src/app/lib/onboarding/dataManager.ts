@@ -9,28 +9,24 @@ export interface OnboardingData {
   dealbreakers: string[];
 }
 
-import { apiClient } from '../api/apiClient';
-
 /**
  * Load data from database
+ * Optimized for performance with minimal overhead
  */
 export async function loadFromDatabase(): Promise<Partial<OnboardingData>> {
   try {
-    // Use shared API client with deduplication but NO caching for onboarding
-    // Onboarding data changes frequently during the flow, so we need fresh data
-    const data = await apiClient.fetch<{
-      interests?: string[];
-      subcategories?: { subcategory_id: string }[];
-      dealbreakers?: string[];
-    }>(
-      '/api/user/onboarding',
-      {},
-      {
-        ttl: 0, // No cache TTL
-        useCache: false, // Disable caching for onboarding data
-        cacheKey: '/api/user/onboarding',
-      }
-    );
+    // Use fetch directly for better performance and control
+    // Client-side fetch with no-cache for fresh data during onboarding
+    const response = await fetch('/api/user/onboarding', {
+      credentials: 'include',
+      cache: 'no-store', // No cache during onboarding to ensure fresh data
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to load onboarding data: ${response.statusText}`);
+    }
+
+    const data = await response.json();
     
     return {
       interests: data.interests || [],
@@ -39,6 +35,11 @@ export async function loadFromDatabase(): Promise<Partial<OnboardingData>> {
     };
   } catch (error) {
     console.error('[Data Manager] Error loading from database:', error);
-    return {};
+    // Return empty data instead of throwing to prevent blocking render
+    return {
+      interests: [],
+      subcategories: [],
+      dealbreakers: [],
+    };
   }
 }

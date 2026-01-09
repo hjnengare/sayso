@@ -1,7 +1,6 @@
 "use client";
 
 import { memo } from "react";
-import { motion } from "framer-motion";
 import InterestButton from "./InterestButton";
 
 interface Interest {
@@ -18,17 +17,6 @@ interface InterestGridProps {
   onToggle: (id: string) => void;
 }
 
-const gridVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.03,
-      delayChildren: 0.1,
-    },
-  },
-};
-
 function InterestGrid({ 
   interests, 
   selectedInterests, 
@@ -38,11 +26,8 @@ function InterestGrid({
   onToggle 
 }: InterestGridProps) {
   return (
-    <motion.div
-      className="grid grid-cols-2 gap-3 md:gap-6 mb-4 overflow-visible"
-      variants={gridVariants}
-      initial="hidden"
-      animate="visible"
+    <div
+      className="grid grid-cols-2 gap-3 md:gap-6 mb-4 overflow-visible animate-fade-in-up"
     >
       {interests.map((interest, idx) => {
         const isSelected = selectedInterests.includes(interest.id);
@@ -63,7 +48,7 @@ function InterestGrid({
           />
         );
       })}
-    </motion.div>
+    </div>
   );
 }
 

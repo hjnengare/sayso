@@ -1,7 +1,6 @@
 "use client";
 
 import { Suspense } from "react";
-import { motion } from "framer-motion";
 import OnboardingLayout from "../components/Onboarding/OnboardingLayout";
 import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
 import SubcategoryStyles from "../components/Subcategories/SubcategoryStyles";
@@ -45,26 +44,13 @@ function SubcategoriesContent() {
       <OnboardingLayout step={2} backHref="/interests">
         <SubcategoryHeader />
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3, delay: 0.1 }}
-        >
+        <div className="animate-fade-in-up">
           {error && (
-            <motion.div
-              className="bg-red-50 border border-red-200 rounded-[20px] p-4 text-center mb-4"
-              initial={{ opacity: 0, y: -10, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{
-                duration: 0.3,
-                ease: "easeOut",
-                delay: 0.1,
-              }}
-            >
+            <div className="bg-red-50 border border-red-200 rounded-[20px] p-4 text-center mb-4 animate-fade-in-up delay-100">
               <p className="text-sm font-semibold text-red-600">
                 {error.message || 'An error occurred'}
               </p>
-            </motion.div>
+            </div>
           )}
 
           <SubcategorySelection selectedCount={selectedSubcategories.length} maxSelections={MAX_SELECTIONS}>
@@ -89,14 +75,14 @@ function SubcategoriesContent() {
             selectedCount={selectedSubcategories.length}
             onContinue={handleNext}
           />
-        </motion.div>
+        </div>
       </OnboardingLayout>
     </OnboardingErrorBoundary>
   );
 }
 
-// Force dynamic rendering to prevent stale data
-export const dynamic = 'force-dynamic';
+// Optimize: Allow static generation where possible
+export const dynamic = 'auto';
 
 export default function SubcategoriesPage() {
   return (

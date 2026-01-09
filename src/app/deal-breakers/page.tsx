@@ -1,7 +1,6 @@
 "use client";
 
 import { Suspense } from "react";
-import { motion } from "framer-motion";
 import OnboardingLayout from "../components/Onboarding/OnboardingLayout";
 import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
 import { Loader } from "../components/Loader";
@@ -43,26 +42,13 @@ function DealBreakersContent() {
       <OnboardingLayout step={3} backHref="/subcategories">
         <DealBreakerHeader />
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3, delay: 0.1 }}
-        >
+        <div className="animate-fade-in-up">
           {error && (
-            <motion.div
-              className="bg-red-50 border border-red-200 rounded-[20px] p-4 text-center mb-4"
-              initial={{ opacity: 0, y: -10, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{
-                duration: 0.3,
-                ease: "easeOut",
-                delay: 0.1,
-              }}
-            >
+            <div className="bg-red-50 border border-red-200 rounded-[20px] p-4 text-center mb-4">
               <p className="text-sm font-semibold text-red-600">
                 {error.message || 'An error occurred'}
               </p>
-            </motion.div>
+            </div>
           )}
 
           <DealBreakerSelection selectedCount={selectedDealbreakers.length} maxSelections={MAX_SELECTIONS}>
@@ -80,7 +66,7 @@ function DealBreakersContent() {
             selectedCount={selectedDealbreakers.length}
             onComplete={handleNext}
           />
-        </motion.div>
+        </div>
       </OnboardingLayout>
     </OnboardingErrorBoundary>
   );

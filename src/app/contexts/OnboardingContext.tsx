@@ -198,42 +198,31 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
       const completionMessage = getStepCompletionMessage(currentStep);
       showToast(completionMessage, 'success', 2000);
 
-      // Add a small delay to allow toast to be visible, then navigate
-      // Navigate to the next step - NO SAVING until final step
-      // Use replace for faster navigation and prefetch for instant loading
-      setTimeout(async () => {
-        // Use exact step-to-route mapping to ensure correct navigation
-        const STEP_TO_ROUTE: Record<string, string> = {
-          'interests': '/interests',
-          'subcategories': '/subcategories',
-          'deal-breakers': '/deal-breakers',
-          'complete': '/complete',
-        };
-        
-        console.log('[OnboardingContext] Navigating to next step:', {
-          currentStep,
-          nextStepName,
-          nextRoute: STEP_TO_ROUTE[nextStepName] || `/${nextStepName}`,
-        });
-        
-        if (nextStepName === 'subcategories' && currentStep === 'interests') {
-          // Pass selected interests as URL params to subcategories
-          const interestParams = selectedInterests.length > 0
-            ? `?interests=${selectedInterests.join(',')}`
-            : '';
-          const nextUrl = `/subcategories${interestParams}`;
-          router.prefetch(nextUrl);
-          router.replace(nextUrl);
-          router.refresh();
-        } else {
-          const nextUrl = STEP_TO_ROUTE[nextStepName] || `/${nextStepName}`;
-          console.log('[OnboardingContext] Navigating to:', nextUrl);
-          router.prefetch(nextUrl);
-          router.replace(nextUrl);
-          // Refresh to ensure middleware reads fresh onboarding state
-          router.refresh();
-        }
-      }, 500);
+      // Prefetch all next onboarding pages early for instant navigation
+      const allNextRoutes = ['/subcategories', '/deal-breakers', '/complete'];
+      allNextRoutes.forEach(route => router.prefetch(route));
+
+      // Navigate immediately (no delay) - prefetching makes it instant
+      // Use exact step-to-route mapping to ensure correct navigation
+      const STEP_TO_ROUTE: Record<string, string> = {
+        'interests': '/interests',
+        'subcategories': '/subcategories',
+        'deal-breakers': '/deal-breakers',
+        'complete': '/complete',
+      };
+      
+      if (nextStepName === 'subcategories' && currentStep === 'interests') {
+        // Pass selected interests as URL params to subcategories
+        const interestParams = selectedInterests.length > 0
+          ? `?interests=${selectedInterests.join(',')}`
+          : '';
+        const nextUrl = `/subcategories${interestParams}`;
+        router.replace(nextUrl);
+      } else {
+        const nextUrl = STEP_TO_ROUTE[nextStepName] || `/${nextStepName}`;
+        router.replace(nextUrl);
+      }
+      // Don't call router.refresh() - it causes unnecessary re-renders
     } catch (error) {
       console.error('Error proceeding to next step:', error);
       setError('Failed to navigate to next step');

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, Suspense } from "react";
-import { motion } from "framer-motion";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useToast } from "../contexts/ToastContext";
 import OnboardingLayout from "../components/Onboarding/OnboardingLayout";
@@ -77,26 +76,13 @@ function InterestsContent() {
           <EmailVerificationBanner className="mb-4" />
           <InterestHeader isOnline={true} />
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3, delay: 0.1 }}
-          >
+          <div className="animate-fade-in-up">
             {error && (
-              <motion.div
-                className="bg-red-50 border border-red-200 rounded-[20px] p-4 text-center mb-4"
-                initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{
-                  duration: 0.3,
-                  ease: "easeOut",
-                  delay: 0.1,
-                }}
-              >
+              <div className="bg-red-50 border border-red-200 rounded-[20px] p-4 text-center mb-4 animate-fade-in-up delay-100">
                 <p className="text-sm font-semibold text-red-600">
                   {error.message || 'An error occurred'}
                 </p>
-              </motion.div>
+              </div>
             )}
 
             <InterestSelection 
@@ -121,15 +107,15 @@ function InterestsContent() {
               minSelections={MIN_SELECTIONS}
               onContinue={handleNext}
             />
-          </motion.div>
+          </div>
         </OnboardingLayout>
       </OnboardingErrorBoundary>
     </EmailVerificationGuard>
   );
 }
 
-// Force dynamic rendering to prevent stale data
-export const dynamic = 'force-dynamic';
+// Optimize: Allow static generation where possible - interests are static data
+export const dynamic = 'auto';
 
 export default function InterestsPage() {
   return (

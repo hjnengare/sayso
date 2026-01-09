@@ -1,7 +1,6 @@
 "use client";
 
 import { memo } from "react";
-import { motion } from "framer-motion";
 import SubcategoryGroup from "./SubcategoryGroup";
 
 interface SubcategoryItem {
@@ -27,16 +26,6 @@ interface SubcategoryGridProps {
   shakingIds?: Set<string>;
 }
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.05,
-    },
-  },
-};
-
 function SubcategoryGrid({ 
   groupedSubcategories, 
   selectedSubcategories, 
@@ -51,11 +40,8 @@ function SubcategoryGrid({
   };
 
   return (
-    <motion.div
-      className="space-y-6"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
+    <div
+      className="space-y-6 animate-fade-in-up"
     >
       {Object.entries(groupedSubcategories).map(([interestId, group], groupIndex) => (
         <SubcategoryGroup
@@ -72,17 +58,14 @@ function SubcategoryGrid({
       ))}
 
       {subcategories.length === 0 && !loading && (
-        <motion.div
-          className="text-center text-charcoal/60 py-8"
+        <div
+          className="text-center text-charcoal/60 py-8 animate-fade-in-up"
           style={sfPro}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
         >
           <p>No subcategories found for your selected interests.</p>
-        </motion.div>
+        </div>
       )}
-    </motion.div>
+    </div>
   );
 }
 

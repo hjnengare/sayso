@@ -80,20 +80,18 @@ export function useInterestsPage(): UseInterestsPageReturn {
   // Convert string error from context to Error object if needed
   const error: Error | null = dataError || (contextError ? new Error(contextError) : null);
 
-  // Refresh onboarding data and clear cache when page mounts
-  useEffect(() => {
-    // Clear cache to ensure fresh data
-    apiClient.invalidateCache('/api/user/onboarding');
-    // Refresh data (even though we don't load from DB on interests page, this ensures cache is cleared)
-    refreshOnboardingData();
-  }, [refreshOnboardingData]);
+  // Skip unnecessary data refresh - interests page doesn't load from DB initially
+  // This reduces unnecessary API calls on mount
 
-  // Prefetch next page
+  // Early prefetching of all onboarding pages for instant navigation
   useEffect(() => {
+    // Prefetch all next onboarding pages immediately
     router.prefetch('/subcategories');
+    router.prefetch('/deal-breakers');
+    router.prefetch('/complete');
   }, [router]);
 
-  // Prefetch when minimum reached
+  // Additional prefetch when minimum reached (double-prefetch for reliability)
   useEffect(() => {
     if (selectedInterests.length >= MIN_SELECTIONS && !hasPrefetchedRef.current) {
       router.prefetch('/subcategories');
@@ -232,15 +230,15 @@ export function useInterestsPage(): UseInterestsPageReturn {
 
       console.log('[useInterestsPage] Save successful, navigating to subcategories...');
       
-      // Clear onboarding cache to ensure fresh data on next page
-      apiClient.invalidateCache('/api/user/onboarding');
+      // Don't invalidate cache - next page will handle its own data loading
+      // Removing cache invalidation reduces unnecessary API calls
       
       // Show success toast
       showToast(`Great! ${selectedInterests.length} interests selected. Let's explore sub-categories!`, 'success', 2000);
       
       // ✅ Navigate directly to next step (DB is already updated)
+      // Don't call router.refresh() - it causes unnecessary re-renders and delays
       router.replace('/subcategories');
-      router.refresh();
       
       // Reset navigating state after navigation completes
       // Use a timeout as safety in case navigation is delayed

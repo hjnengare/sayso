@@ -181,54 +181,62 @@ function CompletePageContent() {
     isLoading,
   } = useCompletePage();
 
-  // Confetti celebration (guarded to avoid running while loading/saving)
+  // Confetti celebration (deferred until after initial render for better performance)
   useEffect(() => {
     if (isLoading || isSaving) return;
     
-    // Prefetch home to make transition instant after completion
-    try {
-      router?.prefetch?.('/home');
-    } catch {}
+    // Prefetch home immediately for instant transition after completion
+    if (router) {
+      router.prefetch('/home');
+    }
     
-    // 🎉 Confetti rain effect
+    // 🎉 Confetti rain effect - defer to avoid blocking initial render
     if (!reducedMotion && typeof window !== 'undefined') {
       let cancelled = false;
 
-      // Dynamically import canvas-confetti to avoid SSR issues
-      import('canvas-confetti').then((confetti) => {
-        if (cancelled) return;
-        
-        console.log('🎉 Starting confetti celebration!');
-        
-        const duration = 3000; // 3 seconds
-        const end = Date.now() + duration;
-
-        (function frame() {
+      // Use requestIdleCallback or setTimeout to defer non-critical animation
+      const loadConfetti = () => {
+        // Dynamically import canvas-confetti to avoid SSR issues and reduce initial bundle
+        import('canvas-confetti').then((confetti) => {
           if (cancelled) return;
+          
+          const duration = 2000; // Reduced to 2 seconds for faster page load
+          const end = Date.now() + duration;
 
-          // Use app color scheme: sage, coral, white, and gold
-          const colors = ['#7D9B76', '#E88D67', '#FFFFFF', '#FFD700'];
+          (function frame() {
+            if (cancelled) return;
 
-          confetti.default({
-            particleCount: 5,
-            angle: 60,
-            spread: 55,
-            origin: { x: 0 },
-            colors: colors,
-          });
-          confetti.default({
-            particleCount: 5,
-            angle: 120,
-            spread: 55,
-            origin: { x: 1 },
-            colors: colors,
-          });
+            // Use app color scheme: sage, coral, white, and gold
+            const colors = ['#7D9B76', '#E88D67', '#FFFFFF', '#FFD700'];
 
-          if (Date.now() < end) requestAnimationFrame(frame);
-        })();
-      }).catch((error) => {
-        console.error('Failed to load confetti:', error);
-      });
+            confetti.default({
+              particleCount: 3, // Reduced particle count for better performance
+              angle: 60,
+              spread: 55,
+              origin: { x: 0 },
+              colors: colors,
+            });
+            confetti.default({
+              particleCount: 3,
+              angle: 120,
+              spread: 55,
+              origin: { x: 1 },
+              colors: colors,
+            });
+
+            if (Date.now() < end) requestAnimationFrame(frame);
+          })();
+        }).catch((error) => {
+          console.error('Failed to load confetti:', error);
+        });
+      };
+
+      // Defer confetti loading using requestIdleCallback if available, otherwise setTimeout
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(loadConfetti, { timeout: 1000 });
+      } else {
+        setTimeout(loadConfetti, 300); // Small delay to allow page to render first
+      }
 
       return () => {
         cancelled = true;

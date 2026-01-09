@@ -147,18 +147,15 @@ export function useSubcategoriesPage(): UseSubcategoriesPageReturn {
   // Note: Middleware handles routing - if user is not at correct step, they'll be redirected
   // We just ensure we have interests loaded from DB
 
-  // Refresh onboarding data and clear cache when page mounts
-  useEffect(() => {
-    // Clear cache to ensure fresh data
-    apiClient.invalidateCache('/api/user/onboarding');
-    // Refresh data from database
-    refreshOnboardingData();
-  }, [refreshOnboardingData]);
+  // Load data only once on mount - useOnboardingData already handles loading
+  // Avoid unnecessary cache invalidation that causes redundant API calls
+  // Data is loaded by useOnboardingData hook automatically
 
-  // Prefetch next page
+  // Early prefetching of remaining onboarding pages for instant navigation
   useEffect(() => {
     if (router) {
       router.prefetch('/deal-breakers');
+      router.prefetch('/complete');
     }
   }, [router]);
 
@@ -286,8 +283,8 @@ export function useSubcategoriesPage(): UseSubcategoriesPageReturn {
         throw new Error(msg);
       }
 
-      // Clear onboarding cache to ensure fresh data on next page
-      apiClient.invalidateCache('/api/user/onboarding');
+      // Don't invalidate cache - next page will handle its own data loading
+      // Removing cache invalidation reduces unnecessary API calls
 
       console.log('[useSubcategoriesPage] Save successful, navigating to deal-breakers...');
 
@@ -295,8 +292,8 @@ export function useSubcategoriesPage(): UseSubcategoriesPageReturn {
       showToast(`Perfect! ${validSubcategories.length} sub-interests added. Now let's set your dealbreakers.`, 'success', 2000);
 
       // ✅ Navigate directly to next step (DB is already updated)
+      // Don't call router.refresh() - it causes unnecessary re-renders and delays
       router.replace('/deal-breakers');
-      router.refresh();
 
       // Reset navigating state after navigation completes
       setTimeout(() => {

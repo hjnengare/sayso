@@ -45,6 +45,17 @@ const nextConfig: NextConfig = {
   // Compress output
   compress: true,
   
+  // Optimize package imports for better tree-shaking
+  experimental: {
+    optimizePackageImports: [
+      'framer-motion',
+      'lucide-react',
+      'react-feather',
+      'date-fns',
+      '@supabase/supabase-js',
+    ],
+  },
+  
   // Webpack configuration for Mapbox GL
   webpack: (config, { isServer }) => {
     if (!isServer) {
