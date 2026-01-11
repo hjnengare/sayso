@@ -10,6 +10,7 @@ import { useOnboarding } from '../contexts/OnboardingContext';
 import { useToast } from '../contexts/ToastContext';
 import { useOnboardingSafety } from './useOnboardingSafety';
 import { apiClient } from '../lib/api/apiClient';
+import { useAuth } from '../contexts/AuthContext';
 
 interface SubcategoryItem {
   id: string;
@@ -107,6 +108,7 @@ export function useSubcategoriesPage(): UseSubcategoriesPageReturn {
   const router = useRouter();
   const { showToast } = useToast();
   const { setSelectedSubInterests, setSelectedInterests, isLoading: contextLoading, error: contextError } = useOnboarding();
+  const { refreshUser } = useAuth();
   const [isNavigating, setIsNavigating] = useState(false);
   const [shakingIds, setShakingIds] = useState<Set<string>>(new Set());
   
@@ -284,16 +286,23 @@ export function useSubcategoriesPage(): UseSubcategoriesPageReturn {
         throw new Error(msg);
       }
 
-      // Don't invalidate cache - next page will handle its own data loading
-      // Removing cache invalidation reduces unnecessary API calls
+      console.log('[useSubcategoriesPage] Save successful, refreshing user profile...');
 
-      console.log('[useSubcategoriesPage] Save successful, navigating to deal-breakers...');
+      // CRITICAL FIX: Refresh AuthContext to get updated onboarding_step
+      // This ensures client-side guards have fresh data and don't redirect incorrectly
+      try {
+        await refreshUser();
+        console.log('[useSubcategoriesPage] User profile refreshed successfully');
+      } catch (refreshError) {
+        console.warn('[useSubcategoriesPage] Failed to refresh user profile:', refreshError);
+        // Continue anyway - the DB is updated, navigation should work
+      }
 
       // Show success toast
       showToast(`Perfect! ${validSubcategories.length} sub-interests added. Now let's set your dealbreakers.`, 'success', 2000);
 
-      // ✅ Navigate directly to next step (DB is already updated)
-      // Don't call router.refresh() - it causes unnecessary re-renders and delays
+      // ✅ Navigate directly to next step (DB is already updated, profile is refreshed)
+      // Use replace instead of push to prevent back button issues
       router.replace('/deal-breakers');
 
       // Reset navigating state after navigation completes

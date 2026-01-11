@@ -11,6 +11,7 @@ import { useToast } from '../contexts/ToastContext';
 import { validateSelectionCount, validateInterestIds } from '../lib/onboarding/validation';
 import { useOnboardingSafety } from './useOnboardingSafety';
 import { apiClient } from '../lib/api/apiClient';
+import { useAuth } from '../contexts/AuthContext';
 
 const INTERESTS: Array<{ id: string; name: string }> = [
   { id: 'food-drink', name: 'Food & Drink' },
@@ -45,6 +46,7 @@ export function useInterestsPage(): UseInterestsPageReturn {
   const router = useRouter();
   const { showToast } = useToast();
   const { setSelectedInterests, isLoading: contextLoading, error: contextError } = useOnboarding();
+  const { refreshUser } = useAuth();
   const [isNavigating, setIsNavigating] = useState(false);
   const [animatingIds, setAnimatingIds] = useState<Set<string>>(new Set());
   const [shakingIds, setShakingIds] = useState<Set<string>>(new Set());
@@ -229,18 +231,25 @@ export function useInterestsPage(): UseInterestsPageReturn {
         throw new Error(msg);
       }
 
-      console.log('[useInterestsPage] Save successful, navigating to subcategories...');
-      
-      // Don't invalidate cache - next page will handle its own data loading
-      // Removing cache invalidation reduces unnecessary API calls
-      
+      console.log('[useInterestsPage] Save successful, refreshing user profile...');
+
+      // CRITICAL FIX: Refresh AuthContext to get updated onboarding_step
+      // This ensures client-side guards have fresh data and don't redirect incorrectly
+      try {
+        await refreshUser();
+        console.log('[useInterestsPage] User profile refreshed successfully');
+      } catch (refreshError) {
+        console.warn('[useInterestsPage] Failed to refresh user profile:', refreshError);
+        // Continue anyway - the DB is updated, navigation should work
+      }
+
       // Show success toast
       showToast(`Great! ${selectedInterests.length} interests selected. Let's explore sub-categories!`, 'success', 2000);
-      
-      // ✅ Navigate directly to next step (DB is already updated)
-      // Don't call router.refresh() - it causes unnecessary re-renders and delays
+
+      // ✅ Navigate directly to next step (DB is already updated, profile is refreshed)
+      // Use replace instead of push to prevent back button issues
       router.replace('/subcategories');
-      
+
       // Reset navigating state after navigation completes
       // Use a timeout as safety in case navigation is delayed
       setTimeout(() => {
