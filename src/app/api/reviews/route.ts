@@ -488,6 +488,19 @@ export async function POST(req: Request) {
       console.warn('Error invalidating business cache:', cacheError);
     }
 
+    // Asynchronously check and award badges (don't block response)
+    // This runs in the background after the review is created
+    fetch(`${req.headers.get('origin') || 'http://localhost:3000'}/api/badges/check-and-award`, {
+      method: 'POST',
+      headers: {
+        'Cookie': req.headers.get('cookie') || '',
+        'Content-Type': 'application/json'
+      }
+    }).catch(err => {
+      // Log but don't fail - badge awarding is non-critical for review creation
+      console.warn('[Review Create] Error triggering badge check:', err);
+    });
+
     return NextResponse.json({
       success: true,
       message: 'Review created successfully',
