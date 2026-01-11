@@ -43,7 +43,7 @@ export default function CategoryFilterPills({
   if (loading) {
     return (
       <div
-        className="flex sm:flex-wrap items-center sm:justify-center gap-2 overflow-x-auto sm:overflow-x-visible scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0"
+        className="flex items-center justify-center gap-2 overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0"
         style={{
           WebkitOverflowScrolling: 'touch',
           scrollBehavior: 'smooth',
@@ -73,13 +73,13 @@ export default function CategoryFilterPills({
 
   return (
     <div
-      className="flex sm:flex-wrap items-center sm:justify-center gap-2 overflow-x-auto sm:overflow-x-visible scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0"
+      className="flex items-center justify-center gap-2 overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0"
       style={{
         WebkitOverflowScrolling: 'touch',
         scrollBehavior: 'smooth',
       }}
     >
-      <div className="flex items-center gap-2 min-w-max sm:min-w-0 sm:flex-wrap sm:justify-center">
+      <div className="flex items-center gap-2 min-w-max">
         {interests.map((interest, index) => {
           const isActive = selectedCategoryIds.includes(interest.id); // Active filter (user-initiated)
           const isPreferred = preferredCategoryIds.includes(interest.id); // User preference (visual only)
