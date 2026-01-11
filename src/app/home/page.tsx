@@ -465,7 +465,7 @@ export default function Home() {
           <div ref={searchWrapRef} className="py-8 px-4 sm:px-6">
             <SearchInput
               variant="header"
-              placeholder="Discover exceptional local hidden gems..."
+              placeholder="Discover cool local hidden gems..."
               mobilePlaceholder="Search places, coffee, yoga…"
               onSearch={handleSearchChange}
               onSubmitQuery={handleSubmitQuery}
