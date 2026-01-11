@@ -284,6 +284,32 @@ export default function Home() {
     // Note: For You will automatically show again when not filtered
   };
 
+  const handleUpdateFilter = (filterType: 'minRating' | 'distance', value: number | string | null) => {
+    const newFilters = { ...filters, [filterType]: value };
+    setFilters(newFilters);
+    setHasUserInitiatedFilters(true);
+
+    // If distance filter is applied, request user location
+    if (filterType === 'distance' && value && !userLocation) {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            setUserLocation({
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            });
+          },
+          (error) => {
+            console.warn('Error getting user location:', error);
+          }
+        );
+      }
+    }
+
+    // Trigger refetch immediately
+    refetchAllBusinesses();
+  };
+
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
   };
@@ -453,6 +479,7 @@ export default function Home() {
               isMapMode={isMapMode}
               onFocusOpenFilters={openFilters}
               showFilter
+              activeFilterCount={(filters.minRating !== null ? 1 : 0) + (filters.distance !== null ? 1 : 0)}
             />
           </div>
 
@@ -474,6 +501,7 @@ export default function Home() {
               refetchAllBusinesses();
               refetchForYou();
             }}
+            onUpdateFilter={handleUpdateFilter}
             onClearAll={handleClearFilters}
           />
 

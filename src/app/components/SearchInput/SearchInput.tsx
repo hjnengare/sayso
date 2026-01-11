@@ -18,6 +18,7 @@ interface SearchInputProps {
   showSearchIcon?: boolean;
   className?: string;
   variant?: "header" | "page";
+  activeFilterCount?: number;                   // Number of active filters (for badge)
 }
 
 const SearchInput = forwardRef<HTMLFormElement, SearchInputProps>(
@@ -36,6 +37,7 @@ const SearchInput = forwardRef<HTMLFormElement, SearchInputProps>(
       showSearchIcon = true,
       className = "",
       variant = "header",
+      activeFilterCount = 0,
     },
     ref
   ) => {
@@ -88,10 +90,18 @@ const SearchInput = forwardRef<HTMLFormElement, SearchInputProps>(
               <button
                 type="button"
                 onClick={onFilterClick}
-                className="flex items-center text-charcoal/60 hover:text-charcoal transition-colors"
+                className="relative flex items-center text-charcoal/60 hover:text-charcoal transition-colors"
                 aria-label="Open filters"
               >
                 <Sliders className="w-5 h-5" strokeWidth={2} />
+                {activeFilterCount > 0 && (
+                  <span
+                    className="absolute -top-1 -right-1 w-4 h-4 bg-sage text-white text-[10px] font-bold rounded-full flex items-center justify-center"
+                    style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                  >
+                    {activeFilterCount}
+                  </span>
+                )}
               </button>
             )}
             {/* Search icon on the right when showFilter is false and showSearchIcon is true */}

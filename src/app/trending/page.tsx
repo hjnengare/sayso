@@ -192,6 +192,34 @@ export default function TrendingPage() {
     refetch();
   };
 
+  const handleUpdateFilter = (filterType: 'minRating' | 'distance', value: number | string | null) => {
+    const newFilters = { ...filters, [filterType]: value };
+    setFilters(newFilters);
+    setHasUserInitiatedFilters(true);
+    setUseBroadTrending(false);
+    setCurrentPage(1);
+
+    // If distance filter is applied, request user location
+    if (filterType === 'distance' && value && !userLocation) {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            setUserLocation({
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            });
+          },
+          (error) => {
+            console.warn('Error getting user location:', error);
+          }
+        );
+      }
+    }
+
+    // Trigger refetch immediately
+    refetch();
+  };
+
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
     // Reset to first page when search changes
@@ -395,6 +423,7 @@ export default function TrendingPage() {
               onFilterClick={openFilters}
               onFocusOpenFilters={openFilters}
               showFilter
+              activeFilterCount={(filters.minRating !== null ? 1 : 0) + (filters.distance !== null ? 1 : 0)}
             />
           </div>
 
@@ -415,6 +444,7 @@ export default function TrendingPage() {
               setFilters(newFilters);
               refetch();
             }}
+            onUpdateFilter={handleUpdateFilter}
             onClearAll={handleClearFilters}
           />
 
