@@ -86,18 +86,19 @@ export async function POST(req: Request) {
 
     const writeStart = nodePerformance.now();
 
-    // Save subcategories to user_subcategories table using RPC function
-    const { error: subcategoriesError } = await supabase.rpc('replace_user_subcategories', {
+    // ✅ Atomically save subcategories AND advance step using RPC
+    // RPC now returns the updated state directly (no separate fetch needed)
+    const { data: freshState, error: subcategoriesError } = await supabase.rpc('replace_user_subcategories', {
       p_user_id: user.id,
       p_subcategory_data: cleaned
     });
 
     if (subcategoriesError) {
       console.error('[Subcategories API] Error saving subcategories:', subcategoriesError);
-      // Fallback to manual insert if RPC doesn't exist
+      // Fallback to manual insert if RPC doesn't exist or is old version
       if (subcategoriesError.message?.includes('function') || subcategoriesError.message?.includes('does not exist')) {
         console.log('[Subcategories API] RPC function not found, using fallback method');
-        
+
         // Delete existing subcategories
         const { error: deleteError } = await supabase
           .from('user_subcategories')
@@ -126,36 +127,60 @@ export async function POST(req: Request) {
             throw insertError;
           }
         }
+
+        // Update step and counts manually (fallback)
+        const { error: stepError } = await supabase
+          .from('profiles')
+          .update({
+            onboarding_step: 'deal-breakers',
+            subcategories_count: cleaned.length,
+            updated_at: new Date().toISOString()
+          })
+          .eq('user_id', user.id);
+
+        if (stepError) {
+          console.error('[Subcategories API] Error updating onboarding_step:', stepError);
+          throw stepError;
+        }
+
+        // Fetch state after fallback
+        const { data: fallbackState } = await supabase
+          .from('profiles')
+          .select('onboarding_step, onboarding_complete, interests_count, subcategories_count, dealbreakers_count')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        // Use fallback state
+        const totalTime = nodePerformance.now() - startTime;
+        const writeTime = nodePerformance.now() - writeStart;
+
+        console.log('[Subcategories API] Subcategories saved successfully (fallback)', {
+          userId: user.id,
+          subcategoriesCount: cleaned.length,
+          writeTime: `${writeTime.toFixed(2)}ms`,
+          totalTime: `${totalTime.toFixed(2)}ms`
+        });
+
+        const response = NextResponse.json({
+          ok: true,
+          onboarding_step: fallbackState?.onboarding_step || 'deal-breakers',
+          onboarding_complete: fallbackState?.onboarding_complete || false,
+          interests_count: fallbackState?.interests_count || 0,
+          subcategories_count: fallbackState?.subcategories_count || cleaned.length,
+          dealbreakers_count: fallbackState?.dealbreakers_count || 0,
+          performance: { writeTime, totalTime }
+        });
+        return addNoCacheHeaders(response);
       } else {
         throw subcategoriesError;
       }
     }
 
-    // Update onboarding_step to deal-breakers
-    const { error: stepError } = await supabase
-      .from('profiles')
-      .update({
-        onboarding_step: 'deal-breakers',
-        subcategories_count: cleaned.length,
-        updated_at: new Date().toISOString()
-      })
-      .eq('user_id', user.id);
-
-    if (stepError) {
-      console.error('[Subcategories API] Error updating onboarding_step:', stepError);
-      throw stepError;
-    }
-
     const writeTime = nodePerformance.now() - writeStart;
-
-    // Fetch fresh state to return to client
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('onboarding_step, onboarding_complete, interests_count, subcategories_count, dealbreakers_count')
-      .eq('user_id', user.id)
-      .maybeSingle();
-
     const totalTime = nodePerformance.now() - startTime;
+
+    // ✅ Use state returned directly from RPC (already fresh, no race condition)
+    const profile = Array.isArray(freshState) && freshState.length > 0 ? freshState[0] : null;
 
     console.log('[Subcategories API] Subcategories saved successfully', {
       userId: user.id,

@@ -48,18 +48,19 @@ export async function POST(req: Request) {
 
     const writeStart = nodePerformance.now();
 
-    // Save interests to user_interests table using RPC function
-    const { error: interestsError } = await supabase.rpc('replace_user_interests', {
+    // ✅ Atomically save interests AND advance step using RPC
+    // RPC now returns the updated state directly (no separate fetch needed)
+    const { data: freshState, error: interestsError } = await supabase.rpc('replace_user_interests', {
       p_user_id: user.id,
       p_interest_ids: validInterests
     });
 
     if (interestsError) {
       console.error('[Interests API] Error saving interests:', interestsError);
-      // Fallback to manual insert if RPC doesn't exist
+      // Fallback to manual insert if RPC doesn't exist or is old version
       if (interestsError.message?.includes('function') || interestsError.message?.includes('does not exist')) {
         console.log('[Interests API] RPC function not found, using fallback method');
-        
+
         // Delete existing interests
         const { error: deleteError } = await supabase
           .from('user_interests')
@@ -87,36 +88,60 @@ export async function POST(req: Request) {
             throw insertError;
           }
         }
+
+        // Update step and counts manually (fallback)
+        const { error: stepError } = await supabase
+          .from('profiles')
+          .update({
+            onboarding_step: 'subcategories',
+            interests_count: validInterests.length,
+            updated_at: new Date().toISOString()
+          })
+          .eq('user_id', user.id);
+
+        if (stepError) {
+          console.error('[Interests API] Error updating onboarding_step:', stepError);
+          throw stepError;
+        }
+
+        // Fetch state after fallback
+        const { data: fallbackState } = await supabase
+          .from('profiles')
+          .select('onboarding_step, onboarding_complete, interests_count, subcategories_count, dealbreakers_count')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        // Use fallback state
+        const totalTime = nodePerformance.now() - startTime;
+        const writeTime = nodePerformance.now() - writeStart;
+
+        console.log('[Interests API] Interests saved successfully (fallback)', {
+          userId: user.id,
+          interestsCount: validInterests.length,
+          writeTime: `${writeTime.toFixed(2)}ms`,
+          totalTime: `${totalTime.toFixed(2)}ms`
+        });
+
+        const response = NextResponse.json({
+          ok: true,
+          onboarding_step: fallbackState?.onboarding_step || 'subcategories',
+          onboarding_complete: fallbackState?.onboarding_complete || false,
+          interests_count: fallbackState?.interests_count || validInterests.length,
+          subcategories_count: fallbackState?.subcategories_count || 0,
+          dealbreakers_count: fallbackState?.dealbreakers_count || 0,
+          performance: { writeTime, totalTime }
+        });
+        return addNoCacheHeaders(response);
       } else {
         throw interestsError;
       }
     }
 
-    // Update onboarding_step to subcategories
-    const { error: stepError } = await supabase
-      .from('profiles')
-      .update({
-        onboarding_step: 'subcategories',
-        interests_count: validInterests.length,
-        updated_at: new Date().toISOString()
-      })
-      .eq('user_id', user.id);
-
-    if (stepError) {
-      console.error('[Interests API] Error updating onboarding_step:', stepError);
-      throw stepError;
-    }
-
     const writeTime = nodePerformance.now() - writeStart;
-
-    // Fetch fresh state to return to client
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('onboarding_step, onboarding_complete, interests_count, subcategories_count, dealbreakers_count')
-      .eq('user_id', user.id)
-      .maybeSingle();
-
     const totalTime = nodePerformance.now() - startTime;
+
+    // ✅ Use state returned directly from RPC (already fresh, no race condition)
+    const profile = Array.isArray(freshState) && freshState.length > 0 ? freshState[0] : null;
 
     console.log('[Interests API] Interests saved successfully', {
       userId: user.id,

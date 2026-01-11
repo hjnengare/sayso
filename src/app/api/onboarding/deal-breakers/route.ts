@@ -50,18 +50,19 @@ export async function POST(req: Request) {
 
     const writeStart = nodePerformance.now();
 
-    // Save dealbreakers to user_dealbreakers table using RPC function
-    const { error: dealbreakersError } = await supabase.rpc('replace_user_dealbreakers', {
+    // ✅ Atomically save dealbreakers AND mark complete using RPC
+    // RPC now returns the updated state directly (no separate fetch needed)
+    const { data: freshState, error: dealbreakersError } = await supabase.rpc('replace_user_dealbreakers', {
       p_user_id: user.id,
       p_dealbreaker_ids: validDealbreakers
     });
 
     if (dealbreakersError) {
       console.error('[Deal-breakers API] Error saving dealbreakers:', dealbreakersError);
-      // Fallback to manual insert if RPC doesn't exist
+      // Fallback to manual insert if RPC doesn't exist or is old version
       if (dealbreakersError.message?.includes('function') || dealbreakersError.message?.includes('does not exist')) {
         console.log('[Deal-breakers API] RPC function not found, using fallback method');
-        
+
         // Delete existing dealbreakers
         const { error: deleteError } = await supabase
           .from('user_dealbreakers')
@@ -88,46 +89,62 @@ export async function POST(req: Request) {
             console.error('[Deal-breakers API] Error inserting dealbreakers:', insertError);
             throw insertError;
           }
-
-          // Update profile counts manually
-          await supabase
-            .from('profiles')
-            .update({
-              dealbreakers_count: validDealbreakers.length,
-              updated_at: new Date().toISOString()
-            })
-            .eq('user_id', user.id);
         }
+
+        // Update step and mark complete manually (fallback)
+        const { error: stepError } = await supabase
+          .from('profiles')
+          .update({
+            onboarding_step: 'complete',
+            onboarding_complete: true,
+            dealbreakers_count: validDealbreakers.length,
+            updated_at: new Date().toISOString()
+          })
+          .eq('user_id', user.id);
+
+        if (stepError) {
+          console.error('[Deal-breakers API] Error updating onboarding_step:', stepError);
+          throw stepError;
+        }
+
+        // Fetch state after fallback
+        const { data: fallbackState } = await supabase
+          .from('profiles')
+          .select('onboarding_step, onboarding_complete, interests_count, subcategories_count, dealbreakers_count')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        // Use fallback state
+        const totalTime = nodePerformance.now() - startTime;
+        const writeTime = nodePerformance.now() - writeStart;
+
+        console.log('[Deal-breakers API] Dealbreakers saved successfully (fallback)', {
+          userId: user.id,
+          dealbreakersCount: validDealbreakers.length,
+          writeTime: `${writeTime.toFixed(2)}ms`,
+          totalTime: `${totalTime.toFixed(2)}ms`
+        });
+
+        const response = NextResponse.json({
+          ok: true,
+          onboarding_step: fallbackState?.onboarding_step || 'complete',
+          onboarding_complete: fallbackState?.onboarding_complete || true,
+          interests_count: fallbackState?.interests_count || 0,
+          subcategories_count: fallbackState?.subcategories_count || 0,
+          dealbreakers_count: fallbackState?.dealbreakers_count || validDealbreakers.length,
+          performance: { writeTime, totalTime }
+        });
+        return addNoCacheHeaders(response);
       } else {
         throw dealbreakersError;
       }
     }
 
-    // Update onboarding_step to complete
-    const { error: stepError } = await supabase
-      .from('profiles')
-      .update({
-        onboarding_step: 'complete',
-        dealbreakers_count: validDealbreakers.length,
-        updated_at: new Date().toISOString()
-      })
-      .eq('user_id', user.id);
-
-    if (stepError) {
-      console.error('[Deal-breakers API] Error updating onboarding_step:', stepError);
-      throw stepError;
-    }
-
     const writeTime = nodePerformance.now() - writeStart;
-
-    // Fetch fresh state to return to client
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('onboarding_step, onboarding_complete, interests_count, subcategories_count, dealbreakers_count')
-      .eq('user_id', user.id)
-      .maybeSingle();
-
     const totalTime = nodePerformance.now() - startTime;
+
+    // ✅ Use state returned directly from RPC (already fresh, no race condition)
+    const profile = Array.isArray(freshState) && freshState.length > 0 ? freshState[0] : null;
 
     console.log('[Deal-breakers API] Dealbreakers saved successfully', {
       userId: user.id,
