@@ -10,8 +10,9 @@ import { useForYouBusinesses } from "../hooks/useBusinesses";
 import { useUserPreferences } from "../hooks/useUserPreferences";
 import { useDebounce } from "../hooks/useDebounce";
 import SearchInput from "../components/SearchInput/SearchInput";
-import FilterModal, { FilterState } from "../components/FilterModal/FilterModal";
+import { FilterState } from "../components/FilterModal/FilterModal";
 import ActiveFilterBadges from "../components/FilterActiveBadges/ActiveFilterBadges";
+import SuggestiveFilters from "../components/SuggestiveFilters/SuggestiveFilters";
 import SearchResultsMap from "../components/BusinessMap/SearchResultsMap";
 import { List, Map as MapIcon } from "react-feather";
 import { ChevronRight, ChevronUp } from "react-feather";
@@ -33,8 +34,6 @@ export default function ForYouPage() {
   // ✅ USER PREFERENCES: From onboarding, persistent, used for personalization
   const { interests, subcategories, dealbreakers, loading: prefsLoading } = useUserPreferences();
 
-  const [isFilterVisible, setIsFilterVisible] = useState(false);
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [isPaginationLoading, setIsPaginationLoading] = useState(false);
@@ -130,44 +129,7 @@ export default function ForYouPage() {
 
   const totalCount = useMemo(() => businesses.length, [businesses.length]);
 
-  const openFilters = () => {
-    if (isFilterVisible) return;
-    setIsFilterVisible(true);
-    setTimeout(() => setIsFilterOpen(true), 10);
-  };
 
-  const closeFilters = () => {
-    setIsFilterOpen(false);
-    setTimeout(() => setIsFilterVisible(false), 150);
-  };
-
-  const handleFiltersChange = (f: FilterState) => {
-    // ✅ Mark that user has explicitly initiated filtering
-    setHasUserInitiatedFilters(true);
-    setFilters(f);
-    setCurrentPage(1); // Reset to first page when filters change
-
-    // If distance filter is applied, request user location
-    if (f.distance && !userLocation) {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            setUserLocation({
-              lat: position.coords.latitude,
-              lng: position.coords.longitude,
-            });
-          },
-          (error) => {
-            console.warn('Error getting user location:', error);
-            // Continue without location - distance filter won't work but other filters will
-          }
-        );
-      }
-    }
-
-    // Trigger refetch to apply filters immediately
-    refetch();
-  };
 
   const handleClearFilters = () => {
     // ✅ Reset filter state - return to default mode
@@ -218,7 +180,6 @@ export default function ForYouPage() {
   const handleSubmitQuery = (query: string) => {
     setSearchQuery(query);
     setCurrentPage(1); // Reset to first page
-    if (isFilterVisible) closeFilters();
   };
 
   const handleToggleInterest = (interestId: string) => {
@@ -357,10 +318,7 @@ export default function ForYouPage() {
               mobilePlaceholder="Search places, coffee, yoga…"
               onSearch={handleSearchChange}
               onSubmitQuery={handleSubmitQuery}
-              onFilterClick={openFilters}
-              onFocusOpenFilters={openFilters}
-              showFilter
-              activeFilterCount={(filters.minRating !== null ? 1 : 0) + (filters.distance !== null ? 1 : 0)}
+              showFilter={false}
             />
           </div>
 
@@ -373,7 +331,13 @@ export default function ForYouPage() {
             />
           </div>
 
-          {/* Active Filter Badges */}
+          {/* Suggestive Filters - Show when no filters active */}
+          <SuggestiveFilters
+            filters={filters}
+            onUpdateFilter={handleUpdateFilter}
+          />
+
+          {/* Active Filter Badges - Show when filters are active */}
           <ActiveFilterBadges
             filters={filters}
             onRemoveFilter={(filterType) => {
@@ -511,16 +475,6 @@ export default function ForYouPage() {
           </div>
         </div>
       </main>
-
-      {/* Filter Modal */}
-      <FilterModal
-        isOpen={isFilterOpen}
-        isVisible={isFilterVisible}
-        onClose={closeFilters}
-        onFiltersChange={handleFiltersChange}
-        anchorRef={searchWrapRef}
-        initialFilters={filters}
-      />
 
       {/* Scroll to Top Button */}
       {showScrollTop && (
