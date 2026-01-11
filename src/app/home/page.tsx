@@ -245,12 +245,11 @@ export default function Home() {
     setTimeout(() => setIsFilterVisible(false), 150);
   };
 
-  const handleApplyFilters = (f: FilterState) => {
+  const handleFiltersChange = (f: FilterState) => {
     // ✅ Mark that user has explicitly initiated filtering
     setHasUserInitiatedFilters(true);
     setFilters(f);
-    closeFilters();
-    
+
     // If distance filter is applied, request user location
     if (f.distance && !userLocation) {
       if (navigator.geolocation) {
@@ -268,7 +267,7 @@ export default function Home() {
         );
       }
     }
-    
+
     // Trigger refetch to apply filters immediately
     refetchAllBusinesses();
     // Note: For You doesn't refetch here because it uses preferences, not filters
@@ -686,8 +685,7 @@ export default function Home() {
         isOpen={isFilterOpen}
         isVisible={isFilterVisible}
         onClose={closeFilters}
-        onApplyFilters={handleApplyFilters}
-        onClearAll={handleClearFilters}
+        onFiltersChange={handleFiltersChange}
         anchorRef={searchWrapRef}
         initialFilters={filters}
       />

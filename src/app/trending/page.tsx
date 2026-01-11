@@ -151,14 +151,13 @@ export default function TrendingPage() {
     setTimeout(() => setIsFilterVisible(false), 150);
   };
 
-  const handleApplyFilters = (f: FilterState) => {
+  const handleFiltersChange = (f: FilterState) => {
     // ✅ Mark that user has explicitly initiated filtering
     setHasUserInitiatedFilters(true);
     setUseBroadTrending(false); // Reset fallback when user changes filters
     setFilters(f);
     setCurrentPage(1); // Reset to first page when filters change
-    closeFilters();
-    
+
     // If distance filter is applied, request user location
     if (f.distance && !userLocation) {
       if (navigator.geolocation) {
@@ -176,7 +175,7 @@ export default function TrendingPage() {
         );
       }
     }
-    
+
     // Trigger refetch to apply filters immediately
     refetch();
   };
@@ -549,8 +548,7 @@ export default function TrendingPage() {
         isOpen={isFilterOpen}
         isVisible={isFilterVisible}
         onClose={closeFilters}
-        onApplyFilters={handleApplyFilters}
-        onClearAll={handleClearFilters}
+        onFiltersChange={handleFiltersChange}
         anchorRef={searchWrapRef}
         initialFilters={filters}
       />

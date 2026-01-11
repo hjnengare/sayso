@@ -21,8 +21,8 @@ interface FilterModalProps {
   isOpen: boolean;          // controls enter/exit transition
   isVisible: boolean;       // mount/unmount
   onClose: () => void;
-  onApplyFilters?: (filters: FilterState) => void;
-  onClearAll?: () => void;
+  /** Callback fired when modal closes with the current filter state */
+  onFiltersChange?: (filters: FilterState) => void;
   /** element to anchor under (the search input wrapper) */
   anchorRef?: React.RefObject<HTMLElement>;
   /** Initial filter state to display */
@@ -38,19 +38,22 @@ export default function FilterModal({
   isOpen,
   isVisible,
   onClose,
-  onApplyFilters,
-  onClearAll,
+  onFiltersChange,
   anchorRef,
   initialFilters,
 }: FilterModalProps) {
   const [selectedRating, setSelectedRating] = useState<number | null>(initialFilters?.minRating || null);
   const [selectedDistance, setSelectedDistance] = useState<string | null>(initialFilters?.distance || null);
 
-  // Update state when initialFilters change
+  // Track if user has made any changes in this session
+  const hasChangesRef = useRef(false);
+
+  // Update state when initialFilters change (external updates)
   useEffect(() => {
     if (initialFilters) {
       setSelectedRating(initialFilters.minRating || null);
       setSelectedDistance(initialFilters.distance || null);
+      hasChangesRef.current = false; // Reset change tracking when external filters update
     }
   }, [initialFilters]);
 
@@ -129,6 +132,30 @@ export default function FilterModal({
     };
   }, [isVisible, isOpen]);
 
+  // Apply filters when modal closes (batched application)
+  const handleClose = useCallback(() => {
+    // Only trigger onFiltersChange if user made changes
+    if (hasChangesRef.current && onFiltersChange) {
+      onFiltersChange({
+        minRating: selectedRating,
+        distance: selectedDistance,
+      });
+    }
+    onClose();
+  }, [selectedRating, selectedDistance, onFiltersChange, onClose]);
+
+  // Track rating changes
+  const handleRatingChange = useCallback((rating: number | null) => {
+    setSelectedRating(rating);
+    hasChangesRef.current = true;
+  }, []);
+
+  // Track distance changes
+  const handleDistanceChange = useCallback((distance: string | null) => {
+    setSelectedDistance(distance);
+    hasChangesRef.current = true;
+  }, []);
+
   // Outside click + ESC (no body scroll lock)
   useEffect(() => {
     if (!isVisible) return;
@@ -137,9 +164,11 @@ export default function FilterModal({
       const target = e.target as Node;
       if (panelRef.current?.contains(target)) return;
       if (anchorRef?.current?.contains(target)) return;
-      onClose();
+      handleClose();
     };
-    const onEsc = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    const onEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") handleClose();
+    };
 
     // small delay so the opening click doesn't immediately close
     const timer = setTimeout(() => {
@@ -154,25 +183,7 @@ export default function FilterModal({
       document.removeEventListener("touchstart", onOutside);
       document.removeEventListener("keydown", onEsc);
     };
-  }, [isVisible, onClose, anchorRef]);
-
-  const handleApply = () => {
-    onApplyFilters?.({
-      minRating: selectedRating,
-      distance: selectedDistance,
-    });
-    onClose();
-  };
-
-  const handleClearAll = () => {
-    setSelectedRating(null);
-    setSelectedDistance(null);
-    // Call parent's clear handler if provided
-    if (onClearAll) {
-      onClearAll();
-      onClose();
-    }
-  };
+  }, [isVisible, handleClose, anchorRef]);
 
   if (!isVisible) return null;
 
@@ -229,7 +240,7 @@ export default function FilterModal({
             </h2>
           </div>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="relative z-10 w-10 h-10 sm:w-9 sm:h-9 rounded-full border border-charcoal/10 bg-off-white/70 hover:bg-sage/10 hover:text-sage text-charcoal/80 flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-sage/30 touch-manipulation"
             aria-label="Close filters"
           >
@@ -272,7 +283,7 @@ export default function FilterModal({
                   <button
                     key={r}
                     type="button"
-                    onClick={() => setSelectedRating(active ? null : r)}
+                    onClick={() => handleRatingChange(active ? null : r)}
                     className={`px-3 sm:px-3 py-2.5 sm:py-2 rounded-full text-sm sm:text-xs flex items-center gap-2 border transition-all min-h-[44px] sm:min-h-0 touch-manipulation
                       ${
                         active
@@ -311,7 +322,7 @@ export default function FilterModal({
                   <button
                     key={distance}
                     type="button"
-                    onClick={() => setSelectedDistance(active ? null : distance)}
+                    onClick={() => handleDistanceChange(active ? null : distance)}
                     className={`px-3 sm:px-3 py-2.5 sm:py-2 rounded-full text-sm sm:text-xs flex items-center gap-2 border transition-all whitespace-nowrap min-h-[44px] sm:min-h-0 touch-manipulation
                       ${
                         active
@@ -328,32 +339,6 @@ export default function FilterModal({
               })}
             </div>
           </section>
-        </div>
-
-        {/* footer */}
-        <div 
-          className="flex items-center justify-center gap-3 px-4 sm:px-5 md:px-6 border-t border-white/60 bg-navbar-bg backdrop-blur-sm flex-shrink-0"
-          style={{
-            paddingTop: typeof window !== 'undefined' && window.innerWidth < 768 ? '1rem' : '0.5rem',
-            paddingBottom: typeof window !== 'undefined' && window.innerWidth < 768 
-              ? `max(1rem, calc(1rem + env(safe-area-inset-bottom, 0px) + 10px))` 
-              : '0.5rem',
-          }}
-        >
-          <button
-            onClick={handleClearAll}
-            className="flex-1 rounded-full bg-off-white text-charcoal border border-charcoal/15 hover:bg-charcoal/5 active:bg-charcoal/10 font-semibold py-3 sm:py-2.5 px-4 text-base sm:text-sm md:text-xs transition-colors focus:outline-none focus:ring-2 focus:ring-sage/30 min-h-[48px] sm:min-h-0 touch-manipulation flex items-center justify-center"
-            style={{ fontFamily: '"Urbanist", system-ui, sans-serif', letterSpacing: '-0.01em' }}
-          >
-            Clear
-          </button>
-          <button
-            onClick={handleApply}
-            className="flex-1 rounded-full bg-sage hover:bg-sage/90 active:bg-sage/80 text-white font-semibold py-3 sm:py-2.5 px-4 text-base sm:text-sm md:text-xs border border-sage transition-colors focus:outline-none focus:ring-2 focus:ring-sage/30 min-h-[48px] sm:min-h-0 touch-manipulation flex items-center justify-center"
-            style={{ fontFamily: '"Urbanist", system-ui, sans-serif', letterSpacing: '-0.01em' }}
-          >
-            Apply
-          </button>
         </div>
       </div>
     </div>

@@ -245,7 +245,7 @@ export default function Header({
     setTimeout(() => setIsFilterVisible(false), 150);
   };
 
-  const handleApplyFilters = (f: FilterState) => {
+  const handleFiltersChange = (f: FilterState) => {
     // Navigate to explore page with filters applied via URL params
     const params = new URLSearchParams();
     if (f.categories && f.categories.length > 0) {
@@ -257,7 +257,7 @@ export default function Header({
     if (f.distance) {
       params.set('distance', f.distance);
     }
-    
+
     const queryString = params.toString();
     const exploreUrl = queryString ? `/explore?${queryString}` : '/explore';
     router.push(exploreUrl);
@@ -727,7 +727,7 @@ export default function Header({
         isOpen={isFilterOpen}
         isVisible={isFilterVisible}
         onClose={closeFilters}
-        onApplyFilters={handleApplyFilters}
+        onFiltersChange={handleFiltersChange}
         anchorRef={searchWrapRef}
       />
     </>
