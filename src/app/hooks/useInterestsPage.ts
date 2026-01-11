@@ -46,7 +46,7 @@ export function useInterestsPage(): UseInterestsPageReturn {
   const router = useRouter();
   const { showToast } = useToast();
   const { setSelectedInterests, isLoading: contextLoading, error: contextError } = useOnboarding();
-  const { refreshUser } = useAuth();
+  const { updateUser } = useAuth();
   const [isNavigating, setIsNavigating] = useState(false);
   const [animatingIds, setAnimatingIds] = useState<Set<string>>(new Set());
   const [shakingIds, setShakingIds] = useState<Set<string>>(new Set());
@@ -231,16 +231,27 @@ export function useInterestsPage(): UseInterestsPageReturn {
         throw new Error(msg);
       }
 
-      console.log('[useInterestsPage] Save successful, refreshing user profile...');
+      console.log('[useInterestsPage] Save successful, updating user profile from API response...');
 
-      // CRITICAL FIX: Refresh AuthContext to get updated onboarding_step
-      // This ensures client-side guards have fresh data and don't redirect incorrectly
-      try {
-        await refreshUser();
-        console.log('[useInterestsPage] User profile refreshed successfully');
-      } catch (refreshError) {
-        console.warn('[useInterestsPage] Failed to refresh user profile:', refreshError);
-        // Continue anyway - the DB is updated, navigation should work
+      // CRITICAL FIX: Update AuthContext directly with state from API response
+      // This eliminates race condition from separate refreshUser() query
+      if (payload && typeof payload === 'object') {
+        try {
+          await updateUser({
+            onboarding_step: payload.onboarding_step,
+            onboarding_complete: payload.onboarding_complete,
+            interests_count: payload.interests_count,
+            subcategories_count: payload.subcategories_count,
+            dealbreakers_count: payload.dealbreakers_count,
+          });
+          console.log('[useInterestsPage] User profile updated from API response:', {
+            onboarding_step: payload.onboarding_step,
+            interests_count: payload.interests_count,
+          });
+        } catch (updateError) {
+          console.warn('[useInterestsPage] Failed to update user profile:', updateError);
+          // Continue anyway - the DB is updated, navigation should work
+        }
       }
 
       // Show success toast

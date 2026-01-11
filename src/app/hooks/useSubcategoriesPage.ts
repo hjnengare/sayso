@@ -108,7 +108,7 @@ export function useSubcategoriesPage(): UseSubcategoriesPageReturn {
   const router = useRouter();
   const { showToast } = useToast();
   const { setSelectedSubInterests, setSelectedInterests, isLoading: contextLoading, error: contextError } = useOnboarding();
-  const { refreshUser } = useAuth();
+  const { updateUser } = useAuth();
   const [isNavigating, setIsNavigating] = useState(false);
   const [shakingIds, setShakingIds] = useState<Set<string>>(new Set());
   
@@ -286,16 +286,27 @@ export function useSubcategoriesPage(): UseSubcategoriesPageReturn {
         throw new Error(msg);
       }
 
-      console.log('[useSubcategoriesPage] Save successful, refreshing user profile...');
+      console.log('[useSubcategoriesPage] Save successful, updating user profile from API response...');
 
-      // CRITICAL FIX: Refresh AuthContext to get updated onboarding_step
-      // This ensures client-side guards have fresh data and don't redirect incorrectly
-      try {
-        await refreshUser();
-        console.log('[useSubcategoriesPage] User profile refreshed successfully');
-      } catch (refreshError) {
-        console.warn('[useSubcategoriesPage] Failed to refresh user profile:', refreshError);
-        // Continue anyway - the DB is updated, navigation should work
+      // CRITICAL FIX: Update AuthContext directly with state from API response
+      // This eliminates race condition from separate refreshUser() query
+      if (payload && typeof payload === 'object') {
+        try {
+          await updateUser({
+            onboarding_step: payload.onboarding_step,
+            onboarding_complete: payload.onboarding_complete,
+            interests_count: payload.interests_count,
+            subcategories_count: payload.subcategories_count,
+            dealbreakers_count: payload.dealbreakers_count,
+          });
+          console.log('[useSubcategoriesPage] User profile updated from API response:', {
+            onboarding_step: payload.onboarding_step,
+            subcategories_count: payload.subcategories_count,
+          });
+        } catch (updateError) {
+          console.warn('[useSubcategoriesPage] Failed to update user profile:', updateError);
+          // Continue anyway - the DB is updated, navigation should work
+        }
       }
 
       // Show success toast
