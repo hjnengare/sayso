@@ -16,7 +16,7 @@ import type { OnboardingState } from './state';
  * @returns OnboardingState or null if not authenticated
  */
 export async function fetchOnboardingState(): Promise<OnboardingState | null> {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
