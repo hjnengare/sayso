@@ -108,10 +108,10 @@ export default function CategoryFilterPills({
       {showLeftScroll && !isMobile && (
         <button
           onClick={scrollLeft}
-          className="hidden sm:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 items-center justify-center bg-gradient-to-r from-off-white to-transparent rounded-full shadow-md hover:shadow-lg transition-all"
+          className="hidden sm:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 items-center justify-center bg-navbar-bg rounded-full shadow-md hover:shadow-lg transition-all"
           aria-label="Scroll left"
         >
-          <ChevronLeft className="w-5 h-5 text-charcoal/70" strokeWidth={2.5} />
+          <ChevronLeft className="w-5 h-5 text-white" strokeWidth={2.5} />
         </button>
       )}
 
@@ -119,10 +119,10 @@ export default function CategoryFilterPills({
       {showRightScroll && !isMobile && (
         <button
           onClick={scrollRight}
-          className="hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 items-center justify-center bg-gradient-to-l from-off-white to-transparent rounded-full shadow-md hover:shadow-lg transition-all"
+          className="hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 items-center justify-center bg-navbar-bg rounded-full shadow-md hover:shadow-lg transition-all"
           aria-label="Scroll right"
         >
-          <ChevronRight className="w-5 h-5 text-charcoal/70" strokeWidth={2.5} />
+          <ChevronRight className="w-5 h-5 text-white" strokeWidth={2.5} />
         </button>
       )}
 
