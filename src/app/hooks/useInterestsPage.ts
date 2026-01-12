@@ -53,6 +53,11 @@ export function useInterestsPage(): UseInterestsPageReturn {
   const isLoading = contextLoading;
   const error: Error | null = contextError ? new Error(contextError) : null;
 
+  // Debug: Log loading state
+  useEffect(() => {
+    console.log('[useInterestsPage] isLoading:', isLoading, 'contextLoading:', contextLoading);
+  }, [isLoading, contextLoading]);
+
   // Early prefetching of all onboarding pages for instant navigation
   useEffect(() => {
     router.prefetch('/subcategories');
