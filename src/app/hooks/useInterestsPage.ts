@@ -31,7 +31,6 @@ export interface UseInterestsPageReturn {
   canProceed: boolean;
   handleToggle: (interestId: string) => void;
   handleNext: () => void;
-  isLoading: boolean;
   error: Error | null;
 }
 
@@ -41,7 +40,6 @@ export function useInterestsPage(): UseInterestsPageReturn {
   const {
     selectedInterests,
     setSelectedInterests,
-    isLoading: contextLoading,
     error: contextError
   } = useOnboarding();
 
@@ -50,13 +48,7 @@ export function useInterestsPage(): UseInterestsPageReturn {
   const [shakingIds, setShakingIds] = useState<Set<string>>(new Set());
   const hasPrefetchedRef = useRef(false);
 
-  const isLoading = contextLoading;
   const error: Error | null = contextError ? new Error(contextError) : null;
-
-  // Debug: Log loading state
-  useEffect(() => {
-    console.log('[useInterestsPage] isLoading:', isLoading, 'contextLoading:', contextLoading);
-  }, [isLoading, contextLoading]);
 
   // Early prefetching of all onboarding pages for instant navigation
   useEffect(() => {
@@ -180,7 +172,6 @@ export function useInterestsPage(): UseInterestsPageReturn {
     canProceed,
     handleToggle,
     handleNext,
-    isLoading,
     error,
   };
 }

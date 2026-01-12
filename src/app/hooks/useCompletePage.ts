@@ -16,7 +16,6 @@ export interface UseCompletePageReturn {
   interests: string[];
   subcategories: string[];
   dealbreakers: string[];
-  isLoading: boolean;
 }
 
 export function useCompletePage(): UseCompletePageReturn {
@@ -27,7 +26,6 @@ export function useCompletePage(): UseCompletePageReturn {
     selectedSubInterests,
     selectedDealbreakers,
     completeOnboarding,
-    isLoading: contextLoading,
     error: contextError
   } = useOnboarding();
   const [isSaving, setIsSaving] = useState(false);
@@ -38,7 +36,6 @@ export function useCompletePage(): UseCompletePageReturn {
   const interests: string[] = selectedInterests || [];
   const subcategories: string[] = selectedSubInterests || [];
   const dealbreakers: string[] = selectedDealbreakers || [];
-  const isLoading = contextLoading;
 
   // Verify user is at correct step - middleware should handle redirects
   useEffect(() => {
@@ -91,7 +88,6 @@ export function useCompletePage(): UseCompletePageReturn {
     interests,
     subcategories,
     dealbreakers,
-    isLoading,
   };
 }
 

@@ -27,7 +27,6 @@ interface OnboardingContextType {
   selectedDealbreakers: string[];
 
   // State
-  isLoading: boolean;
   error: string | null;
   currentStep: string;
 
@@ -99,15 +98,10 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
     return [];
   });
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // Internal loading state for API calls
   const [error, setError] = useState<string | null>(null);
 
   const currentStep = user?.profile?.onboarding_step || 'interests';
-
-  // Debug: Log loading state changes
-  useEffect(() => {
-    console.log('[OnboardingContext] isLoading:', isLoading);
-  }, [isLoading]);
 
   // Clear localStorage if user is starting fresh onboarding
   useEffect(() => {
@@ -399,7 +393,6 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
     selectedDealbreakers,
 
     // State
-    isLoading,
     error,
     currentStep,
 

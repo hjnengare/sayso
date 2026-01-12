@@ -24,7 +24,7 @@ function CategoryDetailContent() {
   const router = useRouter();
   // Normalize categoryId to ensure it's always a string
   const categoryId = String(params?.id ?? "");
-  const { interests, loadInterests, subInterests, loadSubInterests, isLoading } = useOnboarding();
+  const { interests, loadInterests, subInterests, loadSubInterests } = useOnboarding();
   // ✅ ACTIVE FILTERS: User-initiated subcategory filtering (starts empty)
   const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
   // ✅ Track if subcategory filtering is active (for better empty state messaging)
@@ -32,18 +32,18 @@ function CategoryDetailContent() {
 
   // ✅ Load interests and subcategories (GLOBAL taxonomy, not user preferences)
   useEffect(() => {
-    if (interests.length === 0 && !isLoading) {
+    if (interests.length === 0) {
       loadInterests();
     }
-  }, [interests.length, isLoading, loadInterests]);
+  }, [interests.length, loadInterests]);
 
   useEffect(() => {
     // ✅ Load subcategories for this category (global taxonomy)
-    if (categoryId && interests.length > 0 && !isLoading) {
+    if (categoryId && interests.length > 0) {
       console.log('[CategoryDetail] Loading subcategories for category:', categoryId);
       loadSubInterests([categoryId]);
     }
-  }, [categoryId, interests.length, isLoading, loadSubInterests]);
+  }, [categoryId, interests.length, loadSubInterests]);
 
   // Find the category
   const category = useMemo(() => {
@@ -102,7 +102,7 @@ function CategoryDetailContent() {
   }, [selectedSubcategories]);
 
   // ✅ Determine if we should skip fetching (only skip if categoryId is missing)
-  // Don't skip based on isLoading - that causes double fetches
+  // Don't skip based on loading - that causes double fetches
   const shouldSkip = !categoryId;
 
   // Fetch businesses filtered by this category
@@ -355,13 +355,13 @@ function CategoryDetailContent() {
           </div>
 
           {/* Businesses Grid */}
-          {(loading || isLoading) && (
+          {loading && (
             <div className="py-8">
               <BusinessGridSkeleton />
             </div>
           )}
 
-          {!loading && !isLoading && error && (
+          {!loading && error && (
             <div className="bg-white border border-sage/20 rounded-3xl shadow-sm px-6 py-10 text-center space-y-4">
               <p className="text-charcoal font-semibold text-h2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                 We couldn't load businesses right now.
@@ -379,7 +379,7 @@ function CategoryDetailContent() {
             </div>
           )}
 
-          {!loading && !isLoading && !error && (
+          {!loading && !loading && !error && (
             <>
               {filteredBusinesses.length === 0 ? (
                 <div className="bg-white border border-sage/20 rounded-3xl shadow-sm px-6 py-16 text-center space-y-3">

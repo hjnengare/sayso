@@ -33,7 +33,6 @@ function InterestsContent() {
     canProceed,
     handleToggle,
     handleNext,
-    isLoading,
     error,
   } = useInterestsPage();
 
@@ -41,7 +40,7 @@ function InterestsContent() {
   useEffect(() => {
     const verified = searchParams.get('verified');
     const emailVerified = searchParams.get('email_verified');
-    
+
     if (verified === '1' || emailVerified === 'true') {
       showToastOnce('email-verified-v1', '🎉 You\'re verified! Your account is now secured and ready.', 'success', 3000);
 
@@ -53,16 +52,6 @@ function InterestsContent() {
       });
     }
   }, [searchParams, router, showToastOnce]);
-
-  if (isLoading) {
-    return (
-      <OnboardingLayout backHref="/register" step={1}>
-        <div className="flex items-center justify-center min-h-[400px]">
-          <Loader size="md" variant="wavy" color="sage" />
-        </div>
-      </OnboardingLayout>
-    );
-  }
 
   return (
     <EmailVerificationGuard>

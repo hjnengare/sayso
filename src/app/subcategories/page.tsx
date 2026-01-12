@@ -24,19 +24,8 @@ function SubcategoriesContent() {
     canProceed,
     handleToggle,
     handleNext,
-    isLoading,
     error,
   } = useSubcategoriesPage();
-
-  if (isLoading) {
-    return (
-      <OnboardingLayout step={2} backHref="/interests">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <Loader size="md" variant="wavy" color="sage" />
-        </div>
-      </OnboardingLayout>
-    );
-  }
 
   return (
     <OnboardingErrorBoundary>

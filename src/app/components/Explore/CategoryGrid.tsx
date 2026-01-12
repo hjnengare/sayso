@@ -32,21 +32,13 @@ interface CategoryGridProps {
 }
 
 export default function CategoryGrid({ onCategoryClick }: CategoryGridProps) {
-  const { interests, loadInterests, isLoading } = useOnboarding();
+  const { interests, loadInterests } = useOnboarding();
 
   useEffect(() => {
-    if (interests.length === 0 && !isLoading) {
+    if (interests.length === 0) {
       loadInterests();
     }
-  }, [interests.length, isLoading, loadInterests]);
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader size="md" variant="wavy" color="sage" />
-      </div>
-    );
-  }
+  }, [interests.length, loadInterests]);
 
   if (interests.length === 0) {
     return (

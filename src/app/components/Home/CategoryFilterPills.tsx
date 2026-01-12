@@ -17,19 +17,19 @@ export default function CategoryFilterPills({
   onToggleCategory,
 }: CategoryFilterPillsProps) {
   // Get all available interests catalog from OnboardingContext
-  const { interests, loadInterests, isLoading } = useOnboarding();
+  const { interests, loadInterests } = useOnboarding();
   const prefersReducedMotion = useReducedMotion();
   const [isMobile, setIsMobile] = useState(true);
   const [showLeftScroll, setShowLeftScroll] = useState(false);
   const [showRightScroll, setShowRightScroll] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  
+
   // Load interests catalog on mount if not already loaded
   useEffect(() => {
-    if (interests.length === 0 && !isLoading) {
+    if (interests.length === 0) {
       loadInterests();
     }
-  }, [interests.length, isLoading, loadInterests]);
+  }, [interests.length, loadInterests]);
 
   // Check if mobile for animation
   useEffect(() => {
@@ -68,10 +68,8 @@ export default function CategoryFilterPills({
     scrollContainerRef.current?.scrollBy({ left: 200, behavior: 'smooth' });
   };
 
-  const loading = isLoading;
-
-  // Show loading skeleton while loading
-  if (loading) {
+  // Show loading skeleton while interests are empty
+  if (interests.length === 0) {
     return (
       <div
         className="flex items-center justify-center gap-2 overflow-x-auto scrollbar-hide px-4 sm:mx-0 sm:px-0"

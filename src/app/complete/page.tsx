@@ -178,12 +178,11 @@ function CompletePageContent() {
     error,
     handleContinue,
     dealbreakers: selectedDealbreakers,
-    isLoading,
   } = useCompletePage();
 
   // Confetti celebration (deferred until after initial render for better performance)
   useEffect(() => {
-    if (isLoading || isSaving) return;
+    if (isSaving) return;
     
     // Prefetch home immediately for instant transition after completion
     if (router) {
@@ -242,10 +241,10 @@ function CompletePageContent() {
         cancelled = true;
       };
     }
-  }, [reducedMotion, isLoading, isSaving, router]);
+  }, [reducedMotion, isSaving, isSaving, router]);
 
   // Show loading state while saving
-  if (isLoading || isSaving) {
+  if (isSaving || isSaving) {
     return (
       <OnboardingLayout step={4} showProgress={false}>
         <div className="flex items-center justify-center min-h-[400px]">

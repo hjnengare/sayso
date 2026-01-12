@@ -31,7 +31,6 @@ export interface UseDealBreakersPageReturn {
   canProceed: boolean;
   handleToggle: (dealbreakerId: string) => void;
   handleNext: () => void;
-  isLoading: boolean;
   error: Error | null;
 }
 
@@ -41,13 +40,11 @@ export function useDealBreakersPage(): UseDealBreakersPageReturn {
   const {
     selectedDealbreakers,
     setSelectedDealbreakers,
-    isLoading: contextLoading,
     error: contextError
   } = useOnboarding();
 
   const [isNavigating, setIsNavigating] = useState(false);
 
-  const isLoading = contextLoading;
   const error: Error | null = contextError ? new Error(contextError) : null;
 
   // Early prefetching
@@ -107,7 +104,6 @@ export function useDealBreakersPage(): UseDealBreakersPageReturn {
     canProceed,
     handleToggle,
     handleNext,
-    isLoading,
     error,
   };
 }

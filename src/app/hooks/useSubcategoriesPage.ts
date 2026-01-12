@@ -85,7 +85,6 @@ export interface UseSubcategoriesPageReturn {
   canProceed: boolean;
   handleToggle: (subcategoryId: string, interestId: string) => void;
   handleNext: () => void;
-  isLoading: boolean;
   error: Error | null;
 }
 
@@ -96,14 +95,12 @@ export function useSubcategoriesPage(): UseSubcategoriesPageReturn {
     selectedInterests,
     selectedSubInterests,
     setSelectedSubInterests,
-    isLoading: contextLoading,
     error: contextError
   } = useOnboarding();
 
   const [isNavigating, setIsNavigating] = useState(false);
   const [shakingIds, setShakingIds] = useState<Set<string>>(new Set());
 
-  const isLoading = contextLoading;
   const error: Error | null = contextError ? new Error(contextError) : null;
 
   // Early prefetching
@@ -210,7 +207,6 @@ export function useSubcategoriesPage(): UseSubcategoriesPageReturn {
     canProceed,
     handleToggle,
     handleNext,
-    isLoading,
     error,
   };
 }
