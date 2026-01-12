@@ -4,48 +4,83 @@
  *
  * Architecture: Selections are stored in localStorage during interests/subcategories/dealbreakers,
  * then all data is saved to Supabase in a single transaction on the complete page.
+ *
+ * Note: These tests require a verified test user. Set E2E_TEST_EMAIL and E2E_TEST_PASSWORD environment variables,
+ * or the tests will create a new user (which requires email verification).
  */
 
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
+
+/**
+ * Helper function to authenticate a test user
+ * Creates a new user or uses existing credentials from environment variables
+ */
+async function authenticateTestUser(page: Page): Promise<{ email: string; password: string }> {
+  // Check if test credentials are provided
+  const testEmail = process.env.E2E_TEST_EMAIL;
+  const testPassword = process.env.E2E_TEST_PASSWORD;
+
+  if (testEmail && testPassword) {
+    // Use existing test user - login
+    await page.goto('/login');
+    await page.locator('input[type="email"]').fill(testEmail);
+    await page.locator('input[type="password"]').fill(testPassword);
+    const submitButton = page.getByRole('button', { name: /sign in/i });
+    await expect(submitButton).not.toBeDisabled({ timeout: 5000 });
+    await submitButton.click();
+
+    // Wait for redirect (could be /interests, /home, or /verify-email)
+    await page.waitForURL(/.*\/(interests|home|verify-email|subcategories|deal-breakers)/, { timeout: 10000 });
+
+    return { email: testEmail, password: testPassword };
+  }
+
+  // No test credentials - create new user
+  await page.goto('/register');
+  await expect(page.getByText(/create your account/i)).toBeVisible({ timeout: 10000 });
+
+  const timestamp = Date.now();
+  const email = `e2e-test-${timestamp}@example.com`;
+  const password = 'TestPassword123!';
+  const username = `test${timestamp.toString().slice(-6)}`;
+
+  await page.locator('input[type="text"]').first().fill(username);
+  await page.locator('input[type="email"]').fill(email);
+  await page.locator('input[type="password"]').fill(password);
+  await page.locator('input[type="checkbox"]').check();
+
+  const submitButton = page.getByRole('button', { name: /create account/i });
+  await expect(submitButton).not.toBeDisabled({ timeout: 10000 });
+  await submitButton.click();
+
+  // Wait for redirect to verify-email or interests
+  await page.waitForURL(/.*\/(verify-email|interests)/, { timeout: 15000 });
+
+  // If on verify-email, skip these tests (requires email verification setup)
+  if (page.url().includes('/verify-email')) {
+    throw new Error('Email verification required. Please set E2E_TEST_EMAIL and E2E_TEST_PASSWORD with verified user credentials.');
+  }
+
+  return { email, password };
+}
 
 test.describe('Onboarding Flow', () => {
   test.beforeEach(async ({ page }) => {
-    // Start from onboarding landing page
-    await page.goto('/onboarding');
+    // Authenticate before each test
+    await authenticateTestUser(page);
+
+    // Clear onboarding localStorage to start fresh
+    await page.evaluate(() => {
+      localStorage.removeItem('onboarding_interests');
+      localStorage.removeItem('onboarding_subcategories');
+      localStorage.removeItem('onboarding_dealbreakers');
+    });
   });
 
   test('should complete full onboarding flow from start to finish', async ({ page }) => {
-    // Step 1: Landing page → Register
-    await expect(page).toHaveURL(/.*onboarding/);
-
-    // Click "Get Started" button
-    const getStartedButton = page.getByRole('link', { name: /get started/i });
-    await getStartedButton.click();
-
-    // Step 2: Registration page
-    await expect(page).toHaveURL(/.*register/);
-
-    // Fill registration form
-    const email = `test-${Date.now()}@example.com`;
-    await page.fill('input[name="email"]', email);
-    await page.fill('input[name="password"]', 'TestPassword123!');
-
-    // Submit registration
-    await page.click('button[type="submit"]');
-
-    // Step 3: Wait for email verification or redirect to interests
-    // Note: In test environment, email verification might be skipped
-    await page.waitForURL(/.*interests|.*verify-email/, { timeout: 10000 });
-
-    // If redirected to verify-email, we'll need to handle that
-    // For now, assume we can proceed to interests
-    if (page.url().includes('/verify-email')) {
-      // In a real test, you might need to mock email verification
-      // or use a test account that's already verified
-      test.skip();
-    }
-
-    // Step 4: Interests selection (3-6 required)
+    // User is already authenticated via beforeEach
+    // Navigate to interests page to start onboarding
+    await page.goto('/interests');
     await expect(page).toHaveURL(/.*interests/);
 
     // Verify page loads instantly without loader (localStorage-first)
@@ -321,6 +356,18 @@ test.describe('Onboarding Flow', () => {
 });
 
 test.describe('Onboarding Error Handling', () => {
+  test.beforeEach(async ({ page }) => {
+    // Authenticate before each test
+    await authenticateTestUser(page);
+
+    // Clear onboarding localStorage to start fresh
+    await page.evaluate(() => {
+      localStorage.removeItem('onboarding_interests');
+      localStorage.removeItem('onboarding_subcategories');
+      localStorage.removeItem('onboarding_dealbreakers');
+    });
+  });
+
   test('should handle API failure on complete page gracefully', async ({ page }) => {
     // Set up localStorage with complete onboarding data
     await page.goto('/interests');
