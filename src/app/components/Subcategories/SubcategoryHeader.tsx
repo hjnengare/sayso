@@ -33,7 +33,7 @@ export default function SubcategoryHeader() {
       animate="visible"
     >
       <WavyTypedTitle
-        text="Pick your subcategories"
+        text="Let's Get More Specific!"
         as="h2"
         className="font-urbanist text-2xl md:text-3xl lg:text-4xl font-700 mb-2 tracking-tight px-6 sm:px-4 md:px-2 text-charcoal"
         typingSpeedMs={40}
@@ -42,7 +42,7 @@ export default function SubcategoryHeader() {
         loopWave={false}
         triggerOnTypingComplete={true}
         enableScrollTrigger={false}
-        style={{ 
+        style={{
           fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
           fontWeight: 700,
         }}

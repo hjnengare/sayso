@@ -48,7 +48,7 @@ function LeaderboardPodium({ topReviewers }: LeaderboardPodiumProps) {
         </div>
         {/* Professional Podium Block */}
         <div className="relative mt-auto">
-          <div className="bg-gradient-to-b from-coral/25 to-coral/15 rounded-t-xl h-12 sm:h-20 md:h-28 lg:h-32 w-full shadow-[0_8px_30px_rgba(0,0,0,0.15)] border-coral relative overflow-hidden ring-1 ring-white/20">
+          <div className="bg-gradient-to-b from-coral/50 to-coral/30 rounded-t-xl h-12 sm:h-20 md:h-28 lg:h-32 w-full shadow-[0_8px_30px_rgba(0,0,0,0.15)] relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
           </div>
         </div>
@@ -82,7 +82,7 @@ function LeaderboardPodium({ topReviewers }: LeaderboardPodiumProps) {
         </div>
         {/* Professional Podium Block */}
         <div className="relative mt-auto">
-          <div className="bg-gradient-to-b from-sage/35 to-sage/20 rounded-t-xl h-16 sm:h-24 md:h-36 lg:h-48 w-full shadow-[0_12px_40px_rgba(0,0,0,0.2)] relative overflow-hidden ring-1 ring-white/20">
+          <div className="bg-gradient-to-b from-sage/60 to-sage/35 rounded-t-xl h-16 sm:h-24 md:h-36 lg:h-48 w-full shadow-[0_12px_40px_rgba(0,0,0,0.2)] relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
           </div>
         </div>
@@ -116,7 +116,7 @@ function LeaderboardPodium({ topReviewers }: LeaderboardPodiumProps) {
         </div>
         {/* Professional Podium Block */}
         <div className="relative mt-auto">
-          <div className="bg-gradient-to-b from-charcoal/20 to-charcoal/10 rounded-t-xl h-10 sm:h-16 md:h-24 lg:h-28 w-full shadow-[0_8px_30px_rgba(0,0,0,0.15)] border-charcoal/50 relative overflow-hidden ring-1 ring-white/20">
+          <div className="bg-gradient-to-b from-charcoal/40 to-charcoal/20 rounded-t-xl h-10 sm:h-16 md:h-24 lg:h-28 w-full shadow-[0_8px_30px_rgba(0,0,0,0.15)] relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
           </div>
         </div>

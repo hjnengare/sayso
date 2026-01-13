@@ -19,7 +19,6 @@ import {
     Eye,
     Clock,
     ChevronUp,
-    UserPlus,
     ChevronRight,
 } from "react-feather";
 import Footer from "../../components/Footer/Footer";
@@ -351,20 +350,6 @@ export default function ReviewerProfilePage() {
                                                                 </div>
                                                             </div>
 
-                                                            {/* Action Buttons */}
-                                                            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-                                                                <button
-                                                                    className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-white/90 hover:bg-off-white text-charcoal rounded-full text-xs sm:text-sm font-semibold transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg shadow-charcoal/10 border border-charcoal/10 whitespace-nowrap"
-                                                                    style={{
-                                                                        fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-                                                                        fontWeight: 600,
-                                                                    }}
-                                                                    aria-label="Add friend"
-                                                                >
-                                                                    <UserPlus size={14} strokeWidth={2.5} className="sm:w-4 sm:h-4" />
-                                                                    <span>Add Friend</span>
-                                                                </button>
-                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>

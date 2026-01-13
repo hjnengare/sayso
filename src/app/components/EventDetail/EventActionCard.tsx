@@ -2,7 +2,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Facebook, Instagram, Twitter } from "react-feather";
 
 export default function EventActionCard() {
   return (
@@ -39,26 +38,6 @@ export default function EventActionCard() {
             Contact Organizer
           </button>
         </div>
-
-        <div className="mt-4 pt-4 border-t border-charcoal/10">
-          <h4
-            className="text-body-sm font-semibold text-charcoal/80 mb-2.5"
-            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
-          >
-            Share Event
-          </h4>
-        <div className="flex gap-2">
-          <button className="flex-1 bg-white/30 hover:bg-navbar-bg text-navbar-bg hover:text-white py-2 px-3 rounded-full transition-all duration-200 shadow-md">
-            <Facebook size={16} className="mx-auto" />
-          </button>
-          <button className="flex-1 bg-white/30 hover:bg-navbar-bg text-navbar-bg hover:text-white py-2 px-3 rounded-full transition-all duration-200 shadow-md">
-            <Instagram size={16} className="mx-auto" />
-          </button>
-          <button className="flex-1 bg-white/30 hover:bg-navbar-bg text-navbar-bg hover:text-white py-2 px-3 rounded-full transition-all duration-200 shadow-md">
-            <Twitter size={16} className="mx-auto" />
-          </button>
-        </div>
-      </div>
       </div>
     </motion.div>
   );

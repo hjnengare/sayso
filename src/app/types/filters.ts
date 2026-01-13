@@ -13,14 +13,14 @@ export type SortOption =
   | 'newest'       // Recently added
   | 'trending';    // Popular now
 
-export type DistanceOption = 1 | 5 | 10 | 25; // miles
+export type DistanceOption = 1 | 5 | 10 | 20; // kilometers
 
 export interface LocationFilter {
   type: 'near_me' | 'coordinates' | 'address';
   lat?: number;
   lng?: number;
   address?: string;
-  radiusMiles: DistanceOption;
+  radiusKm: DistanceOption;
 }
 
 export interface HomeFilters {
@@ -53,7 +53,7 @@ export interface FilterState extends HomeFilters {
 export const getDefaultFilters = (userInterests?: string[]): HomeFilters => ({
   location: {
     type: 'near_me',
-    radiusMiles: 5,
+    radiusKm: 5,
   },
   categories: userInterests || [],
   minRating: 4.0,
@@ -70,7 +70,7 @@ export const countActiveFilters = (filters: HomeFilters, defaults: HomeFilters):
   let count = 0;
 
   // Location radius changed
-  if (filters.location.radiusMiles !== defaults.location.radiusMiles) count++;
+  if (filters.location.radiusKm !== defaults.location.radiusKm) count++;
 
   // Categories filtered (less than all interests)
   if (filters.categories.length > 0 &&
@@ -104,7 +104,7 @@ export const countActiveFilters = (filters: HomeFilters, defaults: HomeFilters):
 export const getFilterLabel = (key: keyof HomeFilters, value: any): string => {
   switch (key) {
     case 'location':
-      return `${value.radiusMiles} mi`;
+      return value.radiusKm === 20 ? 'Near Me' : `${value.radiusKm} km`;
     case 'minRating':
       return `${value}+ ⭐`;
     case 'priceRange':
