@@ -969,18 +969,6 @@ export default function AddBusinessPage() {
                                                                                 <UserCheck className="w-5 h-5" />
                                                                                 <span className="text-sm font-semibold">I own/manage it</span>
                                                                             </button>
-                                                                            <button
-                                                                                type="button"
-                                                                                onClick={() => handleInputChange('intent', 'adding-place')}
-                                                                                className={`flex items-center gap-3 p-4 rounded-full border-2 transition-all duration-200 ${
-                                                                                    formData.intent === 'adding-place'
-                                                                                        ? 'bg-gradient-to-br from-coral/20 to-coral/10 border-coral text-white'
-                                                                                        : 'bg-white/10 border-white/30 text-white/80 hover:border-white/50 hover:bg-white/15'
-                                                                                }`}
-                                                                            >
-                                                                                <Plus className="w-5 h-5" />
-                                                                                <span className="text-sm font-semibold">I'm just adding a place</span>
-                                                                            </button>
                                                                         </div>
                                                                     </div>
 

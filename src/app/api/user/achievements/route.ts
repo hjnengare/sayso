@@ -87,7 +87,7 @@ export async function GET(req: Request) {
       achievements.push({
         name: "Century Club",
         description: "Posted 100 reviews",
-        icon: "💯",
+        icon: "/badges/010-confetti.png", // Confetti for celebration milestone
         earnedAt: firstReviewDate || accountCreatedAt,
       });
     }
@@ -95,7 +95,7 @@ export async function GET(req: Request) {
       achievements.push({
         name: "Review Machine",
         description: "Posted 50 reviews",
-        icon: "🎯",
+        icon: "/badges/012-expertise.png", // Expertise/achievement icon
         earnedAt: firstReviewDate || accountCreatedAt,
       });
     }
@@ -103,7 +103,7 @@ export async function GET(req: Request) {
       achievements.push({
         name: "Level Up!",
         description: "Posted 10 reviews",
-        icon: "🔟",
+        icon: "/badges/020-magic-wand.png", // Magic wand for "leveling up"
         earnedAt: firstReviewDate || accountCreatedAt,
       });
     }
@@ -111,7 +111,7 @@ export async function GET(req: Request) {
       achievements.push({
         name: "Rookie Reviewer",
         description: "Posted 5 reviews",
-        icon: "🌟",
+        icon: "/badges/008-baby.png", // Baby steps/rookie
         earnedAt: firstReviewDate || accountCreatedAt,
       });
     }
@@ -120,7 +120,7 @@ export async function GET(req: Request) {
       achievements.push({
         name: "New Voice",
         description: "Posted your first review",
-        icon: "⭐",
+        icon: "/badges/005-social-life.png", // Social/communication icon for new voice
         earnedAt: firstReviewDate,
       });
     }
@@ -130,7 +130,7 @@ export async function GET(req: Request) {
       achievements.push({
         name: "Helpful Reviewer",
         description: "Get 10 helpful likes combined",
-        icon: "👍",
+        icon: "/badges/018-peace.png", // Peace/positive vibes for being helpful
         earnedAt: accountCreatedAt,
       });
     }
@@ -140,7 +140,7 @@ export async function GET(req: Request) {
       achievements.push({
         name: "Top Reviewer",
         description: "Among the top reviewers this month",
-        icon: "🏆",
+        icon: "/badges/011-compass.png", // Compass for being a guide/leader
         earnedAt: accountCreatedAt,
       });
     }

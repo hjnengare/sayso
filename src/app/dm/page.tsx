@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -13,19 +13,17 @@ import {
   Send,
   ArrowLeft,
   ChevronRight,
-  Clock,
   Search,
   MoreVertical,
   Info,
-  Phone,
-  Video,
 } from "react-feather";
 import Header from "../components/Header/Header";
 import { useAuth } from "../contexts/AuthContext";
 
 interface BusinessChat {
-  id: string;
-  conversationId: string;
+  /** UI list item id */
+  id: string; // keep (owner_id) if you want, but we won’t use it for selection
+  conversationId: string; // ✅ this is what we select (WhatsApp-like)
   businessId: string;
   businessName: string;
   businessImage: string;
@@ -44,7 +42,6 @@ interface Message {
   read: boolean;
 }
 
-// Modern Chat Item Component
 function ChatItem({
   chat,
   index,
@@ -74,7 +71,6 @@ function ChatItem({
             : "bg-off-white border border-charcoal/8 hover:border-sage/25 hover:shadow-sm hover:shadow-sage/5 hover:-translate-y-0.5"
         }`}
       >
-        {/* Business Avatar */}
         <div className="relative flex-shrink-0">
           {!imgError && chat.businessImage && chat.businessImage.trim() !== "" ? (
             <div
@@ -97,14 +93,12 @@ function ChatItem({
             </div>
           )}
 
-          {/* Verified Badge */}
           {chat.verified && (
             <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center ring-2 ring-off-white shadow-md">
               <Check className="text-white w-3.5 h-3.5" strokeWidth={3} />
             </div>
           )}
 
-          {/* Unread Indicator */}
           {chat.unreadCount > 0 && !isSelected && (
             <motion.div
               initial={{ scale: 0 }}
@@ -114,7 +108,6 @@ function ChatItem({
           )}
         </div>
 
-        {/* Chat Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between mb-1 gap-2">
             <h3
@@ -160,19 +153,22 @@ export default function DMChatListPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = useAuth();
+
   const [chats, setChats] = useState<BusinessChat[]>([]);
   const [chatsLoading, setChatsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
+
+  // ✅ WhatsApp-style: selection is URL-driven (conversation id)
+  const conversationParam = searchParams?.get("conversation") || null;
+  const businessIdParam = searchParams?.get("businessId") || searchParams?.get("business_id") || null;
+
   const [messages, setMessages] = useState<Message[]>([]);
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [message, setMessage] = useState("");
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  const businessId = searchParams?.get("businessId");
-
-  // Helper function to format timestamp
   const formatTimestamp = (timestamp: string): string => {
     if (!timestamp) return "Just now";
     const date = new Date(timestamp);
@@ -190,20 +186,22 @@ export default function DMChatListPage() {
     return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   };
 
-  // Fetch conversations from API
+  // Fetch conversations
   useEffect(() => {
     const fetchConversations = async () => {
       try {
         setChatsLoading(true);
-        const url = businessId
-          ? `/api/messages/conversations?businessId=${businessId}`
+        const url = businessIdParam
+          ? `/api/messages/conversations?businessId=${businessIdParam}`
           : "/api/messages/conversations";
+
         const response = await fetch(url);
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({ error: "Unknown error" }));
           console.error("API Error:", errorData);
           throw new Error(errorData.error || `Failed to fetch conversations: ${response.status}`);
         }
+
         const result = await response.json();
 
         const transformedChats: BusinessChat[] = (result.data || []).map((conv: any) => {
@@ -233,137 +231,129 @@ export default function DMChatListPage() {
       }
     };
 
-    if (user) {
-      fetchConversations();
-    }
-  }, [user, businessId]);
+    if (user) fetchConversations();
+  }, [user, businessIdParam]);
 
-  // Handle deep links from query parameters
+  // ✅ Handle deep-link creation (owner_id -> create/get conversation -> set URL conversation=...)
   useEffect(() => {
-    const handleDeepLink = async () => {
-      const ownerId = searchParams?.get("owner_id");
-      const conversationId = searchParams?.get("conversation");
-      const businessIdFromQuery = searchParams?.get("business_id");
+    const ownerId = searchParams?.get("owner_id");
+    const businessIdFromQuery = searchParams?.get("business_id");
 
-      // If conversation ID is provided, select that conversation
-      if (conversationId) {
-        setSelectedChatId(conversationId);
-        return;
-      }
+    // If you already have conversation in URL, you’re done.
+    if (conversationParam) return;
 
-      // If owner_id is provided, create or get conversation
-      if (ownerId && user) {
-        try {
-          const response = await fetch("/api/messages/conversations", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              owner_id: ownerId,
-              business_id: businessIdFromQuery || undefined,
-            }),
-          });
+    // If owner_id is provided, create/get conversation then rewrite URL to conversation id.
+    const ensureConversationFromOwner = async () => {
+      if (!ownerId || !user) return;
 
-          if (response.ok) {
-            const result = await response.json();
-            const conversation = result.data;
+      try {
+        const response = await fetch("/api/messages/conversations", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            owner_id: ownerId,
+            business_id: businessIdFromQuery || undefined,
+          }),
+        });
 
-            // Set the selected chat to the owner_id (chat id is owner_id in current structure)
-            setSelectedChatId(ownerId);
+        if (!response.ok) return;
 
-            // Update URL to conversation ID without reload
-            const newUrl = `/dm?conversation=${conversation.id}${businessIdFromQuery ? `&business_id=${businessIdFromQuery}` : ''}`;
-            window.history.replaceState({}, '', newUrl);
+        const result = await response.json();
+        const conversation = result.data;
 
-            // Refetch conversations to include the new one if it was just created
-            // The existing fetchConversations effect will handle this
-          }
-        } catch (error) {
-          console.error("Error creating conversation:", error);
-        }
+        const qs = new URLSearchParams();
+        qs.set("conversation", conversation.id);
+        if (businessIdFromQuery) qs.set("business_id", businessIdFromQuery);
+
+        // WhatsApp-like: replace URL without full navigation
+        router.replace(`/dm?${qs.toString()}`, { scroll: false });
+      } catch (error) {
+        console.error("Error creating conversation:", error);
       }
     };
 
-    if (user && searchParams) {
-      handleDeepLink();
-    }
-  }, [user, searchParams]);
+    ensureConversationFromOwner();
+  }, [user, searchParams, conversationParam, router]);
 
-  const filteredChats = chats.filter((chat) =>
-    chat.businessName.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredChats = useMemo(
+    () => chats.filter((chat) => chat.businessName.toLowerCase().includes(searchQuery.toLowerCase())),
+    [chats, searchQuery]
   );
 
-  const selectedChat = selectedChatId ? chats.find((c) => c.id === selectedChatId) : null;
+  // ✅ Selected chat is based on URL param
+  const selectedChat = useMemo(() => {
+    if (!conversationParam) return null;
+    return chats.find((c) => c.conversationId === conversationParam) || null;
+  }, [conversationParam, chats]);
 
-  // Load messages when chat is selected
+  // Load messages whenever conversationParam changes
   useEffect(() => {
     const fetchMessages = async () => {
-      if (!selectedChatId) {
+      if (!conversationParam) {
         setMessages([]);
         return;
       }
 
       try {
         setMessagesLoading(true);
-        const chat = chats.find((c) => c.id === selectedChatId);
-        if (!chat) {
-          setMessages([]);
-          return;
-        }
 
-        const messagesResponse = await fetch(`/api/messages/conversations/${chat.conversationId}`);
+        const messagesResponse = await fetch(`/api/messages/conversations/${conversationParam}`);
         if (messagesResponse.ok) {
           const messagesResult = await messagesResponse.json();
-          const transformedMessages: Message[] = (messagesResult.data.messages || []).map(
-            (msg: any) => ({
-              id: msg.id,
-              senderId: msg.sender_id,
-              text: msg.content,
-              timestamp: formatTimestamp(msg.created_at),
-              read: msg.read,
-            })
-          );
+          const transformedMessages: Message[] = (messagesResult.data.messages || []).map((msg: any) => ({
+            id: msg.id,
+            senderId: msg.sender_id,
+            text: msg.content,
+            timestamp: formatTimestamp(msg.created_at),
+            read: msg.read,
+          }));
           setMessages(transformedMessages);
+        } else {
+          setMessages([]);
         }
       } catch (error) {
         console.error("Error fetching messages:", error);
         setMessages([]);
       } finally {
         setMessagesLoading(false);
-        setTimeout(() => {
-          messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-        }, 100);
+        setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
       }
     };
 
     fetchMessages();
-  }, [selectedChatId, chats]);
+  }, [conversationParam]);
 
-  // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     if (messages.length > 0) {
-      setTimeout(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, 50);
+      setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
     }
   }, [messages]);
 
-  // Handle send message
+  // ✅ WhatsApp-like click: update URL (no route change), conversation stays in split view
+  const openConversation = (conversationId: string) => {
+    const qs = new URLSearchParams(searchParams?.toString() || "");
+    qs.set("conversation", conversationId);
+    router.replace(`/dm?${qs.toString()}`, { scroll: false });
+  };
+
+  // ✅ Mobile back: clear conversation param (returns to list)
+  const closeConversation = () => {
+    const qs = new URLSearchParams(searchParams?.toString() || "");
+    qs.delete("conversation");
+    qs.delete("owner_id"); // avoid re-trigger create loop
+    router.replace(`/dm?${qs.toString()}`, { scroll: false });
+  };
+
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!message.trim() || !selectedChatId) return;
-
-    const chat = chats.find((c) => c.id === selectedChatId);
-    if (!chat) return;
+    if (!message.trim() || !conversationParam) return;
 
     try {
-      const sendResponse = await fetch(
-        `/api/messages/conversations/${chat.conversationId}/messages`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ content: message.trim() }),
-        }
-      );
+      const sendResponse = await fetch(`/api/messages/conversations/${conversationParam}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: message.trim() }),
+      });
 
       if (!sendResponse.ok) throw new Error("Failed to send message");
       const sendResult = await sendResponse.json();
@@ -376,40 +366,36 @@ export default function DMChatListPage() {
         read: false,
       };
 
-      setMessages([...messages, newMessage]);
+      setMessages((prev) => [...prev, newMessage]);
       setMessage("");
 
-      if (inputRef.current) {
-        inputRef.current.style.height = "auto";
-      }
+      if (inputRef.current) inputRef.current.style.height = "auto";
     } catch (error) {
       console.error("Error sending message:", error);
     }
   };
 
-  // Auto-resize textarea
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMessage(e.target.value);
     e.target.style.height = "auto";
     e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
   };
 
-  // Handle Enter key
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
+      // @ts-expect-error reuse submit handler signature
       handleSend(e);
     }
   };
 
   return (
     <>
-      {/* APPLICATION_SHELL - Desktop */}
+      {/* DESKTOP (WhatsApp Web split view) */}
       <div
         className="hidden md:flex md:flex-col md:h-screen bg-off-white overflow-hidden"
         style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
       >
-        {/* TopNav - Fixed */}
         <div className="flex-shrink-0">
           <Header
             showSearch={true}
@@ -422,13 +408,10 @@ export default function DMChatListPage() {
           />
         </div>
 
-        {/* MainArea - Fills Remaining Viewport Height */}
         <div className="flex-1 flex overflow-hidden min-h-0 md:pt-20">
-          {/* ConversationListPanel - Left, Fixed Width */}
+          {/* LEFT: Conversation list */}
           <div className="w-[380px] xl:w-[420px] flex flex-col bg-off-white border-r border-charcoal/10 overflow-hidden min-h-0">
-            {/* Header - Static */}
             <div className="flex-shrink-0 px-5 pt-4 pb-3 bg-off-white">
-              {/* Breadcrumb Navigation */}
               <nav className="mb-4" aria-label="Breadcrumb">
                 <ol className="flex items-center gap-2 text-sm">
                   <li>
@@ -444,32 +427,23 @@ export default function DMChatListPage() {
                     <ChevronRight className="w-4 h-4 text-charcoal/30" />
                   </li>
                   <li>
-                    <span
-                      className="text-charcoal font-semibold"
-                      style={{ fontFamily: "Urbanist, system-ui, sans-serif" }}
-                    >
+                    <span className="text-charcoal font-semibold" style={{ fontFamily: "Urbanist, system-ui, sans-serif" }}>
                       Messages
                     </span>
                   </li>
                 </ol>
               </nav>
 
-              {/* App Brand / Title + Action Icons */}
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h1
-                    className="text-2xl font-bold text-charcoal leading-tight"
-                    style={{ fontFamily: "Urbanist, system-ui, sans-serif" }}
-                  >
+                  <h1 className="text-2xl font-bold text-charcoal leading-tight" style={{ fontFamily: "Urbanist, system-ui, sans-serif" }}>
                     Messages
                   </h1>
-                  <p
-                    className="text-sm text-charcoal/60 mt-1"
-                    style={{ fontFamily: "Urbanist, system-ui, sans-serif" }}
-                  >
+                  <p className="text-sm text-charcoal/60 mt-1" style={{ fontFamily: "Urbanist, system-ui, sans-serif" }}>
                     {chats.length} {chats.length === 1 ? "conversation" : "conversations"}
                   </p>
                 </div>
+
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -482,7 +456,6 @@ export default function DMChatListPage() {
               </div>
             </div>
 
-            {/* SearchBar - Static */}
             <div className="flex-shrink-0 px-5 pb-3 border-b border-charcoal/5">
               <div className="relative">
                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-charcoal/40" />
@@ -497,7 +470,6 @@ export default function DMChatListPage() {
               </div>
             </div>
 
-            {/* ConversationList - Scrollable ONLY */}
             <div className="flex-1 overflow-y-auto px-1.5 min-h-0">
               {chatsLoading ? (
                 <div className="flex items-center justify-center py-12">
@@ -507,15 +479,12 @@ export default function DMChatListPage() {
                   </div>
                 </div>
               ) : filteredChats.length === 0 ? (
-                // Empty State Group - Centered
                 <div className="flex flex-col items-center justify-center h-full px-6">
                   <div className="text-center max-w-xs" style={{ fontFamily: "Urbanist, system-ui, sans-serif" }}>
-                    {/* Icon */}
                     <div className="w-16 h-16 mx-auto mb-4 bg-charcoal/5 rounded-full flex items-center justify-center">
                       <MessageCircle className="w-8 h-8 text-charcoal/40" strokeWidth={1.5} />
                     </div>
 
-                    {/* Text Group */}
                     <h3 className="text-lg font-bold text-charcoal mb-2">
                       {searchQuery ? "No conversations found" : "No messages yet"}
                     </h3>
@@ -523,7 +492,6 @@ export default function DMChatListPage() {
                       {searchQuery ? "Try adjusting your search" : "Start a conversation with business owners"}
                     </p>
 
-                    {/* CTA - Anchored to empty state */}
                     {!searchQuery && (
                       <button
                         onClick={() => router.push("/dm/new")}
@@ -539,11 +507,11 @@ export default function DMChatListPage() {
                 <div className="space-y-0.5">
                   {filteredChats.map((chat, index) => (
                     <ChatItem
-                      key={chat.id}
+                      key={chat.conversationId} // ✅ stable
                       chat={chat}
                       index={index}
-                      isSelected={selectedChatId === chat.id}
-                      onClick={() => setSelectedChatId(chat.id)}
+                      isSelected={conversationParam === chat.conversationId}
+                      onClick={() => openConversation(chat.conversationId)}
                     />
                   ))}
                 </div>
@@ -551,14 +519,12 @@ export default function DMChatListPage() {
             </div>
           </div>
 
-          {/* ChatPanel - Right, Flexible Width */}
+          {/* RIGHT: Active conversation */}
           <div className="flex-1 flex flex-col bg-off-white overflow-hidden min-h-0">
             {selectedChat ? (
               <>
-                {/* ChatHeader - Fixed */}
                 <div className="flex-shrink-0 px-6 py-4 bg-off-white border-b border-charcoal/10">
                   <div className="flex items-center justify-between gap-4">
-                    {/* Avatar and Info */}
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                       {selectedChat.businessImage ? (
                         <div className="relative flex-shrink-0">
@@ -580,12 +546,10 @@ export default function DMChatListPage() {
                           <User className="w-6 h-6" strokeWidth={2} />
                         </div>
                       )}
+
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <h2
-                            className="text-lg font-bold text-charcoal truncate"
-                            style={{ fontFamily: "Urbanist, system-ui, sans-serif" }}
-                          >
+                          <h2 className="text-lg font-bold text-charcoal truncate" style={{ fontFamily: "Urbanist, system-ui, sans-serif" }}>
                             {selectedChat.businessName}
                           </h2>
                           {selectedChat.verified && (
@@ -597,23 +561,13 @@ export default function DMChatListPage() {
                             </span>
                           )}
                         </div>
-                        <p
-                          className="text-sm text-charcoal/60 truncate"
-                          style={{ fontFamily: "Urbanist, system-ui, sans-serif" }}
-                        >
+                        <p className="text-sm text-charcoal/60 truncate" style={{ fontFamily: "Urbanist, system-ui, sans-serif" }}>
                           {selectedChat.category || "Business Owner"}
                         </p>
                       </div>
                     </div>
 
-                    {/* Chat Actions */}
                     <div className="flex items-center gap-2 flex-shrink-0">
-                      <button
-                        className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-charcoal/5 text-charcoal/60 hover:text-charcoal transition-colors"
-                        aria-label="Search conversation"
-                      >
-                        <Search className="w-4.5 h-4.5" strokeWidth={2} />
-                      </button>
                       <button
                         className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-charcoal/5 text-charcoal/60 hover:text-charcoal transition-colors"
                         aria-label="Conversation info"
@@ -630,7 +584,6 @@ export default function DMChatListPage() {
                   </div>
                 </div>
 
-                {/* MessageThread - Scrollable, Flexible Height */}
                 <div className="flex-1 overflow-y-auto px-6 py-4 min-h-0 bg-off-white">
                   {messagesLoading ? (
                     <div className="flex items-center justify-center h-full">
@@ -641,30 +594,12 @@ export default function DMChatListPage() {
                     </div>
                   ) : messages.length === 0 ? (
                     <div className="flex items-center justify-center h-full">
-                      <div
-                        className="text-center max-w-sm w-full"
-                        style={{
-                          fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-                        }}
-                      >
+                      <div className="text-center max-w-sm w-full" style={{ fontFamily: "Urbanist, system-ui, sans-serif" }}>
                         <div className="w-20 h-20 mx-auto mb-6 bg-charcoal/10 rounded-full flex items-center justify-center">
                           <MessageCircle className="w-10 h-10 text-charcoal/60" strokeWidth={1.5} />
                         </div>
-                        <h3
-                          className="text-h2 font-semibold text-charcoal mb-2"
-                          style={{
-                            fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-                          }}
-                        >
-                          No messages yet
-                        </h3>
-                        <p
-                          className="text-body-sm text-charcoal/60 max-w-md mx-auto"
-                          style={{
-                            fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-                            fontWeight: 500,
-                          }}
-                        >
+                        <h3 className="text-h2 font-semibold text-charcoal mb-2">No messages yet</h3>
+                        <p className="text-body-sm text-charcoal/60 max-w-md mx-auto" style={{ fontWeight: 500 }}>
                           Start the conversation!
                         </p>
                       </div>
@@ -687,20 +622,12 @@ export default function DMChatListPage() {
                                   ? "bg-gradient-to-br from-coral via-coral to-coral/95 text-white shadow-lg shadow-coral/20"
                                   : "bg-off-white text-charcoal border border-charcoal/10 shadow-md shadow-charcoal/5"
                               }`}
-                              style={{
-                                fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-                              }}
+                              style={{ fontFamily: "Urbanist, system-ui, sans-serif" }}
                             >
                               <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">{msg.text}</p>
-                              <div
-                                className={`flex items-center gap-1.5 mt-1.5 text-xs ${
-                                  isCurrentUser ? "text-white/70" : "text-charcoal/40"
-                                }`}
-                              >
+                              <div className={`flex items-center gap-1.5 mt-1.5 text-xs ${isCurrentUser ? "text-white/70" : "text-charcoal/40"}`}>
                                 <span>{msg.timestamp}</span>
-                                {isCurrentUser && msg.read && (
-                                  <Check className="w-3 h-3" strokeWidth={2.5} />
-                                )}
+                                {isCurrentUser && msg.read && <Check className="w-3 h-3" strokeWidth={2.5} />}
                               </div>
                             </div>
                           </motion.div>
@@ -711,10 +638,8 @@ export default function DMChatListPage() {
                   )}
                 </div>
 
-                {/* MessageComposer - Fixed to Bottom of ChatPanel */}
                 <div className="flex-shrink-0 px-6 py-3 bg-off-white border-t border-charcoal/10">
                   <form onSubmit={handleSend} className="flex items-end gap-2.5 max-w-3xl mx-auto">
-                    {/* Attachment Button */}
                     <button
                       type="button"
                       className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-[20px] hover:bg-charcoal/5 text-charcoal/60 hover:text-charcoal transition-colors mb-0.5"
@@ -729,7 +654,6 @@ export default function DMChatListPage() {
                       </svg>
                     </button>
 
-                    {/* Message Input */}
                     <div className="flex-1 relative">
                       <textarea
                         ref={inputRef}
@@ -739,14 +663,10 @@ export default function DMChatListPage() {
                         placeholder="Type a message..."
                         rows={1}
                         className="w-full bg-off-white/50 border border-charcoal/10 rounded-[20px] px-4 py-2.5 text-sm text-charcoal placeholder:text-charcoal/40 resize-none focus:outline-none focus:ring-2 focus:ring-sage/30 focus:border-sage/40 focus:bg-off-white transition-all duration-200 max-h-[120px] overflow-y-auto"
-                        style={{
-                          fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-                          lineHeight: "1.5",
-                        }}
+                        style={{ fontFamily: "Urbanist, system-ui, sans-serif", lineHeight: "1.5" }}
                       />
                     </div>
 
-                    {/* Send Button */}
                     <button
                       type="submit"
                       disabled={!message.trim()}
@@ -759,32 +679,19 @@ export default function DMChatListPage() {
                 </div>
               </>
             ) : (
-              // CenteredEmptyState - No Conversation Selected
               <div className="flex-1 flex items-center justify-center p-8 bg-off-white">
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="text-center max-w-md"
-                >
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="text-center max-w-md">
                   <div className="relative mb-8 flex items-center justify-center">
                     <div className="w-24 h-24 bg-gradient-to-br from-sage/10 to-coral/10 rounded-full flex items-center justify-center">
                       <MessageCircle className="w-12 h-12 text-charcoal/30" strokeWidth={1.5} />
                     </div>
                   </div>
-                  <h2
-                    className="text-2xl font-bold text-charcoal mb-2"
-                    style={{ fontFamily: "Urbanist, system-ui, sans-serif" }}
-                  >
+                  <h2 className="text-2xl font-bold text-charcoal mb-2" style={{ fontFamily: "Urbanist, system-ui, sans-serif" }}>
                     Select a conversation
                   </h2>
-                  <p
-                    className="text-base text-charcoal/60 mb-6"
-                    style={{ fontFamily: "Urbanist, system-ui, sans-serif" }}
-                  >
+                  <p className="text-base text-charcoal/60 mb-6" style={{ fontFamily: "Urbanist, system-ui, sans-serif" }}>
                     Choose a conversation from the list to start messaging
                   </p>
-                 
                 </motion.div>
               </div>
             )}
@@ -792,13 +699,12 @@ export default function DMChatListPage() {
         </div>
       </div>
 
-      {/* APPLICATION_SHELL - Mobile */}
+      {/* MOBILE (WhatsApp mobile: list -> chat full screen) */}
       <div
         className="md:hidden flex flex-col h-screen bg-off-white overflow-hidden"
         style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
       >
-        {/* TopNav - Fixed */}
-        <div className={selectedChatId ? "hidden" : "flex-shrink-0"}>
+        <div className={conversationParam ? "hidden" : "flex-shrink-0"}>
           <Header
             showSearch={true}
             variant="frosty"
@@ -810,10 +716,9 @@ export default function DMChatListPage() {
           />
         </div>
 
-        {/* MainArea - Fills Remaining Viewport Height */}
         <div className="flex-1 flex flex-col overflow-hidden min-h-0">
           <AnimatePresence mode="wait">
-            {selectedChatId && selectedChat ? (
+            {conversationParam && selectedChat ? (
               <motion.div
                 key="conversation"
                 initial={{ x: "100%" }}
@@ -822,16 +727,16 @@ export default function DMChatListPage() {
                 transition={{ type: "tween", duration: 0.2, ease: "easeInOut" }}
                 className="fixed inset-0 z-50 flex flex-col bg-off-white overflow-hidden"
               >
-                {/* ChatHeader - Fixed (Mobile) */}
                 <div className="flex-shrink-0 bg-navbar-bg border-b border-white/10 px-4 py-3 flex items-center justify-between gap-3 safe-area-inset-top pt-safe">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
                     <button
-                      onClick={() => setSelectedChatId(null)}
+                      onClick={closeConversation}
                       className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-[20px] bg-off-white/10 hover:bg-off-white/20 active:bg-off-white/30 transition-colors min-h-[44px] min-w-[44px] touch-manipulation"
                       aria-label="Back to conversations"
                     >
                       <ArrowLeft className="w-5 h-5 text-white" strokeWidth={2.5} />
                     </button>
+
                     {selectedChat.businessImage ? (
                       <div className="relative flex-shrink-0">
                         <Image
@@ -852,21 +757,17 @@ export default function DMChatListPage() {
                         <User className="w-5 h-5" strokeWidth={2} />
                       </div>
                     )}
+
                     <div className="min-w-0 flex-1">
-                      <h2
-                        className="text-base font-bold text-white truncate"
-                        style={{ fontFamily: "Urbanist, system-ui, sans-serif" }}
-                      >
+                      <h2 className="text-base font-bold text-white truncate" style={{ fontFamily: "Urbanist, system-ui, sans-serif" }}>
                         {selectedChat.businessName}
                       </h2>
-                      <p
-                        className="text-xs text-white/70 truncate"
-                        style={{ fontFamily: "Urbanist, system-ui, sans-serif" }}
-                      >
+                      <p className="text-xs text-white/70 truncate" style={{ fontFamily: "Urbanist, system-ui, sans-serif" }}>
                         {selectedChat.category || "Business Owner"}
                       </p>
                     </div>
                   </div>
+
                   <button
                     className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-[20px] hover:bg-off-white/10 text-white/80 hover:text-white transition-colors min-h-[44px] min-w-[44px] touch-manipulation"
                     aria-label="More options"
@@ -875,7 +776,6 @@ export default function DMChatListPage() {
                   </button>
                 </div>
 
-                {/* MessageThread - Scrollable (Mobile) */}
                 <div className="flex-1 overflow-y-auto px-4 py-3 min-h-0 bg-off-white">
                   {messagesLoading ? (
                     <div className="flex items-center justify-center h-full">
@@ -886,30 +786,12 @@ export default function DMChatListPage() {
                     </div>
                   ) : messages.length === 0 ? (
                     <div className="flex items-center justify-center h-full">
-                      <div
-                        className="text-center max-w-sm w-full"
-                        style={{
-                          fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-                        }}
-                      >
+                      <div className="text-center max-w-sm w-full" style={{ fontFamily: "Urbanist, system-ui, sans-serif" }}>
                         <div className="w-20 h-20 mx-auto mb-6 bg-charcoal/10 rounded-full flex items-center justify-center">
                           <MessageCircle className="w-10 h-10 text-charcoal/60" strokeWidth={1.5} />
                         </div>
-                        <h3
-                          className="text-h2 font-semibold text-charcoal mb-2"
-                          style={{
-                            fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-                          }}
-                        >
-                          No messages yet
-                        </h3>
-                        <p
-                          className="text-body-sm text-charcoal/60 max-w-md mx-auto"
-                          style={{
-                            fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-                            fontWeight: 500,
-                          }}
-                        >
+                        <h3 className="text-h2 font-semibold text-charcoal mb-2">No messages yet</h3>
+                        <p className="text-body-sm text-charcoal/60 max-w-md mx-auto" style={{ fontWeight: 500 }}>
                           Start the conversation!
                         </p>
                       </div>
@@ -932,20 +814,12 @@ export default function DMChatListPage() {
                                   ? "bg-gradient-to-br from-coral via-coral to-coral/95 text-white shadow-lg shadow-coral/20"
                                   : "bg-off-white text-charcoal border border-charcoal/10 shadow-md shadow-charcoal/5"
                               }`}
-                              style={{
-                                fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-                              }}
+                              style={{ fontFamily: "Urbanist, system-ui, sans-serif" }}
                             >
                               <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">{msg.text}</p>
-                              <div
-                                className={`flex items-center gap-1.5 mt-1.5 text-xs ${
-                                  isCurrentUser ? "text-white/70" : "text-charcoal/40"
-                                }`}
-                              >
+                              <div className={`flex items-center gap-1.5 mt-1.5 text-xs ${isCurrentUser ? "text-white/70" : "text-charcoal/40"}`}>
                                 <span>{msg.timestamp}</span>
-                                {isCurrentUser && msg.read && (
-                                  <Check className="w-3 h-3" strokeWidth={2.5} />
-                                )}
+                                {isCurrentUser && msg.read && <Check className="w-3 h-3" strokeWidth={2.5} />}
                               </div>
                             </div>
                           </motion.div>
@@ -956,10 +830,8 @@ export default function DMChatListPage() {
                   )}
                 </div>
 
-                {/* MessageComposer - Fixed to Bottom (Mobile) */}
                 <div className="flex-shrink-0 bg-off-white border-t border-charcoal/10 px-4 py-2 safe-area-inset-bottom">
                   <form onSubmit={handleSend} className="flex items-end gap-2">
-                    {/* Attachment Button */}
                     <button
                       type="button"
                       className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-[20px] hover:bg-charcoal/5 active:bg-charcoal/10 text-charcoal/60 transition-colors min-h-[44px] min-w-[44px] touch-manipulation"
@@ -974,7 +846,6 @@ export default function DMChatListPage() {
                       </svg>
                     </button>
 
-                    {/* Message Input */}
                     <div className="flex-1 relative">
                       <textarea
                         ref={inputRef}
@@ -984,14 +855,10 @@ export default function DMChatListPage() {
                         placeholder="Type a message..."
                         rows={1}
                         className="w-full bg-off-white/50 border border-charcoal/10 rounded-[20px] px-3.5 py-2.5 text-sm text-charcoal placeholder:text-charcoal/40 resize-none focus:outline-none focus:ring-2 focus:ring-sage/30 focus:border-sage/40 focus:bg-off-white transition-all duration-200 max-h-[100px] overflow-y-auto touch-manipulation"
-                        style={{
-                          fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-                          lineHeight: "1.5",
-                        }}
+                        style={{ fontFamily: "Urbanist, system-ui, sans-serif", lineHeight: "1.5" }}
                       />
                     </div>
 
-                    {/* Send Button */}
                     <button
                       type="submit"
                       disabled={!message.trim()}
@@ -1012,12 +879,9 @@ export default function DMChatListPage() {
                 transition={{ type: "tween", duration: 0.2, ease: "easeInOut" }}
                 className="flex-1 flex flex-col overflow-hidden min-h-0"
               >
-                {/* ConversationListPanel - Mobile */}
                 <div className="flex-1 flex flex-col overflow-hidden min-h-0">
-                  {/* Header - Static */}
                   <div className="flex-shrink-0 pt-20 sm:pt-24 pb-0 bg-off-white">
                     <div className="mx-auto w-full max-w-[2000px] px-4 sm:px-6">
-                      {/* Breadcrumb Navigation */}
                       <nav className="mb-4" aria-label="Breadcrumb">
                         <ol className="flex items-center gap-2 text-sm">
                           <li>
@@ -1033,34 +897,23 @@ export default function DMChatListPage() {
                             <ChevronRight className="w-4 h-4 text-charcoal/30" />
                           </li>
                           <li>
-                            <span
-                              className="text-charcoal font-semibold"
-                              style={{ fontFamily: "Urbanist, system-ui, sans-serif" }}
-                            >
+                            <span className="text-charcoal font-semibold" style={{ fontFamily: "Urbanist, system-ui, sans-serif" }}>
                               Messages
                             </span>
                           </li>
                         </ol>
                       </nav>
 
-                      {/* App Brand / Title */}
                       <div className="mb-4">
-                        <h1
-                          className="text-2xl font-bold text-charcoal leading-tight"
-                          style={{ fontFamily: "Urbanist, system-ui, sans-serif" }}
-                        >
+                        <h1 className="text-2xl font-bold text-charcoal leading-tight" style={{ fontFamily: "Urbanist, system-ui, sans-serif" }}>
                           Messages
                         </h1>
-                        <p
-                          className="text-sm text-charcoal/60 mt-1"
-                          style={{ fontFamily: "Urbanist, system-ui, sans-serif" }}
-                        >
+                        <p className="text-sm text-charcoal/60 mt-1" style={{ fontFamily: "Urbanist, system-ui, sans-serif" }}>
                           {chats.length} {chats.length === 1 ? "conversation" : "conversations"}
                         </p>
                       </div>
                     </div>
 
-                    {/* SearchBar - Static */}
                     <div className="mx-auto w-full max-w-[2000px] px-4 sm:px-6 pb-3 border-b border-charcoal/5">
                       <div className="relative">
                         <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-charcoal/40" />
@@ -1076,9 +929,7 @@ export default function DMChatListPage() {
                     </div>
                   </div>
 
-                  {/* ConversationList - Scrollable ONLY */}
                   <div className="flex-1 overflow-y-auto min-h-0">
-                    {/* Chat List */}
                     {chatsLoading ? (
                       <div className="flex items-center justify-center py-12">
                         <div className="text-center">
@@ -1087,18 +938,12 @@ export default function DMChatListPage() {
                         </div>
                       </div>
                     ) : filteredChats.length === 0 ? (
-                      // Empty State Group - Centered (Mobile)
                       <div className="flex items-center justify-center min-h-[60vh]">
-                        <div
-                          className="text-center w-full max-w-xs mx-auto px-4"
-                          style={{ fontFamily: "Urbanist, system-ui, sans-serif" }}
-                        >
-                          {/* Icon */}
+                        <div className="text-center w-full max-w-xs mx-auto px-4" style={{ fontFamily: "Urbanist, system-ui, sans-serif" }}>
                           <div className="w-16 h-16 mx-auto mb-4 bg-charcoal/5 rounded-full flex items-center justify-center">
                             <MessageCircle className="w-8 h-8 text-charcoal/40" strokeWidth={1.5} />
                           </div>
 
-                          {/* Text Group */}
                           <h3 className="text-lg font-bold text-charcoal mb-2">
                             {searchQuery ? "No conversations found" : "No messages yet"}
                           </h3>
@@ -1106,7 +951,6 @@ export default function DMChatListPage() {
                             {searchQuery ? "Try adjusting your search" : "Start a conversation with business owners"}
                           </p>
 
-                          {/* CTA - Anchored to empty state */}
                           {!searchQuery && (
                             <button
                               onClick={() => router.push("/dm/new")}
@@ -1123,18 +967,17 @@ export default function DMChatListPage() {
                         <div className="space-y-0.5">
                           {filteredChats.map((chat, index) => (
                             <ChatItem
-                              key={chat.id}
+                              key={chat.conversationId}
                               chat={chat}
                               index={index}
-                              onClick={() => setSelectedChatId(chat.id)}
+                              onClick={() => openConversation(chat.conversationId)}
                             />
                           ))}
                         </div>
                       </div>
                     )}
 
-                    {/* Mobile Compose Button - Fixed Position */}
-                    {!selectedChatId && (
+                    {!conversationParam && (
                       <div className="fixed bottom-6 right-4 sm:right-6 z-50 safe-area-inset-bottom">
                         <motion.button
                           whileTap={{ scale: 0.9 }}
