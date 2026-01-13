@@ -18,7 +18,7 @@ export function AdvancedFilters() {
 
   if (!filters.isAdvancedOpen) return null;
 
-  const priceOptions: PriceRange[] = ['$', '$$', '$$$', '$$$$'];
+  const priceOptions: PriceRange[] = ['R', 'RR', 'RRR', 'RRRR'];
 
   const togglePrice = (price: PriceRange) => {
     const newPrices = filters.priceRange.includes(price)

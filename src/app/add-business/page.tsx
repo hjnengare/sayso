@@ -672,10 +672,10 @@ export default function AddBusinessPage() {
     };
 
     const priceRanges = [
-        { value: "$", label: "$ - Budget Friendly" },
-        { value: "$$", label: "$$ - Moderate" },
-        { value: "$$$", label: "$$$ - Upscale" },
-        { value: "$$$$", label: "$$$$ - Fine Dining/Luxury" },
+        { value: "R", label: "R - Budget Friendly" },
+        { value: "RR", label: "RR - Moderate" },
+        { value: "RRR", label: "RRR - Upscale" },
+        { value: "RRRR", label: "RRRR - Luxury" },
     ];
 
     // Show loader while checking auth
@@ -1411,7 +1411,7 @@ export default function AddBusinessPage() {
                                                 ) : (
                                                     <>
                                                         <Save className="w-4 h-4" />
-                                                        <span>Create Business</span>
+                                                        <span>Create Business Profile</span>
                                                     </>
                                                 )}
                                             </button>

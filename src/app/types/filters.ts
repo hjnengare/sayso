@@ -3,7 +3,7 @@
  * Defines the structure for filtering businesses/places
  */
 
-export type PriceRange = '$' | '$$' | '$$$' | '$$$$';
+export type PriceRange = 'R' | 'RR' | 'RRR' | 'RRRR';
 
 export type SortOption =
   | 'relevance'    // Matches user interests (default)
@@ -58,7 +58,7 @@ export const getDefaultFilters = (userInterests?: string[]): HomeFilters => ({
   categories: userInterests || [],
   minRating: 4.0,
   sortBy: 'relevance',
-  priceRange: ['$', '$$', '$$$', '$$$$'], // All price ranges by default
+  priceRange: ['R', 'RR', 'RRR', 'RRRR'], // All price ranges by default
   openNow: false,
   mustMeetDealbreakers: true, // Default to ON - respect user preferences
   subcategories: [],

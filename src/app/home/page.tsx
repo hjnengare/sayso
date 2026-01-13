@@ -483,14 +483,6 @@ export default function Home() {
             />
           </div>
 
-          {/* Category Filter Pills - positioned directly underneath search input, styled like FilterTabs */}
-          <div className="px-2">
-            <CategoryFilterPills
-              selectedCategoryIds={selectedInterestIds}
-              preferredCategoryIds={preferenceInterestIds || []}
-              onToggleCategory={handleToggleInterest}
-            />
-          </div>
 
           {/* Active Filter Badges */}
           <ActiveFilterBadges
