@@ -145,7 +145,7 @@ function ProfileContent() {
       try {
         setProfileLoading(true);
         const response = await fetch('/api/user/profile', { cache: 'no-store' });
-        
+
         if (!response.ok) {
           if (response.status === 401) {
             console.warn('Not authenticated for profile fetch');
@@ -154,7 +154,7 @@ function ProfileContent() {
           }
           // Get error details from response
           const errorData = await response.json().catch(() => ({ error: { message: 'Unknown error' } }));
-          
+
           // Handle 404 gracefully - profile might not exist yet, use existing profile data
           if (response.status === 404) {
             console.warn('Profile not found, using existing profile data:', errorData.error);
@@ -201,7 +201,7 @@ function ProfileContent() {
       try {
         setStatsLoading(true);
         const response = await fetch('/api/user/stats', { cache: 'no-store' });
-        
+
         if (!response.ok) {
           if (response.status === 401) {
             setStatsLoading(false);
@@ -267,7 +267,7 @@ function ProfileContent() {
           const uploaded_images = business.business_images
             ?.filter((img: any) => img.is_primary || img.sort_order === 0)
             .map((img: any) => img.url) || [];
-          
+
           return {
             ...business,
             uploaded_images: uploaded_images.length > 0 ? uploaded_images : (business.image_url ? [business.image_url] : []),
@@ -298,7 +298,7 @@ function ProfileContent() {
         setSavedBusinessesLoading(true);
         // Limit to 20 for faster loading - user can see more on saved page
         const response = await fetch('/api/saved/businesses?limit=20&page=1', { cache: 'no-store' });
-        
+
         if (!response.ok) {
           if (response.status === 401) {
             setSavedBusinesses([]);
@@ -329,7 +329,7 @@ function ProfileContent() {
   const profile = React.useMemo((): UserProfile => {
     const rawProfile: any = user?.profile || {};
     const enhanced: any = enhancedProfile || {};
-    
+
     // Merge enhanced profile data with existing profile
     const profileData: UserProfile = {
       user_id: user?.id || '',
@@ -376,10 +376,10 @@ function ProfileContent() {
 
       try {
         setReviewsLoading(true);
-        
+
         // Use new user reviews API endpoint
         const response = await fetch(`/api/user/reviews?page=1&pageSize=20`);
-        
+
         if (!response.ok) {
           console.error('Error fetching user reviews:', response.status);
           setUserReviews([]);
@@ -425,7 +425,7 @@ function ProfileContent() {
       try {
         setAchievementsLoading(true);
         const response = await fetch('/api/user/achievements', { cache: 'no-store' });
-        
+
         if (!response.ok) {
           if (response.status === 401) {
             setAchievements([]);
@@ -482,7 +482,7 @@ function ProfileContent() {
       if (avatarFileToSave === null && data?.avatarFile === null) {
         // User explicitly removed the avatar
         avatar_url = null;
-        
+
         // Delete old avatar from storage if it exists
         if (profile.avatar_url) {
           try {
@@ -490,11 +490,11 @@ function ProfileContent() {
             const urlParts = profile.avatar_url.split('/');
             const fileName = urlParts[urlParts.length - 1].split('?')[0]; // Remove query params
             const path = `${user.id}/${fileName}`;
-            
+
             const { error: deleteError } = await supabase.storage
               .from('avatars')
               .remove([path]);
-            
+
             if (deleteError) {
               console.warn('Error deleting old avatar:', deleteError);
               // Continue even if deletion fails
@@ -522,30 +522,30 @@ function ProfileContent() {
           const timestamp = Date.now();
           const fileExt = avatarFileToSave.name.split('.').pop() || 'jpg';
           const path = `${user.id}/avatar-${timestamp}.${fileExt}`;
-          
+
           console.log('Uploading to path:', path);
-          
+
           // Upload to Supabase Storage
           const { error: uploadErr, data: uploadData } = await supabase.storage
             .from('avatars')
-            .upload(path, avatarFileToSave, { 
-              upsert: true, 
+            .upload(path, avatarFileToSave, {
+              upsert: true,
               cacheControl: '3600',
               contentType: avatarFileToSave.type || `image/${fileExt}`
             });
-          
+
           if (uploadErr) {
             console.error('Avatar upload error details:', {
               error: uploadErr,
               message: uploadErr.message,
               name: uploadErr.name
             });
-            
+
             // Provide more specific error messages
             let errorMessage = 'Failed to upload avatar image';
             if (uploadErr.message) {
               errorMessage = uploadErr.message;
-              
+
               // Check for specific error patterns
               if (uploadErr.message.includes('413') || uploadErr.message.includes('too large')) {
                 errorMessage = 'Image file is too large. Please choose a smaller image.';
@@ -559,31 +559,31 @@ function ProfileContent() {
                 errorMessage = `Upload failed: ${uploadErr.message}`;
               }
             }
-            
+
             // Only throw if it's not a duplicate (we can still get the URL)
             if (!uploadErr.message?.includes('duplicate') && !uploadErr.message?.includes('already exists')) {
               throw new Error(errorMessage);
             }
           }
-          
+
           console.log('Upload successful, getting public URL...');
-          
+
           // Get public URL
           const { data: pubData } = supabase.storage.from('avatars').getPublicUrl(path);
-          
+
           if (!pubData?.publicUrl) {
             console.error('Failed to get public URL:', pubData);
             throw new Error('Failed to get public URL for uploaded image');
           }
-          
+
           console.log('Got public URL:', pubData.publicUrl);
-          
+
           // Store URL without query parameter (we can add cache-busting on display if needed)
           avatar_url = pubData.publicUrl;
-          
+
           // Small delay to ensure image is available after upload
           await new Promise(resolve => setTimeout(resolve, 500));
-          
+
           console.log('Avatar URL set:', avatar_url);
         } catch (uploadError: any) {
           console.error('Avatar upload failed:', uploadError);
@@ -595,7 +595,7 @@ function ProfileContent() {
       // Ensure we explicitly set username and display_name (use null for empty strings)
       const usernameValue = usernameToSave.trim() || null;
       const displayNameValue = displayNameToSave.trim() || null;
-      
+
       // Update via AuthContext (for username, display_name, avatar_url)
       await updateUser({
         profile: {
@@ -657,7 +657,7 @@ function ProfileContent() {
   const confirmDeactivateAccount = async () => {
     setIsDeactivating(true);
     setDeactivateError(null);
-    
+
     try {
       const response = await fetch('/api/user/deactivate-account', {
         method: 'POST',
@@ -686,7 +686,7 @@ function ProfileContent() {
   const confirmDeleteAccount = async () => {
     setIsDeletingAccount(true);
     setDeleteAccountError(null);
-    
+
     try {
       const response = await fetch('/api/user/delete-account', {
         method: 'DELETE',
@@ -738,16 +738,16 @@ function ProfileContent() {
     profile.locale ||
     "Location not set";
   const reviewsCount = userStats?.totalReviewsWritten ?? profile.reviews_count ?? 0;
-  const badgesCount = profile.badges_count ?? 0;
+  const badgesCount = achievements.length; // Use actual achievements length instead of cached count
   const interestsCount = profile.interests_count ?? 0;
-  const helpfulVotesCount = userStats?.helpfulVotesReceived ?? 
-    userStats?.totalHelpfulVotesGiven ?? 
+  const helpfulVotesCount = userStats?.helpfulVotesReceived ??
+    userStats?.totalHelpfulVotesGiven ??
     Math.max(0, reviewsCount * 3);
-  const memberSinceLabel = userStats?.accountCreationDate 
+  const memberSinceLabel = userStats?.accountCreationDate
     ? formatMemberSince(userStats.accountCreationDate)
     : profile.created_at
-    ? formatMemberSince(profile.created_at)
-    : "—";
+      ? formatMemberSince(profile.created_at)
+      : "—";
 
   // Handle review edit
   const handleEditReview = (reviewId: string, businessSlug: string) => {
@@ -773,7 +773,7 @@ function ProfileContent() {
         setUserReviews(prev => prev.filter(r => r.id !== reviewToDelete));
         setIsDeleteDialogOpen(false);
         setReviewToDelete(null);
-        
+
         // Refresh reviews count in stats if available
         if (userStats) {
           setUserStats(prev => prev ? { ...prev, totalReviewsWritten: Math.max(0, prev.totalReviewsWritten - 1) } : null);
@@ -847,484 +847,434 @@ function ProfileContent() {
               "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
           }}
         >
-        <Header
-          showSearch={false}
-          variant="white"
-          backgroundClassName="bg-navbar-bg"
-          topPosition="top-0"
-          reducedPadding={true}
-          whiteText={true}
-        />
+          <Header
+            showSearch={false}
+            variant="white"
+            backgroundClassName="bg-navbar-bg"
+            topPosition="top-0"
+            reducedPadding={true}
+            whiteText={true}
+          />
 
-        <div className="bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white">
-          <div className="pt-20 sm:pt-24">
-            <main
-              className="relative font-urbanist"
-              id="main-content"
-              role="main"
-              aria-label="User profile content"
-            >
-              <div className="mx-auto w-full max-w-[2000px] px-3 sm:px-6 lg:px-10 2xl:px-16 relative z-10">
-                {/* Breadcrumb Navigation */}
-                <nav className="mb-4 sm:mb-6 px-2" aria-label="Breadcrumb">
-                  <ol className="flex items-center gap-2 text-sm sm:text-base">
-                    <li>
-                      <Link href="/home" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                        Home
-                      </Link>
-                    </li>
-                    <li className="flex items-center">
-                      <ChevronRight className="w-4 h-4 text-charcoal/40" />
-                    </li>
-                    <li>
-                      <span className="text-charcoal font-semibold" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                        Profile
-                      </span>
-                    </li>
-                  </ol>
-                </nav>
-                <div className="pt-2 pb-12 sm:pb-16 md:pb-20">
-                  <div className="space-y-6">
-                    <article
-                      className="w-full sm:mx-0"
-                      aria-labelledby="profile-heading"
-                    >
-                          <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-sage/10 to-transparent rounded-full blur-lg"></div>
-                        <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-coral/10 to-transparent rounded-full blur-lg"></div>
+          <div className="bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white">
+            <div className="pt-20 sm:pt-24">
+              <main
+                className="relative font-urbanist"
+                id="main-content"
+                role="main"
+                aria-label="User profile content"
+              >
+                <div className="mx-auto w-full max-w-[2000px] px-3 sm:px-6 lg:px-10 2xl:px-16 relative z-10">
+                  {/* Breadcrumb Navigation */}
+                  <nav className="mb-4 sm:mb-6 px-2" aria-label="Breadcrumb">
+                    <ol className="flex items-center gap-2 text-sm sm:text-base">
+                      <li>
+                        <Link href="/home" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                          Home
+                        </Link>
+                      </li>
+                      <li className="flex items-center">
+                        <ChevronRight className="w-4 h-4 text-charcoal/40" />
+                      </li>
+                      <li>
+                        <span className="text-charcoal font-semibold" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                          Profile
+                        </span>
+                      </li>
+                    </ol>
+                  </nav>
+                  <div className="pt-2 pb-12 sm:pb-16 md:pb-20">
+                    <div className="space-y-6">
+                      <article
+                        className="w-full sm:mx-0"
+                        aria-labelledby="profile-heading"
+                      >
+                        <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md relative overflow-hidden">
+                          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-sage/10 to-transparent rounded-full blur-lg"></div>
+                          <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-coral/10 to-transparent rounded-full blur-lg"></div>
 
-                        <div className="relative z-10 p-6 sm:p-8">
-                          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-                            <div className="relative flex-shrink-0">
-                              {!imgError && profile.avatar_url && profile.avatar_url.trim() !== "" ? (
-                                <div className="relative">
-                                  <Image
-                                    key={`${profile.avatar_url || "avatar"}-${avatarKey}`}
-                                    src={profile.avatar_url}
-                                    alt={displayLabel}
-                                    width={120}
-                                    height={120}
-                                    className="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded-full border-4 border-coral shadow-xl"
-                                    priority
-                                    onError={() => setImgError(true)}
-                                  />
-                                  {profile.is_top_reviewer && (
-                                    <div className="absolute -bottom-1 -right-1 z-20">
-                                      <div className="w-8 h-8 bg-sage rounded-full flex items-center justify-center ring-4 ring-white">
-                                        <Check className="text-white" size={14} strokeWidth={3} />
+                          <div className="relative z-10 p-6 sm:p-8">
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+                              <div className="relative flex-shrink-0">
+                                {!imgError && profile.avatar_url && profile.avatar_url.trim() !== "" ? (
+                                  <div className="relative">
+                                    <Image
+                                      key={`${profile.avatar_url || "avatar"}-${avatarKey}`}
+                                      src={profile.avatar_url}
+                                      alt={displayLabel}
+                                      width={120}
+                                      height={120}
+                                      className="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded-full border-4 border-coral shadow-xl"
+                                      priority
+                                      onError={() => setImgError(true)}
+                                    />
+                                    {profile.is_top_reviewer && (
+                                      <div className="absolute -bottom-1 -right-1 z-20">
+                                        <div className="w-8 h-8 bg-sage rounded-full flex items-center justify-center ring-4 ring-white">
+                                          <Check className="text-white" size={14} strokeWidth={3} />
+                                        </div>
                                       </div>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <div className="w-24 h-24 sm:w-32 sm:h-32 flex items-center justify-center bg-sage/20 rounded-full border-4 border-coral shadow-xl">
+                                    <User className="text-navbar-bg" size={44} strokeWidth={2.5} />
+                                  </div>
+                                )}
+                              </div>
+
+                              <div className="flex-1 min-w-0 w-full">
+                                <div className="flex items-center gap-2 mb-2 flex-wrap">
+                                  <h2
+                                    id="profile-heading"
+                                    className="text-h1 sm:text-hero font-semibold text-charcoal"
+                                    style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
+                                  >
+                                    {displayLabel}
+                                  </h2>
+                                  {profile.is_top_reviewer && (
+                                    <div className="px-2 py-1 rounded-full text-caption font-semibold flex items-center gap-1 bg-sage/20 text-sage">
+                                      <Award size={12} />
+                                      <span className="capitalize">Top Reviewer</span>
                                     </div>
                                   )}
                                 </div>
-                              ) : (
-                                <div className="w-24 h-24 sm:w-32 sm:h-32 flex items-center justify-center bg-sage/20 rounded-full border-4 border-coral shadow-xl">
-                                  <User className="text-navbar-bg" size={44} strokeWidth={2.5} />
-                                </div>
-                              )}
-                            </div>
-
-                            <div className="flex-1 min-w-0 w-full">
-                              <div className="flex items-center gap-2 mb-2 flex-wrap">
-                                <h2
-                                  id="profile-heading"
-                                  className="text-h1 sm:text-hero font-semibold text-charcoal"
-                                  style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
-                                >
-                                  {displayLabel}
-                                </h2>
-                                {profile.is_top_reviewer && (
-                                  <div className="px-2 py-1 rounded-full text-caption font-semibold flex items-center gap-1 bg-sage/20 text-sage">
-                                    <Award size={12} />
-                                    <span className="capitalize">Top Reviewer</span>
-                                  </div>
+                                {/* Bio */}
+                                {enhancedProfile?.bio && (
+                                  <p className="text-body-sm text-charcoal/80 mb-4 leading-relaxed">
+                                    {enhancedProfile.bio}
+                                  </p>
                                 )}
-                              </div>
-                              {/* Bio */}
-                              {enhancedProfile?.bio && (
-                                <p className="text-body-sm text-charcoal/80 mb-4 leading-relaxed">
-                                  {enhancedProfile.bio}
-                                </p>
-                              )}
-                              
-                              <div className="flex items-center gap-4 mb-4 text-body-sm text-charcoal/70 flex-wrap">
-                                {profileLocation && profileLocation !== "Location not set" && (
+
+                                <div className="flex items-center gap-4 mb-4 text-body-sm text-charcoal/70 flex-wrap">
+                                  {profileLocation && profileLocation !== "Location not set" && (
+                                    <div className="flex items-center gap-1">
+                                      <MapPin size={14} />
+                                      <span>{profileLocation}</span>
+                                    </div>
+                                  )}
                                   <div className="flex items-center gap-1">
-                                    <MapPin size={14} />
-                                    <span>{profileLocation}</span>
+                                    <Calendar size={14} />
+                                    <span>Member since {memberSinceLabel}</span>
+                                  </div>
+                                  {enhancedProfile?.website_url && (
+                                    <a
+                                      href={enhancedProfile.website_url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="flex items-center gap-1 hover:text-coral transition-colors"
+                                    >
+                                      <Briefcase size={14} />
+                                      <span>Website</span>
+                                    </a>
+                                  )}
+                                </div>
+
+                                {/* Social Links */}
+                                {enhancedProfile?.social_links && Object.keys(enhancedProfile.social_links).length > 0 && (
+                                  <div className="flex items-center gap-3 mb-4">
+                                    {Object.entries(enhancedProfile.social_links).map(([platform, url]) => {
+                                      if (!url) return null;
+                                      const platformIcons: Record<string, any> = {
+                                        instagram: '📷',
+                                        x: '𝕏',
+                                        twitter: '🐦',
+                                        tiktok: '🎵',
+                                        facebook: '👤',
+                                        linkedin: '💼',
+                                        youtube: '▶️',
+                                      };
+                                      return (
+                                        <a
+                                          key={platform}
+                                          href={url}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="text-charcoal/70 hover:text-coral transition-colors"
+                                          aria-label={platform}
+                                        >
+                                          {platformIcons[platform.toLowerCase()] || '🔗'}
+                                        </a>
+                                      );
+                                    })}
                                   </div>
                                 )}
-                                <div className="flex items-center gap-1">
-                                  <Calendar size={14} />
-                                  <span>Member since {memberSinceLabel}</span>
+                                <div className="flex items-center gap-6 mb-4 flex-wrap">
+                                  <div className="text-sm text-charcoal/70">
+                                    {reviewsCount} reviews
+                                  </div>
                                 </div>
-                                {enhancedProfile?.website_url && (
-                                  <a
-                                    href={enhancedProfile.website_url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex items-center gap-1 hover:text-coral transition-colors"
-                                  >
-                                    <Briefcase size={14} />
-                                    <span>Website</span>
-                                  </a>
-                                )}
-                              </div>
-                              
-                              {/* Social Links */}
-                              {enhancedProfile?.social_links && Object.keys(enhancedProfile.social_links).length > 0 && (
-                                <div className="flex items-center gap-3 mb-4">
-                                  {Object.entries(enhancedProfile.social_links).map(([platform, url]) => {
-                                    if (!url) return null;
-                                    const platformIcons: Record<string, any> = {
-                                      instagram: '📷',
-                                      x: '𝕏',
-                                      twitter: '🐦',
-                                      tiktok: '🎵',
-                                      facebook: '👤',
-                                      linkedin: '💼',
-                                      youtube: '▶️',
-                                    };
-                                    return (
-                                      <a
-                                        key={platform}
-                                        href={url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-charcoal/70 hover:text-coral transition-colors"
-                                        aria-label={platform}
-                                      >
-                                        {platformIcons[platform.toLowerCase()] || '🔗'}
-                                      </a>
-                                    );
-                                  })}
-                                </div>
-                              )}
-                              <div className="flex items-center gap-6 mb-4 flex-wrap">
-                                <div className="text-sm text-charcoal/70">
-                                  {reviewsCount} reviews
-                                </div>
-                              </div>
 
-                              <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-                                <button
-                                  onClick={() => setIsEditOpen(true)}
-                                  className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-coral/90 hover:bg-charcoal/90 hover:border-white/30 text-white rounded-full text-caption sm:text-body-sm font-semibold transition-all duration-300 hover:scale-105 active:scale-95 shadow-md shadow-sage/20 border border-sage/20 whitespace-nowrap"
-                                  aria-label="Edit profile"
-                                >
-                                  <MessageSquare size={14} strokeWidth={2.5} className="sm:w-4 sm:h-4" />
-                                  <span>Edit Profile</span>
-                                </button>
+                                <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                                  <button
+                                    onClick={() => setIsEditOpen(true)}
+                                    className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-coral/90 hover:bg-charcoal/90 hover:border-white/30 text-white rounded-full text-caption sm:text-body-sm font-semibold transition-all duration-300 hover:scale-105 active:scale-95 shadow-md shadow-sage/20 border border-sage/20 whitespace-nowrap"
+                                    aria-label="Edit profile"
+                                  >
+                                    <MessageSquare size={14} strokeWidth={2.5} className="sm:w-4 sm:h-4" />
+                                    <span>Edit Profile</span>
+                                  </button>
+                                </div>
                               </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    </article>
+                      </article>
 
-                    <section
-                      className="grid grid-cols-2 sm:grid-cols-4 gap-4"
-                      aria-label="Profile statistics"
-                    >
-                          <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-4">
-                        <div className="flex items-center gap-2 mb-2">
-                          <ThumbsUp className="w-5 h-5 text-coral" />
-                          <span className="text-sm text-charcoal/70">Helpful votes</span>
-                        </div>
-                        <p className="text-2xl font-bold text-charcoal">
-                          {statsLoading ? '—' : helpfulVotesCount}
-                        </p>
-                        <p className="text-xs text-charcoal/60">Received</p>
-                      </div>
-                          <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-4">
-                        <div className="flex items-center gap-2 mb-2">
-                          <StarIcon className="w-5 h-5 text-coral" />
-                          <span className="text-sm text-charcoal/70">Reviews</span>
-                        </div>
-                        <p className="text-2xl font-bold text-charcoal">
-                          {statsLoading ? '—' : reviewsCount}
-                        </p>
-                        <p className="text-xs text-charcoal/60">Total written</p>
-                      </div>
-                          <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-4">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Award className="w-5 h-5 text-coral" />
-                          <span className="text-sm text-charcoal/70">Badges</span>
-                        </div>
-                        <p className="text-2xl font-bold text-charcoal">{badgesCount}</p>
-                        <p className="text-xs text-charcoal/60">Achievements unlocked</p>
-                      </div>
-                          <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-4">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Eye className="w-5 h-5 text-coral" />
-                          <span className="text-sm text-charcoal/70">Interests</span>
-                        </div>
-                        <p className="text-2xl font-bold text-charcoal">{interestsCount}</p>
-                        <p className="text-xs text-charcoal/60">Communities followed</p>
-                      </div>
-                      {userStats && (
-                        <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-4 sm:col-span-2">
+                      <section
+                        className="grid grid-cols-2 sm:grid-cols-4 gap-4"
+                        aria-label="Profile statistics"
+                      >
+                        <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-4">
                           <div className="flex items-center gap-2 mb-2">
-                            <Briefcase className="w-5 h-5 text-coral" />
-                            <span className="text-sm text-charcoal/70">Saved Businesses</span>
+                            <ThumbsUp className="w-5 h-5 text-coral" />
+                            <span className="text-sm text-charcoal/70">Helpful votes</span>
                           </div>
                           <p className="text-2xl font-bold text-charcoal">
-                            {statsLoading ? '—' : userStats.totalBusinessesSaved}
+                            {statsLoading ? '—' : helpfulVotesCount}
                           </p>
-                          <p className="text-xs text-charcoal/60">Your saved gems</p>
+                          <p className="text-xs text-charcoal/60">Received</p>
                         </div>
-                      )}
-                    </section>
-
-                    {/* Saved Businesses - Mobile Only */}
-                    {savedBusinesses.length > 0 && (
-                      <section
-                            className="md:hidden bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-6 space-y-4"
-                        aria-label="Saved businesses"
-                      >
-                        <SavedBusinessRow
-                          title="Your Saved Gems"
-                          businesses={savedBusinesses}
-                          showCount={true}
-                        />
+                        <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-4">
+                          <div className="flex items-center gap-2 mb-2">
+                            <StarIcon className="w-5 h-5 text-coral" />
+                            <span className="text-sm text-charcoal/70">Reviews</span>
+                          </div>
+                          <p className="text-2xl font-bold text-charcoal">
+                            {statsLoading ? '—' : reviewsCount}
+                          </p>
+                          <p className="text-xs text-charcoal/60">Total written</p>
+                        </div>
+                        <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-4">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Award className="w-5 h-5 text-coral" />
+                            <span className="text-sm text-charcoal/70">Badges</span>
+                          </div>
+                          <p className="text-2xl font-bold text-charcoal">{badgesCount}</p>
+                          <p className="text-xs text-charcoal/60">Achievements unlocked</p>
+                        </div>
+                        <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-4">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Eye className="w-5 h-5 text-coral" />
+                            <span className="text-sm text-charcoal/70">Interests</span>
+                          </div>
+                          <p className="text-2xl font-bold text-charcoal">{interestsCount}</p>
+                          <p className="text-xs text-charcoal/60">Communities followed</p>
+                        </div>
+                        {userStats && (
+                          <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-4 sm:col-span-2">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Briefcase className="w-5 h-5 text-coral" />
+                              <span className="text-sm text-charcoal/70">Saved Businesses</span>
+                            </div>
+                            <p className="text-2xl font-bold text-charcoal">
+                              {statsLoading ? '—' : userStats.totalBusinessesSaved}
+                            </p>
+                            <p className="text-xs text-charcoal/60">Your saved gems</p>
+                          </div>
+                        )}
                       </section>
-                    )}
 
-                    {/* Badges & Achievements Section */}
-                    {achievements.length > 0 && (
+                      {/* Saved Businesses - Mobile Only */}
+                      {savedBusinesses.length > 0 && (
+                        <section
+                          className="md:hidden bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-6 space-y-4"
+                          aria-label="Saved businesses"
+                        >
+                          <SavedBusinessRow
+                            title="Your Saved Gems"
+                            businesses={savedBusinesses}
+                            showCount={true}
+                          />
+                        </section>
+                      )}
+
                       <section
-                        className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-lg p-6 sm:p-8 animate-fade-in-up"
-                        aria-label="Badges and achievements"
+                        className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-6 sm:p-8"
+                        aria-label="Your achievements"
                       >
-                        <h3 className="text-lg font-bold text-charcoal mb-4" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                          Badges & Achievements
-                        </h3>
                         {achievementsLoading ? (
                           <div className="flex items-center justify-center py-8">
                             <Loader size="md" variant="wavy" color="sage" />
                           </div>
                         ) : (
-                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {achievements.map((userAchievement) => {
-                              const badge = userAchievement.achievements;
-                              const earnedDate = new Date(userAchievement.earned_at).toLocaleDateString('en-US', {
-                                month: 'short',
-                                year: 'numeric'
-                              });
+                          <AchievementsList
+                            achievements={achievementsData}
+                            title="Your Achievements"
+                          />
+                        )}
+                      </section>
 
+                      {/* My Businesses Section */}
+                      <section
+                        className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-6 sm:p-8 space-y-4"
+                        aria-label="My businesses"
+                      >
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-base font-semibold text-charcoal flex items-center gap-3">
+                            <span className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-coral/20 to-coral/10">
+                              <Store className="w-5 h-5 text-coral" />
+                            </span>
+                            My Businesses
+                          </h3>
+                        </div>
+                        {ownedBusinessesLoading ? (
+                          <div className="flex items-center justify-center py-8">
+                            <Loader size="md" variant="wavy" color="sage" />
+                          </div>
+                        ) : ownedBusinesses.length > 0 ? (
+                          <div className="space-y-3">
+                            {ownedBusinesses.map((business) => {
+                              const businessSlug = business.slug || business.id;
+                              const displayImage = business.uploaded_images?.[0] || business.image_url || null;
                               return (
-                                <div
-                                  key={userAchievement.achievement_id}
-                                  className="bg-off-white/50 rounded-[20px] p-4 border border-white/40"
+                                <Link
+                                  key={business.id}
+                                  href={`/business/${businessSlug}/edit`}
+                                  className="flex items-center gap-4 p-4 bg-white/50 hover:bg-white/70 rounded-[16px] border border-white/60 transition-all duration-200 hover:shadow-md group"
                                 >
-                                  <div className="flex items-center gap-3 mb-2">
-                                    <span className="text-2xl">{badge.icon}</span>
-                                    <div>
-                                      <div className="text-sm font-bold text-charcoal" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                                        {badge.name}
-                                      </div>
-                                      <div className="text-xs text-charcoal/60" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                                        Earned {earnedDate}
-                                      </div>
+                                  {displayImage ? (
+                                    <div className="relative w-16 h-16 rounded-[12px] overflow-hidden flex-shrink-0">
+                                      <Image
+                                        src={displayImage}
+                                        alt={business.name}
+                                        fill
+                                        className="object-cover"
+                                        sizes="64px"
+                                      />
+                                    </div>
+                                  ) : (
+                                    <div className="w-16 h-16 rounded-[12px] bg-gradient-to-br from-sage/20 to-sage/10 flex items-center justify-center flex-shrink-0">
+                                      <Store className="w-6 h-6 text-sage/60" />
+                                    </div>
+                                  )}
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <h4 className="text-sm font-semibold text-charcoal truncate group-hover:text-navbar-bg transition-colors">
+                                        {business.name}
+                                      </h4>
+                                      {business.verified && (
+                                        <Check className="w-4 h-4 text-sage flex-shrink-0" />
+                                      )}
+                                    </div>
+                                    <div className="flex items-center gap-2 text-xs text-charcoal/60">
+                                      <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
+                                      <span className="truncate">{business.location || 'Location not set'}</span>
                                     </div>
                                   </div>
-                                  <p className="text-xs text-charcoal/70" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                                    {badge.description}
-                                  </p>
-                                </div>
+                                  <ChevronRight className="w-5 h-5 text-charcoal/40 group-hover:text-charcoal transition-colors flex-shrink-0" />
+                                </Link>
                               );
                             })}
+                            <Link
+                              href="/for-businesses"
+                              className="inline-flex items-center gap-2 px-4 py-2.5 bg-coral/90 hover:bg-coral text-white rounded-full text-sm font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-95 shadow-md shadow-coral/20 border border-coral/30 w-fit mt-2"
+                            >
+                              <Briefcase className="w-4 h-4" />
+                              Add another business
+                            </Link>
+                          </div>
+                        ) : (
+                          <div className="space-y-4">
+                            <p className="text-sm text-charcoal/70 font-medium max-w-[520px]">
+                              You haven't added any businesses yet. Start by adding your first business listing!
+                            </p>
+                            <Link
+                              href="/for-businesses"
+                              className="inline-flex items-center gap-2 px-4 py-2.5 bg-coral/90 hover:bg-coral text-white rounded-full text-sm font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-95 shadow-md shadow-coral/20 border border-coral/30 w-fit"
+                            >
+                              <Briefcase className="w-4 h-4" />
+                              Add your business
+                            </Link>
                           </div>
                         )}
                       </section>
-                    )}
 
-                    {/* My Businesses Section */}
-                    <section
-                      className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-6 sm:p-8 space-y-4"
-                      aria-label="My businesses"
-                    >
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-base font-semibold text-charcoal flex items-center gap-3">
-                          <span className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-coral/20 to-coral/10">
-                            <Store className="w-5 h-5 text-coral" />
-                          </span>
-                          My Businesses
-                        </h3>
-                      </div>
-                      {ownedBusinessesLoading ? (
-                        <div className="flex items-center justify-center py-8">
-                          <Loader size="md" variant="wavy" color="sage" />
-                        </div>
-                      ) : ownedBusinesses.length > 0 ? (
-                        <div className="space-y-3">
-                          {ownedBusinesses.map((business) => {
-                            const businessSlug = business.slug || business.id;
-                            const displayImage = business.uploaded_images?.[0] || business.image_url || null;
-                            return (
-                              <Link
-                                key={business.id}
-                                href={`/business/${businessSlug}/edit`}
-                                className="flex items-center gap-4 p-4 bg-white/50 hover:bg-white/70 rounded-[16px] border border-white/60 transition-all duration-200 hover:shadow-md group"
-                              >
-                                {displayImage ? (
-                                  <div className="relative w-16 h-16 rounded-[12px] overflow-hidden flex-shrink-0">
-                                    <Image
-                                      src={displayImage}
-                                      alt={business.name}
-                                      fill
-                                      className="object-cover"
-                                      sizes="64px"
-                                    />
-                                  </div>
-                                ) : (
-                                  <div className="w-16 h-16 rounded-[12px] bg-gradient-to-br from-sage/20 to-sage/10 flex items-center justify-center flex-shrink-0">
-                                    <Store className="w-6 h-6 text-sage/60" />
-                                  </div>
-                                )}
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <h4 className="text-sm font-semibold text-charcoal truncate group-hover:text-navbar-bg transition-colors">
-                                      {business.name}
-                                    </h4>
-                                    {business.verified && (
-                                      <Check className="w-4 h-4 text-sage flex-shrink-0" />
-                                    )}
-                                  </div>
-                                  <div className="flex items-center gap-2 text-xs text-charcoal/60">
-                                    <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
-                                    <span className="truncate">{business.location || 'Location not set'}</span>
-                                  </div>
-                                </div>
-                                <ChevronRight className="w-5 h-5 text-charcoal/40 group-hover:text-charcoal transition-colors flex-shrink-0" />
-                              </Link>
-                            );
-                          })}
-                          <Link
-                            href="/for-businesses"
-                            className="inline-flex items-center gap-2 px-4 py-2.5 bg-coral/90 hover:bg-coral text-white rounded-full text-sm font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-95 shadow-md shadow-coral/20 border border-coral/30 w-fit mt-2"
-                          >
-                            <Briefcase className="w-4 h-4" />
-                            Add another business
-                          </Link>
-                        </div>
-                      ) : (
-                        <div className="space-y-4">
-                          <p className="text-sm text-charcoal/70 font-medium max-w-[520px]">
-                            You haven't added any businesses yet. Start by adding your first business listing!
-                          </p>
-                          <Link
-                            href="/for-businesses"
-                            className="inline-flex items-center gap-2 px-4 py-2.5 bg-coral/90 hover:bg-coral text-white rounded-full text-sm font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-95 shadow-md shadow-coral/20 border border-coral/30 w-fit"
-                          >
-                            <Briefcase className="w-4 h-4" />
-                            Add your business
-                          </Link>
-                        </div>
-                      )}
-                    </section>
-
-                    <section
-                      className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-6 sm:p-8 space-y-4"
-                      aria-label="Business management"
-                    >
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-base font-semibold text-charcoal flex items-center gap-3">
-                          <span className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-sage/20 to-sage/10">
-                            <Briefcase className="w-5 h-5 text-sage" />
-                          </span>
-                          Manage Your Business Presence
-                        </h3>
-                      </div>
-                      <p className="text-sm text-charcoal/70 font-medium max-w-[520px]">
-                        Keep your business information up to date, respond to community feedback, and track performance insights from one place.
-                      </p>
-                      <Link
-                        href="/for-businesses"
-                        className="inline-flex items-center gap-2 px-4 py-2.5 bg-coral/90 hover:bg-coral text-white rounded-full text-sm font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-95 shadow-md shadow-coral/20 border border-coral/30 w-fit"
+                      <section
+                        className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-6 sm:p-8 space-y-4"
+                        aria-label="Business management"
                       >
-                        <Briefcase className="w-4 h-4" />
-                        {ownedBusinesses.length > 0 ? 'Manage businesses' : 'Add your business'}
-                      </Link>
-                    </section>
-
-                    <section
-                      className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-6 sm:p-8"
-                      aria-label="Your contributions"
-                    >
-                      {reviewsLoading ? (
-                        <div className="flex items-center justify-center py-8">
-                          <Loader size="md" variant="wavy" color="sage" />
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-base font-semibold text-charcoal flex items-center gap-3">
+                            <span className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-sage/20 to-sage/10">
+                              <Briefcase className="w-5 h-5 text-sage" />
+                            </span>
+                            Manage Your Business Presence
+                          </h3>
                         </div>
-                      ) : reviewsData.length > 0 ? (
-                        <ReviewsList
-                          reviews={reviewsData}
-                          title="Your Contributions"
-                          initialDisplayCount={2}
-                          showToggle={true}
-                        />
-                      ) : (
-                        <div className="text-center py-8">
-                          <p className="text-charcoal/70">You haven't written any reviews yet.</p>
-                        </div>
-                      )}
-                    </section>
+                        <p className="text-sm text-charcoal/70 font-medium max-w-[520px]">
+                          Keep your business information up to date, respond to community feedback, and track performance insights from one place.
+                        </p>
+                        <Link
+                          href="/for-businesses"
+                          className="inline-flex items-center gap-2 px-4 py-2.5 bg-coral/90 hover:bg-coral text-white rounded-full text-sm font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-95 shadow-md shadow-coral/20 border border-coral/30 w-fit"
+                        >
+                          <Briefcase className="w-4 h-4" />
+                          {ownedBusinesses.length > 0 ? 'Manage businesses' : 'Add your business'}
+                        </Link>
+                      </section>
 
-                    <section
-                      className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-6 sm:p-8"
-                      aria-label="Your achievements"
-                    >
-                      {achievementsLoading ? (
-                        <div className="flex items-center justify-center py-8">
-                          <Loader size="md" variant="wavy" color="sage" />
+                      <section
+                        className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-6 sm:p-8"
+                        aria-label="Your contributions"
+                      >
+                        {reviewsLoading ? (
+                          <div className="flex items-center justify-center py-8">
+                            <Loader size="md" variant="wavy" color="sage" />
+                          </div>
+                        ) : reviewsData.length > 0 ? (
+                          <ReviewsList
+                            reviews={reviewsData}
+                            title="Your Contributions"
+                            initialDisplayCount={2}
+                            showToggle={true}
+                          />
+                        ) : (
+                          <div className="text-center py-8">
+                            <p className="text-charcoal/70">You haven't written any reviews yet.</p>
+                          </div>
+                        )}
+                      </section>
+                      <section
+                        className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-6 sm:p-8 space-y-4"
+                        aria-label="Account actions"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-coral/20 to-coral/10">
+                            <AlertTriangle className="w-5 h-5 text-coral" />
+                          </span>
+                          <h3 className="text-base font-semibold text-charcoal">
+                            Account Actions
+                          </h3>
                         </div>
-                      ) : (
-                        <AchievementsList
-                          achievements={achievementsData}
-                          title="Your Achievements"
-                        />
-                      )}
-                    </section>
+                        <div className="space-y-4">
+                          <DangerAction
+                            title="Log Out"
+                            description="Sign out of your account on this device."
+                            buttonText="Log Out"
+                            onAction={handleLogout}
+                            variant="primary"
+                            showBorder={false}
+                          />
 
-                    <section
-                      className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-6 sm:p-8 space-y-4"
-                      aria-label="Account actions"
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-coral/20 to-coral/10">
-                          <AlertTriangle className="w-5 h-5 text-coral" />
-                        </span>
-                        <h3 className="text-base font-semibold text-charcoal">
-                          Account Actions
-                        </h3>
-                      </div>
-                      <div className="space-y-4">
-                        <DangerAction
-                          title="Log Out"
-                          description="Sign out of your account on this device."
-                          buttonText="Log Out"
-                          onAction={handleLogout}
-                          variant="primary"
-                          showBorder={false}
-                        />
-                       
-                        <DangerAction
-                          title="Delete Account"
-                          description="Permanently delete your account and all associated data. This action cannot be undone."
-                          buttonText="Delete Account"
-                          onAction={handleDeleteAccount}
-                          variant="secondary"
-                          showBorder={true}
-                        />
-                      </div>
-                    </section>
+                          <DangerAction
+                            title="Delete Account"
+                            description="Permanently delete your account and all associated data. This action cannot be undone."
+                            buttonText="Delete Account"
+                            onAction={handleDeleteAccount}
+                            variant="secondary"
+                            showBorder={true}
+                          />
+                        </div>
+                      </section>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </main>
-          </div>
+              </main>
+            </div>
           </div>
 
-        <Footer />
+          <Footer />
         </motion.div>
       </AnimatePresence>
 
