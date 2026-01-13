@@ -74,7 +74,7 @@ export async function GET(req: Request) {
     const accountCreatedAt = profile?.created_at || user.created_at;
     const firstReviewDate = firstReview?.created_at;
 
-    // Compute achievements based on stats
+    // Compute achievements based on stats (matching Badge Notes spec)
     const achievements: Array<{
       name: string;
       description: string;
@@ -82,17 +82,7 @@ export async function GET(req: Request) {
       earnedAt: string | null;
     }> = [];
 
-    // First Review Achievement
-    if (firstReviewDate) {
-      achievements.push({
-        name: "First Review",
-        description: "Posted your first review",
-        icon: "⭐",
-        earnedAt: firstReviewDate,
-      });
-    }
-
-    // Review Milestones
+    // Activity & Milestone Badges (Section C from spec)
     if (totalReviews >= 100) {
       achievements.push({
         name: "Century Club",
@@ -100,92 +90,52 @@ export async function GET(req: Request) {
         icon: "💯",
         earnedAt: firstReviewDate || accountCreatedAt,
       });
-    } else if (totalReviews >= 50) {
+    }
+    if (totalReviews >= 50) {
       achievements.push({
-        name: "Half Century",
+        name: "Review Machine",
         description: "Posted 50 reviews",
         icon: "🎯",
         earnedAt: firstReviewDate || accountCreatedAt,
       });
-    } else if (totalReviews >= 25) {
+    }
+    if (totalReviews >= 10) {
       achievements.push({
-        name: "Quarter Century",
-        description: "Posted 25 reviews",
-        icon: "📝",
-        earnedAt: firstReviewDate || accountCreatedAt,
-      });
-    } else if (totalReviews >= 10) {
-      achievements.push({
-        name: "Decade Reviewer",
+        name: "Level Up!",
         description: "Posted 10 reviews",
         icon: "🔟",
         earnedAt: firstReviewDate || accountCreatedAt,
       });
-    } else if (totalReviews >= 5) {
+    }
+    if (totalReviews >= 5) {
       achievements.push({
-        name: "Getting Started",
+        name: "Rookie Reviewer",
         description: "Posted 5 reviews",
         icon: "🌟",
         earnedAt: firstReviewDate || accountCreatedAt,
       });
     }
-
-    // Helpful Votes Achievements
-    if (helpfulVotes >= 500) {
+    // First review badge - "New Voice" for first-timers
+    if (firstReviewDate && totalReviews >= 1) {
       achievements.push({
-        name: "Helpful Hero",
-        description: "Received 500+ helpful votes",
-        icon: "👑",
-        earnedAt: accountCreatedAt,
+        name: "New Voice",
+        description: "Posted your first review",
+        icon: "⭐",
+        earnedAt: firstReviewDate,
       });
-    } else if (helpfulVotes >= 100) {
+    }
+
+    // Helpful Votes Achievements (matching Activity & Milestone spec)
+    if (helpfulVotes >= 10) {
       achievements.push({
-        name: "Helpful Contributor",
-        description: "Received 100+ helpful votes",
+        name: "Helpful Reviewer",
+        description: "Get 10 helpful likes combined",
         icon: "👍",
         earnedAt: accountCreatedAt,
       });
-    } else if (helpfulVotes >= 50) {
-      achievements.push({
-        name: "Community Helper",
-        description: "Received 50+ helpful votes",
-        icon: "💚",
-        earnedAt: accountCreatedAt,
-      });
-    } else if (helpfulVotes >= 10) {
-      achievements.push({
-        name: "Helpful Starter",
-        description: "Received 10+ helpful votes",
-        icon: "✨",
-        earnedAt: accountCreatedAt,
-      });
     }
 
-    // Saved Businesses Achievements
-    if (savedBusinesses >= 50) {
-      achievements.push({
-        name: "Curator",
-        description: "Saved 50+ businesses",
-        icon: "📚",
-        earnedAt: accountCreatedAt,
-      });
-    } else if (savedBusinesses >= 25) {
-      achievements.push({
-        name: "Collector",
-        description: "Saved 25+ businesses",
-        icon: "📖",
-        earnedAt: accountCreatedAt,
-      });
-    } else if (savedBusinesses >= 10) {
-      achievements.push({
-        name: "Bookmarker",
-        description: "Saved 10+ businesses",
-        icon: "🔖",
-        earnedAt: accountCreatedAt,
-      });
-    }
-
-    // Top Reviewer Achievement
+    // Top Reviewer Achievement (not in spec but keeping for admin-awarded badge)
     if (isTopReviewer) {
       achievements.push({
         name: "Top Reviewer",
