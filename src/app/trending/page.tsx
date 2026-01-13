@@ -15,6 +15,7 @@ import SearchInput from "../components/SearchInput/SearchInput";
 import { FilterState } from "../components/FilterModal/FilterModal";
 import ActiveFilterBadges from "../components/FilterActiveBadges/ActiveFilterBadges";
 import SuggestiveFilters from "../components/SuggestiveFilters/SuggestiveFilters";
+import InlineFilters from "../components/Home/InlineFilters";
 import BusinessesMap, { BusinessMapItem } from "../components/maps/BusinessesMap";
 import { List, Map as MapIcon } from "react-feather";
 import { Loader } from "../components/Loader/Loader";
@@ -162,6 +163,43 @@ export default function TrendingPage() {
     setUserLocation(null);
     setCurrentPage(1);
     // Trigger refetch to clear filters immediately
+    refetch();
+  };
+
+  const handleInlineDistanceChange = (distance: string) => {
+    const newFilters = { ...filters, distance };
+    setFilters(newFilters);
+    setHasUserInitiatedFilters(true);
+    setUseBroadTrending(false);
+    setCurrentPage(1);
+
+    // Request user location if not already available
+    if (!userLocation) {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            setUserLocation({
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            });
+          },
+          (error) => {
+            console.warn('Error getting user location:', error);
+          }
+        );
+      }
+    }
+
+    // Trigger refetch immediately
+    refetch();
+  };
+
+  const handleInlineRatingChange = (rating: number) => {
+    const newFilters = { ...filters, minRating: rating };
+    setFilters(newFilters);
+    setHasUserInitiatedFilters(true);
+    setUseBroadTrending(false);
+    setCurrentPage(1);
     refetch();
   };
 
@@ -396,6 +434,13 @@ export default function TrendingPage() {
             />
           </div>
 
+          {/* Inline Filters - Show when searching */}
+          <InlineFilters
+            show={debouncedSearchQuery.trim().length > 0}
+            filters={filters}
+            onDistanceChange={handleInlineDistanceChange}
+            onRatingChange={handleInlineRatingChange}
+          />
 
           {/* Suggestive Filters - Show when no filters active */}
           <SuggestiveFilters

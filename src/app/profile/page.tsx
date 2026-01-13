@@ -30,7 +30,6 @@ import Footer from "@/app/components/Footer/Footer";
 import { ReviewsList } from "@/components/organisms/ReviewsList";
 import { AchievementsList } from "@/components/organisms/AchievementsList";
 import { DangerAction } from "@/components/molecules/DangerAction";
-import { Skeleton } from "@/components/atoms/Skeleton";
 import { ConfirmationDialog } from "@/components/molecules/ConfirmationDialog";
 import SavedBusinessRow from "@/app/components/Saved/SavedBusinessRow";
 import { useSavedItems } from "@/app/contexts/SavedItemsContext";
@@ -1258,14 +1257,7 @@ function ProfileContent() {
                           variant="primary"
                           showBorder={false}
                         />
-                        <DangerAction
-                          title="Deactivate Account"
-                          description="Temporarily deactivate your account. You can reactivate it anytime by logging in."
-                          buttonText="Deactivate Account"
-                          onAction={handleDeactivate}
-                          variant="primary"
-                          showBorder={true}
-                        />
+                       
                         <DangerAction
                           title="Delete Account"
                           description="Permanently delete your account and all associated data. This action cannot be undone."
@@ -1320,22 +1312,6 @@ function ProfileContent() {
         error={deleteError}
       />
 
-      {/* Deactivate Account Confirmation Dialog */}
-      <ConfirmationDialog
-        isOpen={isDeactivateDialogOpen}
-        onClose={() => {
-          setIsDeactivateDialogOpen(false);
-          setDeactivateError(null);
-        }}
-        onConfirm={confirmDeactivateAccount}
-        title="Deactivate Account"
-        message="Are you sure you want to deactivate your account? You can reactivate it anytime by logging in."
-        confirmText={isDeactivating ? "Deactivating..." : "Deactivate Account"}
-        cancelText="Cancel"
-        variant="warning"
-        isLoading={isDeactivating}
-        error={deactivateError}
-      />
 
       {/* Delete Account Confirmation Dialog */}
       <ConfirmationDialog

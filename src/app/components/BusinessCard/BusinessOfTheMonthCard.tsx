@@ -303,7 +303,7 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
       }}
     >
       <div
-        className="relative px-2 sm:px-2 pt-2 pb-0 bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[20px] overflow-visible group cursor-pointer w-full flex flex-col border border-white/60 backdrop-blur-xl ring-1 ring-white/30 shadow-md h-[650px] sm:h-auto md:w-[340px]"
+        className="relative px-1 pt-1 pb-0 bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[20px] overflow-visible group cursor-pointer w-full flex flex-col border border-white/60 backdrop-blur-xl ring-1 ring-white/30 shadow-md h-[650px] sm:h-auto md:w-[340px]"
         style={{
           maxWidth: "540px",
         } as React.CSSProperties}

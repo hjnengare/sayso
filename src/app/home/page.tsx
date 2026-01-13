@@ -11,8 +11,9 @@ import { ChevronUp } from "react-feather";
 import { usePredefinedPageTitle } from "../hooks/usePageTitle";
 import Header from "../components/Header/Header";
 import SearchInput from "../components/SearchInput/SearchInput";
-import FilterModal, { FilterState } from "../components/FilterModal/FilterModal";
+import { FilterState } from "../components/FilterModal/FilterModal";
 import ActiveFilterBadges from "../components/FilterActiveBadges/ActiveFilterBadges";
+import InlineFilters from "../components/Home/InlineFilters";
 import SearchResultsMap from "../components/BusinessMap/SearchResultsMap";
 import { motion, AnimatePresence } from "framer-motion";
 import { List, Map as MapIcon } from "react-feather";
@@ -66,8 +67,6 @@ export default function Home() {
   // Scroll to top button state (mobile only)
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [isFilterVisible, setIsFilterVisible] = useState(false);
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
   // ✅ ACTIVE FILTERS: User-initiated, ephemeral UI state (starts empty)
   const [selectedInterestIds, setSelectedInterestIds] = useState<string[]>([]);
@@ -234,15 +233,37 @@ export default function Home() {
     }
   };
 
-  const openFilters = () => {
-    if (isFilterVisible) return;
-    setIsFilterVisible(true);
-    setTimeout(() => setIsFilterOpen(true), 10);
+  const handleInlineDistanceChange = (distance: string) => {
+    const newFilters = { ...filters, distance };
+    setFilters(newFilters);
+    setHasUserInitiatedFilters(true);
+
+    // Request user location if not already available
+    if (!userLocation) {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            setUserLocation({
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            });
+          },
+          (error) => {
+            console.warn('Error getting user location:', error);
+          }
+        );
+      }
+    }
+
+    // Trigger refetch immediately
+    refetchAllBusinesses();
   };
 
-  const closeFilters = () => {
-    setIsFilterOpen(false);
-    setTimeout(() => setIsFilterVisible(false), 150);
+  const handleInlineRatingChange = (rating: number) => {
+    const newFilters = { ...filters, minRating: rating };
+    setFilters(newFilters);
+    setHasUserInitiatedFilters(true);
+    refetchAllBusinesses();
   };
 
   const handleFiltersChange = (f: FilterState) => {
@@ -317,7 +338,6 @@ export default function Home() {
   const handleSubmitQuery = (query: string) => {
     setSearchQuery(query);
     setIsMapMode(false); // Reset to list view when new search
-    if (isFilterVisible) closeFilters();
   };
 
   const handleToggleInterest = (interestId: string) => {
@@ -469,7 +489,6 @@ export default function Home() {
               mobilePlaceholder="Search places, coffee, yoga…"
               onSearch={handleSearchChange}
               onSubmitQuery={handleSubmitQuery}
-              onFilterClick={openFilters}
               onMapClick={() => {
                 if (isSearchActive) {
                   setIsMapMode(!isMapMode);
@@ -477,11 +496,17 @@ export default function Home() {
               }}
               showMap={isSearchActive}
               isMapMode={isMapMode}
-              onFocusOpenFilters={openFilters}
-              showFilter
-              activeFilterCount={(filters.minRating !== null ? 1 : 0) + (filters.distance !== null ? 1 : 0)}
+              showFilter={false}
             />
           </div>
+
+          {/* Inline Filters - Show when searching */}
+          <InlineFilters
+            show={isSearchActive}
+            filters={filters}
+            onDistanceChange={handleInlineDistanceChange}
+            onRatingChange={handleInlineRatingChange}
+          />
 
 
           {/* Active Filter Badges */}
@@ -700,15 +725,6 @@ export default function Home() {
       </main>
       <ScrollHint />
       <Footer />
-      {/* Anchored Filter Modal for home search */}
-      <FilterModal
-        isOpen={isFilterOpen}
-        isVisible={isFilterVisible}
-        onClose={closeFilters}
-        onFiltersChange={handleFiltersChange}
-        anchorRef={searchWrapRef}
-        initialFilters={filters}
-      />
 
       {/* Scroll to Top Button - Mobile Only */}
       {showScrollTop && (

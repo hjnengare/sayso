@@ -149,7 +149,7 @@ export default function EventCard({ event, onBookmark, index = 0 }: EventCardPro
       >
          
           {/* MEDIA - Full bleed with premium overlay */}
-          <div className="relative px-2 sm:px-2 pt-2 pb-0 overflow-hidden flex-1 sm:flex-initial h-[300px] sm:h-[320px] lg:h-[240px] xl:h-[220px] z-10">
+          <div className="relative px-1 pt-1 pb-0 overflow-hidden flex-1 sm:flex-initial h-[300px] sm:h-[320px] lg:h-[240px] xl:h-[220px] z-10">
             <div 
               className="relative w-full h-full"
             >

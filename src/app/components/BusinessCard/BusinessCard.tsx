@@ -465,7 +465,7 @@ function BusinessCard({
       }}
     >
       <div
-        className={`px-2 sm:px-2 pt-2 pb-0 rounded-[20px] ${compact ? "lg:py-3 lg:pb-2 lg:min-h-[200px]" : "flex-1"
+        className={`px-1 pt-1 pb-0 rounded-[20px] ${compact ? "lg:py-1 lg:pb-1 lg:min-h-[200px]" : "flex-1"
           } relative flex-shrink-0 flex flex-col justify-between bg-sage z-10 shadow-md group w-full h-[650px] sm:h-auto`}
         style={{
           maxWidth: compact ? "100%" : undefined,
