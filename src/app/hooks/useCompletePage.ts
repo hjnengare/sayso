@@ -33,6 +33,7 @@ export function useCompletePage(): UseCompletePageReturn {
   const [isSaving, setIsSaving] = useState(true); // Start as true until we verify access
   const [hasSaved, setHasSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hasVerified, setHasVerified] = useState(false); // Track if we've already done verification
 
   // Get data from localStorage (OnboardingContext)
   const interests: string[] = selectedInterests || [];
@@ -44,6 +45,11 @@ export function useCompletePage(): UseCompletePageReturn {
     let cancelled = false;
 
     const verifyAccess = async () => {
+      // Only verify once to prevent re-render loops
+      if (hasVerified) {
+        return;
+      }
+
       console.log('[Complete] Verifying access...', {
         authLoading,
         user_exists: !!user,
@@ -62,7 +68,10 @@ export function useCompletePage(): UseCompletePageReturn {
         // No user - redirect to login
         if (!user) {
           console.log('[Complete] No user, redirecting to login');
-          router.replace('/login');
+          if (!cancelled) {
+            setHasVerified(true);
+            router.replace('/login');
+          }
           return;
         }
 
@@ -72,9 +81,13 @@ export function useCompletePage(): UseCompletePageReturn {
         console.log('[Complete] User state:', { onboardingStep, onboardingComplete });
 
         // If onboarding already completed, go to home
+        // This handles the case where someone navigates back to /complete after finishing
         if (onboardingComplete) {
           console.log('[Complete] Onboarding already complete, redirecting to home');
-          router.replace('/home');
+          if (!cancelled) {
+            setHasVerified(true);
+            router.replace('/home');
+          }
           return;
         }
 
@@ -85,19 +98,26 @@ export function useCompletePage(): UseCompletePageReturn {
             : onboardingStep === 'subcategories' ? '/subcategories'
             : onboardingStep === 'deal-breakers' ? '/deal-breakers'
             : '/interests';
-          router.replace(nextRoute);
+          if (!cancelled) {
+            setHasVerified(true);
+            router.replace(nextRoute);
+          }
           return;
         }
 
         // User is at correct step - allow access
         console.log('[Complete] Access granted, showing page');
         if (!cancelled) {
+          setHasVerified(true);
           setIsSaving(false);
         }
       } catch (error) {
         console.error('[Complete] Error verifying access:', error);
         // On error, redirect to start of onboarding
-        router.replace('/interests');
+        if (!cancelled) {
+          setHasVerified(true);
+          router.replace('/interests');
+        }
       }
     };
 
@@ -106,7 +126,7 @@ export function useCompletePage(): UseCompletePageReturn {
     return () => {
       cancelled = true;
     };
-  }, [user, authLoading, router]);
+  }, [user, authLoading, router, hasVerified]);
 
   // Handle continue button click - saves all data and marks onboarding as complete
   const handleContinue = useCallback(
