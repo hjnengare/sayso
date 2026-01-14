@@ -500,9 +500,9 @@ export default function Home() {
             />
           </div>
 
-          {/* Inline Filters - Always visible */}
+          {/* Inline Filters - Only show when user is typing/searching */}
           <InlineFilters
-            show={true}
+            show={isSearchActive && debouncedSearchQuery.trim().length > 0}
             filters={filters}
             onDistanceChange={handleInlineDistanceChange}
             onRatingChange={handleInlineRatingChange}

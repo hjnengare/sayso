@@ -202,6 +202,79 @@ const INTEREST_TO_SUBCATEGORIES: Record<string, string[]> = {
   'shopping-lifestyle': ['fashion', 'electronics', 'home-decor', 'books'],
 };
 
+/**
+ * Search term synonyms mapping
+ * Automatically expands search queries to include common variations
+ * This makes search flexible and handles spelling variations, regional terms, etc.
+ */
+const SEARCH_SYNONYMS: Record<string, string[]> = {
+  // Coffee & Cafes
+  'coffee': ['cafe', 'cafes', 'caffee', 'caffees', 'coffee shop', 'coffee house', 'coffeehouse', 'espresso'],
+  'cafe': ['coffee', 'cafes', 'caffee', 'caffees', 'coffee shop', 'coffeehouse'],
+  'cafes': ['coffee', 'cafe', 'caffee', 'caffees', 'coffee shop'],
+
+  // Fitness & Gyms
+  'gym': ['fitness', 'workout', 'fitness center', 'training', 'exercise'],
+  'fitness': ['gym', 'workout', 'training', 'exercise'],
+
+  // Restaurants & Dining
+  'restaurant': ['dining', 'eatery', 'diner', 'bistro', 'brasserie'],
+  'dining': ['restaurant', 'eatery', 'diner'],
+  'eatery': ['restaurant', 'dining', 'diner'],
+
+  // Bars & Nightlife
+  'bar': ['pub', 'tavern', 'lounge', 'nightclub'],
+  'pub': ['bar', 'tavern', 'lounge'],
+
+  // Beauty & Wellness
+  'salon': ['beauty salon', 'hair salon', 'hairdresser', 'stylist'],
+  'spa': ['wellness', 'massage', 'beauty spa', 'day spa'],
+  'hairdresser': ['hair salon', 'salon', 'stylist', 'barber'],
+  'barber': ['barbershop', 'hairdresser', 'hair salon'],
+
+  // Shopping
+  'shop': ['store', 'boutique', 'retail'],
+  'store': ['shop', 'boutique', 'retail'],
+  'boutique': ['shop', 'store', 'retail'],
+};
+
+/**
+ * Expand search query with synonyms for better matching
+ * Returns the primary synonym that's most likely to match in the database
+ * Example: "coffee" → "cafe" (because businesses are often categorized as "cafes")
+ */
+function expandSearchWithSynonyms(query: string): string {
+  if (!query || query.trim().length === 0) {
+    return query;
+  }
+
+  const lowerQuery = query.toLowerCase().trim();
+
+  // Check if the full query has a primary synonym (first in list is usually most common)
+  const fullQuerySynonyms = SEARCH_SYNONYMS[lowerQuery];
+  if (fullQuerySynonyms && fullQuerySynonyms.length > 0) {
+    // Return the first synonym as it's typically the most common term
+    const primarySynonym = fullQuerySynonyms[0];
+
+    console.log('[BUSINESSES API] Search query expansion:', {
+      original: query,
+      primarySynonym,
+      allSynonyms: fullQuerySynonyms,
+    });
+
+    // For cafe-related searches, prefer "cafe" as it matches the category
+    if (lowerQuery === 'coffee') {
+      return 'cafe';
+    }
+
+    return primarySynonym;
+  }
+
+  // No synonym found, return original
+  console.log('[BUSINESSES API] No synonyms found for:', query);
+  return query;
+}
+
 export async function GET(req: Request) {
   try {
     // =============================================
@@ -295,10 +368,12 @@ export async function GET(req: Request) {
       mappedSubcategories: subcategoriesToFilter,
     });
 
-    // Enhanced search parameters
+    // Enhanced search parameters with synonym expansion
     // Support both 'q' (new) and 'search' (backward compatible)
-    const q = searchParams.get('q') || searchParams.get('search') || null;
-    const search = q; // Keep for backward compatibility
+    const rawQuery = searchParams.get('q') || searchParams.get('search') || null;
+    const expandedQuery = rawQuery ? expandSearchWithSynonyms(rawQuery) : null;
+    const q = expandedQuery;
+    const search = expandedQuery; // Keep for backward compatibility
 
     // Enhanced location parameters
     // Support both 'lat'/'lng' (new) and existing 'lat'/'lng' params
