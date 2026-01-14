@@ -35,16 +35,42 @@ export default function InlineFilters({
 }: InlineFiltersProps) {
   const prefersReducedMotion = useReducedMotion();
 
+  // Sleek container animation with smooth spring physics
   const containerVariants = prefersReducedMotion
     ? {
         hidden: { opacity: 0 },
         visible: { opacity: 1 },
+        exit: { opacity: 0 },
       }
     : {
-        hidden: { opacity: 0, y: -6, height: 0 },
-        visible: { opacity: 1, y: 0, height: "auto" },
+        hidden: {
+          opacity: 0,
+          y: -20,
+          scale: 0.95,
+        },
+        visible: {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          transition: {
+            duration: 0.4,
+            ease: [0.25, 0.46, 0.45, 0.94], // Custom cubic-bezier for smooth entrance
+            staggerChildren: 0.08,
+            delayChildren: 0.05,
+          },
+        },
+        exit: {
+          opacity: 0,
+          y: -15,
+          scale: 0.96,
+          transition: {
+            duration: 0.25,
+            ease: [0.4, 0, 0.6, 1], // Custom ease-in for exit
+          },
+        },
       };
 
+  // Group animations with stagger for cascading effect
   const groupVariants = prefersReducedMotion
     ? {}
     : {
@@ -52,27 +78,42 @@ export default function InlineFilters({
         visible: {
           opacity: 1,
           transition: {
-            staggerChildren: 0.04,
+            staggerChildren: 0.06,
+            delayChildren: 0.1,
           },
         },
       };
 
+  // Individual chip animations with spring physics for bouncy feel
   const chipVariants = prefersReducedMotion
     ? {}
     : {
-        hidden: { opacity: 0, scale: 0.9 },
-        visible: { opacity: 1, scale: 1 },
+        hidden: {
+          opacity: 0,
+          scale: 0.85,
+          y: 10,
+        },
+        visible: {
+          opacity: 1,
+          scale: 1,
+          y: 0,
+          transition: {
+            type: "spring",
+            damping: 20,
+            stiffness: 300,
+            mass: 0.8,
+          },
+        },
       };
 
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       {show && (
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          exit="hidden"
-          transition={{ duration: 0.18, ease: "easeOut" }}
+          exit="exit"
           className="overflow-hidden"
         >
           <div className="px-4 sm:px-6 pb-4 space-y-4">
@@ -92,6 +133,8 @@ export default function InlineFilters({
                   <motion.button
                     key={option.value}
                     variants={chipVariants}
+                    whileHover={prefersReducedMotion ? {} : { scale: 1.05, y: -2 }}
+                    whileTap={prefersReducedMotion ? {} : { scale: 0.95 }}
                     onClick={() => onDistanceChange(option.value)}
                     className={`px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
                       filters.distance === option.value
@@ -122,6 +165,8 @@ export default function InlineFilters({
                   <motion.button
                     key={option.value}
                     variants={chipVariants}
+                    whileHover={prefersReducedMotion ? {} : { scale: 1.05, y: -2 }}
+                    whileTap={prefersReducedMotion ? {} : { scale: 0.95 }}
                     onClick={() => onRatingChange(option.value)}
                     className={`px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 flex items-center gap-1.5 ${
                       filters.minRating === option.value
