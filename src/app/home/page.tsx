@@ -622,48 +622,31 @@ export default function Home() {
               {!isFiltered && !isSearchActive && !prefsLoading && (
                 <div className="relative z-10 snap-start">
                   {isGuestMode ? (
-                    /* Guest Mode: Show Sign-Up Call-to-Action */
+                    /* Guest Mode: Show Locked For You Section */
                     <div className="mx-auto w-full max-w-[2000px] px-2">
-                      <div className="relative overflow-hidden rounded-[20px] bg-gradient-to-br from-sage/20 via-sage/10 to-coral/10 border border-sage/30 backdrop-blur-sm p-8 sm:p-10 md:p-12">
-                        {/* Decorative background elements */}
-                        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                          <div className="absolute -top-20 -right-20 w-40 h-40 bg-sage/10 rounded-full blur-3xl" />
-                          <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-coral/10 rounded-full blur-3xl" />
-                        </div>
-                        
-                        <div className="relative z-10 text-center space-y-4 sm:space-y-5">
-                          <div className="flex justify-center mb-4">
-                            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-sage/20 flex items-center justify-center">
-                              <Lock className="w-6 h-6 sm:w-7 sm:h-7 text-sage" strokeWidth={2.5} />
-                            </div>
-                          </div>
-                          
-                          <div>
-                            <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-charcoal mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                              Unlock Your Personalized Experience
-                            </h3>
-                            <p className="text-body sm:text-base text-charcoal/70 max-w-[60ch] mx-auto leading-relaxed mb-6 sm:mb-8" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                              Sign up to get recommendations tailored to your interests, save your favorite businesses, and be part of our community.
-                            </p>
-                          </div>
-                          
-                          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-4">
-                            <Link
-                              href="/register"
-                              className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-3.5 bg-gradient-to-r from-coral to-coral/80 hover:from-coral/90 hover:to-coral/70 text-white rounded-full font-semibold transition-all duration-300 shadow-md hover:shadow-lg text-center"
-                              style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
-                            >
-                              Create Free Account
-                            </Link>
-                            <Link
-                              href="/login"
-                              className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-3.5 bg-white/60 hover:bg-white/80 text-charcoal rounded-full font-semibold transition-all duration-300 border border-charcoal/20 hover:border-charcoal/30 text-center"
-                              style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
-                            >
-                              Sign In
-                            </Link>
-                          </div>
-                        </div>
+                      <div className="relative border border-charcoal/10 rounded-[20px] p-6 sm:p-8 md:p-10 text-center space-y-3">
+                        <h3 className="text-lg sm:text-xl font-bold text-charcoal" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                          For You
+                        </h3>
+                        <p className="text-body sm:text-base text-charcoal/60 max-w-[60ch] mx-auto" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                          Sign up to unlock personalized recommendations tailored to your interests.
+                          <br />
+                          <Link
+                            href="/register"
+                            className="inline-block mt-2 font-semibold text-coral hover:underline"
+                            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                          >
+                            Create an account
+                          </Link>
+                          {' '}or{' '}
+                          <Link
+                            href="/login"
+                            className="inline-block font-semibold text-charcoal hover:underline"
+                            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                          >
+                            sign in
+                          </Link>
+                        </p>
                       </div>
                     </div>
                   ) : (
