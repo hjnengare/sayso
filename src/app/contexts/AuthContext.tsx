@@ -9,7 +9,7 @@ import type { AuthUser } from '../lib/types/database';
 
 interface AuthContextType {
   user: AuthUser | null;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<AuthUser | null>;
   register: (email: string, password: string, username: string) => Promise<boolean>;
   logout: () => Promise<void>;
   updateUser: (userData: Partial<AuthUser>) => Promise<void>;
@@ -229,7 +229,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     return () => subscription.unsubscribe();
   }, [supabase]);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (email: string, password: string): Promise<AuthUser | null> => {
     setIsLoading(true);
     setError(null);
 
@@ -239,7 +239,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       if (authError) {
         setError(authError.message);
         setIsLoading(false);
-        return false;
+        return null;
       }
 
       if (authUser) {
@@ -266,7 +266,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           const interestsCount = authUser.profile?.interests_count || 0;
           const subcategoriesCount = authUser.profile?.subcategories_count || 0;
           const dealbreakersCount = authUser.profile?.dealbreakers_count || 0;
-          
+
           let nextStep = 'interests';
           if (interestsCount === 0) {
             nextStep = 'interests';
@@ -277,18 +277,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
           } else {
             nextStep = 'complete';
           }
-          
+
           router.push(`/${nextStep}`);
         }
+
+        setIsLoading(false);
+        return authUser;
       }
 
       setIsLoading(false);
-      return true;
+      return null;
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Login failed';
       setError(message);
       setIsLoading(false);
-      return false;
+      return null;
     }
   };
 

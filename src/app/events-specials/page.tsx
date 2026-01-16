@@ -194,8 +194,7 @@ export default function EventsSpecialsPage() {
                   className="inline-block"
                   typingSpeedMs={50}
                   startDelayMs={200}
-                  waveVariant="subtle"
-                  loopWave={true}
+                  disableWave={true}
                   enableScrollTrigger={true}
                   style={{
                     fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",

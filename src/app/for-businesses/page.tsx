@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useState, useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "../contexts/AuthContext";
+import { useSimpleBusinessSearch } from "../hooks/useSimpleBusinessSearch";
 import {
   Search,
   Store,
@@ -25,31 +26,16 @@ const Footer = dynamic(() => import("../components/Footer/Footer"), {
   ssr: false,
 });
 
-interface BusinessSearchResult {
-  id: string;
-  name: string;
-  category: string;
-  location: string;
-  address?: string;
-  phone?: string;
-  email?: string;
-  website?: string;
-  image_url?: string;
-  verified: boolean;
-  claim_status: 'unclaimed' | 'claimed' | 'pending';
-  pending_by_user?: boolean;
-  claimed_by_user?: boolean;
-}
-
 function ClaimBusinessPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, isLoading: authLoading } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
-  const [businesses, setBusinesses] = useState<BusinessSearchResult[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [selectedBusiness, setSelectedBusiness] = useState<BusinessSearchResult | null>(null);
+  const [selectedBusiness, setSelectedBusiness] = useState<any | null>(null);
   const [showClaimModal, setShowClaimModal] = useState(false);
+
+  // Use the simple business search hook with 300ms debounce
+  const { results: businesses, isSearching } = useSimpleBusinessSearch(searchQuery, 300);
 
   // Handle businessId from query params (after login redirect)
   useEffect(() => {
@@ -63,35 +49,7 @@ function ClaimBusinessPageContent() {
     }
   }, [searchParams, user, businesses]);
 
-  // Search businesses when query changes
-  useEffect(() => {
-    const searchBusinesses = async () => {
-      if (searchQuery.trim().length < 2) {
-        setBusinesses([]);
-        return;
-      }
-
-      setIsSearching(true);
-      try {
-        const response = await fetch(`/api/businesses/search?query=${encodeURIComponent(searchQuery.trim())}`);
-        if (!response.ok) {
-          throw new Error('Failed to search businesses');
-        }
-        const result = await response.json();
-        setBusinesses(result.businesses || []);
-      } catch (error) {
-        console.error('Error searching businesses:', error);
-        setBusinesses([]);
-      } finally {
-        setIsSearching(false);
-      }
-    };
-
-    const debounceTimer = setTimeout(searchBusinesses, 300);
-    return () => clearTimeout(debounceTimer);
-  }, [searchQuery]);
-
-  const handleClaimClick = (business: BusinessSearchResult) => {
+  const handleClaimClick = (business: any) => {
     if (!user) {
       // Redirect to business login with redirect back to for-businesses with businessId
       router.push(`/login?redirect=/for-businesses?businessId=${business.id}`);
@@ -133,7 +91,7 @@ function ClaimBusinessPageContent() {
     }
   };
 
-  const getStatusBadge = (business: BusinessSearchResult) => {
+  const getStatusBadge = (business: any) => {
     if (business.claimed_by_user) {
       return null; // Don't show badge if user owns it
     }
@@ -164,7 +122,7 @@ function ClaimBusinessPageContent() {
     );
   };
 
-  const getActionButton = (business: BusinessSearchResult) => {
+  const getActionButton = (business: any) => {
     if (!user) {
       return (
         <button

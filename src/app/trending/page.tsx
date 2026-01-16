@@ -360,7 +360,7 @@ export default function TrendingPage() {
         whiteText={true}
       />
 
-      <main className="pt-20 sm:pt-24 pb-28">
+      <main className="pt-20 sm:pt-24 pb-6 sm:pb-10">
         <div className="mx-auto w-full max-w-[2000px] px-2">
           {/* Breadcrumb */}
           <nav className="mb-4 sm:mb-6 px-2" aria-label="Breadcrumb">
@@ -401,8 +401,7 @@ export default function TrendingPage() {
                   className="inline-block"
                   typingSpeedMs={50}
                   startDelayMs={200}
-                  waveVariant="subtle"
-                  loopWave={true}
+                  disableWave={true}
                   enableScrollTrigger={true}
                   style={{
                     fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
@@ -433,9 +432,9 @@ export default function TrendingPage() {
             />
           </div>
 
-          {/* Inline Filters - Always visible */}
+          {/* Inline Filters - Only show when searching */}
           <InlineFilters
-            show={true}
+            show={debouncedSearchQuery.trim().length > 0}
             filters={filters}
             onDistanceChange={handleInlineDistanceChange}
             onRatingChange={handleInlineRatingChange}
@@ -480,16 +479,31 @@ export default function TrendingPage() {
             {!loading && !prefsLoading && !error && (
               <>
                 {trendingBusinesses.length === 0 ? (
-                  <div className="bg-white border border-sage/20 rounded-3xl shadow-sm px-6 py-16 text-center space-y-3">
-                    <h2 className="text-h2 font-semibold text-charcoal" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                      {hasUserInitiatedFilters ? 'No trending businesses match your filters' : 'No trending businesses yet'}
-                    </h2>
-                    <p className="text-body-sm text-charcoal/60 max-w-[70ch] mx-auto" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 500 }}>
-                      {hasUserInitiatedFilters 
-                        ? 'Try adjusting your filters or check back soon as new businesses join the community.'
-                        : 'Check back soon for trending businesses in your area.'}
-                    </p>
-                  </div>
+                  debouncedSearchQuery.trim().length > 0 ? (
+                    /* Search empty state - matches home page style */
+                    <div className="w-full sm:max-w-md lg:max-w-lg xl:max-w-xl sm:mx-auto relative z-10">
+                      <div className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[20px] overflow-hidden backdrop-blur-md shadow-md px-4 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10 lg:px-12 lg:py-10 xl:px-16 xl:py-12 text-center space-y-4">
+                        <h2 className="text-h2 font-semibold text-white" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                          No results found
+                        </h2>
+                        <p className="text-body-sm text-white/80 max-w-[70ch] mx-auto leading-relaxed" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 400 }}>
+                          We couldn't find any businesses matching "{debouncedSearchQuery}". Try adjusting your search or check back soon.
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    /* Default empty state for filters/no data */
+                    <div className="bg-white border border-sage/20 rounded-3xl shadow-sm px-6 py-16 text-center space-y-3">
+                      <h2 className="text-h2 font-semibold text-charcoal" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                        {hasUserInitiatedFilters ? 'No trending businesses match your filters' : 'No trending businesses yet'}
+                      </h2>
+                      <p className="text-body-sm text-charcoal/60 max-w-[70ch] mx-auto" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 500 }}>
+                        {hasUserInitiatedFilters
+                          ? 'Try adjusting your filters or check back soon as new businesses join the community.'
+                          : 'Check back soon for trending businesses in your area.'}
+                      </p>
+                    </div>
+                  )
                 ) : (
                   <>
                     {/* Loading Spinner Overlay for Pagination */}
@@ -546,16 +560,35 @@ export default function TrendingPage() {
                           />
                         </motion.div>
                       ) : (
-                        <div
-                          key={`list-view-${currentPage}`}
-                          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-3"
+                        <motion.div
+                          key={currentPage}
+                          initial={{ opacity: 0, y: 20, scale: 0.98, filter: "blur(8px)" }}
+                          animate={{ opacity: isPaginationLoading ? 0 : 1, y: 0, scale: 1, filter: "blur(0px)" }}
+                          exit={{ opacity: 0, y: -20, scale: 0.98, filter: "blur(8px)" }}
+                          transition={{
+                            duration: 0.4,
+                            ease: [0.16, 1, 0.3, 1],
+                          }}
                         >
-                          {currentBusinesses.map((business) => (
-                            <div key={business.id} className="list-none">
-                              <BusinessCard business={business} compact />
-                            </div>
-                          ))}
-                        </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-5 lg:gap-6">
+                            {currentBusinesses.map((business, index) => (
+                              <motion.div
+                                key={business.id}
+                                className="list-none"
+                                initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                transition={{
+                                  type: "spring",
+                                  damping: 25,
+                                  stiffness: 200,
+                                  delay: index * 0.06 + 0.1,
+                                }}
+                              >
+                                <BusinessCard business={business} compact />
+                              </motion.div>
+                            ))}
+                          </div>
+                        </motion.div>
                       )}
                     </AnimatePresence>
 

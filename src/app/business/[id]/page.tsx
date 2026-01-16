@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { usePageTitle } from "../../hooks/usePageTitle";
-import { motion, AnimatePresence } from "framer-motion";
 import { PageLoader, Loader } from "../../components/Loader";
 import WavyTypedTitle from "../../../components/Animations/WavyTypedTitle";
 import {
@@ -231,21 +230,179 @@ export default function BusinessProfilePage() {
         fetchBusiness(true);
     };
 
-    // Loading state - show full page loader with transition
+    // Loading state - show skeleton components with proper layout matching actual page
     if (isLoading) {
         return (
             <div className="min-h-dvh bg-off-white">
-                <AnimatePresence>
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                        className="fixed inset-0 z-[9999] bg-off-white min-h-screen w-full flex items-center justify-center"
-                    >
-                        <Loader size="lg" variant="wavy" color="sage" />
-                    </motion.div>
-                </AnimatePresence>
+                <Header
+                    showSearch={false}
+                    variant="white"
+                    backgroundClassName="bg-navbar-bg"
+                    topPosition="top-0"
+                    reducedPadding={true}
+                    whiteText={true}
+                />
+                <div className="bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white">
+                    <div className="pt-20 sm:pt-24">
+                        <section className="relative" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                            <div className="mx-auto w-full max-w-[2000px] px-2 relative z-10">
+                                {/* Breadcrumb Skeleton */}
+                                <nav className="mb-4 sm:mb-6 px-2">
+                                    <div className="flex items-center gap-2">
+                                        <div className="h-5 w-12 bg-charcoal/10 rounded animate-pulse" />
+                                        <div className="h-4 w-4 bg-charcoal/5 rounded animate-pulse" />
+                                        <div className="h-5 w-32 bg-charcoal/10 rounded animate-pulse" />
+                                    </div>
+                                </nav>
+
+                                <div className="pt-2">
+                                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-6 lg:gap-8">
+                                        {/* Left Column - Main Content */}
+                                        <div className="lg:col-span-2 space-y-4 sm:space-y-6 lg:space-y-8">
+                                            {/* Hero Image Skeleton */}
+                                            <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[20px] overflow-hidden border border-white/60 backdrop-blur-xl shadow-md animate-pulse">
+                                                {/* Rating badge skeleton */}
+                                                <div className="absolute right-4 top-4 z-20 h-8 w-16 rounded-full bg-off-white/40" />
+                                                {/* Verified badge skeleton */}
+                                                <div className="absolute left-4 top-4 z-20 h-8 w-24 rounded-full bg-sage/30" />
+                                                {/* Gallery indicators skeleton */}
+                                                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
+                                                    {[1, 2, 3].map(i => (
+                                                        <div key={i} className={`h-1.5 rounded-full bg-white/50 ${i === 1 ? 'w-6' : 'w-1.5'}`} />
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            {/* Business Info Skeleton */}
+                                            <div className="space-y-3 px-2">
+                                                <div className="h-8 sm:h-10 w-3/4 bg-charcoal/10 rounded-lg animate-pulse" />
+                                                <div className="flex items-center gap-3">
+                                                    <div className="h-5 w-20 bg-charcoal/5 rounded animate-pulse" />
+                                                    <div className="h-5 w-32 bg-charcoal/5 rounded animate-pulse" />
+                                                </div>
+                                            </div>
+
+                                            {/* Description Skeleton */}
+                                            <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-6">
+                                                <div className="space-y-3">
+                                                    <div className="h-4 bg-white/30 rounded animate-pulse" />
+                                                    <div className="h-4 bg-white/30 rounded animate-pulse" />
+                                                    <div className="h-4 bg-white/30 rounded w-3/4 animate-pulse" />
+                                                </div>
+                                            </div>
+
+                                            {/* Details Cards Skeleton */}
+                                            <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-6">
+                                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                                    {[1, 2, 3].map(i => (
+                                                        <div key={i} className="space-y-2">
+                                                            <div className="h-4 w-16 bg-white/20 rounded animate-pulse" />
+                                                            <div className="h-6 w-24 bg-white/30 rounded animate-pulse" />
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            {/* Map Skeleton */}
+                                            <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md overflow-hidden">
+                                                <div className="h-[200px] sm:h-[300px] bg-sage/10 animate-pulse" />
+                                                <div className="p-4 space-y-2">
+                                                    <div className="h-5 w-48 bg-white/30 rounded animate-pulse" />
+                                                    <div className="h-4 w-32 bg-white/20 rounded animate-pulse" />
+                                                </div>
+                                            </div>
+
+                                            {/* Contact Info Skeleton - Mobile */}
+                                            <div className="lg:hidden bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-6">
+                                                <div className="space-y-4">
+                                                    {[1, 2, 3].map(i => (
+                                                        <div key={i} className="flex items-center gap-3">
+                                                            <div className="w-10 h-10 rounded-full bg-white/20 animate-pulse" />
+                                                            <div className="h-5 w-32 bg-white/30 rounded animate-pulse" />
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Right Column - Sidebar */}
+                                        <div className="space-y-4 sm:space-y-6">
+                                            {/* Action Card Skeleton */}
+                                            <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-6">
+                                                <div className="space-y-4">
+                                                    <div className="h-12 w-full bg-sage/40 rounded-full animate-pulse" />
+                                                    <div className="h-12 w-full bg-coral/40 rounded-full animate-pulse" />
+                                                    <div className="flex gap-3">
+                                                        <div className="h-10 flex-1 bg-white/30 rounded-full animate-pulse" />
+                                                        <div className="h-10 flex-1 bg-white/30 rounded-full animate-pulse" />
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Personalization Insights Skeleton */}
+                                            <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-6">
+                                                <div className="h-6 w-40 bg-white/30 rounded animate-pulse mb-4" />
+                                                <div className="space-y-3">
+                                                    {[1, 2, 3].map(i => (
+                                                        <div key={i} className="flex items-center gap-2">
+                                                            <div className="w-6 h-6 rounded-full bg-white/20 animate-pulse" />
+                                                            <div className="h-4 flex-1 bg-white/20 rounded animate-pulse" />
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            {/* Contact Info Skeleton - Desktop */}
+                                            <div className="hidden lg:block bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-6">
+                                                <div className="space-y-4">
+                                                    {[1, 2, 3].map(i => (
+                                                        <div key={i} className="flex items-center gap-3">
+                                                            <div className="w-10 h-10 rounded-full bg-white/20 animate-pulse" />
+                                                            <div className="h-5 w-32 bg-white/30 rounded animate-pulse" />
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        {/* Reviews Section Skeleton */}
+                        <section className="mx-auto w-full max-w-[2000px] px-2 relative z-10 mt-8">
+                            <div className="text-center mb-6">
+                                <div className="h-7 w-48 bg-charcoal/10 rounded-lg mx-auto animate-pulse" />
+                            </div>
+                            <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-6 sm:p-8">
+                                <div className="space-y-6">
+                                    {[1, 2, 3].map(i => (
+                                        <div key={i} className="border-b border-white/20 pb-6 last:border-0 last:pb-0">
+                                            <div className="flex items-start gap-4">
+                                                <div className="w-12 h-12 rounded-full bg-white/20 animate-pulse flex-shrink-0" />
+                                                <div className="flex-1 space-y-3">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="h-5 w-24 bg-white/30 rounded animate-pulse" />
+                                                        <div className="h-4 w-16 bg-white/20 rounded animate-pulse" />
+                                                    </div>
+                                                    <div className="flex gap-1">
+                                                        {[1, 2, 3, 4, 5].map(s => (
+                                                            <div key={s} className="w-4 h-4 bg-white/20 rounded animate-pulse" />
+                                                        ))}
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <div className="h-4 bg-white/20 rounded animate-pulse" />
+                                                        <div className="h-4 bg-white/20 rounded w-3/4 animate-pulse" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
             </div>
         );
     }
@@ -365,24 +522,13 @@ export default function BusinessProfilePage() {
     };
 
     return (
-        <AnimatePresence mode="wait">
-            <motion.div
-                key={businessId}
-                initial={{ opacity: 0, y: 20, scale: 0.98, filter: "blur(8px)" }}
-                animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
-                exit={{ opacity: 0, y: -20, scale: 0.98, filter: "blur(8px)" }}
-                transition={{
-                    duration: 0.6,
-                    ease: [0.16, 1, 0.3, 1],
-                    opacity: { duration: 0.5 },
-                    filter: { duration: 0.55 }
-                }}
-                className="min-h-dvh bg-off-white font-urbanist"
-                style={{
-                    fontFamily:
-                        '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif',
-                }}
-            >
+        <div
+            className="min-h-dvh bg-off-white font-urbanist"
+            style={{
+                fontFamily:
+                    '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif',
+            }}
+        >
                 {/* Main Header */}
                 <Header
                     showSearch={false}
@@ -641,7 +787,6 @@ export default function BusinessProfilePage() {
                         <Footer />
                     </div>
                 </div>
-            </motion.div>
-        </AnimatePresence>
+        </div>
     );
 }

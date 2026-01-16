@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { MapPin, ExternalLink, Maximize2, Copy, Check, X } from "react-feather";
 import dynamic from "next/dynamic";
 import { createPortal } from "react-dom";
+import Logo from "../Logo/Logo";
 
 // Dynamically import Mapbox to avoid SSR issues
 const MapboxMap = dynamic(() => import("./MapboxMap"), {
@@ -202,7 +203,19 @@ export default function BusinessLocation({
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Modal Header */}
-                        <div className="px-4 sm:px-6 py-4 bg-charcoal/90 border-b border-white/10 flex items-center justify-between">
+                        <div className="px-4 sm:px-6 py-4 bg-charcoal/90 border-b border-white/10">
+                            {/* Top row - Logo and Close button */}
+                            <div className="flex items-center justify-between mb-3">
+                                <Logo variant="mobile" color="sage" />
+                                <button
+                                    onClick={() => setIsMapModalOpen(false)}
+                                    className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+                                    aria-label="Close map"
+                                >
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+                            {/* Business info row */}
                             <div className="flex-1 min-w-0">
                                 <h2
                                     className="text-lg font-semibold text-white truncate"
@@ -237,13 +250,6 @@ export default function BusinessLocation({
                                     </div>
                                 )}
                             </div>
-                            <button
-                                onClick={() => setIsMapModalOpen(false)}
-                                className="ml-4 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
-                                aria-label="Close map"
-                            >
-                                <X className="w-5 h-5" />
-                            </button>
                         </div>
 
                         {/* Full Map */}

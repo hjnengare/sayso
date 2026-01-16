@@ -28,6 +28,7 @@ import {
   TOP_REVIEWERS,
 } from "../data/communityHighlightsData";
 import { useBusinesses, useForYouBusinesses, useTrendingBusinesses } from "../hooks/useBusinesses";
+import { useSimpleBusinessSearch } from "../hooks/useSimpleBusinessSearch";
 import { useEvents } from "../hooks/useEvents";
 import { useRoutePrefetch } from "../hooks/useRoutePrefetch";
 import { useDebounce } from "../hooks/useDebounce";
@@ -174,14 +175,14 @@ export default function Home() {
     skip: authLoading, // ✅ Wait for auth to be ready
   });
 
-  // Check if search is active
-  const isSearchActive = debouncedSearchQuery.trim().length > 0;
-  
-  // Limit search results to 12 items
-  const searchResults = useMemo(() => {
-    if (!isSearchActive) return [];
-    return allBusinesses.slice(0, 12);
-  }, [allBusinesses, isSearchActive]);
+  // Check if search is active (2+ characters)
+  const isSearchActive = debouncedSearchQuery.trim().length > 1;
+
+  // Use simple search when query is 2+ characters
+  const { results: searchResults, isSearching: simpleSearchLoading } = useSimpleBusinessSearch(
+    debouncedSearchQuery,
+    300
+  );
 
   // Note: Prioritization of recently reviewed businesses is now handled on the backend
   // The API automatically prioritizes businesses the user has reviewed within the last 24 hours
@@ -523,12 +524,8 @@ export default function Home() {
           <AnimatePresence mode="wait">
           {isSearchActive ? (
             /* Search Results View - Styled like Explore page */
-            <motion.div
+            <div
               key="search-results"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
               className="py-3 sm:py-4"
             >
               <div className="pt-4 sm:pt-6 md:pt-10">
@@ -588,7 +585,7 @@ export default function Home() {
                     {isMapMode ? (
                       <div className="w-full h-[calc(100vh-300px)] min-h-[500px] rounded-[20px] overflow-hidden border border-white/30 shadow-lg">
                         <SearchResultsMap
-                          businesses={searchResults}
+                          businesses={searchResults as any}
                           userLocation={userLocation}
                           onBusinessClick={(business) => {
                             // Navigate to business page
@@ -600,7 +597,7 @@ export default function Home() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-3">
                         {searchResults.map((business, index) => (
                           <div key={business.id} className="list-none">
-                            <BusinessCard business={business} compact inGrid={true} index={index} />
+                            <BusinessCard business={business as any} compact inGrid={true} index={index} />
                           </div>
                         ))}
                       </div>
@@ -608,15 +605,11 @@ export default function Home() {
                   </>
                 )}
               </div>
-            </motion.div>
+            </div>
           ) : (
             /* Default Home Page Content */
-            <motion.div
+            <div
               key="curated-feed"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
               className="flex flex-col gap-8 sm:gap-10 md:gap-12 pt-8"
             >
               {/* ✅ For You Section - Only show when NOT filtered, NOT searching, AND prefs are ready */}
@@ -716,7 +709,7 @@ export default function Home() {
                   />
                 )}
               </div>
-            </motion.div>
+            </div>
           )}
           </AnimatePresence>
         </div>

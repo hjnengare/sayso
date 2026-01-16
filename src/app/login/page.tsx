@@ -97,12 +97,18 @@ export default function LoginPage() {
         return;
       }
 
-      const success = await login(email, password);
-      
-      if (success) {
+      const loggedInUser = await login(email, password);
+
+      if (loggedInUser) {
         // Clear rate limit on successful login
         await RateLimiter.recordSuccess(email.trim().toLowerCase(), 'login');
-        showToast("Welcome back! Redirecting...", 'success', 2000);
+
+        // Show personalized welcome toast with username
+        const displayName = loggedInUser.profile?.display_name || loggedInUser.profile?.username;
+        const welcomeMessage = displayName
+          ? `Welcome back, ${displayName}!`
+          : "Welcome back!";
+        showToast(welcomeMessage, 'sage', 3000);
       } else {
         // Rate limit already incremented by checkRateLimit, no need to record failure
         const errorMsg = authError || "Invalid email or password";

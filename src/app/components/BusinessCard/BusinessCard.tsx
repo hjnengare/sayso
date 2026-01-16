@@ -67,39 +67,6 @@ const formatCategoryLabel = (value?: string) => {
     .join(" ");
 };
 
-// Generate a unique color for each business based on its ID
-// This ensures every business card icon has a different color
-const getUniqueBusinessColor = (businessId: string): string => {
-  // Create a simple hash from the business ID
-  let hash = 0;
-  for (let i = 0; i < businessId.length; i++) {
-    const char = businessId.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; // Convert to 32-bit integer
-  }
-  
-  // Use absolute value and modulo to get a consistent index
-  const index = Math.abs(hash) % 12;
-  
-  // Palette of distinct colors for variety
-  const colorPalette = [
-    'from-coral/20 to-coral/10',           // 0 - Coral
-    'from-sage/20 to-sage/10',             // 1 - Sage
-    'from-purple-400/20 to-purple-400/10', // 2 - Purple
-    'from-blue-400/20 to-blue-400/10',     // 3 - Blue
-    'from-pink-400/20 to-pink-400/10',     // 4 - Pink
-    'from-yellow-400/20 to-yellow-400/10',  // 5 - Yellow
-    'from-indigo-400/20 to-indigo-400/10', // 6 - Indigo
-    'from-teal-400/20 to-teal-400/10',     // 7 - Teal
-    'from-orange-400/20 to-orange-400/10', // 8 - Orange
-    'from-rose-400/20 to-rose-400/10',     // 9 - Rose
-    'from-cyan-400/20 to-cyan-400/10',     // 10 - Cyan
-    'from-emerald-400/20 to-emerald-400/10', // 11 - Emerald
-  ];
-  
-  return colorPalette[index];
-};
-
 // Map categories to lucide-react icons
 const getCategoryIcon = (category: string, subInterestId?: string, subInterestLabel?: string): React.ComponentType<React.SVGProps<SVGSVGElement>> => {
   // Normalize category/label for matching
@@ -811,10 +778,9 @@ function BusinessCard({
                   <div className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5">
                     {(() => {
                       const CategoryIcon = getCategoryIcon(business.category, business.subInterestId, business.subInterestLabel);
-                      const uniqueColor = getUniqueBusinessColor(business.id);
                       return (
                         <>
-                          <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${uniqueColor} flex items-center justify-center flex-shrink-0`}>
+                          <div className="w-8 h-8 rounded-full bg-off-white/20 flex items-center justify-center flex-shrink-0">
                             <CategoryIcon className="w-4 h-4 text-charcoal/70" strokeWidth={2.5} />
                           </div>
                           <span 

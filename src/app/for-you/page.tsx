@@ -7,6 +7,7 @@ import Header from "../components/Header/Header";
 import Footer from "../components/Footer/Footer";
 import BusinessCard from "../components/BusinessCard/BusinessCard";
 import { useForYouBusinesses } from "../hooks/useBusinesses";
+import { useSimpleBusinessSearch } from "../hooks/useSimpleBusinessSearch";
 import { useUserPreferences } from "../hooks/useUserPreferences";
 import { useDebounce } from "../hooks/useDebounce";
 import SearchInput from "../components/SearchInput/SearchInput";
@@ -50,6 +51,15 @@ export default function ForYouPage() {
 
   // Debounce search query for real-time filtering (300ms delay)
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
+
+  // Check if search is active (2+ characters)
+  const isSearchActive = debouncedSearchQuery.trim().length > 1;
+
+  // Use simple search when query is 2+ characters
+  const { results: searchResults, isSearching: simpleSearchLoading } = useSimpleBusinessSearch(
+    debouncedSearchQuery,
+    300
+  );
 
   // Determine sort strategy based on search query
   const sortStrategy = useMemo((): 'relevance' | 'distance' | 'rating_desc' | 'price_asc' | 'combo' | undefined => {
@@ -120,18 +130,26 @@ export default function ForYouPage() {
   // Note: Prioritization of recently reviewed businesses is now handled on the backend
   // The API automatically prioritizes businesses the user has reviewed within the last 24 hours
 
-  const totalPages = useMemo(() => Math.ceil(businesses.length / ITEMS_PER_PAGE), [businesses.length]);
+  const totalPages = useMemo(() => {
+    const businessesToCount = isSearchActive ? searchResults : businesses;
+    return Math.ceil(businessesToCount.length / ITEMS_PER_PAGE);
+  }, [businesses.length, searchResults.length, isSearchActive, ITEMS_PER_PAGE]);
+
   const currentBusinesses = useMemo(() => {
+    const businessesToPaginate = isSearchActive ? searchResults : businesses;
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
-    return businesses.slice(startIndex, endIndex);
-  }, [businesses, currentPage]);
+    return businessesToPaginate.slice(startIndex, endIndex);
+  }, [businesses, searchResults, currentPage, isSearchActive, ITEMS_PER_PAGE]);
 
-  const totalCount = useMemo(() => businesses.length, [businesses.length]);
+  const totalCount = useMemo(() => {
+    return isSearchActive ? searchResults.length : businesses.length;
+  }, [businesses.length, searchResults.length, isSearchActive]);
 
   // Convert businesses to map format (filter out null coords)
   const mapBusinesses = useMemo((): BusinessMapItem[] => {
-    return businesses
+    const businessesToMap = isSearchActive ? searchResults : businesses;
+    return businessesToMap
       .filter(b => b.lat != null && b.lng != null)
       .map(b => ({
         id: b.id,
@@ -142,7 +160,7 @@ export default function ForYouPage() {
         image_url: b.image_url,
         slug: b.slug,
       }));
-  }, [businesses]);
+  }, [businesses, searchResults, isSearchActive]);
 
   const handleClearFilters = () => {
     // ✅ Reset filter state - return to default mode
@@ -297,7 +315,7 @@ export default function ForYouPage() {
         whiteText={true}
       />
 
-      <main className="pt-20 sm:pt-24 pb-28">
+      <main className="pt-20 sm:pt-24 pb-6 sm:pb-10">
         <div className="mx-auto w-full max-w-[2000px] px-2">
           {/* Breadcrumb */}
           <nav className="mb-4 sm:mb-6 px-2" aria-label="Breadcrumb">
@@ -338,8 +356,7 @@ export default function ForYouPage() {
                   className="inline-block"
                   typingSpeedMs={50}
                   startDelayMs={200}
-                  waveVariant="subtle"
-                  loopWave={true}
+                  disableWave={true}
                   enableScrollTrigger={true}
                   style={{
                     fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
@@ -370,9 +387,9 @@ export default function ForYouPage() {
             />
           </div>
 
-          {/* Inline Filters - Always visible */}
+          {/* Inline Filters - Only show when searching */}
           <InlineFilters
-            show={true}
+            show={isSearchActive && debouncedSearchQuery.trim().length > 0}
             filters={filters}
             onDistanceChange={handleInlineDistanceChange}
             onRatingChange={handleInlineRatingChange}
@@ -392,11 +409,11 @@ export default function ForYouPage() {
 
           <div className="py-3 sm:py-4">
             <div className="pt-4 sm:pt-6 md:pt-10">
-          {/* ✅ Show skeleton loader while prefs are loading OR businesses are loading */}
-          {(loading || prefsLoading) && (
+          {/* ✅ Show skeleton loader while prefs are loading OR businesses are loading OR simple search is loading */}
+          {(loading || prefsLoading || simpleSearchLoading) && (
             <BusinessGridSkeleton />
           )}
-          {!loading && !prefsLoading && error && (
+          {!loading && !prefsLoading && !simpleSearchLoading && error && (
             <div className="bg-white border border-sage/20 rounded-3xl shadow-sm px-6 py-10 text-center space-y-4">
               <p className="text-charcoal font-semibold text-h2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                 We couldn't load businesses right now.
@@ -414,21 +431,45 @@ export default function ForYouPage() {
             </div>
           )}
 
-          {!loading && !prefsLoading && !error && (
+          {!loading && !prefsLoading && !simpleSearchLoading && !error && (
             <>
-              {businesses.length === 0 ? (
-                <div className="bg-white border border-sage/20 rounded-3xl shadow-sm px-6 py-16 text-center space-y-3">
-                  <h2 className="text-h2 font-semibold text-charcoal" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                    {isFiltered ? 'No businesses match your filters' : "We're still learning your taste"}
-                  </h2>
-                  <p className="text-body-sm text-charcoal/60 max-w-[70ch] mx-auto" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 500 }}>
-                    {isFiltered 
-                      ? 'Try adjusting your filters or check back soon as new businesses join the community.'
-                      : 'Explore a bit and we\'ll personalize more recommendations for you.'}
-                  </p>
-                </div>
+              {totalCount === 0 ? (
+                isSearchActive ? (
+                  /* Search empty state - matches home page style */
+                  <div className="w-full sm:max-w-md lg:max-w-lg xl:max-w-xl sm:mx-auto relative z-10">
+                    <div className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[20px] overflow-hidden backdrop-blur-md shadow-md px-4 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10 lg:px-12 lg:py-10 xl:px-16 xl:py-12 text-center space-y-4">
+                      <h2 className="text-h2 font-semibold text-white" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                        No results found
+                      </h2>
+                      <p className="text-body-sm text-white/80 max-w-[70ch] mx-auto leading-relaxed" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 400 }}>
+                        We couldn't find any businesses matching "{debouncedSearchQuery}". Try adjusting your search or check back soon.
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  /* Default empty state for filters/personalization */
+                  <div className="bg-white border border-sage/20 rounded-3xl shadow-sm px-6 py-16 text-center space-y-3">
+                    <h2 className="text-h2 font-semibold text-charcoal" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                      {isFiltered ? 'No businesses match your filters' : "We're still learning your taste"}
+                    </h2>
+                    <p className="text-body-sm text-charcoal/60 max-w-[70ch] mx-auto" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 500 }}>
+                      {isFiltered
+                        ? 'Try adjusting your filters or check back soon as new businesses join the community.'
+                        : 'Explore a bit and we\'ll personalize more recommendations for you.'}
+                    </p>
+                  </div>
+                )
               ) : (
                 <>
+                  {/* Search Results Header */}
+                  {isSearchActive && totalCount > 0 && (
+                    <div className="mb-4 px-2 flex items-center justify-between">
+                      <div className="text-sm text-charcoal/60" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                        Found {totalCount} {totalCount === 1 ? 'result' : 'results'} for "{debouncedSearchQuery}"
+                      </div>
+                    </div>
+                  )}
+
                   {/* Loading Spinner Overlay for Pagination */}
                   {isPaginationLoading && (
                     <div className="fixed inset-0 z-[9998] bg-off-white/95 backdrop-blur-sm flex items-center justify-center min-h-screen">
@@ -483,16 +524,35 @@ export default function ForYouPage() {
                         />
                       </motion.div>
                     ) : (
-                      <div
-                        key={`list-view-${currentPage}`}
-                        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-3"
+                      <motion.div
+                        key={currentPage}
+                        initial={{ opacity: 0, y: 20, scale: 0.98, filter: "blur(8px)" }}
+                        animate={{ opacity: isPaginationLoading ? 0 : 1, y: 0, scale: 1, filter: "blur(0px)" }}
+                        exit={{ opacity: 0, y: -20, scale: 0.98, filter: "blur(8px)" }}
+                        transition={{
+                          duration: 0.4,
+                          ease: [0.16, 1, 0.3, 1],
+                        }}
                       >
-                        {currentBusinesses.map((business) => (
-                          <div key={business.id} className="list-none">
-                            <BusinessCard business={business} compact />
-                          </div>
-                        ))}
-                      </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-5 lg:gap-6">
+                          {currentBusinesses.map((business, index) => (
+                            <motion.div
+                              key={business.id}
+                              className="list-none"
+                              initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                              animate={{ opacity: 1, y: 0, scale: 1 }}
+                              transition={{
+                                type: "spring",
+                                damping: 25,
+                                stiffness: 200,
+                                delay: index * 0.06 + 0.1,
+                              }}
+                            >
+                              <BusinessCard business={business} compact />
+                            </motion.div>
+                          ))}
+                        </div>
+                      </motion.div>
                     )}
                   </AnimatePresence>
 

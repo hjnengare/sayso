@@ -283,10 +283,9 @@ export default function SimilarBusinessCard({
           <div className="flex items-center gap-1.5 text-xs text-charcoal/60 mt-1">
             {(() => {
               const CategoryIcon = getCategoryIcon(category, subInterestId, subInterestLabel);
-              const uniqueColor = getUniqueBusinessColor(id);
               return (
-                <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${uniqueColor} flex items-center justify-center flex-shrink-0`}>
-                  <CategoryIcon className="w-4 h-4 text-charcoal/70" strokeWidth={2.5} />
+                <div className="w-8 h-8 rounded-full bg-navbar-bg/50 flex items-center justify-center flex-shrink-0">
+                  <CategoryIcon className="w-4 h-4 text-white/80" strokeWidth={2.5} />
             </div>
               );
             })()}
