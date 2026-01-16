@@ -142,11 +142,21 @@ export async function middleware(request: NextRequest) {
           console.warn('Middleware: Error clearing cookies:', clearError);
         }
         
+        // Check if this is a guest mode request (guest=true query param)
+        const isGuestMode = request.nextUrl.searchParams.get('guest') === 'true';
+        
         // Only redirect protected routes, allow public routes
+        // Special case: /home with guest=true is allowed even though /home is typically protected
         const protectedRoutes = ['/interests', '/subcategories', '/deal-breakers', '/complete', '/home', '/profile', '/reviews', '/write-review', '/leaderboard', '/saved', '/dm', '/reviewer'];
         const isProtectedRoute = protectedRoutes.some(route =>
           request.nextUrl.pathname.startsWith(route)
         );
+        
+        // Allow /home if guest mode is enabled
+        if (isProtectedRoute && request.nextUrl.pathname === '/home' && isGuestMode) {
+          console.log('Middleware: Allowing guest mode access to /home');
+          return response;
+        }
         
         if (isProtectedRoute) {
           return NextResponse.redirect(new URL('/onboarding', request.url));
