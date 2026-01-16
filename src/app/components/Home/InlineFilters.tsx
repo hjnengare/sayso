@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion, Easing } from "framer-motion";
 import { MapPin, Star } from "lucide-react";
 
 interface InlineFiltersProps {
@@ -26,6 +26,10 @@ const RATING_OPTIONS = [
   { value: 4.0, label: "4.0+" },
   { value: 4.5, label: "4.5+" },
 ];
+
+// Cubic bezier easing functions
+const easeOut: Easing = [0.25, 0.46, 0.45, 0.94];
+const easeIn: Easing = [0.4, 0, 0.6, 1];
 
 export default function InlineFilters({
   show,
@@ -54,9 +58,7 @@ export default function InlineFilters({
           scale: 1,
           transition: {
             duration: 0.4,
-            ease: [0.25, 0.46, 0.45, 0.94], // Custom cubic-bezier for smooth entrance
-            staggerChildren: 0.08,
-            delayChildren: 0.05,
+            ease: easeOut,
           },
         },
         exit: {
@@ -65,14 +67,17 @@ export default function InlineFilters({
           scale: 0.96,
           transition: {
             duration: 0.25,
-            ease: [0.4, 0, 0.6, 1], // Custom ease-in for exit
+            ease: easeIn,
           },
         },
       };
 
   // Group animations with stagger for cascading effect
-  const groupVariants = prefersReducedMotion
-    ? {}
+  const groupVariants: any = prefersReducedMotion
+    ? {
+        hidden: { opacity: 0 },
+        visible: { opacity: 1 },
+      }
     : {
         hidden: { opacity: 0 },
         visible: {
@@ -85,8 +90,11 @@ export default function InlineFilters({
       };
 
   // Individual chip animations with spring physics for bouncy feel
-  const chipVariants = prefersReducedMotion
-    ? {}
+  const chipVariants: any = prefersReducedMotion
+    ? {
+        hidden: { opacity: 0 },
+        visible: { opacity: 1 },
+      }
     : {
         hidden: {
           opacity: 0,

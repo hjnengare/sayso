@@ -116,16 +116,14 @@ function CompletePageContent() {
   const router = useRouter();
   const reducedMotion = useReducedMotion();
   const {
-    isSaving,
-    hasSaved,
-    error,
+    isVerifying,
     handleContinue,
     dealbreakers: selectedDealbreakers,
   } = useCompletePage();
 
   // Confetti celebration (deferred until after initial render for better performance)
   useEffect(() => {
-    if (isSaving) return;
+    if (isVerifying) return;
     
     // Prefetch home immediately for instant transition after completion
     if (router) {
@@ -184,10 +182,10 @@ function CompletePageContent() {
         cancelled = true;
       };
     }
-  }, [reducedMotion, isSaving, router]);
+  }, [reducedMotion, isVerifying, router]);
 
-  // Show loading state while saving
-  if (isSaving) {
+  // Show loading state while verifying
+  if (isVerifying) {
     return (
       <OnboardingLayout step={4} showProgress={false}>
         <div className="flex items-center justify-center min-h-[400px]">
@@ -259,20 +257,16 @@ function CompletePageContent() {
             </div>
           )}
 
-          {/* Error message */}
-          <OnboardingErrorBanner error={error} className="mb-6" />
-
           {/* Continue CTA */}
           <OnboardingActionBar align="center">
             <button
               onClick={handleContinue}
-              disabled={isSaving}
               data-testid="onboarding-complete-cta"
               aria-label="Go to Home"
-              className="relative block w-[200px] mx-auto rounded-full py-4 px-4 text-body font-semibold text-white text-center flex items-center justify-center bg-gradient-to-r from-coral to-coral/80 hover:from-sage hover:to-sage border border-white/30 ring-1 ring-coral/20 hover:ring-sage/20 backdrop-blur-sm transition-all duration-300 btn-target btn-press focus:outline-none focus-visible:ring-4 focus-visible:ring-sage/30 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="relative block w-[200px] mx-auto rounded-full py-4 px-4 text-body font-semibold text-white text-center flex items-center justify-center bg-gradient-to-r from-coral to-coral/80 hover:from-sage hover:to-sage border border-white/30 ring-1 ring-coral/20 hover:ring-sage/20 backdrop-blur-sm transition-all duration-300 btn-target btn-press focus:outline-none focus-visible:ring-4 focus-visible:ring-sage/30 focus-visible:ring-offset-2"
               style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
             >
-              {isSaving ? 'Saving...' : 'Continue to Home'}
+              Continue to Home
               <ArrowRight className="w-5 h-5 ml-2 inline-block" />
             </button>
           </OnboardingActionBar>

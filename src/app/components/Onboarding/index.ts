@@ -13,4 +13,3 @@ export { default as OnboardingItemGrid } from "./OnboardingItemGrid";
 export { default as OnboardingItemCard } from "./OnboardingItemCard";
 export { default as OnboardingBackButton } from "./OnboardingBackButton";
 export { default as OnboardingProgressIndicator } from "./OnboardingProgressIndicator";
-export { default as PageTransition } from "./PageTransition";
