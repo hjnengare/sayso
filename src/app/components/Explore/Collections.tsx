@@ -113,7 +113,7 @@ export default function Collections({ onCollectionClick }: CollectionsProps) {
                 >
                   {collection.description}
                 </p>
-                <div className="flex items-center gap-2 text-caption text-charcoal/50">
+                <div className="flex items-center gap-2 text-caption text-charcoal/70">
                   <span style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                     {collection.count} places
                   </span>

@@ -198,7 +198,7 @@ function BusinessOfMonthPodium({ topBusinesses }: BusinessOfMonthPodiumProps) {
               <div className="font-urbanist text-caption sm:text-body-sm text-charcoal/60 mb-2 flex items-center justify-center gap-1">
                 <Star className="w-3 h-3 sm:w-4 sm:h-4 text-coral fill-coral" />
                 <span className="font-700 text-charcoal">{businesses[1].totalRating?.toFixed(1) || "0.0"}</span>
-                <span className="text-charcoal/50">({businesses[1].reviews || 0})</span>
+                <span className="text-charcoal/70">({businesses[1].reviews || 0})</span>
               </div>
               {/* Professional Podium Block */}
               <div className="relative mt-auto">
@@ -221,7 +221,7 @@ function BusinessOfMonthPodium({ topBusinesses }: BusinessOfMonthPodiumProps) {
               <div className="font-urbanist text-caption sm:text-body-sm text-charcoal/60 mb-2 flex items-center justify-center gap-1">
                 <Star className="w-3 h-3 sm:w-4 sm:h-4 text-coral fill-coral" />
                 <span className="font-700 text-charcoal">{businesses[1].totalRating?.toFixed(1) || "0.0"}</span>
-                <span className="text-charcoal/50">({businesses[1].reviews || 0})</span>
+                <span className="text-charcoal/70">({businesses[1].reviews || 0})</span>
               </div>
               {/* Professional Podium Block */}
               <div className="relative mt-auto">
@@ -256,7 +256,7 @@ function BusinessOfMonthPodium({ topBusinesses }: BusinessOfMonthPodiumProps) {
               <div className="font-urbanist text-caption sm:text-body-sm text-charcoal/60 mb-2 flex items-center justify-center gap-1">
                 <Star className="w-3 h-3 sm:w-4 sm:h-4 text-coral fill-coral" />
                 <span className="font-700 text-charcoal">{businesses[0].totalRating?.toFixed(1) || "0.0"}</span>
-                <span className="text-charcoal/50">({businesses[0].reviews || 0})</span>
+                <span className="text-charcoal/70">({businesses[0].reviews || 0})</span>
               </div>
               {/* Professional Podium Block */}
               <div className="relative mt-auto">
@@ -279,7 +279,7 @@ function BusinessOfMonthPodium({ topBusinesses }: BusinessOfMonthPodiumProps) {
               <div className="font-urbanist text-caption sm:text-body-sm text-charcoal/60 mb-2 flex items-center justify-center gap-1">
                 <Star className="w-3 h-3 sm:w-4 sm:h-4 text-coral fill-coral" />
                 <span className="font-700 text-charcoal">{businesses[0].totalRating?.toFixed(1) || "0.0"}</span>
-                <span className="text-charcoal/50">({businesses[0].reviews || 0})</span>
+                <span className="text-charcoal/70">({businesses[0].reviews || 0})</span>
               </div>
               {/* Professional Podium Block */}
               <div className="relative mt-auto">
@@ -314,7 +314,7 @@ function BusinessOfMonthPodium({ topBusinesses }: BusinessOfMonthPodiumProps) {
               <div className="font-urbanist text-caption sm:text-body-sm text-charcoal/60 mb-2 flex items-center justify-center gap-1">
                 <Star className="w-3 h-3 sm:w-4 sm:h-4 text-coral fill-coral" />
                 <span className="font-700 text-charcoal">{businesses[2].totalRating?.toFixed(1) || "0.0"}</span>
-                <span className="text-charcoal/50">({businesses[2].reviews || 0})</span>
+                <span className="text-charcoal/70">({businesses[2].reviews || 0})</span>
               </div>
               {/* Professional Podium Block */}
               <div className="relative mt-auto">
@@ -337,7 +337,7 @@ function BusinessOfMonthPodium({ topBusinesses }: BusinessOfMonthPodiumProps) {
               <div className="font-urbanist text-caption sm:text-body-sm text-charcoal/60 mb-2 flex items-center justify-center gap-1">
                 <Star className="w-3 h-3 sm:w-4 sm:h-4 text-coral fill-coral" />
                 <span className="font-700 text-charcoal">{businesses[2].totalRating?.toFixed(1) || "0.0"}</span>
-                <span className="text-charcoal/50">({businesses[2].reviews || 0})</span>
+                <span className="text-charcoal/70">({businesses[2].reviews || 0})</span>
               </div>
               {/* Professional Podium Block */}
               <div className="relative mt-auto">

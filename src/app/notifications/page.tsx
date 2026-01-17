@@ -48,7 +48,7 @@ export default function NotificationsPage() {
 
   const getNotificationColor = (type: string, isRead: boolean) => {
     if (isRead) {
-      return 'bg-charcoal/5 text-charcoal/50 border-charcoal/10';
+      return 'bg-charcoal/5 text-charcoal/70 border-charcoal/10';
     }
     switch (type) {
       case 'review':

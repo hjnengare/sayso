@@ -43,7 +43,7 @@ export default function BusinessContactInfo({ phone, website, address, email, lo
               </a>
             ) : (
               <span
-                className="text-body-sm text-charcoal/50 italic"
+                className="text-body-sm text-charcoal/70 italic"
                 style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
               >
                 Phone number coming soon
@@ -62,7 +62,7 @@ export default function BusinessContactInfo({ phone, website, address, email, lo
               </a>
             ) : (
               <span
-                className="text-body-sm text-charcoal/50 italic"
+                className="text-body-sm text-charcoal/70 italic"
                 style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
               >
                 Email coming soon
@@ -83,7 +83,7 @@ export default function BusinessContactInfo({ phone, website, address, email, lo
               </a>
             ) : (
               <span
-                className="text-body-sm text-charcoal/50 italic"
+                className="text-body-sm text-charcoal/70 italic"
                 style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
               >
                 Website coming soon
@@ -101,7 +101,7 @@ export default function BusinessContactInfo({ phone, website, address, email, lo
               </span>
             ) : (
               <span
-                className="text-body-sm text-charcoal/50 italic"
+                className="text-body-sm text-charcoal/70 italic"
                 style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
               >
                 Address coming soon

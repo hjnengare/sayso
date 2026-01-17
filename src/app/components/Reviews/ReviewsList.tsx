@@ -119,7 +119,7 @@ export default function ReviewsList({
               href={emptyStateAction.href}
               className={`inline-block px-6 py-3 rounded-full text-body font-semibold transition-colors mb-6 ${
                 emptyStateAction.disabled
-                  ? 'bg-charcoal/20 text-charcoal/50 cursor-not-allowed'
+                  ? 'bg-charcoal/20 text-charcoal/70 cursor-not-allowed'
                   : 'bg-coral text-white hover:bg-coral/90'
               }`}
               style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}

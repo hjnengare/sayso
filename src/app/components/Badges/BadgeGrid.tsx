@@ -19,7 +19,7 @@ export default function BadgeGrid({ title, badges, emptyMessage = "No badges in 
         <h2 className="font-urbanist font-800 text-xl text-charcoal mb-4">
           {title}
         </h2>
-        <p className="text-charcoal/50 text-center py-8">{emptyMessage}</p>
+        <p className="text-charcoal/70 text-center py-8">{emptyMessage}</p>
       </div>
     );
   }

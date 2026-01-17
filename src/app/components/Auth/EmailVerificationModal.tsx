@@ -145,7 +145,7 @@ export default function EmailVerificationModal({
           </div>
 
           {/* Help Text */}
-          <p className="font-urbanist text-sm sm:text-xs text-charcoal/50 mt-3 text-center">
+          <p className="font-urbanist text-sm sm:text-xs text-charcoal/70 mt-3 text-center">
             Check your spam folder if you don't see the email
           </p>
         </div>

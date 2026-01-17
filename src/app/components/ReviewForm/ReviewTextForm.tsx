@@ -1,5 +1,9 @@
 "use client";
 
+import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Type, MessageSquare, Lightbulb } from "lucide-react";
+
 interface ReviewTextFormProps {
   reviewTitle: string;
   reviewText: string;
@@ -7,78 +11,213 @@ interface ReviewTextFormProps {
   onTextChange: (text: string) => void;
 }
 
-export default function ReviewTextForm({ 
-  reviewTitle, 
-  reviewText, 
-  onTitleChange, 
-  onTextChange 
+// Smart writing prompts based on what's missing
+const writingPrompts = [
+  "What did you enjoy most?",
+  "How was the service?",
+  "Would you recommend this place?",
+  "Any tips for others?",
+];
+
+export default function ReviewTextForm({
+  reviewTitle,
+  reviewText,
+  onTitleChange,
+  onTextChange,
 }: ReviewTextFormProps) {
+  const [isTitleFocused, setIsTitleFocused] = useState(false);
+  const [isTextFocused, setIsTextFocused] = useState(false);
+  const [currentPrompt, setCurrentPrompt] = useState(0);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Rotate prompts every 4 seconds when textarea is empty
+  useEffect(() => {
+    if (reviewText.length === 0 && !isTextFocused) {
+      const interval = setInterval(() => {
+        setCurrentPrompt((prev) => (prev + 1) % writingPrompts.length);
+      }, 4000);
+      return () => clearInterval(interval);
+    }
+  }, [reviewText.length, isTextFocused]);
+
+  // Auto-resize textarea
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${Math.max(120, textareaRef.current.scrollHeight)}px`;
+    }
+  }, [reviewText]);
+
+  const charCount = reviewText.length;
+  const minChars = 10;
+  const maxChars = 5000;
+  const isValid = charCount >= minChars;
+  const isNearLimit = charCount > 4500;
+
   return (
-    <>
+    <div className="mb-6 space-y-4">
       {/* Review Title */}
-      <div className="mb-3 px-4">
-        <h3 className="text-body-sm font-semibold text-charcoal mb-3 text-center md:text-left" style={{ fontFamily: '"Urbanist", system-ui, sans-serif' }}>
-          Review Title (Optional)
-        </h3>
-        <input
-          type="text"
-          value={reviewTitle}
-          onChange={(e) => {
-            const value = e.target.value;
-            // Enforce max length of 200 characters
-            if (value.length <= 200) {
-              onTitleChange(value);
-            }
+      <div>
+        <div className="flex items-center gap-2 mb-2 px-1">
+          <Type className="w-4 h-4 text-white/60" />
+          <label
+            className="text-sm font-semibold text-white"
+            style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
+          >
+            Title
+            <span className="ml-1 text-xs font-normal text-white/40">(optional)</span>
+          </label>
+        </div>
+
+        <motion.div
+          animate={{
+            scale: isTitleFocused ? 1.01 : 1,
           }}
-          placeholder="Summarize your experience in a few words..."
-          maxLength={200}
-          className="w-full bg-off-white backdrop-blur-sm border border-sage/20 rounded-full px-4 md:px-6 py-3 md:py-4 text-body md:text-lg text-charcoal placeholder:text-sm sm:text-xs placeholder-charcoal/50 focus:outline-none focus:ring-2 focus:ring-sage/50 focus:border-sage transition-all duration-300 input-mobile"
-        />
+          transition={{ duration: 0.2 }}
+        >
+          <input
+            type="text"
+            value={reviewTitle}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (value.length <= 200) {
+                onTitleChange(value);
+              }
+            }}
+            onFocus={() => setIsTitleFocused(true)}
+            onBlur={() => setIsTitleFocused(false)}
+            placeholder="Summarize your experience..."
+            maxLength={200}
+            className={`
+              w-full bg-white/95 border-2 rounded-full px-5 py-3.5
+              text-sm font-semibold text-charcoal placeholder-charcoal/40
+              focus:outline-none transition-all duration-200
+              ${isTitleFocused
+                ? 'border-coral/50 ring-2 ring-coral/20'
+                : 'border-white/60 hover:border-white/80'
+              }
+            `}
+            style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
+          />
+        </motion.div>
       </div>
 
       {/* Review Text */}
-      <div className="mb-3 px-4">
-        <h3 className="text-body-sm font-semibold text-charcoal mb-3 text-center md:text-left" style={{ fontFamily: '"Urbanist", system-ui, sans-serif' }}>
-          Tell us about your experience
-        </h3>
-        <textarea
-          value={reviewText}
-          onChange={(e) => {
-            const value = e.target.value;
-            // Enforce max length of 5000 characters
-            if (value.length <= 5000) {
-              // Ensure immediate state update for validation
-              onTextChange(value);
-            }
-          }}
-          onInput={(e) => {
-            // Fallback for mobile devices - onInput fires immediately as user types
-            // This ensures state updates on mobile even if onChange has issues
-            const value = (e.target as HTMLTextAreaElement).value;
-            // Enforce max length
-            const truncated = value.length > 5000 ? value.substring(0, 5000) : value;
-            if (truncated !== reviewText) {
-              onTextChange(truncated);
-            }
-          }}
-          placeholder="Share your thoughts and help other locals... (10-5000 characters)"
-          maxLength={5000}
-          rows={4}
-          className="w-full bg-off-white backdrop-blur-sm border border-sage/20 rounded-[20px] px-4 md:px-6 py-3 md:py-4 text-body md:text-xl text-charcoal placeholder:text-sm sm:text-xs placeholder-charcoal/50 focus:outline-none focus:ring-2 focus:ring-sage/50 focus:border-sage transition-all duration-300 resize-none flex-1 min-h-[120px] md:min-h-0 input-mobile"
-        />
-        {/* Character counter */}
-        <div className="text-right px-4 mt-1">
-          <span className={`text-xs ${
-            reviewText.length < 10 
-              ? 'text-charcoal/60' 
-              : reviewText.length > 4500 
-                ? 'text-coral' 
-                : 'text-charcoal/50'
-          }`}>
-            {reviewText.length} / 5000 {reviewText.length < 10 && '(minimum 10 characters)'}
-          </span>
+      <div>
+        <div className="flex items-center justify-between mb-2 px-1">
+          <div className="flex items-center gap-2">
+            <MessageSquare className="w-4 h-4 text-white/60" />
+            <label
+              className="text-sm font-semibold text-white"
+              style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
+            >
+              Your review
+            </label>
+          </div>
+
+          {/* Character counter */}
+          <motion.span
+            animate={{
+              color: isNearLimit ? '#E88D67' : charCount < minChars ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.6)',
+            }}
+            className="text-xs font-medium"
+            style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
+          >
+            {charCount}/{maxChars}
+          </motion.span>
         </div>
+
+        <motion.div
+          animate={{
+            scale: isTextFocused ? 1.01 : 1,
+          }}
+          transition={{ duration: 0.2 }}
+          className="relative"
+        >
+          <textarea
+            ref={textareaRef}
+            value={reviewText}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (value.length <= maxChars) {
+                onTextChange(value);
+              }
+            }}
+            onInput={(e) => {
+              const value = (e.target as HTMLTextAreaElement).value;
+              const truncated = value.length > maxChars ? value.substring(0, maxChars) : value;
+              if (truncated !== reviewText) {
+                onTextChange(truncated);
+              }
+            }}
+            onFocus={() => setIsTextFocused(true)}
+            onBlur={() => setIsTextFocused(false)}
+            placeholder="Share your experience with others..."
+            maxLength={maxChars}
+            rows={4}
+            className={`
+              w-full bg-white/95 border-2 rounded-[20px] px-5 py-4
+              text-sm font-medium text-charcoal placeholder-charcoal/40
+              focus:outline-none transition-all duration-200 resize-none
+              min-h-[120px]
+              ${isTextFocused
+                ? 'border-coral/50 ring-2 ring-coral/20'
+                : 'border-white/60 hover:border-white/80'
+              }
+            `}
+            style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
+          />
+
+          {/* Smart writing prompt */}
+          <AnimatePresence mode="wait">
+            {reviewText.length === 0 && !isTextFocused && (
+              <motion.div
+                key={currentPrompt}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.3 }}
+                className="absolute bottom-4 left-4 right-4 flex items-center gap-2 pointer-events-none"
+              >
+                <Lightbulb className="w-4 h-4 text-coral/60 flex-shrink-0" />
+                <span
+                  className="text-xs text-charcoal/70"
+                  style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
+                >
+                  Tip: {writingPrompts[currentPrompt]}
+                </span>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+
+        {/* Validation message */}
+        <AnimatePresence>
+          {charCount > 0 && charCount < minChars && (
+            <motion.p
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              className="mt-2 px-1 text-xs text-coral/80"
+              style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
+            >
+              {minChars - charCount} more character{minChars - charCount !== 1 ? 's' : ''} needed
+            </motion.p>
+          )}
+        </AnimatePresence>
+
+        {/* Progress bar for minimum characters */}
+        {charCount > 0 && charCount < minChars && (
+          <div className="mt-2 h-1 bg-white/10 rounded-full overflow-hidden">
+            <motion.div
+              className="h-full bg-coral/60 rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${(charCount / minChars) * 100}%` }}
+              transition={{ duration: 0.3 }}
+            />
+          </div>
+        )}
       </div>
-    </>
+    </div>
   );
 }

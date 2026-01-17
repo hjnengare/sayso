@@ -186,7 +186,7 @@ function BusinessLeaderboardItem({ business, index, rank }: BusinessLeaderboardI
             <Star className="w-3 h-3 sm:w-4 sm:h-4 text-coral fill-coral" />
             <span className="font-urbanist text-caption sm:text-body-sm font-600 text-charcoal">{business.reviews > 0 ? business.totalRating : "New"}</span>
           </div>
-          <span className="font-urbanist text-caption sm:text-body-sm text-charcoal/50 whitespace-nowrap">{business.reviews > 0 ? `${business.reviews} reviews` : "No reviews yet"}</span>
+          <span className="font-urbanist text-caption sm:text-body-sm text-charcoal/70 whitespace-nowrap">{business.reviews > 0 ? `${business.reviews} reviews` : "No reviews yet"}</span>
         </div>
       </div>
     </motion.div>

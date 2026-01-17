@@ -22,7 +22,7 @@ export default function EventContent({ title, location, description, href }: Eve
         </div>
 
         <div className="mb-2 flex items-center justify-center gap-1.5 text-sm sm:text-xs text-charcoal/70 font-urbanist">
-          <MapPin className="w-3 h-3 text-charcoal/50" />
+          <MapPin className="w-3 h-3 text-charcoal/70" />
           <span className="truncate font-medium">{location}</span>
         </div>
       </div>

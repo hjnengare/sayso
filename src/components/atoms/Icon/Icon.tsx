@@ -25,7 +25,7 @@ const colorStyles: Record<IconColor, string> = {
   coral: 'text-coral',
   charcoal: 'text-charcoal',
   white: 'text-white',
-  gray: 'text-charcoal/50',
+  gray: 'text-charcoal/70',
 };
 
 export const Icon: React.FC<IconProps> = ({

@@ -804,7 +804,7 @@ function BusinessCard({
                   {/* Description - Stacked below category */}
                   {business.description && (
                     <p
-                      className="text-caption sm:text-xs text-charcoal/50 line-clamp-2 max-w-full text-center px-1"
+                      className="text-caption sm:text-xs text-charcoal/70 line-clamp-2 max-w-full text-center px-1"
                       style={{
                         fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                         fontWeight: 400,
@@ -883,7 +883,7 @@ function BusinessCard({
                           }
                         }}
                         className={`inline-flex items-center justify-center text-sm font-normal underline-offset-2 min-w-[92px] text-center transition-colors duration-200 ${hasReviewed
-                          ? 'text-charcoal/50 cursor-not-allowed'
+                          ? 'text-charcoal/70 cursor-not-allowed'
                           : 'text-charcoal cursor-pointer hover:text-coral'
                           } ${compact ? 'lg:order-1 lg:mb-1' : ''}`}
                         style={{
@@ -927,7 +927,7 @@ function BusinessCard({
           <div className="flex md:hidden items-center justify-center pt-2 pb-2">
             <button
               className={`flex-1 flex items-center justify-center gap-1.5 px-4 py-3 rounded-full text-caption sm:text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-sage/40 border transition-all min-h-[48px] shadow-md ${hasReviewed
-                ? 'bg-charcoal/20 text-charcoal/50 cursor-not-allowed border-charcoal/20'
+                ? 'bg-charcoal/20 text-charcoal/70 cursor-not-allowed border-charcoal/20'
                 : 'bg-gradient-to-br from-navbar-bg to-navbar-bg/90 text-white border-sage/50 active:scale-95'
                 }`}
               onClick={(e) => {

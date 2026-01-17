@@ -212,7 +212,7 @@ export default function OnboardingLayout({
             </div>
 
             <div className="text-center mt-1">
-              <p className="text-sm sm:text-xs font-600 text-charcoal/50" style={{ fontFamily: '"Urbanist", system-ui, sans-serif' }}>
+              <p className="text-sm sm:text-xs font-600 text-charcoal/70" style={{ fontFamily: '"Urbanist", system-ui, sans-serif' }}>
                 Step {step} of {totalSteps}
               </p>
             </div>

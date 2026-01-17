@@ -32,7 +32,7 @@ const variantStyles: Record<TextVariant, string> = {
 const colorStyles: Record<TextColor, string> = {
   primary: 'text-charcoal',
   secondary: 'text-charcoal/70',
-  tertiary: 'text-charcoal/50',
+  tertiary: 'text-charcoal/70',
   disabled: 'text-charcoal/30',
   sage: 'text-sage',
   coral: 'text-coral',

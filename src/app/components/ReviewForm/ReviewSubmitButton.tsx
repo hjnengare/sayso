@@ -1,20 +1,25 @@
 "use client";
 
-import { ArrowRight } from "react-feather";
 import { useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Send, Loader2 } from "lucide-react";
 
 interface ReviewSubmitButtonProps {
   isFormValid: boolean;
   onSubmit: () => void;
+  isSubmitting?: boolean;
 }
 
-export default function ReviewSubmitButton({ isFormValid, onSubmit }: ReviewSubmitButtonProps) {
+export default function ReviewSubmitButton({
+  isFormValid,
+  onSubmit,
+  isSubmitting = false,
+}: ReviewSubmitButtonProps) {
   const touchStartTime = useRef<number | null>(null);
   const lastTouchEnd = useRef<number | null>(null);
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     // Prevent click if it was triggered by a recent touch (mobile devices)
-    // This prevents double submission on mobile
     if (lastTouchEnd.current && Date.now() - lastTouchEnd.current < 500) {
       e.preventDefault();
       e.stopPropagation();
@@ -23,28 +28,25 @@ export default function ReviewSubmitButton({ isFormValid, onSubmit }: ReviewSubm
 
     e.preventDefault();
     e.stopPropagation();
-    if (!isFormValid) {
+    if (!isFormValid || isSubmitting) {
       return;
     }
     onSubmit();
   };
 
   const handleTouchStart = (e: React.TouchEvent<HTMLButtonElement>) => {
-    if (!isFormValid) {
+    if (!isFormValid || isSubmitting) {
       e.preventDefault();
       return;
     }
     touchStartTime.current = Date.now();
-    // Add visual feedback for touch
-    e.currentTarget.style.opacity = '0.9';
   };
 
   const handleTouchEnd = (e: React.TouchEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    e.currentTarget.style.opacity = '1';
-    
-    if (!isFormValid) {
+
+    if (!isFormValid || isSubmitting) {
       touchStartTime.current = null;
       return;
     }
@@ -55,37 +57,100 @@ export default function ReviewSubmitButton({ isFormValid, onSubmit }: ReviewSubm
       lastTouchEnd.current = Date.now();
       onSubmit();
     }
-    
+
     touchStartTime.current = null;
   };
 
   return (
-    <div className="px-4 relative z-20">
-      <button
+    <div className="pt-2">
+      <motion.button
         type="button"
         onClick={handleClick}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
-        className={`w-full py-3.5 px-5 rounded-full text-sm font-600 transition-all duration-300 relative overflow-hidden touch-manipulation min-h-[48px] z-20 ${isFormValid
-            ? "active:bg-navbar-bg/80 active:scale-[0.98] hover:bg-navbar-bg text-white focus:outline-none focus:ring-2 focus:ring-navbar-bg/50 focus:ring-offset-2 group hover:shadow-lg cursor-pointer"
-            : "bg-charcoal/20 text-charcoal/40 cursor-not-allowed"
-          }`}
-        disabled={!isFormValid}
+        disabled={!isFormValid || isSubmitting}
+        whileHover={isFormValid && !isSubmitting ? { scale: 1.02 } : {}}
+        whileTap={isFormValid && !isSubmitting ? { scale: 0.98 } : {}}
+        className={`
+          w-full py-4 px-6 rounded-full text-base font-bold
+          transition-all duration-300 relative overflow-hidden
+          touch-manipulation min-h-[56px] flex items-center justify-center gap-2
+          ${isFormValid && !isSubmitting
+            ? "bg-gradient-to-r from-coral to-coral/90 text-white shadow-lg shadow-coral/25 hover:shadow-xl hover:shadow-coral/30"
+            : "bg-white/10 text-white/40 cursor-not-allowed"
+          }
+        `}
         style={{
           touchAction: 'manipulation',
           WebkitTapHighlightColor: 'transparent',
-          userSelect: 'none',
-          zIndex: 20,
-          backgroundColor: isFormValid ? '#722F37' : undefined, // Explicit navbar-bg color
-          color: isFormValid ? '#FFFFFF' : undefined,
+          fontFamily: 'Urbanist, system-ui, sans-serif',
         }}
-        aria-disabled={!isFormValid}
+        aria-disabled={!isFormValid || isSubmitting}
       >
-        <span className="relative z-10 flex items-center justify-center space-x-2">
-          <span>Submit Review</span>
-          {isFormValid && <ArrowRight size={16} className="flex-shrink-0" />}
-        </span>
-      </button>
+        {/* Background gradient animation */}
+        {isFormValid && !isSubmitting && (
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+            initial={{ x: '-100%' }}
+            animate={{ x: '100%' }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              repeatDelay: 3,
+              ease: 'easeInOut',
+            }}
+          />
+        )}
+
+        <AnimatePresence mode="wait">
+          {isSubmitting ? (
+            <motion.span
+              key="loading"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              className="flex items-center gap-2"
+            >
+              <Loader2 className="w-5 h-5 animate-spin" />
+              <span>Submitting...</span>
+            </motion.span>
+          ) : (
+            <motion.span
+              key="submit"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              className="relative z-10 flex items-center gap-2"
+            >
+              <span>Submit Review</span>
+              {isFormValid && (
+                <motion.span
+                  initial={{ x: -4, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  <Send className="w-4 h-4" />
+                </motion.span>
+              )}
+            </motion.span>
+          )}
+        </AnimatePresence>
+      </motion.button>
+
+      {/* Helper text when form is invalid */}
+      <AnimatePresence>
+        {!isFormValid && (
+          <motion.p
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            className="mt-3 text-center text-xs text-white/50"
+            style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
+          >
+            Add a rating and at least 10 characters to submit
+          </motion.p>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

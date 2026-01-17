@@ -119,7 +119,7 @@ function ChatItem({
               {chat.businessName}
             </h3>
             <span
-              className="text-xs text-charcoal/50 font-semibold whitespace-nowrap flex-shrink-0"
+              className="text-xs text-charcoal/70 font-semibold whitespace-nowrap flex-shrink-0"
               style={{ fontFamily: "Urbanist, system-ui, sans-serif" }}
             >
               {chat.timestamp}

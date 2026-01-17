@@ -71,7 +71,7 @@ function LeaderboardUser({ user, index, isMobile = false }: LeaderboardUserProps
               <Star className="w-3 h-3 sm:w-4 sm:h-4 text-coral fill-coral" />
               <span className="font-urbanist text-caption sm:text-body-sm font-600 text-charcoal">{user.totalRating?.toFixed(1) || "4.8"}</span>
             </div>
-            <span className="font-urbanist text-caption sm:text-body-sm text-charcoal/50 whitespace-nowrap">{user.reviews > 0 ? `${user.reviews} reviews` : "No reviews yet"}</span>
+            <span className="font-urbanist text-caption sm:text-body-sm text-charcoal/70 whitespace-nowrap">{user.reviews > 0 ? `${user.reviews} reviews` : "No reviews yet"}</span>
           </div>
         </div>
       </motion.div>

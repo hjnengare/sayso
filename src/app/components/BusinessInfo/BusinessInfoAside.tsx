@@ -188,7 +188,7 @@ export default function BusinessInfoAside({ businessInfo, className = "", stacke
                   ) : (
                     <p
                       className={`text-sm sm:text-base font-semibold ${
-                        row.value ? "text-charcoal" : "italic text-charcoal/50"
+                        row.value ? "text-charcoal" : "italic text-charcoal/70"
                       }`}
                     >
                       {row.value || "Not provided"}

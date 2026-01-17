@@ -545,7 +545,7 @@ export default function GeneralReviewsPage() {
                       >
                         <ThumbsUp className="w-4 h-4" />
                         <span>Helpful</span>
-                        <span className={isNavy ? "text-white/60" : "text-charcoal/50"}>({review.helpful})</span>
+                        <span className={isNavy ? "text-white/60" : "text-charcoal/70"}>({review.helpful})</span>
                       </motion.button>
                     </div>
                   </div>

@@ -190,7 +190,7 @@ export default function EmailVerificationGuard({
           </div>
 
           {/* Help Text */}
-          <p className="font-urbanist text-sm sm:text-xs text-charcoal/50 mt-4">
+          <p className="font-urbanist text-sm sm:text-xs text-charcoal/70 mt-4">
             Didn't receive the email? Check your spam folder or try resending.
           </p>
         </div>

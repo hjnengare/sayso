@@ -96,7 +96,7 @@ export default function NotFound() {
           {/* Helpful links */}
           <FadeInUp delay={0.6}>
             <div className="mt-12 pt-8 border-t border-sage/10">
-              <p className="font-urbanist text-sm font-500 text-charcoal/50 mb-4">
+              <p className="font-urbanist text-sm font-500 text-charcoal/70 mb-4">
                 Popular pages:
               </p>
               <div className="flex flex-wrap justify-center gap-4 text-sm">

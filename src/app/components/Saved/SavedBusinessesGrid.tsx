@@ -47,7 +47,7 @@ function SavedBusinessesGrid({ savedBusinesses }: SavedBusinessesGridProps) {
       {/* Category filters */}
       {categories.length > 2 && (
         <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
-          <Filter className="w-4 h-4 text-charcoal/50 flex-shrink-0" />
+          <Filter className="w-4 h-4 text-charcoal/70 flex-shrink-0" />
           {categories.map((category) => (
             <button
               key={category}

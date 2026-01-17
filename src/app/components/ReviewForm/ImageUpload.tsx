@@ -198,11 +198,11 @@ export default function ImageUpload({
 
       {/* Image Previews Grid - Existing Images */}
       {existingImageUrls.length > 0 && (
-        <div className="flex flex-wrap gap-3 mb-4">
+        <div className="flex flex-wrap gap-2 mb-3">
           {existingImageUrls.map((url, index) => (
             <div
               key={`existing-${index}`}
-              className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-[20px] overflow-hidden border-2 border-white/60 bg-off-white/50 group shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer"
+              className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden border-2 border-white/20 bg-white/10 group shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer"
               onClick={(e) => {
                 // Calculate total index including existing images
                 const totalIndex = index;
@@ -246,11 +246,11 @@ export default function ImageUpload({
 
       {/* Image Previews Grid - New Files */}
       {previews.length > 0 && (
-        <div className="flex flex-wrap gap-3 mb-4">
+        <div className="flex flex-wrap gap-2 mb-3">
           {previews.map((preview, index) => (
             <div
               key={`new-${index}`}
-              className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-[20px] overflow-hidden border-2 border-white/60 bg-off-white/50 group shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer"
+              className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden border-2 border-white/20 bg-white/10 group shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer"
               onClick={(e) => {
                 // Calculate total index including existing images
                 const totalIndex = existingImageUrls.length + index;
@@ -368,50 +368,40 @@ export default function ImageUpload({
           onDrop={handleDrop}
           onClick={handleClick}
           className={`
-            relative w-full min-h-[160px] rounded-[20px] border-2 border-dashed 
-            transition-all duration-300 cursor-pointer
-            ${isDragging 
-              ? 'border-sage bg-sage/10 scale-[1.02] shadow-lg' 
-              : 'border-charcoal/20 hover:border-sage/50 bg-gradient-to-br from-off-white/40 to-off-white/20 hover:from-sage/5 hover:to-sage/10'
+            relative w-full min-h-[120px] rounded-[20px] border-2 border-dashed
+            transition-all duration-300 cursor-pointer group
+            ${isDragging
+              ? 'border-coral bg-coral/10 scale-[1.01]'
+              : 'border-white/20 hover:border-white/40 bg-white/5 hover:bg-white/10'
             }
             ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
           `}
         >
-          {/* Decorative background elements */}
-          <div className="absolute inset-0 overflow-hidden rounded-[20px]">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-sage/10 to-transparent rounded-full blur-2xl opacity-50" />
-            <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-coral/10 to-transparent rounded-full blur-xl opacity-50" />
-          </div>
-
-          <div className="relative z-10 flex flex-col items-center justify-center h-full min-h-[160px] px-4 py-6">
+          <div className="relative z-10 flex flex-col items-center justify-center h-full min-h-[120px] px-4 py-5">
             <div className={`
-              w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mb-4
+              w-12 h-12 rounded-full flex items-center justify-center mb-3
               transition-all duration-300
-              ${isDragging 
-                ? 'bg-sage/20 scale-110' 
-                : 'bg-gradient-to-br from-sage/10 to-coral/10 group-hover:from-sage/20 group-hover:to-coral/20'
+              ${isDragging
+                ? 'bg-coral/20 scale-110'
+                : 'bg-white/10 group-hover:bg-white/20'
               }
             `}>
               {isDragging ? (
-                <Upload className="w-7 h-7 sm:w-8 sm:h-8 text-navbar-bg/90 animate-bounce" strokeWidth={2} />
+                <Upload className="w-6 h-6 text-coral animate-bounce" strokeWidth={2} />
               ) : (
-                <ImageIcon className="w-7 h-7 sm:w-8 sm:h-8 text-charcoal/60 group-hover:text-navbar-bg/90 transition-colors duration-300" strokeWidth={2} />
+                <ImageIcon className="w-6 h-6 text-white/60 group-hover:text-white/80 transition-colors duration-300" strokeWidth={2} />
               )}
             </div>
-            
-            <p className="text-sm sm:text-base font-semibold text-charcoal mb-1 text-center" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
-              {isDragging ? 'Drop images here' : 'Click or drag images here'}
+
+            <p className="text-sm font-semibold text-white/80 mb-1 text-center" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
+              {isDragging ? 'Drop images here' : 'Tap to add photos'}
             </p>
-            
-            <p className="text-xs text-charcoal/60 text-center mb-3" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
-              {(existingImageUrls.length + files.length) > 0 
-                ? `${existingImageUrls.length + files.length} of ${maxImages} images selected` 
-                : `Add up to ${maxImages} images (JPEG, PNG, WebP)`
+
+            <p className="text-xs text-white/40 text-center" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
+              {(existingImageUrls.length + files.length) > 0
+                ? `${existingImageUrls.length + files.length}/${maxImages} added`
+                : `Up to ${maxImages} images, max 5MB each`
               }
-            </p>
-            
-            <p className="text-xs text-charcoal/40 text-center" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
-              Max 5MB per image
             </p>
           </div>
         </div>
@@ -420,7 +410,7 @@ export default function ImageUpload({
       {/* Disabled state message */}
       {disabled && (existingImageUrls.length + files.length) >= maxImages && (
         <div className="w-full min-h-[120px] rounded-[20px] border-2 border-dashed border-charcoal/10 bg-off-white/20 flex items-center justify-center">
-          <p className="text-sm text-charcoal/50 text-center" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
+          <p className="text-sm text-charcoal/70 text-center" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
             Maximum {maxImages} images reached
           </p>
         </div>

@@ -1,38 +1,130 @@
 "use client";
 
+import { useState } from "react";
 import { Star } from "react-feather";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface RatingSelectorProps {
   overallRating: number;
   onRatingChange: (rating: number) => void;
 }
 
+// Rating feedback messages
+const ratingLabels: Record<number, { text: string; emoji: string; color: string }> = {
+  1: { text: "Poor", emoji: "", color: "text-coral" },
+  2: { text: "Fair", emoji: "", color: "text-coral/80" },
+  3: { text: "Good", emoji: "", color: "text-amber-500" },
+  4: { text: "Great", emoji: "", color: "text-sage" },
+  5: { text: "Excellent", emoji: "", color: "text-sage" },
+};
+
 export default function RatingSelector({ overallRating, onRatingChange }: RatingSelectorProps) {
+  const [hoverRating, setHoverRating] = useState<number | null>(null);
+  const displayRating = hoverRating ?? overallRating;
+  const currentLabel = displayRating > 0 ? ratingLabels[displayRating] : null;
+
   return (
-    <div className="mb-3 px-4">
-      <h3 className="text-sm font-bold text-charcoal mb-3 text-center md:text-left">
-        Overall rating
-      </h3>
-      <div className="flex items-center justify-center space-x-1 md:space-x-2 mb-2">
+    <div className="mb-6">
+      {/* Header with smart feedback */}
+      <div className="flex flex-col items-center gap-2 mb-4">
+        <h3
+          className="text-sm font-semibold text-white"
+          style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
+        >
+          How was your experience?
+        </h3>
+
+        {/* Smart rating feedback */}
+        <AnimatePresence mode="wait">
+          {currentLabel ? (
+            <motion.div
+              key={displayRating}
+              initial={{ opacity: 0, y: -8, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 8, scale: 0.9 }}
+              transition={{ duration: 0.2 }}
+              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-sm ${currentLabel.color}`}
+            >
+              <span className="text-lg">{currentLabel.emoji}</span>
+              <span
+                className="text-sm font-bold"
+                style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
+              >
+                {currentLabel.text}
+              </span>
+            </motion.div>
+          ) : (
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-xs text-white/50"
+              style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
+            >
+              Tap a star to rate
+            </motion.p>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Star Rating - Large touch targets for mobile */}
+      <div className="flex items-center justify-center gap-1 sm:gap-2">
         {[1, 2, 3, 4, 5].map((star) => {
-          const active = star <= overallRating;
+          const isActive = star <= displayRating;
+          const isSelected = star <= overallRating;
+
           return (
-            <button
+            <motion.button
               key={star}
               onClick={() => onRatingChange(star)}
-              className="p-1 md:p-2 focus:outline-none transition-all duration-300 rounded-full hover:bg-navbar-bg/10"
+              onMouseEnter={() => setHoverRating(star)}
+              onMouseLeave={() => setHoverRating(null)}
+              onTouchStart={() => setHoverRating(star)}
+              onTouchEnd={() => {
+                setHoverRating(null);
+                onRatingChange(star);
+              }}
+              whileHover={{ scale: 1.15 }}
+              whileTap={{ scale: 0.95 }}
+              className="relative p-2 sm:p-3 focus:outline-none rounded-full transition-colors duration-200 touch-manipulation"
+              style={{ WebkitTapHighlightColor: 'transparent' }}
               aria-label={`Rate ${star} star${star > 1 ? "s" : ""}`}
             >
-              <Star
-                size={32}
-                className="text-coral shadow-md"
-                style={{ fill: active ? "currentColor" : "none", stroke: "currentColor" }}
-              />
-            </button>
+              {/* Glow effect for selected stars */}
+              {isSelected && (
+                <motion.div
+                  layoutId={`star-glow-${star}`}
+                  className="absolute inset-0 rounded-full bg-coral/20 blur-md"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1.2 }}
+                />
+              )}
+
+              <motion.div
+                animate={{
+                  scale: isActive ? 1 : 0.9,
+                  rotate: isActive && star === displayRating ? [0, -10, 10, 0] : 0,
+                }}
+                transition={{
+                  scale: { duration: 0.2 },
+                  rotate: { duration: 0.3, delay: 0.1 }
+                }}
+              >
+                <Star
+                  size={36}
+                  className={`transition-colors duration-200 drop-shadow-sm ${
+                    isActive ? 'text-coral' : 'text-white/30'
+                  }`}
+                  style={{
+                    fill: isActive ? "currentColor" : "none",
+                    stroke: isActive ? "currentColor" : "currentColor",
+                    strokeWidth: isActive ? 0 : 1.5,
+                  }}
+                />
+              </motion.div>
+            </motion.button>
           );
         })}
       </div>
-      <p className="text-center text-sm font-600 text-charcoal">Tap to select rating</p>
     </div>
   );
 }

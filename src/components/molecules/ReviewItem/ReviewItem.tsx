@@ -156,7 +156,7 @@ export const ReviewItem: React.FC<ReviewItemProps> = ({
             >
               Click to see
             </button>
-            <div className="text-xs text-charcoal/50 mt-1" style={{ fontFamily: '"SF Pro New", -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif', fontWeight: 600 }}>full review</div>
+            <div className="text-xs text-charcoal/70 mt-1" style={{ fontFamily: '"SF Pro New", -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif', fontWeight: 600 }}>full review</div>
           </div>
         )}
       </div>

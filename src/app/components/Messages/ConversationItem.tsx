@@ -86,7 +86,7 @@ export default function ConversationItem({ chat, index, isSelected, onClick }: C
             <h3 className={`text-base font-bold truncate transition-colors duration-300 ${isSelected ? 'text-sage' : 'text-charcoal group-hover:text-charcoal/90'}`} style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
               {chat.businessName}
             </h3>
-            <span className="text-xs text-charcoal/50 font-semibold whitespace-nowrap flex-shrink-0" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
+            <span className="text-xs text-charcoal/70 font-semibold whitespace-nowrap flex-shrink-0" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
               {chat.timestamp}
             </span>
           </div>

@@ -164,7 +164,7 @@ export default function WelcomeModal() {
                   Start Exploring
                 </button>
 
-                <p className="text-center font-urbanist text-sm sm:text-xs text-charcoal/50">
+                <p className="text-center font-urbanist text-sm sm:text-xs text-charcoal/70">
                   You can always find this info in Settings
                 </p>
               </div>

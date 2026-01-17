@@ -672,7 +672,7 @@ export default function Home() {
                             <p className="text-body text-charcoal/70 mb-2">
                               We're still learning your taste
                             </p>
-                            <p className="text-body-sm text-charcoal/50">
+                            <p className="text-body-sm text-charcoal/70">
                               Explore a bit and we'll personalize more recommendations for you.
                             </p>
                           </div>

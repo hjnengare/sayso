@@ -58,7 +58,8 @@
       "Bash(move REFACTORING_SUMMARY.md docs )",
       "Bash(ls:*)",
       "Bash(xargs:*)",
-      "Bash(psql:*)"
+      "Bash(psql:*)",
+      "Bash(grep:*)"
     ],
     "deny": [],
     "ask": [],

@@ -94,7 +94,7 @@ export default function CategoryFilterPills({
   // Show helpful message if no interests (instead of silently returning null)
   if (interests.length === 0) {
     return (
-      <div className="text-sm text-charcoal/50 px-1" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+      <div className="text-sm text-charcoal/70 px-1" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
         No interests yet (complete onboarding to see filters).
       </div>
     );

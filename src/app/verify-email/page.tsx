@@ -536,7 +536,7 @@ export default function VerifyEmailPage() {
             </div>
 
             {/* Help Text */}
-            <p className="text-xs text-charcoal/50 text-center" >
+            <p className="text-xs text-charcoal/70 text-center" >
               Didn&apos;t receive the email? Check your spam folder or try resending.
             </p>
           </div>

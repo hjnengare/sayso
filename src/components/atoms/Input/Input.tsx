@@ -74,7 +74,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
 
         <div className="relative">
           {leftIcon && (
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-charcoal/50 flex-shrink-0">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-charcoal/70 flex-shrink-0">
               {leftIcon}
             </div>
           )}

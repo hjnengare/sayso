@@ -125,7 +125,7 @@ export default function SimilarBusinesses({
           <div className="flex flex-col gap-4 items-center">
             <div className="inline-flex flex-col items-center gap-2">
               <div className="flex items-center gap-2">
-                <p className="text-[11px] uppercase tracking-[0.15em] text-charcoal/50 font-bold">Similar Businesses</p>
+                <p className="text-[11px] uppercase tracking-[0.15em] text-charcoal/70 font-bold">Similar Businesses</p>
               </div>
               <h2 id="similar-businesses-heading" className="sr-only">You Might Also Like</h2>
             <WavyTypedTitle
@@ -184,7 +184,7 @@ export default function SimilarBusinesses({
         <div className="flex flex-col gap-4 items-center">
           <div className="inline-flex flex-col items-center gap-2">
             <div className="flex items-center gap-2">
-              <p className="text-[11px] uppercase tracking-[0.15em] text-charcoal/50 font-bold">Similar Businesses</p>
+              <p className="text-[11px] uppercase tracking-[0.15em] text-charcoal/70 font-bold">Similar Businesses</p>
             </div>
             <h2 id="similar-businesses-heading" className="sr-only">You Might Also Like</h2>
             <WavyTypedTitle

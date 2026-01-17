@@ -91,7 +91,7 @@ export default function SuggestiveFilters({
             className="mb-3"
           >
             <p
-              className="text-xs font-medium text-charcoal/50 mb-2 px-1"
+              className="text-xs font-medium text-charcoal/70 mb-2 px-1"
               style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
             >
               Rating
@@ -126,7 +126,7 @@ export default function SuggestiveFilters({
             exit="exit"
           >
             <p
-              className="text-xs font-medium text-charcoal/50 mb-2 px-1"
+              className="text-xs font-medium text-charcoal/70 mb-2 px-1"
               style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
             >
               Distance

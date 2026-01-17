@@ -748,7 +748,7 @@ export default function ReviewCard({
                         <span className="font-urbanist text-sm font-semibold text-charcoal-700">
                           {reply.user?.name || 'User'}
                         </span>
-                        <span className="font-urbanist text-xs font-semibold text-charcoal/50">
+                        <span className="font-urbanist text-xs font-semibold text-charcoal/70">
                           {formatDate(reply.created_at)}
                         </span>
                       </div>

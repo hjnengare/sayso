@@ -1,35 +1,159 @@
 "use client";
 
+import { useState, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Check, Plus, Sparkles } from "lucide-react";
+
 interface TagSelectorProps {
   selectedTags: string[];
   onTagToggle: (tag: string) => void;
   availableTags: string[];
 }
 
+// Extended tags with categories for smart suggestions
+const tagCategories = {
+  service: ["Friendly", "Professional", "Helpful", "Attentive", "Responsive"],
+  quality: ["Trustworthy", "Good Value", "High Quality", "Clean", "Well-maintained"],
+  experience: ["On Time", "Quick Service", "Relaxing", "Fun", "Memorable"],
+  recommend: ["Would Return", "Highly Recommend", "Worth the Price"],
+};
+
+// Flatten all tags for display
+const allTags = Object.values(tagCategories).flat();
+
 export default function TagSelector({ selectedTags, onTagToggle, availableTags }: TagSelectorProps) {
+  const [showMore, setShowMore] = useState(false);
+
+  // Use availableTags if provided, otherwise show defaults
+  const displayTags = useMemo(() => {
+    if (availableTags.length > 0) {
+      return showMore ? [...availableTags, ...allTags.filter(t => !availableTags.includes(t))] : availableTags;
+    }
+    return showMore ? allTags : allTags.slice(0, 4);
+  }, [availableTags, showMore]);
+
+  const canSelectMore = selectedTags.length < 4;
+  const selectedCount = selectedTags.length;
+
   return (
-    <div className="mb-3 px-4">
-      <h3 className="text-sm font-bold text-charcoal mb-3 text-center md:text-left">
-        Choose up to 4 quick tags
-      </h3>
-      <div className="flex flex-wrap justify-center gap-2.5">
-        {availableTags.map((tag) => (
-          <button
-            key={tag}
-            onClick={() => onTagToggle(tag)}
-            className={`
-              px-5 py-3 rounded-full border-2 transition-all duration-300 text-sm font-400 btn-target
-              ${selectedTags.includes(tag)
-                ? "bg-navbar-bg border-navbar-bg text-white shadow-lg"
-                : "bg-off-white backdrop-blur-sm border-navbar-bg/20 text-charcoal hover:border-navbar-bg hover:bg-navbar-bg/10"
-              }
-              focus:outline-none focus:ring-2 focus:ring-navbar-bg/50 focus:ring-offset-2
-            `}
+    <div className="mb-6">
+      {/* Header with counter */}
+      <div className="flex items-center justify-between mb-3 px-1">
+        <div className="flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-coral/80" />
+          <h3
+            className="text-sm font-semibold text-white"
+            style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
           >
-            {tag}
-          </button>
-        ))}
+            Quick tags
+          </h3>
+        </div>
+
+        {/* Selected counter */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className={`text-xs px-2.5 py-1 rounded-full ${
+            selectedCount > 0
+              ? 'bg-coral/20 text-coral'
+              : 'bg-white/10 text-white/50'
+          }`}
+          style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
+        >
+          {selectedCount}/4 selected
+        </motion.div>
       </div>
+
+      {/* Tags Grid - Mobile optimized with wrap */}
+      <div className="flex flex-wrap gap-2">
+        <AnimatePresence mode="popLayout">
+          {displayTags.map((tag, index) => {
+            const isSelected = selectedTags.includes(tag);
+            const isDisabled = !isSelected && !canSelectMore;
+
+            return (
+              <motion.button
+                key={tag}
+                layout
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ duration: 0.2, delay: index * 0.03 }}
+                onClick={() => !isDisabled && onTagToggle(tag)}
+                whileHover={!isDisabled ? { scale: 1.03 } : {}}
+                whileTap={!isDisabled ? { scale: 0.97 } : {}}
+                disabled={isDisabled}
+                className={`
+                  relative flex items-center gap-1.5 px-4 py-2.5 rounded-full border-2
+                  text-sm font-semibold transition-all duration-200 touch-manipulation
+                  ${isSelected
+                    ? "bg-coral/20 border-coral text-white shadow-sm"
+                    : isDisabled
+                      ? "bg-white/5 border-white/10 text-white/30 cursor-not-allowed"
+                      : "bg-white/5 border-white/20 text-white/70 hover:border-white/40 hover:bg-white/10"
+                  }
+                `}
+                style={{
+                  fontFamily: 'Urbanist, system-ui, sans-serif',
+                  WebkitTapHighlightColor: 'transparent',
+                }}
+              >
+                {/* Selection indicator */}
+                <AnimatePresence mode="wait">
+                  {isSelected ? (
+                    <motion.span
+                      key="check"
+                      initial={{ scale: 0, rotate: -180 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      exit={{ scale: 0, rotate: 180 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <Check className="w-3.5 h-3.5 text-coral" strokeWidth={3} />
+                    </motion.span>
+                  ) : !isDisabled ? (
+                    <motion.span
+                      key="plus"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      exit={{ scale: 0 }}
+                      className="opacity-50"
+                    >
+                      <Plus className="w-3.5 h-3.5" strokeWidth={2} />
+                    </motion.span>
+                  ) : null}
+                </AnimatePresence>
+                {tag}
+              </motion.button>
+            );
+          })}
+        </AnimatePresence>
+
+        {/* Show more/less button */}
+        {(availableTags.length < allTags.length || !showMore) && (
+          <motion.button
+            layout
+            onClick={() => setShowMore(!showMore)}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            className="flex items-center gap-1 px-4 py-2.5 rounded-full border-2 border-dashed border-white/20 text-sm font-medium text-white/50 hover:border-white/30 hover:text-white/70 transition-all duration-200"
+            style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
+          >
+            {showMore ? "Show less" : "More tags"}
+          </motion.button>
+        )}
+      </div>
+
+      {/* Helper text */}
+      {!canSelectMore && (
+        <motion.p
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-3 text-xs text-white/50 text-center"
+          style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
+        >
+          Tap a selected tag to remove it
+        </motion.p>
+      )}
     </div>
   );
 }

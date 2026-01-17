@@ -86,7 +86,7 @@ export default function BadgeCard({ badge, onClick }: BadgeCardProps) {
       <h3
         className={`
           font-urbanist font-700 text-sm text-center mb-1
-          ${isLocked ? 'text-charcoal/50' : 'text-charcoal'}
+          ${isLocked ? 'text-charcoal/70' : 'text-charcoal'}
         `}
       >
         {badge.name}
