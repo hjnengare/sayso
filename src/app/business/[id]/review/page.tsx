@@ -563,7 +563,7 @@ function WriteReviewContent() {
                     {/* What Others Are Saying Section */}
                   <AnimatedElement index={3} direction="bottom">
                     <div className="lg:col-span-3 space-y-6">
-                      <section className="space-y-6" aria-labelledby="what-others-saying-heading">
+                      <section className="space-y-6 pt-12" aria-labelledby="what-others-saying-heading">
                         <div className="flex justify-center">
                           <div className="flex flex-col gap-3">
                             <h2 id="what-others-saying-heading" className="sr-only">What Others Are Saying</h2>

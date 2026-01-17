@@ -11,11 +11,11 @@ interface RatingSelectorProps {
 
 // Rating feedback messages
 const ratingLabels: Record<number, { text: string; emoji: string; color: string }> = {
-  1: { text: "Poor", emoji: "", color: "text-coral" },
-  2: { text: "Fair", emoji: "", color: "text-coral/80" },
-  3: { text: "Good", emoji: "", color: "text-amber-500" },
-  4: { text: "Great", emoji: "", color: "text-sage" },
-  5: { text: "Excellent", emoji: "", color: "text-sage" },
+  1: { text: "Poor", emoji: "", color: "text-navbar-bg" },
+  2: { text: "Fair", emoji: "", color: "text-navbar-bg" },
+  3: { text: "Good", emoji: "", color: "text-white" },
+  4: { text: "Great", emoji: "", color: "text-white" },
+  5: { text: "Excellent", emoji: "", color: "text-white" },
 };
 
 export default function RatingSelector({ overallRating, onRatingChange }: RatingSelectorProps) {
@@ -93,7 +93,7 @@ export default function RatingSelector({ overallRating, onRatingChange }: Rating
               {isSelected && (
                 <motion.div
                   layoutId={`star-glow-${star}`}
-                  className="absolute inset-0 rounded-full bg-coral/20 blur-md"
+                  className="absolute inset-0 rounded-full blur-md"
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1.2 }}
                 />

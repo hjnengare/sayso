@@ -68,7 +68,7 @@ export default function ReviewForm({
       className="relative overflow-hidden"
     >
       {/* Form Header */}
-      <div className="flex items-center gap-3 mb-6 px-1">
+      <div className="flex items-center gap-3 px-1">
         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-coral/20 to-coral/10 flex items-center justify-center">
           <Edit3 className="w-5 h-5 text-coral" />
         </div>
