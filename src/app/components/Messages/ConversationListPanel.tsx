@@ -96,13 +96,13 @@ export default function ConversationListPanel({
       {/* SearchBar - Static */}
       <div className="flex-shrink-0 px-5 pb-4 border-b border-charcoal/5">
         <div className="relative">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-charcoal/40" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-charcoal/60" />
           <input
             type="text"
             placeholder="Search conversations..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-white border border-charcoal/10 rounded-xl text-sm text-charcoal placeholder:text-charcoal/40 focus:outline-none focus:ring-2 focus:ring-sage/30 focus:border-sage/40 transition-all duration-200"
+            className="w-full pl-10 pr-4 py-2.5 bg-white border border-charcoal/10 rounded-xl text-sm text-charcoal placeholder:text-charcoal/60 focus:outline-none focus:ring-2 focus:ring-sage/30 focus:border-sage/40 transition-all duration-200"
             style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
           />
         </div>
@@ -123,7 +123,7 @@ export default function ConversationListPanel({
             <div className="text-center max-w-xs" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
               {/* Icon */}
               <div className="w-16 h-16 mx-auto mb-4 bg-charcoal/5 rounded-2xl flex items-center justify-center">
-                <MessageCircle className="w-8 h-8 text-charcoal/40" strokeWidth={1.5} />
+                <MessageCircle className="w-8 h-8 text-charcoal/60" strokeWidth={1.5} />
               </div>
 
               {/* Text Group */}

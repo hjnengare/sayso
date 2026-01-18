@@ -11,11 +11,11 @@ interface RatingSelectorProps {
 
 // Rating feedback messages
 const ratingLabels: Record<number, { text: string; emoji: string; color: string }> = {
-  1: { text: "Poor", emoji: "", color: "text-navbar-bg" },
-  2: { text: "Fair", emoji: "", color: "text-navbar-bg" },
-  3: { text: "Good", emoji: "", color: "text-white" },
-  4: { text: "Great", emoji: "", color: "text-white" },
-  5: { text: "Excellent", emoji: "", color: "text-white" },
+  1: { text: "Poor", emoji: "", color: "text-charcoal" },
+  2: { text: "Fair", emoji: "", color: "text-charcoal" },
+  3: { text: "Good", emoji: "", color: "text-charcoal" },
+  4: { text: "Great", emoji: "", color: "text-charcoal" },
+  5: { text: "Excellent", emoji: "", color: "text-charcoal" },
 };
 
 export default function RatingSelector({ overallRating, onRatingChange }: RatingSelectorProps) {
@@ -28,7 +28,7 @@ export default function RatingSelector({ overallRating, onRatingChange }: Rating
       {/* Header with smart feedback */}
       <div className="flex flex-col items-center gap-2 mb-4">
         <h3
-          className="text-sm font-semibold text-white"
+          className="text-base font-semibold text-charcoal"
           style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
         >
           How was your experience?
@@ -43,11 +43,11 @@ export default function RatingSelector({ overallRating, onRatingChange }: Rating
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 8, scale: 0.9 }}
               transition={{ duration: 0.2 }}
-              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-sm ${currentLabel.color}`}
+              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-charcoal/10 backdrop-blur-sm ${currentLabel.color}`}
             >
               <span className="text-lg">{currentLabel.emoji}</span>
               <span
-                className="text-sm font-bold"
+                className="text-base font-bold"
                 style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
               >
                 {currentLabel.text}
@@ -57,7 +57,7 @@ export default function RatingSelector({ overallRating, onRatingChange }: Rating
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-xs text-white/50"
+              className="text-sm text-charcoal/60"
               style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
             >
               Tap a star to rate
@@ -112,12 +112,12 @@ export default function RatingSelector({ overallRating, onRatingChange }: Rating
                 <Star
                   size={36}
                   className={`transition-colors duration-200 drop-shadow-sm ${
-                    isActive ? 'text-coral' : 'text-white/30'
+                    isActive ? 'text-coral' : 'text-charcoal/50'
                   }`}
                   style={{
                     fill: isActive ? "currentColor" : "none",
                     stroke: isActive ? "currentColor" : "currentColor",
-                    strokeWidth: isActive ? 0 : 1.5,
+                    strokeWidth: isActive ? 0 : 2,
                   }}
                 />
               </motion.div>

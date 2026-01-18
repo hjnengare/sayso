@@ -94,7 +94,7 @@ export default function AchievementsPage() {
                 <div className="bg-white/80 backdrop-blur-sm rounded-xl px-6 py-4 border border-sage/20">
                   <p className="text-sm text-charcoal/60 mb-1">Badges Earned</p>
                   <p className="font-urbanist font-800 text-3xl text-sage">
-                    {stats.earned} <span className="text-xl text-charcoal/40">/ {stats.total}</span>
+                    {stats.earned} <span className="text-xl text-charcoal/60">/ {stats.total}</span>
                   </p>
                 </div>
 

@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { Star as StarIcon, Briefcase, Edit, Trash2 } from 'react-feather';
+import { Star, Briefcase, Edit, Trash2 } from 'lucide-react';
+import { Text } from '@/components/atoms/Text';
 import { Badge } from '@/components/atoms/Badge';
 
 export interface ReviewItemProps {
@@ -28,14 +29,11 @@ const BusinessThumb: React.FC<{
   if (!imageUrl || err) {
     return (
       <div
-        className="relative rounded-full bg-gradient-to-br from-sage/15 to-coral/10 border border-charcoal/10 flex items-center justify-center ring-2 ring-off-white shadow-sm"
+        className="relative rounded-full bg-gradient-to-br from-sage/15 to-coral/10 border-border-charcoal/10 flex items-center justify-center ring-2 ring-off-white shadow-sm"
         style={{ width: size, height: size }}
         aria-label={`${name} placeholder image`}
       >
-        <Briefcase
-          className="text-sage"
-          style={{ width: size * 0.5, height: size * 0.5 }}
-        />
+        <Briefcase size={size * 0.5} className="text-sage" />
       </div>
     );
   }
@@ -65,14 +63,10 @@ const StarRating: React.FC<{ rating: number }> = ({ rating }) => {
       {Array.from({ length: 5 }, (_, i) => {
         const active = i < rating;
         return (
-          <StarIcon
+          <Star
             key={i}
-            className={`shadow-md ${active ? 'text-coral' : 'text-gray-300'}`}
-            style={{
-              width: 16,
-              height: 16,
-              fill: active ? 'currentColor' : 'none',
-            }}
+            size={16}
+            className={`${active ? 'text-coral fill-coral' : 'text-gray-300'}`}
             aria-hidden
           />
         );
@@ -103,9 +97,7 @@ export const ReviewItem: React.FC<ReviewItemProps> = ({
         <BusinessThumb name={businessName} imageUrl={businessImageUrl} size={40} />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1 flex-wrap">
-            <span className="text-base font-700 text-charcoal truncate" style={{ fontFamily: '"SF Pro New", -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif' }}>
-              {businessName}
-            </span>
+            <Text variant="body-lg" as="span" className="truncate">{businessName}</Text>
             <StarRating rating={rating} />
             {isFeatured && (
               <Badge variant="coral" size="sm">
@@ -113,7 +105,7 @@ export const ReviewItem: React.FC<ReviewItemProps> = ({
               </Badge>
             )}
           </div>
-          <span className="text-sm text-charcoal/60" style={{ fontFamily: '"SF Pro New", -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif', fontWeight: 600 }}>{formatDate(createdAt)}</span>
+          <Text variant="body-sm" color="secondary">{formatDate(createdAt)}</Text>
         </div>
       </div>
       <div className="flex items-center gap-2 ml-3">
@@ -129,7 +121,7 @@ export const ReviewItem: React.FC<ReviewItemProps> = ({
                 aria-label="Edit review"
                 title="Edit review"
               >
-                <Edit className="w-4 h-4 text-white" strokeWidth={2.5} />
+                <Edit size={16} className="text-white" />
               </button>
             )}
             {onDelete && (
@@ -142,7 +134,7 @@ export const ReviewItem: React.FC<ReviewItemProps> = ({
                 aria-label="Delete review"
                 title="Delete review"
               >
-                <Trash2 className="w-4 h-4 text-white" strokeWidth={2.5} />
+                <Trash2 size={16} className="text-white" />
               </button>
             )}
           </div>
@@ -151,12 +143,12 @@ export const ReviewItem: React.FC<ReviewItemProps> = ({
           <div className="text-right">
             <button
               onClick={onViewClick}
-              className="text-coral text-sm font-500 hover:text-coral/80 transition-colors duration-200"
-              style={{ fontFamily: '"SF Pro New", -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif', fontWeight: 600 }}
+              className="hover:text-coral/80 transition-colors duration-200"
+              aria-label="View review"
             >
-              Click to see
+              <Text variant="body-sm" color="coral">Click to see</Text>
+              <Text variant="caption" color="secondary" className="block mt-1">full review</Text>
             </button>
-            <div className="text-xs text-charcoal/70 mt-1" style={{ fontFamily: '"SF Pro New", -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif', fontWeight: 600 }}>full review</div>
           </div>
         )}
       </div>

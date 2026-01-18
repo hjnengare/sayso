@@ -538,6 +538,13 @@ export default function BusinessEditPage() {
             setIsDeleting(true);
             setDeleteError(null);
 
+            // Log the ID we're about to delete for debugging
+            console.log('[Delete] Attempting to delete business:', {
+                paramId,
+                businessId,
+                businessIdToDelete,
+            });
+
             const response = await fetch(`/api/businesses/${businessIdToDelete}`, {
                 method: 'DELETE',
                 headers: { "Content-Type": "application/json" },
@@ -563,7 +570,28 @@ export default function BusinessEditPage() {
                     return;
                 }
 
-                throw new Error(payload?.error || 'Failed to delete business');
+                // Handle 403 Forbidden (no permission)
+                if (response.status === 403) {
+                    throw new Error('You do not have permission to delete this business');
+                }
+
+                // Handle 401 Unauthorized
+                if (response.status === 401) {
+                    throw new Error('You must be logged in to delete this business');
+                }
+
+                // Handle 400 Bad Request
+                if (response.status === 400) {
+                    throw new Error(payload?.error || 'Invalid business ID');
+                }
+
+                // Handle 500 Server Error with details
+                if (response.status === 500) {
+                    const details = payload?.details || 'Server error occurred';
+                    throw new Error(`Failed to delete business: ${details}`);
+                }
+
+                throw new Error(payload?.error || `Failed to delete business (HTTP ${response.status})`);
             }
 
             // ✅ Success
@@ -844,7 +872,7 @@ export default function BusinessEditPage() {
                                             <div className="text-center">
                                                 <Upload className="w-8 h-8 text-navbar-bg mx-auto mb-2" />
                                                 <span className="font-urbanist text-sm text-charcoal/60">Add Photo</span>
-                                                <span className="font-urbanist text-xs text-charcoal/40 block mt-1">
+                                                <span className="font-urbanist text-xs text-charcoal/60 block mt-1">
                                                     {10 - formData.images.length} remaining
                                                 </span>
                                             </div>
@@ -1039,25 +1067,30 @@ export default function BusinessEditPage() {
                         </div>
 
                         {/* Danger Zone - Delete Business */}
-                        <div className="relative bg-gradient-to-br from-red-50/50 via-red-50/30 to-red-50/20 rounded-[20px] overflow-hidden border-2 border-red-200/50 backdrop-blur-md shadow-md ring-1 ring-red-200/30 px-2 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10 lg:px-12 lg:py-10 xl:px-16 xl:py-12">
+                        <div className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[20px] overflow-hidden border border-white/50 backdrop-blur-md shadow-md ring-1 ring-white/20 px-2 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10 lg:px-12 lg:py-10 xl:px-16 xl:py-12">
                             <div className="relative z-10">
-                                <h3 className="font-urbanist text-base font-600 text-red-700 mb-2 flex items-center gap-3">
-                                    <span className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-red-200/50 to-red-100/30">
-                                        <Trash2 className="w-4 h-4 text-red-600" />
+                                <div className="flex items-center gap-3 mb-4">
+                                    <span className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-navbar-bg/20 to-navbar-bg/10">
+                                        <Trash2 className="w-5 h-5 text-navbar-bg" />
                                     </span>
-                                    Danger Zone
-                                </h3>
-                                <p className="text-sm text-red-600/70 mb-4 font-urbanist">
-                                    Once you delete a business, there is no going back. This will permanently delete the business and all associated data including images, reviews, and statistics.
-                                </p>
-                                <button
-                                    onClick={handleDeleteClick}
-                                    disabled={isDeleting}
-                                    className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-full text-sm font-600 font-urbanist transition-all duration-300 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    <Trash2 className="w-4 h-4" />
-                                    {isDeleting ? "Deleting..." : "Delete Business"}
-                                </button>
+                                    <h3 className="text-base font-semibold text-charcoal">
+                                        Danger Zone
+                                    </h3>
+                                </div>
+                                <div className="border-t border-coral/20 pt-4">
+                                    <h4 className="text-base font-600 text-coral mb-2" style={{ fontFamily: '"SF Pro New", -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif' }}>Delete Business</h4>
+                                    <p className="text-sm text-charcoal/70 mb-4" style={{ fontFamily: '"SF Pro New", -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif', fontWeight: 600 }}>
+                                        Permanently delete this business and all associated data. This action cannot be undone.
+                                    </p>
+                                    <button
+                                        onClick={handleDeleteClick}
+                                        disabled={isDeleting}
+                                        className="px-6 py-2 rounded-full text-sm font-600 bg-white/40 text-coral border border-coral hover:bg-coral hover:text-white transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        style={{ fontFamily: '"SF Pro New", -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif', fontWeight: 600 }}
+                                    >
+                                        {isDeleting ? "Deleting..." : "Delete Business"}
+                                    </button>
+                                </div>
                             </div>
                         </div>
 

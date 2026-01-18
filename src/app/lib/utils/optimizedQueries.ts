@@ -121,8 +121,23 @@ export async function fetchBusinessOptimized(
   businessResult = finalBusinessResult;
 
   // Handle errors
-  if (businessResult.error || !businessResult.data) {
-    throw businessResult.error || new Error('Business not found');
+  if (businessResult.error) {
+    console.error('[fetchBusinessOptimized] Error fetching business data:', {
+      businessIdentifier,
+      actualBusinessId,
+      error: businessResult.error?.message,
+      code: businessResult.error?.code,
+      details: businessResult.error?.details,
+    });
+    throw new Error(`Failed to fetch business: ${businessResult.error?.message || 'Database error'}`);
+  }
+  
+  if (!businessResult.data) {
+    console.warn('[fetchBusinessOptimized] Business not found:', {
+      businessIdentifier,
+      actualBusinessId,
+    });
+    throw new Error('Business does not exist');
   }
 
   // Fetch related data if reviews exist

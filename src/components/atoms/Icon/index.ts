@@ -1,8 +1,8 @@
 export {
-  Icon,
   IconChevronRight,
   IconChevronLeft,
   IconChevronDown,
+  IconChevronUp,
   IconCheck,
   IconX,
   IconSearch,
@@ -10,5 +10,8 @@ export {
   IconMail,
   IconHeart,
   IconStar,
+  IconBriefcase,
+  IconEdit,
+  IconTrash,
 } from './Icon';
 export type { IconProps, IconSize, IconColor } from './Icon';

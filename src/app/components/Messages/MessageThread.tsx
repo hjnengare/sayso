@@ -90,7 +90,7 @@ export default function MessageThread({
                 <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
                   {msg.text}
                 </p>
-                <div className={`flex items-center gap-1.5 mt-2 text-xs ${isCurrentUser ? 'text-white/70' : 'text-charcoal/40'}`}>
+                <div className={`flex items-center gap-1.5 mt-2 text-xs ${isCurrentUser ? 'text-white/70' : 'text-charcoal/60'}`}>
                   <span>{msg.timestamp}</span>
                   {isCurrentUser && msg.read && (
                     <Check className="w-3 h-3" strokeWidth={2.5} />

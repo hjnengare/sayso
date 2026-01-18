@@ -228,7 +228,7 @@ export default function OwnerBusinessDashboard() {
       unsubscribe = businessUpdateEvents.onDelete((deletedBusinessId: string) => {
         // If this business was deleted, redirect to owners list
         if (deletedBusinessId === businessId) {
-          router.push('/owners');
+          router.push('/my-businesses');
         }
       });
     }).catch(err => {
@@ -364,7 +364,7 @@ export default function OwnerBusinessDashboard() {
             <div className="max-w-4xl mx-auto text-center py-12">
               <p className="text-charcoal/70">{error || 'Business not found'}</p>
               <Link
-                href="/owners"
+                href="/my-businesses"
                 className="inline-flex items-center gap-2 mt-4 text-sage hover:text-sage/80"
                 style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
               >
@@ -395,7 +395,7 @@ export default function OwnerBusinessDashboard() {
               <nav className="mb-4 sm:mb-6 px-2" aria-label="Breadcrumb">
                 <ol className="flex items-center gap-2 text-sm sm:text-base">
                   <li>
-                    <Link href="/owners" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                    <Link href="/my-businesses" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                       Your Businesses
                     </Link>
                   </li>
@@ -573,7 +573,7 @@ export default function OwnerBusinessDashboard() {
                     </p>
                     <div className="flex flex-wrap gap-3">
                       <Link
-                        href={`/owners/businesses/${businessId}/reviews`}
+                        href={`/my-businesses/businesses/${businessId}/reviews`}
                         className="inline-flex items-center gap-2 px-4 py-2.5 bg-coral/90 hover:bg-coral text-white rounded-full text-sm font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-95 border border-coral/30 w-fit"
                         style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                       >

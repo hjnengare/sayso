@@ -317,7 +317,7 @@ export default function LoginPage() {
               <div className={`absolute left-4 sm:left-5 top-1/2 transform -translate-y-1/2 transition-colors duration-300 z-10 ${
                 getEmailError() ? 'text-red-500' :
                 email && !getEmailError() ? 'text-sage' :
-                'text-charcoal/40 group-focus-within:text-sage'
+                'text-charcoal/60 group-focus-within:text-sage'
               }`}>
                 {getEmailError() ? <AlertCircle className="w-5 h-5" /> :
                   email && !getEmailError() ? <CheckCircle className="w-5 h-5" /> :
@@ -360,7 +360,7 @@ export default function LoginPage() {
               <div className={`absolute left-4 sm:left-5 top-1/2 transform -translate-y-1/2 transition-colors duration-300 z-10 ${
                 getPasswordError() ? 'text-red-500' :
                 password && !getPasswordError() ? 'text-sage' :
-                'text-charcoal/40 group-focus-within:text-sage'
+                'text-charcoal/60 group-focus-within:text-sage'
               }`}>
                 {getPasswordError() ? <AlertCircle className="w-5 h-5" /> :
                   password && !getPasswordError() ? <CheckCircle className="w-5 h-5" /> :
@@ -385,7 +385,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 sm:right-5 top-1/2 transform -translate-y-1/2 text-charcoal/40 hover:text-charcoal transition-colors duration-300 p-1 z-10 rounded-full"
+                className="absolute right-4 sm:right-5 top-1/2 transform -translate-y-1/2 text-charcoal/60 hover:text-charcoal transition-colors duration-300 p-1 z-10 rounded-full"
                 disabled={isSubmitting || isLoading}
               >
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}

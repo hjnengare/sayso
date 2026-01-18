@@ -133,13 +133,28 @@ export default function BusinessProfilePage() {
 
             if (!response.ok) {
                 if (response.status === 404) {
-                    setError('Business not found');
+                    setError('Business not found or has been deleted');
                     // Business might have been deleted - emit deletion event
                     import('../../lib/utils/businessUpdateEvents').then(({ notifyBusinessDeleted }) => {
                         notifyBusinessDeleted(businessId);
                     }).catch(err => {
                         console.error('Error emitting deletion event:', err);
                     });
+                } else if (response.status === 400) {
+                    setError('Invalid business ID');
+                } else if (response.status >= 500) {
+                    // Try to get error details from response
+                    let errorMessage = 'Server error loading business';
+                    try {
+                        const errorData = await response.json();
+                        if (errorData.details) {
+                            errorMessage = `Server error: ${errorData.details}`;
+                        }
+                    } catch {
+                        // Ignore if response is not JSON
+                    }
+                    setError(errorMessage);
+                    console.error('Server error fetching business:', { status: response.status, businessId });
                 } else {
                     setError('Failed to load business');
                 }
@@ -164,7 +179,7 @@ export default function BusinessProfilePage() {
             }
         } catch (err: any) {
             console.error('Error fetching business:', err);
-            setError('Failed to load business');
+            setError(`Failed to load business: ${err?.message || 'Unknown error'}`);
         } finally {
             setIsLoading(false);
         }
@@ -559,7 +574,7 @@ export default function BusinessProfilePage() {
                                             </Link>
                                         </li>
                                         <li className="flex items-center">
-                                            <ChevronRight className="w-4 h-4 text-charcoal/40" />
+                                            <ChevronRight className="w-4 h-4 text-charcoal/60" />
                                         </li>
                                         <li>
                                             <span className="text-charcoal font-semibold truncate max-w-[200px] sm:max-w-none" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>

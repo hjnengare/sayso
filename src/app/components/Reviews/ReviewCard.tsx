@@ -668,7 +668,7 @@ export default function ReviewCard({
             </div>
 
             {!user && !isOwnerView && (
-              <span className="font-urbanist text-sm sm:text-xs text-charcoal/40">
+              <span className="font-urbanist text-sm sm:text-xs text-charcoal/60">
                 Login to interact
               </span>
             )}

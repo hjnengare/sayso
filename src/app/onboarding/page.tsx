@@ -122,22 +122,20 @@ export default function OnboardingPage() {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: styles }} />
-      <div className="min-h-[100svh] md:min-h-[100dvh] bg-off-white flex flex-col items-center justify-center px-4 py-4 md:py-8 relative overflow-hidden safe-area-padding no-overflow">
+      <div className="min-h-[100svh] md:min-h-[100dvh] bg-off-white flex flex-col items-center justify-center px-6 py-8 relative overflow-hidden safe-area-padding no-overflow">
 
         {/* Content */}
-        <div className="w-full mx-auto max-w-[2000px] px-4 sm:px-6 lg:px-8 2xl:px-16 relative z-10 flex flex-col h-full py-4 sm:py-6">
+        <div className="w-full mx-auto max-w-xl relative z-10 flex flex-col items-center">
           {/* Logo */}
-          <div className="text-center mb-8 md:mb-6 flex-shrink-0 flex justify-center">
-            <div data-reveal>
-              <Logo variant="onboarding" />
-            </div>
+          <div className="mb-10" data-reveal>
+            <Logo variant="onboarding" />
           </div>
 
           {/* Main content */}
-          <div className="text-center flex-1 flex flex-col justify-center min-h-0 py-4 space-y-6 md:space-y-8">
+          <div className="text-center flex flex-col items-center gap-6">
             {/* Hero Title */}
-            <div data-reveal className="title-no-break w-full block overflow-hidden">
-              <h2 className="font-urbanist text-2xl sm:text-3xl md:text-5xl font-700 mb-5 md:mb-6 leading-[1.2] tracking-tight px-6 sm:px-4 md:px-2 text-charcoal no-hyphens block w-full" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 700 }}>
+            <div data-reveal className="title-no-break">
+              <h2 className="font-urbanist text-2xl sm:text-3xl md:text-5xl font-700 leading-[1.2] tracking-tight text-charcoal no-hyphens" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 700 }}>
                 <div className="block whitespace-nowrap">
                   <WavyTypedTitle
                     text="Discover gems near you!"
@@ -149,7 +147,7 @@ export default function OnboardingPage() {
                     loopWave={false}
                     triggerOnTypingComplete={true}
                     enableScrollTrigger={false}
-                    style={{ 
+                    style={{
                       fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                       fontWeight: 700,
                       wordBreak: 'keep-all',
@@ -167,7 +165,7 @@ export default function OnboardingPage() {
             {/* Description */}
             <p
               data-reveal
-              className="text-body font-normal text-charcoal/70 leading-[1.55] max-w-[70ch] mx-auto px-4 no-hyphens"
+              className="text-body font-normal text-charcoal/70 leading-[1.55] max-w-[50ch] no-hyphens"
               style={{
                 fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                 fontWeight: 400,
@@ -177,11 +175,11 @@ export default function OnboardingPage() {
             </p>
 
             {/* CTA Buttons */}
-            <div className="space-y-3 md:space-y-4 max-w-xs md:max-w-md mx-auto pt-2 md:pt-4">
+            <div className="flex flex-col items-center gap-4 mt-4">
               <div data-reveal>
                 <Link
                   href="/home?guest=true"
-                  className="group relative block w-[200px] mx-auto rounded-full py-4 px-4 text-body font-semibold text-white text-center flex items-center justify-center bg-gradient-to-r from-coral to-coral/80 hover:from-sage hover:to-sage transition-all duration-300 btn-target btn-press shadow-md focus:outline-none focus-visible:ring-4 focus-visible:ring-sage/30 focus-visible:ring-offset-2"
+                  className="group relative block w-[200px] rounded-full py-4 px-6 text-body font-semibold text-white text-center bg-gradient-to-r from-coral to-coral/80 hover:from-sage hover:to-sage transition-all duration-300 btn-target btn-press shadow-md focus:outline-none focus-visible:ring-4 focus-visible:ring-sage/30 focus-visible:ring-offset-2"
                   style={{
                     fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                     fontWeight: 600,
@@ -192,26 +190,22 @@ export default function OnboardingPage() {
               </div>
 
               {/* Signup / Login Link */}
-              <div data-reveal className="text-center text-charcoal/70 hover:text-charcoal transition-colors duration-300 text-sm font-medium space-y-2"
+              <div data-reveal className="text-center text-charcoal/70 hover:text-charcoal transition-colors duration-300 text-sm font-medium"
                   style={{
                     fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                     fontWeight: 500,
                   }}>
-                <div>
-                  <span>Ready to join? </span>
-                  <Link href="/register" className="font-semibold text-coral hover:underline">
-                    Sign up
-                  </Link>
-                  <span> or </span>
-                  <Link href="/login" className="font-semibold text-charcoal hover:underline">
-                    Log in
-                  </Link>
-                </div>
+                <span>Ready to join? </span>
+                <Link href="/register" className="font-semibold text-coral hover:underline">
+                  Sign up
+                </Link>
+                <span> or </span>
+                <Link href="/login" className="font-semibold text-charcoal hover:underline">
+                  Log in
+                </Link>
               </div>
             </div>
           </div>
-
-         
         </div>
       </div>
     </>

@@ -114,7 +114,7 @@ export default function NotificationsPage() {
                   </Link>
                 </li>
                 <li className="flex items-center">
-                  <ChevronRight className="w-4 h-4 text-charcoal/40" />
+                  <ChevronRight className="w-4 h-4 text-charcoal/60" />
                 </li>
                 <li>
                   <span

@@ -51,7 +51,7 @@ export function PasswordInput({
           hasError ? 'text-navbar-bg' :
           isStrong ? 'text-sage' :
           isWeak ? 'text-amber-500' :
-          'text-charcoal/40 group-focus-within:text-sage'
+          'text-charcoal/60 group-focus-within:text-sage'
         }`}>
           {hasError ? <AlertCircle className="w-5 h-5" /> :
             isStrong ? <CheckCircle className="w-5 h-5" /> :
@@ -76,7 +76,7 @@ export function PasswordInput({
         <button
           type="button"
           onClick={() => setShowPassword(!showPassword)}
-          className="absolute right-4 sm:right-5 top-1/2 transform -translate-y-1/2 text-charcoal/40 hover:text-charcoal transition-colors duration-300 p-1 z-10 rounded-full"
+          className="absolute right-4 sm:right-5 top-1/2 transform -translate-y-1/2 text-charcoal/60 hover:text-charcoal transition-colors duration-300 p-1 z-10 rounded-full"
           disabled={disabled}
         >
           {showPassword ? (

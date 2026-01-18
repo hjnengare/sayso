@@ -96,7 +96,7 @@ export default function BadgeCard({ badge, onClick }: BadgeCardProps) {
       <p
         className={`
           font-urbanist text-xs text-center line-clamp-2
-          ${isLocked ? 'text-charcoal/40' : 'text-charcoal/70'}
+          ${isLocked ? 'text-charcoal/60' : 'text-charcoal/70'}
         `}
       >
         {badge.description}

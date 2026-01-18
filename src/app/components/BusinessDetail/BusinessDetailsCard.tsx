@@ -227,7 +227,7 @@ export default function BusinessDetailsCard({ priceRange, verified, hours }: Bus
                 </span>
                 {priceInfo.description && (
                   <span
-                    className="text-xs text-charcoal/70"
+                    className="text-sm text-charcoal/70"
                     style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                   >
                     · {priceInfo.description}
@@ -261,7 +261,7 @@ export default function BusinessDetailsCard({ priceRange, verified, hours }: Bus
               {hoursData && (
                 <button
                   onClick={() => setShowAllHours(!showAllHours)}
-                  className="flex items-center gap-1 text-xs text-charcoal/60 hover:text-charcoal transition-colors"
+                  className="flex items-center gap-1 text-sm text-charcoal/60 hover:text-charcoal transition-colors"
                   style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                 >
                   {showAllHours ? 'Hide' : 'See all'}
@@ -275,7 +275,7 @@ export default function BusinessDetailsCard({ priceRange, verified, hours }: Bus
                 {/* Open/Closed Status */}
                 <div className="flex items-center gap-2 mb-2">
                   <span
-                    className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-semibold ${
+                    className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-sm font-semibold ${
                       openStatus.isOpen
                         ? 'bg-sage/20 text-sage'
                         : 'bg-coral/20 text-coral'
@@ -286,7 +286,7 @@ export default function BusinessDetailsCard({ priceRange, verified, hours }: Bus
                     {openStatus.isOpen ? 'Open' : 'Closed'}
                   </span>
                   <span
-                    className="text-xs text-charcoal/60"
+                    className="text-sm text-charcoal/60"
                     style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                   >
                     {openStatus.status}
@@ -315,7 +315,7 @@ export default function BusinessDetailsCard({ priceRange, verified, hours }: Bus
                             style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                           >
                             {label}
-                            {isToday && <span className="ml-1 text-xs text-sage">(Today)</span>}
+                            {isToday && <span className="ml-1 text-sm text-sage">(Today)</span>}
                           </span>
                           <span
                             className={`text-sm ${

@@ -466,7 +466,7 @@ export default function Header({
                                     <div className={`text-sm font-semibold flex items-center gap-1.5 ${isActive ? 'text-sage' : 'text-charcoal group-hover:text-coral'}`}>
                                       {subLabel}
                                       {showLockIndicator && (
-                                        <Lock className="w-3 h-3 text-charcoal/40" />
+                                        <Lock className="w-3 h-3 text-charcoal/60" />
                                       )}
                                     </div>
                                     <div className="text-sm sm:text-xs text-charcoal/60 mt-0.5">

@@ -2,8 +2,8 @@
 
 import React, { useMemo, useState, useEffect, useRef, memo } from "react";
 import { useRouter } from "next/navigation";
-import { Image as ImageIcon, Star, Edit, Share2, Bookmark, Info, ChevronLeft, ChevronRight } from "react-feather";
-import { Scissors, Coffee, UtensilsCrossed, Wine, Dumbbell, Activity, Heart, Book, ShoppingBag, Home, Briefcase, MapPin, Music, Film, Camera, Car, GraduationCap, CreditCard, Tag } from "lucide-react";
+import { Image as ImageIcon, Star, Edit, Share2, Bookmark, Info, ChevronLeft, ChevronRight, TrendingUp, Zap } from "react-feather";
+import { Scissors, Coffee, UtensilsCrossed, Wine, Dumbbell, Activity, Heart, Book, ShoppingBag, Home, Briefcase, MapPin, Music, Film, Camera, Car, GraduationCap, CreditCard, Tag, Flame } from "lucide-react";
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import PercentileChip from "../PercentileChip/PercentileChip";
@@ -172,13 +172,6 @@ function BusinessCard({
   const [showInfoPopup, setShowInfoPopup] = useState(false);
   const infoPopupRef = useRef<HTMLDivElement>(null);
 
-  // Carousel state for multiple images
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const hasMultipleImages = useMemo(() =>
-    business.uploaded_images && Array.isArray(business.uploaded_images) && business.uploaded_images.length > 1,
-    [business.uploaded_images]
-  );
-
   // Check if mobile for animation
   useEffect(() => {
     const checkMobile = () => {
@@ -251,27 +244,6 @@ function BusinessCard({
     }
 
     setShowInfoPopup(false);
-  };
-
-  // Carousel navigation handlers
-  const handlePreviousImage = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-    if (hasMultipleImages && business.uploaded_images) {
-      setCurrentImageIndex((prev) =>
-        prev === 0 ? business.uploaded_images!.length - 1 : prev - 1
-      );
-    }
-  };
-
-  const handleNextImage = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-    if (hasMultipleImages && business.uploaded_images) {
-      setCurrentImageIndex((prev) =>
-        prev === business.uploaded_images!.length - 1 ? 0 : prev + 1
-      );
-    }
   };
 
   const handleShare = async () => {
@@ -355,9 +327,9 @@ function BusinessCard({
 
   const getDisplayImage = useMemo(() => {
     // Priority 1: Check uploaded_images array (new source of truth)
-    // Use current carousel index if multiple images exist
+    // Always use the first (primary) image
     if (business.uploaded_images && Array.isArray(business.uploaded_images) && business.uploaded_images.length > 0) {
-      const imageUrl = business.uploaded_images[currentImageIndex] || business.uploaded_images[0];
+      const imageUrl = business.uploaded_images[0];
 
       if (imageUrl &&
           typeof imageUrl === 'string' &&
@@ -395,7 +367,6 @@ function BusinessCard({
     business.subInterestId,
     business.subInterestLabel,
     business.category,
-    currentImageIndex,
   ]);
 
   const displayImage = getDisplayImage.image;
@@ -424,7 +395,7 @@ function BusinessCard({
   };
 
   const mediaBaseClass =
-    "relative overflow-hidden z-10 cursor-pointer rounded-t-[20px] bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl";
+    "relative overflow-hidden z-10 cursor-pointer rounded-[20px] bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl";
   const mediaClass = compact
     ? `${mediaBaseClass} h-[490px] sm:h-[320px] md:h-[240px]`
     : `${mediaBaseClass} h-[490px] sm:h-[320px] md:h-[240px]`;
@@ -488,7 +459,7 @@ function BusinessCard({
           >
             {!imgError && displayImage ? (
               isImagePng || displayImage.includes('/png/') || displayImage.endsWith('.png') || usingFallback ? (
-                <div className="relative w-full h-full rounded-[20px] flex items-center justify-center bg-gradient-to-br from-off-white/95 to-off-white/85 shadow-sm overflow-hidden">
+                <div className="relative w-full h-full rounded-t-[20px] flex items-center justify-center bg-gradient-to-br from-off-white/95 to-off-white/85 shadow-sm overflow-hidden">
                   <OptimizedImage
                     src={usingFallback ? getCategoryPng(categoryKey) : displayImage}
                     alt={displayAlt}
@@ -502,15 +473,13 @@ function BusinessCard({
                   />
                 </div>
               ) : (
-                <div className="relative w-full h-full rounded-[20px] overflow-hidden">
-                  <OptimizedImage
+                <div className="relative w-full h-full overflow-hidden">
+                  <Image
                     src={displayImage}
                     alt={displayAlt}
-                    width={340}
-                    height={400}
+                    fill
                     sizes="(max-width: 768px) 540px, 340px"
-                    className="w-full h-full object-cover"
-                    priority={false}
+                    className="object-cover"
                     quality={90}
                     onError={handleImageError}
                   />
@@ -563,46 +532,6 @@ function BusinessCard({
                 {Number(displayRating).toFixed(1)}
               </span>
             </div>
-          )}
-
-          {/* Carousel navigation controls */}
-          {hasMultipleImages && business.uploaded_images && business.uploaded_images.length > 1 && (
-            <>
-              <button
-                onClick={handlePreviousImage}
-                className="absolute left-2 top-1/2 -translate-y-1/2 z-30 w-8 h-8 rounded-full bg-off-white/95 backdrop-blur-xl flex items-center justify-center shadow-md hover:bg-white transition-all duration-200 hover:scale-110"
-                aria-label="Previous image"
-              >
-                <ChevronLeft className="w-5 h-5 text-charcoal" strokeWidth={2.5} />
-              </button>
-              <button
-                onClick={handleNextImage}
-                className="absolute right-2 top-1/2 -translate-y-1/2 z-30 w-8 h-8 rounded-full bg-off-white/95 backdrop-blur-xl flex items-center justify-center shadow-md hover:bg-white transition-all duration-200 hover:scale-110"
-                aria-label="Next image"
-              >
-                <ChevronRight className="w-5 h-5 text-charcoal" strokeWidth={2.5} />
-              </button>
-
-              {/* Image indicators */}
-              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1.5">
-                {business.uploaded_images.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      e.preventDefault();
-                      setCurrentImageIndex(index);
-                    }}
-                    className={`h-1.5 rounded-full transition-all duration-200 ${
-                      index === currentImageIndex
-                        ? 'w-6 bg-white'
-                        : 'w-1.5 bg-white/60 hover:bg-white/80'
-                    }`}
-                    aria-label={`Go to image ${index + 1}`}
-                  />
-                ))}
-              </div>
-            </>
           )}
 
           {!hideStar && !hasRating && (

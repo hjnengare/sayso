@@ -88,7 +88,7 @@ export default function BusinessInfoModal({
           {/* Category */}
           <div className="flex items-center gap-2 text-sm text-charcoal/70" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
             <span className="font-medium text-charcoal/60">Category:</span>
-            <span className={!businessInfo.category ? 'italic text-charcoal/40' : ''}>
+            <span className={!businessInfo.category ? 'italic text-charcoal/60' : ''}>
               {businessInfo.category || 'Not specified'}
             </span>
           </div>
@@ -96,7 +96,7 @@ export default function BusinessInfoModal({
           {/* Description */}
           <div className="text-sm text-charcoal/70" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
             <p className="font-medium text-charcoal/60 mb-1">Description</p>
-            <p className={`leading-relaxed ${!businessInfo.description ? 'italic text-charcoal/40' : ''}`}>
+            <p className={`leading-relaxed ${!businessInfo.description ? 'italic text-charcoal/60' : ''}`}>
               {(() => {
                 const desc = businessInfo.description;
                 if (!desc) return 'No description available';
@@ -114,14 +114,14 @@ export default function BusinessInfoModal({
           <div className="flex items-center gap-2 text-sm text-charcoal/70" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
             <DollarSign className={`w-4 h-4 flex-shrink-0 ${businessInfo.price_range ? 'text-sage' : 'text-charcoal/30'}`} />
             <span className="font-medium text-charcoal/60">Price Range:</span>
-            <span className={!businessInfo.price_range ? 'italic text-charcoal/40' : ''}>
+            <span className={!businessInfo.price_range ? 'italic text-charcoal/60' : ''}>
               {businessInfo.price_range || 'Not specified'}
             </span>
           </div>
 
           {/* Verification Status */}
           <div className="flex items-center gap-2 text-sm" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
-            <CheckCircle className={`w-4 h-4 flex-shrink-0 ${businessInfo.verified ? 'text-sage' : 'text-charcoal/40'}`} />
+            <CheckCircle className={`w-4 h-4 flex-shrink-0 ${businessInfo.verified ? 'text-sage' : 'text-charcoal/60'}`} />
             <span className={`font-medium ${businessInfo.verified ? 'text-sage' : 'text-charcoal/60'}`}>
               {businessInfo.verified ? 'Verified Business' : 'Not Verified'}
             </span>
@@ -132,7 +132,7 @@ export default function BusinessInfoModal({
             <MapPin className={`w-4 h-4 mt-0.5 flex-shrink-0 ${businessInfo.location ? 'text-sage' : 'text-charcoal/30'}`} />
             <div className="flex-1">
               <p className="text-sm font-medium text-charcoal mb-0.5" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>Location</p>
-              <p className={`text-sm ${businessInfo.location ? 'text-charcoal/70' : 'italic text-charcoal/40'}`} style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
+              <p className={`text-sm ${businessInfo.location ? 'text-charcoal/70' : 'italic text-charcoal/60'}`} style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
                 {businessInfo.location || 'Location not provided'}
               </p>
             </div>
@@ -143,7 +143,7 @@ export default function BusinessInfoModal({
             <MapPin className={`w-4 h-4 mt-0.5 flex-shrink-0 ${businessInfo.address ? 'text-sage' : 'text-charcoal/30'}`} />
             <div className="flex-1">
               <p className="text-sm font-medium text-charcoal mb-0.5" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>Address</p>
-              <p className={`text-sm ${businessInfo.address ? 'text-charcoal/70' : 'italic text-charcoal/40'}`} style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
+              <p className={`text-sm ${businessInfo.address ? 'text-charcoal/70' : 'italic text-charcoal/60'}`} style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
                 {businessInfo.address || 'Address not provided'}
               </p>
             </div>
@@ -159,7 +159,7 @@ export default function BusinessInfoModal({
                   {businessInfo.phone}
                 </a>
               ) : (
-                <p className="text-sm italic text-charcoal/40" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
+                <p className="text-sm italic text-charcoal/60" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
                   Phone number not provided
                 </p>
               )}
@@ -176,7 +176,7 @@ export default function BusinessInfoModal({
                   {businessInfo.email}
                 </a>
               ) : (
-                <p className="text-sm italic text-charcoal/40" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
+                <p className="text-sm italic text-charcoal/60" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
                   Email not provided
                 </p>
               )}
@@ -199,7 +199,7 @@ export default function BusinessInfoModal({
                   {businessInfo.website}
                 </a>
               ) : (
-                <p className="text-sm italic text-charcoal/40" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
+                <p className="text-sm italic text-charcoal/60" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
                   Website not provided
                 </p>
               )}

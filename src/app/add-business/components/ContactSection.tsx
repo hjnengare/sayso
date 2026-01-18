@@ -29,11 +29,13 @@ const ContactSection: React.FC<ContactSectionProps> = ({
     onBlur,
 }) => {
     return (
-        <div className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[20px] overflow-hidden backdrop-blur-md shadow-md px-4 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10">
+        <div className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[20px] overflow-hidden border border-white/60 backdrop-blur-xl shadow-md px-4 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-sage/10 to-transparent rounded-full blur-lg pointer-events-none"></div>
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-coral/10 to-transparent rounded-full blur-lg pointer-events-none"></div>
             <div className="relative z-10">
-                <h3 className="font-urbanist text-base font-semibold text-white mb-6 flex items-center gap-3" style={{ fontFamily: 'Urbanist, sans-serif', fontWeight: 600 }}>
-                    <span className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-coral/20 to-coral/10">
-                        <Phone className="w-4 h-4 text-coral" />
+                <h3 className="font-urbanist text-base font-semibold text-charcoal mb-6 flex items-center gap-3" style={{ fontFamily: 'Urbanist, sans-serif', fontWeight: 600 }}>
+                    <span className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-navbar-bg/20 to-navbar-bg/10">
+                        <Phone className="w-5 h-5 text-navbar-bg" />
                     </span>
                     Contact Information
                 </h3>
@@ -42,7 +44,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {/* Phone */}
                         <div>
-                            <label className="block text-sm font-semibold text-white mb-2" style={{ fontFamily: 'Urbanist, sans-serif', fontWeight: 600 }}>
+                            <label className="block text-sm font-semibold text-charcoal mb-2" style={{ fontFamily: 'Urbanist, sans-serif', fontWeight: 600 }}>
                                 Phone Number
                             </label>
                             <input
@@ -65,7 +67,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({
 
                         {/* Email */}
                         <div>
-                            <label className="block text-sm font-semibold text-white mb-2" style={{ fontFamily: 'Urbanist, sans-serif', fontWeight: 600 }}>
+                            <label className="block text-sm font-semibold text-charcoal mb-2" style={{ fontFamily: 'Urbanist, sans-serif', fontWeight: 600 }}>
                                 Email Address
                             </label>
                             <input
@@ -89,7 +91,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({
 
                     {/* Website */}
                     <div>
-                        <label className="block text-sm font-semibold text-white mb-2" style={{ fontFamily: 'Urbanist, sans-serif', fontWeight: 600 }}>
+                        <label className="block text-sm font-semibold text-charcoal mb-2" style={{ fontFamily: 'Urbanist, sans-serif', fontWeight: 600 }}>
                             Website
                         </label>
                         <input
@@ -113,7 +115,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({
                     {/* Price Range - Premium Toggle Selection */}
                     <div>
                         <div className="flex items-center justify-between mb-3">
-                            <label className="flex items-center gap-2 text-sm font-semibold text-white" style={{ fontFamily: 'Urbanist, sans-serif', fontWeight: 600 }}>
+                            <label className="flex items-center gap-2 text-sm font-semibold text-charcoal" style={{ fontFamily: 'Urbanist, sans-serif', fontWeight: 600 }}>
                                 <Coins className="w-4 h-4 text-coral/80" />
                                 Price Range
                             </label>
@@ -121,7 +123,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({
                                 <motion.span
                                     initial={{ opacity: 0, scale: 0.8 }}
                                     animate={{ opacity: 1, scale: 1 }}
-                                    className="text-xs text-white/60 bg-white/10 px-3 py-1 rounded-full"
+                                    className="text-xs text-charcoal/60 bg-charcoal/5 px-3 py-1 rounded-full"
                                     style={{ fontFamily: 'Urbanist, sans-serif' }}
                                 >
                                     {priceRangeOptions.find(p => p.value === formData.priceRange)?.description}
@@ -146,14 +148,14 @@ const ContactSection: React.FC<ContactSectionProps> = ({
                                         className={`relative p-3 sm:p-4 rounded-2xl border-2 transition-all duration-200 flex flex-col items-center gap-1.5 ${
                                             isSelected
                                                 ? 'bg-gradient-to-br from-coral/20 to-coral/10 border-coral'
-                                                : 'bg-white/5 border-white/20 hover:border-white/40 hover:bg-white/10'
+                                                : 'bg-white/60 border-charcoal/10 hover:border-charcoal/20 hover:bg-white/80'
                                         }`}
                                     >
-                                        <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${isSelected ? 'text-coral' : 'text-white/60'}`} />
-                                        <span className={`text-sm sm:text-base font-bold ${isSelected ? 'text-white' : 'text-white/70'}`} style={{ fontFamily: 'Urbanist, sans-serif' }}>
+                                        <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${isSelected ? 'text-coral' : 'text-charcoal/60'}`} />
+                                        <span className={`text-sm sm:text-base font-bold ${isSelected ? 'text-charcoal' : 'text-charcoal/70'}`} style={{ fontFamily: 'Urbanist, sans-serif' }}>
                                             {option.label}
                                         </span>
-                                        <span className="text-[10px] sm:text-xs text-white/50 hidden sm:block" style={{ fontFamily: 'Urbanist, sans-serif' }}>
+                                        <span className="text-[10px] sm:text-xs text-charcoal/50 hidden sm:block" style={{ fontFamily: 'Urbanist, sans-serif' }}>
                                             {option.description}
                                         </span>
                                         {isSelected && (

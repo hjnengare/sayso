@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useEffect, useCallback, useState } from "react";
-import { ChevronDown } from "react-feather";
+import { ChevronDown } from "lucide-react";
 import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 import {
@@ -108,11 +108,13 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
     }, [isCategoryModalOpen]);
 
     return (
-        <div className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[20px] overflow-hidden backdrop-blur-md shadow-md px-2 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10 lg:px-12 lg:py-10 xl:px-16 xl:py-12 animate-fade-in-up animate-delay-100">
+        <div className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[20px] overflow-hidden border border-white/60 backdrop-blur-xl shadow-md px-4 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10 lg:px-12 lg:py-10 xl:px-16 xl:py-12 animate-fade-in-up animate-delay-100">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-sage/10 to-transparent rounded-full blur-lg pointer-events-none"></div>
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-coral/10 to-transparent rounded-full blur-lg pointer-events-none"></div>
             <div className="relative z-10">
-                <h3 className="font-urbanist text-base font-semibold text-white mb-6 flex items-center gap-3" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
-                    <span className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-coral/20 to-coral/10">
-                        <Store className="w-4 h-4 text-coral" />
+                <h3 className="font-urbanist text-base font-semibold text-charcoal mb-6 flex items-center gap-3" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
+                    <span className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-navbar-bg/20 to-navbar-bg/10">
+                        <Store className="w-5 h-5 text-navbar-bg" />
                     </span>
                     Basic Information
                 </h3>
@@ -120,7 +122,7 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
                 <div className="space-y-6">
                     {/* Business Name */}
                     <div>
-                        <label className="block text-sm font-semibold text-white mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
+                        <label className="block text-sm font-semibold text-charcoal mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
                             Business Name <span className="text-coral">*</span>
                         </label>
                         <input
@@ -156,7 +158,7 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
 
                     {/* Category */}
                     <div>
-                        <label className="block text-sm font-semibold text-white mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
+                        <label className="block text-sm font-semibold text-charcoal mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
                             Category <span className="text-coral">*</span>
                         </label>
                         {loadingCategories ? (
@@ -187,7 +189,7 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
                                     <span className={formData.category ? 'text-charcoal' : 'text-charcoal/70'}>
                                         {formData.category || 'Select a category'}
                                     </span>
-                                    <ChevronDown className={`w-5 h-5 text-charcoal/60 transition-transform duration-300 ${isCategoryModalOpen ? 'rotate-180' : ''}`} />
+                                    <ChevronDown size={20} className={`text-charcoal/60 transition-transform duration-300 ${isCategoryModalOpen ? 'rotate-180' : ''}`} />
                                 </button>
                                 {touched.category && errors.category && (
                                     <p className="mt-2 text-sm text-navbar-bg font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>{errors.category}</p>
@@ -245,9 +247,9 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
 
                     {/* Business Type & Intent - Shows after category is selected */}
                     {formData.category && (
-                        <div className="space-y-4 pt-2 border-t border-white/20">
+                        <div className="space-y-4 pt-4 border-t border-charcoal/10">
                             <div>
-                                <label className="block text-sm font-semibold text-white mb-3" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
+                                <label className="block text-sm font-semibold text-charcoal mb-3" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
                                     What kind of business is this?
                                 </label>
                                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -256,11 +258,11 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
                                         onClick={() => onInputChange('businessType', 'physical')}
                                         className={`flex flex-col items-center gap-2 p-4 rounded-[20px] border-2 transition-all duration-200 ${
                                             formData.businessType === 'physical'
-                                                ? 'bg-gradient-to-br from-coral/20 to-coral/10 border-coral text-white'
-                                                : 'bg-white/10 border-white/30 text-white/80 hover:border-white/50 hover:bg-white/15'
+                                                ? 'bg-gradient-to-br from-coral/20 to-coral/10 border-coral text-charcoal'
+                                                : 'bg-white/60 border-charcoal/10 text-charcoal/70 hover:border-charcoal/20 hover:bg-white/80'
                                         }`}
                                     >
-                                        <Building2 className="w-6 h-6" />
+                                        <Building2 className={`w-6 h-6 ${formData.businessType === 'physical' ? 'text-coral' : ''}`} />
                                         <span className="text-sm font-semibold text-center">Physical Location</span>
                                     </button>
                                     <button
@@ -268,11 +270,11 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
                                         onClick={() => onInputChange('businessType', 'service-area')}
                                         className={`flex flex-col items-center gap-2 p-4 rounded-[20px] border-2 transition-all duration-200 ${
                                             formData.businessType === 'service-area'
-                                                ? 'bg-gradient-to-br from-coral/20 to-coral/10 border-coral text-white'
-                                                : 'bg-white/10 border-white/30 text-white/80 hover:border-white/50 hover:bg-white/15'
+                                                ? 'bg-gradient-to-br from-coral/20 to-coral/10 border-coral text-charcoal'
+                                                : 'bg-white/60 border-charcoal/10 text-charcoal/70 hover:border-charcoal/20 hover:bg-white/80'
                                         }`}
                                     >
-                                        <Truck className="w-6 h-6" />
+                                        <Truck className={`w-6 h-6 ${formData.businessType === 'service-area' ? 'text-coral' : ''}`} />
                                         <span className="text-sm font-semibold text-center">Service-Area</span>
                                     </button>
                                     <button
@@ -280,11 +282,11 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
                                         onClick={() => onInputChange('businessType', 'online-only')}
                                         className={`flex flex-col items-center gap-2 p-4 rounded-[20px] border-2 transition-all duration-200 ${
                                             formData.businessType === 'online-only'
-                                                ? 'bg-gradient-to-br from-coral/20 to-coral/10 border-coral text-white'
-                                                : 'bg-white/10 border-white/30 text-white/80 hover:border-white/50 hover:bg-white/15'
+                                                ? 'bg-gradient-to-br from-coral/20 to-coral/10 border-coral text-charcoal'
+                                                : 'bg-white/60 border-charcoal/10 text-charcoal/70 hover:border-charcoal/20 hover:bg-white/80'
                                         }`}
                                     >
-                                        <Monitor className="w-6 h-6" />
+                                        <Monitor className={`w-6 h-6 ${formData.businessType === 'online-only' ? 'text-coral' : ''}`} />
                                         <span className="text-sm font-semibold text-center">Online-Only</span>
                                     </button>
                                 </div>
@@ -296,15 +298,15 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ duration: 0.3 }}
                                 >
-                                    <label className="flex items-center gap-3 p-3 rounded-[20px] bg-white/10 border border-white/30 cursor-pointer hover:bg-white/15 transition-all duration-200">
+                                    <label className="flex items-center gap-3 p-3 rounded-[20px] bg-white/60 border border-charcoal/10 cursor-pointer hover:bg-white/80 transition-all duration-200">
                                         <input
                                             type="checkbox"
                                             checked={formData.isChain}
                                             onChange={(e) => onInputChange('isChain', e.target.checked)}
-                                            className="w-5 h-5 rounded border-white/40 bg-white/20 text-coral focus:ring-coral/30 focus:ring-offset-0"
+                                            className="w-5 h-5 rounded border-charcoal/20 bg-white text-coral focus:ring-coral/30 focus:ring-offset-0"
                                         />
-                                        <LinkIcon className="w-5 h-5 text-white/80" />
-                                        <span className="text-sm font-semibold text-white" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
+                                        <LinkIcon className="w-5 h-5 text-charcoal/60" />
+                                        <span className="text-sm font-semibold text-charcoal" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
                                             Part of a chain
                                         </span>
                                     </label>
@@ -315,7 +317,7 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
 
                     {/* Description */}
                     <div>
-                        <label className="block text-sm font-semibold text-white mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
+                        <label className="block text-sm font-semibold text-charcoal mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
                             Description
                         </label>
                         <textarea

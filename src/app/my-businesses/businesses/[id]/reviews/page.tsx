@@ -223,7 +223,7 @@ export default function OwnerReviewsPage() {
             <div className="max-w-4xl mx-auto text-center py-12">
               <p className="text-charcoal/70">{error || 'Business not found'}</p>
               <Link
-                href={`/owners/businesses/${businessId}`}
+                href={`/my-businesses/businesses/${businessId}`}
                 className="inline-flex items-center gap-2 mt-4 text-sage hover:text-sage/80"
                 style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
               >
@@ -254,7 +254,7 @@ export default function OwnerReviewsPage() {
               <nav className="mb-4 sm:mb-6 px-2" aria-label="Breadcrumb">
                 <ol className="flex items-center gap-2 text-sm sm:text-base">
                   <li>
-                    <Link href={`/owners/businesses/${businessId}`} className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                    <Link href={`/my-businesses/businesses/${businessId}`} className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                       {business?.name || 'Business'}
                     </Link>
                   </li>
@@ -283,7 +283,7 @@ export default function OwnerReviewsPage() {
                     {/* Quick Actions */}
                     <div className="flex flex-wrap gap-3 mt-4">
                       <Link
-                        href={`/owners/businesses/${businessId}`}
+                        href={`/my-businesses/businesses/${businessId}`}
                         className="inline-flex items-center gap-2 px-4 py-2.5 bg-charcoal/10 hover:bg-charcoal/20 text-charcoal rounded-full text-sm font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-95 border border-charcoal/20 w-fit"
                         style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                       >

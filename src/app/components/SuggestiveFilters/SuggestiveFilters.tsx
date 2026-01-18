@@ -73,7 +73,7 @@ export default function SuggestiveFilters({
         </p>
         <button
           onClick={() => setIsVisible(false)}
-          className="p-1 rounded-full text-charcoal/40 hover:text-charcoal/70 hover:bg-charcoal/5 transition-colors"
+          className="p-1 rounded-full text-charcoal/60 hover:text-charcoal/70 hover:bg-charcoal/5 transition-colors"
           aria-label="Hide filter suggestions"
         >
           <X className="w-4 h-4" />

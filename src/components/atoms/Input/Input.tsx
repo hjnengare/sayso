@@ -56,7 +56,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       transition-all duration-200
       focus:outline-none focus:ring-2
       disabled:bg-light-gray disabled:cursor-not-allowed disabled:opacity-60
-      placeholder:text-charcoal/40
+      placeholder:text-charcoal/60
     `;
 
     const containerWidth = fullWidth ? 'w-full' : '';
@@ -94,7 +94,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           />
 
           {rightIcon && (
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-charcoal/50 flex-shrink-0">
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-charcoal/70 flex-shrink-0">
               {rightIcon}
             </div>
           )}

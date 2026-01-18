@@ -133,7 +133,7 @@ function CollectionDetailContent() {
                 </Link>
               </li>
               <li className="flex items-center">
-                <ChevronRight className="w-4 h-4 text-charcoal/40" />
+                <ChevronRight className="w-4 h-4 text-charcoal/60" />
               </li>
               <li>
                 <Link href="/explore" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
@@ -141,7 +141,7 @@ function CollectionDetailContent() {
                 </Link>
               </li>
               <li className="flex items-center">
-                <ChevronRight className="w-4 h-4 text-charcoal/40" />
+                <ChevronRight className="w-4 h-4 text-charcoal/60" />
               </li>
               <li>
                 <span className="text-charcoal font-semibold" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>

@@ -49,13 +49,13 @@ export default function OnboardingButton({
     if (variant === "complete") {
       return canProceed
         ? 'bg-gradient-to-r from-sage to-sage/80 text-white hover:from-sage/90 hover:to-sage'
-        : 'bg-charcoal/10 text-charcoal/40 cursor-not-allowed';
+        : 'bg-charcoal/10 text-charcoal/60 cursor-not-allowed';
     }
     
     // Default continue button uses sage gradient
     return canProceed
       ? 'bg-gradient-to-r from-sage to-sage/80 text-white hover:from-sage/90 hover:to-sage'
-      : 'bg-charcoal/10 text-charcoal/40 cursor-not-allowed';
+      : 'bg-charcoal/10 text-charcoal/60 cursor-not-allowed';
   };
 
   const handleClick = () => {

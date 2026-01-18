@@ -204,7 +204,7 @@ export default function BusinessHeroImage({
 
           {/* Image Counter */}
           <div className="absolute bottom-6 right-6 z-30 px-3 py-1.5 rounded-full bg-charcoal/80 backdrop-blur-xl">
-            <span className="text-xs font-semibold text-white" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+            <span className="text-sm font-semibold text-white" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
               {currentImageIndex + 1} / {allImages.length}
             </span>
           </div>

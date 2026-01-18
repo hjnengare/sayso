@@ -153,7 +153,7 @@ export default function AIChat() {
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Ask me anything..."
-                className="flex-1 px-4 py-2.5 bg-off-white/50 border border-charcoal/10 rounded-full text-sm text-charcoal placeholder:text-charcoal/40 focus:outline-none focus:ring-2 focus:ring-sage/30 focus:border-sage/30 transition-all"
+                className="flex-1 px-4 py-2.5 bg-off-white/50 border border-charcoal/10 rounded-full text-sm text-charcoal placeholder:text-charcoal/60 focus:outline-none focus:ring-2 focus:ring-sage/30 focus:border-sage/30 transition-all"
                 style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
                 disabled={isLoading}
               />
@@ -166,7 +166,7 @@ export default function AIChat() {
                 <Send className="w-4 h-4 text-white" strokeWidth={2.5} />
               </button>
             </div>
-            <p className="text-sm sm:text-xs text-charcoal/40 mt-2 text-center" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
+            <p className="text-sm sm:text-xs text-charcoal/60 mt-2 text-center" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
               Powered by Sayso AI
             </p>
           </div>

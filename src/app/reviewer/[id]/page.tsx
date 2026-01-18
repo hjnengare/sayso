@@ -240,7 +240,7 @@ export default function ReviewerProfilePage() {
                                             </Link>
                                         </li>
                                         <li className="flex items-center">
-                                            <ChevronRight className="w-4 h-4 text-charcoal/40" />
+                                            <ChevronRight className="w-4 h-4 text-charcoal/60" />
                                         </li>
                                         <li>
                                             <span className="text-charcoal font-semibold truncate max-w-[200px] sm:max-w-none" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>

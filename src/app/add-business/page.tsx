@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
-import { ChevronRight } from "react-feather";
+import { ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "../contexts/ToastContext";
 import { useAuth } from "../contexts/AuthContext";
@@ -538,7 +538,7 @@ export default function AddBusinessPage() {
                                             </Link>
                                         </li>
                                         <li className="flex items-center">
-                                            <ChevronRight className="w-4 h-4 text-charcoal/40" />
+                                            <ChevronRight size={16} className="text-charcoal/60" />
                                         </li>
                                         <li>
                                             <span className="text-charcoal font-semibold" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>

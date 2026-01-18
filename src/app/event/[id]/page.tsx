@@ -315,7 +315,7 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
                   </Link>
                 </li>
                 <li className="hidden sm:flex items-center flex-shrink-0">
-                  <ChevronRight className="w-4 h-4 text-charcoal/40" />
+                  <ChevronRight className="w-4 h-4 text-charcoal/60" />
                 </li>
                 <li className="flex-shrink-0">
                   <Link href="/events-specials" className="text-charcoal/90 hover:text-sage transition-colors duration-200 font-medium whitespace-nowrap" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
@@ -323,7 +323,7 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
                   </Link>
                 </li>
                 <li className="flex items-center flex-shrink-0">
-                  <ChevronRight className="w-4 h-4 text-charcoal/40" />
+                  <ChevronRight className="w-4 h-4 text-charcoal/60" />
                 </li>
                 <li className="min-w-0 flex-1">
                   <span className="text-charcoal font-semibold truncate block" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>

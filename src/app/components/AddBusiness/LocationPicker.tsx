@@ -220,7 +220,7 @@ export default function LocationPicker({
         <div className="p-4 border-b">
           <div className="flex gap-2">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-charcoal/40" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-charcoal/60" />
               <input
                 type="text"
                 value={searchQuery}

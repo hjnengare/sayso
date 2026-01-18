@@ -117,7 +117,7 @@ function SubcategoryPill({
         ${isSelected
           ? 'border-coral bg-gradient-to-br from-coral to-coral/90 text-white'
           : isDisabled
-          ? 'border-charcoal/10 bg-charcoal/5 text-charcoal/40 cursor-not-allowed opacity-60'
+          ? 'border-charcoal/10 bg-charcoal/5 text-charcoal/60 cursor-not-allowed opacity-60'
           : 'border-sage/30 bg-gradient-to-br from-sage/10 to-sage/5 text-sage backdrop-blur-sm'
         }
       `}

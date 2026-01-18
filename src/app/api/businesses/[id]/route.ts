@@ -14,6 +14,14 @@ export async function GET(
   try {
     const { id: businessIdentifier } = await params;
     
+    if (!businessIdentifier || businessIdentifier.trim() === '') {
+      console.error('[API] Invalid business identifier:', businessIdentifier);
+      return NextResponse.json(
+        { error: 'Business ID or slug is required' },
+        { status: 400 }
+      );
+    }
+    
     // Use optimized query function that handles both slug and ID lookups
     const business = await fetchBusinessOptimized(businessIdentifier, req, false);
     
@@ -26,9 +34,26 @@ export async function GET(
     
     return NextResponse.json(business);
   } catch (error: any) {
-    console.error('[API] Error in GET business:', error);
+    console.error('[API] Error in GET business:', {
+      message: error?.message,
+      code: error?.code,
+      details: error?.details || error?.toString(),
+      stack: error?.stack?.split('\n')[0],
+    });
+    
+    // Return appropriate error status based on error type
+    if (error?.message?.includes('not found') || error?.message?.includes('does not exist')) {
+      return NextResponse.json(
+        { error: 'Business not found' },
+        { status: 404 }
+      );
+    }
+    
     return NextResponse.json(
-      { error: 'Internal server error', details: error.message },
+      { 
+        error: 'Failed to fetch business',
+        details: error?.message || 'Internal server error',
+      },
       { status: 500 }
     );
   }
@@ -198,15 +223,65 @@ export async function DELETE(
     }
 
     // ✅ Read the business first (so we can return proper errors)
+    // Validate businessId first
+    if (!businessId || businessId.trim() === '') {
+      console.error('[API] Invalid business ID for deletion:', businessId);
+      return NextResponse.json(
+        { error: 'Invalid business ID' },
+        { status: 400 }
+      );
+    }
+
+    // ✅ Handle both slug and UUID - resolve slug to UUID if needed
+    let actualBusinessId = businessId;
+    
+    // Check if it's a UUID format
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(businessId);
+    
+    if (!isUUID) {
+      // It's likely a slug, try to resolve it to a UUID
+      console.log('[API] Slug detected, resolving to UUID:', businessId);
+      const { data: slugBusiness, error: slugError } = await supabase
+        .from('businesses')
+        .select('id')
+        .eq('slug', businessId)
+        .maybeSingle();
+      
+      if (slugError) {
+        console.error('[API] Error resolving slug to UUID:', {
+          slug: businessId,
+          error: slugError.message,
+        });
+        return NextResponse.json(
+          { error: 'Failed to resolve business', details: slugError.message },
+          { status: 500 }
+        );
+      }
+      
+      if (!slugBusiness) {
+        return NextResponse.json(
+          { error: 'Business not found' },
+          { status: 404 }
+        );
+      }
+      
+      actualBusinessId = slugBusiness.id;
+      console.log('[API] Resolved slug to UUID:', actualBusinessId);
+    }
+
     // Use maybeSingle() to distinguish between "not found" and "error"
     const { data: business, error: businessError } = await supabase
       .from('businesses')
       .select('id, owner_id, slug')
-      .eq('id', businessId)
+      .eq('id', actualBusinessId)
       .maybeSingle();
 
     if (businessError) {
-      console.error('[API] Error fetching business for deletion:', businessError);
+      console.error('[API] Error fetching business for deletion:', {
+        businessId,
+        error: businessError.message,
+        details: businessError,
+      });
       return NextResponse.json(
         { error: 'Failed to fetch business', details: businessError.message },
         { status: 500 }
@@ -224,7 +299,7 @@ export async function DELETE(
     const { data: ownerCheck } = await supabase
       .from('business_owners')
       .select('id')
-      .eq('business_id', businessId)
+      .eq('business_id', actualBusinessId)
       .eq('user_id', user.id)
       .maybeSingle();
 
@@ -241,7 +316,7 @@ export async function DELETE(
     const { data: businessImages, error: businessImagesError } = await supabase
       .from('business_images')
       .select('url')
-      .eq('business_id', businessId);
+      .eq('business_id', actualBusinessId);
 
     if (businessImages && businessImages.length > 0) {
       const { extractStoragePaths } = await import('../../../../lib/utils/storagePathExtraction');
@@ -258,7 +333,7 @@ export async function DELETE(
           console.warn('[API] Error deleting storage files (continuing with business deletion):', storageError);
           // Continue with business deletion even if storage deletion fails
         } else {
-          console.log(`[API] Deleted ${storagePaths.length} storage files for business ${businessId}`);
+          console.log(`[API] Deleted ${storagePaths.length} storage files for business ${actualBusinessId}`);
         }
       }
     }
@@ -267,7 +342,7 @@ export async function DELETE(
     const { error: deleteError } = await supabase
       .from('businesses')
       .delete()
-      .eq('id', businessId);
+      .eq('id', actualBusinessId);
 
     if (deleteError) {
       console.error('[API] Error deleting business:', deleteError);
@@ -279,7 +354,7 @@ export async function DELETE(
 
     // Invalidate cache for this business
     try {
-      invalidateBusinessCache(businessId, business.slug || undefined);
+      invalidateBusinessCache(actualBusinessId, business.slug || undefined);
     } catch (cacheError) {
       // Log but don't fail - cache invalidation is non-critical
       console.warn('[API] Error invalidating cache:', cacheError);
@@ -293,7 +368,7 @@ export async function DELETE(
 
     // Add headers to signal clients about deletion
     response.headers.set('X-Business-Deleted', 'true');
-    response.headers.set('X-Business-Id', businessId);
+    response.headers.set('X-Business-Id', actualBusinessId);
 
     return response;
   } catch (error: any) {

@@ -11,7 +11,7 @@ import { Store, MapPin, Check, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import type { Business } from "../lib/types/database";
 
-export default function OwnersPage() {
+export default function MyBusinessesPage() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
   const [businesses, setBusinesses] = useState<Business[]>([]);
@@ -137,8 +137,8 @@ export default function OwnersPage() {
             <nav className="mb-4 sm:mb-6 px-2" aria-label="Breadcrumb">
               <ol className="flex items-center gap-2 text-sm sm:text-base">
                 <li>
-                  <Link href="/for-businesses" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                    Claim Business
+                  <Link href="/profile" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                    Profile
                   </Link>
                 </li>
                 <li className="flex items-center">
@@ -146,7 +146,7 @@ export default function OwnersPage() {
                 </li>
                 <li>
                   <span className="text-charcoal font-semibold" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                    Your Businesses
+                    My Businesses
                   </span>
                 </li>
               </ol>
@@ -155,7 +155,7 @@ export default function OwnersPage() {
             {/* Header */}
             <div className="mb-8 sm:mb-12 px-2">
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-charcoal mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                Your Businesses
+                My Businesses
               </h1>
               <p className="text-charcoal/70 text-sm sm:text-base" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                 Manage your business profiles and connect with customers
@@ -212,7 +212,7 @@ export default function OwnersPage() {
 
                       {/* Manage Button */}
                       <Link
-                        href={`/owners/businesses/${business.id}`}
+                        href={`/my-businesses/businesses/${business.id}`}
                         className="block w-full px-4 py-2.5 bg-gradient-to-br from-coral to-coral/90 text-white rounded-full text-sm font-semibold text-center hover:from-coral/90 hover:to-coral/80 transition-all duration-300"
                         style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                       >

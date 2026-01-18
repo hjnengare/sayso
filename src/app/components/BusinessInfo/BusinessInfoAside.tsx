@@ -1,7 +1,8 @@
 "use client";
 
 import type { CSSProperties, ReactNode } from "react";
-import { CheckCircle, DollarSign, Globe, Mail, MapPin, Phone, Clock, Award, Star } from "react-feather";
+import { CheckCircle, DollarSign, Globe, Mail, MapPin, Phone, Clock, Award, Star } from "lucide-react";
+import { Text } from '@/components/atoms/Text';
 import type { BusinessInfo } from "./BusinessInfoModal";
 
 interface BusinessInfoAsideProps {
@@ -24,61 +25,65 @@ export default function BusinessInfoAside({ businessInfo, className = "", stacke
     {
       icon: (
         <CheckCircle
-          className={`w-5 h-5 flex-shrink-0 ${
+          size={20}
+          className={`flex-shrink-0 ${
             businessInfo.verified ? "text-navbar-bg" : "text-navbar-bg/40"
           }`}
-          strokeWidth={2.5}
         />
       ),
       label: "Verification",
       render: () => (
-        <span className={`text-sm font-semibold ${businessInfo.verified ? "text-sage" : "text-charcoal/60"}`}>
+        <Text variant="body-sm" color={businessInfo.verified ? "sage" : "secondary"} className="font-semibold">
           {businessInfo.verified ? "Verified Business" : "Not Verified"}
-        </span>
+        </Text>
       ),
     },
     {
-      icon: <MapPin className="w-5 h-5 flex-shrink-0 text-navbar-bg" strokeWidth={2.5} />,
+      icon: <MapPin size={20} className="flex-shrink-0 text-navbar-bg" />,
       label: "Location",
       value: businessInfo.location,
     },
     {
-      icon: <MapPin className="w-5 h-5 flex-shrink-0 text-navbar-bg" strokeWidth={2.5} />,
+      icon: <MapPin size={20} className="flex-shrink-0 text-navbar-bg" />,
       label: "Address",
       value: businessInfo.address,
     },
     {
-      icon: <Phone className="w-5 h-5 flex-shrink-0 text-navbar-bg" strokeWidth={2.5} />,
+      icon: <Phone size={20} className="flex-shrink-0 text-navbar-bg" />,
       label: "Phone",
       render: () =>
         businessInfo.phone ? (
           <a
             href={`tel:${businessInfo.phone}`}
-            className="text-sm font-semibold text-charcoal/90"
+            className="hover:text-coral transition-colors"
           >
-            {businessInfo.phone}
+            <Text variant="body-sm" color="primary" className="font-semibold">
+              {businessInfo.phone}
+            </Text>
           </a>
         ) : (
-          <span className="text-sm italic text-charcoal/40">Phone number not provided</span>
+          <Text variant="body-sm" color="secondary" className="italic">Phone number not provided</Text>
         ),
     },
     {
-      icon: <Mail className="w-5 h-5 flex-shrink-0 text-navbar-bg" strokeWidth={2.5} />,
+      icon: <Mail size={20} className="flex-shrink-0 text-navbar-bg" />,
       label: "Email",
       render: () =>
         businessInfo.email ? (
           <a
             href={`mailto:${businessInfo.email}`}
-            className="text-sm font-semibold text-charcoal/90 break-all"
+            className="break-all hover:text-coral transition-colors"
           >
-            {businessInfo.email}
+            <Text variant="body-sm" color="primary" className="font-semibold">
+              {businessInfo.email}
+            </Text>
           </a>
         ) : (
-          <span className="text-sm italic text-charcoal/40">Email not provided</span>
+          <Text variant="body-sm" color="secondary" className="italic">Email not provided</Text>
         ),
     },
     {
-      icon: <Globe className="w-5 h-5 flex-shrink-0 text-navbar-bg" strokeWidth={2.5} />,
+      icon: <Globe size={20} className="flex-shrink-0 text-navbar-bg" />,
       label: "Website",
       render: () =>
         businessInfo.website ? (
@@ -90,16 +95,18 @@ export default function BusinessInfoAside({ businessInfo, className = "", stacke
             }
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm font-semibold text-charcoal/90 break-all"
+            className="break-all hover:text-coral transition-colors"
           >
-            {businessInfo.website}
+            <Text variant="body-sm" color="primary" className="font-semibold">
+              {businessInfo.website}
+            </Text>
           </a>
         ) : (
-          <span className="text-sm italic text-charcoal/40">Website not provided</span>
+          <Text variant="body-sm" color="secondary" className="italic">Website not provided</Text>
         ),
     },
     {
-      icon: <DollarSign className="w-5 h-5 flex-shrink-0 text-navbar-bg" strokeWidth={2.5} />,
+      icon: <DollarSign size={20} className="flex-shrink-0 text-navbar-bg" />,
       label: "Price Range",
       value: businessInfo.price_range,
     },
@@ -126,26 +133,28 @@ export default function BusinessInfoAside({ businessInfo, className = "", stacke
         <header className="space-y-4 pb-6 border-b border-white/30 mb-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Award className="w-5 h-5 text-sage" strokeWidth={2.5} />
-              <p className="text-[11px] uppercase tracking-[0.2em] text-charcoal/60 font-bold">Business Information</p>
+              <Award size={20} className="text-sage" />
+              <Text variant="caption" color="secondary" className="uppercase tracking-[0.2em] font-bold">Business Information</Text>
             </div>
             {businessInfo.verified && (
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-sage/20 to-sage/10 border border-sage/30">
-                <CheckCircle className="w-4 h-4 text-sage" strokeWidth={2.5} />
-                <span className="text-xs font-bold text-sage">Verified</span>
+                <CheckCircle size={16} className="text-sage" />
+                <Text variant="caption" color="sage" className="font-bold">Verified</Text>
               </div>
             )}
           </div>
-          <h2 id="business-info-heading" className="text-2xl sm:text-3xl font-bold text-charcoal leading-tight" style={sectionTitleStyle}>
-            {businessInfo.name || "Business Information"}
-          </h2>
+          <div style={sectionTitleStyle}>
+            <Text variant="h2" color="primary" className="leading-tight">
+              {businessInfo.name || "Business Information"}
+            </Text>
+          </div>
           {businessInfo.category && (
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-sage/40 bg-gradient-to-r from-sage/15 via-sage/8 to-transparent">
-              <span className="text-sm font-bold text-sage">{businessInfo.category}</span>
+              <Text variant="body-sm" color="sage" className="font-bold">{businessInfo.category}</Text>
             </div>
           )}
           {businessInfo.description && (
-            <p className="text-sm sm:text-base text-charcoal/80 leading-relaxed pt-2">
+            <Text variant="body" color="secondary" className="leading-relaxed pt-2">
               {(() => {
                 const desc = businessInfo.description;
                 if (!desc) return null;
@@ -156,7 +165,7 @@ export default function BusinessInfoAside({ businessInfo, className = "", stacke
                 }
                 return '';
               })()}
-            </p>
+            </Text>
           )}
         </header>
 
@@ -178,21 +187,21 @@ export default function BusinessInfoAside({ businessInfo, className = "", stacke
                   {row.icon}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-charcoal/70 mb-2 uppercase tracking-wider" style={sectionTitleStyle}>
+                  <Text variant="caption" color="secondary" className="font-bold uppercase tracking-wider mb-2">
                     {row.label}
-                  </p>
+                  </Text>
                   {row.render ? (
-                    <div className="text-sm font-semibold">
+                    <div>
                       {row.render()}
                     </div>
                   ) : (
-                    <p
-                      className={`text-sm sm:text-base font-semibold ${
-                        row.value ? "text-charcoal" : "italic text-charcoal/70"
-                      }`}
+                    <Text
+                      variant="body-sm"
+                      color={row.value ? "primary" : "secondary"}
+                      className={row.value ? "font-semibold" : "italic"}
                     >
                       {row.value || "Not provided"}
-                    </p>
+                    </Text>
                   )}
                 </div>
               </div>

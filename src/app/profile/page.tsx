@@ -5,7 +5,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/app/contexts/AuthContext";
-import { Loader } from "@/app/components/Loader/Loader";
 import { usePredefinedPageTitle } from "@/app/hooks/usePageTitle";
 import {
   Award,
@@ -42,6 +41,135 @@ import Header from "../components/Header/Header";
 
 // Types
 import type { EnhancedProfile, UserStats } from '@/app/lib/types/user';
+
+// Skeleton Components
+function ProfileHeaderSkeleton() {
+  return (
+    <article className="w-full sm:mx-0">
+      <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-sage/10 to-transparent rounded-full blur-lg"></div>
+        <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-coral/10 to-transparent rounded-full blur-lg"></div>
+        <div className="relative z-10 p-6 sm:p-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+            {/* Avatar Skeleton */}
+            <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-sage/20 animate-pulse flex-shrink-0" />
+            <div className="flex-1 min-w-0 w-full space-y-4">
+              {/* Name Skeleton */}
+              <div className="h-8 bg-white/30 rounded-lg w-48 animate-pulse" />
+              {/* Bio Skeleton */}
+              <div className="space-y-2">
+                <div className="h-4 bg-white/20 rounded w-full max-w-md animate-pulse" />
+                <div className="h-4 bg-white/20 rounded w-3/4 max-w-sm animate-pulse" />
+              </div>
+              {/* Meta Info Skeleton */}
+              <div className="flex items-center gap-4 flex-wrap">
+                <div className="h-4 bg-white/20 rounded w-28 animate-pulse" />
+                <div className="h-4 bg-white/20 rounded w-36 animate-pulse" />
+              </div>
+              {/* Button Skeleton */}
+              <div className="h-10 bg-coral/20 rounded-full w-32 animate-pulse" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function StatsGridSkeleton() {
+  return (
+    <section className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      {[1, 2, 3, 4].map((i) => (
+        <div key={i} className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-5 h-5 bg-sage/20 rounded animate-pulse" />
+            <div className="h-4 bg-white/20 rounded w-20 animate-pulse" />
+          </div>
+          <div className="h-8 bg-white/30 rounded w-12 animate-pulse mb-1" />
+          <div className="h-3 bg-white/20 rounded w-16 animate-pulse" />
+        </div>
+      ))}
+    </section>
+  );
+}
+
+function AchievementsSkeleton() {
+  return (
+    <section className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-6 sm:p-8">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-10 h-10 bg-sage/20 rounded-full animate-pulse" />
+        <div className="h-5 bg-white/30 rounded w-40 animate-pulse" />
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="flex flex-col items-center p-4 bg-white/50 rounded-[16px] border border-white/60">
+            <div className="w-12 h-12 bg-sage/20 rounded-full animate-pulse mb-3" />
+            <div className="h-4 bg-white/30 rounded w-20 animate-pulse mb-2" />
+            <div className="h-3 bg-white/20 rounded w-24 animate-pulse" />
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function BusinessesSkeleton() {
+  return (
+    <section className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-6 sm:p-8 space-y-4">
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 bg-sage/20 rounded-full animate-pulse" />
+        <div className="h-5 bg-white/30 rounded w-32 animate-pulse" />
+      </div>
+      <div className="space-y-3">
+        {[1, 2].map((i) => (
+          <div key={i} className="flex items-center gap-4 p-4 bg-white/50 rounded-[16px] border border-white/60">
+            <div className="w-16 h-16 rounded-[12px] bg-sage/20 animate-pulse flex-shrink-0" />
+            <div className="flex-1 space-y-2">
+              <div className="h-4 bg-white/30 rounded w-36 animate-pulse" />
+              <div className="h-3 bg-white/20 rounded w-24 animate-pulse" />
+            </div>
+            <div className="w-5 h-5 bg-white/20 rounded animate-pulse" />
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function ReviewsSkeleton() {
+  return (
+    <section className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-6 sm:p-8">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-10 h-10 bg-sage/20 rounded-full animate-pulse" />
+        <div className="h-5 bg-white/30 rounded w-40 animate-pulse" />
+      </div>
+      <div className="space-y-4">
+        {[1, 2].map((i) => (
+          <div key={i} className="p-4 bg-white/50 rounded-[16px] border border-white/60">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-[12px] bg-sage/20 animate-pulse flex-shrink-0" />
+              <div className="flex-1 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="h-4 bg-white/30 rounded w-32 animate-pulse" />
+                  <div className="flex gap-1">
+                    {[1, 2, 3, 4, 5].map((s) => (
+                      <div key={s} className="w-4 h-4 bg-white/20 rounded animate-pulse" />
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="h-3 bg-white/20 rounded w-full animate-pulse" />
+                  <div className="h-3 bg-white/20 rounded w-3/4 animate-pulse" />
+                </div>
+                <div className="h-3 bg-white/20 rounded w-20 animate-pulse" />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
 
 interface UserProfile {
   user_id: string;
@@ -710,24 +838,7 @@ function ProfileContent() {
     }
   };
 
-  // Loading state - show full page loader with transition
-  if (isLoading) {
-    return (
-      <div className="min-h-dvh bg-off-white">
-        <AnimatePresence>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-[9999] bg-off-white min-h-screen w-full flex items-center justify-center"
-          >
-            <Loader size="lg" variant="wavy" color="sage" />
-          </motion.div>
-        </AnimatePresence>
-      </div>
-    );
-  }
+
 
   const displayLabel =
     profile.display_name?.trim() ||
@@ -876,7 +987,7 @@ function ProfileContent() {
                         </Link>
                       </li>
                       <li className="flex items-center">
-                        <ChevronRight className="w-4 h-4 text-charcoal/40" />
+                        <ChevronRight className="w-4 h-4 text-charcoal/60" />
                       </li>
                       <li>
                         <span className="text-charcoal font-semibold" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
@@ -887,6 +998,9 @@ function ProfileContent() {
                   </nav>
                   <div className="pt-2 pb-12 sm:pb-16 md:pb-20">
                     <div className="space-y-6">
+                      {profileLoading ? (
+                        <ProfileHeaderSkeleton />
+                      ) : (
                       <article
                         className="w-full sm:mx-0"
                         aria-labelledby="profile-heading"
@@ -1022,7 +1136,11 @@ function ProfileContent() {
                           </div>
                         </div>
                       </article>
+                      )}
 
+                      {statsLoading ? (
+                        <StatsGridSkeleton />
+                      ) : (
                       <section
                         className="grid grid-cols-2 sm:grid-cols-4 gap-4"
                         aria-label="Profile statistics"
@@ -1033,7 +1151,7 @@ function ProfileContent() {
                             <span className="text-sm text-charcoal/70">Helpful votes</span>
                           </div>
                           <p className="text-2xl font-bold text-charcoal">
-                            {statsLoading ? '—' : helpfulVotesCount}
+                            {helpfulVotesCount}
                           </p>
                           <p className="text-xs text-charcoal/60">Received</p>
                         </div>
@@ -1043,7 +1161,7 @@ function ProfileContent() {
                             <span className="text-sm text-charcoal/70">Reviews</span>
                           </div>
                           <p className="text-2xl font-bold text-charcoal">
-                            {statsLoading ? '—' : reviewsCount}
+                            {reviewsCount}
                           </p>
                           <p className="text-xs text-charcoal/60">Total written</p>
                         </div>
@@ -1070,12 +1188,13 @@ function ProfileContent() {
                               <span className="text-sm text-charcoal/70">Saved Businesses</span>
                             </div>
                             <p className="text-2xl font-bold text-charcoal">
-                              {statsLoading ? '—' : userStats.totalBusinessesSaved}
+                              {userStats.totalBusinessesSaved}
                             </p>
                             <p className="text-xs text-charcoal/60">Your saved gems</p>
                           </div>
                         )}
                       </section>
+                      )}
 
                       {/* Saved Businesses - Mobile Only */}
                       {savedBusinesses.length > 0 && (
@@ -1091,23 +1210,24 @@ function ProfileContent() {
                         </section>
                       )}
 
+                      {achievementsLoading ? (
+                        <AchievementsSkeleton />
+                      ) : (
                       <section
                         className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-6 sm:p-8"
                         aria-label="Your achievements"
                       >
-                        {achievementsLoading ? (
-                          <div className="flex items-center justify-center py-8">
-                            <Loader size="md" variant="wavy" color="sage" />
-                          </div>
-                        ) : (
-                          <AchievementsList
-                            achievements={achievementsData}
-                            title="Your Achievements"
-                          />
-                        )}
+                        <AchievementsList
+                          achievements={achievementsData}
+                          title="Your Achievements"
+                        />
                       </section>
+                      )}
 
                       {/* My Businesses Section */}
+                      {ownedBusinessesLoading ? (
+                        <BusinessesSkeleton />
+                      ) : (
                       <section
                         className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-6 sm:p-8 space-y-4"
                         aria-label="My businesses"
@@ -1120,11 +1240,7 @@ function ProfileContent() {
                             My Businesses
                           </h3>
                         </div>
-                        {ownedBusinessesLoading ? (
-                          <div className="flex items-center justify-center py-8">
-                            <Loader size="md" variant="wavy" color="sage" />
-                          </div>
-                        ) : ownedBusinesses.length > 0 ? (
+                        {ownedBusinesses.length > 0 ? (
                           <div className="space-y-3">
                             {ownedBusinesses.map((business) => {
                               const businessSlug = business.slug || business.id;
@@ -1164,7 +1280,7 @@ function ProfileContent() {
                                       <span className="truncate">{business.location || 'Location not set'}</span>
                                     </div>
                                   </div>
-                                  <ChevronRight className="w-5 h-5 text-charcoal/40 group-hover:text-charcoal transition-colors flex-shrink-0" />
+                                  <ChevronRight className="w-5 h-5 text-charcoal/60 group-hover:text-charcoal transition-colors flex-shrink-0" />
                                 </Link>
                               );
                             })}
@@ -1191,6 +1307,7 @@ function ProfileContent() {
                           </div>
                         )}
                       </section>
+                      )}
 
                       <section
                         className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-6 sm:p-8 space-y-4"
@@ -1208,7 +1325,7 @@ function ProfileContent() {
                           Keep your business information up to date, respond to community feedback, and track performance insights from one place.
                         </p>
                         <Link
-                          href="/for-businesses"
+                          href={ownedBusinesses.length > 0 ? '/my-businesses' : '/for-businesses'}
                           className="inline-flex items-center gap-2 px-4 py-2.5 bg-coral/90 hover:bg-coral text-white rounded-full text-sm font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-95 shadow-md shadow-coral/20 border border-coral/30 w-fit"
                         >
                           <Briefcase className="w-4 h-4" />
@@ -1216,15 +1333,14 @@ function ProfileContent() {
                         </Link>
                       </section>
 
+                      {reviewsLoading ? (
+                        <ReviewsSkeleton />
+                      ) : (
                       <section
                         className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-6 sm:p-8"
                         aria-label="Your contributions"
                       >
-                        {reviewsLoading ? (
-                          <div className="flex items-center justify-center py-8">
-                            <Loader size="md" variant="wavy" color="sage" />
-                          </div>
-                        ) : reviewsData.length > 0 ? (
+                        {reviewsData.length > 0 ? (
                           <ReviewsList
                             reviews={reviewsData}
                             title="Your Contributions"
@@ -1237,6 +1353,7 @@ function ProfileContent() {
                           </div>
                         )}
                       </section>
+                      )}
                       <section
                         className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-6 sm:p-8 space-y-4"
                         aria-label="Account actions"

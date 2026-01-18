@@ -33,7 +33,7 @@ export function EmailInput({
         <div className={`absolute left-4 sm:left-5 top-1/2 transform -translate-y-1/2 transition-colors duration-300 z-10 ${
           hasError ? 'text-navbar-bg' :
           isValid ? 'text-sage' :
-          'text-charcoal/40 group-focus-within:text-sage'
+          'text-charcoal/60 group-focus-within:text-sage'
         }`}>
           {hasError ? <AlertCircle className="w-5 h-5" /> :
             isValid ? <CheckCircle className="w-5 h-5" /> :

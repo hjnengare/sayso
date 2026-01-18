@@ -179,7 +179,7 @@ export default function CollectionsSection() {
                     </span>
                     <span className="text-charcoal/30">•</span>
                     <div className="flex items-center space-x-1">
-                      <MapPin className="w-3 h-3 text-charcoal/40" />
+                      <MapPin className="w-3 h-3 text-charcoal/60" />
                       <span className="text-sm text-charcoal/60">
                         {business.location}
                       </span>

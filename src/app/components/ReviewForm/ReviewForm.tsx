@@ -11,8 +11,8 @@ import dynamic from "next/dynamic";
 const ImageUpload = dynamic(() => import("./ImageUpload"), {
   ssr: false,
   loading: () => (
-    <div className="w-full h-32 rounded-[20px] border-2 border-dashed border-white/20 bg-white/5 animate-pulse flex items-center justify-center">
-      <Camera className="w-8 h-8 text-white/20" />
+    <div className="w-full h-32 rounded-[20px] border-2 border-dashed border-charcoal/20 bg-charcoal/5 animate-pulse flex items-center justify-center">
+      <Camera className="w-8 h-8 text-charcoal/20" />
     </div>
   ),
 });
@@ -74,13 +74,13 @@ export default function ReviewForm({
         </div>
         <div>
           <h2
-            className="text-lg font-bold text-white"
+            className="text-xl font-bold text-charcoal"
             style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
           >
             Write a Review
           </h2>
           <p
-            className="text-xs text-white/50"
+            className="text-sm text-charcoal/70"
             style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
           >
             Share your experience with {businessName}
@@ -100,7 +100,7 @@ export default function ReviewForm({
         </motion.div>
 
         {/* Divider */}
-        <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+        <div className="h-px bg-gradient-to-r from-transparent via-charcoal/10 to-transparent" />
 
         {/* Tags Section */}
         <motion.div
@@ -116,7 +116,7 @@ export default function ReviewForm({
         </motion.div>
 
         {/* Divider */}
-        <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+        <div className="h-px bg-gradient-to-r from-transparent via-charcoal/10 to-transparent" />
 
         {/* Text Form Section */}
         <motion.div
@@ -133,7 +133,7 @@ export default function ReviewForm({
         </motion.div>
 
         {/* Divider */}
-        <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+        <div className="h-px bg-gradient-to-r from-transparent via-charcoal/10 to-transparent" />
 
         {/* Image Upload Section */}
         <motion.div
@@ -143,17 +143,17 @@ export default function ReviewForm({
           className="py-2"
         >
           <div className="flex items-center gap-2 mb-3 px-1">
-            <Camera className="w-4 h-4 text-white/60" />
+            <Camera className="w-4 h-4 text-charcoal/60" />
             <h3
-              className="text-sm font-semibold text-white"
+              className="text-base font-semibold text-charcoal"
               style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
             >
               Photos
-              <span className="ml-1 text-xs font-normal text-white/40">(optional)</span>
+              <span className="ml-1 text-sm font-normal text-charcoal/40">(optional)</span>
             </h3>
             {hasImages && (
               <span
-                className="ml-auto text-xs text-white/40"
+                className="ml-auto text-sm text-charcoal/70"
                 style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
               >
                 {existingImages.length + selectedImages.length}/5

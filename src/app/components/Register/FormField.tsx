@@ -47,7 +47,7 @@ export default function FormField({
   const getIconColor = () => {
     if (error) return 'text-error-500';
     if (value && isValid && touched) return 'text-sage';
-    return 'text-charcoal/40 group-focus-within:text-sage';
+    return 'text-charcoal/60 group-focus-within:text-sage';
   };
 
   const getInputClasses = () => {
@@ -82,7 +82,7 @@ export default function FormField({
         <button
           type="button"
           onClick={onTogglePassword}
-          className="absolute right-4 sm:right-5 top-1/2 transform -translate-y-1/2 text-charcoal/40 hover:text-charcoal transition-colors duration-300 p-1 z-10 rounded-full"
+          className="absolute right-4 sm:right-5 top-1/2 transform -translate-y-1/2 text-charcoal/60 hover:text-charcoal transition-colors duration-300 p-1 z-10 rounded-full"
           disabled={disabled}
         >
           {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}

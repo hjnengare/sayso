@@ -164,7 +164,7 @@ export default function MenuModal({ isOpen, isVisible, onClose }: MenuModalProps
                 Share your local experiences
               </p>
             </div>
-            <ChevronRight className="w-4 h-4 text-charcoal/40 group-hover:text-sage transition-colors duration-200" />
+            <ChevronRight className="w-4 h-4 text-charcoal/60 group-hover:text-sage transition-colors duration-200" />
           </button>
 
           {/* Saved Places */}
@@ -195,7 +195,7 @@ export default function MenuModal({ isOpen, isVisible, onClose }: MenuModalProps
                 Your favorite local gems
               </p>
             </div>
-            <ChevronRight className="w-4 h-4 text-charcoal/40 group-hover:text-sage transition-colors duration-200" />
+            <ChevronRight className="w-4 h-4 text-charcoal/60 group-hover:text-sage transition-colors duration-200" />
           </Link>
 
           {/* Home */}
@@ -221,7 +221,7 @@ export default function MenuModal({ isOpen, isVisible, onClose }: MenuModalProps
                 Discover local businesses
               </p>
             </div>
-            <ChevronRight className="w-4 h-4 text-charcoal/40 group-hover:text-sage transition-colors duration-200" />
+            <ChevronRight className="w-4 h-4 text-charcoal/60 group-hover:text-sage transition-colors duration-200" />
           </Link>
 
           {/* Profile */}
@@ -247,7 +247,7 @@ export default function MenuModal({ isOpen, isVisible, onClose }: MenuModalProps
                 Your reviews and settings
               </p>
             </div>
-            <ChevronRight className="w-4 h-4 text-charcoal/40 group-hover:text-sage transition-colors duration-200" />
+            <ChevronRight className="w-4 h-4 text-charcoal/60 group-hover:text-sage transition-colors duration-200" />
           </Link>
 
 
@@ -274,7 +274,7 @@ export default function MenuModal({ isOpen, isVisible, onClose }: MenuModalProps
                 Find specific businesses
               </p>
             </div>
-            <ChevronRight className="w-4 h-4 text-charcoal/40 group-hover:text-sage transition-colors duration-200" />
+            <ChevronRight className="w-4 h-4 text-charcoal/60 group-hover:text-sage transition-colors duration-200" />
           </button>
         </div>
 
@@ -322,7 +322,7 @@ export default function MenuModal({ isOpen, isVisible, onClose }: MenuModalProps
 
         {/* Footer */}
         <div className="mt-auto p-6 border-t border-sage/10">
-          <p className="text-sm sm:text-xs text-charcoal/40 text-center">
+          <p className="text-sm sm:text-xs text-charcoal/60 text-center">
             sayso - Discover trusted local gems
           </p>
         </div>

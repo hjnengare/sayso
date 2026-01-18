@@ -86,7 +86,7 @@ export default function WriteReviewPage() {
                       </Link>
                     </li>
                     <li className="flex items-center">
-                      <ChevronRight className="w-4 h-4 text-charcoal/40" />
+                      <ChevronRight className="w-4 h-4 text-charcoal/60" />
                     </li>
                     <li>
                       <span className="text-charcoal font-semibold" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
@@ -199,13 +199,13 @@ export default function WriteReviewPage() {
                                   <span className="text-sm text-charcoal/60" >{business.category}</span>
                                   <span className="text-charcoal/30">•</span>
                                   <div className="flex items-center space-x-1">
-                                    <MapPin className="w-3 h-3 text-charcoal/40" />
+                                    <MapPin className="w-3 h-3 text-charcoal/60" />
                                     <span className="text-sm text-charcoal/60" >{business.location}</span>
                                   </div>
                                 </div>
                               </div>
                             </div>
-                            <ChevronRight className="w-4 h-4 text-charcoal/40 group-hover:text-sage transition-colors duration-200" />
+                            <ChevronRight className="w-4 h-4 text-charcoal/60 group-hover:text-sage transition-colors duration-200" />
                           </div>
                         </Link>
                       ))
@@ -216,7 +216,7 @@ export default function WriteReviewPage() {
                 {searchQuery && filteredBusinesses.length === 0 && (
                   <div className="text-center py-12">
                     <div className="w-16 h-16 bg-charcoal/5 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Search className="w-8 h-8 text-charcoal/40" />
+                      <Search className="w-8 h-8 text-charcoal/60" />
                     </div>
                     <h3 className="text-lg font-600 text-charcoal mb-2" style={{ fontFamily: '"Changa One", cursive, sans-serif' }}>
                       No businesses found

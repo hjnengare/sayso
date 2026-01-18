@@ -137,7 +137,7 @@ function InterestButton({
           isSelected
             ? "bg-gradient-to-br from-coral to-coral/90 text-white border-2 border-white/30 ring-1 ring-coral/30 md:backdrop-blur-sm"
             : isDisabled
-            ? "bg-charcoal/5 text-charcoal/40 cursor-not-allowed opacity-60 border border-charcoal/10"
+            ? "bg-charcoal/5 text-charcoal/60 cursor-not-allowed opacity-60 border border-charcoal/10"
             : "bg-gradient-to-br from-sage to-sage/90 text-white border border-white/20 ring-1 ring-sage/20 md:backdrop-blur-sm"
         }
       `}

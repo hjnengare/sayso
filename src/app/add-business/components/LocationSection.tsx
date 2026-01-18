@@ -27,11 +27,13 @@ const LocationSection: React.FC<LocationSectionProps> = ({
     onClearCoordinates,
 }) => {
     return (
-        <div className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[20px] overflow-hidden backdrop-blur-md shadow-md px-2 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10 lg:px-12 lg:py-10 xl:px-16 xl:py-12 animate-fade-in-up animate-delay-200">
+        <div className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[20px] overflow-hidden border border-white/60 backdrop-blur-xl shadow-md px-4 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10 lg:px-12 lg:py-10 xl:px-16 xl:py-12 animate-fade-in-up animate-delay-200">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-sage/10 to-transparent rounded-full blur-lg pointer-events-none"></div>
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-coral/10 to-transparent rounded-full blur-lg pointer-events-none"></div>
             <div className="relative z-10">
-                <h3 className="font-urbanist text-base font-semibold text-white mb-6 flex items-center gap-3" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
-                    <span className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-coral/20 to-coral/10">
-                        <MapPin className="w-4 h-4 text-coral" />
+                <h3 className="font-urbanist text-base font-semibold text-charcoal mb-6 flex items-center gap-3" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
+                    <span className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-navbar-bg/20 to-navbar-bg/10">
+                        <MapPin className="w-5 h-5 text-navbar-bg" />
                     </span>
                     Location Information
                 </h3>
@@ -39,7 +41,7 @@ const LocationSection: React.FC<LocationSectionProps> = ({
                 <div className="space-y-6">
                     {/* Location */}
                     <div>
-                        <label className="block text-sm font-semibold text-white mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
+                        <label className="block text-sm font-semibold text-charcoal mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
                             {formData.businessType === 'service-area'
                                 ? 'Service Area (City/Area)'
                                 : formData.businessType === 'online-only'
@@ -79,7 +81,7 @@ const LocationSection: React.FC<LocationSectionProps> = ({
                         {formData.businessType === 'online-only' && !errors.location && (
                             <p
                                 id="location-helper"
-                                className="mt-1.5 text-xs text-white/60"
+                                className="mt-1.5 text-xs text-charcoal/60"
                                 style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                             >
                                 Optional: Add your location to help customers find you
@@ -90,8 +92,8 @@ const LocationSection: React.FC<LocationSectionProps> = ({
                     {/* Address - Show for all business types */}
                     {formData.businessType && (
                         <div>
-                            <label className="block text-sm font-semibold text-white mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
-                                Full Address {formData.businessType === 'online-only' && <span className="text-white/60 text-xs">(Optional)</span>}
+                            <label className="block text-sm font-semibold text-charcoal mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
+                                Full Address {formData.businessType === 'online-only' && <span className="text-charcoal/60 text-xs">(Optional)</span>}
                             </label>
                             <input
                                 type="text"
@@ -114,7 +116,7 @@ const LocationSection: React.FC<LocationSectionProps> = ({
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.3 }}
                         >
-                            <label className="block text-sm font-semibold text-white mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
+                            <label className="block text-sm font-semibold text-charcoal mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
                                 Location Coordinates (Optional)
                             </label>
 
@@ -148,12 +150,12 @@ const LocationSection: React.FC<LocationSectionProps> = ({
                                         initial={{ opacity: 0, height: 0 }}
                                         animate={{ opacity: 1, height: 'auto' }}
                                         exit={{ opacity: 0, height: 0 }}
-                                        className="p-3 bg-white/20 rounded-lg border border-white/30"
+                                        className="p-3 bg-sage/10 rounded-[16px] border border-sage/20"
                                     >
-                                        <p className="text-xs text-white/80 mb-1" style={{ fontFamily: 'Urbanist, sans-serif' }}>
+                                        <p className="text-xs text-charcoal/70 mb-1" style={{ fontFamily: 'Urbanist, sans-serif' }}>
                                             Selected Coordinates:
                                         </p>
-                                        <p className="text-sm font-semibold text-white" style={{ fontFamily: 'Urbanist, sans-serif' }}>
+                                        <p className="text-sm font-semibold text-charcoal" style={{ fontFamily: 'Urbanist, sans-serif' }}>
                                             {formData.lat && formData.lng
                                                 ? `${parseFloat(formData.lat).toFixed(6)}, ${parseFloat(formData.lng).toFixed(6)}`
                                                 : formData.lat
@@ -164,7 +166,7 @@ const LocationSection: React.FC<LocationSectionProps> = ({
                                         <button
                                             type="button"
                                             onClick={onClearCoordinates}
-                                            className="mt-2 text-xs text-white/70 hover:text-white underline"
+                                            className="mt-2 text-xs text-coral hover:text-coral/80 underline"
                                             style={{ fontFamily: 'Urbanist, sans-serif' }}
                                         >
                                             Clear coordinates
@@ -173,7 +175,7 @@ const LocationSection: React.FC<LocationSectionProps> = ({
                                 )}
                             </AnimatePresence>
 
-                            <p className="text-xs text-white/60" style={{ fontFamily: 'Urbanist, sans-serif' }}>
+                            <p className="text-xs text-charcoal/60" style={{ fontFamily: 'Urbanist, sans-serif' }}>
                                 Tip: Enter your address above and click "Get Coordinates from Address" to automatically find your location.
                             </p>
                         </motion.div>

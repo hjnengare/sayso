@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { ChevronDown } from "react-feather";
+import { ChevronDown } from "lucide-react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -71,7 +71,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
                     animate={{ rotate: isOpen ? 180 : 0 }}
                     transition={{ duration: 0.2 }}
                 >
-                    <ChevronDown className="w-4 h-4" />
+                    <ChevronDown size={16} />
                 </motion.div>
             </motion.button>
 

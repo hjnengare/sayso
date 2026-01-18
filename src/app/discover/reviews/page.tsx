@@ -265,7 +265,7 @@ export default function GeneralReviewsPage() {
               </Link>
             </li>
             <li className="flex items-center">
-              <ChevronRight className="w-4 h-4 text-charcoal/40" />
+              <ChevronRight className="w-4 h-4 text-charcoal/60" />
             </li>
             <li>
               <span className="text-charcoal font-semibold" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
@@ -564,7 +564,7 @@ export default function GeneralReviewsPage() {
             className=" bg-off-white   backdrop-blur-lg rounded-lg shadow-premium-md border border-charcoal/10 p-12 text-center"
           >
             <div className="w-20 h-20 bg-gradient-to-br from-charcoal/10 to-charcoal/5 rounded-full flex items-center justify-center mx-auto mb-4">
-              <FileText className="w-10 h-10 text-charcoal/40" />
+              <FileText className="w-10 h-10 text-charcoal/60" />
             </div>
             <h3 className="font-urbanist text-xl font-600 text-charcoal mb-2 tracking-[-0.02em]">
               No reviews found

@@ -79,7 +79,7 @@ function PercentileChip({ label, value }: PercentileChipProps) {
         {icon}
       </div>
       <span className={`text-xs sm:text-[10px] font-bold whitespace-nowrap leading-tight ${
-        isPlaceholder ? 'text-charcoal/40' : 'text-charcoal'
+        isPlaceholder ? 'text-charcoal/60' : 'text-charcoal'
       }`}>
         {percentageText}
       </span>

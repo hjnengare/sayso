@@ -72,12 +72,12 @@ export default function ReviewSubmitButton({
         whileHover={isFormValid && !isSubmitting ? { scale: 1.02 } : {}}
         whileTap={isFormValid && !isSubmitting ? { scale: 0.98 } : {}}
         className={`
-          w-full py-4 px-6 rounded-full text-base font-bold
+          w-full py-4 px-6 rounded-full text-lg font-bold
           transition-all duration-300 relative overflow-hidden
           touch-manipulation min-h-[56px] flex items-center justify-center gap-2
           ${isFormValid && !isSubmitting
             ? "bg-gradient-to-r from-coral to-coral/90 text-white shadow-lg shadow-coral/25 hover:shadow-xl hover:shadow-coral/30"
-            : "bg-white/10 text-white/40 cursor-not-allowed"
+            : "bg-charcoal/10 text-charcoal/60 cursor-not-allowed"
           }
         `}
         style={{
@@ -144,7 +144,7 @@ export default function ReviewSubmitButton({
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            className="mt-3 text-center text-xs text-white/50"
+            className="mt-3 text-center text-sm text-charcoal/60"
             style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
           >
             Add a rating and at least 10 characters to submit

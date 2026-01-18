@@ -251,7 +251,7 @@ export default function BusinessLocation({
                         )}
                         {address && location && address !== location && (
                             <p
-                                className="text-xs text-charcoal/60 mt-0.5"
+                                className="text-sm text-charcoal/60 mt-0.5"
                                 style={{ fontFamily: 'Urbanist, sans-serif' }}
                             >
                                 {address}
@@ -266,25 +266,25 @@ export default function BusinessLocation({
                                 className="flex items-center gap-3 mt-2"
                             >
                                 <span
-                                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-sage/10 text-charcoal/70 text-xs font-medium"
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-sage/10 text-charcoal/70 text-sm font-medium"
                                     style={{ fontFamily: 'Urbanist, sans-serif' }}
                                 >
-                                    <Navigation className="w-3 h-3" />
+                                    <Navigation className="w-3.5 h-3.5" />
                                     {distance < 1 ? `${Math.round(distance * 1000)}m away` : `${distance.toFixed(1)}km away`}
                                 </span>
                                 <span
-                                    className="inline-flex items-center gap-1 text-xs text-charcoal/70"
+                                    className="inline-flex items-center gap-1.5 text-sm text-charcoal/70"
                                     style={{ fontFamily: 'Urbanist, sans-serif' }}
                                 >
-                                    <Car className="w-3 h-3" />
+                                    <Car className="w-3.5 h-3.5" />
                                     {estimateTravelTime(distance, 'drive')}
                                 </span>
                                 {distance < 3 && (
                                     <span
-                                        className="inline-flex items-center gap-1 text-xs text-charcoal/70"
+                                        className="inline-flex items-center gap-1.5 text-sm text-charcoal/70"
                                         style={{ fontFamily: 'Urbanist, sans-serif' }}
                                     >
-                                        <Footprints className="w-3 h-3" />
+                                        <Footprints className="w-3.5 h-3.5" />
                                         {estimateTravelTime(distance, 'walk')}
                                     </span>
                                 )}
@@ -298,7 +298,7 @@ export default function BusinessLocation({
                                 className="flex items-center gap-2 mt-2"
                             >
                                 <div className="w-3 h-3 border-2 border-sage/30 border-t-sage rounded-full animate-spin" />
-                                <span className="text-xs text-charcoal/70" style={{ fontFamily: 'Urbanist, sans-serif' }}>
+                                <span className="text-sm text-charcoal/70" style={{ fontFamily: 'Urbanist, sans-serif' }}>
                                     Calculating distance...
                                 </span>
                             </motion.div>
@@ -461,13 +461,13 @@ export default function BusinessLocation({
                                     {distance !== null && (
                                         <div className="flex items-center gap-3 mt-2">
                                             <span
-                                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-sage/20 text-charcoal/70 text-xs font-medium"
+                                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-sage/20 text-charcoal/70 text-sm font-medium"
                                                 style={{ fontFamily: 'Urbanist, sans-serif' }}
                                             >
                                                 <Navigation className="w-3 h-3" />
                                                 {distance < 1 ? `${Math.round(distance * 1000)}m` : `${distance.toFixed(1)}km`}
                                             </span>
-                                            <span className="text-xs text-white/50" style={{ fontFamily: 'Urbanist, sans-serif' }}>
+                                            <span className="text-sm text-white/50" style={{ fontFamily: 'Urbanist, sans-serif' }}>
                                                 {estimateTravelTime(distance, 'drive')}
                                             </span>
                                         </div>

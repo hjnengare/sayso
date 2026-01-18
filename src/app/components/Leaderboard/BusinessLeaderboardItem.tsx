@@ -173,7 +173,7 @@ function BusinessLeaderboardItem({ business, index, rank }: BusinessLeaderboardI
             <div className="font-urbanist text-body-sm sm:text-body font-600 text-charcoal truncate">{business.name}</div>
             <div className="font-urbanist text-caption sm:text-body-sm text-charcoal/60 flex items-center gap-1 flex-wrap">
               <span className="font-500 truncate max-w-[120px] sm:max-w-none">{business.category}</span>
-              <span className="text-charcoal/40 hidden sm:inline">•</span>
+              <span className="text-charcoal/60 hidden sm:inline">•</span>
               <span className="hidden sm:flex items-center gap-0.5 truncate">
                 <MapPin className="w-3 h-3 flex-shrink-0" />
                 <span className="truncate">{business.location}</span>

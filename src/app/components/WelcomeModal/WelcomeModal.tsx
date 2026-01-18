@@ -75,7 +75,7 @@ export default function WelcomeModal() {
               {/* Close button */}
               <button
                 onClick={handleClose}
-                className="absolute top-4 right-4 text-charcoal/40 hover:text-charcoal transition-colors duration-200 p-2 hover:bg-charcoal/5 rounded-full z-10"
+                className="absolute top-4 right-4 text-charcoal/60 hover:text-charcoal transition-colors duration-200 p-2 hover:bg-charcoal/5 rounded-full z-10"
                 aria-label="Close welcome modal"
               >
                 <X className="w-5 h-5" />

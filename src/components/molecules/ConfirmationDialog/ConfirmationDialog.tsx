@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { AlertTriangle } from 'react-feather';
 
 export interface ConfirmationDialogProps {
@@ -37,17 +37,24 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
   React.useEffect(() => {
     if (isOpen) {
       const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+      const scrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.left = '0';
+      document.body.style.right = '0';
       document.body.style.overflow = 'hidden';
       document.body.style.paddingRight = `${scrollbarWidth}px`;
-    } else {
-      document.body.style.overflow = '';
-      document.body.style.paddingRight = '';
-    }
 
-    return () => {
-      document.body.style.overflow = '';
-      document.body.style.paddingRight = '';
-    };
+      return () => {
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.left = '';
+        document.body.style.right = '';
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+        window.scrollTo(0, scrollY);
+      };
+    }
   }, [isOpen]);
 
   // Reset confirm input when modal opens/closes
@@ -68,98 +75,141 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
 
   const variantStyles = {
     danger: {
-      icon: 'bg-coral/20 text-coral',
-      button: 'bg-gradient-to-br from-coral to-coral/90 hover:from-coral/90 hover:to-coral/80 text-white',
+      iconBg: 'bg-gradient-to-br from-coral/20 to-coral/10',
+      iconColor: 'text-coral',
+      iconRing: 'ring-coral/20',
+      button: 'bg-white/50 text-coral border border-coral hover:bg-coral hover:text-white',
+      buttonShadow: 'shadow-coral/10 hover:shadow-coral/20',
     },
     warning: {
-      icon: 'bg-amber-500/20 text-amber-600',
-      button: 'bg-gradient-to-br from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white',
+      iconBg: 'bg-gradient-to-br from-amber-500/20 to-amber-500/10',
+      iconColor: 'text-amber-600',
+      iconRing: 'ring-amber-500/20',
+      button: 'bg-white/50 text-amber-600 border border-amber-500 hover:bg-amber-500 hover:text-white',
+      buttonShadow: 'shadow-amber-500/10 hover:shadow-amber-500/20',
     },
     info: {
-      icon: 'bg-sage/20 text-sage',
-      button: 'bg-gradient-to-br from-sage to-sage/90 hover:from-sage/90 hover:to-sage/80 text-white',
+      iconBg: 'bg-gradient-to-br from-sage/20 to-sage/10',
+      iconColor: 'text-sage',
+      iconRing: 'ring-sage/20',
+      button: 'bg-white/50 text-sage border border-sage hover:bg-sage hover:text-white',
+      buttonShadow: 'shadow-sage/10 hover:shadow-sage/20',
     },
   };
 
   const styles = variantStyles[variant];
 
-  return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          {/* Backdrop - Transparent, no blur */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 bg-transparent z-[9998]"
-            onClick={onClose}
-          />
+  if (!isOpen) return null;
 
-          {/* Dialog - Centered vertically and horizontally */}
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 pointer-events-none">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{
-                duration: 0.2,
-                ease: "easeOut"
-              }}
-              className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 border border-white/60 rounded-[20px] shadow-lg max-w-md w-full relative pointer-events-auto"
-              onClick={(e) => e.stopPropagation()}
-            >
+  return (
+    <div className="fixed inset-0 z-[9999] overflow-hidden">
+      {/* Backdrop with blur */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+        className="absolute inset-0 bg-charcoal/40 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
+      {/* Dialog - Centered vertically and horizontally */}
+      <div className="absolute inset-0 flex items-center justify-center p-4 sm:p-6 pointer-events-none">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{
+            duration: 0.35,
+            ease: [0.16, 1, 0.3, 1],
+          }}
+          className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[24px] shadow-2xl max-w-md w-full relative pointer-events-auto overflow-hidden"
+          onClick={(e) => e.stopPropagation()}
+        >
+              {/* Decorative gradient orbs */}
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-coral/10 to-transparent rounded-full blur-2xl pointer-events-none" />
+              <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-sage/10 to-transparent rounded-full blur-2xl pointer-events-none" />
+
               {/* Content */}
-              <div className="p-6 sm:p-8">
-                {/* Icon */}
-                <div className="flex items-center justify-center mb-4">
-                  <div className={`w-16 h-16 ${styles.icon} rounded-full flex items-center justify-center`}>
-                    <AlertTriangle className="w-8 h-8" />
+              <div className="relative z-10 p-6 sm:p-8">
+                {/* Icon with ring effect */}
+                <motion.div
+                  className="flex items-center justify-center mb-6"
+                  initial={{ scale: 0.5, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.1, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  <div className={`w-18 h-18 ${styles.iconBg} rounded-full flex items-center justify-center ring-8 ${styles.iconRing} p-4`}>
+                    <AlertTriangle className={`w-8 h-8 ${styles.iconColor}`} strokeWidth={2} />
                   </div>
-                </div>
+                </motion.div>
 
                 {/* Title */}
-                <h3 className="text-xl font-semibold text-charcoal text-center mb-3" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                <motion.h3
+                  className="text-xl font-semibold text-charcoal text-center mb-3"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.15, duration: 0.3 }}
+                  style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                >
                   {title}
-                </h3>
+                </motion.h3>
 
                 {/* Message */}
-                <p className="text-sm text-charcoal/80 text-center mb-6" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                <motion.p
+                  className="text-sm text-charcoal/70 text-center mb-6 leading-relaxed"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2, duration: 0.3 }}
+                  style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                >
                   {message}
-                </p>
+                </motion.p>
 
                 {/* Confirm Input (if required) */}
                 {requireConfirmText && (
-                  <div className="mb-6">
-                    <label className="block text-xs font-semibold text-charcoal mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                      Type <span className="font-mono bg-sage/20 text-charcoal px-2 py-1 rounded">{requireConfirmText}</span> to confirm:
+                  <motion.div
+                    className="mb-6"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.25, duration: 0.3 }}
+                  >
+                    <label className="block text-sm font-medium text-charcoal/80 mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                      Type <span className="font-semibold bg-coral/10 text-coral px-2 py-0.5 rounded-md">{requireConfirmText}</span> to confirm:
                     </label>
                     <input
                       type="text"
                       value={confirmInput}
                       onChange={(e) => setConfirmInput(e.target.value)}
-                      className="w-full px-4 py-2 rounded-lg text-sm text-charcoal border border-charcoal/20 bg-white focus:border-sage focus:outline-none focus:ring-2 focus:ring-sage/20 transition-all duration-200"
+                      className="w-full px-4 py-3 rounded-full text-sm text-charcoal border-2 border-charcoal/10 bg-white/80 focus:border-coral/50 focus:outline-none focus:ring-4 focus:ring-coral/10 transition-all duration-300"
                       placeholder={requireConfirmText}
                       autoFocus
                       style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                     />
-                  </div>
+                  </motion.div>
                 )}
 
                 {/* Error Message */}
                 {error && (
-                  <div className="mb-6 p-3 rounded-lg bg-coral/10 border border-coral/30">
-                    <p className="text-xs text-coral">{error}</p>
-                  </div>
+                  <motion.div
+                    className="mb-6 p-4 rounded-2xl bg-coral/10 border border-coral/20"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <p className="text-sm text-coral font-medium">{error}</p>
+                  </motion.div>
                 )}
 
                 {/* Buttons */}
-                <div className="flex gap-3">
+                <motion.div
+                  className="flex gap-3"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3, duration: 0.3 }}
+                >
                   <button
                     onClick={onClose}
                     disabled={isLoading}
-                    className="flex-1 px-6 py-3 rounded-full text-sm font-semibold bg-charcoal/10 text-charcoal hover:bg-charcoal/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 px-6 py-3 rounded-full text-sm font-semibold bg-white/60 text-charcoal border border-charcoal/10 hover:bg-white hover:border-charcoal/20 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
                     style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                   >
                     {cancelText}
@@ -167,18 +217,16 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
                   <button
                     onClick={handleConfirm}
                     disabled={isLoading || !canConfirm}
-                    className={`flex-1 px-6 py-3 rounded-full text-sm font-semibold ${styles.button} transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed`}
+                    className={`flex-1 px-6 py-3 rounded-full text-sm font-semibold ${styles.button} transition-all duration-300 shadow-lg ${styles.buttonShadow} disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white/50 disabled:hover:text-coral`}
                     style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                   >
                     {isLoading ? 'Processing...' : confirmText}
                   </button>
-                </div>
-              </div>
             </motion.div>
           </div>
-        </>
-      )}
-    </AnimatePresence>
+        </motion.div>
+      </div>
+    </div>
   );
 };
 

@@ -46,12 +46,12 @@ export default function FallbackImage({
       <div className={`bg-gradient-to-br from-sage/10 to-coral/10 flex items-center justify-center ${className}`}>
         {fallbackType === "profile" ? (
           <User
-            className="text-charcoal/40"
+            className="text-charcoal/60"
             style={{ fontSize: fill ? "2rem" : "1.5rem" }}
           />
         ) : (
           <ImageIcon
-            className="text-charcoal/40"
+            className="text-charcoal/60"
             style={{ fontSize: fill ? "2.5rem" : "2rem" }}
           />
         )}

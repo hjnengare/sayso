@@ -494,7 +494,7 @@ function WriteReviewContent() {
                       </Link>
                     </li>
                     <li className="flex items-center">
-                      <ChevronRight className="w-4 h-4 text-charcoal/40" />
+                      <ChevronRight className="w-4 h-4 text-charcoal/60" />
                     </li>
                     <li>
                       <span className="text-charcoal font-semibold" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
@@ -641,7 +641,7 @@ function WriteReviewContent() {
                         ) : (
                           <div className="text-center py-12">
                             <div className="w-16 h-16 bg-charcoal/5 rounded-full flex items-center justify-center mx-auto mb-4">
-                              <Star className="w-8 h-8 text-charcoal/40" />
+                              <Star className="w-8 h-8 text-charcoal/60" />
                             </div>
                             <h3 className="text-h2 font-semibold text-charcoal mb-2" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
                               No reviews yet

@@ -159,7 +159,7 @@ export default function SearchResultsMap({
             <div className={`w-full h-full flex items-center justify-center bg-off-white/50 ${className}`}>
                 <div className="text-center p-4">
                     <p className="text-sm text-charcoal/60 mb-2">Map unavailable</p>
-                    <p className="text-xs text-charcoal/40">Mapbox token not configured</p>
+                    <p className="text-xs text-charcoal/60">Mapbox token not configured</p>
                 </div>
             </div>
         );

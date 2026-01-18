@@ -202,7 +202,7 @@ export default function ImageUpload({
           {existingImageUrls.map((url, index) => (
             <div
               key={`existing-${index}`}
-              className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden border-2 border-white/20 bg-white/10 group shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer"
+              className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden border-2 border-charcoal/20 bg-charcoal/10 group shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer"
               onClick={(e) => {
                 // Calculate total index including existing images
                 const totalIndex = index;
@@ -250,7 +250,7 @@ export default function ImageUpload({
           {previews.map((preview, index) => (
             <div
               key={`new-${index}`}
-              className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden border-2 border-white/20 bg-white/10 group shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer"
+              className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden border-2 border-charcoal/20 bg-charcoal/10 group shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer"
               onClick={(e) => {
                 // Calculate total index including existing images
                 const totalIndex = existingImageUrls.length + index;
@@ -372,7 +372,7 @@ export default function ImageUpload({
             transition-all duration-300 cursor-pointer group
             ${isDragging
               ? 'border-coral bg-coral/10 scale-[1.01]'
-              : 'border-white/20 hover:border-white/40 bg-white/5 hover:bg-white/10'
+              : 'border-charcoal/20 hover:border-charcoal/40 bg-charcoal/5 hover:bg-charcoal/10'
             }
             ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
           `}
@@ -383,21 +383,21 @@ export default function ImageUpload({
               transition-all duration-300
               ${isDragging
                 ? 'bg-coral/20 scale-110'
-                : 'bg-white/10 group-hover:bg-white/20'
+                : 'bg-charcoal/10 group-hover:bg-charcoal/20'
               }
             `}>
               {isDragging ? (
                 <Upload className="w-6 h-6 text-coral animate-bounce" strokeWidth={2} />
               ) : (
-                <ImageIcon className="w-6 h-6 text-white/60 group-hover:text-white/80 transition-colors duration-300" strokeWidth={2} />
+                <ImageIcon className="w-6 h-6 text-charcoal/60 group-hover:text-charcoal/80 transition-colors duration-300" strokeWidth={2} />
               )}
             </div>
 
-            <p className="text-sm font-semibold text-white/80 mb-1 text-center" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
+            <p className="text-base font-semibold text-charcoal/70 mb-1 text-center" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
               {isDragging ? 'Drop images here' : 'Tap to add photos'}
             </p>
 
-            <p className="text-xs text-white/40 text-center" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
+            <p className="text-sm text-charcoal/60 text-center" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
               {(existingImageUrls.length + files.length) > 0
                 ? `${existingImageUrls.length + files.length}/${maxImages} added`
                 : `Up to ${maxImages} images, max 5MB each`

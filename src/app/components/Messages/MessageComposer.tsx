@@ -43,7 +43,7 @@ export default function MessageComposer({
             placeholder="Type a message..."
             rows={1}
             disabled={disabled}
-            className="w-full bg-off-white/50 border border-charcoal/10 rounded-xl px-4 py-3 text-sm text-charcoal placeholder:text-charcoal/40 resize-none focus:outline-none focus:ring-2 focus:ring-sage/30 focus:border-sage/40 focus:bg-off-white transition-all duration-200 max-h-[120px] overflow-y-auto disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-off-white/50 border border-charcoal/10 rounded-xl px-4 py-3 text-sm text-charcoal placeholder:text-charcoal/60 resize-none focus:outline-none focus:ring-2 focus:ring-sage/30 focus:border-sage/40 focus:bg-off-white transition-all duration-200 max-h-[120px] overflow-y-auto disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif", lineHeight: '1.5' }}
           />
         </div>

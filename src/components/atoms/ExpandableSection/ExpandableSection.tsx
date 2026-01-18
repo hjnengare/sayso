@@ -36,7 +36,7 @@ export const ExpandableSection: React.FC<ExpandableSectionProps> = ({
           </span>
         </div>
         <ArrowLeft
-          className={`w-5 h-5 text-charcoal/40 transition-transform ${isExpanded ? 'rotate-90' : '-rotate-90'}`}
+          className={`w-5 h-5 text-charcoal/60 transition-transform ${isExpanded ? 'rotate-90' : '-rotate-90'}`}
         />
       </button>
       {isExpanded && children}

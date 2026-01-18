@@ -100,7 +100,7 @@ function ClaimBusinessPageContent() {
     // Check claim status
     if (business.claimed_by_user) {
       // User already owns this business - go to dashboard
-      router.push(`/owners/businesses/${business.id}`);
+      router.push(`/my-businesses/businesses/${business.id}`);
       return;
     }
 
@@ -254,7 +254,7 @@ function ClaimBusinessPageContent() {
                 </Link>
               </li>
               <li className="flex items-center">
-                <ChevronRight className="w-4 h-4 text-charcoal/40" />
+                <ChevronRight className="w-4 h-4 text-charcoal/60" />
               </li>
               <li>
                 <span className="text-charcoal font-semibold" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
@@ -294,7 +294,7 @@ function ClaimBusinessPageContent() {
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Search for your business..."
                         className="w-full pl-8 pr-4 py-3 min-h-[48px] bg-transparent border-0 border-b-2 border-charcoal/20
-                                   text-base placeholder:text-base placeholder:text-charcoal/40 font-normal text-charcoal
+                                   text-base placeholder:text-base placeholder:text-charcoal/60 font-normal text-charcoal
                                    focus:outline-none focus:border-charcoal/60
                                    hover:border-charcoal/30 transition-all duration-200 touch-manipulation"
                         style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
