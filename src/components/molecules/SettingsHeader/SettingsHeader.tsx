@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ArrowLeft } from 'react-feather';
+import { ArrowLeft } from 'lucide-react';
 
 export interface SettingsHeaderProps {
   title: string;

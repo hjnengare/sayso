@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ArrowLeft } from "react-feather";
+import { ArrowLeft } from "lucide-react";
 
 export default function ExploreHeader() {
   const router = useRouter();

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ChevronRight } from 'react-feather';
+import { ChevronRight } from 'lucide-react';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import BusinessCard from '../../components/BusinessCard/BusinessCard';

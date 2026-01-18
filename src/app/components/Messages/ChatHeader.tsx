@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { User, Check, Search, Info, MoreVertical } from "react-feather";
+import { User, Check, Search, Info, MoreVertical } from "lucide-react";
 
 interface BusinessChat {
   id: string;

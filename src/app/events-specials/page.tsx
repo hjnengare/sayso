@@ -16,7 +16,7 @@ import { Event } from "../data/eventsData";
 import { useToast } from "../contexts/ToastContext";
 import { useDebounce } from "../hooks/useDebounce";
 import { useEvents } from "../hooks/useEvents";
-import { ChevronUp, ChevronRight } from "react-feather";
+import { ChevronUp, ChevronRight } from "lucide-react";
 import { Loader } from "../components/Loader/Loader";
 import WavyTypedTitle from "../../components/Animations/WavyTypedTitle";
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { Circle, CheckCircle } from "react-feather";
+import { Circle, CheckCircle } from "lucide-react";
 
 interface RegistrationProgressProps {
   usernameValid: boolean;
@@ -84,15 +84,6 @@ export function RegistrationProgress({
           </span>
         </div>
       </div>
-
-      {/* Next step indicator */}
-      {completedSteps === 4 && (
-        <div className="text-center animate-fade-in">
-          <p className="text-sm text-white/90 font-medium" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 600 }}>
-            ✨ Ready! Next - Pick your interests
-          </p>
-        </div>
-      )}
     </div>
   );
 }

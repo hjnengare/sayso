@@ -22,7 +22,7 @@ export function useEmailVerification() {
 
   const resendVerificationEmail = useCallback(async (): Promise<boolean> => {
     if (!userEmail) {
-      showToast('No email address found. Please log in again.', 'error');
+      showToast('No email found. Log in again.', 'sage');
       return false;
     }
 
@@ -30,14 +30,14 @@ export function useEmailVerification() {
       const { error } = await AuthService.resendVerificationEmail(userEmail);
       
       if (error) {
-        showToast(error.message, 'error');
+        showToast(error.message, 'sage');
         return false;
       } else {
-        showToast('Verification email sent! Check your inbox.', 'success');
+        showToast('Email sent. Check inbox.', 'sage', 2500);
         return true;
       }
     } catch (error) {
-      showToast('Failed to resend verification email. Please try again.', 'error');
+      showToast('Failed to resend. Try again.', 'sage');
       return false;
     }
   }, [userEmail, showToast]);

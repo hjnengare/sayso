@@ -1,4 +1,4 @@
-import { Star } from "react-feather";
+import { Star } from "lucide-react";
 
 interface RatingBadgeProps {
   rating: number;

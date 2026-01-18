@@ -2,7 +2,7 @@
 
 import { useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, CheckCircle } from "react-feather";
+import { ArrowRight, CheckCircle } from "lucide-react";
 import { ShieldCheck, Clock, Smile, BadgeDollarSign } from "lucide-react";
 import { useReducedMotion } from "../utils/useReducedMotion";
 import { 

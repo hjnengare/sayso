@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight } from "react-feather";
+import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface OnboardingButtonProps {

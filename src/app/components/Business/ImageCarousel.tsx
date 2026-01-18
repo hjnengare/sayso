@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import React, { useState, useCallback } from "react";
-import { ChevronLeft, ChevronRight, Star as StarIcon, Star, Image as ImageIcon } from "react-feather";
+import { ChevronLeft, ChevronRight, Star as StarIcon, Star, Image as ImageIcon } from "lucide-react";
 
 interface ImageCarouselProps {
     images: string[];

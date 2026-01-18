@@ -20,7 +20,7 @@ import {
   AlertTriangle,
   X,
   ChevronRight
-} from "react-feather";
+} from "lucide-react";
 import { Store } from "lucide-react";
 import { getBrowserSupabase } from "@/app/lib/supabase/client";
 

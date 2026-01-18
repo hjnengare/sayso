@@ -2,7 +2,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Calendar, Clock, Users } from "react-feather";
+import { Calendar, Clock, Users } from "lucide-react";
 import { Event } from "../../data/eventsData";
 
 interface EventDetailsCardProps {

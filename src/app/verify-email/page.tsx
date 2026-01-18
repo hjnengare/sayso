@@ -7,7 +7,7 @@ import { Urbanist } from "next/font/google";
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { usePrefersReducedMotion } from '../utils/hooks/usePrefersReducedMotion';
-import { Mail, CheckCircle, ExternalLink, ArrowLeft } from 'react-feather';
+import { Mail, CheckCircle, ExternalLink, ArrowLeft } from 'lucide-react';
 import { Loader as AppLoader } from '../components/Loader';
 import WavyTypedTitle from '../../components/Animations/WavyTypedTitle';
 
@@ -285,7 +285,7 @@ export default function VerifyEmailPage() {
   useEffect(() => {
     if (searchParams.get('verified') === '1') {
       console.log('VerifyEmail: Email verification success from URL flag');
-      showToastOnce('email-verified-v1', '🎉 You\'re verified! Your account is now secured and ready.', 'success', 4000);
+      showToastOnce('email-verified-v1', 'Email verified. Account secured.', 'sage', 3000);
 
       // Clear pending verification email from sessionStorage
       if (typeof window !== 'undefined') {
@@ -314,7 +314,7 @@ export default function VerifyEmailPage() {
     
     if (user && user.email_verified && !searchParams.get('verified')) {
       console.log('VerifyEmail: User already verified, showing success message');
-      showToastOnce('email-verified-v1', '🎉 You\'re verified! Your account is now secured and ready.', 'success', 4000);
+      showToastOnce('email-verified-v1', 'Email verified. Account secured.', 'sage', 3000);
       
       // Middleware will redirect to interests automatically
       // No manual redirect needed
@@ -329,10 +329,10 @@ export default function VerifyEmailPage() {
     try {
       const success = await resendVerificationEmail(email);
       if (success) {
-        showToast('Verification email sent! Check your inbox and spam folder.', 'success');
+        showToast('Email sent. Check inbox.', 'sage', 2500);
       }
     } catch (error) {
-      showToast('Failed to resend verification email. Please try again.', 'error');
+      showToast('Failed to resend. Try again.', 'sage');
     } finally {
       setIsResending(false);
     }
@@ -367,7 +367,7 @@ export default function VerifyEmailPage() {
     try {
       await new Promise(resolve => setTimeout(resolve, 1500));
 
-      showToast('Checking verification status... If you\'ve verified your email, the page will refresh automatically.', 'info');
+      showToast('Checking status...', 'sage', 1500);
 
       setTimeout(() => {
         window.location.reload();

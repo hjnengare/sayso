@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { motion } from "framer-motion";
-import { MapPin, AlertCircle, ZoomIn, ZoomOut } from "react-feather";
+import { MapPin, AlertCircle, ZoomIn, ZoomOut } from "lucide-react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 

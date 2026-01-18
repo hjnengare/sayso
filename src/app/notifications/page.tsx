@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bell, Check, X, MessageSquare, Star, Heart, TrendingUp, Clock, ChevronRight, ChevronUp } from "react-feather";
+import { Bell, Check, X, MessageSquare, Star, Heart, TrendingUp, Clock, ChevronRight, ChevronUp } from "lucide-react";
 import Header from "../components/Header/Header";
 import Footer from "../components/Footer/Footer";
 import { PageLoader } from "../components/Loader";

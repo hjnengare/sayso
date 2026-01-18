@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { MessageCircle, User, Check } from "react-feather";
+import { MessageCircle, User, Check } from "lucide-react";
 
 interface BusinessChat {
   id: string;

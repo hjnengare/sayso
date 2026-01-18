@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useRef } from "react";
-import { ArrowLeft } from "react-feather";
+import { ArrowLeft } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useToast } from "../contexts/ToastContext";
 import { useScrollReveal } from "../hooks/useScrollReveal";
@@ -24,7 +24,6 @@ export default function LoginPage() {
   const [emailTouched, setEmailTouched] = useState(false);
   const [passwordTouched, setPasswordTouched] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [rateLimitInfo, setRateLimitInfo] = useState<{ remainingAttempts?: number; lockedUntil?: Date } | null>(null);
 
   const { login, isLoading: authLoading, error: authError } = useAuth();
   const { showToast } = useToast();
@@ -63,17 +62,16 @@ export default function LoginPage() {
     setPasswordTouched(true);
 
     if (!email || !password) {
-      setError("Please fill in all fields");
-      showToast("Please fill in all fields", 'sage', 3000);
+      setError("Complete all fields");
+      showToast("All fields required", 'sage', 2500);
       setIsSubmitting(false);
       return;
     }
 
     if (!validateEmail(email)) {
-      const errorMsg = "Please enter a valid email address";
+      const errorMsg = "Email invalid";
       setError(errorMsg);
-      // Only show toast, error already shown inline
-      showToast(errorMsg, 'sage', 3000);
+      showToast(errorMsg, 'sage', 2500);
       setIsSubmitting(false);
       return;
     }
@@ -83,16 +81,10 @@ export default function LoginPage() {
       const normalizedEmail = email.trim().toLowerCase();
       const rateLimitResult = await RateLimiter.checkRateLimit(normalizedEmail, 'login');
       
-      // Update rate limit info for UI feedback
-      setRateLimitInfo({
-        remainingAttempts: rateLimitResult.remainingAttempts,
-        lockedUntil: rateLimitResult.lockedUntil,
-      });
-      
       if (!rateLimitResult.allowed) {
-        const errorMsg = rateLimitResult.message || 'Too many login attempts. Please try again later.';
+        const errorMsg = rateLimitResult.message || 'Too many attempts. Try again later.';
         setError(errorMsg);
-        showToast(errorMsg, 'sage', 5000);
+        showToast(errorMsg, 'sage', 3500);
         setIsSubmitting(false);
         return;
       }
@@ -102,18 +94,12 @@ export default function LoginPage() {
       if (loggedInUser) {
         // Clear rate limit on successful login
         await RateLimiter.recordSuccess(email.trim().toLowerCase(), 'login');
-
-        // Show personalized welcome toast with username
-        const displayName = loggedInUser.profile?.display_name || loggedInUser.profile?.username;
-        const welcomeMessage = displayName
-          ? `Welcome back, ${displayName}!`
-          : "Welcome back!";
-        showToast(welcomeMessage, 'sage', 3000);
+        showToast("Welcome back", 'sage', 2000);
       } else {
         // Rate limit already incremented by checkRateLimit, no need to record failure
-        const errorMsg = authError || "Invalid email or password";
+        const errorMsg = authError || "Email or password is incorrect";
         setError(errorMsg);
-        showToast(errorMsg, 'sage', 4000);
+        showToast(errorMsg, 'sage', 3000);
       }
     } catch (error: unknown) {
       const errorMsg = error instanceof Error ? error.message : 'Login failed';
@@ -149,13 +135,9 @@ export default function LoginPage() {
               loopWave={false}
               triggerOnTypingComplete={true}
               enableScrollTrigger={false}
-              style={{ 
-                fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-                fontWeight: 700,
-              }}
             />
           </div>
-          <p className="text-body font-normal text-charcoal/70 mb-4 leading-[1.55] px-2 max-w-[70ch] mx-auto animate-fade-in-up animate-delay-700" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 400 }}>
+          <p className="text-body font-normal text-charcoal/70 mb-4 leading-[1.55] px-2 max-w-[70ch] mx-auto animate-fade-in-up animate-delay-700">
             Sign in to continue discovering sayso
           </p>
         </div>
@@ -169,16 +151,7 @@ export default function LoginPage() {
               {/* Error Message */}
               {error && (
                 <div className="bg-orange-50 border border-orange-200 rounded-[20px] p-4 text-center">
-                  <p className="text-caption font-semibold text-orange-600" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>{error}</p>
-                </div>
-              )}
-
-              {/* Rate Limit Warning */}
-              {rateLimitInfo && rateLimitInfo.remainingAttempts !== undefined && rateLimitInfo.remainingAttempts < 5 && rateLimitInfo.remainingAttempts > 0 && (
-                <div className="bg-amber-50 border border-amber-200 rounded-[20px] p-3 text-center">
-                  <p className="text-xs font-medium text-amber-700" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                    ⚠️ {rateLimitInfo.remainingAttempts} login attempt{rateLimitInfo.remainingAttempts !== 1 ? 's' : ''} remaining
-                  </p>
+                  <p className="text-caption font-semibold text-orange-600">{error}</p>
                 </div>
               )}
 
@@ -227,7 +200,6 @@ export default function LoginPage() {
                   <button
                     type="submit"
                     disabled={isSubmitting || !email || !password}
-                    style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
                     className="w-full bg-gradient-to-r from-coral to-coral/80 text-white text-body font-semibold py-4 px-2 rounded-full hover:from-coral/90 hover:to-coral transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 btn-target btn-press"
                   >
                     {isSubmitting ? (
@@ -248,12 +220,11 @@ export default function LoginPage() {
 
             {/* Footer */}
             <div className="text-center mt-6 pt-6 border-t border-white/20">
-              <div className="text-body-sm sm:text-body text-white" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 400 }}>
+              <div className="text-body-sm sm:text-body text-white">
                 Don&apos;t have an account?{" "}
                 <Link
                   href="/register"
                   className="text-white font-semibold hover:text-coral transition-colors duration-300 relative group"
-                  style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 600 }}
                 >
                   Sign up
                 </Link>

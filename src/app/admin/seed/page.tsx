@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Loader, CheckCircle, XCircle } from "react-feather";
+import { ArrowLeft, Loader, CheckCircle, XCircle } from "lucide-react";
 
 export default function SeedPage() {
   const router = useRouter();

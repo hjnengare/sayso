@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Shield } from 'react-feather';
+import { Shield } from 'lucide-react';
 import { SettingsCard } from '@/components/atoms/SettingsCard';
 import { NotificationToggleItem } from '@/components/molecules/NotificationToggleItem';
 

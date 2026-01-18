@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertCircle, CheckCircle, Mail, Lock, User as UserIcon, Eye, EyeOff } from "react-feather";
+import { AlertCircle, CheckCircle, Mail, Lock, User as UserIcon, Eye, EyeOff } from "lucide-react";
 
 interface FormFieldProps {
   type: "text" | "email" | "password";

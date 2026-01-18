@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { X, Star, MapPin, ChevronDown } from "react-feather";
+import { X, Star, MapPin, ChevronDown } from "lucide-react";
 import { FilterState } from "../FilterModal/FilterModal";
 import { motion, AnimatePresence } from "framer-motion";
 

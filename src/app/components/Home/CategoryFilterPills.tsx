@@ -3,7 +3,7 @@
 import { useOnboarding } from "../../contexts/OnboardingContext";
 import { useEffect, useState, useRef } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "react-feather";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface CategoryFilterPillsProps {
   selectedCategoryIds: string[]; // Active filters (user-initiated)

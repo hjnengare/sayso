@@ -1,6 +1,6 @@
 "use client";
 
-import { Mail, AlertCircle, CheckCircle } from "react-feather";
+import { Mail, AlertCircle, CheckCircle } from "lucide-react";
 
 interface EmailInputProps {
   value: string;

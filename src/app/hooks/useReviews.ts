@@ -253,7 +253,7 @@ export function useReviewSubmission() {
       // Only show error if we truly don't have a user
       // The API will also check, but we check here for better UX
       setError('You must be logged in to submit a review');
-      showToast('Please log in to submit a review', 'error');
+      showToast('Log in to submit a review', 'sage');
       return false;
     }
 
@@ -293,12 +293,12 @@ export function useReviewSubmission() {
 
       const result = await response.json();
 
-      showToast('Review submitted successfully! 🎉', 'success', 5000);
+      showToast('Review submitted', 'sage', 3000);
       return true;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to submit review';
       setError(errorMessage);
-      showToast(errorMessage, 'error');
+      showToast(errorMessage, 'sage');
       console.error('Error submitting review:', err);
       return false;
     } finally {
@@ -309,7 +309,7 @@ export function useReviewSubmission() {
   const deleteReview = async (reviewId: string): Promise<boolean> => {
     if (!user) {
       setError('You must be logged in to delete a review');
-      showToast('Please log in to delete a review', 'error');
+      showToast('Log in to delete review', 'sage');
       return false;
     }
 
@@ -327,12 +327,12 @@ export function useReviewSubmission() {
         throw new Error(result.error || 'Failed to delete review');
       }
 
-      showToast('Review deleted successfully', 'success');
+      showToast('Review deleted', 'sage', 2000);
       return true;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to delete review';
       setError(errorMessage);
-      showToast(errorMessage, 'error');
+      showToast(errorMessage, 'sage');
       console.error('Error deleting review:', err);
       return false;
     } finally {
@@ -342,7 +342,7 @@ export function useReviewSubmission() {
 
   const likeReview = async (reviewId: string): Promise<boolean | null> => {
     if (!user) {
-      showToast('Please log in to like reviews', 'info');
+      showToast('Log in to like reviews', 'sage');
       return null;
     }
 
@@ -366,13 +366,14 @@ export function useReviewSubmission() {
 
       const newStatus = result.helpful === true;
       showToast(
-        newStatus ? 'Review marked as helpful!' : 'Helpful vote removed',
-        'success'
+        newStatus ? 'Marked helpful' : 'Vote removed',
+        'sage',
+        2000
       );
       return newStatus;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to like review';
-      showToast(errorMessage, 'error');
+      showToast(errorMessage, 'sage');
       console.error('Error liking review:', err);
       return null;
     }

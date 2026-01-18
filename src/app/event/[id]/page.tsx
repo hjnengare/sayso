@@ -3,7 +3,7 @@
 import { useState, useEffect, use } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar, ChevronRight } from "react-feather";
+import { Calendar, ChevronRight } from "lucide-react";
 import { Event } from "../../data/eventsData";
 import { useToast } from "../../contexts/ToastContext";
 import { useAuth } from "../../contexts/AuthContext";

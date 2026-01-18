@@ -62,7 +62,7 @@ export function useDealBreakersPage(): UseDealBreakersPageReturn {
         setSelectedDealbreakers(selectedDealbreakers.filter((id) => id !== dealbreakerId));
       } else {
         if (selectedDealbreakers.length >= MAX_SELECTIONS) {
-          showToast(`Maximum ${MAX_SELECTIONS} deal-breakers allowed`, 'warning', 2000);
+          showToast(`Max ${MAX_SELECTIONS} selected`, 'sage', 2000);
           return;
         }
         setSelectedDealbreakers([...selectedDealbreakers, dealbreakerId]);
@@ -74,7 +74,7 @@ export function useDealBreakersPage(): UseDealBreakersPageReturn {
   // Handle next navigation - save to DB and navigate
   const handleNext = useCallback(async () => {
     if (selectedDealbreakers.length === 0) {
-      showToast('Please select at least one deal-breaker', 'warning', 2000);
+      showToast('Select at least one', 'sage', 2000);
       return;
     }
 
@@ -99,7 +99,7 @@ export function useDealBreakersPage(): UseDealBreakersPageReturn {
     } catch (error) {
       console.error('[Deal-breakers] Error saving:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to save deal-breakers';
-      showToast(errorMessage, 'error', 4000);
+      showToast(errorMessage, 'sage', 4000);
       setIsNavigating(false);
     }
   }, [selectedDealbreakers, showToast, router]);

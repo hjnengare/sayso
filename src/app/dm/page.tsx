@@ -265,7 +265,7 @@ export default function DMPage() {
       }
     } catch (error) {
       console.error("Error sending message:", error);
-      showToast("Failed to send message", "error");
+      showToast("Failed to send message", "sage");
     }
   };
 

@@ -50,7 +50,6 @@ const nextConfig: NextConfig = {
     optimizePackageImports: [
       'framer-motion',
       'lucide-react',
-      'react-feather',
       'date-fns',
       '@supabase/supabase-js',
     ],

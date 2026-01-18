@@ -98,22 +98,12 @@ export function ToastProvider({ children }: ToastProviderProps) {
   };
 
   const getToastStyles = (type: Toast['type']) => {
-    switch (type) {
-      case 'success':
-        return 'bg-off-white   text-sage';
-      case 'sage':
-        return 'bg-off-white   text-sage';
-      case 'error':
-        return 'bg-off-white   text-red-500';
-      case 'warning':
-        return 'bg-off-white   text-amber-500';
-      default:
-        return 'bg-off-white   text-charcoal';
-    }
+    // All toast types use unified sage background with white text
+    return 'bg-sage text-white';
   };
 
   const getToastIcon = (type: Toast['type']) => {
-    const iconClasses = "w-5 h-5 flex-shrink-0";
+    const iconClasses = "w-4 h-4 flex-shrink-0";
     switch (type) {
       case 'success':
         return <CheckCircle className={iconClasses} />;
@@ -138,16 +128,16 @@ export function ToastProvider({ children }: ToastProviderProps) {
     <ToastContext.Provider value={value}>
       {children}
 
-      {/* Toast Container - Bottom-left position with Framer Motion */}
-      <div className="fixed bottom-4 left-4 z-[9999] flex flex-col-reverse gap-2 pointer-events-none max-w-sm">
+      {/* Toast Container - Top-center position with Framer Motion */}
+      <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[9999] flex flex-col gap-2 pointer-events-none max-w-sm px-4">
         <AnimatePresence mode="popLayout">
           {toasts.map((toast) => (
             <motion.div
               key={toast.id}
               layout
-              initial={{ opacity: 0, x: -100, scale: 0.9 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              exit={{ opacity: 0, x: -100, scale: 0.9 }}
+              initial={{ opacity: 0, y: -20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.95 }}
               transition={{
                 type: "spring",
                 damping: 25,
@@ -155,11 +145,11 @@ export function ToastProvider({ children }: ToastProviderProps) {
                 layout: { duration: 0.2 }
               }}
               className={`
-                pointer-events-auto max-w-sm w-full backdrop-blur-xl rounded-[20px] p-4 shadow-lg border border-sage/20
+                pointer-events-auto max-w-sm w-full backdrop-blur-xl rounded-lg px-4 py-3 shadow-lg
                 ${getToastStyles(toast.type)}
               `}
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2.5">
                 <motion.div
                   className="flex-shrink-0"
                   initial={{ scale: 0, rotate: -180 }}
@@ -169,18 +159,18 @@ export function ToastProvider({ children }: ToastProviderProps) {
                   {getToastIcon(toast.type)}
                 </motion.div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-urbanist text-sm font-600 leading-tight">
+                  <p className="font-urbanist text-xs font-600 leading-tight break-words">
                     {toast.message}
                   </p>
                 </div>
                 <motion.button
                   onClick={() => removeToast(toast.id)}
-                  className="flex-shrink-0 ml-2 opacity-70 hover:opacity-100 transition-opacity duration-200 p-1 hover:bg-charcoal/10 rounded-full"
+                  className="flex-shrink-0 ml-2 opacity-70 hover:opacity-100 transition-opacity duration-200 p-0.5 hover:bg-white/20 rounded-full"
                   aria-label="Dismiss notification"
                   whileHover={{ scale: 1.1, rotate: 90 }}
                   whileTap={{ scale: 0.9 }}
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-3 h-3" />
                 </motion.button>
               </div>
             </motion.div>

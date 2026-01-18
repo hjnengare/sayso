@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Star, MapPin, X } from "react-feather";
+import { Star, MapPin, X } from "lucide-react";
 import { FilterState } from "../FilterModal/FilterModal";
 
 interface SuggestiveFiltersProps {

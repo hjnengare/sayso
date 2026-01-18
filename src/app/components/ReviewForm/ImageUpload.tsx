@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useCallback, useEffect } from "react";
-import { Image as ImageIcon, X, Upload, ChevronLeft, ChevronRight, Maximize2 } from "react-feather";
+import { Image as ImageIcon, X, Upload, ChevronLeft, ChevronRight, Maximize2 } from "lucide-react";
 import Image from "next/image";
 
 interface ImageUploadProps {

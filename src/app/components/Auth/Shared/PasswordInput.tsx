@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Lock, Eye, EyeOff, AlertCircle, CheckCircle } from "react-feather";
+import { Lock, Eye, EyeOff, AlertCircle, CheckCircle } from "lucide-react";
 
 interface PasswordInputProps {
   value: string;

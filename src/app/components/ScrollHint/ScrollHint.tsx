@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
-import { ChevronDown } from "react-feather";
+import { ChevronDown } from "lucide-react";
 import { useEffect, useState } from "react";
 
 /**

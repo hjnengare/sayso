@@ -8,7 +8,7 @@
 import { memo, useState, useEffect, useMemo, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import nextDynamic from "next/dynamic";
-import { ChevronUp, Lock } from "react-feather";
+import { ChevronUp, Lock } from "lucide-react";
 import Link from "next/link";
 import { usePredefinedPageTitle } from "../hooks/usePageTitle";
 import Header from "../components/Header/Header";
@@ -18,7 +18,7 @@ import ActiveFilterBadges from "../components/FilterActiveBadges/ActiveFilterBad
 import InlineFilters from "../components/Home/InlineFilters";
 import SearchResultsMap from "../components/BusinessMap/SearchResultsMap";
 import { motion, AnimatePresence } from "framer-motion";
-import { List, Map as MapIcon } from "react-feather";
+import { List, Map as MapIcon } from "lucide-react";
 import BusinessRow from "../components/BusinessRow/BusinessRow";
 import BusinessRowSkeleton from "../components/BusinessRow/BusinessRowSkeleton";
 import FeaturedBusinessesSkeleton from "../components/CommunityHighlights/FeaturedBusinessesSkeleton";

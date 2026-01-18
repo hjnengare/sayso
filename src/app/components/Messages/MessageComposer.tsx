@@ -1,6 +1,6 @@
 "use client";
 
-import { Send } from "react-feather";
+import { Send } from "lucide-react";
 
 interface MessageComposerProps {
   message: string;

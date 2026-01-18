@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ChevronRight, Search, Edit3, MessageCircle } from "react-feather";
+import { ChevronRight, Search, Edit3, MessageCircle } from "lucide-react";
 import ConversationItem from "./ConversationItem";
 
 interface BusinessChat {

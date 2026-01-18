@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ArrowLeft } from "react-feather";
+import { ArrowLeft } from "lucide-react";
 
 const sf = {
   fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",

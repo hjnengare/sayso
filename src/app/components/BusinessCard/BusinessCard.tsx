@@ -2,8 +2,7 @@
 
 import React, { useMemo, useState, useEffect, useRef, memo } from "react";
 import { useRouter } from "next/navigation";
-import { Image as ImageIcon, Star, Edit, Share2, Bookmark, Info, ChevronLeft, ChevronRight, TrendingUp, Zap } from "react-feather";
-import { Scissors, Coffee, UtensilsCrossed, Wine, Dumbbell, Activity, Heart, Book, ShoppingBag, Home, Briefcase, MapPin, Music, Film, Camera, Car, GraduationCap, CreditCard, Tag, Flame } from "lucide-react";
+import { Image as ImageIcon, Star, Edit, Share2, Bookmark, Info, ChevronLeft, ChevronRight, TrendingUp, Zap, Scissors, Coffee, UtensilsCrossed, Wine, Dumbbell, Activity, Heart, Book, ShoppingBag, Home, Briefcase, MapPin, Music, Film, Camera, Car, GraduationCap, CreditCard, Tag, Flame } from "lucide-react";
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import PercentileChip from "../PercentileChip/PercentileChip";

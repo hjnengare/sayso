@@ -10,7 +10,7 @@ import {
     MessageSquare,
     X,
     ChevronRight,
-} from "react-feather";
+} from "lucide-react";
 import ReviewsList from "../../components/Reviews/ReviewsList";
 import type { ReviewWithUser } from "../../lib/types/database";
 import { getCategoryPng, isPngIcon } from "../../utils/categoryToPngMapping";
@@ -87,7 +87,7 @@ export default function BusinessProfilePage() {
             });
         } else {
             navigator.clipboard.writeText(window.location.href);
-            showToast("Link copied to clipboard", "success");
+            showToast("Copied to clipboard", "sage");
         }
     };
 

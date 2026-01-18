@@ -9,7 +9,7 @@ import {
   Truck,
   Navigation,
   MapPin,
-} from "react-feather";
+} from "lucide-react";
 
 export interface FilterState {
   categories?: string[];

@@ -10,7 +10,7 @@ import { useBusinesses } from "../../../hooks/useBusinesses";
 import { Loader } from "../../../components/Loader/Loader";
 import BusinessGridSkeleton from "../../../components/Explore/BusinessGridSkeleton";
 import { useOnboarding } from "../../../contexts/OnboardingContext";
-import { ChevronLeft, ChevronRight } from "react-feather";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Urbanist } from "next/font/google";
 
 const urbanist = Urbanist({

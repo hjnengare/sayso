@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight } from "react-feather";
+import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import { Scissors, Coffee, UtensilsCrossed, Wine, Dumbbell, Activity, Heart, Book, ShoppingBag, Home, Briefcase, MapPin, Music, Film, Camera, Car, GraduationCap, CreditCard, Tag } from "lucide-react";
 import { getCategoryPng, isPngIcon } from "../../utils/categoryToPngMapping";

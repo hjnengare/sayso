@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import nextDynamic from "next/dynamic";
-import { ChevronRight, Award } from "react-feather";
+import { ChevronRight, Award } from "lucide-react";
 import EmailVerificationGuard from "../components/Auth/EmailVerificationGuard";
 import Header from "../components/Header/Header";
 import LeaderboardPodium from "../components/Leaderboard/LeaderboardPodium";

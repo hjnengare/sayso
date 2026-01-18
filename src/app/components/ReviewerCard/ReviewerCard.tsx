@@ -11,6 +11,22 @@ import VerifiedBadge from "../VerifiedBadge/VerifiedBadge";
 import { motion, useReducedMotion } from "framer-motion";
 import BadgePill, { BadgePillData } from "../Badges/BadgePill";
 
+import {
+  Star,
+  Heart,
+  MapPin,
+  MessageCircle,
+  ArrowRight,
+  Award,
+  Bookmark,
+  CheckCircle,
+  Trophy,
+  Sparkles,
+  User,
+  Users,
+  Share2,
+} from "lucide-react";
+
 // Generate a unique color for each badge based on reviewer ID
 // This ensures every badge has a different color
 const getUniqueBadgeColor = (reviewerId: string, badgeType: string): string => {
@@ -71,29 +87,11 @@ const getTrophyBadgeIcon = (trophyType: string): React.ComponentType<React.SVGPr
     case "rising-star":
       return Sparkles;
     case "community-favorite":
-      return HeartIcon;
+      return Heart;
     default:
       return Trophy;
   }
 };
-
-// react-feather icons
-import {
-  User,
-  Star,
-  Users,
-  Share2,
-} from "react-feather";
-
-// Lucide React icons for badges
-import {
-  Award,
-  CheckCircle,
-  MapPin,
-  Trophy,
-  Sparkles,
-  Heart as HeartIcon,
-} from "lucide-react";
 
 interface ReviewerCardProps {
   review?: Review;

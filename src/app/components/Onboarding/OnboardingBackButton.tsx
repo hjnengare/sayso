@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft } from "react-feather";
+import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface OnboardingBackButtonProps {

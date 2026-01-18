@@ -4,7 +4,7 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { Star, ChevronLeft, ChevronRight } from "react-feather";
+import { Star, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface BusinessHeroImageProps {
   image: string;

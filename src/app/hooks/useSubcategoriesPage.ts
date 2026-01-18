@@ -161,7 +161,7 @@ export function useSubcategoriesPage(): UseSubcategoriesPageReturn {
         setSelectedSubInterests(selectedSubInterests.filter((id) => id !== subcategoryId));
       } else {
         if (selectedSubInterests.length >= MAX_SELECTIONS) {
-          showToast(`Maximum ${MAX_SELECTIONS} subcategories allowed`, 'warning', 2000);
+          showToast(`Max ${MAX_SELECTIONS} selected`, 'sage', 2000);
           triggerShake(subcategoryId);
           return;
         }
@@ -174,7 +174,7 @@ export function useSubcategoriesPage(): UseSubcategoriesPageReturn {
   // Handle next navigation - save to DB and navigate
   const handleNext = useCallback(async () => {
     if (selectedSubInterests.length === 0) {
-      showToast('Please select at least one subcategory', 'warning', 2000);
+      showToast('Select at least one', 'sage', 2000);
       return;
     }
 
@@ -199,7 +199,7 @@ export function useSubcategoriesPage(): UseSubcategoriesPageReturn {
     } catch (error) {
       console.error('[Subcategories] Error saving:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to save subcategories';
-      showToast(errorMessage, 'error', 4000);
+      showToast(errorMessage, 'sage', 4000);
       setIsNavigating(false);
     }
   }, [selectedSubInterests, showToast, router]);

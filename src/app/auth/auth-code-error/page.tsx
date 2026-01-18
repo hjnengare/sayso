@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { AlertCircle, Home, Mail } from "react-feather";
+import { AlertCircle, Home, Mail } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function AuthCodeErrorPage() {

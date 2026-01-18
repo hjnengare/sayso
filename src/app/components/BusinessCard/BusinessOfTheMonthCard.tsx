@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useMemo, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Image as ImageIcon, Star, Edit, Bookmark, Share2, Award } from "react-feather";
+import { Image as ImageIcon, Star, Edit, Bookmark, Share2, Award } from "lucide-react";
 import { Scissors, Coffee, UtensilsCrossed, Wine, Dumbbell, Activity, Heart, Book, ShoppingBag, Home, Briefcase, MapPin, Music, Film, Camera, Car, GraduationCap, CreditCard, Tag } from "lucide-react";
 import Stars from "../Stars/Stars";
 import VerifiedBadge from "../VerifiedBadge/VerifiedBadge";

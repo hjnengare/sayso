@@ -20,7 +20,7 @@ import {
     Clock,
     ChevronUp,
     ChevronRight,
-} from "react-feather";
+} from "lucide-react";
 import Footer from "../../components/Footer/Footer";
 import Header from "../../components/Header/Header";
 import { ReviewsList } from "@/components/organisms/ReviewsList";

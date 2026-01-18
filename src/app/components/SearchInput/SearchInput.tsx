@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect, forwardRef, useImperativeHandle, useRef } from "react";
-import { Search, Sliders, Map } from "react-feather";
+import { Search, Sliders, Map } from "lucide-react";
 
 interface SearchInputProps {
   placeholder?: string;

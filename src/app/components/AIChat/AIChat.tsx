@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send, Loader } from "react-feather";
+import { MessageCircle, X, Send, Loader } from "lucide-react";
 
 interface Message {
   id: string;

@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { X, Phone, Globe, MapPin, Mail, CheckCircle, DollarSign } from "react-feather";
+import { X, Phone, Globe, MapPin, Mail, CheckCircle, DollarSign } from "lucide-react";
 
 type Description = string | { raw: string; friendly: string } | null | undefined;
 

@@ -4,7 +4,7 @@ import nextDynamic from "next/dynamic";
 import Link from "next/link";
 import { useState, useEffect, useMemo, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronRight, ChevronUp } from "react-feather";
+import { ChevronRight, ChevronUp } from "lucide-react";
 import Pagination from "../components/EventsPage/Pagination";
 import EmailVerificationGuard from "../components/Auth/EmailVerificationGuard";
 import { useSavedItems } from "../contexts/SavedItemsContext";

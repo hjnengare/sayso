@@ -3,7 +3,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight } from "react-feather";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
 interface EventsPageHeaderProps {
   title?: string;

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { MessageCircle, Check } from "react-feather";
+import { MessageCircle, Check } from "lucide-react";
 
 interface Message {
   id: string;

@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, Share2, Bookmark, Calendar } from "react-feather";
+import { ArrowLeft, Share2, Bookmark, Calendar } from "lucide-react";
 
 interface BusinessDetailHeaderProps {
   isBookmarked: boolean;

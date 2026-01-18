@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, Share2, Bookmark } from "react-feather";
+import { ArrowLeft, Share2, Bookmark } from "lucide-react";
 
 interface EventDetailHeaderProps {
   isBookmarked: boolean;

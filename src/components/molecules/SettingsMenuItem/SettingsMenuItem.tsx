@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ChevronRight } from 'react-feather';
+import { ChevronRight } from 'lucide-react';
 
 export type SettingsMenuItemVariant = 'default' | 'danger';
 

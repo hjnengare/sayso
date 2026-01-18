@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { AlertTriangle } from 'react-feather';
+import { AlertTriangle } from 'lucide-react';
 
 export interface ConfirmationDialogProps {
   isOpen: boolean;

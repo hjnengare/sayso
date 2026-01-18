@@ -1,6 +1,6 @@
 "use client";
 
-import { MapPin, ExternalLink } from "react-feather";
+import { MapPin, ExternalLink } from "lucide-react";
 import { useMemo } from "react";
 
 interface BusinessMapProps {

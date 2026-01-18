@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft } from "react-feather";
+import { ArrowLeft } from "lucide-react";
 
 interface AuthHeaderProps {
   backLink: string;

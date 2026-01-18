@@ -1,6 +1,6 @@
 "use client";
 
-import { Star } from "react-feather";
+import { Star } from "lucide-react";
 
 interface BusinessInfoProps {
   businessName: string;

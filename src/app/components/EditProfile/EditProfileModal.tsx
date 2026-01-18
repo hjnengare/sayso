@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, User, Upload, Camera } from "react-feather";
+import { X, User, Upload, Camera } from "lucide-react";
 import Image from "next/image";
 import { authStyles } from "../Auth/Shared/authStyles";
 

@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight } from "react-feather";
-import { Laptop, Heart, DollarSign, Moon } from "lucide-react";
+import { ArrowRight, Laptop, Heart, DollarSign, Moon } from "lucide-react";
 import WavyTypedTitle from "../../../components/Animations/WavyTypedTitle";
 
 // Map collection IDs to Lucide React icons

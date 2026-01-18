@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Award, CheckCircle } from 'react-feather';
+import { Award, CheckCircle } from 'lucide-react';
 
 export interface AchievementItemProps {
   name: string;

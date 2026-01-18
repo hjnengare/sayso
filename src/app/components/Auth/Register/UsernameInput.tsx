@@ -1,6 +1,6 @@
 "use client";
 
-import { User, AlertCircle, CheckCircle } from "react-feather";
+import { User, AlertCircle, CheckCircle } from "lucide-react";
 
 interface UsernameInputProps {
   value: string;

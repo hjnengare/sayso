@@ -3,7 +3,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight } from "react-feather";
+import { ArrowRight } from "lucide-react";
 import BusinessCard, { Business } from "../BusinessCard/BusinessCard";
 import ScrollableSection from "../ScrollableSection/ScrollableSection";
 import WavyTypedTitle from "../../../components/Animations/WavyTypedTitle";

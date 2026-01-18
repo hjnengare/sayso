@@ -16,8 +16,8 @@ import ActiveFilterBadges from "../components/FilterActiveBadges/ActiveFilterBad
 import SuggestiveFilters from "../components/SuggestiveFilters/SuggestiveFilters";
 import InlineFilters from "../components/Home/InlineFilters";
 import BusinessesMap, { BusinessMapItem } from "../components/maps/BusinessesMap";
-import { List, Map as MapIcon } from "react-feather";
-import { ChevronRight, ChevronUp } from "react-feather";
+import { List, Map as MapIcon } from "lucide-react";
+import { ChevronRight, ChevronUp } from "lucide-react";
 import { Loader } from "../components/Loader/Loader";
 import { usePredefinedPageTitle } from "../hooks/usePageTitle";
 import Pagination from "../components/EventsPage/Pagination";

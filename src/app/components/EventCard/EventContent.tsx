@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { MapPin } from "react-feather";
+import { MapPin } from "lucide-react";
 
 interface EventContentProps {
   title: string;

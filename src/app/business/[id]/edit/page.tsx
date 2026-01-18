@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import React, { useMemo, useState, useEffect } from "react";
-import { ChevronRight } from "react-feather";
+import { ChevronRight } from "lucide-react";
 import { useToast } from "../../../contexts/ToastContext";
 import {
     Store,

@@ -4,7 +4,7 @@ import type { MouseEvent, CSSProperties } from "react";
 import { Event } from "../../data/eventsData";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { ArrowRight } from "react-feather";
+import { ArrowRight } from "lucide-react";
 import { getEventIconPng } from "../../utils/eventIconToPngMapping";
 import EventBadge from "./EventBadge";
 import { motion, useReducedMotion } from "framer-motion";

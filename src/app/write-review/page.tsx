@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronLeft, Search, Briefcase, MapPin, ChevronRight } from "react-feather";
+import { ChevronLeft, Search, Briefcase, MapPin, ChevronRight } from "lucide-react";
 import EmailVerificationGuard from "../components/Auth/EmailVerificationGuard";
 
 export default function WriteReviewPage() {

@@ -2,7 +2,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Phone, Globe, MapPin } from "react-feather";
+import { Phone, Globe, MapPin } from "lucide-react";
 import { Event } from "../../data/eventsData";
 
 interface EventContactInfoProps {

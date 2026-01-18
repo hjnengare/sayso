@@ -106,7 +106,7 @@ export function useInterestsPage(): UseInterestsPageReturn {
 
       // Check max selections
       if (!isCurrentlySelected && selectedInterests.length >= MAX_SELECTIONS) {
-        showToast(`Maximum ${MAX_SELECTIONS} interests allowed`, 'warning', 2000);
+        showToast(`Max ${MAX_SELECTIONS} selected`, 'sage', 2000);
         triggerShake(interestId);
         return;
       }
@@ -121,9 +121,9 @@ export function useInterestsPage(): UseInterestsPageReturn {
       // Show feedback
       if (!isCurrentlySelected) {
         if (newSelection.length === MIN_SELECTIONS) {
-          showToast('🎉 Great! You can continue now', 'sage', 2000);
+          showToast('Ready to continue', 'sage', 2000);
         } else if (newSelection.length === MAX_SELECTIONS) {
-          showToast('✨ Perfect selection!', 'sage', 2000);
+          showToast('Perfect selection', 'sage', 2000);
         }
       }
     },
@@ -134,12 +134,12 @@ export function useInterestsPage(): UseInterestsPageReturn {
   const handleNext = useCallback(async () => {
     // Validate selections
     if (selectedInterests.length < MIN_SELECTIONS) {
-      showToast(`Please select at least ${MIN_SELECTIONS} interests`, 'warning', 3000);
+      showToast(`Min ${MIN_SELECTIONS} required`, 'sage', 3000);
       return;
     }
 
     if (selectedInterests.length > MAX_SELECTIONS) {
-      showToast(`Please select no more than ${MAX_SELECTIONS} interests`, 'warning', 3000);
+      showToast(`Max ${MAX_SELECTIONS} allowed`, 'sage', 3000);
       return;
     }
 
@@ -164,7 +164,7 @@ export function useInterestsPage(): UseInterestsPageReturn {
     } catch (error) {
       console.error('[Interests] Error saving:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to save interests';
-      showToast(errorMessage, 'error', 4000);
+      showToast(errorMessage, 'sage', 4000);
       setIsNavigating(false);
     }
   }, [selectedInterests, showToast, router]);

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Star } from "react-feather";
+import { Star } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface RatingSelectorProps {

@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChevronRight } from "react-feather";
+import { ChevronRight } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import {
   ArrowLeft,
@@ -89,7 +89,7 @@ export default function SpecialDetailPage({ params }: SpecialDetailPageProps) {
     
     // Check if user is authenticated
     if (!user) {
-      showToast("Please log in to save specials", "error");
+      showToast("Log in to save specials", "sage");
       return;
     }
     
@@ -112,13 +112,13 @@ export default function SpecialDetailPage({ params }: SpecialDetailPageProps) {
           
           // Handle specific error cases
           if (response.status === 401) {
-            showToast("Please log in to save specials", "error");
+            showToast("Log in to save specials", "sage");
             setIsLiked(!newLikedState);
             return;
           }
           
           if (response.status === 500 && errorData.code === '42P01') {
-            showToast("Saving specials is not available at the moment", "error");
+            showToast("Service unavailable", "sage");
             setIsLiked(!newLikedState);
             return;
           }
@@ -126,7 +126,7 @@ export default function SpecialDetailPage({ params }: SpecialDetailPageProps) {
           throw new Error(errorData.error || errorData.details || 'Failed to save special');
         }
 
-        showToast("Special saved to favorites", "success");
+        showToast("Saved to favorites", "sage", 2000);
       } else {
         // Unsave the event/special
         const response = await fetch(`/api/user/saved-events?event_id=${special.id}`, {
@@ -138,7 +138,7 @@ export default function SpecialDetailPage({ params }: SpecialDetailPageProps) {
           
           // Handle specific error cases
           if (response.status === 401) {
-            showToast("Please log in to manage saved specials", "error");
+            showToast("Log in to manage favorites", "sage");
             setIsLiked(!newLikedState);
             return;
           }
@@ -146,13 +146,13 @@ export default function SpecialDetailPage({ params }: SpecialDetailPageProps) {
           throw new Error(errorData.error || errorData.details || 'Failed to unsave special');
         }
 
-        showToast("Special removed from favorites", "success");
+        showToast("Removed from favorites", "sage", 2000);
       }
     } catch (error) {
       // Revert the state on error
       setIsLiked(!newLikedState);
       const errorMessage = error instanceof Error ? error.message : 'Failed to update favorites';
-      showToast(errorMessage, "error");
+      showToast(errorMessage, "sage");
       console.error('Error saving/unsaving special:', error);
     }
   };
@@ -166,7 +166,7 @@ export default function SpecialDetailPage({ params }: SpecialDetailPageProps) {
       });
     } else {
       navigator.clipboard.writeText(window.location.href);
-      showToast("Link copied to clipboard", "success");
+      showToast("Copied to clipboard", "sage", 2000);
     }
   };
 

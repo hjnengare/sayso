@@ -12,7 +12,7 @@ import {
   Clock,
   XCircle,
 } from "lucide-react";
-import { ChevronRight } from "react-feather";
+import { ChevronRight } from "lucide-react";
 import { PageLoader, Loader } from "../components/Loader";
 import { ClaimModal } from "../components/BusinessClaim/ClaimModal";
 import Link from "next/link";

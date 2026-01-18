@@ -4,7 +4,7 @@
 import { useRef, useState, useEffect, useLayoutEffect, useCallback, Fragment } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { createPortal } from "react-dom";
-import { User, X, ChevronDown, Compass, Bookmark, Bell, Edit, MessageCircle, Lock } from "react-feather";
+import { User, X, ChevronDown, Compass, Bookmark, Bell, Edit, MessageCircle, Lock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import FilterModal, { FilterState } from "../FilterModal/FilterModal";
 import SearchInput from "../SearchInput/SearchInput";

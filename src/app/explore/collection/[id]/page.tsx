@@ -8,7 +8,7 @@ import Footer from "../../../components/Footer/Footer";
 import BusinessCard from "../../../components/BusinessCard/BusinessCard";
 import { useBusinesses } from "../../../hooks/useBusinesses";
 import BusinessGridSkeleton from "../../../components/Explore/BusinessGridSkeleton";
-import { ChevronLeft, ChevronRight } from "react-feather";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Laptop, Heart, DollarSign, Moon } from "lucide-react";
 import { Urbanist } from "next/font/google";
 

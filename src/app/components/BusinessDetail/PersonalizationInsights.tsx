@@ -6,7 +6,7 @@ import {
   calculatePersonalizationScore,
   type BusinessForScoring,
 } from "../../lib/services/personalizationService";
-import { CheckCircle, Info } from "react-feather";
+import { CheckCircle, Info } from "lucide-react";
 
 interface PersonalizationInsightsProps {
   business: {
