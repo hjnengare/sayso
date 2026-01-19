@@ -5,10 +5,11 @@ import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import EventCard from "../EventCard/EventCard";
 import EventCardSkeleton from "../EventCard/EventCardSkeleton";
-import { Event, EVENTS_AND_SPECIALS } from "../../data/eventsData";
+import { Event } from "../../data/eventsData";
 import ScrollableSection from "../ScrollableSection/ScrollableSection";
 import { useToast } from "../../contexts/ToastContext";
 import WavyTypedTitle from "../../../components/Animations/WavyTypedTitle";
+import { useState, useEffect } from "react";
 
 export default function EventsSpecials({
   title = "Events & Specials",
@@ -25,12 +26,36 @@ export default function EventsSpecials({
 }) {
   const router = useRouter();
   const { showToast } = useToast();
+  const [businessEvents, setBusinessEvents] = useState<Event[]>([]);
+  const [loadingBusinessEvents, setLoadingBusinessEvents] = useState(true);
+
+  // Fetch business-owned events on mount
+  useEffect(() => {
+    const fetchBusinessEvents = async () => {
+      try {
+        setLoadingBusinessEvents(true);
+        const res = await fetch('/api/events/business-events');
+        if (!res.ok) throw new Error('Failed to fetch business events');
+        const result = await res.json();
+        setBusinessEvents(result.data || []);
+      } catch (error) {
+        console.error('Error fetching business events:', error);
+        setBusinessEvents([]);
+      } finally {
+        setLoadingBusinessEvents(false);
+      }
+    };
+
+    fetchBusinessEvents();
+  }, []);
 
   // Debug logging
   if (typeof window !== 'undefined') {
     console.log('[EventsSpecials] Render:', { 
-      eventsCount: events?.length || 0, 
+      eventsCount: events?.length || 0,
+      businessEventsCount: businessEvents?.length || 0,
       loading, 
+      loadingBusinessEvents,
       hasEvents: events && events.length > 0 
     });
   }
@@ -45,7 +70,7 @@ export default function EventsSpecials({
     );
   };
 
-  if (loading) {
+  if (loading || loadingBusinessEvents) {
     return (
       <section
         className="relative m-0 w-full"
@@ -88,14 +113,19 @@ export default function EventsSpecials({
     );
   }
 
-  // Use fallback static events if API returns no events
-  const displayEvents = (!loading && (!events || events.length === 0)) 
-    ? EVENTS_AND_SPECIALS.slice(0, 4) 
-    : (events || []).slice(0, 4);
+  // Merge business events with provided events, sorted by start date
+  // Only use real data - no fallback to static events
+  const displayEvents = [
+    ...(businessEvents || []),
+    ...(events || []),
+  ].sort((a, b) => {
+    const dateA = new Date(a.startDate).getTime();
+    const dateB = new Date(b.startDate).getTime();
+    return dateA - dateB;
+  }).slice(0, 4); // Limit to first 4 events
 
-  // Show section even when empty, but use fallback events if API fails
-  if (!loading && displayEvents.length === 0) {
-    // Only hide if we truly have no events (neither API nor fallback)
+  // Only show if we have real events
+  if (!loadingBusinessEvents && displayEvents.length === 0) {
     return null;
   }
 

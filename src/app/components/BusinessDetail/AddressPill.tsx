@@ -49,12 +49,21 @@ export default function AddressPill({
             body: JSON.stringify({ latitude, longitude }),
           });
 
-          const data = await response.json();
-          if (data.success && data.address) {
-            setDisplayAddress(data.address);
+          if (!response.ok) {
+            console.warn(`[AddressPill] API error: ${response.status}, using fallback`);
+            // Use coordinates as fallback
+            setDisplayAddress(`${latitude?.toFixed(6)}, ${longitude?.toFixed(6)}`);
+          } else {
+            const data = await response.json();
+            if (data.success && data.address) {
+              setDisplayAddress(data.address);
+            } else {
+              // Use coordinates as fallback
+              setDisplayAddress(`${latitude?.toFixed(6)}, ${longitude?.toFixed(6)}`);
+            }
           }
         } catch (error) {
-          console.error('[AddressPill] Reverse geocoding failed:', error);
+          console.warn('[AddressPill] Reverse geocoding failed:', error);
           // Fallback: use coordinates as display
           setDisplayAddress(`${latitude?.toFixed(6)}, ${longitude?.toFixed(6)}`);
         } finally {
@@ -90,7 +99,7 @@ export default function AddressPill({
       onClick={handleCopy}
       disabled={isLoading}
       className={`
-        group inline-flex items-center gap-2 px-3 py-1.5
+        group inline-flex items-center gap-2 px-4 py-2
         bg-off-white border border-charcoal/10 rounded-full
         text-charcoal/80 hover:text-charcoal text-sm
         font-normal transition-all duration-200

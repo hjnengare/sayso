@@ -31,6 +31,7 @@ import {
     PersonalizationInsights,
 } from "../../components/BusinessDetail";
 import BusinessLocation from "../../components/BusinessDetail/BusinessLocation";
+import BusinessOwnedEventsSection from "../../components/BusinessDetail/BusinessOwnedEventsSection";
 import Header from "../../components/Header/Header";
 
 export default function BusinessProfilePage() {
@@ -619,6 +620,12 @@ export default function BusinessProfilePage() {
                                                     isUserUploaded={!!business.owner_id}
                                                 />
                                             </div>
+
+                                            {/* Business Events & Specials */}
+                                            <BusinessOwnedEventsSection
+                                                businessId={businessData.id}
+                                                businessName={businessData.name}
+                                            />
 
                                             {/* Contact Information - Mobile Only */}
                                             <div className="lg:hidden">

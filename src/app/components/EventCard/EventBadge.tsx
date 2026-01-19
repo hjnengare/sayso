@@ -31,6 +31,46 @@ const getUniqueEventColor = (eventId: string): string => {
   return colorPalette[index];
 };
 
+/**
+ * Format date range for display
+ * Examples:
+ * - "Dec 15" -> "Dec 15"
+ * - "Dec 15" + "Dec 22" -> "Dec 15-22"
+ * - "Dec 15" + "Jan 5" -> "Dec 15 - Jan 5"
+ * - "Every Tue" -> "Every Tue"
+ * - "Daily 5-7pm" -> "Daily 5-7pm"
+ */
+const formatDateRange = (startDate: string, endDate?: string): string => {
+  // Don't format if it's already a recurring pattern
+  if (startDate.includes('Every') || startDate.includes('Daily') || startDate.includes('-')) {
+    return startDate;
+  }
+
+  if (!endDate) {
+    return startDate;
+  }
+
+  // Don't format if end date is also a pattern
+  if (endDate.includes('Every') || endDate.includes('Daily') || endDate.includes('-')) {
+    return `${startDate} - ${endDate}`;
+  }
+
+  // Both are dates, try to format nicely
+  // If start and end have the same month prefix, just show day range
+  const startMonth = startDate.split(' ')[0]; // e.g., "Dec"
+  const endMonth = endDate.split(' ')[0]; // e.g., "Dec"
+  
+  if (startMonth === endMonth) {
+    // Same month: "Dec 15-22"
+    const startDay = startDate.split(' ')[1]; // e.g., "15"
+    const endDay = endDate.split(' ')[1]; // e.g., "22"
+    return `${startMonth} ${startDay}-${endDay}`;
+  } else {
+    // Different months: "Dec 15 - Jan 5"
+    return `${startDate} - ${endDate}`;
+  }
+};
+
 interface EventBadgeProps {
   startDate: string;
   endDate?: string;
@@ -38,6 +78,8 @@ interface EventBadgeProps {
 }
 
 export default function EventBadge({ startDate, endDate, eventId }: EventBadgeProps) {
+  const dateText = formatDateRange(startDate, endDate);
+
   return (
     <div className="absolute left-0 top-0 z-20 overflow-hidden" style={{ width: '150px', height: '120px' }}>
       <div 
@@ -55,7 +97,7 @@ export default function EventBadge({ startDate, endDate, eventId }: EventBadgePr
           letterSpacing: '0.025em',
         }}
       >
-        {endDate ? `${startDate} - ${endDate}` : startDate}
+        {dateText}
       </div>
     </div>
   );

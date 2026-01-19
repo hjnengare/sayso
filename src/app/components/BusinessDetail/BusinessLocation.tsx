@@ -243,14 +243,16 @@ export default function BusinessLocation({
 
                     {/* Address with distance */}
                     <div className="mt-2 ml-11.5">
+                        {/* Always show primary address/location */}
                         {(location || address) && (
                             <p
-                                className="text-sm text-charcoal/80"
+                                className="text-sm text-charcoal/80 font-medium"
                                 style={{ fontFamily: 'Urbanist, sans-serif' }}
                             >
                                 {location || address}
                             </p>
                         )}
+                        {/* Show secondary address if it's different from primary */}
                         {address && location && address !== location && (
                             <p
                                 className="text-sm text-charcoal/60 mt-0.5"
@@ -259,13 +261,22 @@ export default function BusinessLocation({
                                 {address}
                             </p>
                         )}
+                        {/* If only location exists but no address, show a note */}
+                        {location && !address && (
+                            <p
+                                className="text-xs text-charcoal/50 mt-1 italic"
+                                style={{ fontFamily: 'Urbanist, sans-serif' }}
+                            >
+                                Street address will appear here
+                            </p>
+                        )}
 
-                        {/* Address Copy Pill - Non-intrusive metadata */}
+                        {/* Address Copy Pill - Always show if address or coordinates available */}
                         {(address || latitude || longitude) && (
                             <motion.div
                                 initial={{ opacity: 0, y: -3 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="mt-2"
+                                className="mt-3"
                             >
                                 <AddressPill
                                     address={address}
@@ -276,34 +287,40 @@ export default function BusinessLocation({
                             </motion.div>
                         )}
 
-                        {/* Distance & Travel Time */}
+                        {/* Distance & Travel Time - Premium Design */}
                         {distance !== null && (
                             <motion.div
                                 initial={{ opacity: 0, y: -5 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="flex items-center gap-3 mt-2"
+                                className="mt-3 flex flex-wrap items-center gap-2"
                             >
+                                {/* Distance Pill */}
                                 <span
-                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-sage/10 text-charcoal/70 text-sm font-medium"
+                                    className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full bg-off-white border border-charcoal/10 text-charcoal/80 text-sm font-medium transition-all hover:border-charcoal/20 hover:bg-off-white/80"
                                     style={{ fontFamily: 'Urbanist, sans-serif' }}
                                 >
-                                    <Navigation className="w-3.5 h-3.5" />
-                                    {distance < 1 ? `${Math.round(distance * 1000)}m away` : `${distance.toFixed(1)}km away`}
+                                    <Navigation className="w-4 h-4 text-sage" />
+                                    <span className="font-600">{distance < 1 ? `${Math.round(distance * 1000)}m` : `${distance.toFixed(1)}km`}</span>
+                                    <span className="text-charcoal/60">away</span>
                                 </span>
+
+                                {/* Drive Time Pill */}
                                 <span
-                                    className="inline-flex items-center gap-1.5 text-sm text-charcoal/70"
+                                    className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full bg-off-white border border-charcoal/10 text-charcoal/80 text-sm font-medium transition-all hover:border-charcoal/20 hover:bg-off-white/80"
                                     style={{ fontFamily: 'Urbanist, sans-serif' }}
                                 >
-                                    <Car className="w-3.5 h-3.5" />
-                                    {estimateTravelTime(distance, 'drive')}
+                                    <Car className="w-4 h-4 text-coral" />
+                                    <span className="font-600">{estimateTravelTime(distance, 'drive')}</span>
                                 </span>
+
+                                {/* Walk Time Pill - Only if close */}
                                 {distance < 3 && (
                                     <span
-                                        className="inline-flex items-center gap-1.5 text-sm text-charcoal/70"
+                                        className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full bg-off-white border border-charcoal/10 text-charcoal/80 text-sm font-medium transition-all hover:border-charcoal/20 hover:bg-off-white/80"
                                         style={{ fontFamily: 'Urbanist, sans-serif' }}
                                     >
-                                        <Footprints className="w-3.5 h-3.5" />
-                                        {estimateTravelTime(distance, 'walk')}
+                                        <Footprints className="w-4 h-4 text-sage/70" />
+                                        <span className="font-600">{estimateTravelTime(distance, 'walk')}</span>
                                     </span>
                                 )}
                             </motion.div>
@@ -328,7 +345,7 @@ export default function BusinessLocation({
                 {hasCoordinates ? (
                     <>
                         <div
-                            className="relative w-full h-[220px] sm:h-[280px] overflow-hidden cursor-pointer group"
+                            className="relative w-full h-[240px] sm:h-[300px] md:h-[380px] overflow-hidden cursor-pointer group"
                             onClick={() => setIsMapModalOpen(true)}
                         >
                             <MapboxMap

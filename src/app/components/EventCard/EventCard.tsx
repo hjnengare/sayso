@@ -49,6 +49,17 @@ const EVENT_SPORT_KEYWORDS = [
 ];
 
 const getEventMediaImage = (event: Event) => {
+  // Priority 1: Use real uploaded images from event
+  if (event.image && event.image.trim()) {
+    return event.image;
+  }
+
+  // Priority 2: Use business image carousel if available (for business-owned events)
+  if ((event as any).businessImages && (event as any).businessImages.length > 0) {
+    return (event as any).businessImages[0];
+  }
+
+  // Fallback: Generate icon based on event type/keywords
   const haystack = `${event.title} ${event.description ?? ""}`.toLowerCase();
 
   if (event.type === "event") {

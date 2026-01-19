@@ -28,6 +28,7 @@ import Header from "../../../components/Header/Header";
 import { useRequireBusinessOwner } from "../../../hooks/useBusinessAccess";
 import { getBrowserSupabase } from "../../../lib/supabase/client";
 import { ConfirmationDialog } from "@/components/molecules/ConfirmationDialog";
+import EventsForm from "../../../components/BusinessEdit/EventsForm";
 
 // CSS animations to match business profile page
 const animations = `
@@ -1063,6 +1064,15 @@ export default function BusinessEditPage() {
                                         </div>
                                     ))}
                                 </div>
+                            </div>
+                        </div>
+
+                        {/* Events & Specials Management */}
+                        <div className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[20px] overflow-hidden border border-white/50 backdrop-blur-md shadow-md ring-1 ring-white/20 px-2 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10 lg:px-12 lg:py-10 xl:px-16 xl:py-12">
+                            <div className="relative z-10">
+                                {businessId && formData.name && (
+                                    <EventsForm businessId={businessId} businessName={formData.name} />
+                                )}
                             </div>
                         </div>
 

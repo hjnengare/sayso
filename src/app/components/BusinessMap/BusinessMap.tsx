@@ -87,8 +87,8 @@ export default function BusinessMap({
           )}
         </div>
 
-        {/* Map Container */}
-        <div className="relative w-full h-[300px] sm:h-[400px] md:h-[450px] bg-off-white/50">
+        {/* Map Container - Mobile First */}
+        <div className="relative w-full h-[280px] sm:h-[350px] md:h-[420px] lg:h-[500px] bg-off-white/50">
           {mapEmbedUrl && process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ? (
             // Google Maps Embed (requires API key)
             <iframe

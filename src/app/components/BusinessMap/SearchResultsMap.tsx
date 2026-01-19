@@ -102,8 +102,27 @@ export default function SearchResultsMap({
         markersRef.current.forEach(marker => marker.remove());
         markersRef.current = [];
 
+        // Deduplicate businesses by address/coordinates (keep first occurrence)
+        const seen = new Set<string>();
+        const uniqueBusinesses = businesses.filter((business) => {
+            if (!business.lat || !business.lng) return false;
+            
+            // Create unique key from coordinates rounded to 5 decimals (~1m precision)
+            // Also check address for exact matches
+            const coordKey = `${business.lat.toFixed(5)},${business.lng.toFixed(5)}`;
+            const addressKey = business.address || business.location || '';
+            const key = addressKey || coordKey;
+            
+            if (seen.has(key)) {
+                console.log(`[Map] Skipping duplicate: ${business.name} at ${key}`);
+                return false;
+            }
+            seen.add(key);
+            return true;
+        });
+
         // Add markers for businesses with coordinates
-        businesses.forEach((business) => {
+        uniqueBusinesses.forEach((business) => {
             if (!business.lat || !business.lng) return;
 
             const markerElement = document.createElement('div');
@@ -148,10 +167,13 @@ export default function SearchResultsMap({
             
             // Add padding
             map.current.fitBounds(bounds, {
-                padding: { top: 50, bottom: 50, left: 50, right: 50 },
+                padding: { top: 80, bottom: 80, left: 50, right: 50 },
                 maxZoom: 15,
+                duration: 400,
             });
         }
+        
+        console.log(`[Map] Displayed ${markersRef.current.length} unique locations from ${businesses.length} businesses`);
     }, [businesses, isLoaded, onBusinessClick]);
 
     if (!process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN) {
@@ -167,9 +189,9 @@ export default function SearchResultsMap({
 
     return (
         <div className={`relative w-full h-full ${className}`}>
-            <div ref={mapContainer} className="w-full h-full" style={{ minHeight: "400px" }} />
+            <div ref={mapContainer} className="w-full h-full" style={{ minHeight: "280px" }} />
             {selectedBusiness && (
-                <div className="absolute bottom-4 left-4 right-4 z-10 max-w-md mx-auto">
+                <div className="absolute bottom-3 sm:bottom-4 left-2 sm:left-4 right-2 sm:right-4 z-10 max-w-md mx-auto">
                     <div className="bg-white rounded-[20px] shadow-xl border border-white/30 p-3">
                         <BusinessCard 
                             business={{

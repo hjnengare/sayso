@@ -12,6 +12,12 @@ export type Event = {
   price?: string;
   description?: string;
   href?: string;
+  // Business ownership fields
+  businessId?: string; // Links event to business
+  businessName?: string; // For context in listings
+  createdBy?: string; // User ID who created the event
+  createdAt?: string; // ISO timestamp
+  isBusinessOwned?: boolean; // Flag to distinguish business-owned from static events
 };
 
 export const EVENTS_AND_SPECIALS: Event[] = [
