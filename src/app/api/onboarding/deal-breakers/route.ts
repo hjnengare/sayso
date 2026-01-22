@@ -53,12 +53,13 @@ export async function POST(req: Request) {
       throw new Error('Failed to save dealbreakers');
     }
 
-    // 2. Update onboarding_step to 'complete' and ensure current_role is set
+    // 2. Update onboarding_step to 'complete' and mark onboarding as complete
     // For personal users just completing onboarding, set current_role to 'user'
     const { error: updateError } = await supabase
       .from('profiles')
       .update({
         onboarding_step: 'complete',
+        onboarding_complete: true, // Mark onboarding as complete
         current_role: 'user', // Ensure personal users have role set
         updated_at: new Date().toISOString()
       })
