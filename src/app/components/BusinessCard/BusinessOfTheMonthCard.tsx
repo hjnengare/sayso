@@ -292,7 +292,7 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
   return (
     <motion.li
       id={idForSnap}
-      className="snap-start snap-always flex-shrink-0 w-[240px] sm:w-auto sm:min-w-[25%] md:min-w-[25%] xl:min-w-[25%] list-none"
+      className="snap-start snap-always flex-shrink-0 w-[100vw] sm:w-auto sm:min-w-[25%] md:min-w-[25%] xl:min-w-[25%] list-none"
       style={{
         fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
         fontWeight: 600,
@@ -307,7 +307,7 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
       }}
     >
       <div
-        className="relative px-1 pt-1 pb-0 bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[20px] overflow-visible group cursor-pointer w-full flex flex-col border border-white/60 backdrop-blur-xl ring-1 ring-white/30 shadow-md h-auto sm:h-auto md:w-[340px]"
+        className="relative px-1 pt-1 pb-0 bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[20px] overflow-visible group cursor-pointer w-full flex flex-col border border-white/60 backdrop-blur-xl ring-1 ring-white/30 shadow-md h-[600px] sm:h-auto"
         style={{
           maxWidth: "540px",
         } as React.CSSProperties}
@@ -324,7 +324,7 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
        
         {/* MEDIA - Full bleed with premium overlay */}
         <div
-          className="relative overflow-hidden z-10 cursor-pointer backdrop-blur-xl h-[300px] sm:h-[320px] md:h-[240px]"
+          className="relative overflow-hidden z-10 cursor-pointer backdrop-blur-xl h-[490px] sm:h-[320px] md:h-[240px]"
           onClick={handleCardClick}
         >
           <div 

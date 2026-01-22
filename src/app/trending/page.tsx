@@ -577,7 +577,12 @@ export default function TrendingPage() {
                                 className="list-none relative overflow-hidden desktop-card-shimmer"
                               >
                                 <span aria-hidden className="desktop-shimmer-veil" />
-                                <BusinessCard business={business} compact />
+                                <div className="md:hidden w-full">
+                                  <BusinessCard business={business} compact />
+                                </div>
+                                <div className="hidden md:block">
+                                  <BusinessCard business={business} compact />
+                                </div>
                               </div>
                             ))}
                           </div>
@@ -606,7 +611,12 @@ export default function TrendingPage() {
                                     delay: index * 0.06 + 0.1,
                                   }}
                                 >
-                                  <BusinessCard business={business} compact />
+                                  <div className="md:hidden w-full">
+                                    <BusinessCard business={business} compact />
+                                  </div>
+                                  <div className="hidden md:block">
+                                    <BusinessCard business={business} compact />
+                                  </div>
                                 </motion.div>
                               ))}
                             </div>
