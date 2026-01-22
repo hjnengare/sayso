@@ -155,6 +155,18 @@ function CompletePageContent() {
     }
   };
 
+  // Auto-redirect after 2 seconds
+  useEffect(() => {
+    const autoRedirectTimer = setTimeout(() => {
+      if (!isNavigating) {
+        console.log('[Complete Page] Auto-redirecting after 2 seconds');
+        handleContinue();
+      }
+    }, 2000);
+
+    return () => clearTimeout(autoRedirectTimer);
+  }, [isNavigating, handleContinue]);
+
   // Confetti celebration (deferred until after initial render for better performance)
   useEffect(() => {
     if (isVerifying) return;
