@@ -63,12 +63,13 @@ export function useCompletePage(): UseCompletePageReturn {
         const onboardingStep = user.profile?.onboarding_step;
         const onboardingComplete = user.profile?.onboarding_complete;
 
-        // If onboarding already completed, go to home
+        // If onboarding already completed, stay on complete page for celebration
+        // Let the page handle navigation based on role
         if (onboardingComplete) {
           if (!cancelled) {
             setHasVerified(true);
             setIsVerifying(false);
-            router.replace('/home');
+            console.log('[useCompletePage] Onboarding complete, allowing page to handle navigation');
           }
           return;
         }
@@ -115,22 +116,28 @@ export function useCompletePage(): UseCompletePageReturn {
     try {
       console.log('[useCompletePage] Checking user role before navigation');
       
+      // Safely access user role
+      if (!user?.profile) {
+        console.warn('[useCompletePage] User profile not available, defaulting to /home');
+        router.push('/home');
+        return;
+      }
+
       // Determine destination based on user role
-      const userRole = user?.profile?.current_role || user?.profile?.role || 'user';
+      const userRole = user.profile.current_role || user.profile.role || 'user';
       console.log('[useCompletePage] User role:', userRole);
       
       // Business owners go to /claim-business, personal users go to /home
       const destination = userRole === 'business_owner' ? '/claim-business' : '/home';
       
       console.log('[useCompletePage] Navigating to:', destination);
-      const result = router.push(destination);
-      console.log('[useCompletePage] Router.push result:', result);
+      router.push(destination);
     } catch (error) {
       console.error('[useCompletePage] Error with router.push:', error);
       // Fallback: use window.location for immediate hard redirect
       try {
         if (typeof window !== 'undefined') {
-          const destination = (user?.profile?.current_role || user?.profile?.role) === 'business_owner' ? '/claim-business' : '/home';
+          const destination = user?.profile?.current_role === 'business_owner' ? '/claim-business' : '/home';
           console.log('[useCompletePage] Using window.location.href fallback to:', destination);
           window.location.href = destination;
         }
@@ -138,7 +145,7 @@ export function useCompletePage(): UseCompletePageReturn {
         console.error('[useCompletePage] Fallback also failed:', fallbackError);
       }
     }
-  }, [router, user]);
+  }, [router, user?.profile]);
 
   return {
     isVerifying,

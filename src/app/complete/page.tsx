@@ -157,6 +157,11 @@ function CompletePageContent() {
 
   // Auto-redirect after 2 seconds
   useEffect(() => {
+    // Only auto-redirect if NOT currently verifying and NOT already navigating
+    if (isVerifying) {
+      return; // Wait for verification to complete
+    }
+
     const autoRedirectTimer = setTimeout(() => {
       if (!isNavigating) {
         console.log('[Complete Page] Auto-redirecting after 2 seconds');
@@ -165,7 +170,7 @@ function CompletePageContent() {
     }, 2000);
 
     return () => clearTimeout(autoRedirectTimer);
-  }, [isNavigating, handleContinue]);
+  }, [isNavigating, isVerifying, handleContinue]);
 
   // Confetti celebration (deferred until after initial render for better performance)
   useEffect(() => {
