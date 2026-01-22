@@ -114,25 +114,11 @@ export function useCompletePage(): UseCompletePageReturn {
   // Simple navigation to home - no saving needed
   const handleContinue = useCallback(() => {
     try {
-      console.log('[useCompletePage] Starting navigation');
-      console.log('[useCompletePage] User profile:', {
-        has_profile: !!user?.profile,
-        role: user?.profile?.role,
-        current_role: user?.profile?.current_role
-      });
+      console.log('[useCompletePage] DIAGNOSTIC: Hardcoded to /home');
       
-      // Safely access user role - default to 'user' if not set
-      const userRole = user?.profile?.current_role || user?.profile?.role || 'user';
-      console.log('[useCompletePage] Resolved user role:', userRole);
-      
-      // Business owners go to /claim-business, personal users go to /home
-      const destination = userRole === 'business_owner' ? '/claim-business' : '/home';
-      
-      console.log('[useCompletePage] Using direct window.location to:', destination);
-      
-      // Use window.location directly to bypass any middleware/router issues
+      // TEMPORARY DIAGNOSTIC: Hardcode to /home to test
       if (typeof window !== 'undefined') {
-        window.location.href = destination;
+        window.location.href = '/home';
       }
     } catch (error) {
       console.error('[useCompletePage] Error navigating:', error);
@@ -141,7 +127,7 @@ export function useCompletePage(): UseCompletePageReturn {
         window.location.href = '/home';
       }
     }
-  }, [user?.profile?.current_role, user?.profile?.role]);
+  }, []);
 
   return {
     isVerifying,
