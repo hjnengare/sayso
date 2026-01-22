@@ -395,8 +395,8 @@ function BusinessCard({
   const mediaBaseClass =
     "relative overflow-hidden z-10 cursor-pointer rounded-[20px] bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl";
   const mediaClass = compact
-    ? `${mediaBaseClass} h-[490px] sm:h-[320px] md:h-[240px]`
-    : `${mediaBaseClass} h-[490px] sm:h-[320px] md:h-[240px]`;
+    ? `${mediaBaseClass} h-[300px] sm:h-[320px] md:h-[240px]`
+    : `${mediaBaseClass} h-[300px] sm:h-[320px] md:h-[240px]`;
 
   // Animation variants - mobile gets fade, desktop gets slide
   const cardInitial = prefersReducedMotion
@@ -431,9 +431,9 @@ function BusinessCard({
     >
       <div
         className={`px-1 pt-1 pb-0 rounded-[20px] ${compact ? "lg:py-1 lg:pb-1 lg:min-h-[200px]" : "flex-1"
-          } relative flex-shrink-0 flex flex-col justify-between bg-sage z-10 shadow-md group w-full h-[650px] sm:h-auto`}
+          } relative flex-shrink-0 flex flex-col justify-between bg-sage z-10 shadow-md group w-full sm:h-auto`}
         style={{
-          maxWidth: compact ? "100%" : undefined,
+          maxWidth: compact ? "100%" : "540px",
         } as React.CSSProperties}
         role="link"
         tabIndex={0}
@@ -662,7 +662,7 @@ function BusinessCard({
 
         {/* CONTENT - Minimal, premium spacing */}
         <div
-          className={`px-4 sm:px-5 pt-1 md:pt-2 lg:pt-3 pb-0 ${compact ? "lg:py-1 lg:pt-2 lg:pb-0 lg:min-h-[160px]" : "flex-1"
+          className={`px-4 py-3 sm:px-5 sm:pt-1 md:pt-2 lg:pt-3 pb-0 ${compact ? "lg:py-1 lg:pt-2 lg:pb-0 lg:min-h-[160px]" : "flex-1"
             } relative flex-shrink-0 flex flex-col md:justify-start justify-between bg-sage/10 z-10 rounded-b-[20px]`}
         >
           <div className={`${compact ? "flex flex-col" : "flex-1 flex flex-col"}`}>

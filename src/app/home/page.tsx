@@ -594,9 +594,9 @@ export default function Home() {
                         />
                       </div>
                     ) : (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-3 justify-items-center">
                         {searchResults.map((business, index) => (
-                          <div key={business.id} className="list-none">
+                          <div key={business.id} className="list-none w-full flex justify-center">
                             <BusinessCard business={business as any} compact inGrid={true} index={index} />
                           </div>
                         ))}

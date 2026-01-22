@@ -539,11 +539,11 @@ export default function ForYouPage() {
                       </motion.div>
                     ) : (
                       isDesktop ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-5 lg:gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-5 lg:gap-6 justify-items-center">
                           {currentBusinesses.map((business) => (
                             <div
                               key={business.id}
-                              className="list-none relative overflow-hidden desktop-card-shimmer"
+                              className="list-none relative overflow-hidden desktop-card-shimmer w-full flex justify-center"
                             >
                               <span aria-hidden className="desktop-shimmer-veil" />
                               <BusinessCard business={business} compact />
@@ -561,11 +561,11 @@ export default function ForYouPage() {
                             ease: [0.16, 1, 0.3, 1],
                           }}
                         >
-                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-5 lg:gap-6">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-5 lg:gap-6 justify-items-center">
                             {currentBusinesses.map((business, index) => (
                               <motion.div
                                 key={business.id}
-                                className="list-none"
+                                className="list-none w-full flex justify-center"
                                 initial={{ opacity: 0, y: 30, scale: 0.95 }}
                                 animate={{ opacity: 1, y: 0, scale: 1 }}
                                 transition={{
