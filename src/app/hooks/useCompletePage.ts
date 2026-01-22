@@ -113,14 +113,20 @@ export function useCompletePage(): UseCompletePageReturn {
   // Simple navigation to home - no saving needed
   const handleContinue = useCallback(() => {
     try {
-      console.log('[useCompletePage] Navigating to /home');
-      // Use replace instead of push to ensure clean navigation
-      router.replace('/home');
+      console.log('[useCompletePage] Navigating to /home using router.push');
+      // Try router.push first
+      const result = router.push('/home');
+      console.log('[useCompletePage] Router.push result:', result);
     } catch (error) {
-      console.error('[useCompletePage] Error navigating to home:', error);
-      // Fallback: use window.location if replace fails
-      if (typeof window !== 'undefined') {
-        window.location.href = '/home';
+      console.error('[useCompletePage] Error with router.push:', error);
+      // Fallback: use window.location for immediate hard redirect
+      try {
+        if (typeof window !== 'undefined') {
+          console.log('[useCompletePage] Using window.location.href fallback');
+          window.location.href = '/home';
+        }
+      } catch (fallbackError) {
+        console.error('[useCompletePage] Fallback also failed:', fallbackError);
       }
     }
   }, [router]);

@@ -129,8 +129,16 @@ function CompletePageContent() {
     try {
       setIsNavigating(true);
       console.log('[Complete Page] Initiating navigation to home');
-      // Call the hook's handler which uses router.replace
+      // Call the hook's handler
       hookHandleContinue();
+      
+      // If still on page after 500ms, use hard redirect
+      setTimeout(() => {
+        if (typeof window !== 'undefined' && window.location.pathname === '/complete') {
+          console.log('[Complete Page] Navigation timeout - using window.location.href');
+          window.location.href = '/home';
+        }
+      }, 500);
       
       // Reset state after 3 seconds in case navigation fails
       setTimeout(() => {
@@ -138,6 +146,10 @@ function CompletePageContent() {
       }, 3000);
     } catch (error) {
       console.error('[Complete] Error navigating to home:', error);
+      // Immediate fallback
+      if (typeof window !== 'undefined') {
+        window.location.href = '/home';
+      }
       setIsNavigating(false);
     }
   };
