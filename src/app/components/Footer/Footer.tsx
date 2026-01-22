@@ -23,7 +23,7 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="bg-charcoal text-off-white rounded-xl mx-2 mb-2 px-3 py-4 sm:px-4 sm:py-3 shadow-md">
+    <footer className="bg-charcoal text-off-white px-3 py-4 sm:px-4 sm:py-3">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-3">
         {/* Logo */}
         <Link href="/" className="flex-shrink-0 hover:opacity-80 transition-opacity">
