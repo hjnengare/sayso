@@ -211,33 +211,7 @@ export default function ActionButtons({
       </OptimizedLink>
       )}
 
-      {/* 4) Profile (mobile only) — hide for guests to remove lock UI */}
-      {!isGuest && !isBusinessAccountUser && (
-        <OptimizedLink
-          href="/profile"
-          className={`md:hidden group w-11 h-11 sm:w-12 sm:h-12 flex items-center justify-center rounded-lg transition-all duration-200 min-h-[44px] min-w-[44px] touch-manipulation relative shadow-md ${
-            isProfileActive
-              ? "text-sage bg-sage/5"
-              : whiteText
-                ? "text-white hover:text-white/80 hover:bg-white/10"
-                : "text-charcoal/80 hover:text-sage hover:bg-sage/5"
-          }`}
-          aria-label="Profile"
-        >
-          <User
-            className={`w-6 h-6 sm:w-5 sm:h-5 transition-all duration-200 group-hover:scale-110 ${
-              isProfileActive
-                ? "text-sage"
-                : whiteText
-                  ? "text-white group-hover:text-white/80"
-                  : "text-current group-hover:text-sage"
-            }`}
-            style={{ textShadow: "0 2px 4px rgba(0, 0, 0, 0.1)" }}
-          />
-        </OptimizedLink>
-      )}
-
-      {/* 5) Mobile Search Icon — redirect to Trending */}
+      {/* 4) Mobile Search Icon — redirect to Trending */}
       <button
         onClick={() => router.push('/trending')}
         className={`md:hidden group w-11 h-11 sm:w-12 sm:h-12 flex items-center justify-center rounded-lg transition-all duration-200 relative shadow-md ${
