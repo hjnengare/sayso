@@ -58,13 +58,13 @@ const BusinessImagesSection: React.FC<BusinessImagesSectionProps> = ({
                     {/* Upload Button */}
                     <label className="block">
                         <div className="w-full min-h-[120px] border-2 border-dashed border-charcoal/20 rounded-[16px] flex flex-col items-center justify-center gap-3 p-6 cursor-pointer hover:border-charcoal/30 hover:bg-white/40 transition-all duration-200">
-                            <Upload className="w-8 h-8 text-charcoal/50" />
+                            <Upload className="w-8 h-8 text-white/70" />
                             <div className="text-center">
-                                <span className="text-sm font-semibold text-charcoal block mb-1" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
+                                <span className="text-sm font-semibold text-white block mb-1" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
                                     {imagePreviews.length === 0 ? 'Add Photos' : 'Add More Photos'}
                                 </span>
-                                <span className="text-xs text-charcoal/60" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                                    {imagePreviews.length}/10 images • Max 5MB each
+                                <span className="text-xs text-white/70" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                    {imagePreviews.length}/10 images  Max 5MB each
                                 </span>
                             </div>
                         </div>
@@ -80,8 +80,8 @@ const BusinessImagesSection: React.FC<BusinessImagesSectionProps> = ({
 
                     {uploadingImages && (
                         <div className="flex items-center justify-center gap-2 py-4">
-                            <Loader2 className="w-4 h-4 animate-spin text-charcoal/60" />
-                            <span className="text-sm text-charcoal/70" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>Uploading images...</span>
+                            <Loader2 className="w-4 h-4 animate-spin text-white/70" />
+                            <span className="text-sm text-white/70" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>Uploading images...</span>
                         </div>
                     )}
                 </div>

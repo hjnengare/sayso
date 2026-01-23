@@ -44,7 +44,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {/* Phone */}
                         <div>
-                            <label className="block text-sm font-semibold text-charcoal mb-2" style={{ fontFamily: 'Urbanist, sans-serif', fontWeight: 600 }}>
+                            <label className="block text-sm font-semibold text-white mb-2" style={{ fontFamily: 'Urbanist, sans-serif', fontWeight: 600 }}>
                                 Phone Number
                             </label>
                             <input
@@ -53,7 +53,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({
                                 onChange={(e) => onInputChange('phone', e.target.value)}
                                 onBlur={() => onBlur('phone')}
                                 style={{ fontFamily: 'Urbanist, sans-serif', fontWeight: 600 }}
-                                className={`w-full bg-white/95 backdrop-blur-sm border pl-4 pr-4 py-3 sm:py-4 text-sm font-semibold text-charcoal placeholder-charcoal/50 placeholder:font-normal focus:outline-none focus:ring-2 transition-all duration-300 hover:border-sage/50 rounded-full ${
+                                className={`w-full bg-white/95 backdrop-blur-sm border pl-4 pr-4 py-3 sm:py-4 text-sm font-semibold text-white placeholder-white/70 placeholder:font-normal focus:outline-none focus:ring-2 transition-all duration-300 hover:border-sage/50 rounded-full ${
                                     errors.phone
                                         ? 'border-coral focus:border-coral focus:ring-coral/20'
                                         : 'border-white/60 focus:ring-sage/30 focus:border-sage'
@@ -61,13 +61,13 @@ const ContactSection: React.FC<ContactSectionProps> = ({
                                 placeholder="+27 21 123 4567"
                             />
                             {touched.phone && errors.phone && (
-                                <p className="mt-2 text-sm text-coral font-medium" style={{ fontFamily: 'Urbanist, sans-serif' }}>{errors.phone}</p>
+                                <p className="mt-2 text-sm text-coral font-medium" style={{ fontFamily: 'Urbanist, sans-serif', color: 'white' }}>{errors.phone}</p>
                             )}
                         </div>
 
                         {/* Email */}
                         <div>
-                            <label className="block text-sm font-semibold text-charcoal mb-2" style={{ fontFamily: 'Urbanist, sans-serif', fontWeight: 600 }}>
+                            <label className="block text-sm font-semibold text-white mb-2" style={{ fontFamily: 'Urbanist, sans-serif', fontWeight: 600 }}>
                                 Email Address
                             </label>
                             <input
@@ -76,7 +76,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({
                                 onChange={(e) => onInputChange('email', e.target.value)}
                                 onBlur={() => onBlur('email')}
                                 style={{ fontFamily: 'Urbanist, sans-serif', fontWeight: 600 }}
-                                className={`w-full bg-white/95 backdrop-blur-sm border pl-4 pr-4 py-3 sm:py-4 text-sm font-semibold text-charcoal placeholder-charcoal/50 placeholder:font-normal focus:outline-none focus:ring-2 transition-all duration-300 hover:border-sage/50 rounded-full ${
+                                className={`w-full bg-white/95 backdrop-blur-sm border pl-4 pr-4 py-3 sm:py-4 text-sm font-semibold text-white placeholder-white/70 placeholder:font-normal focus:outline-none focus:ring-2 transition-all duration-300 hover:border-sage/50 rounded-full ${
                                     errors.email
                                         ? 'border-coral focus:border-coral focus:ring-coral/20'
                                         : 'border-white/60 focus:ring-sage/30 focus:border-sage'
@@ -84,14 +84,14 @@ const ContactSection: React.FC<ContactSectionProps> = ({
                                 placeholder="business@example.com"
                             />
                             {touched.email && errors.email && (
-                                <p className="mt-2 text-sm text-coral font-medium" style={{ fontFamily: 'Urbanist, sans-serif' }}>{errors.email}</p>
+                                <p className="mt-2 text-sm text-coral font-medium" style={{ fontFamily: 'Urbanist, sans-serif', color: 'white' }}>{errors.email}</p>
                             )}
                         </div>
                     </div>
 
                     {/* Website */}
                     <div>
-                        <label className="block text-sm font-semibold text-charcoal mb-2" style={{ fontFamily: 'Urbanist, sans-serif', fontWeight: 600 }}>
+                        <label className="block text-sm font-semibold text-white mb-2" style={{ fontFamily: 'Urbanist, sans-serif', fontWeight: 600 }}>
                             Website
                         </label>
                         <input
@@ -100,7 +100,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({
                             onChange={(e) => onInputChange('website', e.target.value)}
                             onBlur={() => onBlur('website')}
                             style={{ fontFamily: 'Urbanist, sans-serif', fontWeight: 600 }}
-                            className={`w-full bg-white/95 backdrop-blur-sm border pl-4 pr-4 py-3 sm:py-4 text-sm font-semibold text-charcoal placeholder-charcoal/50 placeholder:font-normal focus:outline-none focus:ring-2 transition-all duration-300 hover:border-sage/50 rounded-full ${
+                            className={`w-full bg-white/95 backdrop-blur-sm border pl-4 pr-4 py-3 sm:py-4 text-sm font-semibold text-white placeholder-white/70 placeholder:font-normal focus:outline-none focus:ring-2 transition-all duration-300 hover:border-sage/50 rounded-full ${
                                 errors.website
                                     ? 'border-coral focus:border-coral focus:ring-coral/20'
                                     : 'border-white/60 focus:ring-sage/30 focus:border-sage'
@@ -108,7 +108,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({
                             placeholder="https://www.example.com"
                         />
                         {touched.website && errors.website && (
-                            <p className="mt-2 text-sm text-coral font-medium" style={{ fontFamily: 'Urbanist, sans-serif' }}>{errors.website}</p>
+                            <p className="mt-2 text-sm text-coral font-medium" style={{ fontFamily: 'Urbanist, sans-serif', color: 'white' }}>{errors.website}</p>
                         )}
                     </div>
 

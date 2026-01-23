@@ -108,10 +108,7 @@ export default function Header({
   // Padding classes
   const currentPaddingClass = heroMode ? "py-0" : reducedPadding ? "py-3.5 md:py-4" : "py-3.5 md:py-6";
   
-  // Gate rendering until role and business access are resolved to avoid flashing wrong links
-  if (!isNavReady) {
-    return <HeaderSkeleton />;
-  }
+  // Always render the real header, even if navigation state is not ready
   
   return (
     <>

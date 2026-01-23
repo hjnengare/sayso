@@ -123,22 +123,72 @@ export async function GET(request: Request) {
         // Check if this is an email verification callback
         if (type === 'signup') {
           console.log('Email verification callback - checking verification status');
-          
           // Check if email is actually verified now
           if (user.email_confirmed_at) {
-            // Check user's role to determine redirect destination
-            const userRole = profile?.role || profile?.current_role || 'user';
-            
+            // CRITICAL: Check user's role to determine redirect destination
+            // Priority: user_metadata.account_type (source of truth from registration) > profile role > 'user'
+            // The user metadata is explicitly set during registration and should be trusted
+            // The profile trigger may create a default 'user' role which we should NOT prioritize
+            const userMetadataAccountType = user.user_metadata?.account_type as string | undefined;
+
+            // If user metadata explicitly says business_owner, trust it (set during registration)
+            // Only fall back to profile if metadata doesn't have account_type
+            let userRole: string;
+            if (userMetadataAccountType === 'business_owner') {
+              userRole = 'business_owner';
+            } else if (userMetadataAccountType === 'user') {
+              userRole = 'user';
+            } else {
+              // No metadata, fall back to profile
+              userRole = profile?.role || profile?.current_role || 'user';
+            }
+
+            console.log('Email verified - determining redirect:', {
+              profileRole: profile?.role,
+              currentRole: profile?.current_role,
+              metadataAccountType: userMetadataAccountType,
+              resolvedRole: userRole
+            });
+
+            // CRITICAL: Sync profile role with user metadata if they don't match
+            // The database trigger may have created the profile with default 'user' role
+            // We need to update it to match the actual registration intent
+            if (userMetadataAccountType && profile && profile.role !== userMetadataAccountType) {
+              console.log('Profile role mismatch - syncing profile with metadata:', {
+                currentProfileRole: profile.role,
+                metadataAccountType: userMetadataAccountType
+              });
+
+              try {
+                const { error: updateError } = await supabase
+                  .from('profiles')
+                  .update({
+                    role: userMetadataAccountType,
+                    current_role: userMetadataAccountType,
+                    updated_at: new Date().toISOString()
+                  })
+                  .eq('user_id', user.id);
+
+                if (updateError) {
+                  console.error('Failed to sync profile role:', updateError);
+                } else {
+                  console.log('Successfully synced profile role to:', userMetadataAccountType);
+                }
+              } catch (syncError) {
+                console.error('Error syncing profile role:', syncError);
+              }
+            }
+
             if (userRole === 'business_owner') {
-              console.log('Email verified - business owner, redirecting to /claim-business');
-              const dest = new URL('/claim-business', request.url);
+              console.log('Email verified - business owner, redirecting to /my-businesses');
+              const dest = new URL('/my-businesses', request.url);
               const redirectResponse = NextResponse.redirect(dest);
               response.cookies.getAll().forEach(cookie => {
                 redirectResponse.cookies.set(cookie);
               });
               return redirectResponse;
             } else {
-              console.log('Email verified - redirecting to interests');
+              console.log('Email verified - personal user, redirecting to interests onboarding');
               // Email is verified, proceed directly to interests
               const dest = new URL('/interests', request.url);
               dest.searchParams.set('verified', '1'); // one-time signal

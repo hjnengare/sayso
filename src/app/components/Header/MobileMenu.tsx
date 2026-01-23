@@ -40,6 +40,33 @@ export default function MobileMenu({
     isOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
   }`;
 
+  // Always render nav links, but show skeleton/placeholder if loading
+  if (typeof isBusinessAccountUser === 'undefined') {
+    return (
+      <div className={`fixed top-0 right-0 h-full w-full bg-navbar-bg z-[99999] shadow-[0_-4px_24px_rgba(0,0,0,0.15),0_-2px_8px_rgba(0,0,0,0.1)] transform md:hidden backdrop-blur-xl border-l border-white/20 ${
+        isOpen ? "translate-x-0" : "translate-x-full"
+      } transition-transform duration-300`}>
+        <div className={`flex flex-col h-full overflow-hidden ${mobileModalRevealClass}`}>
+          <div className="flex items-center justify-between px-4 py-4 border-b border-charcoal/10 flex-shrink-0 transition-all duration-500 ease-out">
+            <Logo variant="mobile" color="sage" />
+            <button
+              onClick={onClose}
+              className="w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center text-off-white hover:text-off-white/80 transition-colors focus:outline-none focus:ring-0"
+              aria-label="Close menu"
+            >
+              <X className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={2.8} />
+            </button>
+          </div>
+          <div className="flex flex-col items-center justify-center flex-1 gap-4">
+            {[0, 1, 2, 3].map((i) => (
+              <div key={i} className="h-8 w-32 bg-white/10 rounded-lg animate-pulse" />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       {isOpen && (

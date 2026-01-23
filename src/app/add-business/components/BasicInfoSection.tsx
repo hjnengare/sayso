@@ -122,7 +122,7 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
                 <div className="space-y-6">
                     {/* Business Name */}
                     <div>
-                        <label className="block text-sm font-semibold text-charcoal mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
+                        <label className="block text-sm font-semibold text-white mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
                             Business Name <span className="text-coral">*</span>
                         </label>
                         <input
@@ -136,7 +136,7 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
                             aria-describedby={touched.name && errors.name ? "name-error" : undefined}
                             aria-required="true"
                             style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
-                            className={`w-full bg-white/95 backdrop-blur-sm border pl-4 pr-4 py-3 sm:py-4 md:py-5 text-body font-semibold text-charcoal placeholder-charcoal/50 placeholder:font-normal focus:outline-none focus:ring-2 transition-all duration-300 hover:border-sage/50 input-mobile rounded-full ${
+                            className={`w-full bg-white/95 backdrop-blur-sm border pl-4 pr-4 py-3 sm:py-4 md:py-5 text-body font-semibold text-white placeholder-white/70 placeholder:font-normal focus:outline-none focus:ring-2 transition-all duration-300 hover:border-sage/50 input-mobile rounded-full ${
                                 errors.name
                                     ? 'border-navbar-bg focus:border-navbar-bg focus:ring-navbar-bg/20'
                                     : 'border-white/60 focus:ring-navbar-bg/30 focus:border-navbar-bg'
@@ -149,7 +149,7 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
                                 className="mt-2 text-sm text-navbar-bg font-medium flex items-center gap-1.5"
                                 role="alert"
                                 aria-live="polite"
-                                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', color: 'white' }}
                             >
                                 {errors.name}
                             </p>

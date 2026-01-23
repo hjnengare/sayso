@@ -4,28 +4,27 @@ import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { motion } from "framer-motion";
-import { useAuth } from "../contexts/AuthContext";
-import { useToast } from "../contexts/ToastContext";
-import { usePrefersReducedMotion } from "../utils/hooks/usePrefersReducedMotion";
-import { useScrollReveal } from "../hooks/useScrollReveal";
-import { RateLimiter } from "../lib/rateLimiting";
-import { usePredefinedPageTitle } from "../hooks/usePageTitle";
-import { InlineLoader } from "../components/Loader/Loader";
-import WavyTypedTitle from "../../components/Animations/WavyTypedTitle";
+import { useAuth } from "../../contexts/AuthContext";
+import { useToast } from "../../contexts/ToastContext";
+import { usePrefersReducedMotion } from "../../utils/hooks/usePrefersReducedMotion";
+import { useScrollReveal } from "../../hooks/useScrollReveal";
+import { RateLimiter } from "../../lib/rateLimiting";
+import { usePredefinedPageTitle } from "../../hooks/usePageTitle";
+import { InlineLoader } from "../../components/Loader/Loader";
+import WavyTypedTitle from "../../../components/Animations/WavyTypedTitle";
 
 // Import shared components
-import { authStyles } from "../components/Auth/Shared/authStyles";
-import { EmailInput } from "../components/Auth/Shared/EmailInput";
-import { PasswordInput } from "../components/Auth/Shared/PasswordInput";
-import { SocialLoginButtons } from "../components/Auth/Shared/SocialLoginButtons";
+import { authStyles } from "../../components/Auth/Shared/authStyles";
+import { EmailInput } from "../../components/Auth/Shared/EmailInput";
+import { PasswordInput } from "../../components/Auth/Shared/PasswordInput";
+// Note: SocialLoginButtons not imported - business accounts use email+password only
 
 // Import register-specific components
-import { UsernameInput } from "../components/Auth/Register/UsernameInput";
-import { RegistrationProgress } from "../components/Auth/Register/RegistrationProgress";
-import { usePasswordStrength, validatePassword } from "../components/Auth/Register/usePasswordStrength";
+import { UsernameInput } from "../../components/Auth/Register/UsernameInput";
+import { RegistrationProgress } from "../../components/Auth/Register/RegistrationProgress";
+import { usePasswordStrength, validatePassword } from "../../components/Auth/Register/usePasswordStrength";
 
-export default function RegisterPage() {
+export default function BusinessRegisterPage() {
   usePredefinedPageTitle('register');
   const prefersReduced = usePrefersReducedMotion();
   const [username, setUsername] = useState("");
@@ -204,7 +203,7 @@ export default function RegisterPage() {
       // Check rate limit before attempting registration
       const normalizedEmail = email.trim().toLowerCase();
       const rateLimitResult = await RateLimiter.checkRateLimit(normalizedEmail, 'register');
-      
+
       if (!rateLimitResult.allowed) {
         const errorMsg = rateLimitResult.message || 'Too many registration attempts. Please try again later.';
         setError(errorMsg);
@@ -213,20 +212,20 @@ export default function RegisterPage() {
         return;
       }
 
-      // Always register as personal user
-      const success = await register(normalizedEmail, password, username.trim(), 'user');
-      
+      // Register as business owner
+      const success = await register(normalizedEmail, password, username.trim(), 'business_owner');
+
       if (success) {
         // Clear rate limit on successful registration
         await RateLimiter.recordSuccess(normalizedEmail, 'register');
-        
+
         setUsername("");
         setEmail("");
         setPassword("");
-        showToast("✅ Account created! Check your email to confirm your account.", 'success', 5000);
+        showToast("✅ Business account created! Check your email to confirm your account.", 'success', 5000);
       } else {
         // Rate limit already incremented by checkRateLimit, no need to record failure
-        
+
         if (authError) {
           if (authError.includes('fetch') || authError.includes('network')) {
             setError('🌐 Connection error. Please check your internet connection and try again.');
@@ -237,7 +236,7 @@ export default function RegisterPage() {
             showToast('✅ Log in and add a second account type in Settings', 'success', 5000);
             // Optionally redirect to login after a delay
             setTimeout(() => {
-              router.push(`/login?email=${encodeURIComponent(normalizedEmail)}`);
+              router.push(`/business/login?email=${encodeURIComponent(normalizedEmail)}`);
             }, 2000);
           } else if (
             authError.toLowerCase().includes('already in use') ||
@@ -300,7 +299,7 @@ export default function RegisterPage() {
         <div className="text-center mb-4 pt-16 sm:pt-20">
           <div className="inline-block relative mb-4 animate-fade-in-up animate-delay-400">
             <WavyTypedTitle
-              text="Create an account"
+              text="Create a business account"
               as="h2"
               className="text-3xl md:text-4xl font-semibold mb-2 text-center leading-[1.2] px-2 tracking-tight text-charcoal"
               typingSpeedMs={40}
@@ -309,14 +308,14 @@ export default function RegisterPage() {
               loopWave={false}
               triggerOnTypingComplete={true}
               enableScrollTrigger={false}
-              style={{ 
+              style={{
                 fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                 fontWeight: 700,
               }}
             />
           </div>
           <p className="text-body font-normal text-charcoal/70 mb-4 leading-[1.55] px-2 max-w-[70ch] mx-auto animate-fade-in-up animate-delay-700" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 400 }}>
-            Sign up today - share honest reviews, climb leaderboards, and rate any business!
+            Register your business to manage your presence, respond to reviews, and connect with customers!
           </p>
         </div>
 
@@ -395,7 +394,7 @@ export default function RegisterPage() {
                 </label>
               </div>
 
-                {/* Sign Up Button and Business Links */}
+                {/* Sign Up Button and Personal Links */}
                 <div className="pt-4 flex flex-col items-center gap-2">
                   <button
                     type="submit"
@@ -409,25 +408,25 @@ export default function RegisterPage() {
                         Creating account...
                       </>
                     ) : (
-                      "Create account"
+                      "Create business account"
                     )}
                   </button>
-                  {/* Business Account Links */}
+                  {/* Personal Account Links */}
                   <div className="mt-2 text-center">
                     <Link
-                      href="/business/login"
+                      href="/login"
                       className="text-body-sm text-white/80 hover:text-coral font-medium underline-offset-2 hover:underline transition-colors duration-200"
                       style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 500 }}
                     >
-                      Log in to a Business Account
+                      Log in to a Personal Account
                     </Link>
                     <span className="mx-2 text-white/30" aria-hidden="true">|</span>
                     <Link
-                      href="/business/register"
+                      href="/register"
                       className="text-body-sm text-white/80 hover:text-coral font-medium underline-offset-2 hover:underline transition-colors duration-200"
                       style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 500 }}
                     >
-                      Sign up for a Business Account
+                      Sign up for a Personal Account
                     </Link>
                   </div>
                 </div>
@@ -440,16 +439,15 @@ export default function RegisterPage() {
                 consentGiven={consent}
               />
 
-              {/* Social Login - Only show for Personal accounts */}
-              <SocialLoginButtons accountType={'user'} />
+              {/* Note: No OAuth for business accounts - email+password only */}
             </form>
 
             {/* Footer */}
               <div className="text-center mt-6 pt-6 border-t border-white/20">
               <div className="text-body-sm sm:text-body text-white" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 400 }}>
-                Already have an account?{" "}
+                Already have a business account?{" "}
                 <Link
-                  href="/login"
+                  href="/business/login"
                   className="text-white font-semibold hover:text-coral transition-colors duration-300 relative group"
                   style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 600 }}
                 >

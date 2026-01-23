@@ -999,9 +999,6 @@ function ProfileContent() {
                   </nav>
                   <div className="pt-2 pb-12 sm:pb-16 md:pb-20">
                     <div className="space-y-6">
-                      {profileLoading ? (
-                        <ProfileHeaderSkeleton />
-                      ) : (
                       <article
                         className="w-full sm:mx-0"
                         aria-labelledby="profile-heading"
@@ -1137,7 +1134,7 @@ function ProfileContent() {
                           </div>
                         </div>
                       </article>
-                      )}
+                    )}
 
                       {statsLoading ? (
                         <StatsGridSkeleton />

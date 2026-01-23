@@ -365,29 +365,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const register = async (email: string, password: string, username: string, accountType: 'user' | 'business_owner' = 'user'): Promise<boolean> => {
       setIsLoading(true);
       setError(null);
-
       try {
         console.log('AuthContext: Starting registration...', { email, accountType });
-        
         const { user: authUser, session, error: authError } = await AuthService.signUp({ email, password, username, accountType });
-
         if (authError) {
           console.error('AuthContext: Registration error details:', { 
             message: authError?.message || 'Unknown error',
             code: authError?.code || 'unknown',
             fullError: authError
           });
-          
-          // Pass through specific error codes as-is (they have special handling)
-          if (authError.code === 'email_exists_can_add_account_type') {
-            setError(`email_exists_can_add_account_type: ${authError.message}`);
-            setIsLoading(false);
-            return false;
-          }
-          
-          // Handle other specific error cases
           let errorMessage = authError.message;
-          // Check for email already in use - check both code and message
           if (
             authError.code === 'user_exists' ||
             authError.code === 'duplicate_account_type' ||
@@ -396,13 +383,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
             authError.message.toLowerCase().includes('email already') ||
             authError.message.toLowerCase().includes('already exists')
           ) {
-            errorMessage = authError.message; // Use the descriptive message from auth.ts
+            errorMessage = authError.message;
           }
           setError(errorMessage);
           setIsLoading(false);
           return false;
         }
-
         if (authUser) {
           console.log('AuthContext: Registration successful', {
             email: authUser.email,
@@ -411,28 +397,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
             has_session: !!session,
             session_data: session
           });
-
-          // Clear rate limit on successful registration
           try {
             await RateLimiter.recordSuccess(email.trim().toLowerCase(), 'register');
           } catch (rateLimitError) {
             console.error('Error clearing rate limit:', rateLimitError);
-            // Don't fail registration if rate limit clearing fails
           }
-
-          // Set user state - this will trigger auth state change
           setUser(authUser);
-
-          // Store email in sessionStorage for verify-email page (in case AuthContext state is lost)
           if (typeof window !== 'undefined') {
             sessionStorage.setItem('pendingVerificationEmail', authUser.email);
           }
-
-          // Redirect to verify-email page since user won't have a session until email is verified
-          console.log('AuthContext: Registration complete, redirecting to verify-email');
           router.push('/verify-email');
         }
-
         setIsLoading(false);
         return true;
       } catch (error: unknown) {
@@ -552,68 +527,44 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       // Transform fresh profile data to match the profile structure
       let transformedProfile = null;
-      
-      if (freshProfile) {
-        // Use fresh data from database (most accurate)
+      if (userData && userData.profile) {
         transformedProfile = {
-          id: freshProfile.user_id,
-          onboarding_step: freshProfile.onboarding_step,
-          onboarding_complete: freshProfile.onboarding_step === 'complete',
-          interests_count: freshProfile.interests_count || 0,
-          last_interests_updated: freshProfile.last_interests_updated,
-          avatar_url: freshProfile.avatar_url || undefined,
-          username: freshProfile.username || undefined,
-          display_name: freshProfile.display_name || undefined,
-          locale: 'en', // Default locale - locale column doesn't exist in profiles table
-          is_top_reviewer: freshProfile.is_top_reviewer || false,
-          reviews_count: freshProfile.reviews_count || 0,
-          badges_count: freshProfile.badges_count || 0,
-          subcategories_count: freshProfile.subcategories_count || 0,
-          dealbreakers_count: freshProfile.dealbreakers_count || 0,
-          created_at: freshProfile.created_at,
-          updated_at: freshProfile.updated_at
+          username: userData.profile.username !== undefined
+            ? (userData.profile.username?.trim() || undefined)
+            : user.profile?.username,
+          display_name: userData.profile.display_name !== undefined
+            ? (userData.profile.display_name?.trim() || undefined)
+            : user.profile?.display_name,
+          avatar_url: userData.profile.avatar_url !== undefined
+            ? userData.profile.avatar_url
+            : user.profile?.avatar_url,
         };
-      } else if (fetchError) {
-        // If fetch failed but update succeeded, use the data we tried to save
-        // Merge userData.profile with existing profile to preserve all fields
-        console.warn('Failed to fetch fresh profile after update, using provided data:', fetchError);
-        if (userData.profile) {
-          transformedProfile = {
-            ...user.profile,
-            ...userData.profile,
-            // Ensure username and display_name are properly set (null if empty)
-            username: userData.profile.username !== undefined 
-              ? (userData.profile.username?.trim() || undefined)
-              : user.profile?.username,
-            display_name: userData.profile.display_name !== undefined
-              ? (userData.profile.display_name?.trim() || undefined)
-              : user.profile?.display_name,
-            avatar_url: userData.profile.avatar_url !== undefined
-              ? userData.profile.avatar_url
-              : user.profile?.avatar_url,
-          };
-        }
       }
 
       // Update local user state with fresh data from database or provided data
-      const updatedUser = {
-        ...user,
-        ...userData,
-        profile: transformedProfile || (userData.profile ? { ...user.profile, ...userData.profile } : user.profile)
-      };
-
-      console.log('Updated user state with fresh profile data:', {
-        username: updatedUser.profile?.username,
-        display_name: updatedUser.profile?.display_name,
-        avatar_url: updatedUser.profile?.avatar_url
-      });
-      setUser(updatedUser);
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Update failed';
-      setError(message);
-      // Re-throw so calling code can handle the error
-      throw error;
-    } finally {
+      try {
+        const updatedUser = {
+          ...user,
+          ...userData,
+          profile: transformedProfile || (userData.profile ? { ...user.profile, ...userData.profile } : user.profile)
+        };
+        console.log('Updated user state with fresh profile data:', {
+          username: updatedUser.profile?.username,
+          display_name: updatedUser.profile?.display_name,
+          avatar_url: updatedUser.profile?.avatar_url
+        });
+        setUser(updatedUser);
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Update failed';
+        setError(message);
+        // Re-throw so calling code can handle the error
+        throw error;
+      } finally {
+        setIsLoading(false);
+      }
+    } catch (error) {
+      console.error('AuthContext: Error updating user:', error);
+      setError('Failed to update user data');
       setIsLoading(false);
     }
   };
@@ -681,5 +632,3 @@ export function useAuth() {
   }
   return context;
 }
-
-export type { AuthUser };

@@ -40,59 +40,12 @@ export async function POST(request: Request) {
       }
     );
 
-    // Get current user
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-
-    if (userError || !user) {
-      return NextResponse.json(
-        { error: 'User not authenticated' },
-        { status: 401 }
-      );
+    /**
+     * [OBSOLETE] This endpoint is deprecated. Account type toggling is no longer supported.
+     */
+    export async function POST() {
+      return NextResponse.json({ error: 'This endpoint is deprecated. Account type toggling is no longer supported.' }, { status: 410 });
     }
-
-    // Get existing profile
-    const { data: existingProfile, error: profileError } = await supabase
-      .from('profiles')
-      .select('role, current_role')
-      .eq('user_id', user.id)
-      .single();
-
-    if (profileError || !existingProfile) {
-      return NextResponse.json(
-        { error: 'Profile not found' },
-        { status: 404 }
-      );
-    }
-
-    const { role } = existingProfile;
-
-    // Check if they already have this account type
-    if (role === accountType || role === 'both') {
-      return NextResponse.json(
-        { error: `You already have a ${accountType === 'user' ? 'Personal' : 'Business'} account` },
-        { status: 400 }
-      );
-    }
-
-    // Update role to 'both' and set current_role to the new type
-    const { data: updatedProfile, error: updateError } = await supabase
-      .from('profiles')
-      .update({
-        role: 'both',
-        current_role: accountType,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('user_id', user.id)
-      .select()
-      .single();
-
-    if (updateError) {
-      console.error('Error updating profile:', updateError);
-      return NextResponse.json(
-        { error: 'Failed to add account type' },
         { status: 500 }
       );
     }

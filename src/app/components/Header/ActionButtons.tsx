@@ -211,25 +211,27 @@ export default function ActionButtons({
       </OptimizedLink>
       )}
 
-      {/* 4) Mobile Search Icon — redirect to Trending */}
-      <button
-        onClick={() => router.push('/trending')}
-        className={`md:hidden group w-11 h-11 sm:w-12 sm:h-12 flex items-center justify-center rounded-lg transition-all duration-200 relative shadow-md ${
-          whiteText
-            ? "text-white hover:text-white/80 hover:bg-white/10"
-            : "text-charcoal/80 hover:text-sage hover:bg-sage/5"
-        }`}
-        aria-label="Search"
-      >
-        <Search
-          className={`w-6 h-6 sm:w-5 sm:h-5 transition-all duration-200 group-hover:scale-110 ${
+      {/* 4) Mobile Search Icon — redirect to Trending (only for personal accounts) */}
+      {!isBusinessAccountUser && (
+        <button
+          onClick={() => router.push('/trending')}
+          className={`md:hidden group w-11 h-11 sm:w-12 sm:h-12 flex items-center justify-center rounded-lg transition-all duration-200 relative shadow-md ${
             whiteText
-              ? "text-white group-hover:text-white/80"
-              : "text-current group-hover:text-sage"
+              ? "text-white hover:text-white/80 hover:bg-white/10"
+              : "text-charcoal/80 hover:text-sage hover:bg-sage/5"
           }`}
-          style={{ textShadow: "0 2px 4px rgba(0, 0, 0, 0.1)" }}
-        />
-      </button>
+          aria-label="Search"
+        >
+          <Search
+            className={`w-6 h-6 sm:w-5 sm:h-5 transition-all duration-200 group-hover:scale-110 ${
+              whiteText
+                ? "text-white group-hover:text-white/80"
+                : "text-current group-hover:text-sage"
+            }`}
+            style={{ textShadow: "0 2px 4px rgba(0, 0, 0, 0.1)" }}
+          />
+        </button>
+      )}
 
       {/* Mobile Menu Toggle (kept last) */}
       <button

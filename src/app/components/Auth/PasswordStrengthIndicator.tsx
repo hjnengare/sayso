@@ -11,6 +11,10 @@ interface PasswordStrengthIndicatorProps {
 export function PasswordStrengthIndicator({ strength, showChecks = true }: PasswordStrengthIndicatorProps) {
   const { score, feedback, checks, color } = strength;
 
+  // Only show green if all requirements are met and no warnings
+  const allRequirementsMet = checks.length && checks.uppercase && checks.lowercase && checks.number;
+  const isStrictSuccess = allRequirementsMet && (!color || color === 'text-sage');
+
   return (
     <div className="mt-2 space-y-2">
       {/* Strength Bar */}
@@ -22,12 +26,14 @@ export function PasswordStrengthIndicator({ strength, showChecks = true }: Passw
               score === 1 ? 'w-1/4 bg-red-500' :
               score === 2 ? 'w-1/2 bg-orange-500' :
               score === 3 ? 'w-3/4 bg-yellow-500' :
-              'w-full bg-sage'
+              isStrictSuccess ? 'w-full bg-sage' : 'w-full bg-yellow-500'
             }`}
           />
         </div>
         {feedback && (
-          <span className={`text-sm sm:text-xs font-medium ${color || 'text-charcoal/60'}`}>
+          <span className={`text-sm sm:text-xs font-medium ${
+            isStrictSuccess ? 'text-sage' : color || 'text-charcoal/60'
+          }`}>
             {feedback}
           </span>
         )}

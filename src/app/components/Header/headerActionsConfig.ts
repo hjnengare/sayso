@@ -16,8 +16,8 @@ export const PRIMARY_LINKS: readonly NavLink[] = [
 
 export const BUSINESS_LINKS: readonly NavLink[] = [
   { key: "my-businesses", label: "My Businesses", href: "/my-businesses", requiresAuth: true },
-  { key: "claim-business", label: "Claim Business", href: "/claim-business", requiresAuth: true },
-  { key: "add-business", label: "Add Business", href: "/add-business", requiresAuth: true },
+  { key: "claim-business", label: "Claim a Business", href: "/claim-business", requiresAuth: true },
+  { key: "add-business", label: "Add a new Business", href: "/add-business", requiresAuth: true },
 ] as const;
 
 export const DISCOVER_LINKS: readonly NavLink[] = [
@@ -161,14 +161,16 @@ export const getBusinessNavLinks = (
   if (!isBusinessAccountUser) return [];
   if (isCheckingBusinessOwner) return [];
 
+  // Only show Claim Business once, never duplicate
   if (hasOwnedBusinesses) {
     return BUSINESS_LINKS.filter((link) => link.key !== "claim-business");
   }
 
-  return [
-    BUSINESS_LINKS.find((link) => link.key === "claim-business")!,
-    BUSINESS_LINKS.find((link) => link.key === "add-business")!,
-  ].filter(Boolean);
+  // Only show Claim Business and Add Business if not already claimed
+  return BUSINESS_LINKS.filter((link, idx, arr) => {
+    // Only include each link once
+    return arr.findIndex(l => l.key === link.key) === idx;
+  }).filter(link => link.key === "claim-business" || link.key === "add-business");
 };
 
 /**
@@ -193,10 +195,13 @@ export const filterActionButtonsByRole = (
   return buttons.filter((btn) => {
     // Skip if requires auth and user is guest
     if (btn.requiresAuth && isGuest) return false;
-    
+
+    // Remove search icon for business accounts on mobile
+    if (isBusinessAccountUser && btn.key === 'search' && btn.showOnMobile) return false;
+
     // Skip if requires non-business owner and user is business owner
     if (btn.requiresNotBusinessOwner && isBusinessAccountUser) return false;
-    
+
     return true;
   });
 };
@@ -231,13 +236,24 @@ export const getAllNavLinksForRole = (
   isCheckingBusinessOwner: boolean,
   hasOwnedBusinesses: boolean
 ) => {
-  const primaryLinks = !isBusinessAccountUser ? PRIMARY_LINKS : [];
-  const businessLinks = getBusinessNavLinks(
+  // Always provide at least one set of links for all roles
+  let primaryLinks = PRIMARY_LINKS;
+  let businessLinks = getBusinessNavLinks(
     isBusinessAccountUser,
     isCheckingBusinessOwner,
     hasOwnedBusinesses
   );
-  const discoverLinks = !isBusinessAccountUser ? DISCOVER_LINKS : [];
+  let discoverLinks = DISCOVER_LINKS;
+
+  // If business account, show both business and discover/primary links
+  if (isBusinessAccountUser) {
+    // If businessLinks is empty (e.g. loading), still show discover/primary
+    if (businessLinks.length === 0) {
+      businessLinks = [];
+    }
+    // Optionally, you can choose to hide primaryLinks for business, but always show discover
+    // Or merge them as needed for your UX
+  }
 
   return {
     primaryLinks,

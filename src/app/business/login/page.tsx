@@ -3,21 +3,20 @@
 import Link from "next/link";
 import { useState, useRef } from "react";
 import { ArrowLeft } from "lucide-react";
-import { motion } from "framer-motion";
-import { useAuth } from "../contexts/AuthContext";
-import { useToast } from "../contexts/ToastContext";
-import { useScrollReveal } from "../hooks/useScrollReveal";
-import { RateLimiter } from "../lib/rateLimiting";
-import { usePredefinedPageTitle } from "../hooks/usePageTitle";
-import WavyTypedTitle from "../../components/Animations/WavyTypedTitle";
+import { useAuth } from "../../contexts/AuthContext";
+import { useToast } from "../../contexts/ToastContext";
+import { useScrollReveal } from "../../hooks/useScrollReveal";
+import { RateLimiter } from "../../lib/rateLimiting";
+import { usePredefinedPageTitle } from "../../hooks/usePageTitle";
+import WavyTypedTitle from "../../../components/Animations/WavyTypedTitle";
 
 // Import shared components
-import { authStyles } from "../components/Auth/Shared/authStyles";
-import { EmailInput } from "../components/Auth/Shared/EmailInput";
-import { PasswordInput } from "../components/Auth/Shared/PasswordInput";
-import { SocialLoginButtons } from "../components/Auth/Shared/SocialLoginButtons";
+import { authStyles } from "../../components/Auth/Shared/authStyles";
+import { EmailInput } from "../../components/Auth/Shared/EmailInput";
+import { PasswordInput } from "../../components/Auth/Shared/PasswordInput";
+// Note: SocialLoginButtons not imported - business accounts use email+password only
 
-export default function LoginPage() {
+export default function BusinessLoginPage() {
   usePredefinedPageTitle('login');
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -26,6 +25,9 @@ export default function LoginPage() {
   const [passwordTouched, setPasswordTouched] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const containerRef = useRef(null);
+
+  const { login, error: authError } = useAuth();
+  const { showToast } = useToast();
 
   // Initialize scroll reveal (runs once per page load)
   useScrollReveal({ threshold: 0.1, rootMargin: "0px 0px -50px 0px", once: true });
@@ -78,7 +80,7 @@ export default function LoginPage() {
       // Check rate limit before attempting login
       const normalizedEmail = email.trim().toLowerCase();
       const rateLimitResult = await RateLimiter.checkRateLimit(normalizedEmail, 'login');
-      
+
       if (!rateLimitResult.allowed) {
         const errorMsg = rateLimitResult.message || 'Too many attempts. Try again later.';
         setError(errorMsg);
@@ -87,8 +89,8 @@ export default function LoginPage() {
         return;
       }
 
-      // Always login as personal user
-      const loggedInUser = await login(email, password, 'user');
+      // Login as business owner
+      const loggedInUser = await login(email, password, 'business_owner');
 
       if (loggedInUser) {
         // Clear rate limit on successful login
@@ -125,7 +127,7 @@ export default function LoginPage() {
         <div className="text-center mb-4 pt-16 sm:pt-20">
           <div className="inline-block relative mb-4 animate-fade-in-up animate-delay-400">
             <WavyTypedTitle
-              text="Welcome back"
+              text="Business Login"
               as="h2"
               className="font-urbanist text-3xl md:text-4xl font-700 mb-2 text-center leading-[1.2] px-2 tracking-tight text-charcoal"
               typingSpeedMs={40}
@@ -137,7 +139,7 @@ export default function LoginPage() {
             />
           </div>
           <p className="text-body font-normal text-charcoal/70 mb-4 leading-[1.55] px-2 max-w-[70ch] mx-auto animate-fade-in-up animate-delay-700">
-            Sign in to continue discovering sayso
+            Sign in to manage your business on sayso
           </p>
         </div>
 
@@ -212,36 +214,35 @@ export default function LoginPage() {
                       )}
                     </button>
                   </div>
-                  {/* Business Account Links */}
+                  {/* Personal Account Links */}
                   <div className="mt-2 text-center">
                     <Link
-                      href="/business/login"
+                      href="/login"
                       className="text-body-sm text-white/80 hover:text-coral font-medium underline-offset-2 hover:underline transition-colors duration-200"
                       style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 500 }}
                     >
-                      Log in to a Business Account
+                      Log in to a Personal Account
                     </Link>
                     <span className="mx-2 text-white/30" aria-hidden="true">|</span>
                     <Link
-                      href="/business/register"
+                      href="/register"
                       className="text-body-sm text-white/80 hover:text-coral font-medium underline-offset-2 hover:underline transition-colors duration-200"
                       style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 500 }}
                     >
-                      Sign up for a Business Account
+                      Sign up for a Personal Account
                     </Link>
                   </div>
                 </div>
 
-              {/* Social Login - Only show for Personal accounts */}
-              <SocialLoginButtons accountType={'user'} />
+              {/* Note: No OAuth for business accounts - email+password only */}
             </form>
 
             {/* Footer */}
             <div className="text-center mt-6 pt-6 border-t border-white/20">
               <div className="text-body-sm sm:text-body text-white">
-                Don&apos;t have an account?{" "}
+                Don&apos;t have a business account?{" "}
                 <Link
-                  href="/register"
+                  href="/business/register"
                   className="text-white font-semibold hover:text-coral transition-colors duration-300 relative group"
                 >
                   Sign up

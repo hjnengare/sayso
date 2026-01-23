@@ -291,33 +291,48 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
         }, 1500);
       } else {
         // Handle registration failure
+        let userMessage = "Something went wrong during registration. Please try again.";
         if (authError) {
-          if (authError.includes('fetch') || authError.includes('network')) {
-            setError('Connection error. Please check your internet connection and try again.');
-            showToast('Connection error. Please check your internet connection and try again.', 'sage', 4000);
+          const err = typeof authError === 'string' ? authError : JSON.stringify(authError);
+          // Map known error patterns to friendly messages
+          if (err.includes('fetch') || err.includes('network')) {
+            userMessage = "Network error — please try again.";
           } else if (
-            authError.toLowerCase().includes('already in use') ||
-            authError.toLowerCase().includes('already registered') ||
-            authError.toLowerCase().includes('already exists') ||
-            authError.toLowerCase().includes('email already') ||
-            authError.toLowerCase().includes('already taken')
+            err.toLowerCase().includes('already in use') ||
+            err.toLowerCase().includes('already registered') ||
+            err.toLowerCase().includes('already exists') ||
+            err.toLowerCase().includes('email already') ||
+            err.toLowerCase().includes('already taken')
           ) {
-            setError('This email address is already in use. Please try logging in instead or use a different email.');
-            showToast('This email address is already in use. Please try logging in instead or use a different email.', 'sage', 4000);
+            userMessage = "Email already in use. Please try logging in or use a different email.";
+          } else if (err.toLowerCase().includes('password')) {
+            userMessage = "Password does not meet requirements.";
+          } else if (err.trim() === '' || err === '{}' || err === 'null' || err === 'undefined') {
+            userMessage = "Something went wrong during registration. Please try again.";
           } else {
-            setError(authError);
-            showToast(authError, 'sage', 4000);
+            // Fallback: show a simplified message
+            userMessage = err.length < 60 ? err : "Something went wrong during registration. Please try again.";
           }
+          // Log full error for debugging
+          console.error('Registration error (auth):', authError);
         } else {
-          setError("Registration failed. Please try again.");
-          showToast("Registration failed. Please try again.", 'sage', 4000);
+          // No error object, fallback
+          console.error('Registration error: missing error object');
         }
+        setError(userMessage);
+        showToast(userMessage, 'sage', 4000);
       }
     } catch (error: unknown) {
-      console.error('Registration error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
-      setError(errorMessage);
-      showToast(errorMessage, 'sage', 4000);
+      // Always log full error for debugging
+      console.error('Registration error (exception):', error);
+      let userMessage = "Something went wrong during registration. Please try again.";
+      if (error instanceof Error) {
+        if (error.message && error.message.length < 60 && error.message.trim() !== '') {
+          userMessage = error.message;
+        }
+      }
+      setError(userMessage);
+      showToast(userMessage, 'sage', 4000);
     } finally {
       setSubmitting(false);
     }

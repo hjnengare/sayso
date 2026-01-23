@@ -75,28 +75,46 @@ export default function DesktopNav({
   sf,
 }: DesktopNavProps) {
   const [hoveredLockedItem, setHoveredLockedItem] = useState<string | null>(null);
+  // Always render nav links, but show skeleton/placeholder if loading
+  if (typeof isBusinessAccountUser === 'undefined') {
+    return (
+      <nav className="hidden md:flex items-center flex-1 justify-between gap-4 lg:gap-6">
+        <div className="flex items-center space-x-1 lg:space-x-3 flex-1 justify-center">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="h-8 w-24 bg-white/10 rounded-lg animate-pulse" />
+          ))}
+        </div>
+        <div className="flex items-center gap-2 lg:gap-3 flex-shrink-0">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="w-10 h-10 bg-white/10 rounded-lg animate-pulse" />
+          ))}
+        </div>
+      </nav>
+    );
+  }
+
   return (
     <nav className="hidden md:flex items-center flex-1 justify-between gap-4 lg:gap-6">
       {/* Center: Text Links */}
       <div className="flex items-center space-x-1 lg:space-x-3 flex-1 justify-center">
-      {isBusinessAccountUser && businessLinks.map(({ key, label, href }) => {
-        const targetHref = key === "add-business" ? "/add-business" : href;
-        const isActive = pathname === targetHref || pathname?.startsWith(targetHref);
-        const businessPalette = isActive
-          ? "text-sage bg-white/10 border border-white/10"
-          : "text-white hover:text-sage hover:bg-white/10 border border-white/5";
-        return (
-          <OptimizedLink
-            key={key}
-            href={targetHref}
-            onClick={(e) => handleNavClick(targetHref, e)}
-            className={`group capitalize px-3 lg:px-4 py-1.5 rounded-lg text-sm sm:text-xs sm:text-sm md:text-sm font-semibold transition-all duration-200 relative flex items-center gap-1.5 ${businessPalette}`}
-            style={sf}
-          >
-            <span className="relative z-10">{label}</span>
-          </OptimizedLink>
-        );
-      })}
+        {isBusinessAccountUser && businessLinks.map(({ key, label, href }) => {
+          const targetHref = key === "add-business" ? "/add-business" : href;
+          const isActive = pathname === targetHref || pathname?.startsWith(targetHref);
+          const businessPalette = isActive
+            ? "text-sage bg-white/10 border border-white/10"
+            : "text-white hover:text-sage hover:bg-white/10 border border-white/5";
+          return (
+            <OptimizedLink
+              key={key}
+              href={targetHref}
+              onClick={(e) => handleNavClick(targetHref, e)}
+              className={`group capitalize px-3 lg:px-4 py-1.5 rounded-lg text-sm sm:text-xs sm:text-sm md:text-sm font-semibold transition-all duration-200 relative flex items-center gap-1.5 ${businessPalette}`}
+              style={sf}
+            >
+              <span className="relative z-10">{label}</span>
+            </OptimizedLink>
+          );
+        })}
 
       {!isBusinessAccountUser && primaryLinks.map(({ key, label, href, requiresAuth }, index) => {
         const isActive = pathname === href;
@@ -208,21 +226,6 @@ export default function DesktopNav({
         );
       })}
 
-      {!isGuest && (
-        <OptimizedLink
-          href="/claim-business"
-          className={`group capitalize px-2.5 lg:px-3.5 py-1.5 rounded-lg text-sm sm:text-xs sm:text-sm md:text-sm sm:text-xs lg:text-sm sm:text-xs font-semibold transition-all duration-200 relative ${
-            isClaimBusinessActive
-              ? "text-sage"
-              : whiteText
-                ? "text-white hover:text-white/90 hover:bg-white/10"
-                : "text-charcoal/90 md:text-charcoal/95 hover:text-sage hover:bg-sage/5"
-          }`}
-          style={sf}
-        >
-          <span className="relative z-10">Claim Business</span>
-        </OptimizedLink>
-      )}
       </div>
 
       {/* Right: Icons */}

@@ -117,7 +117,7 @@ export class AuthService {
           emailRedirectTo: `${baseUrl}/auth/callback?type=signup`,
           data: {
             username: username.trim(),
-            accountType: accountType
+            account_type: accountType // Store account type in user metadata for profile creation
           }
         }
       });
@@ -394,17 +394,30 @@ export class AuthService {
       try {
         console.log('[AuthService.getCurrentUser] Fetching profile for user:', user.id);
         profile = await this.getUserProfile(user.id);
-        console.log('[AuthService.getCurrentUser] Got profile:', {
-          has_profile: !!profile,
-          onboarding_step: profile?.onboarding_step,
-          email_verified: user.email_confirmed_at !== null
-        });
+        if (profile) {
+          console.log('[AuthService.getCurrentUser] Got profile:', {
+            has_profile: true,
+            onboarding_step: profile.onboarding_step,
+            role: profile.role,
+            current_role: profile.current_role,
+            account_type: profile.account_type,
+            email_verified: user.email_confirmed_at !== null
+          });
+        } else {
+          console.log('[AuthService.getCurrentUser] No profile found for user:', user.id);
+        }
       } catch (profileError) {
         console.warn('AuthService: Error fetching profile, continuing without profile:', profileError);
         profile = undefined;
       }
 
-      console.log('[AuthService.getCurrentUser] Returning user with profile');
+      console.log('[AuthService.getCurrentUser] Returning user with profile:', {
+        id: user.id,
+        role: profile?.role,
+        current_role: profile?.current_role,
+        account_type: profile?.account_type,
+        onboarding_step: profile?.onboarding_step
+      });
       return {
         id: user.id,
         email: user.email!,

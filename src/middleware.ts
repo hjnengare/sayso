@@ -287,7 +287,7 @@ export async function middleware(request: NextRequest) {
   );
 
   // Account type selection route - allow new OAuth users to access
-  const isAccountTypeSelection = request.nextUrl.pathname.startsWith('/onboarding/select-account-type');
+  // Removed: account type selection toggler is obsolete
 
   // Auth routes - redirect authenticated users away
   const authRoutes = ['/login', '/register', '/verify-email'];
@@ -562,10 +562,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Allow account type selection for new OAuth users (even if authenticated)
-  if (isAccountTypeSelection) {
-    console.log('Middleware: Allowing access to account type selection page');
-    return response;
-  }
+  // ...existing code...
 
   // Redirect authenticated users from auth pages
   if (isAuthRoute && user) {

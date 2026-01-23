@@ -2215,6 +2215,8 @@ export async function POST(req: Request) {
     }
 
     // Create business_owners entry
+
+    // Create business_owners entry
     const { error: ownerError } = await supabase
       .from('business_owners')
       .insert({
@@ -2232,6 +2234,24 @@ export async function POST(req: Request) {
         { error: 'Failed to assign ownership', details: ownerError.message },
         { status: 500 }
       );
+    }
+
+    // Update user profile to business_owner and set account_type
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .update({
+        role: 'business_owner',
+        current_role: 'business_owner',
+        account_type: 'business',
+        onboarding_step: 'business_setup', // never 'interests' for business owners
+        updated_at: new Date().toISOString(),
+      })
+      .eq('user_id', user.id);
+
+    if (profileError) {
+      console.error('[API] Error updating user profile to business_owner:', profileError);
+    } else {
+      console.log('[API] Successfully updated user profile to business_owner for user:', user.id);
     }
 
     // Initialize business stats

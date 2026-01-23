@@ -39,6 +39,17 @@ export default function ProtectedRoute({
   const subcategoriesCount = user?.profile?.subcategories_count ?? 0;
   const dealbreakersCount = user?.profile?.dealbreakers_count ?? 0;
 
+  // CRITICAL: Extract user role for business vs personal routing
+  // Check current_role FIRST (this is what gets updated by sync logic)
+  // Then check role as fallback. If EITHER is business_owner, treat as business owner.
+  const currentRole = user?.profile?.current_role;
+  const role = user?.profile?.role;
+  const isBusinessOwner = currentRole === 'business_owner' || role === 'business_owner';
+  const userRole = isBusinessOwner ? 'business_owner' : (currentRole ?? role ?? null);
+
+  // Define personal onboarding routes that business owners should NOT access
+  const personalOnboardingRoutes = ['/interests', '/subcategories', '/deal-breakers', '/complete'];
+
   useEffect(() => {
     console.log('[ProtectedRoute] useEffect triggered', {
       isLoading,
@@ -47,13 +58,30 @@ export default function ProtectedRoute({
       userId: !!userId,
       emailVerified,
       onboardingStep,
-      onboardingComplete
+      onboardingComplete,
+      userRole,
+      isBusinessOwner,
+      // Raw role values for debugging
+      rawCurrentRole: currentRole,
+      rawRole: role
     });
 
-    // Don't block if we have verification signal from URL
-    if (isLoading && !isVerifiedFromUrl) {
-      console.log('[ProtectedRoute] Still loading auth state, waiting...');
-      return; // Wait for auth state to load
+    // CRITICAL: Always wait for auth to fully load before making routing decisions
+    // This prevents race conditions where business users get redirected to personal onboarding
+    // Even with URL verification signal, we need to know the user's role first
+    if (isLoading) {
+      console.log('[ProtectedRoute] Still loading auth state, waiting for full user context...');
+      return; // Wait for auth state to FULLY load including role
+    }
+
+    // CRITICAL: Business owners must NEVER access personal onboarding routes
+    // This check runs FIRST before any other routing logic
+    const isOnPersonalOnboardingRoute = personalOnboardingRoutes.some(route => pathname === route);
+    if (isBusinessOwner && isOnPersonalOnboardingRoute) {
+      // Business owners must never access personal onboarding
+      console.log('[ProtectedRoute] Business owner on personal onboarding route, redirecting to /my-businesses');
+      router.replace('/my-businesses');
+      return;
     }
 
     console.log('ProtectedRoute: Checking route protection', {
@@ -61,7 +89,9 @@ export default function ProtectedRoute({
       user_exists: !!userId,
       email_verified: emailVerified,
       onboarding_step: onboardingStep,
-      onboarding_complete: onboardingComplete
+      onboarding_complete: onboardingComplete,
+      userRole,
+      isBusinessOwner
     });
 
     // If authentication is required and user is not logged in
@@ -81,8 +111,15 @@ export default function ProtectedRoute({
       }
 
       if (!onboardingComplete) {
-        console.log('ProtectedRoute: Onboarding incomplete, redirecting to next step');
-        // Determine next step based on what's been completed
+        // Business owners skip personal onboarding entirely
+        if (isBusinessOwner) {
+          console.log('ProtectedRoute: Business owner with incomplete onboarding, redirecting to /my-businesses');
+          router.replace('/my-businesses');
+          return;
+        }
+
+        // Only personal users get routed to onboarding steps
+        console.log('ProtectedRoute: Personal user onboarding incomplete, redirecting to next step');
         let nextStep = 'interests';
         if (interestsCount === 0) {
           nextStep = 'interests';
@@ -94,8 +131,6 @@ export default function ProtectedRoute({
           nextStep = 'complete';
         }
 
-        // Use replace instead of push to prevent back button issues
-        // Only redirect if we're not already on that step
         if (pathname !== `/${nextStep}`) {
           router.replace(`/${nextStep}`);
         }
@@ -105,26 +140,44 @@ export default function ProtectedRoute({
 
     // If user is logged in but route doesn't require auth (e.g., login/register pages)
     if (!requiresAuth && userId) {
-      console.log('ProtectedRoute: User on non-auth route, checking redirects');
+      console.log('ProtectedRoute: User on non-auth route, checking redirects', { isBusinessOwner, userRole });
 
       // Check if user is coming from successful email verification
       const emailVerifiedFromUrl = searchParams.get('email_verified') === 'true';
       const verifiedFromUrl = searchParams.get('verified') === '1';
 
+      // CRITICAL: Handle business owners separately from personal users
+      if (isBusinessOwner) {
+        if (!emailVerified && !emailVerifiedFromUrl && !verifiedFromUrl) {
+          if (pathname !== '/verify-email') {
+            console.log('ProtectedRoute: Business owner email not verified, redirecting to verify-email');
+            router.replace('/verify-email');
+          }
+        } else {
+          // Business owner with verified email - always go to /my-businesses
+          if (pathname !== '/my-businesses' && pathname !== '/claim-business') {
+            console.log('ProtectedRoute: Business owner verified, redirecting to /my-businesses');
+            router.replace('/my-businesses');
+          }
+        }
+        return;
+      }
+
+      // Personal user flow
       if (onboardingComplete) {
         // Only redirect if not already on home
         if (pathname !== '/home') {
-          console.log('ProtectedRoute: Onboarding complete, redirecting to home');
+          console.log('ProtectedRoute: Personal user onboarding complete, redirecting to home');
           router.replace('/home');
         }
       } else if (!emailVerified && !emailVerifiedFromUrl && !verifiedFromUrl) {
         // Only redirect if not already on verify-email
         if (pathname !== '/verify-email') {
-          console.log('ProtectedRoute: Email not verified, redirecting to verify-email');
+          console.log('ProtectedRoute: Personal user email not verified, redirecting to verify-email');
           router.replace('/verify-email');
         }
       } else {
-        console.log('ProtectedRoute: Email verified, redirecting to onboarding step');
+        console.log('ProtectedRoute: Personal user email verified, redirecting to onboarding step');
         // User is verified, redirect to appropriate onboarding step
         let targetStep = 'interests';
         if (onboardingStep === 'start') {
@@ -144,7 +197,7 @@ export default function ProtectedRoute({
 
         // Only redirect if not already on target step
         if (pathname !== `/${targetStep}`) {
-          console.log('ProtectedRoute: Redirecting to', targetStep);
+          console.log('ProtectedRoute: Redirecting personal user to', targetStep);
           router.replace(`/${targetStep}`);
         }
       }
@@ -160,28 +213,37 @@ export default function ProtectedRoute({
       }
     }
 
-    // If user has completed onboarding but is trying to access onboarding pages, redirect to home
-    // BUT allow access to /complete page (the celebration page that shows confetti)
+    // If user has completed onboarding but is trying to access onboarding pages, redirect appropriately
+    // BUT allow access to /complete page (the celebration page that shows confetti) for personal users
     // Check if current route is an onboarding route
     const onboardingRoutes = ['/onboarding', '/interests', '/subcategories', '/deal-breakers', '/complete'];
     const isOnboardingRoute = onboardingRoutes.some(route => pathname === route || pathname?.startsWith(route + '/'));
 
-    // Allow access to /complete page even if onboarding is complete (it's the celebration page)
-    if (userId && onboardingComplete && isOnboardingRoute && pathname !== '/complete') {
-      console.log('ProtectedRoute: User completed onboarding, redirecting from onboarding route to home');
+    // CRITICAL: Business owners should never be on personal onboarding routes
+    if (userId && isBusinessOwner && isOnboardingRoute) {
+      console.log('ProtectedRoute: Business owner on onboarding route, redirecting to /my-businesses');
+      router.replace('/my-businesses');
+      return;
+    }
+
+    // Allow access to /complete page even if onboarding is complete (it's the celebration page) - personal users only
+    if (userId && !isBusinessOwner && onboardingComplete && isOnboardingRoute && pathname !== '/complete') {
+      console.log('ProtectedRoute: Personal user completed onboarding, redirecting from onboarding route to home');
       router.push('/home');
       return;
     }
 
-    // Legacy check for allowedOnboardingSteps
-    if (userId && onboardingComplete && allowedOnboardingSteps.length > 0) {
+    // Legacy check for allowedOnboardingSteps (personal users only)
+    if (userId && !isBusinessOwner && onboardingComplete && allowedOnboardingSteps.length > 0) {
       router.push('/home');
       return;
     }
-  }, [userId, emailVerified, onboardingStep, onboardingComplete, interestsCount, subcategoriesCount, dealbreakersCount, isLoading, router, pathname, requiresAuth, requiresOnboarding, allowedOnboardingSteps, redirectTo, searchParams]);
+  }, [userId, emailVerified, onboardingStep, onboardingComplete, interestsCount, subcategoriesCount, dealbreakersCount, isLoading, router, pathname, requiresAuth, requiresOnboarding, allowedOnboardingSteps, redirectTo, searchParams, userRole, isBusinessOwner, personalOnboardingRoutes, currentRole, role]);
 
-  // Show loading state while checking authentication - but allow optimistic rendering if verified
-  if (isLoading && !isVerifiedFromUrl) {
+  // CRITICAL: Always show loading state while auth is resolving
+  // We MUST wait for the full user context (including role) before rendering
+  // This prevents race conditions where business users briefly see personal onboarding
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-off-white">
         <PageLoader size="lg" variant="wavy" color="sage" />
