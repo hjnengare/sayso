@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import EventCard from "../EventCard/EventCard";
 import EventCardSkeleton from "../EventCard/EventCardSkeleton";
-import { Event } from "../../data/eventsData";
+import type { Event } from "../../lib/types/Event";
 import ScrollableSection from "../ScrollableSection/ScrollableSection";
 import { useToast } from "../../contexts/ToastContext";
 import WavyTypedTitle from "../../../components/Animations/WavyTypedTitle";

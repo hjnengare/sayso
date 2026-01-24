@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
-import { EVENTS_AND_SPECIALS } from '../../data/eventsData';
 import { generateSEOMetadata } from '../../lib/utils/seoMetadata';
+import { getServerSupabase } from '../../lib/supabase/server';
 
 interface EventLayoutProps {
   children: React.ReactNode;
@@ -12,10 +12,14 @@ interface EventLayoutProps {
  */
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
-  
-  const event = EVENTS_AND_SPECIALS.find(e => e.id === id);
+  const supabase = await getServerSupabase();
+  const { data: event, error } = await supabase
+    .from('ticketmaster_events')
+    .select('*')
+    .eq('id', id)
+    .single();
 
-  if (!event) {
+  if (!event || error) {
     return generateSEOMetadata({
       title: 'Event',
       description: 'View event details and information.',
@@ -27,7 +31,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     title: event.title,
     description: event.description || `Join us for ${event.title} - discover event details, location, and more.`,
     keywords: [event.title, 'event', 'local event', 'special'],
-    image: event.image,
+    image: event.image_url,
     url: `/event/${id}`,
     type: 'article',
   });

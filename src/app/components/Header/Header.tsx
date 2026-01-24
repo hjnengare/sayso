@@ -7,7 +7,6 @@ import SearchInput from "../SearchInput/SearchInput";
 import Logo from "../Logo/Logo";
 import OptimizedLink from "../Navigation/OptimizedLink";
 import DesktopNav from "./DesktopNav";
-import ActionButtons from "./ActionButtons";
 import MobileMenu from "./MobileMenu";
 import HeaderSkeleton from "./HeaderSkeleton";
 import { useHeaderState } from "./useHeaderState";
@@ -124,7 +123,6 @@ export default function Header({
               </div>
             </OptimizedLink>
             <DesktopNav
-              pathname={pathname}
               whiteText={whiteText}
               isGuest={isGuest}
               isBusinessAccountUser={isBusinessAccountUser}
@@ -137,6 +135,7 @@ export default function Header({
               isMessagesActive={isMessagesActive}
               isProfileActive={isProfileActive}
               isSettingsActive={isSettingsActive}
+              savedCount={savedCount}
               unreadCount={unreadCount}
               unreadMessagesCount={unreadMessagesCount}
               handleNavClick={handleNavClick}
@@ -154,22 +153,6 @@ export default function Header({
               sf={sf}
             />
 
-            <ActionButtons
-              whiteText={whiteText}
-              isGuest={isGuest}
-              isBusinessAccountUser={isBusinessAccountUser}
-              isNotificationsActive={isNotificationsActive}
-              isMessagesActive={isMessagesActive}
-              isSavedActive={isSavedActive}
-              isProfileActive={isProfileActive}
-              unreadCount={unreadCount}
-              savedCount={savedCount}
-              unreadMessagesCount={unreadMessagesCount}
-              isMobileMenuOpen={isMobileMenuOpen}
-              onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              onNotificationsClick={() => setShowSearchBar(true)}
-              heroSearchButton={heroSearchButton}
-            />
           </div>
         </div>
         {showSearch && isStackedLayout && isSearchVisible && (

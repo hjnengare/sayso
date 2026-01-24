@@ -59,7 +59,9 @@
       "Bash(ls:*)",
       "Bash(xargs:*)",
       "Bash(psql:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(npx next lint:*)",
+      "Bash(npx eslint:*)"
     ],
     "deny": [],
     "ask": [],

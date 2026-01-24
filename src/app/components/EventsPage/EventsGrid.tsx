@@ -3,7 +3,7 @@
 
 import { motion } from "framer-motion";
 import EventCard from "../EventCard/EventCard";
-import { Event } from "../../data/eventsData";
+import type { Event } from "../../lib/types/Event";
 
 interface EventsGridProps {
   events: Event[];

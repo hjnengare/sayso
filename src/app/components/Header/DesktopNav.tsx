@@ -1,6 +1,24 @@
-import { Fragment, CSSProperties, RefObject, MouseEvent, useState } from "react";
+"use client";
+
+import {
+  Fragment,
+  CSSProperties,
+  RefObject,
+  MouseEvent,
+  useState,
+  useEffect,
+} from "react";
+import { usePathname } from "next/navigation";
 import { createPortal } from "react-dom";
-import { ChevronDown, Lock, Bell, MessageCircle, User, Settings } from "lucide-react";
+import {
+  ChevronDown,
+  Lock,
+  Bell,
+  MessageCircle,
+  User,
+  Settings,
+  Bookmark,
+} from "lucide-react";
 import OptimizedLink from "../Navigation/OptimizedLink";
 import LockedTooltip from "./LockedTooltip";
 import { shouldShowLockIndicator, getLinkHref } from "./headerActionsConfig";
@@ -14,7 +32,6 @@ export type NavLink = {
 };
 
 interface DesktopNavProps {
-  pathname: string | null;
   whiteText: boolean;
   isGuest: boolean;
   isBusinessAccountUser: boolean;
@@ -27,9 +44,11 @@ interface DesktopNavProps {
   isMessagesActive: boolean;
   isProfileActive: boolean;
   isSettingsActive: boolean;
+  savedCount: number;
   unreadCount: number;
   unreadMessagesCount: number;
   handleNavClick: (href: string, e?: MouseEvent) => void;
+
   discoverDropdownRef: RefObject<HTMLDivElement>;
   discoverMenuPortalRef: RefObject<HTMLDivElement>;
   discoverBtnRef: RefObject<HTMLButtonElement>;
@@ -40,209 +59,337 @@ interface DesktopNavProps {
   openDiscoverDropdown: () => void;
   closeDiscoverDropdown: () => void;
   scheduleDiscoverDropdownClose: () => void;
+
   onNotificationsClick: () => void;
   sf: CSSProperties;
 }
 
-export default function DesktopNav({
-  pathname,
-  whiteText,
-  isGuest,
-  isBusinessAccountUser,
-  isClaimBusinessActive,
-  isDiscoverActive,
-  primaryLinks,
-  discoverLinks,
-  businessLinks,
-  isNotificationsActive,
-  isMessagesActive,
-  isProfileActive,
-  isSettingsActive,
-  unreadCount,
-  unreadMessagesCount,
-  handleNavClick,
-  discoverDropdownRef,
-  discoverMenuPortalRef,
-  discoverBtnRef,
-  discoverMenuPos,
-  isDiscoverDropdownOpen,
-  isDiscoverDropdownClosing,
-  clearDiscoverHoverTimeout,
-  openDiscoverDropdown,
-  closeDiscoverDropdown,
-  scheduleDiscoverDropdownClose,
-  onNotificationsClick,
-  sf,
-}: DesktopNavProps) {
+export default function DesktopNav(props: DesktopNavProps) {
+  const {
+    whiteText,
+    isGuest,
+    isBusinessAccountUser,
+    isClaimBusinessActive,
+    isDiscoverActive,
+    primaryLinks,
+    discoverLinks,
+    businessLinks,
+    isNotificationsActive,
+    isMessagesActive,
+    isProfileActive,
+    isSettingsActive,
+    savedCount,
+    unreadCount,
+    unreadMessagesCount,
+    handleNavClick,
+    discoverDropdownRef,
+    discoverMenuPortalRef,
+    discoverBtnRef,
+    discoverMenuPos,
+    isDiscoverDropdownOpen,
+    isDiscoverDropdownClosing,
+    clearDiscoverHoverTimeout,
+    openDiscoverDropdown,
+    closeDiscoverDropdown,
+    scheduleDiscoverDropdownClose,
+    onNotificationsClick,
+    sf,
+  } = props;
+
+  const pathname = usePathname();
   const [hoveredLockedItem, setHoveredLockedItem] = useState<string | null>(null);
-  // Always render nav links, but show skeleton/placeholder if loading
-  if (typeof isBusinessAccountUser === 'undefined') {
-    return (
-      <nav className="hidden md:flex items-center flex-1 justify-between gap-4 lg:gap-6">
-        <div className="flex items-center space-x-1 lg:space-x-3 flex-1 justify-center">
-          {[0, 1, 2].map((i) => (
-            <div key={i} className="h-8 w-24 bg-white/10 rounded-lg animate-pulse" />
-          ))}
-        </div>
-        <div className="flex items-center gap-2 lg:gap-3 flex-shrink-0">
-          {[0, 1, 2, 3].map((i) => (
-            <div key={i} className="w-10 h-10 bg-white/10 rounded-lg animate-pulse" />
-          ))}
-        </div>
-      </nav>
-    );
-  }
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
+
+  const isSavedActive = pathname === "/saved";
+
+  const baseLinkClass =
+    "group capitalize px-2.5 lg:px-3.5 py-1.5 rounded-lg text-sm sm:text-xs md:text-sm font-semibold transition-all duration-200 relative flex items-center gap-1.5";
+
+  const activeTextClass = "text-sage";
+  const idleTextClass = whiteText
+    ? "text-white hover:text-white/90 hover:bg-white/10"
+    : "text-charcoal/90 md:text-charcoal/95 hover:text-sage hover:bg-sage/5";
+
+  const businessPalette = whiteText
+    ? "text-white hover:text-white/90 hover:bg-white/10"
+    : "text-charcoal/90 md:text-charcoal/95 hover:text-sage hover:bg-sage/5";
+
+  const iconWrapClass = (isActive: boolean) =>
+    `group w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 relative shadow-md ${
+      isActive
+        ? "text-sage bg-sage/5"
+        : whiteText
+          ? "text-white hover:text-white/80 hover:bg-white/10"
+          : "text-charcoal/80 hover:text-sage hover:bg-sage/5"
+    }`;
+
+  const iconClass = (isActive: boolean) =>
+    `w-5 h-5 transition-all duration-200 group-hover:scale-110 ${
+      isActive
+        ? "text-sage"
+        : whiteText
+          ? "text-white group-hover:text-white/85"
+          : "text-current group-hover:text-sage"
+    }`;
+
+  const isPathActive = (href?: string) => {
+    if (!href) return false;
+    if (href === "/") return pathname === "/";
+    return pathname === href || (pathname?.startsWith(href) ?? false);
+  };
+
+  // Keep runtime stable if account type isn't ready yet
+  if (typeof isBusinessAccountUser === "undefined") return null;
 
   return (
-    <nav className="hidden md:flex items-center flex-1 justify-between gap-4 lg:gap-6">
-      {/* Center: Text Links */}
-      <div className="flex items-center space-x-1 lg:space-x-3 flex-1 justify-center">
-        {isBusinessAccountUser && businessLinks.map(({ key, label, href }) => {
-          const targetHref = key === "add-business" ? "/add-business" : href;
-          const isActive = pathname === targetHref || pathname?.startsWith(targetHref);
-          const businessPalette = isActive
-            ? "text-sage bg-white/10 border border-white/10"
-            : "text-white hover:text-sage hover:bg-white/10 border border-white/5";
-          return (
-            <OptimizedLink
-              key={key}
-              href={targetHref}
-              onClick={(e) => handleNavClick(targetHref, e)}
-              className={`group capitalize px-3 lg:px-4 py-1.5 rounded-lg text-sm sm:text-xs sm:text-sm md:text-sm font-semibold transition-all duration-200 relative flex items-center gap-1.5 ${businessPalette}`}
-              style={sf}
-            >
-              <span className="relative z-10">{label}</span>
-            </OptimizedLink>
-          );
-        })}
+    // ✅ 3-zone layout so Home / Discover / Leaderboard sit centered
+    <nav className="w-full grid grid-cols-3 items-center gap-4">
+      {/* Left spacer (keeps center truly centered vs right icon width) */}
+      <div />
 
-      {!isBusinessAccountUser && primaryLinks.map(({ key, label, href, requiresAuth }, index) => {
-        const isActive = pathname === href;
-        const showLockIndicator = shouldShowLockIndicator(isGuest, requiresAuth);
-        return (
-          <Fragment key={key}>
-            <OptimizedLink
-              href={getLinkHref(href, requiresAuth, isGuest)}
-              onClick={(e) => handleNavClick(href, e)}
-              className={`group capitalize px-2.5 lg:px-3.5 py-1.5 rounded-lg text-sm sm:text-xs sm:text-sm md:text-sm sm:text-xs lg:text-sm sm:text-xs font-semibold transition-all duration-200 relative flex items-center gap-1.5 ${isActive ? "text-sage" : whiteText ? "text-white hover:text-white/90 hover:bg-white/10" : "text-charcoal/90 md:text-charcoal/95 hover:text-sage hover:bg-sage/5"}`}
-              style={sf}
-            >
-              <span className="relative z-10">{label}</span>
-              {showLockIndicator && (
-                <Lock className={`w-3.5 h-3.5 ${whiteText ? "text-white" : "text-charcoal/60"}`} />
-              )}
-            </OptimizedLink>
+      {/* Centered main nav links */}
+      <div className="flex items-center justify-center gap-2 lg:gap-3 min-w-0">
+        {/* Business links (business accounts) */}
+        {isBusinessAccountUser &&
+          businessLinks.map(({ key, label, href, requiresAuth }) => {
+            const targetHref = getLinkHref(href, requiresAuth, isGuest);
+            const isActive =
+              isPathActive(href) ||
+              (isClaimBusinessActive && href === "/for-businesses");
 
-            {index === 0 && (
-              <div
-                className="relative"
-                ref={discoverDropdownRef}
-                onMouseEnter={openDiscoverDropdown}
-                onMouseLeave={scheduleDiscoverDropdownClose}
+            return (
+              <OptimizedLink
+                key={key}
+                href={targetHref}
+                onClick={(e) => handleNavClick(href, e)}
+                className={`${baseLinkClass} ${
+                  isActive ? activeTextClass : businessPalette
+                }`}
+                style={sf}
               >
-                <button
-                  ref={discoverBtnRef}
-                  onClick={() => {
-                    if (isDiscoverDropdownOpen) {
-                      clearDiscoverHoverTimeout();
-                      closeDiscoverDropdown();
-                    } else {
-                      openDiscoverDropdown();
-                    }
-                  }}
-                  className={`group capitalize px-3 lg:px-4 py-1.5 rounded-lg text-sm sm:text-xs sm:text-sm md:text-sm sm:text-xs lg:text-sm sm:text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 relative ${
-                    isDiscoverActive
-                      ? "text-sage"
-                      : whiteText
-                        ? "text-white hover:text-white/85 hover:bg-white/10"
-                        : "text-charcoal/90 md:text-charcoal/95 hover:text-sage hover:bg-sage/5"
+                <span className="relative z-10 whitespace-nowrap">{label}</span>
+              </OptimizedLink>
+            );
+          })}
+
+        {/* Primary links + Discover (personal accounts) */}
+        {!isBusinessAccountUser &&
+          primaryLinks.map(({ key, label, href, requiresAuth }, index) => {
+            const isActive = isPathActive(href);
+            const showLockIndicator = shouldShowLockIndicator(isGuest, requiresAuth);
+
+            return (
+              <Fragment key={key}>
+                <OptimizedLink
+                  href={getLinkHref(href, requiresAuth, isGuest)}
+                  onClick={(e) => handleNavClick(href, e)}
+                  className={`${baseLinkClass} ${
+                    isActive ? activeTextClass : idleTextClass
                   }`}
                   style={sf}
-                  aria-expanded={isDiscoverDropdownOpen}
-                  aria-haspopup="true"
                 >
-                  <span className="whitespace-nowrap relative z-10">Discover</span>
-                  <ChevronDown className={`w-4 h-4 sm:w-4 sm:h-4 transition-transform duration-300 relative z-10 ${isDiscoverDropdownOpen ? "rotate-180" : ""}`} />
-                </button>
-
-                {isDiscoverDropdownOpen && discoverMenuPos &&
-                  createPortal(
-                    <div
-                      ref={discoverMenuPortalRef}
-                      className={`fixed z-[1000] bg-off-white rounded-[20px] border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.12),0_4px_16px_rgba(0,0,0,0.08)] overflow-hidden min-w-[320px] transition-all duration-300 ease-out backdrop-blur-xl ${
-                        isDiscoverDropdownClosing ? "opacity-0 scale-95 translate-y-[-8px]" : "opacity-100 scale-100 translate-y-0"
+                  <span className="relative z-10 whitespace-nowrap">{label}</span>
+                  {showLockIndicator && (
+                    <Lock
+                      className={`w-3.5 h-3.5 ${
+                        whiteText ? "text-white" : "text-charcoal/60"
                       }`}
-                      style={{
-                        left: discoverMenuPos.left,
-                        top: discoverMenuPos.top,
-                        fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-                        animation: isDiscoverDropdownClosing ? "none" : "fadeInScale 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards",
-                        transformOrigin: "top center",
+                    />
+                  )}
+                </OptimizedLink>
+
+                {/* Insert Discover after first primary link (eg after Home) */}
+                {index === 0 && (
+                  <div
+                    ref={discoverDropdownRef}
+                    className="relative"
+                    onMouseEnter={openDiscoverDropdown}
+                    onMouseLeave={scheduleDiscoverDropdownClose}
+                  >
+                    <button
+                      ref={discoverBtnRef}
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (isDiscoverDropdownOpen) closeDiscoverDropdown();
+                        else openDiscoverDropdown();
                       }}
-                      onClick={(e) => e.stopPropagation()}
-                      onMouseEnter={clearDiscoverHoverTimeout}
-                      onMouseLeave={scheduleDiscoverDropdownClose}
+                      className={`${baseLinkClass} ${
+                        isDiscoverActive ? activeTextClass : idleTextClass
+                      }`}
+                      style={sf}
+                      aria-expanded={isDiscoverDropdownOpen}
+                      aria-haspopup="true"
                     >
-                      <div className="px-5 pt-4 pb-3 border-b border-charcoal/10 bg-off-white flex items-center gap-2">
-                        <h3 className="text-sm md:text-base font-semibold text-charcoal" style={sf}>Discover</h3>
-                      </div>
-                      <div className="py-3">
-                        {discoverLinks.map(({ key: subKey, label: subLabel, description, href: subHref, requiresAuth }) => {
-                          const isActive = pathname === subHref || pathname?.startsWith(subHref ?? "");
-                          const showLockIndicator = shouldShowLockIndicator(isGuest, requiresAuth);
-                          return (
-                            <OptimizedLink
-                              key={subKey}
-                              href={getLinkHref(subHref ?? "", requiresAuth, isGuest)}
-                              onClick={(e) => {
-                                handleNavClick(subHref, e);
-                                clearDiscoverHoverTimeout();
-                                closeDiscoverDropdown();
-                              }}
-                              className={`group flex items-start gap-3 px-5 py-3 hover:bg-gradient-to-r hover:from-sage/10 hover:to-coral/5 transition-all duration-200 rounded-lg mx-2 ${isActive ? "bg-gradient-to-r from-sage/10 to-sage/5" : ""}`}
+                      <span className="whitespace-nowrap relative z-10">
+                        Discover
+                      </span>
+                      <ChevronDown
+                        className={`w-4 h-4 transition-transform duration-300 relative z-10 ${
+                          isDiscoverDropdownOpen ? "rotate-180" : ""
+                        }`}
+                      />
+                    </button>
+
+                    {/* Dropdown menu (portal) */}
+                    {mounted &&
+                      isDiscoverDropdownOpen &&
+                      discoverMenuPos &&
+                      createPortal(
+                        <div
+                          ref={discoverMenuPortalRef}
+                          className={`fixed z-[1000] bg-off-white rounded-[20px] border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.12),0_4px_16px_rgba(0,0,0,0.08)] overflow-hidden min-w-[320px] transition-all duration-300 ease-out backdrop-blur-xl ${
+                            isDiscoverDropdownClosing
+                              ? "opacity-0 scale-95 translate-y-[-8px]"
+                              : "opacity-100 scale-100 translate-y-0"
+                          }`}
+                          style={{
+                            left: discoverMenuPos.left,
+                            top: discoverMenuPos.top,
+                            fontFamily:
+                              "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                            transformOrigin: "top center",
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                          onMouseEnter={clearDiscoverHoverTimeout}
+                          onMouseLeave={scheduleDiscoverDropdownClose}
+                        >
+                          <div className="px-5 pt-4 pb-3 border-b border-charcoal/10 bg-off-white flex items-center gap-2">
+                            <h3
+                              className="text-sm md:text-base font-semibold text-charcoal"
                               style={sf}
                             >
-                              <div className="flex-1">
-                                <div className={`text-sm font-semibold flex items-center gap-1.5 ${isActive ? "text-sage" : "text-charcoal group-hover:text-coral"}`}>
-                                  {subLabel}
-                                  {showLockIndicator && (
-                                    <Lock className="w-3 h-3 text-charcoal/60" />
-                                  )}
-                                </div>
-                                <div className="text-sm sm:text-xs text-charcoal/60 mt-0.5">
-                                  {showLockIndicator ? "Sign in for personalized picks" : description}
-                                </div>
-                              </div>
-                            </OptimizedLink>
-                          );
-                        })}
-                      </div>
-                    </div>,
-                    document.body
-                  )}
-              </div>
-            )}
-          </Fragment>
-        );
-      })}
+                              Discover
+                            </h3>
+                          </div>
 
+                          <div className="py-3">
+                            {discoverLinks.map(
+                              ({
+                                key: subKey,
+                                label: subLabel,
+                                description,
+                                href: subHref,
+                                requiresAuth: subAuth,
+                              }) => {
+                                const subIsActive = isPathActive(subHref);
+                                const showLock = shouldShowLockIndicator(
+                                  isGuest,
+                                  subAuth
+                                );
+                                const target = getLinkHref(
+                                  subHref ?? "",
+                                  subAuth,
+                                  isGuest
+                                );
+
+                                return (
+                                  <OptimizedLink
+                                    key={subKey}
+                                    href={target}
+                                    onClick={(e) => {
+                                      handleNavClick(subHref ?? "", e);
+                                      clearDiscoverHoverTimeout();
+                                      closeDiscoverDropdown();
+                                    }}
+                                    className={`group flex items-start gap-3 px-5 py-3 hover:bg-gradient-to-r hover:from-sage/10 hover:to-coral/5 transition-all duration-200 rounded-lg mx-2 ${
+                                      subIsActive
+                                        ? "bg-gradient-to-r from-sage/10 to-sage/5"
+                                        : ""
+                                    }`}
+                                    style={sf}
+                                  >
+                                    <div className="flex-1 min-w-0">
+                                      <div
+                                        className={`text-sm font-semibold flex items-center gap-1.5 ${
+                                          subIsActive
+                                            ? "text-sage"
+                                            : "text-charcoal group-hover:text-coral"
+                                        }`}
+                                      >
+                                        <span className="truncate">{subLabel}</span>
+                                        {showLock && (
+                                          <Lock className="w-3 h-3 text-charcoal/60" />
+                                        )}
+                                      </div>
+                                      <div className="text-sm sm:text-xs text-charcoal/60 mt-0.5">
+                                        {showLock
+                                          ? "Sign in for personalized picks"
+                                          : description}
+                                      </div>
+                                    </div>
+                                  </OptimizedLink>
+                                );
+                              }
+                            )}
+                          </div>
+                        </div>,
+                        document.body
+                      )}
+                  </div>
+                )}
+              </Fragment>
+            );
+          })}
       </div>
 
-      {/* Right: Icons */}
-      <div className="flex items-center gap-2 lg:gap-3 flex-shrink-0">
+      {/* Right: Icons (aligned right) */}
+      <div className="flex items-center justify-end gap-2 lg:gap-3 flex-shrink-0">
         {/* Notifications */}
         <button
           onClick={onNotificationsClick}
-          className={`group w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 relative shadow-md ${isNotificationsActive ? "text-sage bg-sage/5" : whiteText ? "text-white hover:text-white/80 hover:bg-white/10" : "text-charcoal/80 hover:text-sage hover:bg-sage/5"}`}
+          className={iconWrapClass(isNotificationsActive)}
           aria-label="Notifications"
+          type="button"
         >
-          <Bell className={`w-5 h-5 transition-all duration-200 group-hover:scale-110 ${isNotificationsActive ? "text-sage" : whiteText ? "text-white group-hover:text-white/80" : "text-current group-hover:text-sage"}`} fill={isNotificationsActive ? "currentColor" : "none"} style={{ textShadow: "0 2px 4px rgba(0, 0, 0, 0.1)" }} />
+          <Bell
+            className={iconClass(isNotificationsActive)}
+            fill={isNotificationsActive ? "currentColor" : "none"}
+            style={{ textShadow: "0 2px 4px rgba(0, 0, 0, 0.1)" }}
+          />
           {unreadCount > 0 && (
             <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[20px] h-5 px-1.5 text-white text-[11px] font-bold rounded-full shadow-lg bg-gradient-to-br from-coral to-coral/90 border border-white/20">
               {unreadCount > 99 ? "99+" : unreadCount}
             </span>
           )}
         </button>
+
+        {/* Saved (Bookmark) - ONLY authenticated personal users, immediately after Notifications */}
+        {!isBusinessAccountUser && !isGuest && (
+          <div className="relative">
+            <OptimizedLink
+              href="/saved"
+              className={`group flex w-10 h-10 items-center justify-center rounded-lg transition-all duration-200 relative shadow-md ${
+                isSavedActive
+                  ? "text-sage bg-sage/5"
+                  : whiteText
+                    ? "text-white hover:text-white/85 hover:bg-white/10"
+                    : "text-charcoal/80 hover:text-sage hover:bg-sage/5"
+              }`}
+              aria-label="Saved"
+            >
+              <Bookmark
+                className={`w-5 h-5 transition-all duration-200 group-hover:scale-110 ${
+                  isSavedActive
+                    ? "text-sage"
+                    : whiteText
+                      ? "text-white group-hover:text-white/85"
+                      : "text-current group-hover:text-sage"
+                }`}
+                fill={isSavedActive ? "currentColor" : "none"}
+                style={{ textShadow: "0 2px 4px rgba(0, 0, 0, 0.1)" }}
+              />
+              {savedCount > 0 && (
+                <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[20px] h-5 px-1.5 text-white text-[11px] font-bold rounded-full shadow-lg bg-gradient-to-br from-coral to-coral/90 border border-white/20">
+                  {savedCount > 99 ? "99+" : savedCount}
+                </span>
+              )}
+            </OptimizedLink>
+          </div>
+        )}
 
         {/* Messages */}
         <div
@@ -252,19 +399,23 @@ export default function DesktopNav({
         >
           <OptimizedLink
             href={isGuest ? "/login" : "/dm"}
-            className={`group flex w-10 h-10 items-center justify-center rounded-lg transition-all duration-200 relative shadow-md ${isMessagesActive ? "text-sage bg-sage/5" : whiteText ? "text-white hover:text-white/85 hover:bg-white/10" : "text-charcoal/80 hover:text-sage hover:bg-sage/5"}`}
+            className={iconWrapClass(isMessagesActive)}
             aria-label={isGuest ? "Sign in to view messages" : "Messages"}
           >
-            <MessageCircle className={`w-5 h-5 transition-all duration-200 group-hover:scale-110 ${isMessagesActive ? "text-sage" : whiteText ? "text-white group-hover:text-white/85" : "text-current group-hover:text-sage"}`} fill={isMessagesActive ? "currentColor" : "none"} style={{ textShadow: "0 2px 4px rgba(0, 0, 0, 0.1)" }} />
+            <MessageCircle
+              className={iconClass(isMessagesActive)}
+              fill={isMessagesActive ? "currentColor" : "none"}
+              style={{ textShadow: "0 2px 4px rgba(0, 0, 0, 0.1)" }}
+            />
             {isGuest ? (
               <span className="absolute -bottom-0.5 -right-0.5 flex items-center justify-center w-4 h-4 text-white">
                 <Lock className="w-2 h-2" />
               </span>
-            ) : unreadMessagesCount > 0 && (
+            ) : unreadMessagesCount > 0 ? (
               <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[20px] h-5 px-1.5 text-white text-[11px] font-bold rounded-full shadow-lg bg-gradient-to-br from-coral to-coral/90 border border-white/20">
                 {unreadMessagesCount > 99 ? "99+" : unreadMessagesCount}
               </span>
-            )}
+            ) : null}
           </OptimizedLink>
           <LockedTooltip show={hoveredLockedItem === "messages"} label="view messages" />
         </div>
@@ -278,10 +429,14 @@ export default function DesktopNav({
           >
             <OptimizedLink
               href={isGuest ? "/login" : "/settings"}
-              className={`group flex w-10 h-10 items-center justify-center rounded-lg transition-all duration-200 relative shadow-md ${isSettingsActive ? "text-sage bg-sage/5" : whiteText ? "text-white hover:text-white/85 hover:bg-white/10" : "text-charcoal/80 hover:text-sage hover:bg-sage/5"}`}
+              className={iconWrapClass(isSettingsActive)}
               aria-label={isGuest ? "Sign in to open settings" : "Settings"}
             >
-              <Settings className={`w-5 h-5 transition-all duration-200 group-hover:scale-110 ${isSettingsActive ? "text-sage" : whiteText ? "text-white group-hover:text-white/85" : "text-current group-hover:text-sage"}`} fill={isSettingsActive ? "currentColor" : "none"} style={{ textShadow: "0 2px 4px rgba(0, 0, 0, 0.1)" }} />
+              <Settings
+                className={iconClass(isSettingsActive)}
+                fill={isSettingsActive ? "currentColor" : "none"}
+                style={{ textShadow: "0 2px 4px rgba(0, 0, 0, 0.1)" }}
+              />
               {isGuest && (
                 <span className="absolute -bottom-0.5 -right-0.5 flex items-center justify-center w-4 h-4 text-white">
                   <Lock className="w-2 h-2" />
@@ -292,8 +447,8 @@ export default function DesktopNav({
           </div>
         )}
 
-        {/* Profile / Business Dashboard */}
-        {isBusinessAccountUser ? null : (
+        {/* Profile (personal only) */}
+        {!isBusinessAccountUser && (
           <div
             className="relative"
             onMouseEnter={() => isGuest && setHoveredLockedItem("profile")}
@@ -301,10 +456,14 @@ export default function DesktopNav({
           >
             <OptimizedLink
               href={isGuest ? "/login" : "/profile"}
-              className={`group flex w-10 h-10 items-center justify-center rounded-lg transition-all duration-200 relative shadow-md ${isProfileActive ? "text-sage bg-sage/5" : whiteText ? "text-white hover:text-white/85 hover:bg-white/10" : "text-charcoal/80 hover:text-sage hover:bg-sage/5"}`}
+              className={iconWrapClass(isProfileActive)}
               aria-label={isGuest ? "Sign in" : "Profile"}
             >
-              <User className={`w-5 h-5 transition-all duration-200 group-hover:scale-110 ${isProfileActive ? "text-sage" : whiteText ? "text-white group-hover:text-white/85" : "text-current group-hover:text-sage"}`} fill={isProfileActive ? "currentColor" : "none"} style={{ textShadow: "0 2px 4px rgba(0, 0, 0, 0.1)" }} />
+              <User
+                className={iconClass(isProfileActive)}
+                fill={isProfileActive ? "currentColor" : "none"}
+                style={{ textShadow: "0 2px 4px rgba(0, 0, 0, 0.1)" }}
+              />
               {isGuest && (
                 <span className="absolute -bottom-0.5 -right-0.5 flex items-center justify-center w-4 h-4 text-white">
                   <Lock className="w-2 h-2" />

@@ -368,7 +368,15 @@ export default function BusinessRegisterPage() {
                 onBlur={() => setPasswordTouched(true)}
                 disabled={isFormDisabled}
                 showStrength={true}
-                strength={passwordStrength}
+                strength={{
+                  ...passwordStrength,
+                  checks: {
+                    length: passwordStrength.checks.length,
+                    uppercase: false,
+                    lowercase: false,
+                    number: false,
+                  }
+                }}
                 touched={passwordTouched}
               />
 

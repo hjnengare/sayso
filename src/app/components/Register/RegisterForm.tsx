@@ -94,14 +94,20 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
         score: 0,
         feedback: "",
         checks: {
-          length: false
+          length: false,
+          uppercase: false,
+          lowercase: false,
+          number: false,
         },
         color: ""
       };
     }
 
     const checks = {
-      length: password.length >= 6
+      length: password.length >= 6,
+      uppercase: false,
+      lowercase: false,
+      number: false,
     };
 
     let score = 0;

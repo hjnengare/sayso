@@ -3,7 +3,7 @@
 
 import { motion } from "framer-motion";
 import { Calendar, Clock, Users } from "lucide-react";
-import { Event } from "../../data/eventsData";
+import type { Event } from "../../lib/types/Event";
 
 interface EventDetailsCardProps {
   event: Event;

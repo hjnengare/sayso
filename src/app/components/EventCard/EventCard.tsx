@@ -1,7 +1,7 @@
 "use client";
 
 import type { MouseEvent, CSSProperties } from "react";
-import { Event } from "../../data/eventsData";
+import type { Event } from "../../lib/types/Event";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
@@ -151,53 +151,16 @@ export default function EventCard({ event, onBookmark, index = 0 }: EventCardPro
     ? { opacity: 1 }
     : { opacity: 1, y: 0, x: 0 };
   
-  // Determine booking behavior based on event source
-  const getBookingInfo = () => {
-    // Ticketmaster events (have ticketmaster_url or similar)
-    if ((event as any).ticketmaster_url) {
-      return {
-        type: 'ticketmaster' as const,
-        url: (event as any).ticketmaster_url,
-        label: 'Reserve your spot',
-      };
-    }
-
-    // Business-owned events with booking URL
-    if ((event as any).bookingUrl && (event as any).bookingUrl.trim()) {
-      return {
-        type: 'booking_url' as const,
-        url: (event as any).bookingUrl,
-        label: 'Reserve your spot',
-      };
-    }
-
-    // Business-owned events with custom contact message
-    if ((event as any).bookingContact && (event as any).bookingContact.trim()) {
-      return {
-        type: 'contact_only' as const,
-        label: (event as any).bookingContact,
-      };
-    }
-
-    // Default: limited availability message
-    return {
-      type: 'no_booking' as const,
-      label: 'Learn more',
-    };
-  };
-
-  const bookingInfo = getBookingInfo();
-
+  // Always show 'Learn More' and always route to detail page
   const handlePrimaryAction = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
-
-    if (bookingInfo.type === 'ticketmaster' || bookingInfo.type === 'booking_url') {
-      window.open(bookingInfo.url, '_blank', 'noopener,noreferrer');
-      return;
+    // Route to event or special detail page
+    if (event.type === 'special') {
+      router.push(`/specials/${event.id}`);
+    } else {
+      router.push(`/event/${event.id}`);
     }
-
-    router.push(`/event/${event.id}`);
   };
 
   return (
@@ -297,33 +260,17 @@ export default function EventCard({ event, onBookmark, index = 0 }: EventCardPro
               </div>
             </div>
 
-            {(bookingInfo.type === 'ticketmaster' || bookingInfo.type === 'booking_url') ? (
-              // Clickable booking button for external URLs
-              <button
-                onClick={handlePrimaryAction}
-                className="w-full min-h-[44px] py-3 px-4 bg-gradient-to-br from-navbar-bg to-navbar-bg/90 rounded-full flex items-center justify-center gap-2 hover:bg-navbar-bg transition-all duration-200 text-off-white border border-sage/50 shadow-md group"
-                aria-label={bookingInfo.label}
-                title={bookingInfo.type === 'ticketmaster' ? 'Opens Ticketmaster in a new tab' : 'Opens booking page in a new tab'}
-              >
-                <span className="text-sm font-semibold" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
-                  {bookingInfo.label}
-                </span>
-                <ArrowRight className="w-5 h-5 sm:w-[18px] sm:h-[18px] transition-transform duration-200 group-hover:translate-x-1" />
-              </button>
-            ) : (
-              // Route to event detail for limited availability / contact-only cases
-              <button
-                onClick={handlePrimaryAction}
-                className="w-full min-h-[44px] py-3 px-4 rounded-full flex items-center justify-center gap-2 text-off-white bg-navbar-bg/90 border border-navbar-bg/70 shadow-sm hover:bg-navbar-bg transition-colors group"
-                aria-label={bookingInfo.type === 'contact_only' ? 'View event details for booking instructions' : 'View event details'}
-                title={bookingInfo.type === 'contact_only' ? 'View details and booking instructions' : 'Limited availability — view event details'}
-              >
-                <span className="text-sm font-semibold" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
-                  {bookingInfo.label}
-                </span>
-                <ArrowRight className="w-5 h-5 sm:w-[18px] sm:h-[18px] transition-transform duration-200 group-hover:translate-x-1 text-off-white" />
-              </button>
-            )}
+            <button
+              onClick={handlePrimaryAction}
+              className="w-full min-h-[44px] py-3 px-4 rounded-full flex items-center justify-center gap-2 text-off-white bg-navbar-bg/90 border border-navbar-bg/70 shadow-sm hover:bg-navbar-bg transition-colors group"
+              aria-label="Learn more about this event"
+              title="View event details"
+            >
+              <span className="text-sm font-semibold" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
+                Learn More
+              </span>
+              <ArrowRight className="w-5 h-5 sm:w-[18px] sm:h-[18px] transition-transform duration-200 group-hover:translate-x-1 text-off-white" />
+            </button>
           </div>
         </article>
     </motion.li>

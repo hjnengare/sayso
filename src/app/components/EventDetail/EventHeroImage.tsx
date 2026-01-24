@@ -4,7 +4,7 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { Heart, Star } from "lucide-react";
-import { Event } from "../../data/eventsData";
+import type { Event } from "../../lib/types/Event";
 
 interface EventHeroImageProps {
   event: Event;

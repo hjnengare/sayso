@@ -2,7 +2,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Event } from "../../data/eventsData";
+import type { Event } from "../../lib/types/Event";
 
 interface EventDescriptionProps {
   event: Event;
