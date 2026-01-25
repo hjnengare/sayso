@@ -105,7 +105,7 @@ export default function MobileMenu({
               key={item.href}
               href={showLockIndicator ? "/login" : item.href}
               onClick={() => onClose()}
-              className={`px-3 py-2 rounded-lg text-base font-normal text-white hover:text-white flex items-center justify-start transition-colors duration-200 min-h-[44px] ${mobileRevealClass}`}
+              className={`px-3 py-2 rounded-full text-base font-normal text-white hover:text-white flex items-center justify-start transition-colors duration-200 min-h-[44px] ${mobileRevealClass}`}
               style={{
                 ...sf,
                 transitionDelay: `${(businessLinks.length + (item.delay ?? idx)) * 60}ms`,
@@ -201,39 +201,91 @@ export default function MobileMenu({
       </>
     );
   } else {
-    // Unauthenticated visitor: Only public features
+    // Unauthenticated visitor: Show features with lock indicators where needed
     menuContent = (
       <>
         <div className="space-y-1">
-          {primaryLinks.map(({ key, label, href }) => (
-            <OptimizedLink
-              key={key}
-              href={href}
-              onClick={(e) => {
-                handleNavClick(href, e);
-                onClose();
-              }}
-              className={`px-3 py-2 rounded-[20px] text-base font-normal text-white hover:text-white hover:bg-gradient-to-r hover:from-white/10 hover:to-white/5 transition-all duration-200 relative min-h-[44px] flex items-center justify-start ${mobileRevealClass}`}
-            >
-              <span className="text-left flex items-center gap-1.5">{label}</span>
-            </OptimizedLink>
-          ))}
+          {primaryLinks.map(({ key, label, href, requiresAuth }, index) => {
+            const showLockIndicator = shouldShowLockIndicator(isGuest, requiresAuth);
+            return (
+              <OptimizedLink
+                key={key}
+                href={showLockIndicator ? "/login" : href}
+                onClick={(e) => {
+                  handleNavClick(href, e);
+                  onClose();
+                }}
+                className={`px-3 py-2 rounded-[20px] text-base font-normal text-white hover:text-white hover:bg-gradient-to-r hover:from-white/10 hover:to-white/5 transition-all duration-200 relative min-h-[44px] flex items-center justify-start ${mobileRevealClass}`}
+                style={{
+                  ...sf,
+                  transitionDelay: `${index * 60}ms`,
+                }}
+              >
+                <span className="text-left flex items-center gap-1.5">
+                  {label}
+                  {showLockIndicator && <Lock className="w-3 h-3 text-white/40" />}
+                </span>
+              </OptimizedLink>
+            );
+          })}
         </div>
         <div className="h-px bg-charcoal/10 my-2 mx-3" />
         <div className="space-y-1">
-          {discoverLinks.map(({ key, label, href }) => (
-            <OptimizedLink
-              key={key}
-              href={href}
-              onClick={(e) => {
-                handleNavClick(href, e);
-                onClose();
-              }}
-              className={`px-3 py-2 rounded-[20px] text-base font-normal text-white/90 hover:text-white hover:bg-gradient-to-r hover:from-white/10 hover:to-white/5 transition-all duration-200 min-h-[44px] flex items-center justify-start ${mobileRevealClass}`}
-            >
-              <span className="text-left flex items-center gap-1.5">{label}</span>
-            </OptimizedLink>
-          ))}
+          {discoverLinks.map(({ key, label, href, requiresAuth }, index) => {
+            const showLockIndicator = shouldShowLockIndicator(isGuest, requiresAuth);
+            return (
+              <OptimizedLink
+                key={key}
+                href={showLockIndicator ? "/login" : href}
+                onClick={(e) => {
+                  handleNavClick(href, e);
+                  onClose();
+                }}
+                className={`px-3 py-2 rounded-[20px] text-base font-normal text-white/90 hover:text-white hover:bg-gradient-to-r hover:from-white/10 hover:to-white/5 transition-all duration-200 min-h-[44px] flex items-center justify-start ${mobileRevealClass}`}
+                style={{
+                  ...sf,
+                  transitionDelay: `${(primaryCount + index) * 60}ms`,
+                }}
+              >
+                <span className="text-left flex items-center gap-1.5">
+                  {label}
+                  {showLockIndicator && <Lock className="w-3 h-3 text-white/40" />}
+                </span>
+              </OptimizedLink>
+            );
+          })}
+        </div>
+        <div className="h-px bg-charcoal/10 my-2 mx-3" />
+        {/* Guest-visible actions with locks */}
+        <div className="space-y-1">
+          <OptimizedLink
+            href="/login"
+            onClick={() => onClose()}
+            className={`px-3 py-2 rounded-lg text-base font-normal text-white hover:text-white flex items-center justify-start transition-colors duration-200 min-h-[44px] ${mobileRevealClass}`}
+            style={{
+              ...sf,
+              transitionDelay: `${(primaryCount + discoverCount) * 60}ms`,
+            }}
+          >
+            <span className="text-left flex items-center gap-1.5">
+              Saved
+              <Lock className="w-3 h-3 text-white/40" />
+            </span>
+          </OptimizedLink>
+          <OptimizedLink
+            href="/login"
+            onClick={() => onClose()}
+            className={`px-3 py-2 rounded-lg text-base font-normal text-white hover:text-white flex items-center justify-start transition-colors duration-200 min-h-[44px] ${mobileRevealClass}`}
+            style={{
+              ...sf,
+              transitionDelay: `${(primaryCount + discoverCount + 1) * 60}ms`,
+            }}
+          >
+            <span className="text-left flex items-center gap-1.5">
+              Messages
+              <Lock className="w-3 h-3 text-white/40" />
+            </span>
+          </OptimizedLink>
         </div>
         <div className="h-px bg-charcoal/10 my-2 mx-3" />
         <OptimizedLink
@@ -241,8 +293,12 @@ export default function MobileMenu({
           href="/login"
           onClick={() => onClose()}
           className={`px-3 py-2 rounded-lg text-base font-bold text-sage bg-white/10 hover:bg-sage/10 flex items-center justify-center transition-colors duration-200 min-h-[44px] ${mobileRevealClass}`}
+          style={{
+            ...sf,
+            transitionDelay: `${(primaryCount + discoverCount + 2) * 60}ms`,
+          }}
         >
-          <span className="text-center w-full">Sign In / Get Started</span>
+          <span className="text-center w-full">Sign in</span>
         </OptimizedLink>
       </>
     );

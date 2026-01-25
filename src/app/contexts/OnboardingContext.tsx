@@ -82,12 +82,15 @@ const FALLBACK_INTERESTS: Interest[] = [
 ];
 
 export function OnboardingProvider({ children }: OnboardingProviderProps) {
-  const { user, updateUser } = useAuth();
+  const { user, isLoading: authLoading, updateUser } = useAuth();
   const { showToast } = useToast();
   const router = useRouter();
   const [interests, setInterests] = useState<Interest[]>([]);
   const [subInterests, setSubInterests] = useState<Subcategory[]>([]);
-  const [isMounted, setIsMounted] = useState(false);
+
+  // Track initialization state separately from mounting
+  const [hasInitialized, setHasInitialized] = useState(false);
+  const lastUserIdRef = useRef<string | null>(null);
 
   // Initialize with empty arrays to prevent hydration mismatch
   // localStorage will be loaded in useEffect after hydration
@@ -101,21 +104,47 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
   const currentStep = user?.profile?.onboarding_step || 'interests';
 
   // Consolidated initialization: Clear stale data + Load localStorage in single pass
+  // CRITICAL: Wait for auth to be ready before loading localStorage to prevent stale data
   useEffect(() => {
-    if (typeof window === 'undefined' || isMounted) return;
+    if (typeof window === 'undefined') return;
+
+    // Don't initialize until auth is ready (prevents mobile race condition)
+    if (authLoading) return;
+
+    const currentUserId = user?.id || null;
+
+    // Skip if already initialized for this user (or no-user state)
+    if (hasInitialized && lastUserIdRef.current === currentUserId) return;
 
     // Single-pass initialization for better mobile performance
     const initializeOnboarding = () => {
-      let shouldLoadStorage = true;
+      // Always start fresh for new users or when user changes
+      let shouldLoadStorage = false;
 
-      // Check if we need to clear stale data for brand new users
-      if (user) {
+      // Clear localStorage when:
+      // 1. No user (guest/logged out) - always clear
+      // 2. Different user than before - always clear
+      // 3. Brand new user with no database data - clear stale data
+      const userChanged = lastUserIdRef.current !== null && lastUserIdRef.current !== currentUserId;
+
+      if (!user || userChanged) {
+        // Clear any stale localStorage from previous sessions
+        console.log('[OnboardingContext] Clearing localStorage - no user or user changed');
+        localStorage.removeItem('onboarding_interests');
+        localStorage.removeItem('onboarding_subcategories');
+        localStorage.removeItem('onboarding_dealbreakers');
+        // Reset state to empty
+        setSelectedInterestsState([]);
+        setSelectedSubInterestsState([]);
+        setSelectedDealbreakerssState([]);
+      } else if (user) {
+        // User is logged in - check if they're brand new
         const onboardingStep = user.profile?.onboarding_step;
         const isStartingFresh = !onboardingStep || onboardingStep === 'interests';
         const isOnboardingIncomplete = !user.profile?.onboarding_complete;
 
         if (isStartingFresh && isOnboardingIncomplete) {
-          const hasNoDatabaseData = 
+          const hasNoDatabaseData =
             (user.profile?.interests_count || 0) === 0 &&
             (user.profile?.subcategories_count || 0) === 0 &&
             (user.profile?.dealbreakers_count || 0) === 0;
@@ -131,12 +160,24 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
             localStorage.removeItem('onboarding_interests');
             localStorage.removeItem('onboarding_subcategories');
             localStorage.removeItem('onboarding_dealbreakers');
-            shouldLoadStorage = false;
+            // Reset state to empty
+            setSelectedInterestsState([]);
+            setSelectedSubInterestsState([]);
+            setSelectedDealbreakerssState([]);
+          } else if (hasNoDatabaseData && !hasStoredData) {
+            // Brand new user, no stored data - start fresh (already empty)
+            console.log('[OnboardingContext] Brand new user, starting fresh');
+          } else {
+            // User has database data or is continuing onboarding - load from localStorage
+            shouldLoadStorage = true;
           }
+        } else {
+          // User is not starting fresh - they're continuing onboarding
+          shouldLoadStorage = true;
         }
       }
 
-      // Load from localStorage if not cleared
+      // Load from localStorage only if appropriate
       if (shouldLoadStorage) {
         try {
           const stored = {
@@ -150,14 +191,22 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
           if (stored.dealbreakers) setSelectedDealbreakerssState(JSON.parse(stored.dealbreakers));
         } catch (e) {
           console.error('[OnboardingContext] Failed to parse stored data:', e);
+          // On parse error, clear everything and start fresh
+          localStorage.removeItem('onboarding_interests');
+          localStorage.removeItem('onboarding_subcategories');
+          localStorage.removeItem('onboarding_dealbreakers');
+          setSelectedInterestsState([]);
+          setSelectedSubInterestsState([]);
+          setSelectedDealbreakerssState([]);
         }
       }
 
-      setIsMounted(true);
+      lastUserIdRef.current = currentUserId;
+      setHasInitialized(true);
     };
 
     initializeOnboarding();
-  }, [user, isMounted]);
+  }, [user, authLoading, hasInitialized]);
 
   // Debounced localStorage save for mobile performance (300ms)
   const debouncedSaveRef = useRef(
