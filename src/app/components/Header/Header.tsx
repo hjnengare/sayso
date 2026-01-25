@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import { Menu, Bell, User, Settings, Bookmark, MessageCircle, Lock } from "lucide-react";
+import { Menu, Bell, Settings, Bookmark, MessageCircle } from "lucide-react";
 import FilterModal from "../FilterModal/FilterModal";
 import SearchInput from "../SearchInput/SearchInput";
 import Logo from "../Logo/Logo";
@@ -160,34 +160,32 @@ export default function Header({
 
             {/* Mobile Navigation - Visible only on mobile */}
             <div className="flex md:hidden items-center gap-2 ml-auto">
-              {/* Notifications - All users, guests see lock */}
-              <OptimizedLink
-                href={isGuest ? "/login" : "/notifications"}
-                className={`relative w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 ${
-                  isNotificationsActive
-                    ? "text-sage bg-sage/5"
-                    : whiteText
-                      ? "text-white hover:text-white/80 hover:bg-white/10"
-                      : "text-charcoal/80 hover:text-sage hover:bg-sage/5"
-                }`}
-                aria-label={isGuest ? "Sign in to view notifications" : "Notifications"}
-              >
-                <Bell className="w-5 h-5" fill={isNotificationsActive ? "currentColor" : "none"} />
-                {isGuest ? (
-                  <span className="absolute -bottom-0.5 -right-0.5 flex items-center justify-center w-4 h-4 bg-charcoal/60 rounded-full">
-                    <Lock className="w-2 h-2 text-white" />
-                  </span>
-                ) : unreadCount > 0 ? (
-                  <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-white text-[10px] font-bold rounded-full shadow-lg bg-gradient-to-br from-coral to-coral/90 border border-white/20">
-                    {unreadCount > 99 ? "99+" : unreadCount}
-                  </span>
-                ) : null}
-              </OptimizedLink>
-
-              {/* Saved - Personal users or guests with lock */}
-              {!isBusinessAccountUser && (
+              {/* Notifications - Authenticated users only (guests use menu drawer) */}
+              {!isGuest && (
                 <OptimizedLink
-                  href={isGuest ? "/login" : "/saved"}
+                  href="/notifications"
+                  className={`relative w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 ${
+                    isNotificationsActive
+                      ? "text-sage bg-sage/5"
+                      : whiteText
+                        ? "text-white hover:text-white/80 hover:bg-white/10"
+                        : "text-charcoal/80 hover:text-sage hover:bg-sage/5"
+                  }`}
+                  aria-label="Notifications"
+                >
+                  <Bell className="w-5 h-5" fill={isNotificationsActive ? "currentColor" : "none"} />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-white text-[10px] font-bold rounded-full shadow-lg bg-gradient-to-br from-coral to-coral/90 border border-white/20">
+                      {unreadCount > 99 ? "99+" : unreadCount}
+                    </span>
+                  )}
+                </OptimizedLink>
+              )}
+
+              {/* Saved - Personal users only (guests use menu drawer) */}
+              {!isBusinessAccountUser && !isGuest && (
+                <OptimizedLink
+                  href="/saved"
                   className={`relative w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 ${
                     isSavedActive
                       ? "text-sage bg-sage/5"
@@ -195,68 +193,53 @@ export default function Header({
                         ? "text-white hover:text-white/80 hover:bg-white/10"
                         : "text-charcoal/80 hover:text-sage hover:bg-sage/5"
                   }`}
-                  aria-label={isGuest ? "Sign in to view saved" : "Saved"}
+                  aria-label="Saved"
                 >
                   <Bookmark className="w-5 h-5" fill={isSavedActive ? "currentColor" : "none"} />
-                  {isGuest ? (
-                    <span className="absolute -bottom-0.5 -right-0.5 flex items-center justify-center w-4 h-4 bg-charcoal/60 rounded-full">
-                      <Lock className="w-2 h-2 text-white" />
-                    </span>
-                  ) : savedCount > 0 ? (
+                  {savedCount > 0 && (
                     <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-white text-[10px] font-bold rounded-full shadow-lg bg-gradient-to-br from-coral to-coral/90 border border-white/20">
                       {savedCount > 99 ? "99+" : savedCount}
                     </span>
-                  ) : null}
+                  )}
                 </OptimizedLink>
               )}
 
-              {/* Messages - All users, guests see lock */}
-              <OptimizedLink
-                href={isGuest ? "/login" : "/messages"}
-                className={`relative w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 ${
-                  isMessagesActive
-                    ? "text-sage bg-sage/5"
-                    : whiteText
-                      ? "text-white hover:text-white/80 hover:bg-white/10"
-                      : "text-charcoal/80 hover:text-sage hover:bg-sage/5"
-                }`}
-                aria-label={isGuest ? "Sign in to view messages" : "Messages"}
-              >
-                <MessageCircle className="w-5 h-5" fill={isMessagesActive ? "currentColor" : "none"} />
-                {isGuest ? (
-                  <span className="absolute -bottom-0.5 -right-0.5 flex items-center justify-center w-4 h-4 bg-charcoal/60 rounded-full">
-                    <Lock className="w-2 h-2 text-white" />
-                  </span>
-                ) : unreadMessagesCount > 0 ? (
-                  <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-white text-[10px] font-bold rounded-full shadow-lg bg-gradient-to-br from-coral to-coral/90 border border-white/20">
-                    {unreadMessagesCount > 99 ? "99+" : unreadMessagesCount}
-                  </span>
-                ) : null}
-              </OptimizedLink>
-
-              {/* Profile/Settings icon - Business users see Settings, Guests see Profile with lock */}
-              {(!isBusinessAccountUser && !isGuest) ? null : (
+              {/* Messages - Authenticated users only (guests use menu drawer) */}
+              {!isGuest && (
                 <OptimizedLink
-                  href={isGuest ? "/login" : isBusinessAccountUser ? "/settings" : "/profile"}
+                  href="/messages"
                   className={`relative w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 ${
-                    isProfileActive || isSettingsActive
+                    isMessagesActive
                       ? "text-sage bg-sage/5"
                       : whiteText
                         ? "text-white hover:text-white/80 hover:bg-white/10"
                         : "text-charcoal/80 hover:text-sage hover:bg-sage/5"
                   }`}
-                  aria-label={isGuest ? "Sign in" : isBusinessAccountUser ? "Settings" : "Profile"}
+                  aria-label="Messages"
                 >
-                  {isBusinessAccountUser ? (
-                    <Settings className="w-5 h-5" fill={(isSettingsActive) ? "currentColor" : "none"} />
-                  ) : (
-                    <User className="w-5 h-5" fill={(isProfileActive) ? "currentColor" : "none"} />
-                  )}
-                  {isGuest && (
-                    <span className="absolute -bottom-0.5 -right-0.5 flex items-center justify-center w-4 h-4 bg-charcoal/60 rounded-full">
-                      <Lock className="w-2 h-2 text-white" />
+                  <MessageCircle className="w-5 h-5" fill={isMessagesActive ? "currentColor" : "none"} />
+                  {unreadMessagesCount > 0 && (
+                    <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-white text-[10px] font-bold rounded-full shadow-lg bg-gradient-to-br from-coral to-coral/90 border border-white/20">
+                      {unreadMessagesCount > 99 ? "99+" : unreadMessagesCount}
                     </span>
                   )}
+                </OptimizedLink>
+              )}
+
+              {/* Settings icon - Business users only (guests and personal users use menu drawer) */}
+              {isBusinessAccountUser && (
+                <OptimizedLink
+                  href="/settings"
+                  className={`relative w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 ${
+                    isSettingsActive
+                      ? "text-sage bg-sage/5"
+                      : whiteText
+                        ? "text-white hover:text-white/80 hover:bg-white/10"
+                        : "text-charcoal/80 hover:text-sage hover:bg-sage/5"
+                  }`}
+                  aria-label="Settings"
+                >
+                  <Settings className="w-5 h-5" fill={isSettingsActive ? "currentColor" : "none"} />
                 </OptimizedLink>
               )}
 
