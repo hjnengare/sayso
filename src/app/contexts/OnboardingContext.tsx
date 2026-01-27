@@ -15,18 +15,14 @@ import { Profile } from '../lib/types/database';
  * Source of truth: profiles.onboarding_complete (boolean) in the database
  *
  * Flow:
- * 1. User selects interests → stored in localStorage (UI state)
- * 2. User selects subcategories → stored in localStorage (UI state)
- * 3. User selects dealbreakers → stored in localStorage (UI state)
- * 4. User clicks "Finish" → ALL data saved atomically to database
- *    - interests, subcategories, dealbreakers, onboarding_complete = true
- *    - If ANY step fails, the entire transaction is rolled back
- * 5. localStorage is cleared after successful completion
+ * 1. User selects interests -> saved to DB on step completion
+ * 2. User selects subcategories -> saved to DB on step completion
+ * 3. User selects dealbreakers -> saved to DB and onboarding_complete = true
+ * 4. localStorage is cleared after successful completion
  *
  * This ensures:
- * - No partial saves that leave users in inconsistent states
- * - Database state is always consistent
- * - Tests can reset onboarding by just setting onboarding_complete = false
+ * - Users can resume safely from DB state
+ * - Onboarding only completes after final step
  */
 
 // Utility: Debounce localStorage writes for mobile performance
@@ -141,67 +137,61 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
     if (hasInitialized && lastUserIdRef.current === currentUserId) return;
 
     // Single-pass initialization for better mobile performance
-    const initializeOnboarding = () => {
-      // Always start fresh for new users or when user changes
+    const initializeOnboarding = async () => {
       let shouldLoadStorage = false;
 
-      // Clear localStorage when:
-      // 1. No user (guest/logged out) - always clear
-      // 2. Different user than before - always clear
-      // 3. Brand new user with no database data - clear stale data
       const userChanged = lastUserIdRef.current !== null && lastUserIdRef.current !== currentUserId;
 
       if (!user || userChanged) {
-        // Clear any stale localStorage from previous sessions
         console.log('[OnboardingContext] Clearing localStorage - no user or user changed');
         localStorage.removeItem('onboarding_interests');
         localStorage.removeItem('onboarding_subcategories');
         localStorage.removeItem('onboarding_dealbreakers');
-        // Reset state to empty
         setSelectedInterestsState([]);
         setSelectedSubInterestsState([]);
         setSelectedDealbreakerssState([]);
       } else if (user) {
-        // User is logged in - check if they're brand new
-        const onboardingStep = user.profile?.onboarding_step;
-        const isStartingFresh = !onboardingStep || onboardingStep === 'interests';
-        const isOnboardingIncomplete = !user.profile?.onboarding_complete;
+        const hasDatabaseData =
+          (user.profile?.interests_count || 0) > 0 ||
+          (user.profile?.subcategories_count || 0) > 0 ||
+          (user.profile?.dealbreakers_count || 0) > 0;
 
-        if (isStartingFresh && isOnboardingIncomplete) {
-          const hasNoDatabaseData =
-            (user.profile?.interests_count || 0) === 0 &&
-            (user.profile?.subcategories_count || 0) === 0 &&
-            (user.profile?.dealbreakers_count || 0) === 0;
+        if (hasDatabaseData) {
+          try {
+            const response = await fetch('/api/user/onboarding', {
+              credentials: 'include',
+              cache: 'no-store'
+            });
 
-          const hasStoredData =
-            localStorage.getItem('onboarding_interests') ||
-            localStorage.getItem('onboarding_subcategories') ||
-            localStorage.getItem('onboarding_dealbreakers');
+            if (response.ok) {
+              const data = await response.json();
+              const dbInterests = Array.isArray(data.interests) ? data.interests : [];
+              const dbSubcategories = Array.isArray(data.subcategories)
+                ? data.subcategories
+                    .map((sub) => String(sub?.subcategory_id ?? sub?.id ?? sub ?? '').trim())
+                    .filter((id) => id.length > 0)
+                : [];
+              const dbDealbreakers = Array.isArray(data.dealbreakers) ? data.dealbreakers : [];
 
-          // If brand new user with stored data, it's stale - clear it
-          if (hasNoDatabaseData && hasStoredData) {
-            console.log('[OnboardingContext] Clearing stale localStorage for brand new user');
-            localStorage.removeItem('onboarding_interests');
-            localStorage.removeItem('onboarding_subcategories');
-            localStorage.removeItem('onboarding_dealbreakers');
-            // Reset state to empty
-            setSelectedInterestsState([]);
-            setSelectedSubInterestsState([]);
-            setSelectedDealbreakerssState([]);
-          } else if (hasNoDatabaseData && !hasStoredData) {
-            // Brand new user, no stored data - start fresh (already empty)
-            console.log('[OnboardingContext] Brand new user, starting fresh');
-          } else {
-            // User has database data or is continuing onboarding - load from localStorage
+              setSelectedInterestsState(dbInterests);
+              setSelectedSubInterestsState(dbSubcategories);
+              setSelectedDealbreakerssState(dbDealbreakers);
+
+              localStorage.setItem('onboarding_interests', JSON.stringify(dbInterests));
+              localStorage.setItem('onboarding_subcategories', JSON.stringify(dbSubcategories));
+              localStorage.setItem('onboarding_dealbreakers', JSON.stringify(dbDealbreakers));
+            } else {
+              shouldLoadStorage = true;
+            }
+          } catch (error) {
+            console.error('[OnboardingContext] Failed to load onboarding from DB:', error);
             shouldLoadStorage = true;
           }
         } else {
-          // User is not starting fresh - they're continuing onboarding
           shouldLoadStorage = true;
         }
       }
 
-      // Load from localStorage only if appropriate
       if (shouldLoadStorage) {
         try {
           const stored = {
@@ -215,7 +205,6 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
           if (stored.dealbreakers) setSelectedDealbreakerssState(JSON.parse(stored.dealbreakers));
         } catch (e) {
           console.error('[OnboardingContext] Failed to parse stored data:', e);
-          // On parse error, clear everything and start fresh
           localStorage.removeItem('onboarding_interests');
           localStorage.removeItem('onboarding_subcategories');
           localStorage.removeItem('onboarding_dealbreakers');
@@ -229,7 +218,7 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
       setHasInitialized(true);
     };
 
-    initializeOnboarding();
+    void initializeOnboarding();
   }, [user, authLoading, hasInitialized]);
 
   // Debounced localStorage save for mobile performance (300ms)
@@ -396,16 +385,8 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
   }, [user, currentStep, selectedInterests, showToast, getStepCompletionMessage, router]);
 
   /**
-   * Complete onboarding ATOMICALLY
-   *
-   * This function saves ALL onboarding data in a SINGLE database transaction:
-   * - interests
-   * - subcategories
-   * - dealbreakers
-   * - onboarding_complete = true
-   *
-   * If ANY step fails, the entire transaction is rolled back.
-   * This prevents partial saves that leave users in inconsistent states.
+   * Complete onboarding by saving dealbreakers and marking onboarding_complete.
+   * Interests and subcategories are saved on their respective steps.
    */
   const completeOnboarding = useCallback(async () => {
     if (!user) return;
@@ -414,28 +395,17 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
       setIsLoading(true);
       setError(null);
 
-      // Validate we have all required data
-      if (selectedInterests.length < 3 || selectedInterests.length > 6) {
-        throw new Error('Please select 3-6 interests');
-      }
-      if (selectedSubInterests.length < 1 || selectedSubInterests.length > 10) {
-        throw new Error('Please select 1-10 subcategories');
-      }
       if (selectedDealbreakers.length < 1 || selectedDealbreakers.length > 3) {
         throw new Error('Please select 1-3 dealbreakers');
       }
 
-      // Call the ATOMIC completion API
-      // This saves everything in one database transaction
-      const response = await fetch('/api/onboarding/complete-atomic', {
+      const response = await fetch('/api/onboarding/dealbreakers', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
         body: JSON.stringify({
-          interests: selectedInterests,
-          subcategories: selectedSubInterests,
           dealbreakers: selectedDealbreakers,
         }),
       });
@@ -456,35 +426,27 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
         throw new Error(errorMsg);
       }
 
-      // Update AuthContext with the completed onboarding status
-      if (payload && typeof payload === 'object') {
-        try {
-          await updateUser({
-            profile: {
-              onboarding_complete: true,
-              interests_count: payload.interests_count,
-              subcategories_count: payload.subcategories_count,
-              dealbreakers_count: payload.dealbreakers_count,
-            } as Profile
-          });
-        } catch (updateError) {
-          console.warn('Failed to update user profile locally:', updateError);
-          // Continue anyway - the DB is updated, that's what matters
-        }
+      try {
+        await updateUser({
+          profile: {
+            onboarding_complete: true,
+            onboarding_step: 'complete',
+            interests_count: selectedInterests.length,
+            subcategories_count: selectedSubInterests.length,
+            dealbreakers_count: selectedDealbreakers.length,
+          } as Profile
+        });
+      } catch (updateError) {
+        console.warn('Failed to update user profile locally:', updateError);
       }
 
-      // Clear localStorage after successful completion
-      // This is just cleanup - the database is now the source of truth
       if (typeof window !== 'undefined') {
         localStorage.removeItem('onboarding_interests');
         localStorage.removeItem('onboarding_subcategories');
         localStorage.removeItem('onboarding_dealbreakers');
       }
 
-      // Show completion toast
       showToast('Welcome to sayso! Your profile is now complete.', 'success', 4000);
-
-      // Navigate to home
       router.replace('/home');
     } catch (error: unknown) {
       console.error('Error completing onboarding:', error);

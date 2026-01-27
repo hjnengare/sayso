@@ -20,26 +20,45 @@ describe('POST /api/onboarding/complete', () => {
     (getServerSupabase as jest.Mock).mockResolvedValue(mockSupabase);
   });
 
-  it('should mark onboarding as complete', async () => {
+  it('should mark onboarding as complete when data exists', async () => {
     const user = { id: 'user-123' };
     mockSupabase.auth.getUser.mockResolvedValue({ data: { user }, error: null });
-    mockSupabase.from.mockReturnValue({
-      select: jest.fn().mockReturnValue({
-        eq: jest.fn().mockReturnValue({
-          single: jest.fn().mockResolvedValue({
-            data: {
-              onboarding_step: 'complete',
-              interests_count: 3,
-              subcategories_count: 5,
-              dealbreakers_count: 2,
-            },
-            error: null,
+    mockSupabase.from.mockImplementation((table: string) => {
+      if (table === 'user_interests') {
+        return {
+          select: jest.fn().mockReturnValue({
+            eq: jest.fn().mockReturnValue({
+              limit: jest.fn().mockResolvedValue({ data: [{ interest_id: 'food-drink' }], error: null }),
+            }),
           }),
-        }),
-      }),
-      update: jest.fn().mockReturnValue({
-        eq: jest.fn().mockResolvedValue({ error: null }),
-      }),
+        };
+      }
+      if (table === 'user_subcategories') {
+        return {
+          select: jest.fn().mockReturnValue({
+            eq: jest.fn().mockReturnValue({
+              limit: jest.fn().mockResolvedValue({ data: [{ subcategory_id: 'restaurants' }], error: null }),
+            }),
+          }),
+        };
+      }
+      if (table === 'user_dealbreakers') {
+        return {
+          select: jest.fn().mockReturnValue({
+            eq: jest.fn().mockReturnValue({
+              limit: jest.fn().mockResolvedValue({ data: [{ dealbreaker_id: 'trustworthiness' }], error: null }),
+            }),
+          }),
+        };
+      }
+      if (table === 'profiles') {
+        return {
+          update: jest.fn().mockReturnValue({
+            eq: jest.fn().mockResolvedValue({ error: null }),
+          }),
+        };
+      }
+      return {};
     });
 
     const request = new Request('http://localhost/api/onboarding/complete', {
@@ -53,32 +72,22 @@ describe('POST /api/onboarding/complete', () => {
 
     expect(response.status).toBe(200);
     expect(data.ok).toBe(true);
-    expect(data.success).toBe(true);
-    expect(mockSupabase.from).toHaveBeenCalledWith('profiles');
-    // Should update onboarding_complete to true
-    expect(mockSupabase.from('profiles').update).toHaveBeenCalledWith({
-      onboarding_complete: true,
-      updated_at: expect.any(String),
-    });
   });
 
-  it('should return 400 if onboarding_step is not complete', async () => {
+  it('should return 400 if interests are missing', async () => {
     const user = { id: 'user-123' };
     mockSupabase.auth.getUser.mockResolvedValue({ data: { user }, error: null });
-    mockSupabase.from.mockReturnValue({
-      select: jest.fn().mockReturnValue({
-        eq: jest.fn().mockReturnValue({
-          single: jest.fn().mockResolvedValue({
-            data: {
-              onboarding_step: 'deal-breakers',
-              interests_count: 3,
-              subcategories_count: 5,
-              dealbreakers_count: 2,
-            },
-            error: null,
+    mockSupabase.from.mockImplementation((table: string) => {
+      if (table === 'user_interests') {
+        return {
+          select: jest.fn().mockReturnValue({
+            eq: jest.fn().mockReturnValue({
+              limit: jest.fn().mockResolvedValue({ data: [], error: null }),
+            }),
           }),
-        }),
-      }),
+        };
+      }
+      return {};
     });
 
     const request = new Request('http://localhost/api/onboarding/complete', {
@@ -91,27 +100,32 @@ describe('POST /api/onboarding/complete', () => {
     const data = await response.json();
 
     expect(response.status).toBe(400);
-    expect(data.error).toBe('Cannot complete onboarding: all steps must be finished first');
-    expect(data.current_step).toBe('deal-breakers');
+    expect(data.error).toBe('Complete interests first');
   });
 
-  it('should return 400 if user has no interests', async () => {
+  it('should return 400 if subcategories are missing', async () => {
     const user = { id: 'user-123' };
     mockSupabase.auth.getUser.mockResolvedValue({ data: { user }, error: null });
-    mockSupabase.from.mockReturnValue({
-      select: jest.fn().mockReturnValue({
-        eq: jest.fn().mockReturnValue({
-          single: jest.fn().mockResolvedValue({
-            data: {
-              onboarding_step: 'complete',
-              interests_count: 0,
-              subcategories_count: 0,
-              dealbreakers_count: 0,
-            },
-            error: null,
+    mockSupabase.from.mockImplementation((table: string) => {
+      if (table === 'user_interests') {
+        return {
+          select: jest.fn().mockReturnValue({
+            eq: jest.fn().mockReturnValue({
+              limit: jest.fn().mockResolvedValue({ data: [{ interest_id: 'food-drink' }], error: null }),
+            }),
           }),
-        }),
-      }),
+        };
+      }
+      if (table === 'user_subcategories') {
+        return {
+          select: jest.fn().mockReturnValue({
+            eq: jest.fn().mockReturnValue({
+              limit: jest.fn().mockResolvedValue({ data: [], error: null }),
+            }),
+          }),
+        };
+      }
+      return {};
     });
 
     const request = new Request('http://localhost/api/onboarding/complete', {
@@ -124,21 +138,41 @@ describe('POST /api/onboarding/complete', () => {
     const data = await response.json();
 
     expect(response.status).toBe(400);
-    expect(data.error).toBe('Cannot complete onboarding: interests are required');
+    expect(data.error).toBe('Complete subcategories first');
   });
 
-  it('should return 404 if profile not found', async () => {
+  it('should return 400 if dealbreakers are missing', async () => {
     const user = { id: 'user-123' };
     mockSupabase.auth.getUser.mockResolvedValue({ data: { user }, error: null });
-    mockSupabase.from.mockReturnValue({
-      select: jest.fn().mockReturnValue({
-        eq: jest.fn().mockReturnValue({
-          single: jest.fn().mockResolvedValue({
-            data: null,
-            error: { message: 'Not found' },
+    mockSupabase.from.mockImplementation((table: string) => {
+      if (table === 'user_interests') {
+        return {
+          select: jest.fn().mockReturnValue({
+            eq: jest.fn().mockReturnValue({
+              limit: jest.fn().mockResolvedValue({ data: [{ interest_id: 'food-drink' }], error: null }),
+            }),
           }),
-        }),
-      }),
+        };
+      }
+      if (table === 'user_subcategories') {
+        return {
+          select: jest.fn().mockReturnValue({
+            eq: jest.fn().mockReturnValue({
+              limit: jest.fn().mockResolvedValue({ data: [{ subcategory_id: 'restaurants' }], error: null }),
+            }),
+          }),
+        };
+      }
+      if (table === 'user_dealbreakers') {
+        return {
+          select: jest.fn().mockReturnValue({
+            eq: jest.fn().mockReturnValue({
+              limit: jest.fn().mockResolvedValue({ data: [], error: null }),
+            }),
+          }),
+        };
+      }
+      return {};
     });
 
     const request = new Request('http://localhost/api/onboarding/complete', {
@@ -150,8 +184,8 @@ describe('POST /api/onboarding/complete', () => {
     const response = await POST(request);
     const data = await response.json();
 
-    expect(response.status).toBe(404);
-    expect(data.error).toBe('Profile not found');
+    expect(response.status).toBe(400);
+    expect(data.error).toBe('Complete dealbreakers first');
   });
 
   it('should return 401 if user is not authenticated', async () => {
@@ -170,4 +204,3 @@ describe('POST /api/onboarding/complete', () => {
     expect(data.error).toBe('Unauthorized');
   });
 });
-

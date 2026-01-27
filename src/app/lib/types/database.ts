@@ -15,6 +15,7 @@ export interface Profile {
   email?: string;
   onboarding_step: string;
   onboarding_complete: boolean;
+  onboarding_completed_at?: string;
   interests_count: number;
   last_interests_updated?: string;
   interests?: string[];

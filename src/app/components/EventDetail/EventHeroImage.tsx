@@ -3,11 +3,13 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { Star } from "lucide-react";
+import { Star, Heart } from "lucide-react";
 import type { Event } from "../../lib/types/Event";
 
 interface EventHeroImageProps {
   event: Event;
+  isLiked?: boolean;
+  onLike?: () => void;
 }
 
 // Helper to get optimized image URL with width parameter
@@ -41,6 +43,8 @@ function getOptimizedImageUrl(url: string | null, width: number = 1080): string 
 
 export default function EventHeroImage({
   event,
+  isLiked = false,
+  onLike,
 }: EventHeroImageProps) {
   // Get optimized image URL with width parameter
   const imageUrl = getOptimizedImageUrl(event.image, 1080);
@@ -85,6 +89,20 @@ export default function EventHeroImage({
             {Number(event.rating).toFixed(1)}
           </span>
         </div>
+      )}
+
+      {onLike && (
+        <button
+          onClick={onLike}
+          className={`absolute bottom-6 right-6 z-20 w-11 h-11 rounded-full backdrop-blur-md border transition-all duration-300 hover:scale-110 ${
+            isLiked
+              ? "bg-coral/90 text-white border-coral/50"
+              : "bg-white/20 text-white border-white/30 hover:bg-white/30"
+          }`}
+          aria-label={isLiked ? "Unlike event" : "Like event"}
+        >
+          <Heart className={`mx-auto w-5 h-5 ${isLiked ? "fill-current" : ""}`} />
+        </button>
       )}
 
     </motion.div>

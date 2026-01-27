@@ -1,10 +1,31 @@
 import { NextResponse } from 'next/server';
 import { getServerSupabase } from '../../../lib/supabase/server';
 import { addNoCacheHeaders } from '../../../lib/utils/responseHeaders';
+import { SUBCATEGORY_TO_INTEREST } from '../../../lib/onboarding/subcategoryMapping';
 
 // Force dynamic rendering and disable caching
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+
+interface SubcategoryPayload {
+  subcategory_id: string;
+  interest_id: string;
+}
+
+function normalizeSubcategoryEntry(entry: unknown): { subcategoryId: string; interestId?: string } {
+  if (typeof entry === 'string') {
+    return { subcategoryId: entry.trim() };
+  }
+
+  if (entry && typeof entry === 'object') {
+    const obj = entry as Record<string, unknown>;
+    const subcategoryId = String(obj.subcategory_id ?? obj.id ?? '').trim();
+    const interestId = String(obj.interest_id ?? obj.interestId ?? '').trim();
+    return { subcategoryId, interestId: interestId || undefined };
+  }
+
+  return { subcategoryId: '' };
+}
 
 /**
  * POST /api/onboarding/subcategories
@@ -12,13 +33,10 @@ export const revalidate = 0;
  */
 export async function POST(req: Request) {
   try {
-    console.log('[Subcategories API] POST request received');
     const supabase = await getServerSupabase(req);
-    console.log('[Subcategories API] Getting user...');
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError) {
-      console.error('[Subcategories API] Auth error:', authError);
       const response = NextResponse.json({
         error: 'Authentication failed',
         message: authError.message
@@ -27,35 +45,30 @@ export async function POST(req: Request) {
     }
 
     if (!user) {
-      console.error('[Subcategories API] No user found');
       const response = NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
       return addNoCacheHeaders(response);
     }
 
-    console.log('[Subcategories API] User authenticated:', user.id);
-
-    // Parse request body
     const body = await req.json();
-    const { subcategories } = body;
+    const subcategories = body?.subcategories ?? body?.subcategory_ids;
 
-    console.log('[Subcategories API] Received subcategories:', {
-      count: subcategories?.length,
-      data: subcategories
-    });
-
-    // Validate required data
-    if (!subcategories || !Array.isArray(subcategories) || subcategories.length === 0) {
-      console.error('[Subcategories API] Validation failed: empty or invalid subcategories');
+    if (!subcategories || !Array.isArray(subcategories)) {
       const response = NextResponse.json(
-        { error: 'Subcategories are required (minimum 1)' },
+        { error: 'Subcategories must be an array' },
         { status: 400 }
       );
       return addNoCacheHeaders(response);
     }
 
-    // Validate subcategory count (max 10)
+    if (subcategories.length < 1) {
+      const response = NextResponse.json(
+        { error: 'Please select at least 1 subcategory' },
+        { status: 400 }
+      );
+      return addNoCacheHeaders(response);
+    }
+
     if (subcategories.length > 10) {
-      console.error('[Subcategories API] Validation failed: too many subcategories');
       const response = NextResponse.json(
         { error: 'Maximum 10 subcategories allowed' },
         { status: 400 }
@@ -63,83 +76,127 @@ export async function POST(req: Request) {
       return addNoCacheHeaders(response);
     }
 
-    // 1. Transform subcategories array to include interest_id
-    // We need to map subcategory IDs to their parent interest IDs
-    const subcategoryMapping: Record<string, string> = {
-      // Food & Drink
-      'restaurants': 'food-drink',
-      'cafes': 'food-drink',
-      'bars': 'food-drink',
-      'fast-food': 'food-drink',
-      'fine-dining': 'food-drink',
-      // Beauty & Wellness
-      'gyms': 'beauty-wellness',
-      'spas': 'beauty-wellness',
-      'salons': 'beauty-wellness',
-      'wellness': 'beauty-wellness',
-      'nail-salons': 'beauty-wellness',
-      // Professional Services
-      'education-learning': 'professional-services',
-      'transport-travel': 'professional-services',
-      'finance-insurance': 'professional-services',
-      'plumbers': 'professional-services',
-      'electricians': 'professional-services',
-      'legal-services': 'professional-services',
-      // Outdoors & Adventure
-      'hiking': 'outdoors-adventure',
-      'cycling': 'outdoors-adventure',
-      'water-sports': 'outdoors-adventure',
-      'camping': 'outdoors-adventure',
-      // Entertainment & Experiences
-      'events-festivals': 'experiences-entertainment',
-      'sports-recreation': 'experiences-entertainment',
-      'nightlife': 'experiences-entertainment',
-      'comedy-clubs': 'experiences-entertainment',
-      'cinemas': 'experiences-entertainment',
-      // Arts & Culture
-      'museums': 'arts-culture',
-      'galleries': 'arts-culture',
-      'theaters': 'arts-culture',
-      'concerts': 'arts-culture',
-      // Family & Pets
-      'family-activities': 'family-pets',
-      'pet-services': 'family-pets',
-      'childcare': 'family-pets',
-      'veterinarians': 'family-pets',
-      // Shopping & Lifestyle
-      'fashion': 'shopping-lifestyle',
-      'electronics': 'shopping-lifestyle',
-      'home-decor': 'shopping-lifestyle',
-      'books': 'shopping-lifestyle',
-    };
+    const { data: interestsData, error: interestsError } = await supabase
+      .from('user_interests')
+      .select('interest_id')
+      .eq('user_id', user.id);
 
-    const subcategoryData = subcategories.map((subcategoryId: string) => ({
-      subcategory_id: subcategoryId,
-      interest_id: subcategoryMapping[subcategoryId] || 'unknown'
-    }));
+    if (interestsError) {
+      console.error('[Subcategories API] Error loading interests:', interestsError);
+      return addNoCacheHeaders(
+        NextResponse.json({ error: 'Failed to verify interests' }, { status: 500 })
+      );
+    }
 
-    console.log('[Subcategories API] Transformed subcategory data:', subcategoryData);
+    if (!interestsData || interestsData.length === 0) {
+      return addNoCacheHeaders(
+        NextResponse.json({ error: 'Complete interests first' }, { status: 400 })
+      );
+    }
 
-    // 2. Save subcategories using RPC function
-    console.log('[Subcategories API] Calling replace_user_subcategories RPC...');
-    const { data: rpcData, error: subcategoriesError } = await supabase.rpc('replace_user_subcategories', {
+    const interestSet = new Set(interestsData.map((row) => row.interest_id));
+    const subcategoryMap = new Map<string, SubcategoryPayload>();
+    const invalidSubcategories: string[] = [];
+    const mismatchedInterests: string[] = [];
+    const emptySubcategories: number[] = [];
+
+    subcategories.forEach((entry: unknown, index: number) => {
+      const { subcategoryId, interestId } = normalizeSubcategoryEntry(entry);
+      if (!subcategoryId) {
+        emptySubcategories.push(index);
+        return;
+      }
+
+      const mappedInterestId = interestId || SUBCATEGORY_TO_INTEREST[subcategoryId];
+
+      if (!mappedInterestId) {
+        invalidSubcategories.push(subcategoryId);
+        return;
+      }
+
+      if (!interestSet.has(mappedInterestId)) {
+        mismatchedInterests.push(subcategoryId);
+        return;
+      }
+
+      subcategoryMap.set(subcategoryId, {
+        subcategory_id: subcategoryId,
+        interest_id: mappedInterestId
+      });
+    });
+
+    if (emptySubcategories.length > 0) {
+      return addNoCacheHeaders(
+        NextResponse.json(
+          { error: 'All subcategories must be non-empty strings' },
+          { status: 400 }
+        )
+      );
+    }
+
+    if (invalidSubcategories.length > 0) {
+      return addNoCacheHeaders(
+        NextResponse.json(
+          { error: `Invalid subcategory IDs: ${invalidSubcategories.join(', ')}` },
+          { status: 400 }
+        )
+      );
+    }
+
+    if (mismatchedInterests.length > 0) {
+      return addNoCacheHeaders(
+        NextResponse.json(
+          { error: 'Subcategories must belong to selected interests' },
+          { status: 400 }
+        )
+      );
+    }
+
+    const subcategoryData = Array.from(subcategoryMap.values());
+
+    if (subcategoryData.length === 0) {
+      return addNoCacheHeaders(
+        NextResponse.json(
+          { error: 'No valid subcategories provided' },
+          { status: 400 }
+        )
+      );
+    }
+
+    const { error: subcategoriesError } = await supabase.rpc('replace_user_subcategories', {
       p_user_id: user.id,
       p_subcategory_data: subcategoryData
     });
 
     if (subcategoriesError) {
-      console.error('[Subcategories API] RPC error:', {
-        message: subcategoriesError.message,
-        details: subcategoriesError.details,
-        hint: subcategoriesError.hint,
-        code: subcategoriesError.code
-      });
-      throw new Error(`Failed to save subcategories: ${subcategoriesError.message}`);
+      console.warn('[Subcategories API] RPC failed, falling back to direct writes:', subcategoriesError);
+
+      const { error: deleteError } = await supabase
+        .from('user_subcategories')
+        .delete()
+        .eq('user_id', user.id);
+
+      if (deleteError) {
+        console.error('[Subcategories API] Error clearing subcategories:', deleteError);
+        throw deleteError;
+      }
+
+      const rows = subcategoryData.map((item) => ({
+        user_id: user.id,
+        subcategory_id: item.subcategory_id,
+        interest_id: item.interest_id
+      }));
+
+      const { error: insertError } = await supabase
+        .from('user_subcategories')
+        .insert(rows);
+
+      if (insertError) {
+        console.error('[Subcategories API] Error inserting subcategories:', insertError);
+        throw insertError;
+      }
     }
 
-    console.log('[Subcategories API] RPC call successful:', rpcData);
-
-    // 3. Update onboarding_step to 'deal-breakers'
     const { error: updateError } = await supabase
       .from('profiles')
       .update({
@@ -153,18 +210,8 @@ export async function POST(req: Request) {
       throw updateError;
     }
 
-    console.log('[Subcategories API] Subcategories saved successfully', {
-      userId: user.id,
-      subcategories: subcategories.length,
-      next_step: 'deal-breakers'
-    });
-
     const response = NextResponse.json({
-      ok: true,
-      success: true,
-      message: 'Subcategories saved successfully',
-      onboarding_step: 'deal-breakers',
-      subcategories_count: subcategories.length
+      ok: true
     });
     return addNoCacheHeaders(response);
 

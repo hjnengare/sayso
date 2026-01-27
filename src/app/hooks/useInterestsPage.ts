@@ -150,6 +150,7 @@ export function useInterestsPage(): UseInterestsPageReturn {
       const response = await fetch('/api/onboarding/interests', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ interests: selectedInterests }),
       });
 

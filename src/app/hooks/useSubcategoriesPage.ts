@@ -185,6 +185,7 @@ export function useSubcategoriesPage(): UseSubcategoriesPageReturn {
       const response = await fetch('/api/onboarding/subcategories', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ subcategories: selectedSubInterests }),
       });
 

@@ -25,20 +25,29 @@ describe('POST /api/onboarding/subcategories', () => {
     const user = { id: 'user-123' };
     mockSupabase.auth.getUser.mockResolvedValue({ data: { user }, error: null });
     mockSupabase.rpc.mockResolvedValue({ error: null });
-    mockSupabase.from.mockReturnValue({
-      update: jest.fn().mockReturnValue({
-        eq: jest.fn().mockResolvedValue({ error: null }),
-      }),
+    mockSupabase.from.mockImplementation((table: string) => {
+      if (table === 'user_interests') {
+        return {
+          select: jest.fn().mockReturnValue({
+            eq: jest.fn().mockResolvedValue({ data: [{ interest_id: 'food-drink' }], error: null }),
+          }),
+        };
+      }
+      if (table === 'profiles') {
+        return {
+          update: jest.fn().mockReturnValue({
+            eq: jest.fn().mockResolvedValue({ error: null }),
+          }),
+        };
+      }
+      return {};
     });
 
     const request = new Request('http://localhost/api/onboarding/subcategories', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        subcategories: [
-          { subcategory_id: 'restaurants', interest_id: 'food-drink' },
-          { subcategory_id: 'cafes', interest_id: 'food-drink' },
-        ],
+        subcategories: ['restaurants', 'cafes'],
       }),
     });
 
@@ -47,8 +56,6 @@ describe('POST /api/onboarding/subcategories', () => {
 
     expect(response.status).toBe(200);
     expect(data.ok).toBe(true);
-    expect(data.subcategoriesCount).toBe(2);
-    expect(data.onboarding_step).toBe('deal-breakers');
     expect(mockSupabase.rpc).toHaveBeenCalledWith('replace_user_subcategories', {
       p_user_id: user.id,
       p_subcategory_data: [
@@ -58,56 +65,58 @@ describe('POST /api/onboarding/subcategories', () => {
     });
   });
 
-  it('should filter out invalid subcategories (interest IDs)', async () => {
+  it('should return 400 if interests are missing', async () => {
     const user = { id: 'user-123' };
     mockSupabase.auth.getUser.mockResolvedValue({ data: { user }, error: null });
-    mockSupabase.rpc.mockResolvedValue({ error: null });
-    mockSupabase.from.mockReturnValue({
-      update: jest.fn().mockReturnValue({
-        eq: jest.fn().mockResolvedValue({ error: null }),
-      }),
+    mockSupabase.from.mockImplementation((table: string) => {
+      if (table === 'user_interests') {
+        return {
+          select: jest.fn().mockReturnValue({
+            eq: jest.fn().mockResolvedValue({ data: [], error: null }),
+          }),
+        };
+      }
+      return {};
     });
 
     const request = new Request('http://localhost/api/onboarding/subcategories', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        subcategories: [
-          { subcategory_id: 'food-drink', interest_id: 'food-drink' }, // Invalid: subcategory_id is an interest_id
-          { subcategory_id: 'restaurants', interest_id: 'food-drink' }, // Valid
-        ],
-      }),
-    });
-
-    const response = await POST(request);
-    const data = await response.json();
-
-    expect(response.status).toBe(200);
-    expect(data.subcategoriesCount).toBe(1);
-    // Should only save the valid subcategory
-    expect(mockSupabase.rpc).toHaveBeenCalledWith('replace_user_subcategories', {
-      p_user_id: user.id,
-      p_subcategory_data: [{ subcategory_id: 'restaurants', interest_id: 'food-drink' }],
-    });
-  });
-
-  it('should return 400 if no valid subcategories provided', async () => {
-    const user = { id: 'user-123' };
-    mockSupabase.auth.getUser.mockResolvedValue({ data: { user }, error: null });
-
-    const request = new Request('http://localhost/api/onboarding/subcategories', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        subcategories: [],
-      }),
+      body: JSON.stringify({ subcategories: ['restaurants'] }),
     });
 
     const response = await POST(request);
     const data = await response.json();
 
     expect(response.status).toBe(400);
-    expect(data.error).toBe('No valid subcategories provided');
+    expect(data.error).toBe('Complete interests first');
+  });
+
+  it('should return 400 for invalid subcategory IDs', async () => {
+    const user = { id: 'user-123' };
+    mockSupabase.auth.getUser.mockResolvedValue({ data: { user }, error: null });
+    mockSupabase.from.mockImplementation((table: string) => {
+      if (table === 'user_interests') {
+        return {
+          select: jest.fn().mockReturnValue({
+            eq: jest.fn().mockResolvedValue({ data: [{ interest_id: 'food-drink' }], error: null }),
+          }),
+        };
+      }
+      return {};
+    });
+
+    const request = new Request('http://localhost/api/onboarding/subcategories', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ subcategories: ['unknown-id'] }),
+    });
+
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(data.error).toContain('Invalid subcategory IDs');
   });
 
   it('should return 401 if user is not authenticated', async () => {
@@ -116,9 +125,7 @@ describe('POST /api/onboarding/subcategories', () => {
     const request = new Request('http://localhost/api/onboarding/subcategories', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        subcategories: [{ subcategory_id: 'restaurants', interest_id: 'food-drink' }],
-      }),
+      body: JSON.stringify({ subcategories: ['restaurants'] }),
     });
 
     const response = await POST(request);
@@ -128,4 +135,3 @@ describe('POST /api/onboarding/subcategories', () => {
     expect(data.error).toBe('Unauthorized');
   });
 });
-

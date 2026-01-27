@@ -8,7 +8,7 @@ export const revalidate = 0;
 
 /**
  * POST /api/onboarding/deal-breakers
- * Saves deal-breakers and advances onboarding_step to 'complete'
+ * Saves dealbreakers and marks onboarding complete
  */
 export async function POST(req: Request) {
   try {
@@ -20,73 +20,140 @@ export async function POST(req: Request) {
       return addNoCacheHeaders(response);
     }
 
-    // Parse request body
     const body = await req.json();
-    const { dealbreakers } = body;
+    const dealbreakers = body?.dealbreakers ?? body?.dealbreaker_ids;
 
-    // Validate required data
-    if (!dealbreakers || !Array.isArray(dealbreakers) || dealbreakers.length === 0) {
+    if (!dealbreakers || !Array.isArray(dealbreakers)) {
       const response = NextResponse.json(
-        { error: 'Deal-breakers are required (minimum 1)' },
+        { error: 'Dealbreakers must be an array' },
         { status: 400 }
       );
       return addNoCacheHeaders(response);
     }
 
-    // Validate dealbreaker count (max 3)
-    if (dealbreakers.length > 3) {
+    const rawDealbreakers = dealbreakers.map((id: unknown) => (typeof id === 'string' ? id.trim() : ''));
+    const invalidDealbreakers = rawDealbreakers.filter((id) => id.length === 0);
+
+    if (invalidDealbreakers.length > 0) {
       const response = NextResponse.json(
-        { error: 'Maximum 3 deal-breakers allowed' },
+        { error: 'All dealbreaker IDs must be non-empty strings' },
         { status: 400 }
       );
       return addNoCacheHeaders(response);
     }
 
-    // 1. Save dealbreakers using RPC function
+    const normalizedDealbreakers = Array.from(new Set(rawDealbreakers));
+
+    if (normalizedDealbreakers.length < 1) {
+      const response = NextResponse.json(
+        { error: 'Please select at least 1 dealbreaker' },
+        { status: 400 }
+      );
+      return addNoCacheHeaders(response);
+    }
+
+    if (normalizedDealbreakers.length > 3) {
+      const response = NextResponse.json(
+        { error: 'Maximum 3 dealbreakers allowed' },
+        { status: 400 }
+      );
+      return addNoCacheHeaders(response);
+    }
+
+    const { data: interestsData, error: interestsError } = await supabase
+      .from('user_interests')
+      .select('interest_id')
+      .eq('user_id', user.id)
+      .limit(1);
+
+    if (interestsError) {
+      console.error('[Dealbreakers API] Error loading interests:', interestsError);
+      return addNoCacheHeaders(
+        NextResponse.json({ error: 'Failed to verify interests' }, { status: 500 })
+      );
+    }
+
+    if (!interestsData || interestsData.length === 0) {
+      return addNoCacheHeaders(
+        NextResponse.json({ error: 'Complete interests first' }, { status: 400 })
+      );
+    }
+
+    const { data: subcategoriesData, error: subcategoriesError } = await supabase
+      .from('user_subcategories')
+      .select('subcategory_id')
+      .eq('user_id', user.id)
+      .limit(1);
+
+    if (subcategoriesError) {
+      console.error('[Dealbreakers API] Error loading subcategories:', subcategoriesError);
+      return addNoCacheHeaders(
+        NextResponse.json({ error: 'Failed to verify subcategories' }, { status: 500 })
+      );
+    }
+
+    if (!subcategoriesData || subcategoriesData.length === 0) {
+      return addNoCacheHeaders(
+        NextResponse.json({ error: 'Complete subcategories first' }, { status: 400 })
+      );
+    }
+
     const { error: dealbreakersError } = await supabase.rpc('replace_user_dealbreakers', {
       p_user_id: user.id,
-      p_dealbreaker_ids: dealbreakers
+      p_dealbreaker_ids: normalizedDealbreakers
     });
 
     if (dealbreakersError) {
-      console.error('[Deal-breakers API] Error saving dealbreakers:', dealbreakersError);
-      throw new Error('Failed to save dealbreakers');
+      console.warn('[Dealbreakers API] RPC failed, falling back to direct writes:', dealbreakersError);
+
+      const { error: deleteError } = await supabase
+        .from('user_dealbreakers')
+        .delete()
+        .eq('user_id', user.id);
+
+      if (deleteError) {
+        console.error('[Dealbreakers API] Error clearing dealbreakers:', deleteError);
+        throw deleteError;
+      }
+
+      const rows = normalizedDealbreakers.map((dealbreakerId: string) => ({
+        user_id: user.id,
+        dealbreaker_id: dealbreakerId
+      }));
+
+      const { error: insertError } = await supabase
+        .from('user_dealbreakers')
+        .insert(rows);
+
+      if (insertError) {
+        console.error('[Dealbreakers API] Error inserting dealbreakers:', insertError);
+        throw insertError;
+      }
     }
 
-    // 2. Update onboarding_step to 'complete' (but do NOT set onboarding_complete)
-    // The atomic completion API (/api/onboarding/complete-atomic) handles final completion
-    // This prevents partial saves that leave users in inconsistent states
     const { error: updateError } = await supabase
       .from('profiles')
       .update({
         onboarding_step: 'complete',
-        // NOTE: onboarding_complete is set ONLY by the atomic completion API
+        onboarding_complete: true,
+        onboarding_completed_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       })
       .eq('user_id', user.id);
 
     if (updateError) {
-      console.error('[Deal-breakers API] Error updating profile:', updateError);
+      console.error('[Dealbreakers API] Error updating profile:', updateError);
       throw updateError;
     }
 
-    console.log('[Deal-breakers API] Deal-breakers saved successfully', {
-      userId: user.id,
-      dealbreakers: dealbreakers.length,
-      next_step: 'complete'
-    });
-
     const response = NextResponse.json({
       ok: true,
-      success: true,
-      message: 'Deal-breakers saved successfully',
-      onboarding_step: 'complete',
-      dealbreakers_count: dealbreakers.length
+      onboarding_complete: true
     });
     return addNoCacheHeaders(response);
 
   } catch (error: any) {
-    console.error('[Deal-breakers API] Unexpected error:', error);
+    console.error('[Dealbreakers API] Unexpected error:', error);
     const response = NextResponse.json(
       {
         error: 'Failed to save dealbreakers',

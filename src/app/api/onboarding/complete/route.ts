@@ -28,12 +28,61 @@ export async function POST(req: Request) {
 
     const writeStart = nodePerformance.now();
 
+    const { data: interestsData, error: interestsError } = await supabase
+      .from('user_interests')
+      .select('interest_id')
+      .eq('user_id', user.id)
+      .limit(1);
+
+    if (interestsError) {
+      console.error('[Complete API] Error checking interests:', interestsError);
+      throw interestsError;
+    }
+
+    if (!interestsData || interestsData.length === 0) {
+      const response = NextResponse.json({ error: 'Complete interests first' }, { status: 400 });
+      return addNoCacheHeaders(response);
+    }
+
+    const { data: subcategoriesData, error: subcategoriesError } = await supabase
+      .from('user_subcategories')
+      .select('subcategory_id')
+      .eq('user_id', user.id)
+      .limit(1);
+
+    if (subcategoriesError) {
+      console.error('[Complete API] Error checking subcategories:', subcategoriesError);
+      throw subcategoriesError;
+    }
+
+    if (!subcategoriesData || subcategoriesData.length === 0) {
+      const response = NextResponse.json({ error: 'Complete subcategories first' }, { status: 400 });
+      return addNoCacheHeaders(response);
+    }
+
+    const { data: dealbreakersData, error: dealbreakersError } = await supabase
+      .from('user_dealbreakers')
+      .select('dealbreaker_id')
+      .eq('user_id', user.id)
+      .limit(1);
+
+    if (dealbreakersError) {
+      console.error('[Complete API] Error checking dealbreakers:', dealbreakersError);
+      throw dealbreakersError;
+    }
+
+    if (!dealbreakersData || dealbreakersData.length === 0) {
+      const response = NextResponse.json({ error: 'Complete dealbreakers first' }, { status: 400 });
+      return addNoCacheHeaders(response);
+    }
+
     // Mark onboarding as complete
     const { error: updateError } = await supabase
       .from('profiles')
       .update({
         onboarding_step: 'complete',
         onboarding_complete: true,
+        onboarding_completed_at: new Date().toISOString(),
         account_role: 'user', // Ensure personal users have role set
         updated_at: new Date().toISOString()
       })

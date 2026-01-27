@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getServerSupabase } from "../../../lib/supabase/server";
+import { SUBCATEGORY_TO_INTEREST } from "../../../lib/onboarding/subcategoryMapping";
 
 // Force dynamic rendering and disable caching for onboarding data
 export const dynamic = "force-dynamic";
@@ -65,53 +66,7 @@ export async function POST(req: Request) {
       let subcategoryData: Array<{ subcategory_id: string; interest_id: string }> = [];
       
       // Static subcategory mapping (matches subcategories page and API)
-      const SUBCATEGORY_MAPPING: Record<string, string> = {
-        // Food & Drink
-        "restaurants": "food-drink",
-        "cafes": "food-drink",
-        "bars": "food-drink",
-        "fast-food": "food-drink",
-        "fine-dining": "food-drink",
-        // Beauty & Wellness
-        "gyms": "beauty-wellness",
-        "spas": "beauty-wellness",
-        "salons": "beauty-wellness",
-        "wellness": "beauty-wellness",
-        "nail-salons": "beauty-wellness",
-        // Professional Services
-        "education-learning": "professional-services",
-        "transport-travel": "professional-services",
-        "finance-insurance": "professional-services",
-        "plumbers": "professional-services",
-        "electricians": "professional-services",
-        "legal-services": "professional-services",
-        // Outdoors & Adventure
-        "hiking": "outdoors-adventure",
-        "cycling": "outdoors-adventure",
-        "water-sports": "outdoors-adventure",
-        "camping": "outdoors-adventure",
-        // Entertainment & Experiences
-        "events-festivals": "experiences-entertainment",
-        "sports-recreation": "experiences-entertainment",
-        "nightlife": "experiences-entertainment",
-        "comedy-clubs": "experiences-entertainment",
-        "cinemas": "experiences-entertainment",
-        // Arts & Culture
-        "museums": "arts-culture",
-        "galleries": "arts-culture",
-        "theaters": "arts-culture",
-        "concerts": "arts-culture",
-        // Family & Pets
-        "family-activities": "family-pets",
-        "pet-services": "family-pets",
-        "childcare": "family-pets",
-        "veterinarians": "family-pets",
-        // Shopping & Lifestyle
-        "fashion": "shopping-lifestyle",
-        "electronics": "shopping-lifestyle",
-        "home-decor": "shopping-lifestyle",
-        "books": "shopping-lifestyle"
-      };
+      const SUBCATEGORY_MAPPING = SUBCATEGORY_TO_INTEREST;
       
       // Allow empty subcategories array (user might not have selected any)
       if (subcategories.length > 0) {
@@ -184,93 +139,69 @@ export async function POST(req: Request) {
         dealbreakerIds: dealbreakers,
       });
 
-      // Try atomic function first, fallback to individual steps if function doesn't exist
-      let useAtomic = true;
-      const { error: completeError } = await supabase.rpc('complete_onboarding_atomic', {
-        p_user_id: user.id,
-        p_interest_ids: interests,
-        p_subcategory_data: subcategoryData,
-        p_dealbreaker_ids: dealbreakers
-      });
-
-      console.log('[Onboarding API] complete_onboarding_atomic result:', {
-        error: completeError?.message,
-        code: completeError?.code,
-      });
-
-      if (completeError) {
-        console.error('[Onboarding API] Atomic function failed, falling back to individual steps:', completeError);
-        useAtomic = false;
-        
-        // Fallback to individual step saving
-        // Save interests
-        if (interests && Array.isArray(interests)) {
-          console.log('[Onboarding API] Fallback: Saving interests via replace_user_interests:', {
-            userId: user.id,
-            interestIds: interests,
-          });
-          const { error: interestsError } = await supabase.rpc('replace_user_interests', {
-            p_user_id: user.id,
-            p_interest_ids: interests
-          });
-          if (interestsError) {
-            console.error('[Onboarding API] Error saving interests:', interestsError);
-            return NextResponse.json(
-              { error: `Failed to save interests: ${interestsError.message || 'Unknown error'}` },
-              { status: 500 }
-            );
-          } else {
-            console.log('[Onboarding API] Successfully saved interests');
-          }
-        }
-
-        // Save subcategories
-        if (subcategoryData && Array.isArray(subcategoryData)) {
-          const { error: subcategoriesError } = await supabase.rpc('replace_user_subcategories', {
-            p_user_id: user.id,
-            p_subcategory_data: subcategoryData
-          });
-          if (subcategoriesError) {
-            console.error('[Onboarding API] Error saving subcategories:', subcategoriesError);
-            return NextResponse.json(
-              { error: `Failed to save subcategories: ${subcategoriesError.message || 'Unknown error'}` },
-              { status: 500 }
-            );
-          }
-        }
-
-        // Save dealbreakers
-        if (dealbreakers && Array.isArray(dealbreakers)) {
-          const { error: dealbreakersError } = await supabase.rpc('replace_user_dealbreakers', {
-            p_user_id: user.id,
-            p_dealbreaker_ids: dealbreakers
-          });
-          if (dealbreakersError) {
-            console.error('[Onboarding API] Error saving dealbreakers:', dealbreakersError);
-            return NextResponse.json(
-              { error: `Failed to save dealbreakers: ${dealbreakersError.message || 'Unknown error'}` },
-              { status: 500 }
-            );
-          }
-        }
-
-        // Update profile
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .update({
-            onboarding_step: 'complete',
-            onboarding_complete: true,
-            updated_at: new Date().toISOString()
-          })
-          .eq('user_id', user.id);
-
-        if (profileError) {
-          console.error('[Onboarding API] Error updating profile:', profileError);
+      // Save data using per-step functions
+      if (interests && Array.isArray(interests)) {
+        console.log('[Onboarding API] Saving interests via replace_user_interests:', {
+          userId: user.id,
+          interestIds: interests,
+        });
+        const { error: interestsError } = await supabase.rpc('replace_user_interests', {
+          p_user_id: user.id,
+          p_interest_ids: interests
+        });
+        if (interestsError) {
+          console.error('[Onboarding API] Error saving interests:', interestsError);
           return NextResponse.json(
-            { error: `Failed to update profile: ${profileError.message || 'Unknown error'}` },
+            { error: `Failed to save interests: ${interestsError.message || 'Unknown error'}` },
             { status: 500 }
           );
         }
+      }
+
+      if (subcategoryData && Array.isArray(subcategoryData)) {
+        const { error: subcategoriesError } = await supabase.rpc('replace_user_subcategories', {
+          p_user_id: user.id,
+          p_subcategory_data: subcategoryData
+        });
+        if (subcategoriesError) {
+          console.error('[Onboarding API] Error saving subcategories:', subcategoriesError);
+          return NextResponse.json(
+            { error: `Failed to save subcategories: ${subcategoriesError.message || 'Unknown error'}` },
+            { status: 500 }
+          );
+        }
+      }
+
+      if (dealbreakers && Array.isArray(dealbreakers)) {
+        const { error: dealbreakersError } = await supabase.rpc('replace_user_dealbreakers', {
+          p_user_id: user.id,
+          p_dealbreaker_ids: dealbreakers
+        });
+        if (dealbreakersError) {
+          console.error('[Onboarding API] Error saving dealbreakers:', dealbreakersError);
+          return NextResponse.json(
+            { error: `Failed to save dealbreakers: ${dealbreakersError.message || 'Unknown error'}` },
+            { status: 500 }
+          );
+        }
+      }
+
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+          onboarding_step: 'complete',
+          onboarding_complete: true,
+          onboarding_completed_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', user.id);
+
+      if (profileError) {
+        console.error('[Onboarding API] Error updating profile:', profileError);
+        return NextResponse.json(
+          { error: `Failed to update profile: ${profileError.message || 'Unknown error'}` },
+          { status: 500 }
+        );
       }
     }
 

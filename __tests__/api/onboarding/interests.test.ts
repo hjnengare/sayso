@@ -35,7 +35,7 @@ describe('POST /api/onboarding/interests', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        interests: ['food-drink', 'beauty-wellness'],
+        interests: ['food-drink', 'beauty-wellness', 'arts-culture'],
       }),
     });
 
@@ -44,11 +44,9 @@ describe('POST /api/onboarding/interests', () => {
 
     expect(response.status).toBe(200);
     expect(data.ok).toBe(true);
-    expect(data.interestsCount).toBe(2);
-    expect(data.onboarding_step).toBe('subcategories');
     expect(mockSupabase.rpc).toHaveBeenCalledWith('replace_user_interests', {
       p_user_id: user.id,
-      p_interest_ids: ['food-drink', 'beauty-wellness'],
+      p_interest_ids: ['food-drink', 'beauty-wellness', 'arts-culture'],
     });
     expect(mockSupabase.from).toHaveBeenCalledWith('profiles');
   });
@@ -83,7 +81,7 @@ describe('POST /api/onboarding/interests', () => {
     const data = await response.json();
 
     expect(response.status).toBe(400);
-    expect(data.error).toBe('Interests array is required');
+    expect(data.error).toBe('Please select at least 3 interests');
   });
 
   it('should return 400 if interests is not provided', async () => {
@@ -100,7 +98,7 @@ describe('POST /api/onboarding/interests', () => {
     const data = await response.json();
 
     expect(response.status).toBe(400);
-    expect(data.error).toBe('Interests array is required');
+    expect(data.error).toBe('Interests must be an array');
   });
 
   it('should handle RPC function failure and use fallback', async () => {
@@ -123,7 +121,7 @@ describe('POST /api/onboarding/interests', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        interests: ['food-drink'],
+        interests: ['food-drink', 'beauty-wellness', 'arts-culture'],
       }),
     });
 

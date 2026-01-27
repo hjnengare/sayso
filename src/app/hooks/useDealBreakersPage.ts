@@ -2,11 +2,7 @@
  * useDealBreakersPage Hook
  *
  * This hook handles the final step of onboarding.
- * When user clicks "Continue", it calls the ATOMIC completion API
- * which saves ALL onboarding data (interests, subcategories, dealbreakers)
- * in a SINGLE database transaction.
- *
- * This ensures no partial saves that can leave users in inconsistent states.
+ * When user clicks "Continue", it saves dealbreakers and marks onboarding complete.
  */
 
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
@@ -107,15 +103,12 @@ export function useDealBreakersPage(): UseDealBreakersPageReturn {
         throw new Error('Please complete your subcategories selection first');
       }
 
-      // Call the ATOMIC completion API
-      // This saves ALL data in a single database transaction
-      const response = await fetch('/api/onboarding/complete-atomic', {
+      // Save dealbreakers and mark onboarding complete
+      const response = await fetch('/api/onboarding/dealbreakers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({
-          interests: selectedInterests,
-          subcategories: selectedSubInterests,
           dealbreakers: selectedDealbreakers,
         }),
       });

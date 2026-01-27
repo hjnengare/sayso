@@ -60,8 +60,10 @@ export function useCompletePage(): UseCompletePageReturn {
           return;
         }
 
-        const onboardingStep = user.profile?.onboarding_step;
         const onboardingComplete = user.profile?.onboarding_complete;
+        const interestsCount = user.profile?.interests_count ?? 0;
+        const subcategoriesCount = user.profile?.subcategories_count ?? 0;
+        const dealbreakersCount = user.profile?.dealbreakers_count ?? 0;
 
         // If onboarding already completed, stay on complete page for celebration
         // Let the page handle navigation based on role
@@ -74,24 +76,21 @@ export function useCompletePage(): UseCompletePageReturn {
           return;
         }
 
-        // Not at complete step yet - redirect to correct step
-        if (onboardingStep !== 'complete') {
-          const nextRoute = onboardingStep === 'interests' ? '/interests'
-            : onboardingStep === 'subcategories' ? '/subcategories'
-            : onboardingStep === 'deal-breakers' ? '/deal-breakers'
-            : '/interests';
+        // Not complete yet - redirect to correct step based on DB counts
+        if (!onboardingComplete) {
+          const nextRoute = interestsCount === 0
+            ? '/interests'
+            : subcategoriesCount === 0
+              ? '/subcategories'
+              : dealbreakersCount === 0
+                ? '/deal-breakers'
+                : '/deal-breakers';
           if (!cancelled) {
             setHasVerified(true);
             setIsVerifying(false);
             router.replace(nextRoute);
           }
           return;
-        }
-
-        // User is at correct step - allow access
-        if (!cancelled) {
-          setHasVerified(true);
-          setIsVerifying(false);
         }
       } catch (error) {
         console.error('[Complete] Error verifying access:', error);

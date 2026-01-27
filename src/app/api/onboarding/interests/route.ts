@@ -22,19 +22,39 @@ export async function POST(req: Request) {
 
     // Parse request body
     const body = await req.json();
-    const { interests } = body;
+    const interests = body?.interests ?? body?.interest_ids;
 
     // Validate required data
-    if (!interests || !Array.isArray(interests) || interests.length === 0) {
+    if (!interests || !Array.isArray(interests)) {
       const response = NextResponse.json(
-        { error: 'Interests are required (minimum 3)' },
+        { error: 'Interests must be an array' },
         { status: 400 }
       );
       return addNoCacheHeaders(response);
     }
 
-    // Validate interest count (3-6)
-    if (interests.length < 3 || interests.length > 6) {
+    const rawInterests = interests.map((id: unknown) => (typeof id === 'string' ? id.trim() : ''));
+    const invalidInterests = rawInterests.filter((id) => id.length === 0);
+
+    if (invalidInterests.length > 0) {
+      const response = NextResponse.json(
+        { error: 'All interest IDs must be non-empty strings' },
+        { status: 400 }
+      );
+      return addNoCacheHeaders(response);
+    }
+
+    const normalizedInterests = Array.from(new Set(rawInterests));
+
+    if (normalizedInterests.length < 3) {
+      const response = NextResponse.json(
+        { error: 'Please select at least 3 interests' },
+        { status: 400 }
+      );
+      return addNoCacheHeaders(response);
+    }
+
+    if (normalizedInterests.length > 6) {
       const response = NextResponse.json(
         { error: 'Please select 3-6 interests' },
         { status: 400 }
@@ -45,12 +65,35 @@ export async function POST(req: Request) {
     // 1. Save interests using RPC function
     const { error: interestsError } = await supabase.rpc('replace_user_interests', {
       p_user_id: user.id,
-      p_interest_ids: interests
+      p_interest_ids: normalizedInterests
     });
 
     if (interestsError) {
-      console.error('[Interests API] Error saving interests:', interestsError);
-      throw new Error('Failed to save interests');
+      console.warn('[Interests API] RPC failed, falling back to direct writes:', interestsError);
+
+      const { error: deleteError } = await supabase
+        .from('user_interests')
+        .delete()
+        .eq('user_id', user.id);
+
+      if (deleteError) {
+        console.error('[Interests API] Error clearing interests:', deleteError);
+        throw deleteError;
+      }
+
+      const rows = normalizedInterests.map((interestId: string) => ({
+        user_id: user.id,
+        interest_id: interestId
+      }));
+
+      const { error: insertError } = await supabase
+        .from('user_interests')
+        .insert(rows);
+
+      if (insertError) {
+        console.error('[Interests API] Error inserting interests:', insertError);
+        throw insertError;
+      }
     }
 
     // 2. Update onboarding_step to 'subcategories'
@@ -74,11 +117,7 @@ export async function POST(req: Request) {
     });
 
     const response = NextResponse.json({
-      ok: true,
-      success: true,
-      message: 'Interests saved successfully',
-      onboarding_step: 'subcategories',
-      interests_count: interests.length
+      ok: true
     });
     return addNoCacheHeaders(response);
 
