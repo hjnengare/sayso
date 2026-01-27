@@ -12,12 +12,12 @@ import { Profile } from '../lib/types/database';
  * IMPORTANT: localStorage is used ONLY for temporary UI state (selections in progress).
  * It is NOT the source of truth for onboarding completion.
  *
- * Source of truth: profiles.onboarding_complete (boolean) in the database
+ * Source of truth: profiles.onboarding_completed_at (timestamp) in the database
  *
  * Flow:
  * 1. User selects interests -> saved to DB on step completion
  * 2. User selects subcategories -> saved to DB on step completion
- * 3. User selects dealbreakers -> saved to DB and onboarding_complete = true
+ * 3. User selects dealbreakers -> saved to DB and onboarding_completed_at set
  * 4. localStorage is cleared after successful completion
  *
  * This ensures:
@@ -385,7 +385,7 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
   }, [user, currentStep, selectedInterests, showToast, getStepCompletionMessage, router]);
 
   /**
-   * Complete onboarding by saving dealbreakers and marking onboarding_complete.
+   * Complete onboarding by saving dealbreakers and marking onboarding_completed_at.
    * Interests and subcategories are saved on their respective steps.
    */
   const completeOnboarding = useCallback(async () => {
@@ -429,7 +429,7 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
       try {
         await updateUser({
           profile: {
-            onboarding_complete: true,
+            onboarding_completed_at: new Date().toISOString(),
             onboarding_step: 'complete',
             interests_count: selectedInterests.length,
             subcategories_count: selectedSubInterests.length,
@@ -447,7 +447,7 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
       }
 
       showToast('Welcome to sayso! Your profile is now complete.', 'success', 4000);
-      router.replace('/home');
+      router.replace('/complete');
     } catch (error: unknown) {
       console.error('Error completing onboarding:', error);
       const errorMsg = error instanceof Error ? error.message : 'Failed to complete onboarding';

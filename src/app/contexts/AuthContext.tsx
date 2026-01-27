@@ -7,6 +7,11 @@ import { AuthService } from '../lib/auth';
 import { RateLimiter } from '../lib/rateLimiting';
 import type { AuthUser } from '../lib/types/database';
 
+function isSchemaCacheError(error: { message?: string } | null | undefined): boolean {
+  const message = error?.message?.toLowerCase() || '';
+  return message.includes('schema cache') && message.includes('onboarding_completed_at');
+}
+
 interface AuthContextType {
   user: AuthUser | null;
   login: (email: string, password: string, desiredRole?: 'user' | 'business_owner') => Promise<AuthUser | null>;
@@ -309,7 +314,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
         // ============================================
         // SIMPLIFIED LOGIN ROUTING
-        // Single source of truth: profiles.onboarding_complete
+        // Single source of truth: profiles.onboarding_completed_at
         // ============================================
 
         // Step 1: Check email verification
@@ -327,14 +332,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
         if (isBusinessAccount) {
           // Business accounts NEVER need personal onboarding
           router.push('/my-businesses');
-        } else if (activeUser.profile?.onboarding_complete === true) {
-          // Personal user with completed onboarding → home
-          router.push('/home');
+        } else if (activeUser.profile?.onboarding_completed_at) {
+          // Personal user with completed onboarding -> complete
+          router.push('/complete');
         } else {
           // Personal user with incomplete onboarding → start onboarding
-          // Note: We always redirect to /interests (the start)
-          // The onboarding flow handles progression internally
-          router.push('/interests');
+          router.push('/onboarding');
         }
 
         setIsLoading(false);
@@ -512,11 +515,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
 
       // Fetch fresh profile data from database to ensure we have the latest data including username and display_name
-      const { data: freshProfile, error: fetchError } = await supabase
+      let { data: freshProfile, error: fetchError } = await supabase
         .from('profiles')
-        .select('user_id, onboarding_step, interests_count, last_interests_updated, created_at, updated_at, avatar_url, username, display_name, is_top_reviewer, reviews_count, badges_count, subcategories_count, dealbreakers_count')
+        .select('user_id, onboarding_step, onboarding_complete, onboarding_completed_at, interests_count, last_interests_updated, created_at, updated_at, avatar_url, username, display_name, is_top_reviewer, reviews_count, badges_count, subcategories_count, dealbreakers_count')
         .eq('user_id', user.id)
         .single();
+
+      if (fetchError && isSchemaCacheError(fetchError)) {
+        ({ data: freshProfile, error: fetchError } = await supabase
+          .from('profiles')
+          .select('user_id, onboarding_step, onboarding_complete, interests_count, last_interests_updated, created_at, updated_at, avatar_url, username, display_name, is_top_reviewer, reviews_count, badges_count, subcategories_count, dealbreakers_count')
+          .eq('user_id', user.id)
+          .single());
+      }
 
       // Transform fresh profile data to match the profile structure
       let transformedProfile = null;

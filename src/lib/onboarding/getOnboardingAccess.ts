@@ -1,15 +1,15 @@
 /**
  * SIMPLIFIED ONBOARDING ACCESS
  *
- * Single source of truth: profiles.onboarding_complete (boolean)
+ * Single source of truth: profiles.onboarding_completed_at (timestamp)
  *
  * This utility is now simplified. The middleware handles all guard logic.
  * This file provides helper functions for components that need to check
  * onboarding state client-side.
  *
  * Rules:
- * 1. onboarding_complete = true → user has finished, block onboarding routes
- * 2. onboarding_complete = false → user must complete onboarding
+ * 1. onboarding_completed_at != null → user has finished, block onboarding routes
+ * 2. onboarding_completed_at = null → user must complete onboarding
  * 3. Business accounts never use personal onboarding (handled in middleware)
  */
 
@@ -19,6 +19,7 @@ export type OnboardingRoute = '/interests' | '/subcategories' | '/deal-breakers'
 interface Profile {
   onboarding_complete: boolean | null;
   onboarding_step?: OnboardingStep | null;
+  onboarding_completed_at?: string | null;
 }
 
 interface OnboardingAccess {
@@ -47,7 +48,7 @@ export function isOnboardingRoute(pathname: string): boolean {
  */
 export function getOnboardingAccess(profile: Profile | null): OnboardingAccess {
   // If no profile, treat as incomplete
-  const isComplete = profile?.onboarding_complete === true;
+  const isComplete = !!profile?.onboarding_completed_at;
 
   return {
     isComplete,
@@ -55,7 +56,7 @@ export function getOnboardingAccess(profile: Profile | null): OnboardingAccess {
     // Users with complete onboarding CANNOT access onboarding routes
     canAccessOnboardingRoutes: !isComplete,
     // Redirect destination for completed users trying to access onboarding
-    shouldRedirectTo: isComplete ? '/home' : null,
+    shouldRedirectTo: isComplete ? '/complete' : null,
   };
 }
 
@@ -77,18 +78,18 @@ export function getOnboardingRedirect(
     return '/my-businesses';
   }
 
-  const isComplete = profile?.onboarding_complete === true;
+  const isComplete = !!profile?.onboarding_completed_at;
   const isOnboarding = isOnboardingRoute(pathname);
 
-  // Completed user on onboarding route → redirect to home
+  // Completed user on onboarding route → redirect to complete
   if (isComplete && isOnboarding) {
-    return '/home';
+    return '/complete';
   }
 
-  // Incomplete user on protected (non-onboarding) route → redirect to interests
+  // Incomplete user on protected (non-onboarding) route → redirect to onboarding
   // Note: This is primarily handled by middleware, but useful for client-side checks
   if (!isComplete && !isOnboarding && pathname !== '/') {
-    return '/interests';
+    return '/onboarding';
   }
 
   return null;

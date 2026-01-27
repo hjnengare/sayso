@@ -6,6 +6,11 @@ import { addNoCacheHeaders } from '../../../lib/utils/responseHeaders';
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+function isSchemaCacheError(error: { message?: string } | null | undefined): boolean {
+  const message = error?.message?.toLowerCase() || '';
+  return message.includes('schema cache') && message.includes('onboarding_completed_at');
+}
+
 /**
  * POST /api/onboarding/deal-breakers
  * Saves dealbreakers and marks onboarding complete
@@ -131,7 +136,7 @@ export async function POST(req: Request) {
       }
     }
 
-    const { error: updateError } = await supabase
+    let { error: updateError } = await supabase
       .from('profiles')
       .update({
         onboarding_step: 'complete',
@@ -140,6 +145,17 @@ export async function POST(req: Request) {
         updated_at: new Date().toISOString()
       })
       .eq('user_id', user.id);
+
+    if (updateError && isSchemaCacheError(updateError)) {
+      ({ error: updateError } = await supabase
+        .from('profiles')
+        .update({
+          onboarding_step: 'complete',
+          onboarding_complete: true,
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', user.id));
+    }
 
     if (updateError) {
       console.error('[Dealbreakers API] Error updating profile:', updateError);

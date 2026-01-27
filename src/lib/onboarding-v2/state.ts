@@ -49,7 +49,7 @@ export interface StepValidation {
  * - Can access current step
  * - Can access previous completed steps (back navigation)
  * - Cannot access future steps
- * - If onboarding_complete, redirect to /home
+ * - If onboarding_complete, redirect to /complete
  */
 export function validateStepAccess(
   state: OnboardingState,
@@ -63,7 +63,7 @@ export function validateStepAccess(
       isPreviousStep: false,
       isFutureStep: false,
       canAccess,
-      redirectTo: canAccess ? null : '/home'
+      redirectTo: canAccess ? null : '/complete'
     };
   }
 

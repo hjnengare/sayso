@@ -6,6 +6,11 @@ import { SUBCATEGORY_TO_INTEREST } from "../../../lib/onboarding/subcategoryMapp
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+function isSchemaCacheError(error: { message?: string } | null | undefined): boolean {
+  const message = error?.message?.toLowerCase() || '';
+  return message.includes('schema cache') && message.includes('onboarding_completed_at');
+}
+
 /**
  * @deprecated Use per-step endpoints instead:
  * - POST /api/onboarding/interests
@@ -186,7 +191,7 @@ export async function POST(req: Request) {
         }
       }
 
-      const { error: profileError } = await supabase
+      let { error: profileError } = await supabase
         .from('profiles')
         .update({
           onboarding_step: 'complete',
@@ -195,6 +200,17 @@ export async function POST(req: Request) {
           updated_at: new Date().toISOString()
         })
         .eq('user_id', user.id);
+
+      if (profileError && isSchemaCacheError(profileError)) {
+        ({ error: profileError } = await supabase
+          .from('profiles')
+          .update({
+            onboarding_step: 'complete',
+            onboarding_complete: true,
+            updated_at: new Date().toISOString()
+          })
+          .eq('user_id', user.id));
+      }
 
       if (profileError) {
         console.error('[Onboarding API] Error updating profile:', profileError);

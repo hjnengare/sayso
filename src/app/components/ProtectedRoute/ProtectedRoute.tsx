@@ -34,7 +34,7 @@ export default function ProtectedRoute({
   const userId = user?.id ?? null;
   const emailVerified = user?.email_verified ?? false;
   const onboardingStep = user?.profile?.onboarding_step ?? null;
-  const onboardingComplete = user?.profile?.onboarding_complete ?? false;
+  const onboardingComplete = !!user?.profile?.onboarding_completed_at;
   const interestsCount = user?.profile?.interests_count ?? 0;
   const subcategoriesCount = user?.profile?.subcategories_count ?? 0;
   const dealbreakersCount = user?.profile?.dealbreakers_count ?? 0;
@@ -119,20 +119,9 @@ export default function ProtectedRoute({
         }
 
         // Only personal users get routed to onboarding steps
-        console.log('ProtectedRoute: Personal user onboarding incomplete, redirecting to next step');
-        let nextStep = 'interests';
-        if (interestsCount === 0) {
-          nextStep = 'interests';
-        } else if (subcategoriesCount === 0) {
-          nextStep = 'subcategories';
-        } else if (dealbreakersCount === 0) {
-          nextStep = 'deal-breakers';
-        } else {
-          nextStep = 'complete';
-        }
-
-        if (pathname !== `/${nextStep}`) {
-          router.replace(`/${nextStep}`);
+        console.log('ProtectedRoute: Personal user onboarding incomplete, redirecting to /onboarding');
+        if (pathname !== '/onboarding') {
+          router.replace('/onboarding');
         }
         return;
       }
@@ -165,10 +154,10 @@ export default function ProtectedRoute({
 
       // Personal user flow
       if (onboardingComplete) {
-        // Only redirect if not already on home
-        if (pathname !== '/home') {
-          console.log('ProtectedRoute: Personal user onboarding complete, redirecting to home');
-          router.replace('/home');
+        // Only redirect if not already on /complete
+        if (pathname !== '/complete') {
+          console.log('ProtectedRoute: Personal user onboarding complete, redirecting to complete');
+          router.replace('/complete');
         }
       } else if (!emailVerified && !emailVerifiedFromUrl && !verifiedFromUrl) {
         // Only redirect if not already on verify-email
@@ -177,28 +166,9 @@ export default function ProtectedRoute({
           router.replace('/verify-email');
         }
       } else {
-        console.log('ProtectedRoute: Personal user email verified, redirecting to onboarding step');
-        // User is verified, redirect to appropriate onboarding step
-        let targetStep = 'interests';
-        if (onboardingStep === 'start') {
-          targetStep = 'interests';
-        } else {
-          // Determine next step based on progress
-          if (interestsCount === 0) {
-            targetStep = 'interests';
-          } else if (subcategoriesCount === 0) {
-            targetStep = 'subcategories';
-          } else if (dealbreakersCount === 0) {
-            targetStep = 'deal-breakers';
-          } else {
-            targetStep = 'complete';
-          }
-        }
-
-        // Only redirect if not already on target step
-        if (pathname !== `/${targetStep}`) {
-          console.log('ProtectedRoute: Redirecting personal user to', targetStep);
-          router.replace(`/${targetStep}`);
+        console.log('ProtectedRoute: Personal user email verified, redirecting to /onboarding');
+        if (pathname !== '/onboarding') {
+          router.replace('/onboarding');
         }
       }
       return;
@@ -228,14 +198,20 @@ export default function ProtectedRoute({
 
     // Allow access to /complete page even if onboarding is complete (it's the celebration page) - personal users only
     if (userId && !isBusinessOwner && onboardingComplete && isOnboardingRoute && pathname !== '/complete') {
-      console.log('ProtectedRoute: Personal user completed onboarding, redirecting from onboarding route to home');
-      router.push('/home');
+      console.log('ProtectedRoute: Personal user completed onboarding, redirecting from onboarding route to complete');
+      router.push('/complete');
+      return;
+    }
+
+    if (userId && !isBusinessOwner && !onboardingComplete && pathname === '/complete') {
+      console.log('ProtectedRoute: Incomplete personal user on /complete, redirecting to /onboarding');
+      router.push('/onboarding');
       return;
     }
 
     // Legacy check for allowedOnboardingSteps (personal users only)
     if (userId && !isBusinessOwner && onboardingComplete && allowedOnboardingSteps.length > 0) {
-      router.push('/home');
+      router.push('/complete');
       return;
     }
   }, [userId, emailVerified, onboardingStep, onboardingComplete, interestsCount, subcategoriesCount, dealbreakersCount, isLoading, router, pathname, requiresAuth, requiresOnboarding, allowedOnboardingSteps, redirectTo, searchParams, userRole, isBusinessOwner, personalOnboardingRoutes, currentRole, role]);

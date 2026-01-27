@@ -36,6 +36,7 @@ export interface EnhancedProfile {
   // Existing profile fields
   onboarding_step?: string;
   onboarding_complete?: boolean;
+  onboarding_completed_at?: string | null;
   interests_count?: number;
   reviews_count?: number;
   badges_count?: number;

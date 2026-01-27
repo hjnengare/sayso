@@ -1,6 +1,11 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
+function isSchemaCacheError(error: { message?: string } | null | undefined): boolean {
+  const message = error?.message?.toLowerCase() || '';
+  return message.includes('schema cache') && message.includes('onboarding_completed_at');
+}
+
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get('code');
@@ -78,11 +83,23 @@ export async function GET(request: NextRequest) {
       const { data: { user } } = await supabase.auth.getUser();
 
       if (user) {
-        const { data: profile } = await supabase
+        let { data: profile, error: profileError } = await supabase
           .from('profiles')
-          .select('onboarding_step, onboarding_complete, interests_count, subcategories_count, dealbreakers_count, role, account_role')
+          .select('onboarding_step, onboarding_complete, onboarding_completed_at, interests_count, subcategories_count, dealbreakers_count, role, account_role')
           .eq('user_id', user.id)
           .single();
+
+        if (profileError && isSchemaCacheError(profileError)) {
+          ({ data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('onboarding_step, onboarding_complete, interests_count, subcategories_count, dealbreakers_count, role, account_role')
+            .eq('user_id', user.id)
+            .single());
+        }
+
+        if (profileError) {
+          console.warn('[Auth Callback] Error fetching profile:', profileError);
+        }
 
         // Check callback type first
         const type = requestUrl.searchParams.get('type');
@@ -273,7 +290,8 @@ export async function GET(request: NextRequest) {
           }
         } else {
           // Existing user - check if business owner for proper redirect
-          const userRole = profile.role || profile.account_role;
+          const userRole = profile?.role || profile?.account_role;
+          const isOnboardingComplete = !!profile?.onboarding_completed_at;
 
           // OAuth guard: If email already owns a business, require explicit role selection
           if (type === 'oauth' && (userRole === 'business_owner' || profile.role === 'both')) {
@@ -292,10 +310,10 @@ export async function GET(request: NextRequest) {
           }
           // Existing user - check onboarding status
           // STRICT: Use onboarding_step as single source of truth
-          if (profile.onboarding_complete === true) {
+          if (isOnboardingComplete) {
             // User has completed onboarding, redirect based on role
             console.log('[Auth Callback] User completed onboarding, redirecting based on role:', userRole);
-            const destination = userRole === 'business_owner' ? '/claim-business' : '/home';
+            const destination = userRole === 'business_owner' ? '/claim-business' : '/complete';
             const redirectResponse = NextResponse.redirect(new URL(destination, request.url));
             response.cookies.getAll().forEach(cookie => {
               redirectResponse.cookies.set(cookie);
@@ -313,27 +331,13 @@ export async function GET(request: NextRequest) {
                 });
                 return redirectResponse;
               }
-              
-              // Use onboarding_step to determine required route (default: 'interests')
-              const requiredStep = profile.onboarding_step || 'interests';
-              const stepToRoute: Record<string, string> = {
-                'interests': '/interests',
-                'subcategories': '/subcategories',
-                'deal-breakers': '/deal-breakers',
-                'complete': '/complete',
-              };
-              
-              const requiredRoute = stepToRoute[requiredStep] || '/interests';
-              console.log('[Auth Callback] Redirecting to required onboarding step:', {
-                onboarding_step: requiredStep,
-                requiredRoute,
-                onboarding_complete: profile.onboarding_complete
+
+              console.log('[Auth Callback] Redirecting to onboarding start:', {
+                onboarding_complete: profile?.onboarding_complete,
+                onboarding_completed_at: profile?.onboarding_completed_at
               });
-              
-              const dest = new URL(requiredRoute, request.url);
-              if (requiredRoute === '/interests') {
-                dest.searchParams.set('verified', '1');
-              }
+
+              const dest = new URL('/onboarding', request.url);
               // Copy cookies to redirect response
               const redirectResponse = NextResponse.redirect(dest);
               response.cookies.getAll().forEach(cookie => {

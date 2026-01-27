@@ -7,12 +7,17 @@ import { addNoCacheHeaders } from '../../../lib/utils/responseHeaders';
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+function isSchemaCacheError(error: { message?: string } | null | undefined): boolean {
+  const message = error?.message?.toLowerCase() || '';
+  return message.includes('schema cache') && message.includes('onboarding_completed_at');
+}
+
 /**
  * POST /api/onboarding/complete
  * Marks onboarding as complete (data already saved in previous steps)
  *
  * Note: Interests, subcategories, and dealbreakers are saved in earlier steps
- * This endpoint only sets onboarding_complete=true
+ * This endpoint only sets onboarding_completed_at
  */
 export async function POST(req: Request) {
   const startTime = nodePerformance.now();
@@ -77,7 +82,7 @@ export async function POST(req: Request) {
     }
 
     // Mark onboarding as complete
-    const { error: updateError } = await supabase
+    let { error: updateError } = await supabase
       .from('profiles')
       .update({
         onboarding_step: 'complete',
@@ -87,6 +92,18 @@ export async function POST(req: Request) {
         updated_at: new Date().toISOString()
       })
       .eq('user_id', user.id);
+
+    if (updateError && isSchemaCacheError(updateError)) {
+      ({ error: updateError } = await supabase
+        .from('profiles')
+        .update({
+          onboarding_step: 'complete',
+          onboarding_complete: true,
+          account_role: 'user',
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', user.id));
+    }
 
     if (updateError) {
       console.error('[Complete API] Error updating profile:', updateError);

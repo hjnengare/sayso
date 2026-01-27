@@ -60,7 +60,7 @@ export function useCompletePage(): UseCompletePageReturn {
           return;
         }
 
-        const onboardingComplete = user.profile?.onboarding_complete;
+        const onboardingComplete = !!user.profile?.onboarding_completed_at;
         const interestsCount = user.profile?.interests_count ?? 0;
         const subcategoriesCount = user.profile?.subcategories_count ?? 0;
         const dealbreakersCount = user.profile?.dealbreakers_count ?? 0;
@@ -78,13 +78,7 @@ export function useCompletePage(): UseCompletePageReturn {
 
         // Not complete yet - redirect to correct step based on DB counts
         if (!onboardingComplete) {
-          const nextRoute = interestsCount === 0
-            ? '/interests'
-            : subcategoriesCount === 0
-              ? '/subcategories'
-              : dealbreakersCount === 0
-                ? '/deal-breakers'
-                : '/deal-breakers';
+          const nextRoute = '/onboarding';
           if (!cancelled) {
             setHasVerified(true);
             setIsVerifying(false);

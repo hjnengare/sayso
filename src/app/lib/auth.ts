@@ -474,11 +474,24 @@ export class AuthService {
   private static async getUserProfile(userId: string) {
     const supabase = this.getClient();
     try {
-      const { data, error } = await supabase
+      const isSchemaCacheError = (profileError: { message?: string } | null | undefined) => {
+        const message = profileError?.message?.toLowerCase() || '';
+        return message.includes('schema cache') && message.includes('onboarding_completed_at');
+      };
+
+      let { data, error } = await supabase
         .from('profiles')
-        .select('user_id, onboarding_step, interests_count, last_interests_updated, created_at, updated_at, avatar_url, username, display_name, is_top_reviewer, reviews_count, badges_count, subcategories_count, dealbreakers_count, is_active, deactivated_at, role, account_role, email')
+        .select('user_id, onboarding_step, onboarding_complete, onboarding_completed_at, interests_count, last_interests_updated, created_at, updated_at, avatar_url, username, display_name, is_top_reviewer, reviews_count, badges_count, subcategories_count, dealbreakers_count, is_active, deactivated_at, role, account_role, email')
         .eq('user_id', userId)
         .single();
+
+      if (error && isSchemaCacheError(error)) {
+        ({ data, error } = await supabase
+          .from('profiles')
+          .select('user_id, onboarding_step, onboarding_complete, interests_count, last_interests_updated, created_at, updated_at, avatar_url, username, display_name, is_top_reviewer, reviews_count, badges_count, subcategories_count, dealbreakers_count, is_active, deactivated_at, role, account_role, email')
+          .eq('user_id', userId)
+          .single());
+      }
 
       if (error || !data) {
         console.log('getUserProfile: No data or error', error);
@@ -508,10 +521,13 @@ export class AuthService {
 
       console.log('getUserProfile: Fetched avatar_url from DB:', data.avatar_url);
 
+      const isOnboardingComplete = !!data.onboarding_completed_at;
+
       const profile = {
         id: data.user_id,
         onboarding_step: data.onboarding_step,
-        onboarding_complete: data.onboarding_step === 'complete',
+        onboarding_complete: isOnboardingComplete,
+        onboarding_completed_at: data.onboarding_completed_at || undefined,
         interests_count: data.interests_count || 0,
         last_interests_updated: data.last_interests_updated,
         avatar_url: data.avatar_url || undefined,

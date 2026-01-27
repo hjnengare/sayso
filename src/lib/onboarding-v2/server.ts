@@ -9,6 +9,11 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import type { OnboardingState } from './state';
 
+function isSchemaCacheError(error: { message?: string } | null | undefined): boolean {
+  const message = error?.message?.toLowerCase() || '';
+  return message.includes('schema cache') && message.includes('onboarding_completed_at');
+}
+
 /**
  * Fetches current onboarding state from database
  * This is the ONLY source of truth for onboarding state
@@ -50,17 +55,32 @@ export async function fetchOnboardingState(): Promise<OnboardingState | null> {
   }
 
   // Fetch onboarding state from profiles table
-  const { data: profile, error: profileError } = await supabase
+  let { data: profile, error: profileError } = await supabase
     .from('profiles')
     .select(`
       onboarding_step,
       onboarding_complete,
+      onboarding_completed_at,
       interests_count,
       subcategories_count,
       dealbreakers_count
     `)
     .eq('user_id', user.id)
     .maybeSingle();
+
+  if (profileError && isSchemaCacheError(profileError)) {
+    ({ data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select(`
+        onboarding_step,
+        onboarding_complete,
+        interests_count,
+        subcategories_count,
+        dealbreakers_count
+      `)
+      .eq('user_id', user.id)
+      .maybeSingle());
+  }
 
   if (profileError || !profile) {
     console.error('[OnboardingV2] Error fetching profile:', profileError);
@@ -69,7 +89,7 @@ export async function fetchOnboardingState(): Promise<OnboardingState | null> {
 
   return {
     onboarding_step: profile.onboarding_step as any,
-    onboarding_complete: profile.onboarding_complete || false,
+    onboarding_complete: !!profile.onboarding_completed_at,
     interests_count: profile.interests_count || 0,
     subcategories_count: profile.subcategories_count || 0,
     dealbreakers_count: profile.dealbreakers_count || 0,
@@ -95,7 +115,7 @@ export async function verifyStepAccess(
     if (expectedStep === 'complete') {
       return { allowed: true, redirectTo: null };
     }
-    return { allowed: false, redirectTo: '/home' };
+    return { allowed: false, redirectTo: '/complete' };
   }
 
   // Check if user can access this step

@@ -11,6 +11,11 @@ import { NextResponse, type NextRequest } from 'next/server';
 const ONBOARDING_ROUTES = ['/interests', '/subcategories', '/deal-breakers', '/complete'];
 const PUBLIC_ROUTES = ['/login', '/register', '/onboarding', '/verify-email', '/auth/callback'];
 
+function isSchemaCacheError(error: { message?: string } | null | undefined): boolean {
+  const message = error?.message?.toLowerCase() || '';
+  return message.includes('schema cache') && message.includes('onboarding_completed_at');
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -68,11 +73,19 @@ export async function middleware(request: NextRequest) {
   }
 
   // Fetch onboarding state from database
-  const { data: profile } = await supabase
+  let { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('onboarding_step, onboarding_complete')
+    .select('onboarding_step, onboarding_complete, onboarding_completed_at')
     .eq('user_id', user.id)
     .maybeSingle();
+
+  if (profileError && isSchemaCacheError(profileError)) {
+    ({ data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('onboarding_step, onboarding_complete')
+      .eq('user_id', user.id)
+      .maybeSingle());
+  }
 
   if (!profile) {
     // Profile doesn't exist - redirect to interests to create it
@@ -84,19 +97,27 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  const { onboarding_step, onboarding_complete } = profile;
+  const { onboarding_step, onboarding_complete, onboarding_completed_at } = profile;
+  const isComplete = !!onboarding_completed_at;
 
   // RULE 1: If onboarding complete, redirect onboarding routes to /home
-  if (onboarding_complete) {
+  if (isComplete) {
     if (ONBOARDING_ROUTES.includes(pathname)) {
       // Allow /complete for celebration, redirect others
       if (pathname !== '/complete') {
         const url = request.nextUrl.clone();
-        url.pathname = '/home';
+        url.pathname = '/complete';
         return NextResponse.redirect(url);
       }
     }
     return response;
+  }
+
+  // If incomplete, /complete should redirect to /onboarding
+  if (pathname === '/complete') {
+    const url = request.nextUrl.clone();
+    url.pathname = '/onboarding';
+    return NextResponse.redirect(url);
   }
 
   // RULE 2: If accessing onboarding route, enforce step order
@@ -124,16 +145,9 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // RULE 3: If accessing protected route but onboarding incomplete, redirect to current step
-  const stepRoutes: Record<string, string> = {
-    interests: '/interests',
-    subcategories: '/subcategories',
-    'deal-breakers': '/deal-breakers',
-    complete: '/complete',
-  };
-
+  // RULE 3: If accessing protected route but onboarding incomplete, redirect to /onboarding
   const url = request.nextUrl.clone();
-  url.pathname = stepRoutes[onboarding_step] || '/interests';
+  url.pathname = '/onboarding';
   return NextResponse.redirect(url);
 }
 

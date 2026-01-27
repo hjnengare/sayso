@@ -4,14 +4,14 @@ import { NextResponse, type NextRequest } from 'next/server';
 /**
  * SIMPLIFIED ONBOARDING GUARD
  *
- * Single source of truth: profiles.onboarding_complete (boolean)
+ * Single source of truth: profiles.onboarding_completed_at (timestamp)
  *
  * Rules:
  * 1. Not logged in → redirect to /auth/login (for protected routes)
  * 2. Business account (account_role === 'business_owner') → NEVER see onboarding, redirect to /my-businesses
- * 3. User account with onboarding_complete = false → force to /interests (or current onboarding route)
- * 4. User account with onboarding_complete = true → block onboarding routes, redirect to /home
- * 5. Missing profile → treat as onboarding_complete = false
+ * 3. User account with onboarding_completed_at = null → force to /onboarding
+ * 4. User account with onboarding_completed_at != null → block onboarding routes, redirect to /complete
+ * 5. Missing profile → treat as onboarding_completed_at = null
  *
  * MOBILE HARD REFRESH FIX:
  * Uses get_onboarding_status RPC with SECURITY DEFINER to bypass RLS issues
@@ -26,6 +26,11 @@ function debugLog(context: string, data: Record<string, unknown>) {
   if (DEBUG_MIDDLEWARE) {
     console.log(`[Middleware:${context}]`, JSON.stringify(data, null, 2));
   }
+}
+
+function isSchemaCacheError(error: { message?: string } | null | undefined): boolean {
+  const message = error?.message?.toLowerCase() || '';
+  return message.includes('schema cache') && message.includes('onboarding_completed_at');
 }
 
 export async function middleware(request: NextRequest) {
@@ -335,6 +340,7 @@ export async function middleware(request: NextRequest) {
   interface OnboardingStatus {
     found: boolean;
     onboarding_complete: boolean;
+    onboarding_completed_at?: string | null;
     account_role: string;
     role: string;
     interests_count: number;
@@ -362,11 +368,21 @@ export async function middleware(request: NextRequest) {
       if (rpcError) {
         console.error('[Middleware] RPC error fetching onboarding status:', rpcError);
         // Fallback: try direct query (may fail on mobile, but worth a try)
-        const { data: profileData, error: profileError } = await supabase
+        const selectWithCompletedAt = 'onboarding_complete, onboarding_completed_at, role, account_role, interests_count, subcategories_count, dealbreakers_count';
+        const selectWithoutCompletedAt = 'onboarding_complete, role, account_role, interests_count, subcategories_count, dealbreakers_count';
+        let { data: profileData, error: profileError } = await supabase
           .from('profiles')
-          .select('onboarding_complete, role, account_role, interests_count, subcategories_count, dealbreakers_count')
+          .select(selectWithCompletedAt)
           .eq('user_id', user.id)
           .maybeSingle();
+
+        if (profileError && isSchemaCacheError(profileError)) {
+          ({ data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select(selectWithoutCompletedAt)
+            .eq('user_id', user.id)
+            .maybeSingle());
+        }
 
         debugLog('FALLBACK_QUERY', {
           requestId,
@@ -383,6 +399,7 @@ export async function middleware(request: NextRequest) {
           onboardingStatus = {
             found: true,
             onboarding_complete: profileData.onboarding_complete ?? false,
+            onboarding_completed_at: profileData.onboarding_completed_at ?? null,
             account_role: profileData.account_role ?? 'user',
             role: profileData.role ?? 'user',
             interests_count: profileData.interests_count ?? 0,
@@ -421,7 +438,7 @@ export async function middleware(request: NextRequest) {
   // If we couldn't fetch status (onboardingStatus is null), default to incomplete
   const isOnboardingComplete = onboardingStatus === null
     ? false
-    : onboardingStatus.onboarding_complete === true;
+    : !!onboardingStatus.onboarding_completed_at;
 
   debugLog('STATUS_COMPUTED', {
     requestId,
@@ -430,6 +447,7 @@ export async function middleware(request: NextRequest) {
     isBusinessAccount,
     isOnboardingComplete,
     rawOnboardingComplete: onboardingStatus?.onboarding_complete,
+    onboardingCompletedAt: onboardingStatus?.onboarding_completed_at,
   });
 
   // ============================================
@@ -473,10 +491,18 @@ export async function middleware(request: NextRequest) {
   if (!isBusinessAccount && user && user.email_confirmed_at) {
     // If on onboarding route
     if (isOnboardingRoute) {
-      // User with complete onboarding should NOT see onboarding routes
+      // User with complete onboarding should only see /complete
       if (isOnboardingComplete) {
-        debugLog('REDIRECT', { requestId, reason: 'completed_user_on_onboarding', to: '/home' });
-        return NextResponse.redirect(new URL('/home', request.url));
+        if (pathname === '/complete') {
+          debugLog('ALLOW', { requestId, reason: 'completed_user_on_complete', pathname });
+          return response;
+        }
+        debugLog('REDIRECT', { requestId, reason: 'completed_user_on_onboarding', to: '/complete' });
+        return NextResponse.redirect(new URL('/complete', request.url));
+      }
+      if (pathname === '/complete') {
+        debugLog('REDIRECT', { requestId, reason: 'incomplete_user_on_complete', to: '/onboarding' });
+        return NextResponse.redirect(new URL('/onboarding', request.url));
       }
       // User with incomplete onboarding CAN access onboarding routes
       debugLog('ALLOW', { requestId, reason: 'incomplete_user_on_onboarding', pathname });
@@ -496,7 +522,7 @@ export async function middleware(request: NextRequest) {
         debugLog('REDIRECT', {
           requestId,
           reason: 'incomplete_user_on_protected',
-          to: '/interests',
+          to: '/onboarding',
           onboardingStatus,
         });
         console.log('[Middleware] Incomplete user redirected to onboarding from:', pathname, {
@@ -506,7 +532,7 @@ export async function middleware(request: NextRequest) {
           subcategoriesCount: onboardingStatus.subcategories_count,
           dealbreakersCount: onboardingStatus.dealbreakers_count,
         });
-        return NextResponse.redirect(new URL('/interests', request.url));
+        return NextResponse.redirect(new URL('/onboarding', request.url));
       }
       // If onboardingStatus is null (couldn't fetch), allow access
       debugLog('ALLOW', { requestId, reason: 'status_unknown_allow_access', pathname });
@@ -585,7 +611,7 @@ export async function middleware(request: NextRequest) {
   if (user && user.email_confirmed_at && !isBusinessAccount) {
     // Personal users cannot access business-only routes
     if (isBusinessAuthRoute || isOwnersRoute || isBusinessEditRoute) {
-      const redirectTarget = isOnboardingComplete ? '/home' : '/interests';
+      const redirectTarget = isOnboardingComplete ? '/complete' : '/onboarding';
       debugLog('REDIRECT', { requestId, reason: 'personal_user_on_business_route', to: redirectTarget });
       return NextResponse.redirect(new URL(redirectTarget, request.url));
     }
@@ -605,9 +631,9 @@ export async function middleware(request: NextRequest) {
       if (isBusinessAccount) {
         redirectTarget = '/my-businesses';
       } else if (isOnboardingComplete) {
-        redirectTarget = '/home';
+        redirectTarget = '/complete';
       } else {
-        redirectTarget = '/interests';
+        redirectTarget = '/onboarding';
       }
       debugLog('REDIRECT', { requestId, reason: 'authenticated_on_auth_route', to: redirectTarget });
       return NextResponse.redirect(new URL(redirectTarget, request.url));
