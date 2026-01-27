@@ -115,7 +115,7 @@ export default function LoginPage() {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: authStyles }} />
-      <div ref={containerRef} className="min-h-screen bg-off-white flex flex-col relative overflow-y-auto ios-inertia safe-area-full" style={{ paddingBottom: 'max(0px, env(safe-area-inset-bottom))' }}>
+      <div ref={containerRef} className="min-h-[100dvh] bg-off-white flex flex-col relative safe-area-full" style={{ paddingBottom: 'max(0px, env(safe-area-inset-bottom))' }}>
 
         {/* Back button with entrance animation */}
         <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-20 animate-slide-in-left animate-delay-200">

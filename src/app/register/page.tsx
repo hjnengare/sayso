@@ -327,7 +327,7 @@ export default function RegisterPage() {
       <div
         ref={containerRef}
         data-reduced={prefersReduced}
-        className="min-h-screen bg-off-white flex flex-col relative overflow-y-auto ios-inertia safe-area-full"
+        className="min-h-[100dvh] bg-off-white flex flex-col relative safe-area-full"
         style={{ paddingBottom: "max(0px, env(safe-area-inset-bottom))" }}
       >
         {/* Premium floating orbs background */}

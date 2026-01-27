@@ -591,15 +591,11 @@
 
     /* Enhanced mobile page container */
     .mobile-page {
-      height: 100vh;
-      height: calc(var(--vh, 1vh) * 100);
-      height: 100dvh;
-      /* Dynamic viewport height */
-      overflow-y: auto;
-      overflow-x: hidden;
+      height: auto;
+      position: static;
+      overflow: visible;
       -webkit-overflow-scrolling: touch;
       overscroll-behavior-y: none;
-      touch-action: pan-y;
     }
 
     /* iOS specific mobile page optimizations */
@@ -928,7 +924,7 @@
 
   /* Modal scroll lock utilities - prevent layout shifts */
   .modal-scroll-lock {
-    overflow: hidden !important;
+    overflow: visible !important;
   }
 
   /* Scrollbar width compensation utility */
@@ -1340,4 +1336,12 @@ html {
   .animated-section [data-section-index] {
     transform: none !important;
   }
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  overflow-y: auto;
 }
