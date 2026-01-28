@@ -151,8 +151,8 @@ export default function EventCard({ event, index: _index = 0 }: EventCardProps) 
          
           {/* MEDIA - Full bleed with premium overlay */}
           <div className="relative w-full h-[260px] lg:h-[260px] overflow-hidden rounded-[12px] z-10 flex-shrink-0 p-1">
-            <div className="relative w-full h-full overflow-hidden">
-              <div className="relative w-full h-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-off-white/95 to-off-white/85">
+            <div className="relative w-full h-full overflow-hidden rounded-[12px]">
+              <div className="relative w-full h-full overflow-hidden rounded-[12px] flex items-center justify-center bg-gradient-to-br from-off-white/95 to-off-white/85">
                 {showLoadingOverlay && (
                   <div className="absolute inset-0 bg-charcoal/5 animate-pulse z-10 flex items-center justify-center">
                     <span className="w-10 h-10 border-2 border-white/50 border-t-navbar-bg rounded-full animate-spin" aria-hidden />
@@ -164,7 +164,7 @@ export default function EventCard({ event, index: _index = 0 }: EventCardProps) 
                   alt={event.alt || event.title}
                   fill
                   sizes="(max-width: 640px) 100vw, 540px"
-                  className={hasRealImage ? 'object-cover' : 'object-contain w-32 h-32 sm:w-36 sm:h-36 md:w-32 md:h-32'}
+                  className={hasRealImage ? 'object-cover rounded-[12px]' : 'object-contain w-32 h-32 sm:w-36 sm:h-36 md:w-32 md:h-32'}
                   quality={hasRealImage ? 90 : undefined}
                   priority={false}
                   onLoadingComplete={() => setImageLoaded(true)}

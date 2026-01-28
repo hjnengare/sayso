@@ -10,8 +10,8 @@ export default function HeroSkeleton() {
       </div>
 
       {/* Hero Section Skeleton */}
-      <div className="relative w-full px-0 sm:px-2 lg:px-0 py-2 md:px-2 pt-[70px] md:pt-[72px] lg:pt-[72px]">
-        <div className="relative h-[100vh] sm:h-[70vh] md:h-[100vh] lg:h-[100vh] w-full overflow-hidden outline-none rounded-none sm:rounded-[12px] md:rounded-none lg:rounded-none min-h-[400px] shadow-md">
+      <div className="relative w-full px-0 sm:px-2 lg:px-0 py-2 md:px-2 pt-0">
+        <div className="relative h-[100svh] h-[100dvh] sm:h-[70vh] md:h-[100vh] lg:h-[100vh] w-full overflow-hidden outline-none rounded-none sm:rounded-[12px] md:rounded-none lg:rounded-none min-h-[400px] shadow-md">
           {/* Background shimmer effect */}
           <div className="absolute inset-0 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 rounded-none sm:rounded-[12px] md:rounded-none lg:rounded-none animate-pulse" />
           

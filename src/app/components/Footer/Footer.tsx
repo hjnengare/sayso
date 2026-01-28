@@ -15,6 +15,7 @@ export default function Footer() {
     setMounted(true);
   }, []);
 
+
   const linkSections = [
     {
       title: "Discover",
@@ -103,7 +104,7 @@ export default function Footer() {
                           <li key={link.name}>
                             <Link
                               href={link.href}
-                              className="font-urbanist text-sm sm:text-base text-off-white/80 hover:text-off-white transition-colors font-semibold"
+                              className="font-urbanist text-sm sm:text-base text-off-white/80 hover:text-off-white transition-colors font-normal"
                             >
                               {link.name}
                             </Link>

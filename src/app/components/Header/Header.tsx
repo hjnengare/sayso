@@ -87,8 +87,8 @@ export default function Header({
   const computedBackgroundClass = backgroundClassName ?? "bg-navbar-gradient";
   // Header is always fixed at top-0 - Enhanced with better shadows and borders
   const headerClassName = isHomeVariant
-    ? `fixed top-0 left-0 right-0 z-50 fixed-compensate ${computedBackgroundClass} backdrop-blur-xl shadow-md border-b border-white/40 transition-all duration-300`
-    : `fixed top-0 left-0 right-0 z-50 fixed-compensate ${computedBackgroundClass} backdrop-blur-xl shadow-md border-b border-sage/10 transition-all duration-300`;
+    ? `fixed top-0 left-0 right-0 z-50 fixed-compensate ${computedBackgroundClass} backdrop-blur-xl shadow-md transition-all duration-300`
+    : `fixed top-0 left-0 right-0 z-50 fixed-compensate ${computedBackgroundClass} backdrop-blur-xl shadow-md transition-all duration-300`;
   const isSearchVisible = forceSearchOpen || isStackedLayout || showSearchBar;
 
   useEffect(() => {
@@ -97,9 +97,22 @@ export default function Header({
       document.documentElement.style.setProperty("--scrollbar-width", `${scrollBarWidth}px`);
     };
 
-    setScrollbarWidth();
-    window.addEventListener("resize", setScrollbarWidth);
-    return () => window.removeEventListener("resize", setScrollbarWidth);
+    const setHeaderHeight = () => {
+      if (!headerRef.current) return;
+      document.documentElement.style.setProperty(
+        "--header-height",
+        `${headerRef.current.offsetHeight}px`
+      );
+    };
+
+    const updateLayoutMetrics = () => {
+      setScrollbarWidth();
+      setHeaderHeight();
+    };
+
+    updateLayoutMetrics();
+    window.addEventListener("resize", updateLayoutMetrics);
+    return () => window.removeEventListener("resize", updateLayoutMetrics);
   }, []);
 
   const renderSearchInput = () => (

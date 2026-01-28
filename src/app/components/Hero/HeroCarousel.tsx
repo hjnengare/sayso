@@ -465,11 +465,11 @@ export default function HeroCarousel() {
   return (
     <>
       {/* Hero Container with padding */}
-      <div className="relative w-full px-0 lg:px-0 py-2 pt-[70px] md:pt-[72px] lg:pt-[72px]">
+      <div className="relative w-full px-0 lg:px-0 py-2 pt-0">
         {/* Hero Section with rounded corners - 75vh responsive height */}
         <section
           ref={containerRef as React.RefObject<HTMLElement>}
-          className="relative h-[100vh] md:h-[100vh] lg:h-[100vh] w-full overflow-hidden outline-none rounded-none md:rounded-none lg:rounded-none min-h-[400px] shadow-md"
+          className="relative h-[100svh] h-[80dvh] md:h-[100vh] lg:h-[100vh] w-full overflow-hidden outline-none rounded-none md:rounded-none lg:rounded-none min-h-[400px] shadow-md"
           aria-label="Hero carousel"
           tabIndex={0}
           style={{ fontFamily: FONT_STACK }}
@@ -509,15 +509,15 @@ export default function HeroCarousel() {
 
            {/* Left-aligned Text - Aligned with navbar left edge */}
            <div className="absolute inset-0 z-20 flex items-center justify-center w-full">
-             <div className="w-full flex flex-col items-center justify-center text-center min-w-0 px-4">
+             <div className="w-full flex flex-col items-center justify-center text-center">
                <h2 
-                 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-off-white drop-shadow-lg mb-4 text-center whitespace-nowrap overflow-hidden text-ellipsis max-w-[90vw]"
+                 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-off-white drop-shadow-lg mb-4"
                  style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                >
                  {slide.title}
                </h2>
                <p 
-                 className="text-base sm:text-lg lg:text-xl text-off-white/90 drop-shadow-md mb-6 text-center whitespace-nowrap overflow-hidden text-ellipsis max-w-[90vw]"
+                 className="text-base sm:text-lg lg:text-xl text-off-white/90 drop-shadow-md max-w-xl mb-6"
                  style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 500 }}
                >
                  {slide.description}

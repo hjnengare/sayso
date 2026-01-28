@@ -380,12 +380,11 @@ export default function Home() {
 
   return (
     <> {/* Header - positioned at top */}
+      <div className="page-fixed">
+        <HeroCarousel />
 
-      <HeroCarousel />
-
-
-      <main className="bg-off-white relative pb-16 snap-y snap-proximity md:snap-mandatory min-h-dvh bg-off-white relative pt-20" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-        <div className="mx-auto w-full max-w-[2000px]">
+        <main className="bg-off-white relative pb-16 snap-y snap-proximity md:snap-mandatory min-h-dvh bg-off-white relative pt-[var(--header-height)]" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+          <div className="mx-auto w-full max-w-[2000px]">
           {/* Search functionality moved to hero carousel */}
 
           {/* Inline Filters - Only show when user is typing/searching */}
@@ -628,9 +627,10 @@ export default function Home() {
                 </div>
               </div>
             )}
-        </div>
-      </main>
-      <Footer />
+          </div>
+        </main>
+        <Footer />
+      </div>
 
       {/* Scroll to Top Button - Mobile Only */}
       {showScrollTop && (

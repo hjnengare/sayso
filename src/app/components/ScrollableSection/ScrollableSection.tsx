@@ -108,7 +108,7 @@ export default function ScrollableSection({
     <div className="relative">
       <div
         ref={scrollRef}
-        className={`horizontal-scroll flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory sm:snap-mandatory ${className}`}
+        className={`horizontal-scroll scrollbar-hide flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory sm:snap-mandatory ${className}`}
         style={{
           scrollbarWidth: 'none',
           msOverflowStyle: 'none',
