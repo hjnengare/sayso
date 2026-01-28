@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "MonarchParadox";
+  src: url("/fonts/monarchparadox.otf") format("opentype");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 400;
+}
+
 @theme reference {
   /* sayso Color Palette */
   --color-page-bg: #E5E0E5;
@@ -938,6 +946,15 @@
     /* For fixed positioned elements like headers */
     right: var(--scrollbar-width, 0) !important;
     width: calc(100% - var(--scrollbar-width, 0)) !important;
+  }
+
+  .sayso-wordmark {
+    font-family: "MonarchParadox", sans-serif;
+    letter-spacing: 0.05em;
+    line-height: 1;
+    font-synthesis: none;
+    text-rendering: geometricPrecision;
+    -webkit-font-smoothing: antialiased;
   }
 
   /* Prevent horizontal layout shifts during modal transitions */

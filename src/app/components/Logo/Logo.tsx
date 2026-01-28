@@ -7,14 +7,16 @@ import Image from "next/image";
 interface LogoProps {
   variant?: "default" | "mobile" | "footer" | "onboarding";
   className?: string;
+  showMark?: boolean;
 }
 
 export default function Logo({
   variant = "default",
-  className = ""
+  className = "",
+  showMark = true
 }: LogoProps) {
   const containerClasses = {
-    default: "h-24",
+    default: "h-20",
     mobile: "h-14",
     footer: "h-16",
     onboarding: "h-20"
@@ -27,26 +29,24 @@ export default function Logo({
 
   return (
     <div className={`inline-flex items-center ${containerGapClass} ${className}`}>
-      {/* Logo mark */}
-      <div className={`relative aspect-[3/2] ${containerClasses[variant]}`}>
-        <Image
-          src="/logos/logo.png"
-          alt="Sayso logo"
-          fill
-          className="object-contain object-center"
-          priority
-          sizes="(max-width: 640px) 120px, (max-width: 768px) 150px, (max-width: 1024px) 180px, 220px"
-        />
-      </div>
+      {showMark && (
+        <div className={`relative aspect-[3/2] ${containerClasses[variant]}`}>
+          <Image
+            src="/logos/logo.png"
+            alt="Sayso logo"
+            fill
+            className="object-contain object-center"
+            priority
+            sizes="(max-width: 640px) 120px, (max-width: 768px) 150px, (max-width: 1024px) 180px, 220px"
+          />
+        </div>
+      )}
 
       {variant !== "footer" && (
         <span
-          className={`${wordmarkSpacingClass} text-white italic lowercase text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight leading-none select-none`}
-          style={{
-            fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif"
-          }}
+          className={`${wordmarkSpacingClass} inline-flex items-center whitespace-nowrap text-white italic text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight leading-none select-none sayso-wordmark`}
         >
-          sayso
+          SAYSO
         </span>
       )}
     </div>
