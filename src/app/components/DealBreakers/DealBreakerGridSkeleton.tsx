@@ -8,7 +8,7 @@ export default function DealBreakerGridSkeleton() {
       {Array.from({ length: 4 }).map((_, idx) => (
         <div
           key={idx}
-          className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[20px] overflow-hidden backdrop-blur-md border border-white/60 ring-1 ring-white/30 shadow-premiumElevated p-6 min-h-[160px]"
+          className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden backdrop-blur-md border border-white/60 ring-1 ring-white/30 shadow-premiumElevated p-6 min-h-[160px]"
         >
           <div className="flex flex-col space-y-4">
             {/* Icon skeleton */}

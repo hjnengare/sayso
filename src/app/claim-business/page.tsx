@@ -263,7 +263,7 @@ function ClaimBusinessPageContent() {
                     {!isSearching && businesses.map((business) => (
                       <div
                         key={business.id}
-                        className="p-4 sm:p-5 bg-sage border border-sage/20 rounded-[20px] shadow-sm
+                        className="p-4 sm:p-5 bg-sage border border-sage/20 rounded-[12px] shadow-sm
                                    hover:border-sage/40 hover:shadow-md transition-all duration-300 group"
                       >
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
@@ -319,7 +319,7 @@ function ClaimBusinessPageContent() {
                   )}
 
                   {/* Help Section */}
-                  <div className="mt-8 sm:mt-12 mb-8 sm:mb-12 p-4 sm:p-6 bg-sage border border-sage/20 rounded-[20px] shadow-md">
+                  <div className="mt-8 sm:mt-12 mb-8 sm:mb-12 p-4 sm:p-6 bg-sage border border-sage/20 rounded-[12px] shadow-md">
                     <h3 className="font-urbanist text-base sm:text-lg font-semibold text-white mb-2 px-1" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                       Need help claiming your business?
                     </h3>

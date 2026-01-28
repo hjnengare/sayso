@@ -30,7 +30,7 @@ const BusinessCardImage: React.FC<BusinessCardImageProps> = ({
     <div className="relative w-full h-full">
       {!imgError && displayImage ? (
         isImagePng || displayImage.includes("/png/") || displayImage.endsWith(".png") || usingFallback ? (
-          <div className="relative w-full h-full rounded-t-[20px] flex items-center justify-center bg-gradient-to-br from-off-white/95 to-off-white/85 shadow-sm overflow-hidden">
+          <div className="relative w-full h-full rounded-t-[12px] flex items-center justify-center bg-gradient-to-br from-off-white/95 to-off-white/85 shadow-sm overflow-hidden">
             <OptimizedImage
               src={usingFallback ? getCategoryPng(categoryKey) : displayImage}
               alt={displayAlt}

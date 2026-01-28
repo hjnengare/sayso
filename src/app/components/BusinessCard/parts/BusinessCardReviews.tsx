@@ -20,7 +20,7 @@ const BusinessCardReviews: React.FC<BusinessCardReviewsProps> = ({
   compact = false,
 }) => (
   <div className="flex flex-col items-center gap-2 mb-2">
-    <div className="inline-flex items-center justify-center gap-1 min-h-[20px]">
+    <div className="inline-flex items-center justify-center gap-1 min-h-[12px]">
       {hasRating && displayRating !== undefined ? (
         <>
           <span

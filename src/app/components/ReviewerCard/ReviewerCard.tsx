@@ -201,7 +201,7 @@ export default function ReviewerCard({
           className="block"
         >
           <div
-            className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl rounded-[20px] overflow-visible group cursor-pointer h-[240px] relative border border-white/60 ring-1 ring-white/30 shadow-md"
+            className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl rounded-[12px] overflow-visible group cursor-pointer h-[240px] relative border border-white/60 ring-1 ring-white/30 shadow-md"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
@@ -346,7 +346,7 @@ export default function ReviewerCard({
         className="block"
       >
         <div
-          className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl rounded-[20px] group cursor-pointer h-[187px] flex flex-col relative overflow-visible border border-white/60 ring-1 ring-white/30 shadow-md"
+          className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl rounded-[12px] group cursor-pointer h-[187px] flex flex-col relative overflow-visible border border-white/60 ring-1 ring-white/30 shadow-md"
         >
         {/* Glass depth overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-off-white/8 via-transparent to-transparent pointer-events-none z-0" />

@@ -49,7 +49,7 @@ function PercentileChipsSection({
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
-      className="w-full rounded-[20px] border border-white/60 backdrop-blur-xl bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 shadow-md p-5 sm:p-6 space-y-4"
+      className="w-full rounded-[12px] border border-white/60 backdrop-blur-xl bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 shadow-md p-5 sm:p-6 space-y-4"
     >
       {/* Header */}
       <div className="flex items-center justify-between">

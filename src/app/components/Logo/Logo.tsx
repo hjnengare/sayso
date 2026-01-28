@@ -16,7 +16,7 @@ export default function Logo({
   showMark = true
 }: LogoProps) {
   const containerClasses = {
-    default: "h-20",
+    default: "h-18",
     mobile: "h-14",
     footer: "h-16",
     onboarding: "h-20"
@@ -46,7 +46,8 @@ export default function Logo({
         <span
           className={`${wordmarkSpacingClass} inline-flex items-center whitespace-nowrap text-white italic text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight leading-none select-none sayso-wordmark`}
         >
-          SAYSO
+          <span className="text-[1.05em] sayso-wordmark">S</span>
+          <span className="text-[0.9em] sayso-wordmark">ayso</span>
         </span>
       )}
     </div>

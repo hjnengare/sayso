@@ -11,7 +11,7 @@ export default function EventCardSkeleton() {
       }}
     >
       <article
-        className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[20px] overflow-visible h-[600px] sm:h-auto flex flex-col border border-white/60 backdrop-blur-xl ring-1 ring-white/30 shadow-md animate-pulse"
+        className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-visible h-[600px] sm:h-auto flex flex-col border border-white/60 backdrop-blur-xl ring-1 ring-white/30 shadow-md animate-pulse"
         style={
           {
             width: "100%",
@@ -22,7 +22,7 @@ export default function EventCardSkeleton() {
         {/* MEDIA - Full bleed with skeleton - matches EventCard exactly */}
         <div className="relative px-1 pt-1 pb-0 overflow-hidden flex-1 sm:flex-initial h-[300px] sm:h-[320px] lg:h-[240px] xl:h-[220px] z-10">
           <div className="relative w-full h-full">
-            <div className="relative w-full h-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-off-white/95 to-off-white/85 rounded-[20px] shadow-sm">
+            <div className="relative w-full h-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-off-white/95 to-off-white/85 rounded-[12px] shadow-sm">
               {/* Centered icon placeholder */}
               <div className="w-32 h-32 sm:w-36 sm:h-36 md:w-32 md:h-32 bg-charcoal/10 rounded-lg" />
             </div>
@@ -35,7 +35,7 @@ export default function EventCardSkeleton() {
         </div>
 
         {/* CONTENT - Skeleton content - matches EventCard exactly */}
-        <div className="px-4 pt-4 pb-6 flex flex-col justify-between bg-gradient-to-br from-sage/12 via-sage/8 to-sage/10 gap-4 rounded-b-[20px]">
+        <div className="px-4 pt-4 pb-6 flex flex-col justify-between bg-gradient-to-br from-sage/12 via-sage/8 to-sage/10 gap-4 rounded-b-[12px]">
           <div className="flex flex-col items-center text-center gap-3">
             {/* Title skeleton */}
             <div className="h-7 sm:h-8 w-3/4 bg-charcoal/10 rounded-lg" />

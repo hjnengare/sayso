@@ -86,7 +86,7 @@ export default function MobileMenu({
                 handleNavClick(targetHref, e);
                 onClose();
               }}
-              className={`px-3 py-2 rounded-[20px] text-base font-normal transition-all duration-200 relative min-h-[44px] flex items-center justify-start ${mobileRevealClass} ${isActive ? "text-sage bg-white/5" : "text-white hover:text-white hover:bg-gradient-to-r hover:from-white/10 hover:to-white/5"}`}
+              className={`px-3 py-2 rounded-[12px] text-base font-normal transition-all duration-200 relative min-h-[44px] flex items-center justify-start ${mobileRevealClass} ${isActive ? "text-sage bg-white/5" : "text-white hover:text-white hover:bg-gradient-to-r hover:from-white/10 hover:to-white/5"}`}
               style={{
                 ...sf,
                 transitionDelay: `${index * 60}ms`,
@@ -135,7 +135,7 @@ export default function MobileMenu({
                   handleNavClick(href, e);
                   onClose();
                 }}
-                className={`px-3 py-2 rounded-[20px] text-base font-normal text-white hover:text-white hover:bg-gradient-to-r hover:from-white/10 hover:to-white/5 transition-all duration-200 relative min-h-[44px] flex items-center justify-start ${mobileRevealClass}`}
+                className={`px-3 py-2 rounded-[12px] text-base font-normal text-white hover:text-white hover:bg-gradient-to-r hover:from-white/10 hover:to-white/5 transition-all duration-200 relative min-h-[44px] flex items-center justify-start ${mobileRevealClass}`}
                 style={{
                   ...sf,
                   transitionDelay: `${index * 60}ms`,
@@ -161,7 +161,7 @@ export default function MobileMenu({
                   handleNavClick(href, e);
                   onClose();
                 }}
-                className={`px-3 py-2 rounded-[20px] text-base font-normal text-white/90 hover:text-white hover:bg-gradient-to-r hover:from-white/10 hover:to-white/5 transition-all duration-200 min-h-[44px] flex items-center justify-start ${mobileRevealClass}`}
+                className={`px-3 py-2 rounded-[12px] text-base font-normal text-white/90 hover:text-white hover:bg-gradient-to-r hover:from-white/10 hover:to-white/5 transition-all duration-200 min-h-[44px] flex items-center justify-start ${mobileRevealClass}`}
                 style={{
                   ...sf,
                   transitionDelay: `${(primaryCount + index) * 60}ms`,
@@ -215,7 +215,7 @@ export default function MobileMenu({
                   handleNavClick(href, e);
                   onClose();
                 }}
-                className={`px-3 py-2 rounded-[20px] text-base font-normal text-white hover:text-white hover:bg-gradient-to-r hover:from-white/10 hover:to-white/5 transition-all duration-200 relative min-h-[44px] flex items-center justify-start ${mobileRevealClass}`}
+                className={`px-3 py-2 rounded-[12px] text-base font-normal text-white hover:text-white hover:bg-gradient-to-r hover:from-white/10 hover:to-white/5 transition-all duration-200 relative min-h-[44px] flex items-center justify-start ${mobileRevealClass}`}
                 style={{
                   ...sf,
                   transitionDelay: `${index * 60}ms`,
@@ -241,7 +241,7 @@ export default function MobileMenu({
                   handleNavClick(href, e);
                   onClose();
                 }}
-                className={`px-3 py-2 rounded-[20px] text-base font-normal text-white/90 hover:text-white hover:bg-gradient-to-r hover:from-white/10 hover:to-white/5 transition-all duration-200 min-h-[44px] flex items-center justify-start ${mobileRevealClass}`}
+                className={`px-3 py-2 rounded-[12px] text-base font-normal text-white/90 hover:text-white hover:bg-gradient-to-r hover:from-white/10 hover:to-white/5 transition-all duration-200 min-h-[44px] flex items-center justify-start ${mobileRevealClass}`}
                 style={{
                   ...sf,
                   transitionDelay: `${(primaryCount + index) * 60}ms`,

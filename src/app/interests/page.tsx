@@ -134,7 +134,7 @@ function InterestsContent() {
 
           <div className="animate-fade-in-up">
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-[20px] p-4 text-center mb-4 animate-fade-in-up delay-100">
+              <div className="bg-red-50 border border-red-200 rounded-[12px] p-4 text-center mb-4 animate-fade-in-up delay-100">
                 <p className="text-sm font-semibold text-red-600">
                   {error instanceof Error ? error.message : String(error) || 'An error occurred'}
                 </p>

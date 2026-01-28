@@ -179,7 +179,7 @@ export default function EventCard({ event, index = 0 }: EventCardProps) {
       }}
     >
       <article
-        className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[20px] overflow-visible sm:h-auto flex flex-col border border-white/60 backdrop-blur-xl ring-1 ring-white/30 shadow-md w-full"
+        className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-visible sm:h-auto flex flex-col border border-white/60 backdrop-blur-xl ring-1 ring-white/30 shadow-md w-full"
         style={
           {
             width: "100%",
@@ -195,7 +195,7 @@ export default function EventCard({ event, index = 0 }: EventCardProps) {
             <div 
               className="relative w-full h-full"
             >
-              <div className="relative w-full h-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-off-white/95 to-off-white/85 rounded-[20px] shadow-sm">
+              <div className="relative w-full h-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-off-white/95 to-off-white/85 rounded-[12px] shadow-sm">
                 {showLoadingOverlay && (
                   <div className="absolute inset-0 bg-charcoal/5 animate-pulse z-10 flex items-center justify-center">
                     <span className="w-10 h-10 border-2 border-white/50 border-t-navbar-bg rounded-full animate-spin" aria-hidden />
@@ -228,7 +228,7 @@ export default function EventCard({ event, index = 0 }: EventCardProps) {
           </div>
 
           {/* CONTENT - Minimal, premium spacing */}
-          <div className="px-4 py-4 sm:pt-4 sm:pb-6 flex flex-col justify-between bg-gradient-to-br from-sage/12 via-sage/8 to-sage/10 gap-2 sm:gap-4 rounded-b-[20px]">
+          <div className="px-4 py-4 sm:pt-4 sm:pb-6 flex flex-col justify-between bg-gradient-to-br from-sage/12 via-sage/8 to-sage/10 gap-2 sm:gap-4 rounded-b-[12px]">
             <div className="flex flex-col items-center text-center gap-3">
               <h3
                 className="text-h2 sm:text-h1 font-bold leading-tight text-charcoal text-center truncate"

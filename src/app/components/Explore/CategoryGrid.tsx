@@ -62,7 +62,7 @@ export default function CategoryGrid({ onCategoryClick }: CategoryGridProps) {
           key={interest.id}
           href={`/explore/category/${interest.id}`}
           onClick={(e) => handleClick(interest.id, e)}
-          className="group relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[20px] overflow-hidden backdrop-blur-md border border-white/60 ring-1 ring-white/30 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+          className="group relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden backdrop-blur-md border border-white/60 ring-1 ring-white/30 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
         >
           <div className="p-6 sm:p-8 flex flex-col items-center justify-center min-h-[140px] sm:min-h-[160px] text-center">
             {/* Lucide Icon */}

@@ -426,7 +426,7 @@ export default function Home() {
                   )}
                   {!allBusinessesLoading && searchResults.length === 0 && (
                     <div className="w-full sm:max-w-md lg:max-w-lg xl:max-w-xl sm:mx-auto relative z-10">
-                      <div className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[20px] overflow-hidden backdrop-blur-md shadow-md px-2 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10 lg:px-12 lg:py-10 xl:px-16 xl:py-12 text-center space-y-4">
+                      <div className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden backdrop-blur-md shadow-md px-2 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10 lg:px-12 lg:py-10 xl:px-16 xl:py-12 text-center space-y-4">
                         <h2 className="text-h2 font-semibold text-white" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                           No results found
                         </h2>
@@ -471,7 +471,7 @@ export default function Home() {
                       </div>
                       {/* Map View or List View */}
                       {isMapMode ? (
-                        <div className="w-full h-[calc(100vh-300px)] min-h-[500px] rounded-[20px] overflow-hidden border border-white/30 shadow-lg">
+                        <div className="w-full h-[calc(100vh-300px)] min-h-[500px] rounded-[12px] overflow-hidden border border-white/30 shadow-lg">
                           <SearchResultsMap
                             businesses={searchResults as any}
                             userLocation={userLocation}
@@ -506,7 +506,7 @@ export default function Home() {
                     {isGuestMode ? (
                       /* Guest Mode: Show Locked For You Section */
                       <div className="mx-auto w-full max-w-[2000px] px-2">
-                        <div className="relative border border-charcoal/10 rounded-[20px] p-6 sm:p-8 md:p-10 text-center space-y-3">
+                        <div className="relative border border-charcoal/10 rounded-[12px] p-6 sm:p-8 md:p-10 text-center space-y-3">
                           <h3 className="text-lg sm:text-xl font-bold text-charcoal" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                             For You
                           </h3>

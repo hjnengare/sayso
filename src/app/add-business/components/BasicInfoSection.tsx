@@ -108,7 +108,7 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
     }, [isCategoryModalOpen]);
 
     return (
-        <div className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[20px] overflow-hidden border border-white/60 backdrop-blur-xl shadow-md px-4 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10 lg:px-12 lg:py-10 xl:px-16 xl:py-12 animate-fade-in-up animate-delay-100">
+        <div className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden border border-white/60 backdrop-blur-xl shadow-md px-4 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10 lg:px-12 lg:py-10 xl:px-16 xl:py-12 animate-fade-in-up animate-delay-100">
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-sage/10 to-transparent rounded-full blur-lg pointer-events-none"></div>
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-coral/10 to-transparent rounded-full blur-lg pointer-events-none"></div>
             <div className="relative z-10">
@@ -198,7 +198,7 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
                                 {isCategoryModalOpen && categoryModalPos && typeof window !== 'undefined' && createPortal(
                                     <div
                                         ref={categoryModalRef}
-                                        className={`fixed z-[1000] bg-off-white rounded-[20px] border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.12),0_4px_16px_rgba(0,0,0,0.08)] overflow-hidden min-w-[320px] max-w-[400px] max-h-[60vh] overflow-y-auto transition-all duration-300 ease-out backdrop-blur-xl ${
+                                        className={`fixed z-[1000] bg-off-white rounded-[12px] border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.12),0_4px_16px_rgba(0,0,0,0.08)] overflow-hidden min-w-[320px] max-w-[400px] max-h-[60vh] overflow-y-auto transition-all duration-300 ease-out backdrop-blur-xl ${
                                             isCategoryModalClosing ? 'opacity-0 scale-95 translate-y-[-8px]' : 'opacity-100 scale-100 translate-y-0'
                                         }`}
                                         style={{
@@ -256,7 +256,7 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
                                     <button
                                         type="button"
                                         onClick={() => onInputChange('businessType', 'physical')}
-                                        className={`flex flex-col items-center gap-2 p-4 rounded-[20px] border-2 transition-all duration-200 ${
+                                        className={`flex flex-col items-center gap-2 p-4 rounded-[12px] border-2 transition-all duration-200 ${
                                             formData.businessType === 'physical'
                                                 ? 'bg-gradient-to-br from-coral/20 to-coral/10 border-coral text-charcoal'
                                                 : 'bg-white/60 border-charcoal/10 text-charcoal/70 hover:border-charcoal/20 hover:bg-white/80'
@@ -268,7 +268,7 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
                                     <button
                                         type="button"
                                         onClick={() => onInputChange('businessType', 'service-area')}
-                                        className={`flex flex-col items-center gap-2 p-4 rounded-[20px] border-2 transition-all duration-200 ${
+                                        className={`flex flex-col items-center gap-2 p-4 rounded-[12px] border-2 transition-all duration-200 ${
                                             formData.businessType === 'service-area'
                                                 ? 'bg-gradient-to-br from-coral/20 to-coral/10 border-coral text-charcoal'
                                                 : 'bg-white/60 border-charcoal/10 text-charcoal/70 hover:border-charcoal/20 hover:bg-white/80'
@@ -280,7 +280,7 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
                                     <button
                                         type="button"
                                         onClick={() => onInputChange('businessType', 'online-only')}
-                                        className={`flex flex-col items-center gap-2 p-4 rounded-[20px] border-2 transition-all duration-200 ${
+                                        className={`flex flex-col items-center gap-2 p-4 rounded-[12px] border-2 transition-all duration-200 ${
                                             formData.businessType === 'online-only'
                                                 ? 'bg-gradient-to-br from-coral/20 to-coral/10 border-coral text-charcoal'
                                                 : 'bg-white/60 border-charcoal/10 text-charcoal/70 hover:border-charcoal/20 hover:bg-white/80'
@@ -298,7 +298,7 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ duration: 0.3 }}
                                 >
-                                    <label className="flex items-center gap-3 p-3 rounded-[20px] bg-white/60 border border-charcoal/10 cursor-pointer hover:bg-white/80 transition-all duration-200">
+                                    <label className="flex items-center gap-3 p-3 rounded-[12px] bg-white/60 border border-charcoal/10 cursor-pointer hover:bg-white/80 transition-all duration-200">
                                         <input
                                             type="checkbox"
                                             checked={formData.isChain}
@@ -325,7 +325,7 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
                             onChange={(e) => onInputChange('description', e.target.value)}
                             rows={4}
                             style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
-                            className="w-full bg-white/95 backdrop-blur-sm border pl-4 pr-4 py-3 sm:py-4 md:py-5 text-body font-semibold text-charcoal placeholder-charcoal/50 placeholder:font-normal focus:outline-none focus:ring-2 transition-all duration-300 hover:border-sage/50 input-mobile rounded-[20px] resize-none border-white/60 focus:ring-navbar-bg/30 focus:border-navbar-bg"
+                            className="w-full bg-white/95 backdrop-blur-sm border pl-4 pr-4 py-3 sm:py-4 md:py-5 text-body font-semibold text-charcoal placeholder-charcoal/50 placeholder:font-normal focus:outline-none focus:ring-2 transition-all duration-300 hover:border-sage/50 input-mobile rounded-[12px] resize-none border-white/60 focus:ring-navbar-bg/30 focus:border-navbar-bg"
                             placeholder="Describe your business..."
                         />
                     </div>

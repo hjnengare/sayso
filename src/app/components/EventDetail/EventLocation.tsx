@@ -26,7 +26,7 @@ export default function EventLocation({
     }
 
     return (
-        <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md overflow-hidden">
+        <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-md overflow-hidden">
             <div className="p-5 sm:p-6">
                 <div className="flex items-start gap-3">
                     <div className="w-10 h-10 rounded-full bg-coral/10 flex items-center justify-center flex-shrink-0 mt-0.5">

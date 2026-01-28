@@ -180,7 +180,7 @@ export default function SimilarBusinessCard({
 
   return (
     <div
-      className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[20px] overflow-hidden group cursor-pointer w-full flex flex-col border border-white/60 backdrop-blur-xl shadow-md transition-all duration-300 hover:border-white/80 hover:-translate-y-1 hover:shadow-lg md:w-[340px] md:h-[416px]"
+      className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden group cursor-pointer w-full flex flex-col border border-white/60 backdrop-blur-xl shadow-md transition-all duration-300 hover:border-white/80 hover:-translate-y-1 hover:shadow-lg md:w-[340px] md:h-[416px]"
       style={{
         maxWidth: "540px",
       } as React.CSSProperties}
@@ -195,7 +195,7 @@ export default function SimilarBusinessCard({
       }}
     >
       {/* Image Section */}
-      <div className="relative w-full h-[300px] lg:h-[260px] overflow-hidden rounded-t-[20px]">
+      <div className="relative w-full h-[300px] lg:h-[260px] overflow-hidden rounded-t-[12px]">
         {isImagePng ? (
           <div className="relative w-full h-full flex items-center justify-center bg-gradient-to-br from-off-white/95 to-off-white/85">
             <OptimizedImage
@@ -249,7 +249,7 @@ export default function SimilarBusinessCard({
       </div>
 
       {/* Content Section */}
-      <div className="px-4 py-4 bg-gradient-to-b from-card-bg/95 to-card-bg flex flex-col gap-2 rounded-b-[20px]">
+      <div className="px-4 py-4 bg-gradient-to-b from-card-bg/95 to-card-bg flex flex-col gap-2 rounded-b-[12px]">
         {/* Name */}
         <h3
           className="text-base sm:text-lg font-bold text-charcoal leading-tight line-clamp-1 transition-colors duration-300 group-hover:text-navbar-bg/90"

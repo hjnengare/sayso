@@ -64,7 +64,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
                 style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
-                className="w-full bg-off-white rounded-[20px] border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.12),0_4px_16px_rgba(0,0,0,0.08)] backdrop-blur-xl pl-4 pr-10 py-3 text-sm font-semibold text-charcoal focus:outline-none focus:ring-2 focus:ring-navbar-bg/30 focus:border-navbar-bg transition-colors duration-200 hover:shadow-[0_8px_40px_rgba(0,0,0,0.15)] cursor-pointer text-left flex items-center justify-between"
+                className="w-full bg-off-white rounded-[12px] border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.12),0_4px_16px_rgba(0,0,0,0.08)] backdrop-blur-xl pl-4 pr-10 py-3 text-sm font-semibold text-charcoal focus:outline-none focus:ring-2 focus:ring-navbar-bg/30 focus:border-navbar-bg transition-colors duration-200 hover:shadow-[0_8px_40px_rgba(0,0,0,0.15)] cursor-pointer text-left flex items-center justify-between"
             >
                 <span className={value ? 'text-charcoal' : 'text-charcoal/70'}>{displayValue}</span>
                 <motion.div
@@ -82,7 +82,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -4, scale: 0.98 }}
                         transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
-                        className="fixed z-[10000] bg-off-white rounded-[20px] border border-white/60 shadow-[0_16px_48px_rgba(0,0,0,0.18),0_8px_24px_rgba(0,0,0,0.12)] backdrop-blur-xl overflow-hidden max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-navbar-bg/20 scrollbar-track-transparent"
+                        className="fixed z-[10000] bg-off-white rounded-[12px] border border-white/60 shadow-[0_16px_48px_rgba(0,0,0,0.18),0_8px_24px_rgba(0,0,0,0.12)] backdrop-blur-xl overflow-hidden max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-navbar-bg/20 scrollbar-track-transparent"
                         style={{
                             top: dropdownPos.top,
                             left: dropdownPos.left,

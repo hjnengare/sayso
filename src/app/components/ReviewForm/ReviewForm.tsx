@@ -11,7 +11,7 @@ import dynamic from "next/dynamic";
 const ImageUpload = dynamic(() => import("./ImageUpload"), {
   ssr: false,
   loading: () => (
-    <div className="w-full h-32 rounded-[20px] border-2 border-dashed border-charcoal/20 bg-charcoal/5 animate-pulse flex items-center justify-center">
+    <div className="w-full h-32 rounded-[12px] border-2 border-dashed border-charcoal/20 bg-charcoal/5 animate-pulse flex items-center justify-center">
       <Camera className="w-8 h-8 text-charcoal/20" />
     </div>
   ),

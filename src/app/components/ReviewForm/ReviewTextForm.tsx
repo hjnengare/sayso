@@ -156,7 +156,7 @@ export default function ReviewTextForm({
             maxLength={maxChars}
             rows={4}
             className={`
-              w-full bg-white/95 border-2 rounded-[20px] px-5 py-4
+              w-full bg-white/95 border-2 rounded-[12px] px-5 py-4
               text-base font-medium text-charcoal placeholder-charcoal/40
               focus:outline-none transition-all duration-200 resize-none
               min-h-[120px]

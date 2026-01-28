@@ -113,7 +113,7 @@ className: `${compact ? "flex flex-col" : "flex-1 flex flex-col"}`
 **Both Modes:**
 - Font Size: `text-caption sm:text-xs`
 - Color: `text-charcoal/60`
-- Height: `h-5 min-h-[20px] max-h-[20px]`
+- Height: `h-5 min-h-[12px] max-h-[12px]`
 - Spacing: `gap-1.5`
 
 ---
@@ -186,7 +186,7 @@ className: `${compact ? 'lg:order-2' : ''}`
 - Animation: `translate-x-12 opacity-0` → `translate-x-0 opacity-100`
 - Buttons: 3 action buttons (Review, Save, Share)
 - Size: `w-12 h-10` (48px × 40px)
-- Shape: `rounded-[20px]`
+- Shape: `rounded-[12px]`
 
 ### Mobile Actions
 **Both Modes:**
@@ -204,7 +204,7 @@ className: `${compact ? 'lg:order-2' : ''}`
 - Gap: `gap-2 sm:gap-1`
 - Min Height: `min-h-[28px] sm:min-h-[28px]`
 - Desktop Background: `md:bg-off-white/50 md:backdrop-blur-sm`
-- Desktop Border: `md:rounded-[20px] md:border md:border-white/40`
+- Desktop Border: `md:rounded-[12px] md:border md:border-white/40`
 - 4 Chips: punctuality, cost-effectiveness, friendliness, trustworthiness
 
 ---

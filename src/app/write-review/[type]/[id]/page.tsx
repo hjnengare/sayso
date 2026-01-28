@@ -18,7 +18,7 @@ import OptimizedImage from "../../../components/Performance/OptimizedImage";
 const ImageUpload = dynamic(() => import("../../../components/ReviewForm/ImageUpload"), {
   ssr: false,
   loading: () => (
-    <div className="w-full h-32 rounded-[20px] border-2 border-dashed border-charcoal/20 bg-charcoal/5 animate-pulse flex items-center justify-center">
+    <div className="w-full h-32 rounded-[12px] border-2 border-dashed border-charcoal/20 bg-charcoal/5 animate-pulse flex items-center justify-center">
       <Star className="w-8 h-8 text-charcoal/20" />
     </div>
   ),
@@ -215,7 +215,7 @@ function WriteReviewContent() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-white rounded-[20px] p-6 mb-6 shadow-sm"
+            className="bg-white rounded-[12px] p-6 mb-6 shadow-sm"
           >
             <div className="flex gap-4">
               {/* Image */}
@@ -277,7 +277,7 @@ function WriteReviewContent() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="bg-white rounded-[20px] p-6 shadow-sm"
+            className="bg-white rounded-[12px] p-6 shadow-sm"
           >
             <h2 className="text-lg font-semibold text-charcoal mb-6">Write Your Review</h2>
 

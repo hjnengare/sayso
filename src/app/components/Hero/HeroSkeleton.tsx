@@ -10,32 +10,39 @@ export default function HeroSkeleton() {
       </div>
 
       {/* Hero Section Skeleton */}
-      <div className="relative w-full px-0 py-2">
-        <div className="relative h-[65vh] sm:h-[70vh] lg:h-[80vh] w-full overflow-hidden outline-none rounded-none min-h-[400px] shadow-md">
+      <div className="relative w-full px-0 sm:px-2 lg:px-0 py-2 md:px-2 pt-[70px] md:pt-[72px] lg:pt-[72px]">
+        <div className="relative h-[100vh] sm:h-[70vh] lg:h-[100vh] w-full overflow-hidden outline-none rounded-none sm:rounded-[12px] lg:rounded-none min-h-[400px] shadow-md">
           {/* Background shimmer effect */}
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 rounded-none animate-pulse" />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 rounded-none sm:rounded-[12px] lg:rounded-none animate-pulse" />
           
+          {/* Liquid Glass Ambient Lighting */}
+          <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-sage/10 pointer-events-none rounded-none sm:rounded-[12px] lg:rounded-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(255,255,255,0.15)_0%,_transparent_70%)] pointer-events-none rounded-none sm:rounded-[12px] lg:rounded-none" />
+          <div className="absolute inset-0 backdrop-blur-[1px] bg-off-white/5 mix-blend-overlay pointer-events-none rounded-none sm:rounded-[12px] lg:rounded-none" />
+
           {/* Overlay gradient */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-black/20 to-transparent rounded-none" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-transparent rounded-none sm:rounded-[12px] lg:rounded-none" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/40 rounded-none sm:rounded-[12px] lg:rounded-none" />
+          <div className="absolute inset-0 bg-black/20 rounded-none sm:rounded-[12px] lg:rounded-none" />
 
           {/* Centered content skeleton */}
           <div className="absolute inset-0 z-20 flex items-center justify-center w-full">
-            <div className="text-center space-y-4 w-full max-w-2xl px-4">
+            <div className="w-full flex flex-col items-center justify-center text-center px-4">
               {/* Title skeleton */}
-              <div className="space-y-2">
-                <div className="h-12 bg-slate-300/60 rounded-lg w-80 sm:w-96 mx-auto animate-pulse" />
-                <div className="h-12 bg-slate-300/50 rounded-lg w-64 sm:w-72 mx-auto animate-pulse" />
+              <div className="space-y-2 mb-4">
+                <div className="h-10 sm:h-12 lg:h-14 bg-white/40 rounded-lg w-64 sm:w-80 lg:w-96 mx-auto animate-pulse" />
+                <div className="h-10 sm:h-12 lg:h-14 bg-white/30 rounded-lg w-56 sm:w-72 lg:w-80 mx-auto animate-pulse" />
               </div>
 
               {/* Description skeleton */}
-              <div className="space-y-2 pt-2">
-                <div className="h-5 bg-slate-300/50 rounded w-full animate-pulse" />
-                <div className="h-5 bg-slate-300/50 rounded w-5/6 mx-auto animate-pulse" />
+              <div className="space-y-2 mb-6">
+                <div className="h-5 bg-white/30 rounded w-72 sm:w-[420px] lg:w-[520px] mx-auto animate-pulse" />
+                <div className="h-5 bg-white/25 rounded w-64 sm:w-[360px] lg:w-[460px] mx-auto animate-pulse" />
               </div>
 
               {/* CTA Button skeleton */}
-              <div className="pt-4">
-                <div className="h-12 bg-slate-300/60 rounded-full w-40 mx-auto animate-pulse" />
+              <div>
+                <div className="h-12 bg-white/35 rounded-full w-44 sm:w-48 mx-auto animate-pulse" />
               </div>
             </div>
           </div>
@@ -46,7 +53,7 @@ export default function HeroSkeleton() {
               {[...Array(4)].map((_, i) => (
                 <div
                   key={i}
-                  className={`rounded-full bg-slate-300/40 animate-pulse ${
+                  className={`rounded-full bg-white/40 animate-pulse ${
                     i === 0 ? 'w-8 h-2' : 'w-2 h-2'
                   }`}
                 />
@@ -56,27 +63,6 @@ export default function HeroSkeleton() {
         </div>
       </div>
 
-      <style jsx>{`
-        @keyframes shimmer {
-          0% {
-            background-position: -1000px 0;
-          }
-          100% {
-            background-position: 1000px 0;
-          }
-        }
-
-        .animate-shimmer {
-          animation: shimmer 2s infinite;
-          background: linear-gradient(
-            90deg,
-            rgba(226, 232, 240, 0.4) 0%,
-            rgba(226, 232, 240, 0.8) 50%,
-            rgba(226, 232, 240, 0.4) 100%
-          );
-          background-size: 1000px 100%;
-        }
-      `}</style>
     </>
   );
 }

@@ -186,7 +186,7 @@ export default function EventsForm({ businessId, businessName }: EventsFormProps
 
       {/* Form Section */}
       {showForm && (
-        <div className="bg-off-white rounded-[20px] p-6 border border-charcoal/10">
+        <div className="bg-off-white rounded-[12px] p-6 border border-charcoal/10">
           <div className="flex justify-between items-center mb-4">
             <h4 className="font-semibold text-charcoal">
               {editingId ? 'Edit Event' : 'Create New Event'}

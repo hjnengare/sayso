@@ -107,7 +107,7 @@ export default function SettingsPage() {
         {/* Account Section */}
         <div className="space-y-6">
           {/* Username Card */}
-          <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-lg p-6">
+          <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-lg p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-medium text-charcoal/60 uppercase tracking-wide mb-1" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
@@ -121,7 +121,7 @@ export default function SettingsPage() {
           {/* Logout Button */}
           <button
             onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2.5 px-6 py-3.5 bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl hover:from-sage/90 hover:via-sage/90 hover:to-sage/85 border border-white/60 hover:border-white/80 rounded-[20px] text-charcoal font-medium transition-all duration-300 text-sm shadow-lg hover:shadow-xl"
+            className="w-full flex items-center justify-center gap-2.5 px-6 py-3.5 bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl hover:from-sage/90 hover:via-sage/90 hover:to-sage/85 border border-white/60 hover:border-white/80 rounded-[12px] text-charcoal font-medium transition-all duration-300 text-sm shadow-lg hover:shadow-xl"
             style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
           >
             <LogOut className="w-4 h-4" />
@@ -137,14 +137,14 @@ export default function SettingsPage() {
             {!isDeleteConfirmOpen ? (
               <button
                 onClick={() => setIsDeleteConfirmOpen(true)}
-                className="w-full flex items-center justify-center gap-2.5 px-6 py-3.5 bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl hover:from-coral/20 hover:via-coral/15 hover:to-coral/10 border border-coral/30 hover:border-coral/50 rounded-[20px] text-coral font-medium transition-all duration-300 text-sm shadow-lg hover:shadow-xl"
+                className="w-full flex items-center justify-center gap-2.5 px-6 py-3.5 bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl hover:from-coral/20 hover:via-coral/15 hover:to-coral/10 border border-coral/30 hover:border-coral/50 rounded-[12px] text-coral font-medium transition-all duration-300 text-sm shadow-lg hover:shadow-xl"
                 style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
               >
                 <Trash2 className="w-4 h-4" />
                 Delete Account
               </button>
             ) : (
-              <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-coral/30 rounded-[20px] shadow-lg p-6 space-y-4">
+              <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-coral/30 rounded-[12px] shadow-lg p-6 space-y-4">
                 <div>
                   <h3 className="font-semibold text-charcoal mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>Delete Account</h3>
                   <p className="text-sm text-charcoal/70 mb-3" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>

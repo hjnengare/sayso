@@ -99,7 +99,7 @@ function BusinessImage({ business, size }: { business: BusinessOfTheMonth; size:
   const iconSize = iconSizes[size];
 
   return (
-    <div className={`${sizeClasses[size]} relative rounded-[20px] overflow-hidden flex items-center justify-center`}>
+    <div className={`${sizeClasses[size]} relative rounded-[12px] overflow-hidden flex items-center justify-center`}>
       {!imgError && displayImage ? (
         isImagePng || displayImage.includes('/png/') || displayImage.endsWith('.png') || usingFallback ? (
           <div className="relative w-full h-full flex items-center justify-center bg-gradient-to-br from-off-white/95 to-off-white/85">

@@ -73,7 +73,7 @@ export default function PersonalizationInsights({ business }: PersonalizationIns
   return (
     <div className="space-y-4">
       {/* Personalization Insights */}
-      <div className="bg-gradient-to-br from-sage/10 via-sage/5 to-transparent border border-sage/20 rounded-[20px] p-4 space-y-3">
+      <div className="bg-gradient-to-br from-sage/10 via-sage/5 to-transparent border border-sage/20 rounded-[12px] p-4 space-y-3">
         <div className="flex items-center gap-2">
           <Info className="w-4 h-4 text-sage" />
           <h3 className="text-sm font-semibold text-charcoal">Personalized for You</h3>

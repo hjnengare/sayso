@@ -116,7 +116,7 @@ export default function BusinessRow({
               }
             }
           `}} />
-          <div className="flex gap-2 sm:gap-2 md:gap-2 lg:gap-1.5 xl:gap-1.5 2xl:gap-1 items-stretch pt-2">
+          <div className="flex gap-3 sm:gap-3 md:gap-3 lg:gap-2 xl:gap-2 2xl:gap-2 items-stretch pt-2">
             {businesses.map((business, index) => (
               <div
                 key={business.id}

@@ -255,7 +255,7 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
       }}
     >
       <div
-        className="relative px-1 pt-1 pb-2 sm:pb-0 bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[20px] overflow-visible group cursor-pointer w-full flex flex-col border border-white/60 backdrop-blur-xl ring-1 ring-white/30 shadow-md sm:h-auto"
+        className="relative px-1 pt-1 pb-2 sm:pb-0 bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-visible group cursor-pointer w-full flex flex-col border border-white/60 backdrop-blur-xl ring-1 ring-white/30 shadow-md sm:h-auto"
         style={{
           maxWidth: "540px",
         } as React.CSSProperties}
@@ -280,7 +280,7 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
           >
             {!imgError && displayImage ? (
               isImagePng || displayImage.includes('/png/') || displayImage.endsWith('.png') || usingFallback ? (
-                <div className="relative w-full h-full flex items-center justify-center bg-gradient-to-br from-off-white/95 to-off-white/85 rounded-[20px] shadow-sm">
+                <div className="relative w-full h-full flex items-center justify-center bg-gradient-to-br from-off-white/95 to-off-white/85 rounded-[12px] shadow-sm">
                   <Image
                     src={usingFallback ? getCategoryPng(business.category) : displayImage}
                     alt={displayAlt}
@@ -294,7 +294,7 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
                   />
                 </div>
               ) : (
-                <div className="relative w-full h-full overflow-hidden rounded-[20px] shadow-sm">
+                <div className="relative w-full h-full overflow-hidden rounded-[12px] shadow-sm">
                   <Image
                     src={displayImage}
                     alt={displayAlt}
@@ -384,7 +384,7 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
           {/* Premium floating actions - desktop only */}
           <div className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-20 flex-col items-center gap-2 transition-all duration-300 ease-out translate-x-12 opacity-0 md:group-hover:translate-x-0 md:group-hover:opacity-100">
             <button
-              className="w-12 h-10 bg-navbar-bg rounded-[20px] flex items-center justify-center hover:bg-navbar-bg/90 hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40 shadow-md"
+              className="w-12 h-10 bg-navbar-bg rounded-[12px] flex items-center justify-center hover:bg-navbar-bg/90 hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40 shadow-md"
               onClick={(e) => {
                 e.stopPropagation();
                 handleWriteReview(e);
@@ -395,7 +395,7 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
               <Edit className="w-4 h-4 text-white" strokeWidth={2.5} />
             </button>
             <button
-              className="w-12 h-10 bg-navbar-bg rounded-[20px] flex items-center justify-center hover:bg-navbar-bg/90 hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40 shadow-md"
+              className="w-12 h-10 bg-navbar-bg rounded-[12px] flex items-center justify-center hover:bg-navbar-bg/90 hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40 shadow-md"
               onClick={(e) => {
                 e.stopPropagation();
                 handleBookmark(e);
@@ -409,7 +409,7 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
               />
             </button>
             <button
-              className="w-12 h-10 bg-navbar-bg rounded-[20px] flex items-center justify-center hover:bg-navbar-bg/90 hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40 shadow-md"
+              className="w-12 h-10 bg-navbar-bg rounded-[12px] flex items-center justify-center hover:bg-navbar-bg/90 hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40 shadow-md"
               onClick={(e) => {
                 e.stopPropagation();
                 handleShare(e);
@@ -424,7 +424,7 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
 
         {/* CONTENT - Minimal, premium spacing */}
         <div
-          className="px-4 py-3 sm:px-5 sm:pt-1 md:pt-2 lg:pt-3 pb-0 flex-1 relative flex-shrink-0 flex flex-col md:justify-start justify-between bg-sage/10 z-10 rounded-b-[20px]"
+          className="px-4 py-3 sm:px-5 sm:pt-1 md:pt-2 lg:pt-3 pb-0 flex-1 relative flex-shrink-0 flex flex-col md:justify-start justify-between bg-sage/10 z-10 rounded-b-[12px]"
         >
           <div className="flex-1 flex flex-col">
             {/* Info Wrapper */}
@@ -491,7 +491,7 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
 
                 {/* Reviews - Refined */}
                 <div className="flex flex-col items-center gap-2 mb-2">
-                  <div className="inline-flex items-center justify-center gap-1 min-h-[20px]">
+                  <div className="inline-flex items-center justify-center gap-1 min-h-[12px]">
                     {hasReviews ? (
                       <>
                         <span

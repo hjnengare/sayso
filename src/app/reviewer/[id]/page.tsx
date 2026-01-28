@@ -224,7 +224,7 @@ export default function ReviewerProfilePage() {
                                     <div className="space-y-6">
                                         {/* Profile Header Section */}
                                         <article className="w-full sm:mx-0" aria-labelledby="profile-heading">
-                                            <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-lg relative overflow-hidden animate-fade-in-up">
+                                            <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-lg relative overflow-hidden animate-fade-in-up">
                                                 {/* Decorative elements */}
                                                 <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-sage/10 to-transparent rounded-full blur-lg"></div>
                                                 <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-coral/10 to-transparent rounded-full blur-lg"></div>
@@ -329,7 +329,7 @@ export default function ReviewerProfilePage() {
 
                                         {/* Stats Section */}
                                         <section className="grid grid-cols-2 sm:grid-cols-4 gap-4" aria-label="Reviewer statistics">
-                                            <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-lg p-4 animate-fade-in-up animate-delay-100">
+                                            <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-lg p-4 animate-fade-in-up animate-delay-100">
                                                 <div className="flex items-center gap-2 mb-2">
                                                     <ThumbsUp className="w-5 h-5 text-coral" />
                                                     <span className="text-sm text-charcoal/70" style={{
@@ -343,7 +343,7 @@ export default function ReviewerProfilePage() {
                                                     {reviewer.helpfulVotes.toLocaleString('en-US')}
                                                 </div>
                                             </div>
-                                            <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-lg p-4 animate-fade-in-up animate-delay-200">
+                                            <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-lg p-4 animate-fade-in-up animate-delay-200">
                                                 <div className="flex items-center gap-2 mb-2">
                                                     <Users className="w-5 h-5 text-coral" />
                                                     <span className="text-sm text-charcoal/70" style={{
@@ -357,7 +357,7 @@ export default function ReviewerProfilePage() {
                                                     {reviewer.followers.toLocaleString('en-US')}
                                                 </div>
                                             </div>
-                                            <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-lg p-4 animate-fade-in-up animate-delay-200">
+                                            <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-lg p-4 animate-fade-in-up animate-delay-200">
                                                 <div className="flex items-center gap-2 mb-2">
                                                     <Eye className="w-5 h-5 text-coral" />
                                                     <span className="text-sm text-charcoal/70" style={{
@@ -371,7 +371,7 @@ export default function ReviewerProfilePage() {
                                                     {reviewer.totalViews.toLocaleString('en-US')}
                                                 </div>
                                             </div>
-                                            <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-lg p-4 animate-fade-in-up animate-delay-300">
+                                            <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-lg p-4 animate-fade-in-up animate-delay-300">
                                                 <div className="flex items-center gap-2 mb-2">
                                                     <TrendingUp className="w-5 h-5 text-coral" />
                                                     <span className="text-sm text-charcoal/70" style={{
@@ -389,7 +389,7 @@ export default function ReviewerProfilePage() {
 
                                         {/* Badges Section */}
                                         {reviewer.badges.length > 0 && (
-                                            <section className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-lg p-6 sm:p-8 animate-fade-in-up" aria-label="Reviewer badges">
+                                            <section className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-lg p-6 sm:p-8 animate-fade-in-up" aria-label="Reviewer badges">
                                                 <h3 className="text-lg font-bold text-charcoal mb-4" style={{
                                                     fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                                                     fontWeight: 700,
@@ -398,7 +398,7 @@ export default function ReviewerProfilePage() {
                                                 </h3>
                                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                                     {reviewer.badges.map((badge) => (
-                                                        <div key={badge.id} className="bg-off-white/50 rounded-[20px] p-4 border border-white/40">
+                                                        <div key={badge.id} className="bg-off-white/50 rounded-[12px] p-4 border border-white/40">
                                                             <div className="flex items-center gap-3 mb-2">
                                                                 <span className="text-2xl">{badge.icon}</span>
                                                                 <div>
@@ -428,7 +428,7 @@ export default function ReviewerProfilePage() {
 
                                         {/* Reviews Section */}
                                         <section
-                                            className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-6 sm:p-8"
+                                            className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-md p-6 sm:p-8"
                                             aria-label="Reviews written by this reviewer"
                                         >
                                             <ReviewsList

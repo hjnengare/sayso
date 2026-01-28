@@ -86,7 +86,7 @@ export default function Collections({ onCollectionClick }: CollectionsProps) {
             key={collection.id}
             href={`/explore/collection/${collection.id}`}
             onClick={(e) => handleClick(collection.id, e)}
-            className="group relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[20px] overflow-hidden backdrop-blur-md border border-white/60 ring-1 ring-white/30 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] p-6"
+            className="group relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden backdrop-blur-md border border-white/60 ring-1 ring-white/30 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] p-6"
           >
             <div className="flex items-start gap-4">
               <div className="w-14 h-14 rounded-[16px] bg-off-white flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300 p-2">

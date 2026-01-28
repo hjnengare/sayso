@@ -334,7 +334,7 @@ export default function ImageUpload({
             className="relative max-w-[90vw] max-h-[90vh] w-full h-full flex items-center justify-center"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="relative w-full h-full max-w-5xl max-h-[85vh] rounded-[20px] overflow-hidden shadow-2xl">
+            <div className="relative w-full h-full max-w-5xl max-h-[85vh] rounded-[12px] overflow-hidden shadow-2xl">
               <Image
                 src={
                   previewIndex < existingImageUrls.length
@@ -368,7 +368,7 @@ export default function ImageUpload({
           onDrop={handleDrop}
           onClick={handleClick}
           className={`
-            relative w-full min-h-[120px] rounded-[20px] border-2 border-dashed
+            relative w-full min-h-[120px] rounded-[12px] border-2 border-dashed
             transition-all duration-300 cursor-pointer group
             ${isDragging
               ? 'border-coral bg-coral/10 scale-[1.01]'
@@ -409,7 +409,7 @@ export default function ImageUpload({
 
       {/* Disabled state message */}
       {disabled && (existingImageUrls.length + files.length) >= maxImages && (
-        <div className="w-full min-h-[120px] rounded-[20px] border-2 border-dashed border-charcoal/10 bg-off-white/20 flex items-center justify-center">
+        <div className="w-full min-h-[120px] rounded-[12px] border-2 border-dashed border-charcoal/10 bg-off-white/20 flex items-center justify-center">
           <p className="text-sm text-charcoal/70 text-center" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
             Maximum {maxImages} images reached
           </p>

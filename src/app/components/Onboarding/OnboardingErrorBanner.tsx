@@ -17,7 +17,7 @@ export default function OnboardingErrorBanner({
 
   return (
     <div className={`
-      bg-red-50 border border-red-200 rounded-[20px] p-4 
+      bg-red-50 border border-red-200 rounded-[12px] p-4 
       flex items-start gap-3 animate-fade-in-up delay-100
       ${className}
     `}>

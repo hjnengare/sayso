@@ -18,7 +18,7 @@ export default function SpecialDetailsCard({ special }: SpecialDetailsCardProps)
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.6 }}
-            className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[20px] shadow-md p-5 sm:p-6"
+            className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-md p-5 sm:p-6"
         >
             <h2
                 className="text-lg font-bold text-charcoal mb-4"

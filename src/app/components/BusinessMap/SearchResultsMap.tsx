@@ -192,7 +192,7 @@ export default function SearchResultsMap({
             <div ref={mapContainer} className="w-full h-full" style={{ minHeight: "280px" }} />
             {selectedBusiness && (
                 <div className="absolute bottom-3 sm:bottom-4 left-2 sm:left-4 right-2 sm:right-4 z-10 max-w-md mx-auto">
-                    <div className="bg-white rounded-[20px] shadow-xl border border-white/30 p-3">
+                    <div className="bg-white rounded-[12px] shadow-xl border border-white/30 p-3">
                         <BusinessCard 
                             business={{
                                 ...selectedBusiness,
