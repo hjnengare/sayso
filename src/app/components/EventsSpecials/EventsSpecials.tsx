@@ -131,7 +131,7 @@ export default function EventsSpecials({
           </div>
 
           <div className="pt-2">
-            <ScrollableSection>
+            <ScrollableSection showArrows>
               <div className="flex gap-3 sm:gap-3 md:gap-3 lg:gap-2 xl:gap-2 2xl:gap-2 items-stretch py-2 overflow-y-hidden">
                 {Array.from({ length: 4 }).map((_, index) => (
                   <div
@@ -201,7 +201,7 @@ export default function EventsSpecials({
         </div>
 
         <div className="pt-2">
-          <ScrollableSection>
+          <ScrollableSection showArrows>
             <div className="flex gap-3 sm:gap-3 md:gap-3 lg:gap-2 xl:gap-2 2xl:gap-2 items-stretch py-2 overflow-y-hidden">
               {displayEvents.map((event, index) => (
                 <div
