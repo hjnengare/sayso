@@ -427,8 +427,8 @@ function BusinessCard({
   const mediaBaseClass =
     "relative overflow-hidden z-10 cursor-pointer rounded-[20px] bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl";
   const mediaClass = compact
-    ? `${mediaBaseClass} h-[300px] sm:h-[320px] md:h-[240px]`
-    : `${mediaBaseClass} h-[300px] sm:h-[320px] md:h-[240px]`;
+    ? `${mediaBaseClass} h-[280px] sm:h-[300px] md:h-[220px]`
+    : `${mediaBaseClass} h-[280px] sm:h-[300px] md:h-[220px]`;
 
   // Animation variants - fade-in for all devices
   const cardInitial = prefersReducedMotion
