@@ -33,7 +33,7 @@ function isSchemaCacheError(error: { message?: string } | null | undefined): boo
   return message.includes('schema cache') && message.includes('onboarding_completed_at');
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const requestId = Math.random().toString(36).substring(7); // For tracing requests
 
