@@ -1,7 +1,7 @@
 // src/components/Hero/HeroCarousel.tsx
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import type { CSSProperties } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -12,6 +12,8 @@ import ActiveFilterBadges from "../FilterActiveBadges/ActiveFilterBadges";
 import WavyTypedTitle from "../../../components/Animations/WavyTypedTitle";
 import HeroSkeleton from "./HeroSkeleton";
 import { useAuth } from '../../contexts/AuthContext';
+import { getBrowserSupabase } from '../../lib/supabase/client';
+import { STORAGE_BUCKETS } from '../../lib/utils/storageBucketConfig';
 
 interface HeroSlide {
   id: string;
@@ -20,156 +22,7 @@ interface HeroSlide {
   description: string;
 }
 
-const HERO_IMAGES = [
-  "/hero/a-j-A_0C42zmz1Q-unsplash.jpg",
-  "/hero/adam-winger-KVVjmb3IIL8-unsplash.jpg",
-  "/hero/adam-winger-NuE52ey_cTc-unsplash.jpg",
-  "/hero/adriaan-venner-scheepers-Ceq_cYIb8Co-unsplash.jpg",
-  "/hero/ahmet-kurt-0xn-8kRWOhE-unsplash.jpg",
-  "/hero/aksh-yadav-bY4cqxp7vos-unsplash.jpg",
-  "/hero/alex-zamora-FU1KddSIIR4-unsplash.jpg",
-  "/hero/alexandr-podvalny-TciuHvwoK0k-unsplash.jpg",
-  "/hero/alexey-demidov-0x7wd4w2K5E-unsplash.jpg",
-  "/hero/alyona-yankovska-7EbGkOm8pWM-unsplash.jpg",
-  "/hero/ambitious-studio-rick-barrett-6J2oD_IBPb0-unsplash.jpg",
-  "/hero/anderson-schmig-IayJpfDhj7E-unsplash.jpg",
-  "/hero/andy-kelly-P21tYLUo_PI-unsplash.jpg",
-  "/hero/anya-richter-V5-OCit5ZF0-unsplash.jpg",
-  "/hero/arno-smit-qY_yTu7YBT4-unsplash.jpg",
-  "/hero/barbara-froes-Yhsdub0hV1A-unsplash.jpg",
-  "/hero/ben-nrHms-os93A-unsplash.jpg",
-  "/hero/bernd-m-schell-DoTYfTdbq5w-unsplash.jpg",
-  "/hero/boitumelo-vLxXcymERuU-unsplash.jpg",
-  "/hero/boney-dHIRbh9En6I-unsplash.jpg",
-  "/hero/bruce-mars-gJtDg6WfMlQ-unsplash.jpg",
-  "/hero/caleb-williams-Fj5klOSDZxM-unsplash.jpg",
-  "/hero/caroline-lm-8BkF0sTC6Uo-unsplash.jpg",
-  "/hero/casey-allen-UjpEGHu8uNU-unsplash.jpg",
-  "/hero/chris-andrawes-6vTyPMQ8gHk-unsplash.jpg",
-  "/hero/christelle-bourgeois-Aq7paIaerrY-unsplash.jpg",
-  "/hero/christin-hume-0MoF-Fe0w0A-unsplash.jpg",
-  "/hero/cole-keister-rPlYtGgoxho-unsplash.jpg",
-  "/hero/connor-gan-iY6iiQKkjcg-unsplash.jpg",
-  "/hero/courtney-cook-QYsRxRPygwU-unsplash.jpg",
-  "/hero/createasea-b5X9v220Y8M-unsplash.jpg",
-  "/hero/dan-duffey-7NaBBaRzfZ4-unsplash.jpg",
-  "/hero/dan-gold-E6HjQaB7UEA-unsplash.jpg",
-  "/hero/dane-wetton-zdLdgGbi9Ow-unsplash.jpg",
-  "/hero/danielle-cerullo-CQfNt66ttZM-unsplash.jpg",
-  "/hero/dave-hoefler-a3e7yEtQxJs-unsplash.jpg",
-  "/hero/david-henrichs-OKBb9_v-K1I-unsplash.jpg",
-  "/hero/devon-janse-van-rensburg-CeI5GZF0MrQ-unsplash.jpg",
-  "/hero/devon-janse-van-rensburg-hSfok6PdwgE-unsplash.jpg",
-  "/hero/devon-janse-van-rensburg-ODZIiIsn490-unsplash.jpg",
-  "/hero/devon-janse-van-rensburg-USNt7L36zj0-unsplash.jpg",
-  "/hero/dylan-gillis-V8_s30ttQTk-unsplash.jpg",
-  "/hero/dylan-gillis-YJdCZba0TYE-unsplash.jpg",
-  "/hero/edward-howell-vvUy1hWVYEA-unsplash.jpg",
-  "/hero/eric-ward-ISg37AI2A-s-unsplash.jpg",
-  "/hero/farhad-ibrahimzade-Sk6my6_KTK0-unsplash.jpg",
-  "/hero/felipe-bustillo-4VDRCoNuvE0-unsplash.jpg",
-  "/hero/fitnish-media-mQ2mZMcI1dc-unsplash.jpg",
-  "/hero/fitnish-media-pZqyd8p0sP8-unsplash.jpg",
-  "/hero/fran-innocenti-I_LxDFIIRIA-unsplash.jpg",
-  "/hero/frankie-cordoba-Y8gXPB8Mq98-unsplash.jpg",
-  "/hero/gilles-de-muynck-QcN1_o0a0qo-unsplash.jpg",
-  "/hero/hayffield-l-ZVdZw2p08y4-unsplash.jpg",
-  "/hero/holly-mandarich-UVyOfX3v0Ls-unsplash.jpg",
-  "/hero/hu-chen-FZ0qzjVF_-c-unsplash.jpg",
-  "/hero/huum-NHLS5hOSH0c-unsplash.jpg",
-  "/hero/jakub-kapusnak-4f4YZfDMLeU-unsplash.jpg",
-  "/hero/janan-OoW1DMDCV1Y-unsplash.jpg",
-  "/hero/janice-lin-yUIN4QWKCTw-unsplash.jpg",
-  "/hero/jannik-mY2ZHBU6GRk-unsplash.jpg",
-  "/hero/jared-rice-xce530fBHrk-unsplash.jpg",
-  "/hero/jason-leung-a6tKN9LfuV8-unsplash.jpg",
-  "/hero/jean-van-wyk-gxpWKKZwJa0-unsplash.jpg",
-  "/hero/jennifer-deacon-LO63Mh7gv3c-unsplash.jpg",
-  "/hero/jens-thekkeveettil-dBWvUqBoOU8-unsplash.jpg",
-  "/hero/jessica-pamp-JNTSoyb_bbw-unsplash.jpg",
-  "/hero/john-michael-thomson-9m1V6A8Fm-A-unsplash.jpg",
-  "/hero/jorik-kleen-DJN1Z0IxueU-unsplash.jpg",
-  "/hero/kalisa-veer-gRx74OSJTG8-unsplash.jpg",
-  "/hero/karan-bhatia-ib7jwp7m0iA-unsplash.jpg",
-  "/hero/karsten-winegeart-0QTcK1JcteQ-unsplash.jpg",
-  "/hero/kaylee-garrett-GaprWyIw66o-unsplash.jpg",
-  "/hero/kazuo-ota-sbpZBs1qR9k-unsplash.jpg",
-  "/hero/kelsey-knight-udj2tD3WKsY-unsplash.jpg",
-  "/hero/kevin-ianeselli-ebnlHkqfUHY-unsplash.jpg",
-  "/hero/kevin-wolf-IfTKequW2Mk-unsplash.jpg",
-  "/hero/kingsley-hemans-51-4BSipn7E-unsplash.jpg",
-  "/hero/krista-mangulsone-9gz3wfHr65U-unsplash.jpg",
-  "/hero/krists-luhaers-AtPWnYNDJnM-unsplash.jpg",
-  "/hero/lance-asper-mNDVSSmMt0Y-unsplash.jpg",
-  "/hero/linley-rall-FbPz8UHbKUs-unsplash.jpg",
-  "/hero/lo-sarno-QLdp9SGDf5Y-unsplash.jpg",
-  "/hero/louis-hansel-wVoP_Q2Bg_A-unsplash.jpg",
-  "/hero/madiba-de-african-inspiration-UP1zQfZLyWE-unsplash.jpg",
-  "/hero/madiba-de-african-inspiration-XrNKe8VLMRo-unsplash.jpg",
-  "/hero/margit-umbach-6jyMHaPtHIs-unsplash.jpg",
-  "/hero/margit-umbach-mVBWD1qsTQs-unsplash.jpg",
-  "/hero/marina-zvada-lUPCv3ccYhg-unsplash.jpg",
-  "/hero/marvin-meyer-SYTO3xs06fU-unsplash.jpg",
-  "/hero/matt-halls-oC8S4_19QUk-unsplash.jpg",
-  "/hero/matthias-wesselmann-9Jx37xwFX6c-unsplash.jpg",
-  "/hero/meritt-thomas-9eLHzqljDyU-unsplash.jpg",
-  "/hero/michael-afonso-nZU76qWy-T8-unsplash.jpg",
-  "/hero/michael-lee-Noqjeq2XJUk-unsplash.jpg",
-  "/hero/miltiadis-fragkidis-BFC_39NfWPI-unsplash.jpg",
-  "/hero/nappy-J5UTvRgse7Q-unsplash.jpg",
-  "/hero/neom-4AADxUsnufQ-unsplash.jpg",
-  "/hero/nick-fewings-MjZwf1PlfaU-unsplash.jpg",
-  "/hero/nico-smit-L5CY08WNZ28-unsplash.jpg",
-  "/hero/nico-smit-_nZNptJkZg0-unsplash.jpg",
-  "/hero/nrd-D6Tu_L3chLE-unsplash.jpg",
-  "/hero/omar-eagle-zk_6h5I4T5Q-unsplash.jpg",
-  "/hero/online-marketing-hIgeoQjS_iE-unsplash.jpg",
-  "/hero/oriol-farre-sSEff9sE2cA-unsplash.jpg",
-  "/hero/parker-gibbs-pdUVFX8WglY-unsplash.jpg",
-  "/hero/patrick-tomasso-1NTFSnV-KLs-unsplash.jpg",
-  "/hero/pauline-loroy-tv8PIPPY3rQ-unsplash.jpg",
-  "/hero/photo-nic-xOigCUcFdA8-unsplash.jpg",
-  "/hero/polina-miloserdova-1TY6b0RJaQA-unsplash.jpg",
-  "/hero/polina-miloserdova-kymJDvqz9dk-unsplash.jpg",
-  "/hero/q-u-i-n-g-u-y-e-n-Zrp9b3PMIy8-unsplash.jpg",
-  "/hero/quan-nguyen-yDSe7sggb9Q-unsplash.jpg",
-  "/hero/r0m0_4-w1UD6PiqgtQ-unsplash.jpg",
-  "/hero/rahadiansyah-3yusFdVTtQ8-unsplash.jpg",
-  "/hero/raze-solar-GXLPLG3_Vf4-unsplash.jpg",
-  "/hero/reba-spike-4y7030O1XPQ-unsplash.jpg",
-  "/hero/remy-gieling-H0v6g8FGvFQ-unsplash.jpg",
-  "/hero/riccardo-bergamini-O2yNzXdqOu0-unsplash.jpg",
-  "/hero/rosa-rafael-Pe9IXUuC6QU-unsplash.jpg",
-  "/hero/ryan-cuerden-Ib-UJN06F5s-unsplash.jpg",
-  "/hero/sam-mar-OQOKSsj8QME-unsplash.jpg",
-  "/hero/sarah-brown-RapDxBSMKzQ-unsplash.jpg",
-  "/hero/scott-graham-5fNmWej4tAA-unsplash.jpg",
-  "/hero/shaun-meintjes-31qNJWJZzh4-unsplash.jpg",
-  "/hero/sheila-c-ySW0RtDJNh4-unsplash.jpg",
-  "/hero/shraga-kopstein-K1P_W3JbCpI-unsplash.jpg",
-  "/hero/sigmund-TJxotQTUr8o-unsplash.jpg",
-  "/hero/siyuan-g_V2rt6iG7A-unsplash.jpg",
-  "/hero/tabitha-turner-F0Wd4djYvSA-unsplash.jpg",
-  "/hero/tanya-paquet-q6vDZ48s6iE-unsplash.jpg",
-  "/hero/tanya-paquet-V3IssFR02qE-unsplash.jpg",
-  "/hero/taylor-heery-_TyrA1RUaiI-unsplash.jpg",
-  "/hero/thomas-bennie-R1_Rt0Xz1_I-unsplash.jpg",
-  "/hero/tijs-van-leur-So6YckShOVA-unsplash.jpg",
-  "/hero/tim-b-motivv-OYvjvIANSD0-unsplash.jpg",
-  "/hero/trnava-university-BEEyeib-am8-unsplash.jpg",
-  "/hero/unseen-histories-zKlmUuc7pBk-unsplash.jpg",
-  "/hero/vincenzo-morelli-ZO4pHKtpn4c-unsplash.jpg",
-  "/hero/vitaly-gariev-lbOaKbGNcrk-unsplash.jpg",
-  "/hero/vitaly-gariev-y1u8bcBPnIU-unsplash.jpg",
-  "/hero/vitolda-klein-zxsdbx-af9Y-unsplash%20(1).jpg",
-  "/hero/yada-pongsirirushakun-e5tV8MyOTqI-unsplash.jpg",
-  "/hero/yasmin-peyman-6hQAg2FwJhs-unsplash.jpg",
-  "/hero/yns-plt-NY1D4Zni7fc-unsplash.jpg",
-  "/hero/yuriy-vertikov-bFjTqonnpK4-unsplash.jpg",
-  "/hero/yvette-de-wit-NYrVisodQ2M-unsplash.jpg",
-  "/hero/zalfa-imani-1xp5VxvyKL0-unsplash.jpg",
-  "/hero/zoe-reeve-xjJd9fu9OkM-unsplash.jpg",
-];
+const HERO_IMAGE_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp", "gif", "avif"]);
 
 const HERO_COPY = [
   {
@@ -201,6 +54,22 @@ const shuffleImages = (images: string[]): string[] => {
 
 const FONT_STACK = "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif";
 
+const buildSlides = (images: string[]): HeroSlide[] => {
+  const randomized = shuffleImages(images);
+  return randomized.map((image, index) => {
+    const copy = HERO_COPY[index % HERO_COPY.length];
+    return {
+      id: `${index + 1}`,
+      image,
+      title: copy.title,
+      description: copy.description,
+    };
+  });
+};
+
+const getFileExtension = (name: string): string =>
+  name.split(".").pop()?.toLowerCase() ?? "";
+
 export default function HeroCarousel() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
@@ -208,24 +77,65 @@ export default function HeroCarousel() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [heroImages, setHeroImages] = useState<string[]>([]);
   const progressRef = useRef<NodeJS.Timeout | null>(null);
   const containerRef = useRef<HTMLElement>(null);
   const currentIndexRef = useRef(currentIndex);
-  const slidesRef = useRef<HeroSlide[]>([]);
+  const slides = useMemo(() => buildSlides(heroImages), [heroImages]);
+  const slidesRef = useRef<HeroSlide[]>(slides);
 
-  if (slidesRef.current.length === 0) {
-    const randomized = shuffleImages(HERO_IMAGES);
-    slidesRef.current = randomized.map((image, index) => {
-      const copy = HERO_COPY[index % HERO_COPY.length];
-      return {
-        id: `${index + 1}`,
-        image,
-        title: copy.title,
-        description: copy.description,
-      };
-    });
-  }
-  const slides = slidesRef.current;
+  useEffect(() => {
+    slidesRef.current = slides;
+  }, [slides]);
+
+  useEffect(() => {
+    if (currentIndex >= slides.length) {
+      setCurrentIndex(0);
+      currentIndexRef.current = 0;
+      setProgress(0);
+    }
+  }, [currentIndex, slides.length]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadHeroImages = async () => {
+      try {
+        const supabase = getBrowserSupabase();
+        const { data, error } = await supabase.storage
+          .from(STORAGE_BUCKETS.HERO_IMAGES)
+          .list("", { limit: 200, sortBy: { column: "name", order: "asc" } });
+
+        if (error || !data) {
+          return;
+        }
+
+        const imagePaths = data
+          .map((item) => item.name)
+          .filter((name) => HERO_IMAGE_EXTENSIONS.has(getFileExtension(name)));
+
+        if (imagePaths.length === 0) {
+          return;
+        }
+
+        const imageUrls = imagePaths.map((path) =>
+          supabase.storage.from(STORAGE_BUCKETS.HERO_IMAGES).getPublicUrl(path).data.publicUrl
+        );
+
+        if (isMounted && imageUrls.length > 0) {
+          setHeroImages(imageUrls);
+        }
+      } catch (loadError) {
+        console.warn("HeroCarousel: failed to load hero images from storage.", loadError);
+      }
+    };
+
+    loadHeroImages();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Mark hero as ready once auth state is known
   useEffect(() => {
@@ -248,12 +158,10 @@ export default function HeroCarousel() {
 
   // Prefetch a few hero images once auth state is known to warm the cache.
   useEffect(() => {
-    if (!isHeroReady || typeof window === "undefined") return;
+    if (!isHeroReady || typeof window === "undefined" || slides.length === 0) return;
 
     const prefetchCount = 4;
-    const imagesToPrefetch = slidesRef.current
-      .slice(0, prefetchCount)
-      .map((slide) => slide.image);
+    const imagesToPrefetch = slides.slice(0, prefetchCount).map((slide) => slide.image);
 
     const prefetch = () => {
       imagesToPrefetch.forEach((src) => {
@@ -267,9 +175,10 @@ export default function HeroCarousel() {
     } else {
       setTimeout(prefetch, 0);
     }
-  }, [isHeroReady]);
+  }, [isHeroReady, slides]);
 
   const next = useCallback(() => {
+    if (slides.length === 0) return;
     setProgress(0); // Reset progress when advancing
     setCurrentIndex((prev) => {
       const newIndex = (prev + 1) % slides.length;
@@ -278,6 +187,7 @@ export default function HeroCarousel() {
     });
   }, [slides.length]);
   const prev = useCallback(() => {
+    if (slides.length === 0) return;
     setProgress(0); // Reset progress when going back
     setCurrentIndex((prev) => {
       const newIndex = (prev - 1 + slides.length) % slides.length;
@@ -293,7 +203,7 @@ export default function HeroCarousel() {
 
   // Progress animation for each slide
   useEffect(() => {
-    if (prefersReduced || paused) {
+    if (prefersReduced || paused || slides.length === 0) {
       // Clear progress timer when paused
       if (progressRef.current) {
         clearInterval(progressRef.current);
@@ -410,6 +320,7 @@ export default function HeroCarousel() {
   };
 
   const goToSlide = (index: number) => {
+    if (slides.length === 0) return;
     setCurrentIndex(index);
     setProgress(0); // Reset progress when manually navigating
     setPaused(true);
@@ -462,6 +373,10 @@ export default function HeroCarousel() {
     return <HeroSkeleton />;
   }
 
+  if (slides.length === 0) {
+    return <HeroSkeleton />;
+  }
+
   return (
     <>
       {/* Hero Container with padding */}
@@ -469,7 +384,7 @@ export default function HeroCarousel() {
         {/* Hero Section with rounded corners - 75vh responsive height */}
         <section
           ref={containerRef as React.RefObject<HTMLElement>}
-          className="relative h-[100svh] h-[80dvh] md:h-[100vh] lg:h-[100vh] w-full overflow-hidden outline-none rounded-none md:rounded-none lg:rounded-none min-h-[400px] shadow-md"
+          className="relative h-[80svh] h-[80dvh] md:h-[80vh] lg:h-[80vh] w-full overflow-hidden outline-none rounded-none md:rounded-none lg:rounded-none min-h-[400px] shadow-md"
           aria-label="Hero carousel"
           tabIndex={0}
           style={{ fontFamily: FONT_STACK }}
@@ -508,13 +423,13 @@ export default function HeroCarousel() {
            </div>
 
            {/* Left-aligned Text - Aligned with navbar left edge */}
-           <div className="absolute inset-0 z-20 flex items-center justify-center w-full">
-             <div className="w-full flex flex-col items-center justify-center text-center">
+           <div className="absolute inset-0 z-20 flex items-center justify-center w-full pt-[var(--header-height)] -translate-y-4">
+             <div className="w-full flex flex-col items-center justify-center text-center pb-20">
                <h2 
                  className="text-3xl sm:text-4xl lg:text-5xl font-bold text-off-white drop-shadow-lg mb-4"
                  style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                >
-                 {slide.title}
+                 Discover local gems
                </h2>
                <p 
                  className="text-base sm:text-lg lg:text-xl text-off-white/90 drop-shadow-md max-w-xl mb-6"

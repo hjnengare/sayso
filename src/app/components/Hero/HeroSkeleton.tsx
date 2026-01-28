@@ -3,7 +3,7 @@
 
 export default function HeroSkeleton() {
   return (
-    <>
+    <div className="pt-[var(--header-height)]">
       {/* Active Filter Badges Skeleton */}
       <div className="relative w-full px-4">
         <div className="h-8 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 rounded-full w-24 animate-pulse" />
@@ -11,7 +11,7 @@ export default function HeroSkeleton() {
 
       {/* Hero Section Skeleton */}
       <div className="relative w-full px-0 sm:px-2 lg:px-0 py-2 md:px-2 pt-0">
-        <div className="relative h-[100svh] h-[100dvh] sm:h-[70vh] md:h-[100vh] lg:h-[100vh] w-full overflow-hidden outline-none rounded-none sm:rounded-[12px] md:rounded-none lg:rounded-none min-h-[400px] shadow-md">
+        <div className="relative h-[80svh] h-[80dvh] sm:h-[70vh] md:h-[80vh] lg:h-[80vh] w-full overflow-hidden outline-none rounded-none sm:rounded-[12px] md:rounded-none lg:rounded-none min-h-[400px] shadow-md">
           {/* Background shimmer effect */}
           <div className="absolute inset-0 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 rounded-none sm:rounded-[12px] md:rounded-none lg:rounded-none animate-pulse" />
           
@@ -62,7 +62,6 @@ export default function HeroSkeleton() {
           </div>
         </div>
       </div>
-
-    </>
+    </div>
   );
 }

@@ -9,6 +9,7 @@
 export const STORAGE_BUCKETS = {
   BUSINESS_IMAGES: 'business_images', // Note: Uses underscore, not hyphen
   REVIEW_IMAGES: 'review_images',
+  HERO_IMAGES: 'hero_images',
 } as const;
 
 /**

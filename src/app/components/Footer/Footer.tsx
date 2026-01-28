@@ -85,7 +85,7 @@ export default function Footer() {
               <Link href="/" className="flex-shrink-0 flex items-center hover:opacity-80 transition-opacity">
                 <Logo variant="footer" />
               </Link>
-              <p className="font-urbanist text-sm sm:text-base text-off-white/80 font-semibold text-left max-w-[46ch]">
+              <p className="font-urbanist text-sm sm:text-base text-off-white/80 font-normal text-left max-w-[46ch] whitespace-nowrap">
                 Discover trusted local businesses, events, and community favorites.
               </p>
             </div>
