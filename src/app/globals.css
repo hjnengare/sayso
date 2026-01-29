@@ -415,36 +415,6 @@
   }
 
 
-  /* Custom scrollbar styling for vertical scrolling - Design System */
-  body::-webkit-scrollbar {
-    width: 15px;
-    height: 15px;
-  }
-
-  body::-webkit-scrollbar-track {
-    border-left: 1px solid #64748b;
-  }
-
-  body::-webkit-scrollbar-thumb {
-    border: 3px solid #722F37;
-    border-radius: 10px;
-    background: #722F37;
-  }
-
-  body::-webkit-scrollbar-thumb:hover {
-    background: rgba(114, 47, 55, 0.9);
-  }
-
-  body::-webkit-scrollbar-corner {
-    background: rgba(157, 171, 155, 0.05);
-  }
-
-  /* Firefox scrollbar styling */
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: #722F37 rgba(157, 171, 155, 0.05);
-  }
-
 
   /* Fix iOS safari viewport height issues */
   @supports (-webkit-touch-callout: none) {
