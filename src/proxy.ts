@@ -27,8 +27,8 @@ function debugLog(context: string, data: Record<string, unknown>) {
 }
 
 /** Minimal always-on log for Vercel edge (one line). */
-function edgeLog(decision: string, pathname: string, meta: { hasUser?: boolean; emailConfirmed?: boolean; isBusiness?: boolean; onboardingComplete?: boolean; to?: string }) {
-  console.log(`[Edge] ${decision} pathname=${pathname} hasUser=${!!meta.hasUser} emailOk=${!!meta.emailConfirmed} business=${!!meta.isBusiness} onboardingOk=${!!meta.onboardingComplete}${meta.to ? ` to=${meta.to}` : ''}`);
+function edgeLog(decision: string, pathname: string, meta: { hasUser?: boolean; emailConfirmed?: boolean; isBusiness?: boolean; onboardingComplete?: boolean; to?: string; reason?: string }) {
+  console.log(`[Edge] ${decision} pathname=${pathname} hasUser=${!!meta.hasUser} emailOk=${!!meta.emailConfirmed} business=${!!meta.isBusiness} onboardingOk=${!!meta.onboardingComplete}${meta.to ? ` to=${meta.to}` : ''}${meta.reason ? ` reason=${meta.reason}` : ''}`);
 }
 
 /** Redirect loop guard: if we already redirected 2+ times within REDIRECT_GUARD_MAX_AGE_SEC, allow next() to break loop. */
