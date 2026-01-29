@@ -400,6 +400,11 @@ export async function proxy(request: NextRequest) {
       edgeLog('ALLOW', pathname, { hasUser: false });
       return response;
     }
+    // Allow /home?guest=true for unauthenticated users (Get Started from onboarding)
+    if (pathname === '/home' && request.nextUrl.searchParams.get('guest') === 'true') {
+      edgeLog('ALLOW', pathname, { hasUser: false, reason: 'guest_home' });
+      return response;
+    }
     if (isProtectedRoute) {
       const referer = request.headers.get('referer') || '';
       const cameFromVerifyEmail = referer.includes('/verify-email') || referer.includes('/auth/callback');

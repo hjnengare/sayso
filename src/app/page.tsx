@@ -39,14 +39,16 @@ export default async function RootPage() {
       if (resolvedRole === "business_owner") {
         redirect("/my-businesses");
       }
+      redirect("/home");
     }
 
     if (user && !user.email_confirmed_at) {
       redirect("/verify-email");
     }
   } catch {
-    // Fall through to default redirect below.
+    // Fall through when no session or auth error.
   }
 
-  redirect("/home");
+  // No user → send to /home as guest so middleware allows (avoids redirect to /login)
+  redirect("/home?guest=true");
 }

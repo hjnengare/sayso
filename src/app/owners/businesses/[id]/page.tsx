@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
-export default function OwnersBusinessLegacyRedirect({ params }: { params: { id: string } }) {
-  redirect(`/my-businesses/businesses/${params.id}`);
+export default async function OwnersBusinessLegacyRedirect({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  redirect(`/my-businesses/businesses/${id}`);
 }

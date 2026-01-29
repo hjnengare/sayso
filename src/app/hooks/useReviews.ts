@@ -282,7 +282,8 @@ export function useReviewSubmission() {
         let errorMessage = 'Failed to submit review';
         try {
           const errorResult = await response.json();
-          errorMessage = errorResult.error || errorResult.details || errorMessage;
+          // Prefer details (e.g. RLS/DB message) so user sees actual reason
+          errorMessage = errorResult.details || errorResult.error || errorMessage;
         } catch (parseError) {
           // If JSON parsing fails, use the status text
           errorMessage = response.statusText || errorMessage;

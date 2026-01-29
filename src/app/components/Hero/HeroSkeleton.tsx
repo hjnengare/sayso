@@ -3,11 +3,7 @@
 
 export default function HeroSkeleton() {
   return (
-    <div className="relative w-full px-0 py-2 md:pt-2 md:px-2">
-      {/* Active Filter Badges Placeholder */}
-      <div className="relative w-full px-4 mb-2">
-        <div className="h-8 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 rounded-full w-24 animate-pulse" />
-      </div>
+    <div className="relative w-full px-0 md:px-2">
 
       {/* Hero Section Skeleton */}
       <section className="relative h-[90dvh] md:h-[70dv] w-full overflow-hidden outline-none rounded-none md:rounded-none lg:rounded-none min-h-[360px] shadow-md">
