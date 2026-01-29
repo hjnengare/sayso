@@ -215,7 +215,7 @@ export default function SavedPage() {
       >
 
         <main className="flex-1 relative">
-          <div className="pt-20 sm:pt-24 pb-12 sm:pb-16 md:pb-20">
+          <div className="pb-12 sm:pb-16 md:pb-20">
             <motion.div
               className="mx-auto w-full max-w-[2000px] px-3 relative mb-4"
               initial={{ opacity: 0, y: -10 }}
