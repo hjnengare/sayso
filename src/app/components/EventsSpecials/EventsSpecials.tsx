@@ -105,12 +105,12 @@ export default function EventsSpecials({
 
   // Debug logging
   if (typeof window !== 'undefined') {
-    console.log('[EventsSpecials] Render:', { 
+    console.log('[EventsSpecials] Render:', {
       eventsCount: events?.length || 0,
       businessEventsCount: businessEvents?.length || 0,
-      loading, 
+      loading,
       loadingBusinessEvents,
-      hasEvents: events && events.length > 0 
+      hasEvents: events && events.length > 0
     });
   }
 
@@ -126,13 +126,16 @@ export default function EventsSpecials({
       >
         <div className="mx-auto w-full max-w-[2000px] relative z-10 px-2">
           <div className="pb-4 sm:pb-8 md:pb-10 flex flex-wrap items-center justify-between gap-2">
-            <div className="h-8 w-48 bg-charcoal/10 rounded-lg animate-pulse" />
-            <div className="h-8 w-24 bg-charcoal/10 rounded-full animate-pulse" />
+            <div className="h-8 sm:h-10 w-48 sm:w-64 bg-charcoal/10 rounded-lg animate-pulse px-3 sm:px-4 py-1" />
+            <div className="inline-flex items-center gap-1 px-4 py-2 -mx-2">
+              <div className="h-4 w-16 bg-charcoal/10 rounded-full animate-pulse" />
+              <div className="h-4 w-4 bg-charcoal/10 rounded-full animate-pulse" />
+            </div>
           </div>
 
           <div className="pt-2">
-            <ScrollableSection showArrows className="scrollbar-hide">
-              <div className="flex gap-3 sm:gap-3 md:gap-3 lg:gap-2 xl:gap-2 2xl:gap-2 items-stretch py-2 overflow-y-hidden">
+            <ScrollableSection>
+              <div className="flex gap-3 sm:gap-3 md:gap-3 lg:gap-2 xl:gap-2 2xl:gap-2 items-stretch py-2 overflow-y-hidden scrollbar-hide">
                 {Array.from({ length: 4 }).map((_, index) => (
                   <div
                     key={index}
@@ -181,7 +184,7 @@ export default function EventsSpecials({
             loopWave={true}
             enableScrollTrigger={true}
             disableWave={true}
-            style={{ 
+            style={{
               fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
               fontWeight: 700,
             }}
@@ -191,9 +194,11 @@ export default function EventsSpecials({
             onClick={() => router.push(href)}
             className="group inline-flex items-center gap-1 text-body-sm sm:text-caption font-normal text-charcoal transition-all duration-300 hover:text-sage focus:outline-none px-4 py-2 -mx-2 relative"
             aria-label={`${cta}: ${title}`}
-            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
           >
-            <span className="relative z-10 transition-transform duration-300 group-hover:-translate-x-0.5 text-charcoal group-hover:text-sage" style={{ fontWeight: 600 }}>
+            <span
+              className="relative z-10 transition-transform duration-300 group-hover:-translate-x-0.5 text-charcoal group-hover:text-sage"
+              style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
+            >
               {cta.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')}
             </span>
             <ArrowRight className="relative z-10 w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5 text-charcoal group-hover:text-sage" />
@@ -201,12 +206,12 @@ export default function EventsSpecials({
         </div>
 
         <div className="pt-2">
-          <ScrollableSection showArrows className="scrollbar-hide">
-            <div className="flex gap-3 sm:gap-3 md:gap-3 lg:gap-2 xl:gap-2 2xl:gap-2 items-stretch py-2 overflow-y-hidden">
+          <ScrollableSection>
+            <div className="flex gap-3 sm:gap-3 md:gap-3 lg:gap-2 xl:gap-2 2xl:gap-2 items-stretch py-2 overflow-y-hidden scrollbar-hide ">
               {displayEvents.map((event, index) => (
                 <div
                   key={event.id}
-                  className="snap-start snap-always flex-shrink-0 w-[100vw] sm:w-auto min-w-[clamp(220px,18vw,320px)] list-none flex"
+                  className="snap-start snap-always flex-shrink-0 w-[100vw] sm:w-auto min-w-[clamp(220px,18vw,320px)] list-none flex "
                 >
                   <EventCard event={event} index={index} />
                 </div>

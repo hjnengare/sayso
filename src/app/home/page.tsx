@@ -383,32 +383,8 @@ export default function Home() {
       <div className="page-fixed">
         <HeroCarousel />
 
-        <main className="bg-off-white relative pb-16 snap-y snap-proximity md:snap-mandatory min-h-dvh bg-off-white relative pt-[var(--header-height)]" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+        <main className="bg-off-white relative pb-10 snap-y snap-proximity md:snap-mandatory min-h-dvh bg-off-white relative pt-[var(--header-height)]" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
           <div className="mx-auto w-full max-w-[2000px]">
-          {/* Search functionality moved to hero carousel */}
-
-          {/* Inline Filters - Only show when user is typing/searching */}
-          <InlineFilters
-            show={isSearchActive && debouncedSearchQuery.trim().length > 0}
-            filters={filters}
-            onDistanceChange={handleInlineDistanceChange}
-            onRatingChange={handleInlineRatingChange}
-          />
-
-
-          {/* Active Filter Badges */}
-          <ActiveFilterBadges
-            filters={filters}
-            onRemoveFilter={(filterType) => {
-              const newFilters = { ...filters, [filterType]: null };
-              setFilters(newFilters);
-              refetchAllBusinesses();
-              refetchForYou();
-            }}
-            onUpdateFilter={handleUpdateFilter}
-            onClearAll={handleClearFilters}
-          />
-
           {isSearchActive ? (
               /* Search Results View - Styled like Explore page */
               <div

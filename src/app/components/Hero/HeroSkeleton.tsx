@@ -3,27 +3,26 @@
 
 export default function HeroSkeleton() {
   return (
-    <div className="pt-[var(--header-height)]">
-      {/* Active Filter Badges Skeleton */}
-      <div className="relative w-full px-4">
+    <div className="relative w-full px-0 py-2 md:pt-2 md:px-2">
+      {/* Active Filter Badges Placeholder */}
+      <div className="relative w-full px-4 mb-2">
         <div className="h-8 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 rounded-full w-24 animate-pulse" />
       </div>
 
       {/* Hero Section Skeleton */}
-      <div className="relative w-full px-0 sm:px-2 lg:px-0 py-2 md:px-2 pt-0">
-        <div className="relative h-[80svh] h-[80dvh] sm:h-[70vh] md:h-[80vh] lg:h-[80vh] w-full overflow-hidden outline-none rounded-none sm:rounded-[12px] md:rounded-none lg:rounded-none min-h-[400px] shadow-md">
-          {/* Background shimmer effect */}
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 rounded-none sm:rounded-[12px] md:rounded-none lg:rounded-none animate-pulse" />
-          
-          {/* Liquid Glass Ambient Lighting */}
-          <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-sage/10 pointer-events-none rounded-none sm:rounded-[12px] md:rounded-none lg:rounded-none" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(255,255,255,0.15)_0%,_transparent_70%)] pointer-events-none rounded-none sm:rounded-[12px] md:rounded-none lg:rounded-none" />
-          <div className="absolute inset-0 backdrop-blur-[1px] bg-off-white/5 mix-blend-overlay pointer-events-none rounded-none sm:rounded-[12px] md:rounded-none lg:rounded-none" />
+      <section className="relative h-[90dvh] md:h-[70dv] w-full overflow-hidden outline-none rounded-none md:rounded-none lg:rounded-none min-h-[360px] shadow-md">
+        {/* Background shimmer effect */}
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 rounded-none animate-pulse" />
+        
+        {/* Liquid Glass Ambient Lighting */}
+        <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-sage/10 pointer-events-none rounded-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(255,255,255,0.15)_0%,_transparent_70%)] pointer-events-none rounded-none" />
+        <div className="absolute inset-0 backdrop-blur-[1px] bg-off-white/5 mix-blend-overlay pointer-events-none rounded-none" />
 
-          {/* Overlay gradient */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-transparent rounded-none sm:rounded-[12px] md:rounded-none lg:rounded-none" />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/40 rounded-none sm:rounded-[12px] md:rounded-none lg:rounded-none" />
-          <div className="absolute inset-0 bg-black/20 rounded-none sm:rounded-[12px] md:rounded-none lg:rounded-none" />
+        {/* Overlay gradient */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-transparent rounded-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/40 rounded-none" />
+        <div className="absolute inset-0 bg-black/20 rounded-none" />
 
           {/* Centered content skeleton */}
           <div className="absolute inset-0 z-20 flex items-center justify-center w-full">
@@ -47,21 +46,20 @@ export default function HeroSkeleton() {
             </div>
           </div>
 
-          {/* Progress indicators skeleton */}
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-3">
-            <div className="flex items-center gap-2.5">
-              {[...Array(4)].map((_, i) => (
-                <div
-                  key={i}
-                  className={`rounded-full bg-white/40 animate-pulse ${
-                    i === 0 ? 'w-8 h-2' : 'w-2 h-2'
-                  }`}
-                />
-              ))}
-            </div>
+        {/* Progress indicators skeleton */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-3">
+          <div className="flex items-center gap-2.5">
+            {[...Array(4)].map((_, i) => (
+              <div
+                key={i}
+                className={`rounded-full bg-white/40 animate-pulse ${
+                  i === 0 ? "w-8 h-2" : "w-2 h-2"
+                }`}
+              />
+            ))}
           </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 }

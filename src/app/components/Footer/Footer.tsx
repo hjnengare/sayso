@@ -101,11 +101,11 @@ export default function Footer() {
               <nav
                 key={`footer-column-${columnIndex}`}
                 aria-label={`Footer column ${columnIndex + 1}`}
-                className="flex flex-col gap-6"
+                className="flex flex-col gap-8"
               >
                 {column.map((section) => (
-                  <div key={section.title} className="flex flex-col gap-2">
-                    <p className="font-urbanist text-xs sm:text-sm uppercase tracking-[0.2em] text-off-white/60 font-bold">
+                    <div key={section.title} className="flex flex-col gap-2">
+                    <p className="font-urbanist text-xs sm:text-sm text-off-white/60 font-bold">
                       {section.title}
                     </p>
                     <ul className="flex flex-col gap-2">

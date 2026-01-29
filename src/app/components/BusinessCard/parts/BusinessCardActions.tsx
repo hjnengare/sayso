@@ -26,7 +26,7 @@ const BusinessCardActions: React.FC<BusinessCardActionsProps> = ({
     {isBusinessAccount ? (
       // Business account: Show "View Profile" button
       <button
-        className="w-12 h-10 bg-navbar-bg rounded-full flex items-center justify-center transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40 shadow-md hover:bg-navbar-bg/90 hover:scale-110"
+        className="w-10 h-10 bg-navbar-bg rounded-full flex items-center justify-center transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40 shadow-md hover:bg-navbar-bg/90 hover:scale-110"
         onClick={onViewProfile}
         aria-label={`View ${businessName} profile`}
         title="View Business Profile"
@@ -36,7 +36,7 @@ const BusinessCardActions: React.FC<BusinessCardActionsProps> = ({
     ) : (
       // Consumer account: Show "Write Review" button
       <button
-        className={`w-12 h-10 bg-navbar-bg rounded-full flex items-center justify-center transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40 shadow-md ${hasReviewed ? 'opacity-50 cursor-not-allowed' : 'hover:bg-navbar-bg/90 hover:scale-110'}`}
+        className={`w-10 h-10 bg-navbar-bg rounded-full flex items-center justify-center transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40 shadow-md ${hasReviewed ? 'opacity-50 cursor-not-allowed' : 'hover:bg-navbar-bg/90 hover:scale-110'}`}
         onClick={onWriteReview}
         disabled={hasReviewed}
         aria-label={hasReviewed ? `You have already reviewed ${businessName}` : `Write a review for ${businessName}`}
@@ -46,7 +46,7 @@ const BusinessCardActions: React.FC<BusinessCardActionsProps> = ({
       </button>
     )}
     <button
-      className="w-12 h-10 bg-navbar-bg rounded-full flex items-center justify-center hover:bg-navbar-bg/90 hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40 shadow-md"
+      className="w-10 h-10 bg-navbar-bg rounded-full flex items-center justify-center hover:bg-navbar-bg/90 hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40 shadow-md"
       onClick={onBookmark}
       aria-label={isItemSaved ? `Remove from saved ${businessName}` : `Save ${businessName}`}
       title={isItemSaved ? 'Remove from saved' : 'Save'}
@@ -54,7 +54,7 @@ const BusinessCardActions: React.FC<BusinessCardActionsProps> = ({
       <Bookmark className={`w-4 h-4 ${isItemSaved ? 'text-white fill-white' : 'text-white'}`} strokeWidth={2.5} />
     </button>
     <button
-      className="w-12 h-10 bg-navbar-bg rounded-full flex items-center justify-center hover:bg-navbar-bg/90 hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40 shadow-md"
+      className="w-10 h-10 bg-navbar-bg rounded-full flex items-center justify-center hover:bg-navbar-bg/90 hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40 shadow-md"
       onClick={onShare}
       aria-label={`Share ${businessName}`}
       title="Share"

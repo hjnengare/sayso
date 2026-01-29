@@ -62,6 +62,7 @@ interface DesktopNavProps {
 
   onNotificationsClick: () => void;
   sf: CSSProperties;
+  mode?: "full" | "navOnly" | "iconsOnly";
 }
 
 export default function DesktopNav(props: DesktopNavProps) {
@@ -94,6 +95,7 @@ export default function DesktopNav(props: DesktopNavProps) {
     scheduleDiscoverDropdownClose,
     onNotificationsClick,
     sf,
+    mode = "full",
   } = props;
 
   const pathname = usePathname();
@@ -143,15 +145,9 @@ export default function DesktopNav(props: DesktopNavProps) {
   // Keep runtime stable if account type isn't ready yet
   if (typeof isBusinessAccountUser === "undefined") return null;
 
-  return (
-    // ✅ 3-zone layout so Home / Discover / Leaderboard sit centered
-    // Equal gap-2 lg:gap-4 matches Header for visual symmetry
-    <nav className="w-full grid grid-cols-[1fr_auto_1fr] items-center gap-2 lg:gap-4">
-      {/* Left spacer (matches right icons section width for symmetry) */}
-      <div className="min-w-0" />
 
-      {/* Centered main nav links */}
-      <div className="flex items-center justify-center gap-2 lg:gap-3 min-w-0">
+  const renderCenterNav = () => (
+    <div className="flex items-center justify-center gap-2 lg:gap-3 min-w-0">
         {/* Business links (business accounts) */}
         {isBusinessAccountUser &&
           businessLinks.map(({ key, label, href, requiresAuth }) => {
@@ -335,10 +331,11 @@ export default function DesktopNav(props: DesktopNavProps) {
               </Fragment>
             );
           })}
-      </div>
+    </div>
+  );
 
-      {/* Right: Icons (aligned right, gap matches center nav for symmetry) */}
-      <div className="flex items-center justify-end gap-2 lg:gap-3 min-w-0">
+  const renderIcons = () => (
+    <div className="flex items-center justify-end gap-2 lg:gap-3 min-w-0">
         {/* Notifications */}
         <button
           onClick={onNotificationsClick}
@@ -474,7 +471,29 @@ export default function DesktopNav(props: DesktopNavProps) {
             <LockedTooltip show={hoveredLockedItem === "profile"} label="view profile" />
           </div>
         )}
-      </div>
+    </div>
+  );
+
+  if (mode === "iconsOnly") {
+    return renderIcons();
+  }
+
+  if (mode === "navOnly") {
+    return (
+      <nav className="w-full flex items-center justify-center">
+        {renderCenterNav()}
+      </nav>
+    );
+  }
+
+  return (
+    // ??? 3-zone layout so Home / Discover / Leaderboard sit centered
+    // Equal gap-2 lg:gap-4 matches Header for visual symmetry
+    <nav className="w-full grid grid-cols-[1fr_auto_1fr] items-center gap-2 lg:gap-4">
+      {/* Left spacer (matches right icons section width for symmetry) */}
+      <div className="min-w-0" />
+      {renderCenterNav()}
+      {renderIcons()}
     </nav>
   );
 }
