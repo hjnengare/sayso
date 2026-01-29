@@ -273,86 +273,86 @@ export default function Header({
                   )}
 
                   <div className="flex items-center gap-2 ml-auto">
-                  {/* Notifications - Authenticated users only (guests use menu drawer) */}
-                  {!isGuest && (
-                    <OptimizedLink
-                      href="/notifications"
-                      className={`relative w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 ${
-                        isNotificationsActive
-                          ? "text-sage bg-sage/5"
-                          : whiteText
-                            ? "text-white hover:text-white/80 hover:bg-white/10"
-                            : "text-charcoal/80 hover:text-sage hover:bg-sage/5"
-                      }`}
-                      aria-label="Notifications"
-                    >
-                      <Bell className="w-5 h-5" fill={isNotificationsActive ? "currentColor" : "none"} />
-                      {unreadCount > 0 && (
-                        <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-white text-[10px] font-bold rounded-full shadow-lg bg-gradient-to-br from-coral to-coral/90 border border-white/20">
-                          {unreadCount > 99 ? "99+" : unreadCount}
-                        </span>
-                      )}
-                    </OptimizedLink>
-                  )}
+                    {/* Notifications - Authenticated users only (guests use menu drawer) */}
+                    {!isGuest && (
+                      <OptimizedLink
+                        href="/notifications"
+                        className={`relative w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 ${
+                          isNotificationsActive
+                            ? "text-sage bg-sage/5"
+                            : whiteText
+                              ? "text-white hover:text-white/80 hover:bg-white/10"
+                              : "text-charcoal/80 hover:text-sage hover:bg-sage/5"
+                        }`}
+                        aria-label="Notifications"
+                      >
+                        <Bell className="w-5 h-5" fill={isNotificationsActive ? "currentColor" : "none"} />
+                        {unreadCount > 0 && (
+                          <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-white text-[10px] font-bold rounded-full shadow-lg bg-gradient-to-br from-coral to-coral/90 border border-white/20">
+                            {unreadCount > 99 ? "99+" : unreadCount}
+                          </span>
+                        )}
+                      </OptimizedLink>
+                    )}
 
-                  {/* Saved - Personal users only (guests use menu drawer) */}
-                  {!isBusinessAccountUser && !isGuest && (
-                    <OptimizedLink
-                      href="/saved"
-                      className={`relative w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 ${
-                        isSavedActive
-                          ? "text-sage bg-sage/5"
-                          : whiteText
-                            ? "text-white hover:text-white/80 hover:bg-white/10"
-                            : "text-charcoal/80 hover:text-sage hover:bg-sage/5"
-                      }`}
-                      aria-label="Saved"
-                    >
-                      <Bookmark className="w-5 h-5" fill={isSavedActive ? "currentColor" : "none"} />
-                      {savedCount > 0 && (
-                        <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-white text-[10px] font-bold rounded-full shadow-lg bg-gradient-to-br from-coral to-coral/90 border border-white/20">
-                          {savedCount > 99 ? "99+" : savedCount}
-                        </span>
-                      )}
-                    </OptimizedLink>
-                  )}
+                    {/* Saved - Personal users only (guests use menu drawer) */}
+                    {!isBusinessAccountUser && !isGuest && (
+                      <OptimizedLink
+                        href="/saved"
+                        className={`relative w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 ${
+                          isSavedActive
+                            ? "text-sage bg-sage/5"
+                            : whiteText
+                              ? "text-white hover:text-white/80 hover:bg-white/10"
+                              : "text-charcoal/80 hover:text-sage hover:bg-sage/5"
+                        }`}
+                        aria-label="Saved"
+                      >
+                        <Bookmark className="w-5 h-5" fill={isSavedActive ? "currentColor" : "none"} />
+                        {savedCount > 0 && (
+                          <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-white text-[10px] font-bold rounded-full shadow-lg bg-gradient-to-br from-coral to-coral/90 border border-white/20">
+                            {savedCount > 99 ? "99+" : savedCount}
+                          </span>
+                        )}
+                      </OptimizedLink>
+                    )}
 
-                  {/* Messages - Authenticated users only (guests use menu drawer) */}
-                  {!isGuest && (
-                    <OptimizedLink
-                      href="/messages"
-                      className={`relative w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 ${
-                        isMessagesActive
-                          ? "text-sage bg-sage/5"
-                          : whiteText
-                            ? "text-white hover:text-white/80 hover:bg-white/10"
-                            : "text-charcoal/80 hover:text-sage hover:bg-sage/5"
-                      }`}
-                      aria-label="Messages"
-                    >
-                      <MessageCircle className="w-5 h-5" fill={isMessagesActive ? "currentColor" : "none"} />
-                      {unreadMessagesCount > 0 && (
-                        <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-white text-[10px] font-bold rounded-full shadow-lg bg-gradient-to-br from-coral to-coral/90 border border-white/20">
-                          {unreadMessagesCount > 99 ? "99+" : unreadMessagesCount}
-                        </span>
-                      )}
-                    </OptimizedLink>
-                  )}
+                    {/* Messages - Authenticated users only (guests use menu drawer) */}
+                    {!isGuest && (
+                      <OptimizedLink
+                        href="/messages"
+                        className={`relative w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 ${
+                          isMessagesActive
+                            ? "text-sage bg-sage/5"
+                            : whiteText
+                              ? "text-white hover:text-white/80 hover:bg-white/10"
+                              : "text-charcoal/80 hover:text-sage hover:bg-sage/5"
+                        }`}
+                        aria-label="Messages"
+                      >
+                        <MessageCircle className="w-5 h-5" fill={isMessagesActive ? "currentColor" : "none"} />
+                        {unreadMessagesCount > 0 && (
+                          <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-white text-[10px] font-bold rounded-full shadow-lg bg-gradient-to-br from-coral to-coral/90 border border-white/20">
+                            {unreadMessagesCount > 99 ? "99+" : unreadMessagesCount}
+                          </span>
+                        )}
+                      </OptimizedLink>
+                    )}
 
-                  {/* Mobile Menu Hamburger Button */}
-                  <button
-                    type="button"
-                    onClick={() => setIsMobileMenuOpen(true)}
-                    className={`w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 shadow-sm ${
-                      whiteText
-                        ? "text-white hover:text-white/80 hover:bg-white/10"
-                        : "text-charcoal/80 hover:text-sage hover:bg-sage/5"
-                    }`}
-                    aria-label="Open menu"
-                    aria-expanded={isMobileMenuOpen}
-                  >
-                    <Menu className="w-6 h-6" />
-                  </button>
+                    {/* Mobile Menu Hamburger Button */}
+                    <button
+                      type="button"
+                      onClick={() => setIsMobileMenuOpen(true)}
+                      className={`w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 shadow-sm ${
+                        whiteText
+                          ? "text-white hover:text-white/80 hover:bg-white/10"
+                          : "text-charcoal/80 hover:text-sage hover:bg-sage/5"
+                      }`}
+                      aria-label="Open menu"
+                      aria-expanded={isMobileMenuOpen}
+                    >
+                      <Menu className="w-6 h-6" />
+                    </button>
                   </div>
                 </div>
 
