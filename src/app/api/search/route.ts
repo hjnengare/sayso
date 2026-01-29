@@ -65,7 +65,7 @@ export async function GET(req: NextRequest) {
 
     const filtered = (data || []).filter((business) => {
       if (minRating) {
-        const rating = business.business_stats?.average_rating;
+        const rating = business.business_stats?.[0]?.average_rating;
         if (typeof rating !== "number" || rating < minRating) {
           return false;
         }
@@ -88,9 +88,9 @@ export async function GET(req: NextRequest) {
       price_range: business.price_range,
       verified: business.verified,
       badge: business.badge,
-      rating: business.business_stats?.average_rating ?? null,
+      rating: business.business_stats?.[0]?.average_rating ?? null,
       stats: {
-        average_rating: business.business_stats?.average_rating ?? 0,
+        average_rating: business.business_stats?.[0]?.average_rating ?? 0,
       },
     }));
 
