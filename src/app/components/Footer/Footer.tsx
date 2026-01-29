@@ -70,6 +70,12 @@ export default function Footer() {
     { name: "YouTube", href: "https://www.youtube.com", Icon: Youtube },
   ];
 
+  const linkColumns = [
+    [linkSections[0], linkSections[1]],
+    [linkSections[2], linkSections[3]],
+    [linkSections[4]],
+  ];
+
   return (
     <footer className="relative overflow-hidden bg-charcoal text-off-white mt-16 sm:mt-24 lg:mt-32">
       <div aria-hidden className="pointer-events-none absolute inset-0">
@@ -78,61 +84,66 @@ export default function Footer() {
       </div>
 
       <div className="relative mx-auto w-full max-w-[2000px] px-4 sm:px-6 lg:px-8">
-        <div className="border-t border-white/10 py-8 sm:py-10">
-          <div className="flex flex-col items-start gap-6">
+        <div className="border-t border-white/10 py-10 sm:py-12">
+          <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr_1fr_1fr] gap-10 lg:gap-12 items-start">
             {/* Brand */}
-            <div className="flex flex-col items-start gap-3 text-left">
+            <div className="flex flex-col items-start gap-4 text-left">
               <Link href="/" className="flex-shrink-0 flex items-center hover:opacity-80 transition-opacity">
                 <Logo variant="footer" />
               </Link>
-              <p className="font-urbanist text-sm sm:text-base text-off-white/80 font-normal text-left max-w-[46ch] whitespace-nowrap">
+              <p className="font-urbanist text-sm sm:text-base text-off-white/80 font-normal text-left max-w-[46ch]">
                 Discover trusted local businesses, events, and community favorites.
               </p>
             </div>
 
-            {/* Bottom row */}
-            <div className="w-full flex flex-col gap-8">
-              <nav aria-label="Footer" className="w-full">
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6 sm:gap-8">
-                  {linkSections.map((section) => (
-                    <div key={section.title} className="flex flex-col gap-2">
-                      <p className="font-urbanist text-xs sm:text-sm uppercase tracking-[0.2em] text-off-white/60 font-bold">
-                        {section.title}
-                      </p>
-                      <ul className="flex flex-col gap-2">
-                        {section.links.map((link) => (
-                          <li key={link.name}>
-                            <Link
-                              href={link.href}
-                              className="font-urbanist text-sm sm:text-base text-off-white/80 hover:text-off-white transition-colors font-normal"
-                            >
-                              {link.name}
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
+            {/* Link columns */}
+            {linkColumns.map((column, columnIndex) => (
+              <nav
+                key={`footer-column-${columnIndex}`}
+                aria-label={`Footer column ${columnIndex + 1}`}
+                className="flex flex-col gap-6"
+              >
+                {column.map((section) => (
+                  <div key={section.title} className="flex flex-col gap-2">
+                    <p className="font-urbanist text-xs sm:text-sm uppercase tracking-[0.2em] text-off-white/60 font-bold">
+                      {section.title}
+                    </p>
+                    <ul className="flex flex-col gap-2">
+                      {section.links.map((link) => (
+                        <li key={link.name}>
+                          <Link
+                            href={link.href}
+                            className="font-urbanist text-sm sm:text-base text-off-white/80 hover:text-off-white transition-colors font-normal"
+                          >
+                            {link.name}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
               </nav>
+            ))}
+          </div>
 
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div className="flex items-center justify-center sm:justify-start gap-3">
-                  {socialLinks.map(({ name, href, Icon }) => (
-                    <Link
-                      key={name}
-                      href={href}
-                      aria-label={name}
-                      className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 text-off-white/80 hover:text-off-white flex items-center justify-center transition-colors"
-                    >
-                      <Icon className="w-4 h-4" strokeWidth={2} />
-                    </Link>
-                  ))}
-                </div>
-                <p className="font-urbanist text-xs sm:text-sm text-off-white/80 font-bold text-center sm:text-right">
-                  &copy; {mounted ? currentYear : 2025} sayso
-                </p>
+          <div className="mt-12 border-t border-white/10 pt-6">
+            <div className="grid grid-cols-1 sm:grid-cols-[auto_1fr_auto] items-center gap-4">
+              <div className="flex items-center justify-center sm:justify-start gap-3">
+                {socialLinks.map(({ name, href, Icon }) => (
+                  <Link
+                    key={name}
+                    href={href}
+                    aria-label={name}
+                    className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 text-off-white/80 hover:text-off-white flex items-center justify-center transition-colors"
+                  >
+                    <Icon className="w-4 h-4" strokeWidth={2} />
+                  </Link>
+                ))}
               </div>
+              <div />
+              <p className="font-urbanist text-xs sm:text-sm text-off-white/80 font-bold text-center sm:text-right">
+                &copy; {mounted ? currentYear : 2025} sayso
+              </p>
             </div>
           </div>
         </div>

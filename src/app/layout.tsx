@@ -84,6 +84,8 @@ export default function RootLayout({
 
         {/* PWA Manifest */}
         <link rel="manifest" href="/manifest.json" />
+        <link rel="icon" href="/favicon.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/favicon.png" />
 
         {/* Preconnect to external domains for faster resource loading */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />

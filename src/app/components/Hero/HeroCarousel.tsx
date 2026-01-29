@@ -83,6 +83,7 @@ export default function HeroCarousel() {
   const currentIndexRef = useRef(currentIndex);
   const slides = useMemo(() => buildSlides(heroImages), [heroImages]);
   const slidesRef = useRef<HeroSlide[]>(slides);
+  const preloadedImagesRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     slidesRef.current = slides;
@@ -156,26 +157,21 @@ export default function HeroCarousel() {
     window.matchMedia &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  // Prefetch a few hero images once auth state is known to warm the cache.
+  // Prefetch a few hero images as soon as URLs are known.
   useEffect(() => {
-    if (!isHeroReady || typeof window === "undefined" || slides.length === 0) return;
+    if (typeof window === "undefined" || slides.length === 0) return;
 
     const prefetchCount = 4;
     const imagesToPrefetch = slides.slice(0, prefetchCount).map((slide) => slide.image);
 
-    const prefetch = () => {
-      imagesToPrefetch.forEach((src) => {
-        const img = new window.Image();
-        img.src = src;
-      });
-    };
-
-    if ("requestIdleCallback" in window) {
-      window.requestIdleCallback(prefetch);
-    } else {
-      setTimeout(prefetch, 0);
-    }
-  }, [isHeroReady, slides]);
+    imagesToPrefetch.forEach((src) => {
+      if (preloadedImagesRef.current.has(src)) return;
+      preloadedImagesRef.current.add(src);
+      const img = new window.Image();
+      img.decoding = "async";
+      img.src = src;
+    });
+  }, [slides]);
 
   const next = useCallback(() => {
     if (slides.length === 0) return;
@@ -370,11 +366,19 @@ export default function HeroCarousel() {
 
   // Show skeleton while auth is loading
   if (!isHeroReady) {
-    return <HeroSkeleton />;
+    return (
+      <div suppressHydrationWarning>
+        <HeroSkeleton />
+      </div>
+    );
   }
 
   if (slides.length === 0) {
-    return <HeroSkeleton />;
+    return (
+      <div suppressHydrationWarning>
+        <HeroSkeleton />
+      </div>
+    );
   }
 
   return (
@@ -384,7 +388,7 @@ export default function HeroCarousel() {
         {/* Hero Section with rounded corners - 75vh responsive height */}
         <section
           ref={containerRef as React.RefObject<HTMLElement>}
-          className="relative h-[80svh] h-[80dvh] md:h-[80vh] lg:h-[80vh] w-full overflow-hidden outline-none rounded-none md:rounded-none lg:rounded-none min-h-[400px] shadow-md"
+          className="relative h-[90dvh] w-full overflow-hidden outline-none rounded-none md:rounded-none lg:rounded-none min-h-[400px] shadow-md"
           aria-label="Hero carousel"
           tabIndex={0}
           style={{ fontFamily: FONT_STACK }}
@@ -408,9 +412,9 @@ export default function HeroCarousel() {
                src={slide.image}
                alt={slide.title}
                fill
-               priority={index === 0}
-               loading={index === 0 ? "eager" : "lazy"}
-               fetchPriority={index === 0 ? "high" : "auto"}
+               priority={index < 2}
+               loading={index < 2 ? "eager" : "lazy"}
+               fetchPriority={index < 2 ? "high" : "auto"}
                quality={95}
                className="object-cover scale-[1.02]"
                style={{ filter: "brightness(0.95) contrast(1.05) saturate(1.1)" }}

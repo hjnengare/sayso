@@ -35,7 +35,7 @@ export default function Logo({
             src="/logos/logo.png"
             alt="Sayso logo"
             fill
-            className="object-contain object-center"
+            className="object-contain md:object-center sm:object-right object-right"
             priority
             sizes="(max-width: 640px) 120px, (max-width: 768px) 150px, (max-width: 1024px) 180px, 220px"
           />
