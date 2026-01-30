@@ -104,7 +104,7 @@ export function useDealBreakersPage(): UseDealBreakersPageReturn {
       }
 
       // Save dealbreakers and mark onboarding complete
-      const response = await fetch('/api/onboarding/dealbreakers', {
+      const response = await fetch('/api/onboarding/deal-breakers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
