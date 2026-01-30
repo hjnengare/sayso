@@ -376,8 +376,9 @@ export default function Home() {
           {!isSearchActive && (
             <motion.div
               key="hero-carousel"
-              initial={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0, transition: { duration: 0.3, ease: "easeInOut" } }}
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto", transition: { duration: 0.4, ease: [0.4, 0, 0.2, 1] } }}
+              exit={{ opacity: 0, height: 0, transition: { duration: 0.3, ease: [0.4, 0, 0.2, 1] } }}
               className="overflow-hidden"
             >
               <HeroCarousel />
@@ -386,7 +387,7 @@ export default function Home() {
         </AnimatePresence>
 
         <main 
-          className={`bg-off-white relative pb-10 min-h-dvh ${isSearchActive ? 'pt-4' : 'pt-[var(--header-height)]'}`} 
+          className={`bg-off-white relative pb-10 min-h-dvh transition-[padding] duration-300 ease-out ${isSearchActive ? 'pt-4' : 'pt-[var(--header-height)]'}`} 
           style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
         >
           <div ref={contentRef} className="mx-auto w-full max-w-[2000px]">
@@ -416,10 +417,9 @@ export default function Home() {
                 /* Discovery Mode - Default Home Page Content */
                 <motion.div
                   key="curated-feed"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.4, 0, 0.2, 1], delay: 0.1 } }}
+                  exit={{ opacity: 0, y: -20, transition: { duration: 0.25, ease: [0.4, 0, 0.2, 1] } }}
                   className="flex flex-col gap-8 sm:gap-10 md:gap-12 pt-8"
                 >
                   {/* For You Section - Only show when NOT filtered, NOT searching, AND prefs are ready */}
