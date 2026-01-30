@@ -360,7 +360,7 @@ export default function OwnerBusinessDashboard() {
   return (
     <div className="min-h-dvh bg-off-white">
 
-      <main className="pt-20 sm:pt-24 pb-8 font-urbanist">
+      <main className="pb-8 font-urbanist">
         <div className="mx-auto w-full max-w-[2000px] px-3 sm:px-6 lg:px-10 2xl:px-16">
               {/* Breadcrumb Navigation */}
               <nav className="py-1" aria-label="Breadcrumb">

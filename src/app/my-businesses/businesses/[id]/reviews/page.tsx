@@ -151,7 +151,7 @@ export default function OwnerReviewsPage() {
   return (
     <div className="min-h-dvh bg-off-white">
 
-      <main className="pt-20 sm:pt-24 pb-8 font-urbanist">
+      <main className="pb-8 font-urbanist">
         <div className="mx-auto w-full max-w-[2000px] px-3 sm:px-6 lg:px-10 2xl:px-16">
               {/* Breadcrumb Navigation */}
               <nav className="py-1" aria-label="Breadcrumb">
@@ -201,14 +201,7 @@ export default function OwnerReviewsPage() {
                         <ArrowLeft size={14} strokeWidth={2.5} />
                         <span>Back to Dashboard</span>
                       </Link>
-                      <Link
-                        href={`/dm?businessId=${businessId}`}
-                        className="inline-flex items-center gap-2 px-4 py-2.5 bg-coral/90 hover:bg-coral text-white rounded-full text-sm font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-95 shadow-lg shadow-coral/20 border border-coral/30 w-fit"
-                        style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
-                      >
-                        <MessageSquare size={14} strokeWidth={2.5} />
-                        <span>Open Messages</span>
-                      </Link>
+                      
                     </div>
                   </div>
 
