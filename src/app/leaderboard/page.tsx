@@ -261,59 +261,6 @@ function LeaderboardPage() {
                         Celebrate the top contributors and businesses in our community. 
                         See who's making a difference and discover the most loved local spots.
                       </motion.p>
-
-                      {/* Badge Definitions Link */}
-                      <motion.div 
-                        className="mt-4 flex items-center justify-center gap-2"
-                        variants={itemVariants}
-                      >
-                        {/* Mobile: Icon-only button */}
-                        <a
-                          href="/badges/Badge%20Defininitions.pdf"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="sm:hidden inline-flex items-center justify-center w-10 h-10 rounded-full bg-sage/10 border border-sage/30 text-sage hover:bg-sage/20 hover:border-sage/50 transition-all duration-200"
-                          aria-label="View badge definitions (opens PDF in new tab)"
-                          title="View badge definitions"
-                        >
-                          <FileText className="w-5 h-5" />
-                        </a>
-
-                        {/* Desktop: Text + icons with Open/Download options */}
-                        <div className="hidden sm:flex items-center gap-2">
-                          <a
-                            href="/badges/Badge%20Defininitions.pdf"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-sage/10 border border-sage/30 text-sage hover:bg-sage/20 hover:border-sage/50 transition-all duration-200 text-sm font-semibold"
-                            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
-                          >
-                            <FileText className="w-4 h-4" />
-                            <span>Badge definitions</span>
-                            <ExternalLink className="w-3.5 h-3.5 opacity-70" />
-                          </a>
-                          <a
-                            href="/badges/Badge%20Defininitions.pdf"
-                            download="Badge Definitions.pdf"
-                            className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-charcoal/5 border border-charcoal/10 text-charcoal/60 hover:bg-charcoal/10 hover:text-charcoal hover:border-charcoal/20 transition-all duration-200"
-                            aria-label="Download badge definitions PDF"
-                            title="Download PDF"
-                          >
-                            <Download className="w-4 h-4" />
-                          </a>
-                        </div>
-
-                        {/* Mobile: Download button */}
-                        <a
-                          href="/badges/Badge%20Defininitions.pdf"
-                          download="Badge Definitions.pdf"
-                          className="sm:hidden inline-flex items-center justify-center w-10 h-10 rounded-full bg-charcoal/5 border border-charcoal/10 text-charcoal/60 hover:bg-charcoal/10 hover:text-charcoal hover:border-charcoal/20 transition-all duration-200"
-                          aria-label="Download badge definitions PDF"
-                          title="Download PDF"
-                        >
-                          <Download className="w-5 h-5" />
-                        </a>
-                      </motion.div>
                     </motion.div>
                   </div>
                 </section>
@@ -415,6 +362,56 @@ function LeaderboardPage() {
                   </div>
                 </section>
         </motion.div>
+
+        {/* Badge Definitions Section - Before Footer */}
+        <section className="py-8 sm:py-12 bg-off-white border-t border-charcoal/10">
+          <div className="mx-auto w-full max-w-[2000px] px-4 sm:px-6">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
+              <div className="text-center sm:text-left">
+                <h3 
+                  className="text-lg sm:text-xl font-semibold text-charcoal mb-1"
+                  style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                >
+                  What do badges mean?
+                </h3>
+                <p 
+                  className="text-sm text-charcoal/60"
+                  style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                >
+                  Learn about all the badges you can earn
+                </p>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                {/* View PDF button */}
+                <a
+                  href="/badges/Badge%20Defininitions.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-full bg-sage text-white hover:bg-sage/90 transition-all duration-200 text-sm font-semibold shadow-sm hover:shadow-md"
+                  style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                >
+                  <FileText className="w-4 h-4" />
+                  <span className="hidden sm:inline">View badge definitions</span>
+                  <span className="sm:hidden">View</span>
+                  <ExternalLink className="w-3.5 h-3.5 opacity-80" />
+                </a>
+                
+                {/* Download button */}
+                <a
+                  href="/badges/Badge%20Defininitions.pdf"
+                  download="Badge Definitions.pdf"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-charcoal/5 border border-charcoal/20 text-charcoal hover:bg-charcoal/10 hover:border-charcoal/30 transition-all duration-200 text-sm font-semibold"
+                  style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                  aria-label="Download badge definitions PDF"
+                >
+                  <Download className="w-4 h-4" />
+                  <span className="hidden sm:inline">Download</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
 
         <Footer />
       </div>
