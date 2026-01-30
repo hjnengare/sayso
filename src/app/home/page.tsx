@@ -1,6 +1,6 @@
 // ================================
 // File: src/app/Home.tsx
-// Description: Home page with ALL scroll-reveal removed
+// Description: Home page with smooth search transitions
 // ================================
 
 "use client";
@@ -8,12 +8,11 @@
 import { memo, useState, useEffect, useMemo, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import nextDynamic from "next/dynamic";
-import { ChevronUp, Lock } from "lucide-react";
+import { ChevronUp } from "lucide-react";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 import { usePredefinedPageTitle } from "../hooks/usePageTitle";
 import { FilterState } from "../components/FilterModal/FilterModal";
-import ActiveFilterBadges from "../components/FilterActiveBadges/ActiveFilterBadges";
-import InlineFilters from "../components/Home/InlineFilters";
 import BusinessRow from "../components/BusinessRow/BusinessRow";
 import BusinessRowSkeleton from "../components/BusinessRow/BusinessRowSkeleton";
 import FeaturedBusinessesSkeleton from "../components/CommunityHighlights/FeaturedBusinessesSkeleton";
@@ -24,6 +23,7 @@ import { useEvents } from "../hooks/useEvents";
 import { useRoutePrefetch } from "../hooks/useRoutePrefetch";
 import { useUserPreferences } from "../hooks/useUserPreferences";
 import { useAuth } from "../contexts/AuthContext";
+import { HomeSearchProvider, useHomeSearch } from "../contexts/HomeSearchContext";
 import HeroCarousel from "../components/Hero/HeroCarousel";
 import SearchResultsPanel from "../components/SearchResultsPanel/SearchResultsPanel";
 import { useLiveSearch } from "../hooks/useLiveSearch";
@@ -53,7 +53,8 @@ const Footer = nextDynamic(() => import("../components/Footer/Footer"), {
 
 const MemoizedBusinessRow = memo(BusinessRow);
 
-export default function Home() {
+
+function HomeContent() {
   // Events and Specials
   const { events, loading: eventsLoading } = useEvents();
   usePredefinedPageTitle('home');
@@ -62,6 +63,9 @@ export default function Home() {
   const isGuestMode = searchParams.get('guest') === 'true';
   const searchQueryParam = searchParams.get('search') || "";
   const { user } = useAuth();
+
+  // Get search state from context (shared with Header)
+  const { searchQuery: contextSearchQuery, setSearchQuery: setContextSearchQuery, isSearchActive: contextSearchActive } = useHomeSearch();
 
   const {
     query: liveQuery,
@@ -74,13 +78,24 @@ export default function Home() {
     setMinRating,
     resetFilters,
   } = useLiveSearch({
-    initialQuery: searchQueryParam,
+    initialQuery: contextSearchQuery || searchQueryParam,
+    debounceMs: 300, // Fast but not too aggressive
   });
 
+  // Sync context search query with live search
   useEffect(() => {
-    if (searchQueryParam === liveQuery) return;
-    setQuery(searchQueryParam);
-  }, [searchQueryParam, liveQuery, setQuery]);
+    if (contextSearchQuery !== liveQuery) {
+      setQuery(contextSearchQuery);
+    }
+  }, [contextSearchQuery, liveQuery, setQuery]);
+
+  // Sync URL param with live search (for direct links)
+  useEffect(() => {
+    if (searchQueryParam && searchQueryParam !== liveQuery && !contextSearchQuery) {
+      setQuery(searchQueryParam);
+      setContextSearchQuery(searchQueryParam);
+    }
+  }, [searchQueryParam, liveQuery, contextSearchQuery, setQuery, setContextSearchQuery]);
 
   // Scroll to top button state (mobile only)
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -139,24 +154,15 @@ export default function Home() {
     skip: authLoading,
   });
 
-  const isSearchActive = liveQuery.trim().length > 0;
+  // Use context-based search active state for instant response
+  const isSearchActive = contextSearchActive || liveQuery.trim().length > 0;
   const contentRef = useRef<HTMLDivElement | null>(null);
-  const lastScrollPosRef = useRef(0);
-  const prevSearchActiveRef = useRef(isSearchActive);
 
+  // Smooth scroll to top when entering search mode
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    if (isSearchActive && !prevSearchActiveRef.current) {
-      lastScrollPosRef.current = window.scrollY;
-      contentRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (isSearchActive && typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-
-    if (!isSearchActive && prevSearchActiveRef.current) {
-      window.scrollTo({ top: lastScrollPosRef.current, behavior: 'smooth' });
-    }
-
-    prevSearchActiveRef.current = isSearchActive;
   }, [isSearchActive]);
 
   // Note: Prioritization of recently reviewed businesses is now handled on the backend
@@ -375,159 +381,190 @@ export default function Home() {
   const hasTrendingBusinesses = trendingBusinesses.length > 0;
 
   return (
-    <> {/* Header - positioned at top */}
+    <>
       <div className="min-h-dvh flex flex-col">
-        <HeroCarousel />
+        {/* Hero Carousel - Hidden smoothly when search is active */}
+        <AnimatePresence mode="wait">
+          {!isSearchActive && (
+            <motion.div
+              key="hero-carousel"
+              initial={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0, transition: { duration: 0.3, ease: "easeInOut" } }}
+              className="overflow-hidden"
+            >
+              <HeroCarousel />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        <main className="bg-off-white relative pb-10 snap-y snap-proximity md:snap-mandatory min-h-dvh bg-off-white relative pt-[var(--header-height)]" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+        <main 
+          className={`bg-off-white relative pb-10 min-h-dvh ${isSearchActive ? 'pt-4' : 'pt-[var(--header-height)]'}`} 
+          style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+        >
           <div ref={contentRef} className="mx-auto w-full max-w-[2000px]">
-            {isSearchActive ? (
-            <SearchResultsPanel
-                query={liveQuery.trim()}
-                loading={liveLoading}
-                error={liveError}
-                results={liveResults}
-                filters={liveFilters}
-                onDistanceChange={(value) => setDistanceKm(value)}
-                onRatingChange={(value) => setMinRating(value)}
-                onResetFilters={resetFilters}
-              />
-            ) : (
-              /* Default Home Page Content */
-              <div
-                key="curated-feed"
-                className="flex flex-col gap-8 sm:gap-10 md:gap-12 pt-8"
-              >
-                {/* ✅ For You Section - Only show when NOT filtered, NOT searching, AND prefs are ready */}
-                {!isFiltered && !isSearchActive && !prefsLoading && (
-                  <div className="relative z-10 snap-start">
-                    {isGuestMode ? (
-                      /* Guest Mode: Show Locked For You Section */
-                      <div className="mx-auto w-full max-w-[2000px] px-2">
-                        <div className="relative border border-charcoal/10 rounded-[12px] p-6 sm:p-8 md:p-10 text-center space-y-3">
-                          <h3 className="text-lg sm:text-xl font-bold text-charcoal" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                            For You
-                          </h3>
-                          <p className="text-body sm:text-base text-charcoal/60 max-w-[60ch] mx-auto" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                            Sign up to unlock personalized recommendations tailored to your interests.
-                            <br />
-                            <Link
-                              href="/register"
-                              className="inline-block mt-2 font-semibold text-coral hover:underline"
-                              style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
-                            >
-                              Create an account
-                            </Link>
-                            {' '}or{' '}
-                            <Link
-                              href="/login"
-                              className="inline-block font-semibold text-charcoal hover:underline"
-                              style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
-                            >
-                              sign in
-                            </Link>
-                          </p>
+            <AnimatePresence mode="wait">
+              {isSearchActive ? (
+                /* Search Results Mode */
+                <motion.div
+                  key="search-results"
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 30 }}
+                  transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+                  className="px-4 sm:px-6 lg:px-8"
+                >
+                  <SearchResultsPanel
+                    query={liveQuery.trim() || contextSearchQuery.trim()}
+                    loading={liveLoading}
+                    error={liveError}
+                    results={liveResults}
+                    filters={liveFilters}
+                    onDistanceChange={(value) => setDistanceKm(value)}
+                    onRatingChange={(value) => setMinRating(value)}
+                    onResetFilters={resetFilters}
+                  />
+                </motion.div>
+              ) : (
+                /* Discovery Mode - Default Home Page Content */
+                <motion.div
+                  key="curated-feed"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+                  className="flex flex-col gap-8 sm:gap-10 md:gap-12 pt-8"
+                >
+                  {/* For You Section - Only show when NOT filtered, NOT searching, AND prefs are ready */}
+                  {!isFiltered && !prefsLoading && (
+                    <div className="relative z-10 snap-start">
+                      {isGuestMode ? (
+                        /* Guest Mode: Show Locked For You Section */
+                        <div className="mx-auto w-full max-w-[2000px] px-2">
+                          <div className="relative border border-charcoal/10 rounded-[12px] p-6 sm:p-8 md:p-10 text-center space-y-3">
+                            <h3 className="text-lg sm:text-xl font-bold text-charcoal" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                              For You
+                            </h3>
+                            <p className="text-body sm:text-base text-charcoal/60 max-w-[60ch] mx-auto" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                              Sign up to unlock personalized recommendations tailored to your interests.
+                              <br />
+                              <Link
+                                href="/register"
+                                className="inline-block mt-2 font-semibold text-coral hover:underline"
+                                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                              >
+                                Create an account
+                              </Link>
+                              {' '}or{' '}
+                              <Link
+                                href="/login"
+                                className="inline-block font-semibold text-charcoal hover:underline"
+                                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                              >
+                                sign in
+                              </Link>
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    ) : (
-                      /* Regular For You Section (Authenticated Users) */
-                      <>
-                        {forYouLoading ? (
-                          <BusinessRowSkeleton title="For You Now" />
-                        ) : forYouError ? (
-                          <div className="mx-auto w-full max-w-[2000px] px-2 py-4 text-sm text-coral">
-                            Couldn't load personalized picks right now. We'll retry in the background.
-                          </div>
-                        ) : forYouBusinesses.length > 0 ? (
-                          <MemoizedBusinessRow
-                            title="For You"
-                            businesses={forYouBusinesses}
-                            cta="See More"
-                            href="/for-you"
-                          />
-                        ) : (
-                          // ✅ Show helpful message when personalized query returns 0 (instead of hiding)
-                          <div className="mx-auto w-full max-w-[2000px] px-2 py-4">
-                            <div className="bg-sage/10 border border-sage/30 rounded-lg p-6 text-center">
-                              <p className="text-body text-charcoal/70 mb-2">
-                                We're still learning your taste
-                              </p>
-                              <p className="text-body-sm text-charcoal/70">
-                                Explore a bit and we'll personalize more recommendations for you.
-                              </p>
+                      ) : (
+                        /* Regular For You Section (Authenticated Users) */
+                        <>
+                          {forYouLoading ? (
+                            <BusinessRowSkeleton title="For You Now" />
+                          ) : forYouError ? (
+                            <div className="mx-auto w-full max-w-[2000px] px-2 py-4 text-sm text-coral">
+                              Couldn't load personalized picks right now. We'll retry in the background.
                             </div>
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </div>
-                )}
-                {/* Show skeleton while prefs are loading */}
-                {!isFiltered && !isSearchActive && prefsLoading && (
-                  <div className="relative z-10 snap-start">
-                    <BusinessRowSkeleton title="For You Now" />
-                  </div>
-                )}
+                          ) : forYouBusinesses.length > 0 ? (
+                            <MemoizedBusinessRow
+                              title="For You"
+                              businesses={forYouBusinesses}
+                              cta="See More"
+                              href="/for-you"
+                            />
+                          ) : (
+                            <div className="mx-auto w-full max-w-[2000px] px-2 py-4">
+                              <div className="bg-sage/10 border border-sage/30 rounded-lg p-6 text-center">
+                                <p className="text-body text-charcoal/70 mb-2">
+                                  We're still learning your taste
+                                </p>
+                                <p className="text-body-sm text-charcoal/70">
+                                  Explore a bit and we'll personalize more recommendations for you.
+                                </p>
+                              </div>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  )}
+                  
+                  {/* Show skeleton while prefs are loading */}
+                  {!isFiltered && prefsLoading && (
+                    <div className="relative z-10 snap-start">
+                      <BusinessRowSkeleton title="For You Now" />
+                    </div>
+                  )}
 
-                {/* ✅ Filtered Results Section - Show when filters are active */}
-                {isFiltered && (
+                  {/* Filtered Results Section - Show when filters are active */}
+                  {isFiltered && (
+                    <div className="relative z-10 snap-start">
+                      {allBusinessesLoading ? (
+                        <BusinessRowSkeleton title="Filtered Results" />
+                      ) : allBusinesses.length > 0 ? (
+                        <MemoizedBusinessRow
+                          title="Filtered Results"
+                          businesses={allBusinesses.slice(0, 10)}
+                          cta="See All"
+                          href="/for-you"
+                        />
+                      ) : (
+                        <div className="mx-auto w-full max-w-[2000px] px-2 py-4 text-sm text-charcoal/70">
+                          No businesses match your filters. Try adjusting your selections.
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Trending Section - Only show when not filtered */}
+                  {!isFiltered && (
+                    <div className="relative z-10 snap-start">
+                      {trendingLoading && <BusinessRowSkeleton title="Trending Now" />}
+                      {!trendingLoading && hasTrendingBusinesses && (
+                        <MemoizedBusinessRow title="Trending Now" businesses={trendingBusinesses} cta="See More" href="/trending" />
+                      )}
+                      {!trendingLoading && !hasTrendingBusinesses && !trendingError && (
+                        <MemoizedBusinessRow title="Trending Now" businesses={[]} cta="See More" href="/trending" />
+                      )}
+                      {trendingError && !trendingLoading && (
+                        <div className="mx-auto w-full max-w-[2000px] px-2 py-4 text-sm text-coral">
+                          Trending businesses are still loading. Refresh to try again.
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Events & Specials */}
+                  <div className="relative z-10 snap-start">
+                    <EventsSpecials
+                      events={events.length > 0 ? events : []}
+                      loading={eventsLoading}
+                    />
+                  </div>
+
+                  {/* Community Highlights */}
                   <div className="relative z-10 snap-start">
                     {allBusinessesLoading ? (
-                      <BusinessRowSkeleton title="Filtered Results" />
-                    ) : allBusinesses.length > 0 ? (
-                      <MemoizedBusinessRow
-                        title="Filtered Results"
-                        businesses={allBusinesses.slice(0, 10)}
-                        cta="See All"
-                        href="/for-you"
-                      />
+                      <CommunityHighlightsSkeleton reviewerCount={4} businessCount={4} />
                     ) : (
-                      <div className="mx-auto w-full max-w-[2000px] px-2 py-4 text-sm text-charcoal/70">
-                        No businesses match your filters. Try adjusting your selections.
-                      </div>
+                      <CommunityHighlights
+                        businessesOfTheMonth={featuredByCategory}
+                        variant="reviews"
+                      />
                     )}
                   </div>
-                )}
-
-                {/* Trending Section - Only show when not filtered */}
-                {!isFiltered && (
-                  <div className="relative z-10 snap-start">
-                    {trendingLoading && <BusinessRowSkeleton title="Trending Now" />}
-                    {!trendingLoading && hasTrendingBusinesses && (
-                      <MemoizedBusinessRow title="Trending Now" businesses={trendingBusinesses} cta="See More" href="/trending" />
-                    )}
-                    {!trendingLoading && !hasTrendingBusinesses && !trendingError && (
-                      <MemoizedBusinessRow title="Trending Now" businesses={[]} cta="See More" href="/trending" />
-                    )}
-                    {trendingError && !trendingLoading && (
-                      <div className="mx-auto w-full max-w-[2000px] px-2 py-4 text-sm text-coral">
-                        Trending businesses are still loading. Refresh to try again.
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Events & Specials */}
-                <div className="relative z-10 snap-start">
-                  <EventsSpecials
-                    events={events.length > 0 ? events : []}
-                    loading={eventsLoading}
-                  />
-                </div>
-
-                {/* Community Highlights */}
-                <div className="relative z-10 snap-start">
-                  {allBusinessesLoading ? (
-                    <CommunityHighlightsSkeleton reviewerCount={4} businessCount={4} />
-                  ) : (
-                    <CommunityHighlights
-                      businessesOfTheMonth={featuredByCategory}
-                      variant="reviews"
-                    />
-                  )}
-                </div>
-              </div>
-            )}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </main>
         <Footer />
@@ -544,5 +581,14 @@ export default function Home() {
         </button>
       )}
     </>
+  );
+}
+
+// Wrap with HomeSearchProvider for Header communication
+export default function Home() {
+  return (
+    <HomeSearchProvider>
+      <HomeContent />
+    </HomeSearchProvider>
   );
 }

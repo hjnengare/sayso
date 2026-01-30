@@ -1,15 +1,16 @@
 // src/components/Header/Header.tsx
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Menu, Bell, Settings, Bookmark, Search } from "lucide-react";
+import { Menu, Bell, Settings, Bookmark, Search, X } from "lucide-react";
 import Logo from "../Logo/Logo";
 import OptimizedLink from "../Navigation/OptimizedLink";
 import DesktopNav from "./DesktopNav";
 import MobileMenu from "./MobileMenu";
 import { useHeaderState } from "./useHeaderState";
 import { PRIMARY_LINKS, DISCOVER_LINKS } from "./headerActionsConfig";
+import { useHomeSearch } from "../../contexts/HomeSearchContext";
 
 export default function Header({
   showSearch = true,
@@ -70,11 +71,20 @@ export default function Header({
   } = useHeaderState({ searchLayout, forceSearchOpen });
 
   const router = useRouter();
-  const [headerSearchQuery, setHeaderSearchQuery] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+  
+  // Connect to HomeSearchContext for live search on home pages
+  const { searchQuery: contextSearchQuery, setSearchQuery: setContextSearchQuery, isSearchActive, clearSearch } = useHomeSearch();
+  
+  const [headerSearchQuery, setHeaderSearchQuery] = useState(contextSearchQuery);
   const [headerPlaceholder, setHeaderPlaceholder] = useState(
     "Discover local experiences, premium dining, and gems..."
   );
 
+  // Sync local state with context
+  useEffect(() => {
+    setHeaderSearchQuery(contextSearchQuery);
+  }, [contextSearchQuery]);
 
   const headerClassName = "sticky top-0 left-0 right-0 w-full max-w-7xl mx-auto z-50 bg-navbar-bg shadow-md transition-all duration-300";
     
@@ -97,49 +107,81 @@ export default function Header({
     return () => window.removeEventListener("resize", setByViewport);
   }, []);
 
-  const submitHomeSearch = (query: string) => {
-    if (!isHomePage) return;
-    const params = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
-    if (query.trim()) {
-      params.set("search", query.trim());
-    } else {
-      params.delete("search");
+  // Handle live search input change
+  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setHeaderSearchQuery(value);
+    // Update context immediately for live search (context will debounce the API call)
+    if (isHomePage) {
+      setContextSearchQuery(value);
     }
-    const searchString = params.toString();
-    const basePath = pathname === "/home" ? "/home" : "/";
-    router.push(`${basePath}${searchString ? `?${searchString}` : ""}`);
+  };
+
+  // Handle search form submit (for non-home pages or explicit submit)
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isHomePage) {
+      // Navigate to home with search param for non-home pages
+      const params = new URLSearchParams();
+      if (headerSearchQuery.trim()) {
+        params.set("search", headerSearchQuery.trim());
+      }
+      router.push(`/?${params.toString()}`);
+    }
+    // On home page, live search is already active via context
+  };
+
+  // Handle clear search
+  const handleClearSearch = () => {
+    setHeaderSearchQuery("");
+    if (isHomePage) {
+      clearSearch();
+    }
+    inputRef.current?.focus();
   };
 
   const renderHomeSearchInput = () => (
     <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        submitHomeSearch(headerSearchQuery);
-      }}
+      onSubmit={handleSearchSubmit}
       className="w-full"
     >
       <div className="relative">
+        {/* Right side icons - Clear button or Search icon */}
         <div className="absolute inset-y-0 right-2 flex items-center gap-1 z-10">
-          <div className="flex items-center justify-center w-9 h-9 rounded-full text-charcoal/50">
-            <Search className="w-5 h-5" strokeWidth={2} />
-          </div>
+          {isSearchActive && headerSearchQuery ? (
+            <button
+              type="button"
+              onClick={handleClearSearch}
+              className="flex items-center justify-center w-9 h-9 rounded-full text-charcoal/60 hover:text-charcoal hover:bg-charcoal/5 transition-all duration-200"
+              aria-label="Clear search"
+            >
+              <X className="w-5 h-5" strokeWidth={2} />
+            </button>
+          ) : (
+            <div className="flex items-center justify-center w-9 h-9 rounded-full text-charcoal/50">
+              <Search className="w-5 h-5" strokeWidth={2} />
+            </div>
+          )}
         </div>
 
         <input
+          ref={inputRef}
           type="text"
           value={headerSearchQuery}
-          onChange={(e) => setHeaderSearchQuery(e.target.value)}
+          onChange={handleSearchInputChange}
           placeholder={headerPlaceholder}
-          className="w-full rounded-none bg-off-white text-charcoal placeholder:text-charcoal/50
-            border border-white/40 shadow-sm
-            focus:outline-none focus:bg-white focus:border-white
+          className={`w-full rounded-none bg-off-white text-charcoal placeholder:text-charcoal/50
+            border shadow-sm
+            focus:outline-none focus:bg-white focus:border-sage/50
             hover:bg-white/90 transition-all duration-200
             pr-12 pl-5 py-3
-          "
+            ${isSearchActive ? 'border-sage/40 bg-white' : 'border-white/40'}
+          `}
           style={{
             fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
           }}
-          aria-label="Search"
+          aria-label="Search businesses"
+          autoComplete="off"
         />
       </div>
     </form>
