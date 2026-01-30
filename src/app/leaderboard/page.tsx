@@ -372,7 +372,7 @@ function LeaderboardPage() {
                   className="text-lg sm:text-xl font-semibold text-charcoal mb-1"
                   style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                 >
-                  What do badges mean?
+                  What Do Your Badges Mean?
                 </h3>
                 <p 
                   className="text-sm text-charcoal/60"
