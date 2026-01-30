@@ -23,7 +23,6 @@ import { useEvents } from "../hooks/useEvents";
 import { useRoutePrefetch } from "../hooks/useRoutePrefetch";
 import { useUserPreferences } from "../hooks/useUserPreferences";
 import { useAuth } from "../contexts/AuthContext";
-import { HomeSearchProvider, useHomeSearch } from "../contexts/HomeSearchContext";
 import HeroCarousel from "../components/Hero/HeroCarousel";
 import SearchResultsPanel from "../components/SearchResultsPanel/SearchResultsPanel";
 import { useLiveSearch } from "../hooks/useLiveSearch";
@@ -54,7 +53,7 @@ const Footer = nextDynamic(() => import("../components/Footer/Footer"), {
 const MemoizedBusinessRow = memo(BusinessRow);
 
 
-function HomeContent() {
+export default function Home() {
   // Events and Specials
   const { events, loading: eventsLoading } = useEvents();
   usePredefinedPageTitle('home');
@@ -63,9 +62,6 @@ function HomeContent() {
   const isGuestMode = searchParams.get('guest') === 'true';
   const searchQueryParam = searchParams.get('search') || "";
   const { user } = useAuth();
-
-  // Get search state from context (shared with Header)
-  const { searchQuery: contextSearchQuery, setSearchQuery: setContextSearchQuery, isSearchActive: contextSearchActive } = useHomeSearch();
 
   const {
     query: liveQuery,
@@ -78,24 +74,16 @@ function HomeContent() {
     setMinRating,
     resetFilters,
   } = useLiveSearch({
-    initialQuery: contextSearchQuery || searchQueryParam,
-    debounceMs: 300, // Fast but not too aggressive
+    initialQuery: searchQueryParam,
+    debounceMs: 250, // Fast live search
   });
 
-  // Sync context search query with live search
+  // Sync URL param with live search
   useEffect(() => {
-    if (contextSearchQuery !== liveQuery) {
-      setQuery(contextSearchQuery);
-    }
-  }, [contextSearchQuery, liveQuery, setQuery]);
-
-  // Sync URL param with live search (for direct links)
-  useEffect(() => {
-    if (searchQueryParam && searchQueryParam !== liveQuery && !contextSearchQuery) {
+    if (searchQueryParam !== liveQuery) {
       setQuery(searchQueryParam);
-      setContextSearchQuery(searchQueryParam);
     }
-  }, [searchQueryParam, liveQuery, contextSearchQuery, setQuery, setContextSearchQuery]);
+  }, [searchQueryParam, liveQuery, setQuery]);
 
   // Scroll to top button state (mobile only)
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -154,8 +142,8 @@ function HomeContent() {
     skip: authLoading,
   });
 
-  // Use context-based search active state for instant response
-  const isSearchActive = contextSearchActive || liveQuery.trim().length > 0;
+  // Search is active when there's a query in the URL or live query
+  const isSearchActive = searchQueryParam.trim().length > 0 || liveQuery.trim().length > 0;
   const contentRef = useRef<HTMLDivElement | null>(null);
 
   // Smooth scroll to top when entering search mode
@@ -414,7 +402,7 @@ function HomeContent() {
                   className="px-4 sm:px-6 lg:px-8"
                 >
                   <SearchResultsPanel
-                    query={liveQuery.trim() || contextSearchQuery.trim()}
+                    query={liveQuery.trim() || searchQueryParam.trim()}
                     loading={liveLoading}
                     error={liveError}
                     results={liveResults}
@@ -581,14 +569,5 @@ function HomeContent() {
         </button>
       )}
     </>
-  );
-}
-
-// Wrap with HomeSearchProvider for Header communication
-export default function Home() {
-  return (
-    <HomeSearchProvider>
-      <HomeContent />
-    </HomeSearchProvider>
   );
 }

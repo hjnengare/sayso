@@ -2,7 +2,7 @@
 "use client";
 
 import { useCallback, useEffect, useState, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Menu, Bell, Settings, Bookmark, Search, X } from "lucide-react";
 import Logo from "../Logo/Logo";
 import OptimizedLink from "../Navigation/OptimizedLink";
@@ -10,7 +10,6 @@ import DesktopNav from "./DesktopNav";
 import MobileMenu from "./MobileMenu";
 import { useHeaderState } from "./useHeaderState";
 import { PRIMARY_LINKS, DISCOVER_LINKS } from "./headerActionsConfig";
-import { useHomeSearch } from "../../contexts/HomeSearchContext";
 
 export default function Header({
   showSearch = true,
@@ -71,20 +70,24 @@ export default function Header({
   } = useHeaderState({ searchLayout, forceSearchOpen });
 
   const router = useRouter();
+  const searchParams = useSearchParams();
   const inputRef = useRef<HTMLInputElement>(null);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
   
-  // Connect to HomeSearchContext for live search on home pages
-  const { searchQuery: contextSearchQuery, setSearchQuery: setContextSearchQuery, isSearchActive, clearSearch } = useHomeSearch();
+  // Get search query from URL params
+  const urlSearchQuery = searchParams.get('search') || '';
   
-  const [headerSearchQuery, setHeaderSearchQuery] = useState(contextSearchQuery);
+  const [headerSearchQuery, setHeaderSearchQuery] = useState(urlSearchQuery);
   const [headerPlaceholder, setHeaderPlaceholder] = useState(
     "Discover local experiences, premium dining, and gems..."
   );
 
-  // Sync local state with context
+  // Sync local state with URL params
   useEffect(() => {
-    setHeaderSearchQuery(contextSearchQuery);
-  }, [contextSearchQuery]);
+    setHeaderSearchQuery(urlSearchQuery);
+  }, [urlSearchQuery]);
+
+  const isSearchActive = headerSearchQuery.trim().length > 0;
 
   const headerClassName = "sticky top-0 left-0 right-0 w-full max-w-7xl mx-auto z-50 bg-navbar-bg shadow-md transition-all duration-300";
     
@@ -107,20 +110,47 @@ export default function Header({
     return () => window.removeEventListener("resize", setByViewport);
   }, []);
 
-  // Handle live search input change
+  // Update URL with search query (debounced for live search)
+  const updateSearchUrl = useCallback((query: string) => {
+    if (!isHomePage) return;
+    
+    const params = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
+    if (query.trim()) {
+      params.set("search", query.trim());
+    } else {
+      params.delete("search");
+    }
+    const searchString = params.toString();
+    const basePath = pathname === "/home" ? "/home" : "/";
+    router.replace(`${basePath}${searchString ? `?${searchString}` : ""}`, { scroll: false });
+  }, [isHomePage, pathname, router]);
+
+  // Handle live search input change with debounce
   const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setHeaderSearchQuery(value);
-    // Update context immediately for live search (context will debounce the API call)
-    if (isHomePage) {
-      setContextSearchQuery(value);
+    
+    // Debounce URL update for live search (300ms)
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
     }
+    debounceRef.current = setTimeout(() => {
+      updateSearchUrl(value);
+    }, 300);
   };
 
-  // Handle search form submit (for non-home pages or explicit submit)
+  // Handle search form submit (immediate, no debounce)
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isHomePage) {
+    // Clear any pending debounce
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+    
+    if (isHomePage) {
+      // Immediate URL update
+      updateSearchUrl(headerSearchQuery);
+    } else {
       // Navigate to home with search param for non-home pages
       const params = new URLSearchParams();
       if (headerSearchQuery.trim()) {
@@ -128,17 +158,29 @@ export default function Header({
       }
       router.push(`/?${params.toString()}`);
     }
-    // On home page, live search is already active via context
   };
 
   // Handle clear search
   const handleClearSearch = () => {
+    // Clear any pending debounce
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
     setHeaderSearchQuery("");
     if (isHomePage) {
-      clearSearch();
+      updateSearchUrl("");
     }
     inputRef.current?.focus();
   };
+
+  // Cleanup debounce on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, []);
 
   const renderHomeSearchInput = () => (
     <form
