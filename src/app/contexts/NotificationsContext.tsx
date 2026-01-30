@@ -6,9 +6,20 @@ import { formatTimeAgo } from "../utils/formatTimeAgo";
 import { apiClient } from "../lib/api/apiClient";
 
 // Type for notification data displayed in toast/UI
+export type NotificationType =
+  | 'review'
+  | 'business'
+  | 'user'
+  | 'highlyRated'
+  | 'otp_sent'
+  | 'otp_verified'
+  | 'claim_status_changed'
+  | 'docs_requested'
+  | 'docs_received';
+
 export interface ToastNotificationData {
   id: string;
-  type: 'review' | 'business' | 'user' | 'highlyRated';
+  type: NotificationType;
   message: string;
   title: string;
   timeAgo: string;
@@ -37,7 +48,7 @@ interface NotificationsProviderProps {
 interface DatabaseNotification {
   id: string;
   user_id: string;
-  type: 'review' | 'business' | 'user' | 'highlyRated';
+  type: string;
   message: string;
   title: string;
   image: string | null;
@@ -58,7 +69,7 @@ export function NotificationsProvider({ children }: NotificationsProviderProps) 
   const convertToToastNotification = useCallback((dbNotification: DatabaseNotification): ToastNotificationData => {
     return {
       id: dbNotification.id,
-      type: dbNotification.type,
+      type: dbNotification.type as NotificationType,
       message: dbNotification.message,
       title: dbNotification.title,
       timeAgo: formatTimeAgo(dbNotification.created_at),

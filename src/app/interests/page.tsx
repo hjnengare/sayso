@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, Suspense } from "react";
+import { useEffect, useRef, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useToast } from "../contexts/ToastContext";
 import { useAuth } from "../contexts/AuthContext";
@@ -54,33 +54,43 @@ function InterestsContent() {
     error,
   } = useInterestsPage();
 
-  // CRITICAL: Sync profile role with user metadata as a fallback
-  // This fixes users whose profile was created with wrong role by the database trigger
+  // Sync profile role with user metadata only when we have a session and auth is ready.
+  // Defer call so session cookie is available after verification redirect; never call before auth resolved; do not retry on 401.
+  const syncAttemptedRef = useRef(false);
+  const sync401Ref = useRef(false);
+
   useEffect(() => {
-    const syncProfileRole = async () => {
-      if (isLoading || !user?.id) return;
+    if (isLoading || !user?.id) return;
+    if (sync401Ref.current) return; // Already got 401 this session — don't spam the endpoint
+    if (syncAttemptedRef.current) return; // Already ran sync once
 
-      try {
-        const response = await fetch('/api/auth/sync-profile-role', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
+    const timeoutId = window.setTimeout(() => {
+      syncAttemptedRef.current = true;
+
+      fetch('/api/auth/sync-profile-role', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin'
+      })
+        .then((response) => {
+          if (response.status === 401) {
+            sync401Ref.current = true;
+            return null;
+          }
+          return response.json();
+        })
+        .then((data) => {
+          if (!data) return;
+          if (data.synced && data.newRole === 'business_owner') {
+            refreshUser().then(() => router.replace('/my-businesses'));
+          }
+        })
+        .catch((err) => {
+          console.warn('[InterestsPage] Sync profile role failed (non-fatal):', err);
         });
+    }, 500);
 
-        const data = await response.json();
-        console.log('[InterestsPage] Profile sync result:', data);
-
-        if (data.synced && data.newRole === 'business_owner') {
-          console.log('[InterestsPage] Profile synced to business_owner, refreshing and redirecting');
-          // Refresh the user context to pick up the new role
-          await refreshUser();
-          router.replace('/my-businesses');
-        }
-      } catch (err) {
-        console.error('[InterestsPage] Error syncing profile role:', err);
-      }
-    };
-
-    syncProfileRole();
+    return () => clearTimeout(timeoutId);
   }, [isLoading, user?.id, refreshUser, router]);
 
   // CRITICAL: Redirect business owners away from personal onboarding

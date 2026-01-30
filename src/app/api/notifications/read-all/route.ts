@@ -19,9 +19,10 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
+    const now = new Date().toISOString();
     const { error } = await supabase
       .from('notifications')
-      .update({ read: true })
+      .update({ read: true, read_at: now })
       .eq('user_id', user.id)
       .eq('read', false);
 

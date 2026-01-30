@@ -360,7 +360,7 @@ export default function TrendingPage() {
     <div className="min-h-dvh bg-off-white">
       {/* Header */}
 
-      <main className="pt-2">
+      <main>
         <div className="mx-auto w-full max-w-[2000px] px-2">
           {/* Breadcrumb */}
           <nav className="py-1" aria-label="Breadcrumb">

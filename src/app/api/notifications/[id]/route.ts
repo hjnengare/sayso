@@ -40,9 +40,10 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
     }
 
     // Update the notification to mark as read
+    const now = new Date().toISOString();
     const { data: updated, error: updateError } = await supabase
       .from('notifications')
-      .update({ read: true })
+      .update({ read: true, read_at: now })
       .eq('id', id)
       .eq('user_id', user.id)
       .select()

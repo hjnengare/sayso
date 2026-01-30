@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "../contexts/AuthContext";
 import { useSimpleBusinessSearch } from "../hooks/useSimpleBusinessSearch";
@@ -12,13 +12,15 @@ import {
   Check,
   Clock,
   XCircle,
+  AlertCircle,
+  FileCheck,
+  Loader2,
 } from "lucide-react";
 import { ChevronRight } from "lucide-react";
 import { PageLoader, Loader } from "../components/Loader";
 import { ClaimModal } from "../components/BusinessClaim/ClaimModal";
 import Link from "next/link";
 import { Suspense } from "react";
-import WavyTypedTitle from "../../components/Animations/WavyTypedTitle";
 
 const Footer = dynamic(() => import("../components/Footer/Footer"), {
   loading: () => null,
@@ -32,9 +34,41 @@ function ClaimBusinessPageContent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedBusiness, setSelectedBusiness] = useState<any | null>(null);
   const [showClaimModal, setShowClaimModal] = useState(false);
+  const [myClaims, setMyClaims] = useState<Array<{
+    id: string;
+    business_id: string;
+    business_name: string;
+    business_slug: string | null;
+    status: string;
+    display_status: string;
+    next_step: string;
+    rejection_reason: string | null;
+  }>>([]);
+  const [claimsLoading, setClaimsLoading] = useState(false);
 
-  // Use the simple business search hook with 300ms debounce
   const { results: businesses, isSearching } = useSimpleBusinessSearch(searchQuery, 300);
+
+  // Fetch current user's claims (business_claims) for "Your claims" section
+  useEffect(() => {
+    if (!user) {
+      setMyClaims([]);
+      return;
+    }
+    let cancelled = false;
+    setClaimsLoading(true);
+    fetch("/api/business/claims")
+      .then((res) => (res.ok ? res.json() : { claims: [] }))
+      .then((data) => {
+        if (!cancelled && Array.isArray(data.claims)) setMyClaims(data.claims);
+      })
+      .catch(() => {
+        if (!cancelled) setMyClaims([]);
+      })
+      .finally(() => {
+        if (!cancelled) setClaimsLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [user]);
 
   // Handle businessId from query params (after login redirect)
   useEffect(() => {
@@ -80,14 +114,35 @@ function ClaimBusinessPageContent() {
   const handleClaimSuccess = () => {
     setShowClaimModal(false);
     setSelectedBusiness(null);
-    // Refresh search results to update status
+    // Refresh "Your claims" list
+    if (user) {
+      fetch("/api/business/claims")
+        .then((res) => (res.ok ? res.json() : { claims: [] }))
+        .then((data) => Array.isArray(data.claims) && setMyClaims(data.claims))
+        .catch(() => {});
+    }
     if (searchQuery.trim().length >= 2) {
       const event = new Event('input', { bubbles: true });
       const input = document.querySelector('input[type="text"]') as HTMLInputElement;
-      if (input) {
-        input.dispatchEvent(event);
-      }
+      if (input) input.dispatchEvent(event);
     }
+  };
+
+  const getClaimStatusBadge = (displayStatus: string, status: string) => {
+    const base = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm font-semibold border";
+    if (status === "verified") {
+      return <span className={`${base} bg-sage/15 text-sage border-sage/30`}><Check className="w-3.5 h-3.5" /> Verified</span>;
+    }
+    if (status === "rejected") {
+      return <span className={`${base} bg-red-50 text-red-700 border-red-200`}><XCircle className="w-3.5 h-3.5" /> Rejected</span>;
+    }
+    if (displayStatus === "Under Review") {
+      return <span className={`${base} bg-amber-50 text-amber-800 border-amber-200`}><FileCheck className="w-3.5 h-3.5" /> Under Review</span>;
+    }
+    if (displayStatus === "Action Required") {
+      return <span className={`${base} bg-coral/10 text-coral border-coral/30`}><AlertCircle className="w-3.5 h-3.5" /> Action Required</span>;
+    }
+    return <span className={`${base} bg-charcoal/10 text-charcoal/80 border-charcoal/20`}><Clock className="w-3.5 h-3.5" /> Pending Verification</span>;
   };
 
   const getStatusBadge = (business: any) => {
@@ -232,6 +287,64 @@ function ClaimBusinessPageContent() {
                       Claim your business profile to respond to reviews, update information, and connect with customers
                     </p>
                   </div>
+
+                  {/* Your claims (status states: Pending Verification, Action Required, Under Review, Verified, Rejected) */}
+                  {user && (claimsLoading || myClaims.length > 0) && (
+                    <div className="mb-8">
+                      <h3 className="font-urbanist text-base font-semibold text-charcoal mb-3" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                        Your claims
+                      </h3>
+                      {claimsLoading ? (
+                        <div className="flex items-center justify-center py-6">
+                          <Loader2 className="w-6 h-6 text-sage animate-spin" />
+                        </div>
+                      ) : (
+                        <ul className="space-y-3">
+                          {myClaims.map((claim) => (
+                            <li
+                              key={claim.id}
+                              className="p-4 bg-white border border-charcoal/10 rounded-[12px] shadow-sm hover:border-charcoal/20 transition-colors"
+                            >
+                              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+                                <div className="min-w-0">
+                                  <p className="font-urbanist text-sm font-semibold text-charcoal truncate" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                    {claim.business_name}
+                                  </p>
+                                  {claim.location && (
+                                    <p className="font-urbanist text-sm text-charcoal/70 mt-0.5" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                      {claim.location}
+                                    </p>
+                                  )}
+                                  {claim.next_step && (
+                                    <p className="font-urbanist text-sm text-charcoal/60 mt-1.5" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                      {claim.next_step}
+                                    </p>
+                                  )}
+                                  {claim.status === 'rejected' && claim.rejection_reason && (
+                                    <p className="font-urbanist text-sm text-red-600 mt-1" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                      {claim.rejection_reason}
+                                    </p>
+                                  )}
+                                </div>
+                                <div className="flex-shrink-0 flex items-center gap-2">
+                                  {getClaimStatusBadge(claim.display_status, claim.status)}
+                                  {claim.status === 'verified' && claim.business_id && (
+                                    <Link
+                                      href={`/my-businesses/businesses/${claim.business_id}`}
+                                      className="font-urbanist text-sm font-semibold text-sage hover:text-sage/80 underline"
+                                      style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                                    >
+                                      Open dashboard
+                                    </Link>
+                                  )}
+                                </div>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  )}
 
                   {/* Search Section */}
                   <div className="pb-8">

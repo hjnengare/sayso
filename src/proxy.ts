@@ -693,11 +693,26 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // Never redirect FROM /verify-email or /login based on onboarding (auth routes already returned at top)
+  // Auth routes: /verify-email and /login — redirect verified users to correct landing; never send business to user onboarding
   if (isAuthRoute && user) {
     if (pathname.startsWith('/verify-email')) {
-      edgeLog('ALLOW', pathname, { hasUser: true, emailConfirmed: !!user?.email_confirmed_at });
-      return response;
+      if (!user.email_confirmed_at) {
+        edgeLog('ALLOW', pathname, { hasUser: true, emailConfirmed: false });
+        return response;
+      }
+      // Verified: business → /my-businesses only; personal → /complete or /interests
+      if (isBusinessAccount) {
+        edgeLog('REDIRECT', pathname, { hasUser: true, emailConfirmed: true, isBusiness: true, to: '/my-businesses', reason: 'verified_business' });
+        return redirectWithGuard(request, new URL('/my-businesses', request.url));
+      }
+      if (onboardingStatus === null) {
+        // Cannot determine role/onboarding — allow so page can show processing or fetch role; do not send to /interests
+        edgeLog('ALLOW', pathname, { hasUser: true, emailConfirmed: true, reason: 'status_unknown' });
+        return response;
+      }
+      const redirectTarget = isOnboardingComplete ? '/complete' : '/interests';
+      edgeLog('REDIRECT', pathname, { hasUser: true, emailConfirmed: true, onboardingComplete: isOnboardingComplete, to: redirectTarget });
+      return redirectWithGuard(request, new URL(redirectTarget, request.url));
     }
 
     if (user.email_confirmed_at) {

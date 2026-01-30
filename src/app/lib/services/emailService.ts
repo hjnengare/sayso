@@ -29,6 +29,41 @@ interface ClaimApprovedEmailData {
   dashboardUrl: string;
 }
 
+interface OtpSentEmailData {
+  recipientEmail: string;
+  recipientName?: string;
+  businessName: string;
+  maskedPhone: string;
+}
+
+interface OtpVerifiedEmailData {
+  recipientEmail: string;
+  recipientName?: string;
+  businessName: string;
+}
+
+interface DocsRequestedEmailData {
+  recipientEmail: string;
+  recipientName?: string;
+  businessName: string;
+  claimBusinessUrl: string;
+}
+
+interface DocsReceivedEmailData {
+  recipientEmail: string;
+  recipientName?: string;
+  businessName: string;
+}
+
+interface ClaimStatusChangedEmailData {
+  recipientEmail: string;
+  recipientName?: string;
+  businessName: string;
+  status: string;
+  message: string;
+  dashboardUrl?: string;
+}
+
 export class EmailService {
   /**
    * Send "We received your claim" email
@@ -183,5 +218,136 @@ export class EmailService {
       };
     }
   }
+
+  static async sendOtpSentEmail(data: OtpSentEmailData): Promise<{ success: boolean; error?: string }> {
+    const resend = getResendClient();
+    if (!resend) return { success: true };
+    const { recipientEmail, recipientName, businessName, maskedPhone } = data;
+    const { error } = await resend.emails.send({
+      from: `${FROM_NAME} <${FROM_EMAIL}>`,
+      to: recipientEmail,
+      subject: `Verification code for ${businessName}`,
+      html: minimalClaimHtml(
+        'Verification code sent',
+        recipientName,
+        `We sent a verification code to ${maskedPhone} for your claim on <strong>${businessName}</strong>. Enter it in the app to continue. The code expires in 10 minutes.`
+      ),
+    });
+    if (error) {
+      console.error('OtpSent email failed:', error);
+      return { success: false, error: error.message };
+    }
+    return { success: true };
+  }
+
+  static async sendOtpVerifiedEmail(data: OtpVerifiedEmailData): Promise<{ success: boolean; error?: string }> {
+    const resend = getResendClient();
+    if (!resend) return { success: true };
+    const { recipientEmail, recipientName, businessName } = data;
+    const { error } = await resend.emails.send({
+      from: `${FROM_NAME} <${FROM_EMAIL}>`,
+      to: recipientEmail,
+      subject: `Phone verified for ${businessName}`,
+      html: minimalClaimHtml(
+        'Phone verification successful',
+        recipientName,
+        `Your phone has been verified for <strong>${businessName}</strong>. We'll review your claim and get back to you shortly.`
+      ),
+    });
+    if (error) {
+      console.error('OtpVerified email failed:', error);
+      return { success: false, error: error.message };
+    }
+    return { success: true };
+  }
+
+  static async sendDocsRequestedEmail(data: DocsRequestedEmailData): Promise<{ success: boolean; error?: string }> {
+    const resend = getResendClient();
+    if (!resend) return { success: true };
+    const { recipientEmail, recipientName, businessName, claimBusinessUrl } = data;
+    const { error } = await resend.emails.send({
+      from: `${FROM_NAME} <${FROM_EMAIL}>`,
+      to: recipientEmail,
+      subject: `Documents required for ${businessName}`,
+      html: minimalClaimHtml(
+        'Documents required',
+        recipientName,
+        `We need additional documents to verify your claim for <strong>${businessName}</strong>. Please upload a letterhead authorization and/or lease first page (PDF, JPG or PNG, max 5MB) in your claim page.`,
+        claimBusinessUrl
+      ),
+    });
+    if (error) {
+      console.error('DocsRequested email failed:', error);
+      return { success: false, error: error.message };
+    }
+    return { success: true };
+  }
+
+  static async sendDocsReceivedEmail(data: DocsReceivedEmailData): Promise<{ success: boolean; error?: string }> {
+    const resend = getResendClient();
+    if (!resend) return { success: true };
+    const { recipientEmail, recipientName, businessName } = data;
+    const { error } = await resend.emails.send({
+      from: `${FROM_NAME} <${FROM_EMAIL}>`,
+      to: recipientEmail,
+      subject: `Documents received for ${businessName}`,
+      html: minimalClaimHtml(
+        'Documents received',
+        recipientName,
+        `We've received your documents for <strong>${businessName}</strong>. Our team will review them and notify you once the claim is processed.`
+      ),
+    });
+    if (error) {
+      console.error('DocsReceived email failed:', error);
+      return { success: false, error: error.message };
+    }
+    return { success: true };
+  }
+
+  static async sendClaimStatusChangedEmail(data: ClaimStatusChangedEmailData): Promise<{ success: boolean; error?: string }> {
+    const resend = getResendClient();
+    if (!resend) return { success: true };
+    const { recipientEmail, recipientName, businessName, status, message, dashboardUrl } = data;
+    const { error } = await resend.emails.send({
+      from: `${FROM_NAME} <${FROM_EMAIL}>`,
+      to: recipientEmail,
+      subject: `Claim update: ${businessName} – ${status}`,
+      html: minimalClaimHtml(
+        `Claim ${status}`,
+        recipientName,
+        message,
+        dashboardUrl
+      ),
+    });
+    if (error) {
+      console.error('ClaimStatusChanged email failed:', error);
+      return { success: false, error: error.message };
+    }
+    return { success: true };
+  }
+}
+
+function minimalClaimHtml(title: string, recipientName: string | undefined, body: string, ctaUrl?: string): string {
+  const greeting = recipientName ? `Hi ${recipientName},` : 'Hi there,';
+  const cta = ctaUrl
+    ? `<p style="margin-top: 20px;"><a href="${ctaUrl}" style="display: inline-block; background: linear-gradient(135deg, #7D9B76 0%, #6B8A64 100%); color: white; padding: 12px 24px; text-decoration: none; border-radius: 25px; font-weight: 600;">View claim</a></p>`
+    : '';
+  return `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${title}</title></head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="background: linear-gradient(135deg, #7D9B76 0%, #6B8A64 100%); padding: 24px; text-align: center; border-radius: 12px 12px 0 0;">
+    <h1 style="color: white; margin: 0; font-size: 20px;">${title}</h1>
+  </div>
+  <div style="background: #f9f9f9; padding: 24px; border-radius: 0 0 12px 12px; border: 1px solid #e0e0e0; border-top: none;">
+    <p style="margin-top: 0;">${greeting}</p>
+    <p>${body}</p>
+    ${cta}
+    <p style="margin-top: 24px;">Best regards,<br>The SaySo Team</p>
+  </div>
+  <div style="text-align: center; margin-top: 16px; color: #999; font-size: 12px;"><p>This is an automated message.</p></div>
+</body>
+</html>`;
 }
 

@@ -320,7 +320,7 @@ export default function ForYouPage() {
   return (
     <div className="min-h-dvh bg-off-white">
 
-      <main className="pt-2">
+      <main>
         <div className="mx-auto w-full max-w-[2000px] px-2">
           {/* Breadcrumb */}
           <nav className="py-1" aria-label="Breadcrumb">

@@ -51,27 +51,10 @@ export default function ProtectedRoute({
   const personalOnboardingRoutes = ['/interests', '/subcategories', '/deal-breakers', '/complete'];
 
   useEffect(() => {
-    console.log('[ProtectedRoute] useEffect triggered', {
-      isLoading,
-      isVerifiedFromUrl,
-      pathname,
-      userId: !!userId,
-      emailVerified,
-      onboardingStep,
-      onboardingComplete,
-      userRole,
-      isBusinessOwner,
-      // Raw role values for debugging
-      rawCurrentRole: currentRole,
-      rawRole: role
-    });
-
-    // CRITICAL: Always wait for auth to fully load before making routing decisions
-    // This prevents race conditions where business users get redirected to personal onboarding
-    // Even with URL verification signal, we need to know the user's role first
+    // Three states: loading → show loader (no logic); unauthenticated → redirect; authenticated → run role/onboarding logic.
+    // Never run protection logic or call APIs until auth is fully resolved (avoids 401s and redirect loops).
     if (isLoading) {
-      console.log('[ProtectedRoute] Still loading auth state, waiting for full user context...');
-      return; // Wait for auth state to FULLY load including role
+      return;
     }
 
     // CRITICAL: Business owners must NEVER access personal onboarding routes
@@ -83,16 +66,6 @@ export default function ProtectedRoute({
       router.replace('/my-businesses');
       return;
     }
-
-    console.log('ProtectedRoute: Checking route protection', {
-      requiresAuth,
-      user_exists: !!userId,
-      email_verified: emailVerified,
-      onboarding_step: onboardingStep,
-      onboarding_complete: onboardingComplete,
-      userRole,
-      isBusinessOwner
-    });
 
     // If authentication is required and user is not logged in
     if (requiresAuth && !userId) {
@@ -214,9 +187,7 @@ export default function ProtectedRoute({
     }
   }, [userId, emailVerified, onboardingStep, onboardingComplete, interestsCount, subcategoriesCount, dealbreakersCount, isLoading, router, pathname, requiresAuth, requiresOnboarding, allowedOnboardingSteps, redirectTo, searchParams, userRole, isBusinessOwner, personalOnboardingRoutes, currentRole, role]);
 
-  // CRITICAL: Always show loading state while auth is resolving
-  // We MUST wait for the full user context (including role) before rendering
-  // This prevents race conditions where business users briefly see personal onboarding
+  // State 1: loading — show loader; do not render children or run any checks (avoids 401s from children calling APIs before session is ready)
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-off-white">
@@ -224,6 +195,8 @@ export default function ProtectedRoute({
       </div>
     );
   }
+
+  // State 2 & 3: unauthenticated → redirect handled in useEffect; authenticated → run role/onboarding logic in useEffect
 
   // If authentication checks pass, render children
   return <>{children}</>;

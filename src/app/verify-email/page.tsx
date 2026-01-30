@@ -196,8 +196,8 @@ export default function VerifyEmailPage() {
   const getPostVerifyRedirect = useCallback((): string => {
     if (!user) return "/login";
 
-    // FLOW: After verification, route by profiles.role (source of truth).
-    // If profile.role is missing, fall back to account_role/current_role for safety.
+    // Route by profiles.role; business → /my-businesses only; never send business to user onboarding.
+    // When role is unknown, stay on /verify-email so middleware can fetch and redirect (avoids sending business to /interests).
     const profileRole = user?.profile?.role;
     const accountRole = user?.profile?.account_role;
     const legacyCurrentRole = (user as any)?.current_role;
@@ -205,7 +205,9 @@ export default function VerifyEmailPage() {
     const resolvedRole = profileRole || accountRole || legacyCurrentRole;
 
     if (resolvedRole === "business_owner") return "/my-businesses";
-    return "/interests";
+    if (resolvedRole === "user") return "/interests";
+    // Role unknown — stay on verify-email; next request will be handled by middleware
+    return "/verify-email";
   }, [user]);
 
   // Handle verification success from URL flag

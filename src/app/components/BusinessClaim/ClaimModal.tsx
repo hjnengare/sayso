@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, UserCheck, Mail, Phone, FileText } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { X, UserCheck, Mail, Phone, FileText, Building2 } from "lucide-react";
 import { Loader } from "../Loader/Loader";
 import { useAuth } from "../../contexts/AuthContext";
 import { useToast } from "../../contexts/ToastContext";
@@ -12,20 +13,26 @@ interface ClaimModalProps {
     name: string;
     category: string;
     location: string;
+    phone?: string;
+    email?: string;
+    website?: string;
   };
   onClose: () => void;
   onSuccess: () => void;
 }
 
 export function ClaimModal({ business, onClose, onSuccess }: ClaimModalProps) {
+  const router = useRouter();
   const { user } = useAuth();
   const { showToast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     role: 'owner' as 'owner' | 'manager',
-    phone: '',
-    email: user?.email || '',
+    phone: business.phone || '',
+    email: business.email || user?.email || '',
     note: '',
+    cipc_registration_number: '',
+    cipc_company_name: '',
   });
 
   // Prevent background scrolling when modal is open
@@ -52,21 +59,26 @@ export function ClaimModal({ business, onClose, onSuccess }: ClaimModalProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
+    const hasContact = formData.email?.trim() || formData.phone?.trim() || (formData.cipc_registration_number?.trim() && formData.cipc_company_name?.trim());
+    if (!hasContact) {
+      showToast('Please provide a business email, phone, or CIPC details.', 'sage', 4000);
+      return;
+    }
 
     setIsSubmitting(true);
 
     try {
       const response = await fetch('/api/business/claim', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           business_id: business.id,
           role: formData.role,
-          phone: formData.phone || undefined,
-          email: formData.email || undefined,
-          note: formData.note || undefined,
+          phone: formData.phone?.trim() || undefined,
+          email: formData.email?.trim() || undefined,
+          note: formData.note?.trim() || undefined,
+          cipc_registration_number: formData.cipc_registration_number?.trim() || undefined,
+          cipc_company_name: formData.cipc_company_name?.trim() || undefined,
         }),
       });
 
@@ -76,8 +88,17 @@ export function ClaimModal({ business, onClose, onSuccess }: ClaimModalProps) {
         throw new Error(result.error || 'Failed to submit claim');
       }
 
-      showToast('Claim request submitted successfully! We\'ll review it shortly.', 'success', 5000);
+      if (result.status === 'verified') {
+        showToast(result.message || 'Business verified. You can now manage your listing.', 'success', 5000);
+        onSuccess();
+        onClose();
+        router.push(`/my-businesses/businesses/${business.id}`);
+        return;
+      }
+
+      showToast(result.message || result.display_status || 'Claim submitted. Complete the requested verification step.', 'success', 5000);
       onSuccess();
+      onClose();
     } catch (error) {
       console.error('Error submitting claim:', error);
       showToast(
@@ -169,19 +190,20 @@ export function ClaimModal({ business, onClose, onSuccess }: ClaimModalProps) {
                 fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif"
               }}>
                 <Mail className="w-4 h-4" />
-                Email
+                Business Email (optional)
               </label>
               <input
                 id="claim-email"
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                placeholder="your@email.com"
+                placeholder="info@business.co.za"
                 className="w-full px-4 py-3 rounded-lg border border-white/30 bg-white/10 text-white placeholder:text-white/60 focus:outline-none focus:border-white/50 transition-colors"
                 style={{
                   fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif"
                 }}
               />
+              <p className="text-xs text-white/70 mt-1">Match website domain to auto-verify</p>
             </div>
 
             <div>
@@ -189,19 +211,50 @@ export function ClaimModal({ business, onClose, onSuccess }: ClaimModalProps) {
                 fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif"
               }}>
                 <Phone className="w-4 h-4" />
-                Phone (Optional)
+                Phone (optional)
               </label>
               <input
                 id="claim-phone"
                 type="tel"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                placeholder="+1 (555) 123-4567"
+                placeholder="Business phone for OTP"
                 className="w-full px-4 py-3 rounded-lg border border-white/30 bg-white/10 text-white placeholder:text-white/60 focus:outline-none focus:border-white/50 transition-colors"
                 style={{
                   fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif"
                 }}
               />
+            </div>
+
+            {/* CIPC (Tier 2) - optional */}
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-white flex items-center gap-2" style={{
+                fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif"
+              }}>
+                <Building2 className="w-4 h-4" />
+                CIPC (optional)
+              </label>
+              <input
+                type="text"
+                value={formData.cipc_registration_number}
+                onChange={(e) => setFormData({ ...formData, cipc_registration_number: e.target.value })}
+                placeholder="Company registration number"
+                className="w-full px-4 py-3 rounded-lg border border-white/30 bg-white/10 text-white placeholder:text-white/60 focus:outline-none focus:border-white/50 transition-colors"
+                style={{
+                  fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif"
+                }}
+              />
+              <input
+                type="text"
+                value={formData.cipc_company_name}
+                onChange={(e) => setFormData({ ...formData, cipc_company_name: e.target.value })}
+                placeholder="Registered company name"
+                className="w-full px-4 py-3 rounded-lg border border-white/30 bg-white/10 text-white placeholder:text-white/60 focus:outline-none focus:border-white/50 transition-colors"
+                style={{
+                  fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif"
+                }}
+              />
+              <p className="text-xs text-white/70">For manual CIPC review; no documents required</p>
             </div>
 
             <div>
@@ -240,7 +293,7 @@ export function ClaimModal({ business, onClose, onSuccess }: ClaimModalProps) {
             </button>
             <button
               type="submit"
-              disabled={isSubmitting || !formData.email}
+              disabled={isSubmitting || !(formData.email?.trim() || formData.phone?.trim() || (formData.cipc_registration_number?.trim() && formData.cipc_company_name?.trim()))}
               className="flex-1 px-4 py-3 rounded-full bg-gradient-to-br from-coral to-coral/90 text-white hover:from-coral/90 hover:to-coral/80 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               style={{
                 fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif"

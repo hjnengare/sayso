@@ -70,6 +70,18 @@ const buildSlides = (images: string[]): HeroSlide[] => {
 const getFileExtension = (name: string): string =>
   name.split(".").pop()?.toLowerCase() ?? "";
 
+/** Fallback images from /public/hero when storage fails or an image fails to load */
+const HERO_FALLBACK_IMAGES = [
+  "/hero/a-j-A_0C42zmz1Q-unsplash.jpg",
+  "/hero/adam-winger-KVVjmb3IIL8-unsplash.jpg",
+  "/hero/dan-gold-E6HjQaB7UEA-unsplash.jpg",
+  "/hero/christin-hume-0MoF-Fe0w0A-unsplash.jpg",
+  "/hero/bruce-mars-gJtDg6WfMlQ-unsplash.jpg",
+  "/hero/edward-howell-vvUy1hWVYEA-unsplash.jpg",
+  "/hero/kevin-wolf-IfTKequW2Mk-unsplash.jpg",
+  "/hero/lo-sarno-QLdp9SGDf5Y-unsplash.jpg",
+];
+
 export default function HeroCarousel() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
@@ -78,6 +90,7 @@ export default function HeroCarousel() {
   const [paused, setPaused] = useState(false);
   const [progress, setProgress] = useState(0);
   const [heroImages, setHeroImages] = useState<string[]>([]);
+  const [failedImageUrls, setFailedImageUrls] = useState<Set<string>>(new Set());
   const progressRef = useRef<NodeJS.Timeout | null>(null);
   const containerRef = useRef<HTMLElement>(null);
   const currentIndexRef = useRef(currentIndex);
@@ -108,6 +121,7 @@ export default function HeroCarousel() {
           .list("", { limit: 200, sortBy: { column: "name", order: "asc" } });
 
         if (error || !data) {
+          if (isMounted) setHeroImages(HERO_FALLBACK_IMAGES);
           return;
         }
 
@@ -116,6 +130,7 @@ export default function HeroCarousel() {
           .filter((name) => HERO_IMAGE_EXTENSIONS.has(getFileExtension(name)));
 
         if (imagePaths.length === 0) {
+          if (isMounted) setHeroImages(HERO_FALLBACK_IMAGES);
           return;
         }
 
@@ -128,6 +143,7 @@ export default function HeroCarousel() {
         }
       } catch (loadError) {
         console.warn("HeroCarousel: failed to load hero images from storage.", loadError);
+        if (isMounted) setHeroImages(HERO_FALLBACK_IMAGES);
       }
     };
 
@@ -406,10 +422,10 @@ export default function HeroCarousel() {
             index === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0"
           }`}
         >
-           {/* Full Background Image - All Screen Sizes */}
+           {/* Full Background Image - All Screen Sizes; fallback to /hero when not loading */}
            <div className="absolute inset-0 rounded-none md:rounded-none lg:rounded-none overflow-hidden px-0 mx-0">
              <Image
-               src={slide.image}
+               src={failedImageUrls.has(slide.image) ? HERO_FALLBACK_IMAGES[index % HERO_FALLBACK_IMAGES.length] : slide.image}
                alt={slide.title}
                fill
                priority={index < 2}
@@ -419,6 +435,9 @@ export default function HeroCarousel() {
                className="object-cover scale-[1.02]"
                style={{ filter: "brightness(0.95) contrast(1.05) saturate(1.1)" }}
                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 80vw"
+               onError={() => {
+                 setFailedImageUrls((prev) => new Set(prev).add(slide.image));
+               }}
              />
              {/* Multi-layered overlay for optimal text readability */}
              <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-transparent" />

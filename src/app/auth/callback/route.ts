@@ -137,33 +137,31 @@ export async function GET(request: NextRequest) {
           // Check if email is actually verified now
           if (user.email_confirmed_at) {
             // CRITICAL: Check user's role to determine redirect destination
-            // Priority: user_metadata.account_type (source of truth from registration) > profile role > 'user'
-            // The user metadata is explicitly set during registration and should be trusted
-            // The profile trigger may create a default 'user' role which we should NOT prioritize
+            // Priority: user_metadata.account_type (source of truth from registration) > profile role
+            // Never send business users to user onboarding (/interests); when role unknown, send to /verify-email so middleware can decide
             const userMetadataAccountType = user.user_metadata?.account_type as string | undefined;
+            const profileRole = profile?.role || profile?.account_role;
 
-            // If user metadata explicitly says business_owner, trust it (set during registration)
-            // Only fall back to profile if metadata doesn't have account_type
-            let userRole: string;
+            let userRole: string | null = null;
             if (userMetadataAccountType === 'business_owner') {
               userRole = 'business_owner';
             } else if (userMetadataAccountType === 'user') {
               userRole = 'user';
-            } else {
-              // No metadata, fall back to profile
-              userRole = profile?.role || profile?.account_role || 'user';
+            } else if (profileRole === 'business_owner') {
+              userRole = 'business_owner';
+            } else if (profileRole === 'user') {
+              userRole = 'user';
             }
+            // When role unknown (no metadata, profile missing or role not set), do NOT assume 'user' — send to /verify-email so middleware can fetch and redirect
 
             console.log('Email verified - determining redirect:', {
               profileRole: profile?.role,
-              currentRole: profile?.account_role,
+              account_role: profile?.account_role,
               metadataAccountType: userMetadataAccountType,
               resolvedRole: userRole
             });
 
-            // CRITICAL: Sync profile role with user metadata if they don't match
-            // The database trigger may have created the profile with default 'user' role
-            // We need to update it to match the actual registration intent
+            // Sync profile role with user metadata if they don't match (set during registration)
             if (userMetadataAccountType && profile && profile.role !== userMetadataAccountType) {
               console.log('Profile role mismatch - syncing profile with metadata:', {
                 currentProfileRole: profile.role,
@@ -198,19 +196,27 @@ export async function GET(request: NextRequest) {
                 redirectResponse.cookies.set(cookie);
               });
               return redirectResponse;
-            } else {
+            }
+            if (userRole === 'user') {
               console.log('Email verified - personal user, redirecting to interests onboarding');
-              // Email is verified, proceed directly to interests
               const dest = new URL('/interests', request.url);
-              dest.searchParams.set('verified', '1'); // one-time signal
-              dest.searchParams.set('email_verified', 'true'); // additional flag for client-side
-              // Copy cookies to redirect response
+              dest.searchParams.set('verified', '1');
+              dest.searchParams.set('email_verified', 'true');
               const redirectResponse = NextResponse.redirect(dest);
               response.cookies.getAll().forEach(cookie => {
                 redirectResponse.cookies.set(cookie);
               });
               return redirectResponse;
             }
+            // Role unknown (e.g. profile not yet created or role not set) — send to /verify-email so middleware can fetch status and redirect (avoids sending business to /interests)
+            console.log('Email verified - role unknown, redirecting to /verify-email for middleware to decide');
+            const verifyDest = new URL('/verify-email', request.url);
+            verifyDest.searchParams.set('verified', '1');
+            const redirectResponse = NextResponse.redirect(verifyDest);
+            response.cookies.getAll().forEach(cookie => {
+              redirectResponse.cookies.set(cookie);
+            });
+            return redirectResponse;
           } else {
             console.log('Email not yet verified - redirecting to verify-email');
             // Email not verified, redirect to verify-email page
