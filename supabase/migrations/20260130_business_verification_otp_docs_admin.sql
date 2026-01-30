@@ -97,6 +97,7 @@ CREATE INDEX IF NOT EXISTS idx_business_claim_otp_active ON public.business_clai
 
 ALTER TABLE public.business_claim_otp ENABLE ROW LEVEL SECURITY;
 -- No SELECT/INSERT/UPDATE for authenticated; only service role / server uses this table
+DROP POLICY IF EXISTS "No direct client access to business_claim_otp" ON public.business_claim_otp;
 CREATE POLICY "No direct client access to business_claim_otp"
   ON public.business_claim_otp FOR ALL TO authenticated
   USING (false) WITH CHECK (false);

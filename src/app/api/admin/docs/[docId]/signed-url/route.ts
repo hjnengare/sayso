@@ -36,13 +36,18 @@ export async function GET(
       .eq('id', docId)
       .single();
 
-    if (docError || !doc?.storage_path) {
+    if (docError || !doc) {
       return NextResponse.json({ error: 'Document not found' }, { status: 404 });
     }
+    const docRow = doc as { id: string; storage_path: string };
+    if (!docRow.storage_path) {
+      return NextResponse.json({ error: 'Document not found' }, { status: 404 });
+    }
+    const storagePath = docRow.storage_path;
 
     const { data: signed, error: signError } = await service.storage
       .from(BUCKET)
-      .createSignedUrl(doc.storage_path, SIGNED_URL_EXPIRY_SECONDS);
+      .createSignedUrl(storagePath, SIGNED_URL_EXPIRY_SECONDS);
 
     if (signError || !signed?.signedUrl) {
       console.error('Signed URL error:', signError);

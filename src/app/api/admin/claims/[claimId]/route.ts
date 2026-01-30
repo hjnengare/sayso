@@ -56,6 +56,24 @@ export async function GET(
     if (claimError || !claim) {
       return NextResponse.json({ error: 'Claim not found' }, { status: 404 });
     }
+    type ClaimRow = {
+      id: string;
+      business_id: string;
+      claimant_user_id: string;
+      status: string;
+      method_attempted: string | null;
+      verification_data: Record<string, unknown> | null;
+      rejection_reason: string | null;
+      admin_notes: string | null;
+      created_at: string;
+      updated_at: string;
+      submitted_at: string | null;
+      reviewed_at: string | null;
+      reviewed_by: string | null;
+      last_notified_at: string | null;
+      businesses: { id: string; name: string; category: string; location: string; slug: string | null; phone: string | null; email: string | null; website: string | null } | { id: string; name: string; category: string; location: string; slug: string | null; phone: string | null; email: string | null; website: string | null }[];
+    };
+    const claimRow = claim as ClaimRow;
 
     const { data: events } = await service
       .from('business_claim_events')
@@ -77,36 +95,36 @@ export async function GET(
         process.env.SUPABASE_SERVICE_ROLE_KEY!,
         { auth: { autoRefreshToken: false, persistSession: false } }
       );
-      const { data: authUser } = await admin.auth.admin.getUserById(claim.claimant_user_id);
+      const { data: authUser } = await admin.auth.admin.getUserById(claimRow.claimant_user_id);
       claimantEmail = authUser?.user?.email ?? null;
     } catch {
-      claimantEmail = (claim.verification_data as Record<string, unknown>)?.email as string ?? null;
+      claimantEmail = (claimRow.verification_data as Record<string, unknown>)?.email as string ?? null;
     }
 
-    const business = Array.isArray(claim.businesses) ? claim.businesses[0] : claim.businesses;
+    const business = Array.isArray(claimRow.businesses) ? claimRow.businesses[0] : claimRow.businesses;
 
     return NextResponse.json({
       claim: {
-        id: claim.id,
-        business_id: claim.business_id,
+        id: claimRow.id,
+        business_id: claimRow.business_id,
         business_name: business?.name ?? null,
         business_slug: business?.slug ?? null,
         business_phone: business?.phone ?? null,
         business_email: business?.email ?? null,
         business_website: business?.website ?? null,
-        claimant_user_id: claim.claimant_user_id,
+        claimant_user_id: claimRow.claimant_user_id,
         claimant_email: claimantEmail,
-        status: claim.status,
-        method_attempted: claim.method_attempted,
-        verification_data: claim.verification_data,
-        rejection_reason: claim.rejection_reason,
-        admin_notes: claim.admin_notes,
-        created_at: claim.created_at,
-        updated_at: claim.updated_at,
-        submitted_at: claim.submitted_at,
-        reviewed_at: claim.reviewed_at,
-        reviewed_by: claim.reviewed_by,
-        last_notified_at: claim.last_notified_at,
+        status: claimRow.status,
+        method_attempted: claimRow.method_attempted,
+        verification_data: claimRow.verification_data,
+        rejection_reason: claimRow.rejection_reason,
+        admin_notes: claimRow.admin_notes,
+        created_at: claimRow.created_at,
+        updated_at: claimRow.updated_at,
+        submitted_at: claimRow.submitted_at,
+        reviewed_at: claimRow.reviewed_at,
+        reviewed_by: claimRow.reviewed_by,
+        last_notified_at: claimRow.last_notified_at,
       },
       events: events ?? [],
       documents: (docs ?? []).map((d: { id: string; doc_type: string; status: string; uploaded_at: string; delete_after: string }) => ({

@@ -39,8 +39,9 @@ export async function POST(
     if (claimError || !claim) {
       return NextResponse.json({ error: 'Claim not found' }, { status: 404 });
     }
+    const claimRow = claim as { id: string; claimant_user_id: string; business_id: string; status: string };
 
-    await service
+    await (service as any)
       .from('business_claims')
       .update({
         status: 'action_required',
@@ -49,8 +50,8 @@ export async function POST(
       })
       .eq('id', claimId);
 
-    const { data: business } = await service.from('businesses').select('name').eq('id', claim.business_id).single();
-    const claimantId = claim.claimant_user_id;
+    const { data: business } = await service.from('businesses').select('name').eq('id', claimRow.business_id).single();
+    const claimantId = claimRow.claimant_user_id;
     const { data: profile } = await service.from('profiles').select('display_name, username').eq('user_id', claimantId).maybeSingle();
     let recipientEmail: string | undefined;
     try {
@@ -68,22 +69,25 @@ export async function POST(
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
     const claimBusinessUrl = `${baseUrl}/claim-business`;
+    const businessName: string = (business as { name?: string } | null)?.name ?? 'Your business';
 
     await createClaimNotification({
       userId: claimantId,
       claimId,
       type: 'docs_requested',
       title: 'Documents required',
-      message: `We need additional documents to verify your claim for ${business?.name ?? 'your business'}. Please upload them in your claim page.`,
+      message: `We need additional documents to verify your claim for ${businessName}. Please upload them in your claim page.`,
       link: '/claim-business',
     });
     updateClaimLastNotified(claimId).catch(() => {});
 
     if (recipientEmail) {
+      const recipientName = (profile as { display_name?: string; username?: string } | null)?.display_name
+        || (profile as { display_name?: string; username?: string } | null)?.username;
       EmailService.sendDocsRequestedEmail({
         recipientEmail,
-        recipientName: (profile?.display_name || profile?.username) as string | undefined,
-        businessName: business?.name ?? 'Your business',
+        recipientName: recipientName as string | undefined,
+        businessName,
         claimBusinessUrl,
       }).catch((err) => console.error('Docs requested email failed:', err));
     }
