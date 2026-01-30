@@ -223,78 +223,96 @@ BEGIN
   
   -- ========================================================================
   -- Step 7: Select Top 3 with quality gates and diversity
+  -- Using a simpler iterative approach via window functions
   -- ========================================================================
-  top3_candidates AS (
-    -- First, get candidates that meet quality gate (prefer these)
-    SELECT * FROM ranked_all 
-    WHERE meets_quality_gate = true
-    ORDER BY curation_score DESC, initial_rank
-    LIMIT 10  -- Get more candidates for diversity check
+  
+  -- Get quality candidates first, then fallback candidates
+  quality_candidates AS (
+    SELECT 
+      ra.*,
+      ROW_NUMBER() OVER (ORDER BY ra.curation_score DESC, ra.initial_rank) as quality_rank
+    FROM ranked_all ra
+    WHERE ra.meets_quality_gate = true
   ),
   
-  -- Select top 3 with diversity (avoid same location cluster)
+  -- Fallback: all businesses ordered by freshness for cold start
+  fallback_candidates AS (
+    SELECT 
+      ra.*,
+      ROW_NUMBER() OVER (ORDER BY ra.freshness DESC, ra.curation_score DESC, ra.initial_rank) as fallback_rank
+    FROM ranked_all ra
+  ),
+  
+  -- Select top 3: prefer quality candidates, use diversity-aware selection
+  -- For simplicity, we'll pick top 3 from quality candidates
+  -- and apply diversity post-hoc (skip if too close to previous picks)
+  top3_raw AS (
+    SELECT 
+      qc.*,
+      -- Calculate distance to all higher-ranked candidates
+      (
+        SELECT MIN(
+          CASE 
+            WHEN qc2.lat IS NULL OR qc2.lng IS NULL OR qc.lat IS NULL OR qc.lng IS NULL THEN 99999
+            ELSE 6371000 * 2 * ASIN(SQRT(
+              POWER(SIN((RADIANS(qc.lat) - RADIANS(qc2.lat)) / 2), 2) +
+              COS(RADIANS(qc2.lat)) * COS(RADIANS(qc.lat)) *
+              POWER(SIN((RADIANS(qc.lng) - RADIANS(qc2.lng)) / 2), 2)
+            ))
+          END
+        )
+        FROM quality_candidates qc2
+        WHERE qc2.quality_rank < qc.quality_rank
+      ) as min_dist_to_higher
+    FROM quality_candidates qc
+    WHERE qc.quality_rank <= 10  -- Consider top 10 for diversity selection
+  ),
+  
+  -- Final top 3 selection with diversity
   top3_selected AS (
     SELECT 
-      t1.*,
-      1 as top3_rank
-    FROM top3_candidates t1
-    WHERE t1.initial_rank = (SELECT MIN(initial_rank) FROM top3_candidates)
-    
-    UNION ALL
-    
-    -- Second pick: best score that's not too close to first
-    SELECT 
-      t2.*,
-      2 as top3_rank
-    FROM top3_candidates t2
-    WHERE t2.id != (SELECT id FROM top3_candidates ORDER BY initial_rank LIMIT 1)
-      AND (
-        -- Either no location data, or far enough apart
-        t2.lat IS NULL OR t2.lng IS NULL
-        OR NOT EXISTS (
-          SELECT 1 FROM top3_candidates t1 
-          WHERE t1.initial_rank = (SELECT MIN(initial_rank) FROM top3_candidates)
-            AND t1.lat IS NOT NULL AND t1.lng IS NOT NULL
-            AND 6371000 * 2 * ASIN(SQRT(
-              POWER(SIN((RADIANS(t2.lat) - RADIANS(t1.lat)) / 2), 2) +
-              COS(RADIANS(t1.lat)) * COS(RADIANS(t2.lat)) *
-              POWER(SIN((RADIANS(t2.lng) - RADIANS(t1.lng)) / 2), 2)
-            )) < v_min_diversity_meters
-        )
-      )
-    ORDER BY t2.curation_score DESC, t2.initial_rank
-    LIMIT 1
-    
-    UNION ALL
-    
-    -- Third pick: best score not in first two and diverse
-    SELECT 
-      t3.*,
-      3 as top3_rank
-    FROM top3_candidates t3
-    WHERE t3.id NOT IN (
-      SELECT id FROM top3_candidates ORDER BY initial_rank LIMIT 1
-      UNION
-      SELECT t2.id FROM top3_candidates t2
-      WHERE t2.id != (SELECT id FROM top3_candidates ORDER BY initial_rank LIMIT 1)
-      ORDER BY t2.curation_score DESC, t2.initial_rank
-      LIMIT 1
-    )
-    ORDER BY t3.curation_score DESC, t3.initial_rank
-    LIMIT 1
+      tr.*,
+      ROW_NUMBER() OVER (
+        ORDER BY 
+          -- Penalize if too close to a higher-ranked pick
+          CASE WHEN COALESCE(tr.min_dist_to_higher, 99999) < v_min_diversity_meters THEN 1 ELSE 0 END,
+          tr.quality_rank
+      ) as diversity_rank
+    FROM top3_raw tr
   ),
   
-  -- Fallback for cold start: if not enough quality businesses, include recent ones
+  -- Get final top 3 (with fallback if not enough quality candidates)
+  top3_final AS (
+    SELECT 
+      t.id, t.name, t.image_url, t.category, t.sub_interest_id, t.interest_id,
+      t.description, t.location, t.lat, t.lng, t.avg_rating, t.review_count,
+      t.verified, t.owner_verified, t.slug, t.last_activity_at, t.created_at,
+      t.curation_score, t.saves, t.freshness,
+      true as is_top3,
+      t.diversity_rank::INTEGER as rank_position
+    FROM top3_selected t
+    WHERE t.diversity_rank <= 3
+  ),
+  
+  -- Add fallback businesses if top3 has fewer than 3
   top3_with_fallback AS (
-    SELECT *, true as is_top3, top3_rank as rank_position FROM top3_selected
+    -- First: businesses from quality selection
+    SELECT * FROM top3_final
+    
     UNION ALL
-    SELECT ra.*, true as is_top3, ROW_NUMBER() OVER (ORDER BY ra.freshness DESC, ra.curation_score DESC) + 
-      (SELECT COUNT(*) FROM top3_selected) as rank_position
-    FROM ranked_all ra
-    WHERE ra.id NOT IN (SELECT id FROM top3_selected)
-      AND (SELECT COUNT(*) FROM top3_selected) < 3
-    ORDER BY ra.freshness DESC, ra.curation_score DESC
-    LIMIT 3 - (SELECT COUNT(*) FROM top3_selected)
+    
+    -- Fallback: add from fallback_candidates if needed
+    SELECT 
+      fc.id, fc.name, fc.image_url, fc.category, fc.sub_interest_id, fc.interest_id,
+      fc.description, fc.location, fc.lat, fc.lng, fc.avg_rating, fc.review_count,
+      fc.verified, fc.owner_verified, fc.slug, fc.last_activity_at, fc.created_at,
+      fc.curation_score, fc.saves, fc.freshness,
+      true as is_top3,
+      (fc.fallback_rank + (SELECT COUNT(*) FROM top3_final))::INTEGER as rank_position
+    FROM fallback_candidates fc
+    WHERE fc.id NOT IN (SELECT id FROM top3_final)
+      AND (SELECT COUNT(*) FROM top3_final) < 3
+      AND fc.fallback_rank <= (3 - (SELECT COUNT(*) FROM top3_final))
   ),
   
   -- ========================================================================
@@ -302,22 +320,23 @@ BEGIN
   -- ========================================================================
   next10_selected AS (
     SELECT 
-      ra.*,
+      ra.id, ra.name, ra.image_url, ra.category, ra.sub_interest_id, ra.interest_id,
+      ra.description, ra.location, ra.lat, ra.lng, ra.avg_rating, ra.review_count,
+      ra.verified, ra.owner_verified, ra.slug, ra.last_activity_at, ra.created_at,
+      ra.curation_score, ra.saves, ra.freshness,
       false as is_top3,
-      ROW_NUMBER() OVER (ORDER BY ra.curation_score DESC, ra.initial_rank) + 3 as rank_position
+      (ROW_NUMBER() OVER (ORDER BY ra.curation_score DESC, ra.initial_rank) + 3)::INTEGER as rank_position
     FROM ranked_all ra
     WHERE ra.id NOT IN (SELECT id FROM top3_with_fallback)
-    ORDER BY ra.curation_score DESC, ra.initial_rank
-    LIMIT 10
   ),
   
   -- ========================================================================
   -- Step 9: Combine results
   -- ========================================================================
   final_result AS (
-    SELECT * FROM top3_with_fallback
+    SELECT * FROM top3_with_fallback WHERE rank_position <= 3
     UNION ALL
-    SELECT * FROM next10_selected
+    SELECT * FROM next10_selected WHERE rank_position <= 13
   )
   
   -- Return final results
@@ -341,7 +360,7 @@ BEGIN
     fr.created_at,
     fr.curation_score,
     fr.is_top3,
-    fr.rank_position::INTEGER
+    fr.rank_position
   FROM final_result fr
   ORDER BY fr.is_top3 DESC, fr.rank_position ASC
   LIMIT p_limit;
@@ -382,7 +401,7 @@ Scoring formula:
 - +5% Verified business boost
 
 Quality gates for top 3: requires reviews >= 3 OR saves >= 5 OR views >= 50
-Diversity: top 3 picks must be >= 200m apart (if location data available)
+Diversity: top 3 picks penalized if < 200m apart (if location data available)
 Cold start fallback: uses freshness + newest businesses
 
 Parameters:
