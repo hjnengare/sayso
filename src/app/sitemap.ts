@@ -74,16 +74,10 @@ const staticPages = [
     priority: 0.7,
   },
   {
-    url: '/login',
+    url: '/discover/reviews',
     lastModified: new Date(),
-    changeFrequency: 'monthly' as const,
-    priority: 0.5,
-  },
-  {
-    url: '/register',
-    lastModified: new Date(),
-    changeFrequency: 'monthly' as const,
-    priority: 0.5,
+    changeFrequency: 'daily' as const,
+    priority: 0.7,
   },
 ];
 
@@ -197,14 +191,42 @@ async function getCityCategorySlugs(): Promise<Array<{ slug: string }>> {
 }
 
 /**
+ * Fetch events for sitemap
+ */
+async function getEvents(): Promise<Array<{ id: string; updated_at: string }>> {
+  try {
+    const supabase = getSitemapSupabase();
+
+    const { data: events, error } = await supabase
+      .from('ticketmaster_events')
+      .select('id, updated_at, created_at')
+      .limit(5000);
+
+    if (error) {
+      console.error('[Sitemap] Error fetching events:', error);
+      return [];
+    }
+
+    return (events || []).map((event) => ({
+      id: event.id,
+      updated_at: event.updated_at || event.created_at || new Date().toISOString(),
+    }));
+  } catch (error) {
+    console.error('[Sitemap] Error fetching events:', error);
+    return [];
+  }
+}
+
+/**
  * Generate sitemap
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  // Get all businesses, categories, and city-category combinations
-  const [businesses, categories, cityCategorySlugs] = await Promise.all([
+  // Get all businesses, categories, city-category combinations, and events
+  const [businesses, categories, cityCategorySlugs, events] = await Promise.all([
     getBusinesses(),
     getCategories(),
     getCityCategorySlugs(),
+    getEvents(),
   ]);
 
   // Generate business URLs
@@ -231,6 +253,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
+  // Generate event URLs
+  const eventUrls = events.map((event) => ({
+    url: `${baseUrl}/event/${event.id}`,
+    lastModified: new Date(event.updated_at),
+    changeFrequency: 'weekly' as const,
+    priority: 0.6,
+  }));
+
   // Combine static and dynamic pages
   const allPages = [
     ...staticPages.map((page) => ({
@@ -242,6 +272,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...businessUrls,
     ...categoryUrls,
     ...cityCategoryUrls,
+    ...eventUrls,
   ];
 
   return allPages;

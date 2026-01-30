@@ -1,5 +1,9 @@
+import { Metadata } from 'next';
 import { Suspense } from "react";
 import { PageLoader } from "../components/Loader";
+import { PageMetadata } from '../lib/utils/seoMetadata';
+
+export const metadata: Metadata = PageMetadata.dm();
 
 export default function DMLayout({
   children,

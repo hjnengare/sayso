@@ -43,7 +43,7 @@ export function generateSEOMetadata(options: SEOOptions = {}): Metadata {
       : generatePageTitle(title, description)
     : PageTitles.home;
   const fullDescription = description || 'Find amazing local businesses, restaurants, and experiences in your area with personalized recommendations and trusted reviews.';
-  const ogImage = image || `${baseUrl}/og-image.jpg`;
+  const ogImage = image || `${baseUrl}/opengraph-image`;
   const canonicalUrl = url ? `${baseUrl}${url}` : baseUrl;
 
   return {
@@ -69,7 +69,7 @@ export function generateSEOMetadata(options: SEOOptions = {}): Metadata {
           alt: title || siteName,
         },
       ],
-      locale: 'en_US',
+      locale: 'en_ZA',
       type,
     },
     twitter: {
@@ -202,7 +202,6 @@ export const PageMetadata = {
     keywords: [reviewerName, 'reviewer', 'profile', 'reviews'],
     url: id ? `/reviewer/${id}` : undefined,
     type: 'profile',
-    noindex: true, // Reviewer profiles may be indexed if public
   }),
 
   review: (businessName: string, slug?: string): Metadata => generateSEOMetadata({
@@ -225,6 +224,77 @@ export const PageMetadata = {
     description: `Discover the best local businesses in ${cityName}. Find restaurants, services, and experiences near you.`,
     keywords: [cityName, 'city', 'local businesses', 'location'],
     url: slug ? `/${slug}` : undefined,
+  }),
+
+  notifications: (): Metadata => generateSEOMetadata({
+    title: PageTitles.notifications,
+    description: 'Stay updated with your latest notifications, reviews, and activity.',
+    keywords: ['notifications', 'updates', 'activity'],
+    url: '/notifications',
+    noindex: true,
+  }),
+
+  achievements: (): Metadata => generateSEOMetadata({
+    title: generatePageTitle('Achievements', 'Your badges and milestones'),
+    description: 'View your badges, achievements, and milestones on sayso.',
+    keywords: ['achievements', 'badges', 'milestones'],
+    url: '/achievements',
+    noindex: true,
+  }),
+
+  discoverReviews: (): Metadata => generateSEOMetadata({
+    title: PageTitles.discoverReviews,
+    description: 'Read authentic reviews from real customers. Discover what people are saying about local businesses in your area.',
+    keywords: ['reviews', 'discover reviews', 'local business reviews', 'authentic reviews'],
+    url: '/discover/reviews',
+  }),
+
+  writeReview: (): Metadata => generateSEOMetadata({
+    title: PageTitles.writeReview,
+    description: 'Share your experience and write a review for a local business.',
+    keywords: ['write review', 'share experience', 'rate business'],
+    url: '/write-review',
+    noindex: true,
+  }),
+
+  dm: (): Metadata => generateSEOMetadata({
+    title: PageTitles.dm,
+    description: 'View and manage your messages on sayso.',
+    keywords: ['messages', 'direct messages', 'chat'],
+    url: '/dm',
+    noindex: true,
+  }),
+
+  settings: (): Metadata => generateSEOMetadata({
+    title: generatePageTitle('Settings', 'Manage your account settings'),
+    description: 'Manage your account settings, preferences, and profile information on sayso.',
+    keywords: ['settings', 'account settings', 'preferences'],
+    url: '/settings',
+    noindex: true,
+  }),
+
+  addBusiness: (): Metadata => generateSEOMetadata({
+    title: generatePageTitle('Add Business', 'Create a new business listing'),
+    description: 'Create a new business listing on sayso and start reaching customers in your area.',
+    keywords: ['add business', 'create listing', 'business registration'],
+    url: '/add-business',
+    noindex: true,
+  }),
+
+  claimBusiness: (): Metadata => generateSEOMetadata({
+    title: PageTitles.claimBusiness,
+    description: 'Claim your business listing on sayso and start managing your business profile today.',
+    keywords: ['claim business', 'business verification', 'business listing'],
+    url: '/claim-business',
+    noindex: true,
+  }),
+
+  myBusinesses: (): Metadata => generateSEOMetadata({
+    title: PageTitles.manageBusiness,
+    description: 'Manage your business listings, view analytics, and respond to reviews on sayso.',
+    keywords: ['my businesses', 'business management', 'business dashboard'],
+    url: '/my-businesses',
+    noindex: true,
   }),
 };
 

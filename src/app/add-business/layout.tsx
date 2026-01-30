@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
+import { PageMetadata } from '../lib/utils/seoMetadata';
 
-export const metadata: Metadata = {
-  title: "Add Business | SAYSO",
-  description: "Create a new business listing on SAYSO and start reaching customers in your area.",
-  keywords: ["add business", "create listing", "business registration"],
-};
+export const metadata: Metadata = PageMetadata.addBusiness();
 
 export default function AddBusinessLayout({
   children,

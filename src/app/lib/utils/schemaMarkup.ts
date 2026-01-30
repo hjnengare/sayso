@@ -255,6 +255,28 @@ function parseCloses(hours: string): string {
 }
 
 /**
+ * Generate WebSite schema with SearchAction for Google sitelinks search box
+ */
+export function generateWebSiteSchema(): object {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://sayso-nine.vercel.app';
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'sayso',
+    url: baseUrl,
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: `${baseUrl}/explore?q={search_term_string}`,
+      },
+      'query-input': 'required name=search_term_string',
+    },
+  };
+}
+
+/**
  * Generate complete schema markup for a business page
  */
 export function generateBusinessPageSchema(

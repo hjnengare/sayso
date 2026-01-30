@@ -29,7 +29,7 @@
       "short_name": "Search",
       "description": "Search for local businesses",
       "url": "/explore",
-      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+      "icons": [{ "src": "/logos/logo.png", "sizes": "192x192" }]
     }
   ]
 }

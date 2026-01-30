@@ -10,6 +10,8 @@ import { SavedItemsProvider } from "./contexts/SavedItemsContext";
 import { NotificationsProvider } from "./contexts/NotificationsContext";
 import PageTransitionProvider from "./components/Providers/PageTransitionProvider";
 import GlobalHeader from "./components/Header/GlobalHeader";
+import SchemaMarkup from "./components/SEO/SchemaMarkup";
+import { generateOrganizationSchema, generateWebSiteSchema } from "./lib/utils/schemaMarkup";
 
 // Lazy load non-critical components for faster initial load
 const WebVitals = dynamicImport(() => import("./components/Performance/WebVitals"));
@@ -94,9 +96,6 @@ export default function RootLayout({
         {/* Preload critical resources */}
         <link rel="preload" href="/globals.css" as="style" />
         
-        {/* Urbanist Font - for body text and card text */}
-        <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet" />
-        
         {/* Dancing Script Font */}
         <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&display=swap" rel="stylesheet" />
         
@@ -138,6 +137,7 @@ export default function RootLayout({
         {/* Canonical tag removed - set per page via metadata */}
       </head>
       <body className={`${urbanist.className} no-layout-shift scroll-smooth bg-off-white`}>
+        <SchemaMarkup schemas={[generateOrganizationSchema(), generateWebSiteSchema()]} />
         <WebVitals />
         <ClientLayoutWrapper />
         <ToastProvider>

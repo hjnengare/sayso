@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
+import { PageMetadata } from '../lib/utils/seoMetadata';
 
-export const metadata: Metadata = {
-  title: "Settings | SAYSO",
-  description: "Manage your account settings, preferences, and profile information on SAYSO.",
-  keywords: ["settings", "account settings", "preferences"],
-};
+export const metadata: Metadata = PageMetadata.settings();
 
 export default function SettingsLayout({
   children,
