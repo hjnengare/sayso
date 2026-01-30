@@ -42,6 +42,7 @@ export default function BusinessProfilePage() {
     const { showToast } = useToast();
     const { hasReviewed } = useUserHasReviewed(businessId);
     const mapSectionRef = useRef<HTMLDivElement>(null);
+    const hasRedirected = useRef(false);
 
     const scrollToMap = () => {
         mapSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -165,13 +166,11 @@ export default function BusinessProfilePage() {
             setBusiness(data);
 
             // SEO: Redirect from ID to slug if we have a slug and the URL uses an ID
-            // Only redirect if the current URL uses an ID (UUID format) and we have a slug
             const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(businessId);
-            if (data.slug && data.slug !== businessId && isUUID) {
-                // Only redirect if the slug is different (slug-based URL would be different)
+            if (!hasRedirected.current && data.slug && data.slug !== businessId && isUUID) {
                 const slugUrl = `/business/${data.slug}`;
                 if (window.location.pathname !== slugUrl) {
-                    // Use replace to keep history clean
+                    hasRedirected.current = true;
                     router.replace(slugUrl);
                     return;
                 }
@@ -186,35 +185,9 @@ export default function BusinessProfilePage() {
 
     useEffect(() => {
         fetchBusiness();
-    }, [businessId, router]);
-
-    // Refetch when page becomes visible (e.g., returning from edit page)
-    useEffect(() => {
-        const handleVisibilityChange = () => {
-            if (document.visibilityState === 'visible' && businessId) {
-                // Small delay to ensure edit page has finished redirecting
-                setTimeout(() => {
-                    fetchBusiness(true);
-                }, 100);
-            }
-        };
-
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-        
-        // Also refetch on focus (when user returns to tab)
-        const handleFocus = () => {
-            if (businessId) {
-                fetchBusiness(true);
-            }
-        };
-        
-        window.addEventListener('focus', handleFocus);
-
-        return () => {
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
-            window.removeEventListener('focus', handleFocus);
-        };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [businessId]);
+
 
     // Listen for business deletion events
     useEffect(() => {
