@@ -103,7 +103,18 @@ export default function EventsSpecials({
     fetchBusinessEvents();
   }, []);
 
-  if (loading || loadingBusinessEvents) {
+  // Only block on parent loading — don't wait for business-events so events from parent show as soon as ready
+  const showSkeleton = loading;
+
+  // Merge business events with provided events, sorted by start date (businessEvents may still be [] while loading)
+  const displayEvents = aggregateEvents([
+    ...(businessEvents || []),
+    ...(events || []),
+  ]).slice(0, 10); // Limit to first 10 events after consolidation
+
+  const hasEvents = displayEvents.length > 0;
+
+  if (showSkeleton) {
     return (
       <section
         className="relative m-0 w-full"
@@ -137,15 +148,6 @@ export default function EventsSpecials({
       </section>
     );
   }
-
-  // Merge business events with provided events, sorted by start date
-  // Only use real data - no fallback to static events
-  const displayEvents = aggregateEvents([
-    ...(businessEvents || []),
-    ...(events || []),
-  ]).slice(0, 10); // Limit to first 10 events after consolidation
-
-  const hasEvents = displayEvents.length > 0;
 
   // Always show the section: with cards when we have events, or empty state + CTA when we don't
   return (
@@ -194,7 +196,7 @@ export default function EventsSpecials({
             <ScrollableSection showArrows={true} className="items-stretch py-2">
               {displayEvents.map((event, index) => (
                 <div
-                  key={event.id}
+                  key={event.id ?? `event-${index}`}
                   className="snap-start snap-always flex-shrink-0 w-[85vw] sm:w-auto min-w-[clamp(220px,18vw,320px)] list-none flex"
                 >
                   <EventCard event={event} index={index} />
