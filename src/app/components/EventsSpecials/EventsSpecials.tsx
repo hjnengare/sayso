@@ -103,18 +103,6 @@ export default function EventsSpecials({
     fetchBusinessEvents();
   }, []);
 
-  // Debug logging
-  if (typeof window !== 'undefined') {
-    console.log('[EventsSpecials] Render:', {
-      eventsCount: events?.length || 0,
-      businessEventsCount: businessEvents?.length || 0,
-      loading,
-      loadingBusinessEvents,
-      hasEvents: events && events.length > 0
-    });
-  }
-
-
   if (loading || loadingBusinessEvents) {
     return (
       <section
@@ -157,11 +145,9 @@ export default function EventsSpecials({
     ...(events || []),
   ]).slice(0, 10); // Limit to first 10 events after consolidation
 
-  // Only show if we have real events
-  if (!loadingBusinessEvents && displayEvents.length === 0) {
-    return null;
-  }
+  const hasEvents = displayEvents.length > 0;
 
+  // Always show the section: with cards when we have events, or empty state + CTA when we don't
   return (
     <section
       className="relative m-0 w-full"
@@ -203,18 +189,37 @@ export default function EventsSpecials({
           </button>
         </div>
 
-        <div className="pt-2">
-          <ScrollableSection showArrows={true} className="items-stretch py-2">
-            {displayEvents.map((event, index) => (
-              <div
-                key={event.id}
-                className="snap-start snap-always flex-shrink-0 w-[85vw] sm:w-auto min-w-[clamp(220px,18vw,320px)] list-none flex"
-              >
-                <EventCard event={event} index={index} />
-              </div>
-            ))}
-          </ScrollableSection>
-        </div>
+        {hasEvents ? (
+          <div className="pt-2">
+            <ScrollableSection showArrows={true} className="items-stretch py-2">
+              {displayEvents.map((event, index) => (
+                <div
+                  key={event.id}
+                  className="snap-start snap-always flex-shrink-0 w-[85vw] sm:w-auto min-w-[clamp(220px,18vw,320px)] list-none flex"
+                >
+                  <EventCard event={event} index={index} />
+                </div>
+              ))}
+            </ScrollableSection>
+          </div>
+        ) : (
+          <div className="rounded-[24px] border border-charcoal/10 bg-gradient-to-br from-sage/10 to-sage/20 p-6 text-center space-y-4">
+            <p className="text-base font-semibold text-charcoal" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
+              We&apos;re curating something special for you
+            </p>
+            <p className="text-sm text-charcoal/70" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
+              Business owners are adding curated events and specials. Check back soon or explore the full list.
+            </p>
+            <button
+              onClick={() => router.push(href)}
+              className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-navbar-bg text-white text-sm font-semibold hover:bg-navbar-bg/90 transition-colors focus:outline-none focus:ring-2 focus:ring-sage/40"
+              style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
+            >
+              Explore events & specials
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );

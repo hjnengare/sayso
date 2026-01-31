@@ -2,6 +2,10 @@
 
 import React from "react";
 
+/**
+ * Skeleton for EventCard — structure and dimensions match EventCard exactly
+ * so loading → content transition has no layout shift.
+ */
 export default function EventCardSkeleton() {
   return (
     <li
@@ -11,44 +15,48 @@ export default function EventCardSkeleton() {
       }}
     >
       <article
-        className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-visible h-[600px] sm:h-auto flex flex-col border border-white/60 backdrop-blur-xl ring-1 ring-white/30 shadow-md animate-pulse"
-        style={
-          {
-            width: "100%",
-            maxWidth: "540px",
-          } as React.CSSProperties
-        }
+        className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden w-full flex flex-col border border-white/60 backdrop-blur-xl shadow-md md:w-[340px] md:h-[416px] animate-pulse"
+        style={{ maxWidth: "540px" } as React.CSSProperties}
       >
-        {/* MEDIA - Full bleed with skeleton - matches EventCard exactly */}
-        <div className="relative px-1 pt-1 pb-0 overflow-hidden flex-1 sm:flex-initial h-[300px] sm:h-[320px] lg:h-[240px] xl:h-[220px] z-10">
-          <div className="relative w-full h-full">
-            <div className="relative w-full h-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-off-white/95 to-off-white/85 rounded-[12px] shadow-sm">
-              {/* Centered icon placeholder */}
+        {/* MEDIA — same as EventCard: h-[260px], p-1, rounded-[12px] */}
+        <div className="relative w-full h-[260px] lg:h-[260px] overflow-hidden rounded-[12px] z-10 flex-shrink-0 p-1">
+          <div className="relative w-full h-full overflow-hidden rounded-[12px]">
+            <div className="relative w-full h-full overflow-hidden rounded-[12px] flex items-center justify-center bg-gradient-to-br from-off-white/95 to-off-white/85">
               <div className="w-32 h-32 sm:w-36 sm:h-36 md:w-32 md:h-32 bg-charcoal/10 rounded-lg" />
             </div>
           </div>
 
-          {/* Event Badge skeleton - rotated ribbon style */}
-          <div className="absolute -left-[2px] top-6 z-20">
-            <div className="h-6 w-24 bg-navbar-bg/30 rounded-r-lg transform -rotate-0" />
+          {/* Badge skeleton — same position/rotation as EventBadge (rotate(-50deg), left-0 top-0) */}
+          <div className="absolute left-0 top-0 z-20 overflow-hidden" style={{ width: "150px", height: "120px" }}>
+            <div
+              className="absolute bg-navbar-bg/30 rounded-sm"
+              style={{
+                transform: "rotate(-50deg)",
+                transformOrigin: "center",
+                left: "-40px",
+                top: "20px",
+                width: "250px",
+                height: "28px",
+              }}
+            />
           </div>
         </div>
 
-        {/* CONTENT - Skeleton content - matches EventCard exactly */}
-        <div className="px-4 pt-4 pb-6 flex flex-col justify-between bg-gradient-to-br from-sage/12 via-sage/8 to-sage/10 gap-4 rounded-b-[12px]">
-          <div className="flex flex-col items-center text-center gap-3">
-            {/* Title skeleton */}
-            <div className="h-7 sm:h-8 w-3/4 bg-charcoal/10 rounded-lg" />
+        {/* CONTENT — same as EventCard: px-4 py-4, gap-2, left-aligned */}
+        <div className="px-4 py-4 bg-gradient-to-b from-card-bg/95 to-card-bg flex flex-col gap-2 rounded-b-[12px]">
+          <div className="flex flex-col gap-2">
+            {/* Title — text-base/sm:text-lg equivalent height, left-aligned */}
+            <div className="h-5 sm:h-6 w-3/4 bg-charcoal/10 rounded-lg" />
 
-            {/* Description skeleton - 2 lines */}
-            <div className="w-full flex flex-col items-center gap-1.5">
+            {/* Description — 2 lines, text-sm, left-aligned */}
+            <div className="w-full flex flex-col gap-1.5">
               <div className="h-4 w-full bg-charcoal/5 rounded" />
-              <div className="h-4 w-2/3 bg-charcoal/5 rounded" />
+              <div className="h-4 w-4/5 bg-charcoal/5 rounded" />
             </div>
           </div>
 
-          {/* Button skeleton - matches Learn More button */}
-          <div className="w-full min-h-[44px] py-3 px-4 bg-charcoal/10 rounded-full" />
+          {/* Button — mt-3, py-2.5, rounded-full, same as EventCard */}
+          <div className="mt-3 w-full h-10 px-4 py-2.5 bg-charcoal/10 rounded-full" />
         </div>
       </article>
     </li>
