@@ -136,13 +136,18 @@ BEGIN
   END IF;
 
   -- Get replier display name
-  SELECT COALESCE(display_name, 'Someone')
-  INTO v_replier_name
-  FROM profiles
-  WHERE user_id = NEW.user_id;
+  -- If the replier is the business owner, use the business name
+  IF NEW.user_id = v_business.owner_id THEN
+    v_replier_name := v_business.name;
+  ELSE
+    SELECT COALESCE(display_name, 'Someone')
+    INTO v_replier_name
+    FROM profiles
+    WHERE user_id = NEW.user_id;
 
-  IF v_replier_name IS NULL THEN
-    v_replier_name := 'Someone';
+    IF v_replier_name IS NULL THEN
+      v_replier_name := 'Someone';
+    END IF;
   END IF;
 
   -- Build links
