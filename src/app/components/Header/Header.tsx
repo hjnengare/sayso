@@ -266,61 +266,95 @@ export default function Header({
     </form>
   );
 
-  // Mobile search input (expandable)
+  // Mobile search input (expandable with sleek animation)
   const renderMobileSearchInput = () => (
-    <motion.form
-      initial={{ width: 0, opacity: 0 }}
-      animate={{ width: "100%", opacity: 1 }}
-      exit={{ width: 0, opacity: 0 }}
-      transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-      onSubmit={handleSearchSubmit}
-      className="flex-1 overflow-hidden"
+    <motion.div
+      key="mobile-search-overlay"
+      className="absolute inset-x-0 top-0 bottom-0 flex items-center justify-center px-4 z-20"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
     >
-      <div className="relative">
-        {/* Search icon on left */}
-        <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none z-10">
-          <Search className="w-4 h-4 text-charcoal/50" strokeWidth={2} />
-        </div>
+      <motion.form
+        initial={{ width: "40px", opacity: 0, scale: 0.8 }}
+        animate={{ 
+          width: "90%", 
+          opacity: 1, 
+          scale: 1,
+        }}
+        exit={{ 
+          width: "40px", 
+          opacity: 0, 
+          scale: 0.8,
+        }}
+        transition={{ 
+          duration: 0.35, 
+          ease: [0.32, 0.72, 0, 1],
+          opacity: { duration: 0.2 },
+          scale: { duration: 0.25 }
+        }}
+        onSubmit={handleSearchSubmit}
+        className="relative"
+      >
+        <motion.div 
+          className="relative"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ delay: 0.1, duration: 0.2 }}
+        >
+          {/* Search icon on left */}
+          <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none z-10">
+            <Search className="w-5 h-5 text-charcoal/50" strokeWidth={2} />
+          </div>
 
-        {/* Clear/Close button on right */}
-        <div className="absolute inset-y-0 right-2 flex items-center z-10">
-          <button
-            type="button"
-            onClick={() => {
-              if (headerSearchQuery) {
-                handleClearSearch();
-              } else {
-                setIsMobileSearchOpen(false);
-              }
-            }}
-            className="flex items-center justify-center w-7 h-7 rounded-full text-charcoal/60 hover:text-charcoal hover:bg-charcoal/5 transition-all duration-200"
-            aria-label={headerSearchQuery ? "Clear search" : "Close search"}
+          {/* Clear/Close button on right */}
+          <motion.div 
+            className="absolute inset-y-0 right-2 flex items-center z-10"
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.5 }}
+            transition={{ delay: 0.15, duration: 0.2 }}
           >
-            <X className="w-4 h-4" strokeWidth={2} />
-          </button>
-        </div>
+            <button
+              type="button"
+              onClick={() => {
+                if (headerSearchQuery) {
+                  handleClearSearch();
+                } else {
+                  setIsMobileSearchOpen(false);
+                }
+              }}
+              className="flex items-center justify-center w-8 h-8 rounded-full text-charcoal/60 hover:text-charcoal hover:bg-charcoal/10 active:bg-charcoal/20 transition-all duration-150"
+              aria-label={headerSearchQuery ? "Clear search" : "Close search"}
+            >
+              <X className="w-5 h-5" strokeWidth={2} />
+            </button>
+          </motion.div>
 
-        <input
-          ref={mobileInputRef}
-          type="text"
-          value={headerSearchQuery}
-          onChange={handleSearchInputChange}
-          placeholder="Search..."
-          className={`w-full rounded-full bg-off-white text-charcoal placeholder:text-charcoal/50
-            border shadow-sm text-sm
-            focus:outline-none focus:bg-white focus:border-sage focus:ring-1 focus:ring-sage/30
-            transition-all duration-200
-            pl-9 pr-10 py-2
-            ${isSearchActive ? 'border-sage bg-white' : 'border-charcoal/10'}
-          `}
-          style={{
-            fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-          }}
-          aria-label="Search businesses"
-          autoComplete="off"
-        />
-      </div>
-    </motion.form>
+          <input
+            ref={mobileInputRef}
+            type="text"
+            value={headerSearchQuery}
+            onChange={handleSearchInputChange}
+            placeholder="Search businesses..."
+            className={`w-full rounded-full bg-off-white text-charcoal placeholder:text-charcoal/50
+              border-2 shadow-lg text-base
+              focus:outline-none focus:bg-white focus:border-sage focus:ring-2 focus:ring-sage/20
+              transition-all duration-200
+              pl-12 pr-12 py-3
+              ${isSearchActive ? 'border-sage bg-white' : 'border-charcoal/10'}
+            `}
+            style={{
+              fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+            }}
+            aria-label="Search businesses"
+            autoComplete="off"
+          />
+        </motion.div>
+      </motion.form>
+    </motion.div>
   );
 
   const currentPaddingClass = heroMode ? "py-0" : reducedPadding ? "py-1" : "py-4";
@@ -391,15 +425,15 @@ export default function Header({
               </div>
 
               {/* Mobile Layout */}
-              <div className="flex lg:hidden items-center gap-2 w-full">
+              <div className="relative flex lg:hidden items-center gap-2 w-full min-h-[48px]">
                 {/* Logo - always visible when search is closed */}
                 <AnimatePresence mode="wait">
                   {!isMobileSearchOpen && (
                     <motion.div
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.9 }}
-                      transition={{ duration: 0.15 }}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -10 }}
+                      transition={{ duration: 0.2, ease: [0.32, 0.72, 0, 1] }}
                       className="pl-2"
                     >
                       <OptimizedLink href={logoHref} className="group flex items-center flex-shrink-0" aria-label="sayso Home">
@@ -413,9 +447,20 @@ export default function Header({
                   )}
                 </AnimatePresence>
 
-                {/* Mobile Search (expandable) */}
-                <AnimatePresence>
-                  {isMobileSearchOpen && showSearch && isHomePage && renderMobileSearchInput()}
+                {/* Mobile Search (expandable, 90% width, sleek open/close animation) */}
+                <AnimatePresence mode="wait">
+                  {isMobileSearchOpen && showSearch && isHomePage && (
+                    <motion.div
+                      key="mobile-search"
+                      className="absolute inset-x-0 top-0 bottom-0 flex items-center justify-center px-4 z-20"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      {renderMobileSearchInput()}
+                    </motion.div>
+                  )}
                 </AnimatePresence>
 
                 {/* Right side icons */}
