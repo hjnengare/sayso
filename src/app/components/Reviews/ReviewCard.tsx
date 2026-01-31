@@ -636,34 +636,38 @@ export default function ReviewCard({
                 </motion.button>
               )}
 
-              {/* Owner-specific actions */}
-              {isOwnerView && user && (
-                <div className="flex items-center gap-2">
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => setShowReplyForm(!showReplyForm)}
-                    className="flex items-center space-x-2 px-4 py-2 rounded-full transition-all duration-300 bg-sage text-white hover:bg-sage/90 font-semibold"
-                  >
-                    <MessageCircle size={16} />
-                    <span className="font-urbanist text-sm">
-                      {replies.length > 0 ? 'Edit Reply' : 'Write a Reply'}
-                    </span>
-                  </motion.button>
-                  {review.user_id && (
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => router.push(`/dm/${review.user_id}?business_id=${review.business_id}`)}
-                      className="flex items-center space-x-2 px-4 py-2 rounded-full transition-all duration-300 bg-coral text-white hover:bg-coral/90 font-semibold"
-                    >
-                      <MessageCircle size={16} />
-                      <span className="font-urbanist text-sm">
-                        Message Customer
-                      </span>
-                    </motion.button>
-                  )}
-                </div>
+              {/* Reply button - available to all authenticated users */}
+              {user && (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setShowReplyForm(!showReplyForm)}
+                  className={`flex items-center space-x-2 px-3 py-2 rounded-full transition-all duration-300 font-semibold ${
+                    isOwnerView
+                      ? 'bg-sage text-white hover:bg-sage/90 px-4'
+                      : 'text-charcoal/60 hover:bg-sage/10 hover:text-sage'
+                  }`}
+                >
+                  <MessageCircle size={isOwnerView ? 16 : 18} />
+                  <span className="font-urbanist text-sm">
+                    Reply{replies.length > 0 ? ` (${replies.length})` : ''}
+                  </span>
+                </motion.button>
+              )}
+
+              {/* Owner-only: Message Customer */}
+              {isOwnerView && user && review.user_id && (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => router.push(`/dm/${review.user_id}?business_id=${review.business_id}`)}
+                  className="flex items-center space-x-2 px-4 py-2 rounded-full transition-all duration-300 bg-coral text-white hover:bg-coral/90 font-semibold"
+                >
+                  <MessageCircle size={16} />
+                  <span className="font-urbanist text-sm">
+                    Message Customer
+                  </span>
+                </motion.button>
               )}
             </div>
 
@@ -674,10 +678,9 @@ export default function ReviewCard({
             )}
           </div>
 
-          {/* Reply Form - Show for owners */}
-          {isOwnerView && (
-            <AnimatePresence>
-              {showReplyForm && user && (
+          {/* Reply Form - Available to all authenticated users */}
+          <AnimatePresence>
+            {showReplyForm && user && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
@@ -723,14 +726,13 @@ export default function ReviewCard({
                   </div>
                 </motion.div>
               )}
-            </AnimatePresence>
-          )}
+          </AnimatePresence>
 
-          {/* Replies List - Show for owners */}
-          {isOwnerView && replies.length > 0 && (
+          {/* Replies List - Visible to everyone */}
+          {replies.length > 0 && (
             <div className="mt-4 pt-4 border-t border-sage/10 space-y-3">
               <h5 className="font-urbanist text-sm font-semibold text-charcoal/70 mb-3" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                Owner Reply
+                {replies.length === 1 ? '1 Reply' : `${replies.length} Replies`}
               </h5>
               {replies.map((reply) => {
                 const isEditing = editingReplyId === reply.id;
@@ -752,7 +754,7 @@ export default function ReviewCard({
                           {formatDate(reply.created_at)}
                         </span>
                       </div>
-                      {!isEditing && (
+                      {!isEditing && (isOwnerView || reply.user_id === user?.id) && (
                         <div className="flex items-center gap-1">
                           <motion.button
                             whileHover={{ scale: 1.1 }}
