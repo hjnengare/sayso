@@ -5,11 +5,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { formatDistanceToNow } from 'date-fns';
 import { useRouter } from 'next/navigation';
-import { Trash2, Image as ImageIcon, ChevronUp, Heart, X, MessageCircle, Send, Edit, Bookmark } from 'lucide-react';
+import { Trash2, Image as ImageIcon, ChevronUp, Heart, X, MessageCircle, Send, Edit } from 'lucide-react';
 import type { ReviewWithUser } from '../../lib/types/database';
 import { useAuth } from '../../contexts/AuthContext';
 import { useReviewSubmission } from '../../hooks/useReviews';
-import { useSavedItems } from '../../contexts/SavedItemsContext';
 import { getDisplayUsername } from '../../utils/generateUsername';
 import { ConfirmationDialog } from '../../../components/molecules/ConfirmationDialog/ConfirmationDialog';
 import BadgePill, { BadgePillData } from '../Badges/BadgePill';
@@ -30,7 +29,6 @@ export default function ReviewCard({
   const { user } = useAuth();
   const router = useRouter();
   const { likeReview, deleteReview } = useReviewSubmission();
-  const { toggleSavedItem, isItemSaved } = useSavedItems();
 
   // Helper function to check if current user owns this review with fallback logic
   const isReviewOwner = (): boolean => {
@@ -238,14 +236,6 @@ export default function ReviewCard({
       onUpdate();
     }
   };
-
-  const handleBookmark = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!review.business_id) return;
-    await toggleSavedItem(review.business_id);
-  };
-
-  const isBusinessSaved = review.business_id ? isItemSaved(review.business_id) : false;
 
   const handleSubmitReply = async () => {
     if (!replyText.trim() || !user || submittingReply) return;
@@ -467,23 +457,6 @@ export default function ReviewCard({
               
               {/* Direct action icons - Mobile-first design */}
               <div className="flex items-center gap-1 sm:gap-1.5">
-                {/* Bookmark button - Save/Unsave business */}
-                {review.business_id && (
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={handleBookmark}
-                    className="min-w-[44px] min-h-[44px] sm:min-w-[28px] sm:min-h-[28px] w-11 h-11 sm:w-7 sm:h-7 bg-navbar-bg rounded-full flex items-center justify-center hover:bg-navbar-bg/90 active:scale-95 transition-all duration-300 touch-manipulation"
-                    aria-label={isBusinessSaved ? "Unsave business" : "Save business"}
-                    title={isBusinessSaved ? "Unsave business" : "Save business"}
-                  >
-                    <Bookmark 
-                      className="w-5 h-5 sm:w-[18px] sm:h-[18px] text-white transition-all duration-200" 
-                      fill={isBusinessSaved ? "currentColor" : "none"}
-                      strokeWidth={2.5}
-                    />
-                  </motion.button>
-                )}
                 {isReviewOwner() && (
                   <>
                     <motion.button
