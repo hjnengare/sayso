@@ -564,10 +564,17 @@ export async function proxy(request: NextRequest) {
     }
 
     // Personal discovery routes: Block business owners (leaderboard excluded — public view-only page)
+    // EXCEPTION: Allow /home?guest=true for business owners exploring the platform
     const isPersonalRoute = ['/home', '/for-you', '/trending', '/explore', '/events-specials', '/profile', '/saved', '/write-review', '/reviewer'].some(route =>
       pathname === route || pathname.startsWith(route + '/')
     );
     if (isPersonalRoute) {
+      // Allow guest mode on /home even for business owners
+      if (pathname === '/home' && request.nextUrl.searchParams.get('guest') === 'true') {
+        debugLog('ALLOW', { requestId, reason: 'business_guest_home', pathname });
+        edgeLog('ALLOW', pathname, { hasUser: true, emailConfirmed: true, isBusiness: true, reason: 'guest_home' });
+        return response;
+      }
       debugLog('REDIRECT', { requestId, reason: 'business_on_personal_route', to: '/my-businesses' });
       edgeLog('REDIRECT', pathname, { hasUser: true, emailConfirmed: true, isBusiness: true, to: '/my-businesses' });
       return redirectWithGuard(request, new URL('/my-businesses', request.url));
@@ -611,6 +618,15 @@ export async function proxy(request: NextRequest) {
         debugLog('ALLOW', { requestId, reason: 'completed_user_on_protected', pathname });
         return response;
       }
+      
+      // CRITICAL: Allow /home?guest=true even for users with incomplete onboarding
+      // This prevents redirect loops when users are exploring before completing onboarding
+      if (pathname === '/home' && request.nextUrl.searchParams.get('guest') === 'true') {
+        debugLog('ALLOW', { requestId, reason: 'guest_home_with_user', pathname });
+        edgeLog('ALLOW', pathname, { hasUser: true, emailConfirmed: !!user.email_confirmed_at, reason: 'guest_home' });
+        return response;
+      }
+      
       // User with incomplete onboarding must complete onboarding first
       // CRITICAL: Only redirect if we have confirmed incomplete status
       if (onboardingStatus !== null && !isOnboardingComplete) {
