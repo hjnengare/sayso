@@ -1,29 +1,16 @@
 /**
  * Next.js Middleware
  * 
- * TEMPORARILY DISABLED for iOS compatibility investigation.
- * The proxy.ts middleware was causing iOS Safari to fail to display the site.
- * 
- * Cross-device email verification still works because:
- * - auth/callback/route.ts handles the token exchange
- * - verify-email/page.tsx handles the UI and redirects
- * 
- * TODO: Re-enable once iOS issues are resolved
+ * Handles authentication, email verification, and onboarding routing.
+ * Uses the proxy function from src/proxy.ts for main logic.
  */
 
-import { NextResponse } from 'next/server';
+import { proxy, config as proxyConfig } from './src/proxy';
 import type { NextRequest } from 'next/server';
 
-export async function middleware(_request: NextRequest) {
-  // Middleware disabled - pass through all requests
-  return NextResponse.next();
+export async function middleware(request: NextRequest) {
+  return proxy(request);
 }
 
-// Only match a dummy path to effectively disable middleware
-// while keeping the file in place for future re-enablement
-export const config = {
-  matcher: [
-    // Match nothing - middleware effectively disabled
-    '/_disabled_middleware_placeholder',
-  ],
-};
+// Re-export the config from proxy.ts
+export const config = proxyConfig;
