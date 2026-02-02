@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import ReviewsList from "../../components/Reviews/ReviewsList";
 import type { ReviewWithUser } from "../../lib/types/database";
-import { getCategoryPng, isPngIcon } from "../../utils/categoryToPngMapping";
+import { isPlaceholderImage } from "../../utils/categoryToPngMapping";
 import Footer from "../../components/Footer/Footer";
 import { BusinessInfo } from "../../components/BusinessInfo/BusinessInfoModal";
 import SimilarBusinesses from "../../components/SimilarBusinesses/SimilarBusinesses";
@@ -426,26 +426,26 @@ export default function BusinessProfilePage() {
     // First image in array is the primary/cover image
     if (business.uploaded_images && Array.isArray(business.uploaded_images) && business.uploaded_images.length > 0) {
         allImages = business.uploaded_images
-            .filter((url: string) => url && typeof url === 'string' && url.trim() !== '' && !isPngIcon(url));
+            .filter((url: string) => url && typeof url === 'string' && url.trim() !== '' && !isPlaceholderImage(url));
         primaryImage = allImages[0] || '';
     }
     
     // Add image_url if not already included
-    if (business.image_url && typeof business.image_url === 'string' && business.image_url.trim() !== '' && !isPngIcon(business.image_url) && !allImages.includes(business.image_url)) {
+    if (business.image_url && typeof business.image_url === 'string' && business.image_url.trim() !== '' && !isPlaceholderImage(business.image_url) && !allImages.includes(business.image_url)) {
         allImages.push(business.image_url);
     }
     
     // Add images from images array if provided
     if (Array.isArray(business.images)) {
         business.images.forEach((img: string) => {
-            if (img && typeof img === 'string' && img.trim() !== '' && !isPngIcon(img) && !allImages.includes(img)) {
+            if (img && typeof img === 'string' && img.trim() !== '' && !isPlaceholderImage(img) && !allImages.includes(img)) {
                 allImages.push(img);
             }
         });
     }
     
     // Add business.image as last fallback
-    if (business.image && typeof business.image === 'string' && business.image.trim() !== '' && !isPngIcon(business.image) && !allImages.includes(business.image)) {
+    if (business.image && typeof business.image === 'string' && business.image.trim() !== '' && !isPlaceholderImage(business.image) && !allImages.includes(business.image)) {
         allImages.push(business.image);
     }
     
@@ -552,6 +552,7 @@ export default function BusinessProfilePage() {
                                                 verified={businessData.verified || (businessData as { owner_verified?: boolean }).owner_verified}
                                                 images={businessData.images}
                                                 uploaded_images={businessData.uploaded_images}
+                                                subcategorySlug={business?.sub_interest_id ?? (business as { subInterestId?: string })?.subInterestId}
                                             />
                                             <BusinessInfoComponent
                                                 name={businessData.name}

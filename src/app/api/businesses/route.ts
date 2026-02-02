@@ -19,6 +19,7 @@ import {
   type UserPreferences,
 } from "@/app/lib/services/personalizationService";
 import { normalizeBusinessImages, type BusinessImage } from "@/app/lib/utils/businessImages";
+import { getSubcategoryLabel } from "@/app/utils/subcategoryPlaceholders";
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs'; // Use Node.js runtime to avoid Edge Runtime warnings with Supabase
@@ -1985,7 +1986,7 @@ function transformBusinessForCard(business: BusinessRPCResult) {
   const hasRating = business.average_rating && business.average_rating > 0;
   const hasReviews = business.total_reviews && business.total_reviews > 0;
   const shouldShowBadge = business.verified && business.badge;
-  const subInterestLabel = formatSubInterestLabel(business.sub_interest_id);
+  const subInterestLabel = business.sub_interest_id ? getSubcategoryLabel(business.sub_interest_id) : undefined;
 
   // Prioritize first uploaded image over image_url for business cards
   // This ensures owner-uploaded images are displayed first
@@ -2024,7 +2025,7 @@ function transformBusinessForCard(business: BusinessRPCResult) {
     image: displayImage,
     uploaded_images: business.uploaded_images || [], // Include uploaded_images array for BusinessCard component
     image_url: business.image_url || undefined, // Preserve image_url as fallback
-    category: business.category,
+    category: subInterestLabel ?? getSubcategoryLabel(business.category) ?? business.category,
     subInterestId: business.sub_interest_id || undefined,
     subInterestLabel,
     interestId: business.interest_id || undefined,
@@ -2062,15 +2063,6 @@ function transformBusinessForCard(business: BusinessRPCResult) {
   }
 
   return transformed;
-}
-
-function formatSubInterestLabel(subInterestId?: string | null) {
-  if (!subInterestId) return undefined;
-  return subInterestId
-    .split(/[-_]/)
-    .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ');
 }
 
 /**

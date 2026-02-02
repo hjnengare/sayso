@@ -11,7 +11,8 @@ import Tooltip from "../Tooltip/Tooltip";
 import { useSavedItems } from "../../contexts/SavedItemsContext";
 import { useToast } from "../../contexts/ToastContext";
 import { useAuth } from "../../contexts/AuthContext";
-import { getCategoryPng, getCategoryPngFromLabels, isPngIcon } from "../../utils/categoryToPngMapping";
+import { getCategoryPlaceholder, getCategoryPlaceholderFromLabels, isPlaceholderImage } from "../../utils/categoryToPngMapping";
+import { getSubcategoryLabel } from "../../utils/subcategoryPlaceholders";
 import BusinessCardImage from "./parts/BusinessCardImage";
 import BusinessCardCategory from "./parts/BusinessCardCategory";
 import BusinessCardActions from "./parts/BusinessCardActions";
@@ -337,24 +338,24 @@ function BusinessCard({
 
   // Image fallback logic
 
-  // Always use the raw category from the DB for display
   const categoryKey = business.subInterestId || business.category || "default";
-  const displayCategoryLabel = business.category || "";
-  // Log for validation
-  console.log("BusinessCard category:", displayCategoryLabel);
+  const displayCategoryLabel =
+    business.subInterestLabel ||
+    getSubcategoryLabel(business.subInterestId) ||
+    getSubcategoryLabel(business.category) ||
+    business.category ||
+    "Miscellaneous";
 
   const getDisplayImage = useMemo(() => {
     // Priority 1: Check uploaded_images array (new source of truth)
-    // Always use the first (primary) image
     if (business.uploaded_images && Array.isArray(business.uploaded_images) && business.uploaded_images.length > 0) {
       const imageUrl = business.uploaded_images[0];
 
       if (imageUrl &&
           typeof imageUrl === 'string' &&
           imageUrl.trim() !== '' &&
-          !isPngIcon(imageUrl) &&
-          !imageUrl.includes('/png/')) {
-        return { image: imageUrl, isPng: false };
+          !isPlaceholderImage(imageUrl)) {
+        return { image: imageUrl, isPlaceholder: false };
       }
     }
 
@@ -362,21 +363,24 @@ function BusinessCard({
     if (business.image_url &&
       typeof business.image_url === 'string' &&
       business.image_url.trim() !== '' &&
-      !isPngIcon(business.image_url)) {
-      return { image: business.image_url, isPng: false };
+      !isPlaceholderImage(business.image_url)) {
+      return { image: business.image_url, isPlaceholder: false };
     }
 
     // Priority 3: Legacy image field
     if (business.image &&
       typeof business.image === 'string' &&
       business.image.trim() !== '' &&
-      !isPngIcon(business.image)) {
-      return { image: business.image, isPng: false };
+      !isPlaceholderImage(business.image)) {
+      return { image: business.image, isPlaceholder: false };
     }
 
-    // Priority 4: Category PNG fallback
-    const categoryPng = getCategoryPngFromLabels([business.subInterestId, business.subInterestLabel, business.category, categoryKey]);
-    return { image: categoryPng, isPng: true };
+    // Priority 4: Subcategory placeholder photo
+    const placeholder = getCategoryPlaceholderFromLabels(
+      [business.subInterestId, business.subInterestLabel, business.category, categoryKey],
+      business.interestId
+    );
+    return { image: placeholder, isPlaceholder: true };
   }, [
     business.uploaded_images,
     business.image_url,
@@ -385,10 +389,11 @@ function BusinessCard({
     business.subInterestId,
     business.subInterestLabel,
     business.category,
+    business.interestId,
   ]);
 
   const displayImage = getDisplayImage.image;
-  const isImagePng = getDisplayImage.isPng;
+  const isImagePng = getDisplayImage.isPlaceholder;
   const displayAlt = business.alt || business.name;
 
   const hasRating = business.hasRating !== undefined

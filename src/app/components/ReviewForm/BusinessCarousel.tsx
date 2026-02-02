@@ -4,13 +4,16 @@ import { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
+import { isPlaceholderImage, getSubcategoryPlaceholder } from "../../utils/subcategoryPlaceholders";
 
 interface BusinessCarouselProps {
   businessName: string;
   businessImages: string[];
+  /** Canonical subcategory slug for placeholder when no photos (e.g. sub_interest_id) */
+  subcategorySlug?: string | null;
 }
 
-export default function BusinessCarousel({ businessName, businessImages }: BusinessCarouselProps) {
+export default function BusinessCarousel({ businessName, businessImages, subcategorySlug }: BusinessCarouselProps) {
   const [imageError, setImageError] = useState<Record<number, boolean>>({});
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
@@ -18,20 +21,16 @@ export default function BusinessCarousel({ businessName, businessImages }: Busin
 
   const minSwipeDistance = 50;
 
-  // Helper to check if image is a PNG placeholder (for business cards, not carousel)
-  const isPngPlaceholder = (url: string) => {
-    return url.startsWith('/png/') || url.includes('/png/');
-  };
-
-  // Filter out empty strings, null values, and PNG placeholders from images array
+  // Filter out empty strings, null values, and placeholder images from images array
   const validImages = businessImages?.filter((img: string) => {
-    return img && img.trim() !== '' && !isPngPlaceholder(img);
+    return img && img.trim() !== '' && !isPlaceholderImage(img);
   }) || [];
   const hasImages = validImages.length > 0;
   const hasMultipleImages = validImages.length > 1;
   const currentImage = validImages[currentImageIndex];
+  const placeholderSrc = getSubcategoryPlaceholder(subcategorySlug ?? undefined);
 
-  // If no valid images, show a placeholder matching BusinessHeroImage
+  // If no valid images, show subcategory placeholder (full photo, same layout as BusinessHeroImage)
   if (!hasImages) {
     return (
       <motion.div
@@ -40,15 +39,16 @@ export default function BusinessCarousel({ businessName, businessImages }: Busin
         transition={{ duration: 0.6 }}
         className="relative w-full h-[50vh] sm:h-auto sm:aspect-[16/9] lg:aspect-[21/9] rounded-[12px] overflow-hidden border border-white/60 ring-1 ring-white/30"
       >
-        <div className="absolute inset-0 bg-card-bg flex items-center justify-center">
-          <div className="flex flex-col items-center gap-3">
-            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-coral/20 to-coral/10 flex items-center justify-center">
-              <Star className="w-10 h-10 sm:w-12 sm:h-12 text-charcoal" strokeWidth={1.5} />
-            </div>
-            <p className="text-body-sm text-charcoal/70 font-medium uppercase tracking-wide" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-              NO PHOTOS YET
-            </p>
-          </div>
+        <div className="absolute inset-0 bg-card-bg overflow-hidden">
+          <Image
+            src={placeholderSrc}
+            alt={`${businessName} placeholder`}
+            fill
+            className="object-cover"
+            priority
+            quality={85}
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 900px"
+          />
         </div>
       </motion.div>
     );

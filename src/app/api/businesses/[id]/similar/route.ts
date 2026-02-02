@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSupabase } from '../../../../lib/supabase/server';
+import { getSubcategoryLabel } from '../../../../utils/subcategoryPlaceholders';
 
 /**
  * GET /api/businesses/[id]/similar
@@ -161,9 +162,9 @@ export async function GET(
         image: displayImage,
         uploaded_images: business.uploaded_images || [],
         image_url: business.image_url || undefined,
-        category: business.category,
+        category: business.sub_interest_id ? getSubcategoryLabel(business.sub_interest_id) : (business.category || 'Miscellaneous'),
         subInterestId: business.sub_interest_id || undefined,
-        subInterestLabel: business.sub_interest_id ? formatSubInterestLabel(business.sub_interest_id) : undefined,
+        subInterestLabel: business.sub_interest_id ? getSubcategoryLabel(business.sub_interest_id) : undefined,
         interestId: business.interest_id || undefined,
         location: business.location,
         rating: hasRating ? Math.round(business.average_rating * 2) / 2 : undefined,
@@ -219,16 +220,4 @@ export async function GET(
   }
 }
 
-/**
- * Helper function to format sub-interest label
- * Matches the logic used in the main businesses route
- */
-function formatSubInterestLabel(subInterestId?: string | null): string | undefined {
-  if (!subInterestId) return undefined;
-  return subInterestId
-    .split(/[-_]/)
-    .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ');
-}
 

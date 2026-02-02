@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSupabase } from "@/app/lib/supabase/server";
 import { normalizeBusinessImages } from "@/app/lib/utils/businessImages";
+import { getSubcategoryLabel } from "@/app/utils/subcategoryPlaceholders";
 import type { 
   CuratedBusiness, 
   CuratedBusinessesResponse, 
@@ -134,7 +135,8 @@ function transformToUI(
 ): CuratedBusinessUI {
   const images = businessImages[business.id] || [];
   const primaryImage = images.find((img: any) => img.is_primary) || images[0];
-  const displayCategory = business.sub_interest_id || business.category || 'Miscellaneous';
+  const slug = business.sub_interest_id || business.category;
+  const displayCategory = getSubcategoryLabel(slug);
 
   return {
     id: business.id,

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSupabase } from "@/app/lib/supabase/server";
+import { getSubcategoryLabel } from "@/app/utils/subcategoryPlaceholders";
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -14,7 +15,8 @@ async function getFeaturedFallback(supabase: any, limit: number) {
   let businesses: any[] = [];
   let queryError: any = null;
 
-  // Try with status filter
+  // Fetch a large pool so we can pick one per subcategory (diversity)
+  const poolSize = Math.min(limit * 10, 100);
   const { data: statusData, error: statusError } = await supabase
     .from('businesses')
     .select(`
@@ -34,7 +36,7 @@ async function getFeaturedFallback(supabase: any, limit: number) {
     `)
     .eq('status', 'active')
     .order('created_at', { ascending: false })
-    .limit(limit * 3);
+    .limit(poolSize);
 
   if (statusError) {
     // Try without status filter (column might not exist)
@@ -57,7 +59,7 @@ async function getFeaturedFallback(supabase: any, limit: number) {
         )
       `)
       .order('created_at', { ascending: false })
-      .limit(limit * 3);
+      .limit(poolSize);
 
     if (noStatusError) {
       console.error('[FEATURED API] Fallback query error:', noStatusError);
@@ -72,18 +74,17 @@ async function getFeaturedFallback(supabase: any, limit: number) {
     return [];
   }
 
-  // Sort by rating (but don't filter out - include all)
+  // Sort by rating; return full pool so caller can pick one per subcategory (diversity)
   const sorted = [...businesses].sort((a: any, b: any) => {
     const aStats = a.business_stats?.[0] || a.business_stats || {};
     const bStats = b.business_stats?.[0] || b.business_stats || {};
     const aRating = aStats.average_rating || 0;
     const bRating = bStats.average_rating || 0;
-    // Sort by rating descending, then by reviews
     if (bRating !== aRating) return bRating - aRating;
     const aReviews = aStats.total_reviews || 0;
     const bReviews = bStats.total_reviews || 0;
     return bReviews - aReviews;
-  }).slice(0, limit);
+  });
 
   // Transform to match expected format
   return sorted.map((b: any) => {
@@ -148,8 +149,43 @@ export async function GET(request: NextRequest) {
       return NextResponse.json([]);
     }
 
+    // Diversify: one business per category/subcategory so featured list is mixed
+    const businessesByCategory = new Map<string, any>();
+    const categoryKey = (b: any) =>
+      (b.sub_interest_id || b.bucket || b.category || "miscellaneous").toString().trim().toLowerCase();
+
+    for (const business of featuredData) {
+      const key = categoryKey(business);
+      if (!businessesByCategory.has(key)) {
+        businessesByCategory.set(key, business);
+      }
+    }
+
+    let diverseFeaturedData = Array.from(businessesByCategory.values()).slice(0, limit);
+
+    // If we have fewer than 4, fill from the rest of the pool (any category) so we show at least 4
+    const minFeatured = 4;
+    if (diverseFeaturedData.length < minFeatured && featuredData.length > diverseFeaturedData.length) {
+      const usedIds = new Set(diverseFeaturedData.map((b: any) => b.id));
+      const remaining = featuredData.filter((b: any) => !usedIds.has(b.id));
+      const needed = Math.min(minFeatured - diverseFeaturedData.length, remaining.length);
+      for (let i = 0; i < needed; i++) {
+        diverseFeaturedData.push(remaining[i]);
+      }
+    }
+
+    // Randomize display order so the section doesn’t always look the same
+    diverseFeaturedData = [...diverseFeaturedData].sort(() => Math.random() - 0.5);
+
+    console.log('[FEATURED API] Diversity check:', {
+      original_count: featuredData.length,
+      unique_categories: businessesByCategory.size,
+      final_count: diverseFeaturedData.length,
+      categories: Array.from(businessesByCategory.keys()),
+    });
+
     // Get business images for the featured businesses
-    const businessIds = featuredData.map((b: any) => b.id);
+    const businessIds = diverseFeaturedData.map((b: any) => b.id);
     const { data: imagesData } = await supabase
       .from('business_images')
       .select('business_id, url, alt_text, is_primary')
@@ -167,13 +203,13 @@ export async function GET(request: NextRequest) {
     }
 
     // Transform the data to match the UI expectations
-    const featuredBusinesses = featuredData.map((business: any, index: number) => {
+    const featuredBusinesses = diverseFeaturedData.map((business: any, index: number) => {
       const businessImages = imagesByBusinessId[business.id] || [];
       const primaryImage = businessImages.find((img) => img.is_primary) || businessImages[0];
       const uploadedImageUrls = businessImages.map((img) => img.url).filter(Boolean);
 
-      // Use the bucket for category display (sub_interest_id or category)
-      const displayCategory = business.bucket || business.category || 'Miscellaneous';
+      const slug = business.sub_interest_id || business.bucket || business.category;
+      const displayCategory = getSubcategoryLabel(slug);
 
       return {
         id: business.id,
@@ -183,9 +219,10 @@ export async function GET(request: NextRequest) {
         uploaded_images: uploadedImageUrls,
         alt: primaryImage?.alt_text || business.name,
         category: displayCategory,
+        sub_interest_id: business.sub_interest_id || business.bucket || business.category,
         description: business.description || `Featured in ${displayCategory}`,
         location: business.location || 'Cape Town',
-        rating: business.average_rating > 0 ? 5 : 0, // UI expects 0 or 5 for display
+        rating: business.average_rating > 0 ? 5 : 0,
         reviewCount: business.total_reviews,
         totalRating: business.average_rating,
         reviews: business.total_reviews,

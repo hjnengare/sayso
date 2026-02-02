@@ -250,7 +250,7 @@ export default function Header({
           onChange={handleSearchInputChange}
           placeholder={headerPlaceholder}
           className={`w-full rounded-full bg-off-white text-charcoal placeholder:text-charcoal/50
-            border shadow-sm text-sm
+            border text-sm
             focus:outline-none focus:bg-white focus:border-sage focus:ring-1 focus:ring-sage/30
             hover:bg-white/90 transition-all duration-200
             pl-9 pr-8 py-2
@@ -346,7 +346,7 @@ export default function Header({
             onChange={handleSearchInputChange}
             placeholder="Search businesses..."
             className={`w-full rounded-full bg-off-white text-charcoal placeholder:text-charcoal/50
-              border-2 shadow-lg text-base
+              border-2 text-base
               focus:outline-none focus:bg-white focus:border-sage focus:ring-2 focus:ring-sage/20
               transition-all duration-200
               pl-12 pr-12 py-3
@@ -413,7 +413,7 @@ export default function Header({
                     <Logo
                       variant="default"
                       showMark={false}
-                      className="drop-shadow-[0_4px_16px_rgba(0,0,0,0.12)] transition-all duration-300 group-hover:drop-shadow-[0_6px_20px_rgba(0,0,0,0.15)]"
+                      className="transition-all duration-300"
                     />
                   </OptimizedLink>
                 </div>
@@ -446,7 +446,7 @@ export default function Header({
                         <Logo
                           variant="default"
                           showMark={false}
-                          className="drop-shadow-[0_4px_16px_rgba(0,0,0,0.12)] transition-all duration-300 group-hover:drop-shadow-[0_6px_20px_rgba(0,0,0,0.15)]"
+                          className="transition-all duration-300"
                         />
                       </OptimizedLink>
                     </motion.div>
@@ -491,7 +491,7 @@ export default function Header({
                     >
                       <Bell className="w-5 h-5" fill={isNotificationsActive ? "currentColor" : "none"} />
                       {unreadCount > 0 && (
-                        <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-white text-[10px] font-bold rounded-full shadow-lg bg-gradient-to-br from-coral to-coral/90 border border-white/20">
+                        <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-white text-[10px] font-bold rounded-full bg-gradient-to-br from-coral to-coral/90 border border-white/20">
                           {unreadCount > 99 ? "99+" : unreadCount}
                         </span>
                       )}
@@ -513,7 +513,7 @@ export default function Header({
                     >
                       <Bookmark className="w-5 h-5" fill={isSavedActive ? "currentColor" : "none"} />
                       {savedCount > 0 && (
-                        <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-white text-[10px] font-bold rounded-full shadow-lg bg-gradient-to-br from-coral to-coral/90 border border-white/20">
+                        <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-white text-[10px] font-bold rounded-full bg-gradient-to-br from-coral to-coral/90 border border-white/20">
                           {savedCount > 99 ? "99+" : savedCount}
                         </span>
                       )}
@@ -525,7 +525,7 @@ export default function Header({
                     <button
                       type="button"
                       onClick={() => setIsMobileMenuOpen(true)}
-                      className={`w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 shadow-sm ${
+                      className={`w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 ${
                         whiteText
                           ? "text-white hover:text-white/80 hover:bg-white/10"
                           : "text-charcoal/80 hover:text-sage hover:bg-sage/5"
@@ -547,7 +547,7 @@ export default function Header({
                   <Logo
                     variant="default"
                     showMark={false}
-                    className="relative drop-shadow-[0_4px_16px_rgba(0,0,0,0.12)] transition-all duration-300 group-hover:drop-shadow-[0_6px_20px_rgba(0,0,0,0.15)]"
+                    className="relative transition-all duration-300"
                   />
                 </div>
               </OptimizedLink>
@@ -575,7 +575,7 @@ export default function Header({
                   >
                     <Bell className="w-5 h-5" fill={isNotificationsActive ? "currentColor" : "none"} />
                     {unreadCount > 0 && (
-                      <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-white text-[10px] font-bold rounded-full shadow-lg bg-gradient-to-br from-coral to-coral/90 border border-white/20">
+                      <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-white text-[10px] font-bold rounded-full bg-gradient-to-br from-coral to-coral/90 border border-white/20">
                         {unreadCount > 99 ? "99+" : unreadCount}
                       </span>
                     )}
@@ -596,7 +596,7 @@ export default function Header({
                   >
                     <Bookmark className="w-5 h-5" fill={isSavedActive ? "currentColor" : "none"} />
                     {savedCount > 0 && (
-                      <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-white text-[10px] font-bold rounded-full shadow-lg bg-gradient-to-br from-coral to-coral/90 border border-white/20">
+                      <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-white text-[10px] font-bold rounded-full bg-gradient-to-br from-coral to-coral/90 border border-white/20">
                         {savedCount > 99 ? "99+" : savedCount}
                       </span>
                     )}
@@ -622,7 +622,7 @@ export default function Header({
                 <button
                   type="button"
                   onClick={() => setIsMobileMenuOpen(true)}
-                  className={`w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 shadow-sm ${
+                  className={`w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 ${
                     whiteText
                       ? "text-white hover:text-white/80 hover:bg-white/10"
                       : "text-charcoal/80 hover:text-sage hover:bg-sage/5"

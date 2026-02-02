@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import { Scissors, Coffee, UtensilsCrossed, Wine, Dumbbell, Activity, Heart, Book, ShoppingBag, Home, Briefcase, MapPin, Music, Film, Camera, Car, GraduationCap, CreditCard, Tag } from "lucide-react";
-import { getCategoryPng, isPngIcon } from "../../utils/categoryToPngMapping";
-import OptimizedImage from "../Performance/OptimizedImage";
+import { ImageIcon } from "lucide-react";
+import { getCategoryPlaceholder, isPlaceholderImage } from "../../utils/categoryToPngMapping";
 
 interface SimilarBusinessCardProps {
   id: string;
@@ -30,39 +30,6 @@ interface SimilarBusinessCardProps {
   subInterestId?: string;
   subInterestLabel?: string;
 }
-
-// Generate a unique color for each business based on its ID
-// This ensures every business card icon has a different color
-const getUniqueBusinessColor = (businessId: string): string => {
-  // Create a simple hash from the business ID
-  let hash = 0;
-  for (let i = 0; i < businessId.length; i++) {
-    const char = businessId.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; // Convert to 32-bit integer
-  }
-  
-  // Use absolute value and modulo to get a consistent index
-  const index = Math.abs(hash) % 12;
-  
-  // Palette of distinct colors for variety
-  const colorPalette = [
-    'from-coral/20 to-coral/10',           // 0 - Coral
-    'from-sage/20 to-sage/10',             // 1 - Sage
-    'from-purple-400/20 to-purple-400/10', // 2 - Purple
-    'from-blue-400/20 to-blue-400/10',     // 3 - Blue
-    'from-pink-400/20 to-pink-400/10',     // 4 - Pink
-    'from-yellow-400/20 to-yellow-400/10',  // 5 - Yellow
-    'from-indigo-400/20 to-indigo-400/10', // 6 - Indigo
-    'from-teal-400/20 to-teal-400/10',     // 7 - Teal
-    'from-orange-400/20 to-orange-400/10', // 8 - Orange
-    'from-rose-400/20 to-rose-400/10',     // 9 - Rose
-    'from-cyan-400/20 to-cyan-400/10',     // 10 - Cyan
-    'from-emerald-400/20 to-emerald-400/10', // 11 - Emerald
-  ];
-  
-  return colorPalette[index];
-};
 
 // Map categories to lucide-react icons
 const getCategoryIcon = (category: string, subInterestId?: string, subInterestLabel?: string): React.ComponentType<React.SVGProps<SVGSVGElement>> => {
@@ -167,9 +134,26 @@ export default function SimilarBusinessCard({
 }: SimilarBusinessCardProps) {
   const router = useRouter();
   
-  // Determine display image - use first image from uploaded_images array if available
-  const displayImage = (uploaded_images && uploaded_images.length > 0 ? uploaded_images[0] : null) || image_url || image || getCategoryPng(category);
-  const isImagePng = displayImage ? (isPngIcon(displayImage) || displayImage.includes('/png/') || displayImage.endsWith('.png')) : false;
+  const [imgError, setImgError] = React.useState(false);
+  const [usingFallback, setUsingFallback] = React.useState(false);
+
+  // Use canonical subcategory slug so each card gets the correct category placeholder (not default)
+  const placeholderSrc = getCategoryPlaceholder(subInterestId ?? category);
+
+  const rawImage = (uploaded_images && uploaded_images.length > 0 && !isPlaceholderImage(uploaded_images[0]) ? uploaded_images[0] : null)
+    || (image_url && !isPlaceholderImage(image_url) ? image_url : null)
+    || (image && !isPlaceholderImage(image) ? image : null);
+  const isPlaceholder = !rawImage;
+  const displayImage = rawImage || placeholderSrc;
+
+  const handleImageError = () => {
+    if (!usingFallback && !isPlaceholder) {
+      setUsingFallback(true);
+      setImgError(false);
+    } else {
+      setImgError(true);
+    }
+  };
 
   // Use slug for SEO-friendly URLs, fallback to ID
   const businessIdentifier = slug || id;
@@ -196,25 +180,12 @@ export default function SimilarBusinessCard({
     >
       {/* Image Section */}
       <div className="relative w-full h-[300px] lg:h-[260px] overflow-hidden rounded-t-[12px]">
-        {isImagePng ? (
-          <div className="relative w-full h-full flex items-center justify-center bg-gradient-to-br from-off-white/95 to-off-white/85">
-            <OptimizedImage
-              src={displayImage}
-              alt={name}
-              width={320}
-              height={350}
-              sizes="(max-width: 768px) 540px, 340px"
-              className="w-32 h-32 md:w-36 md:h-36 object-contain"
-              priority={false}
-              quality={90}
-            />
-          </div>
-        ) : (
+        {!imgError ? (
           <div className="relative w-full h-full overflow-hidden bg-card-bg">
-            {/* Blurred background - Instagram style */}
+            {/* Blurred background */}
             <div className="absolute inset-0">
               <Image
-                src={displayImage}
+                src={usingFallback ? placeholderSrc : displayImage}
                 alt=""
                 fill
                 className="object-cover"
@@ -231,10 +202,10 @@ export default function SimilarBusinessCard({
               />
             </div>
 
-            {/* Foreground image - sharp, centered, aspect-ratio preserved */}
+            {/* Foreground image */}
             <div className="absolute inset-0 flex items-center justify-center">
               <Image
-                src={displayImage}
+                src={usingFallback ? placeholderSrc : displayImage}
                 alt={name}
                 fill
                 className="object-contain"
@@ -242,8 +213,16 @@ export default function SimilarBusinessCard({
                 priority={false}
                 quality={90}
                 loading="lazy"
+                onError={handleImageError}
               />
             </div>
+          </div>
+        ) : (
+          <div
+            className="relative w-full h-full flex items-center justify-center"
+            style={{ backgroundColor: '#E5E0E5' }}
+          >
+            <ImageIcon className="w-16 h-16 text-charcoal/20" aria-hidden="true" />
           </div>
         )}
       </div>

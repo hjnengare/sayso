@@ -1,15 +1,18 @@
 "use client";
 
 import Image from "next/image";
-import React, { useState, useCallback } from "react";
-import { ChevronLeft, ChevronRight, Star as StarIcon, Star, Image as ImageIcon } from "lucide-react";
+import React, { useState, useCallback, useMemo } from "react";
+import { ChevronLeft, ChevronRight, Star, Image as ImageIcon } from "lucide-react";
+import { getSubcategoryPlaceholder } from "../../utils/subcategoryPlaceholders";
+import { isPlaceholderImage } from "../../utils/subcategoryPlaceholders";
 
 interface ImageCarouselProps {
     images: string[];
     altBase: string;
     rating: number;
     metrics: { label: string; value: number; color: "sage" | "coral" }[];
-    placeholderImage?: string; // Optional placeholder PNG for when no images
+    placeholderImage?: string;
+    subcategorySlug?: string | null;
 }
 
 export function ImageCarousel({
@@ -18,13 +21,17 @@ export function ImageCarousel({
     rating,
     metrics,
     placeholderImage,
+    subcategorySlug,
 }: ImageCarouselProps) {
     const [index, setIndex] = useState(0);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    // Filter out empty strings and null values from images array
-    const validImages = images?.filter((img: string) => img && img.trim() !== '') || [];
+    const validImages = useMemo(
+        () => images?.filter((img: string) => img && img.trim() !== '' && !isPlaceholderImage(img)) || [],
+        [images]
+    );
     const hasImages = validImages.length > 0;
-    const displayImages = hasImages ? validImages : (placeholderImage ? [placeholderImage] : []);
+    const fallbackPlaceholder = placeholderImage ?? getSubcategoryPlaceholder(subcategorySlug ?? undefined);
+    const displayImages = hasImages ? validImages : [fallbackPlaceholder];
     const hasFallbackImage = displayImages.length > 0;
     const total = displayImages.length;
 
@@ -126,27 +133,16 @@ export function ImageCarousel({
                         </div>
                     ))
                 ) : (
-                    // Placeholder icon when no images
-                    <div className="absolute inset-0 flex items-center justify-center bg-card-bg rounded-[12px]">
-                        {placeholderImage ? (
-                            <Image
-                                src={placeholderImage}
-                                alt={`${altBase} placeholder`}
-                                width={254}
-                                height={254}
-                                className="object-contain opacity-60"
-                                priority
-                            />
-                        ) : (
-                            <div className="flex flex-col items-center justify-center gap-3">
-                                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-coral/20 to-coral/10 flex items-center justify-center">
-                                    <StarIcon className="w-10 h-10 sm:w-12 sm:h-12 text-charcoal" strokeWidth={1.5} />
-                                </div>
-                                <span className="text-sm font-semibold tracking-wide uppercase text-charcoal/70">
-                                    No Photos Yet
-                                </span>
-                            </div>
-                        )}
+                    // Subcategory placeholder (full photo, same treatment as real images)
+                    <div className="absolute inset-0 bg-card-bg rounded-[12px] overflow-hidden">
+                        <Image
+                            src={fallbackPlaceholder}
+                            alt={`${altBase} placeholder`}
+                            fill
+                            className="object-cover"
+                            priority
+                            sizes="(max-width: 768px) 100vw, 768px"
+                        />
                     </div>
                 )}
             </div>

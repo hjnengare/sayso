@@ -509,7 +509,7 @@ function WriteReviewContent() {
                       {/* Main Content Section */}
                       <div className="lg:col-span-2 space-y-6">
                         {/* Image Gallery Section - Matching Business Profile */}
-                          <BusinessCarousel businessName={businessName} businessImages={businessImages} />
+                          <BusinessCarousel businessName={businessName} businessImages={businessImages} subcategorySlug={business?.sub_interest_id ?? business?.subInterestId} />
                     
                         {/* Review Form Section - Separated from images */}
                         <article className="w-full sm:mx-0 flex items-center justify-center" aria-labelledby="review-form-heading">

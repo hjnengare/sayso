@@ -11,42 +11,10 @@ import Stars from "../Stars/Stars";
 import VerifiedBadge from "../VerifiedBadge/VerifiedBadge";
 import Tooltip from "../Tooltip/Tooltip";
 import { BusinessOfTheMonth } from "../../types/community";
-import { getCategoryPng, getCategoryPngFromLabels, isPngIcon } from "../../utils/categoryToPngMapping";
+import { getCategoryPlaceholder, isPlaceholderImage } from "../../utils/categoryToPngMapping";
+import { getSubcategoryLabel } from "../../utils/subcategoryPlaceholders";
 import { useSavedItems } from "../../contexts/SavedItemsContext";
 import { useToast } from "../../contexts/ToastContext";
-
-// Generate a unique color for each business based on its ID
-// This ensures every business card icon has a different color
-const getUniqueBusinessColor = (businessId: string): string => {
-  // Create a simple hash from the business ID
-  let hash = 0;
-  for (let i = 0; i < businessId.length; i++) {
-    const char = businessId.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; // Convert to 32-bit integer
-  }
-  
-  // Use absolute value and modulo to get a consistent index
-  const index = Math.abs(hash) % 12;
-  
-  // Palette of distinct colors for variety
-  const colorPalette = [
-    'from-coral/20 to-coral/10',           // 0 - Coral
-    'from-sage/20 to-sage/10',             // 1 - Sage
-    'from-purple-400/20 to-purple-400/10', // 2 - Purple
-    'from-blue-400/20 to-blue-400/10',     // 3 - Blue
-    'from-pink-400/20 to-pink-400/10',     // 4 - Pink
-    'from-yellow-400/20 to-yellow-400/10',  // 5 - Yellow
-    'from-indigo-400/20 to-indigo-400/10', // 6 - Indigo
-    'from-teal-400/20 to-teal-400/10',     // 7 - Teal
-    'from-orange-400/20 to-orange-400/10', // 8 - Orange
-    'from-rose-400/20 to-rose-400/10',     // 9 - Rose
-    'from-cyan-400/20 to-cyan-400/10',     // 10 - Cyan
-    'from-emerald-400/20 to-emerald-400/10', // 11 - Emerald
-  ];
-  
-  return colorPalette[index];
-};
 
 // Map categories to lucide-react icons (normalize only for icon selection)
 const getCategoryIcon = (category: string): React.ComponentType<React.SVGProps<SVGSVGElement>> => {
@@ -97,35 +65,35 @@ export default function BusinessOfTheMonthCard({ business, index: _index = 0 }: 
 
   // Image fallback logic with edge case handling
   const getDisplayImage = useMemo(() => {
-    // Priority 1: Check for uploaded business images array (not a PNG icon)
+    // Priority 1: Check for uploaded business images array
     const uploadedImages = (business as any).uploaded_images;
     if (uploadedImages && Array.isArray(uploadedImages) && uploadedImages.length > 0) {
       const firstImage = uploadedImages[0];
-      if (firstImage && 
-          typeof firstImage === 'string' && 
+      if (firstImage &&
+          typeof firstImage === 'string' &&
           firstImage.trim() !== '' &&
-          !isPngIcon(firstImage) &&
-          !firstImage.includes('/png/')) {
-        return { image: firstImage, isPng: false };
+          !isPlaceholderImage(firstImage)) {
+        return { image: firstImage, isPlaceholder: false };
       }
     }
 
     // Priority 2: Check image_url (API compatibility)
     const imageUrl = business.image || (business as any).image_url;
-    if (imageUrl && 
-        typeof imageUrl === 'string' && 
+    if (imageUrl &&
+        typeof imageUrl === 'string' &&
         imageUrl.trim() !== '' &&
-        !isPngIcon(imageUrl)) {
-      return { image: imageUrl, isPng: false };
+        !isPlaceholderImage(imageUrl)) {
+      return { image: imageUrl, isPlaceholder: false };
     }
 
-    // Priority 3: Fallback to PNG based on specific labels (category) for banners
-    const categoryPng = getCategoryPngFromLabels([business.category]);
-    return { image: categoryPng, isPng: true };
+    // Priority 3: Subcategory placeholder — use canonical slug so we get the correct image, not default
+    const categorySlug = (business as any).sub_interest_id ?? (business as any).subInterestId ?? business.category;
+    const placeholder = getCategoryPlaceholder(categorySlug);
+    return { image: placeholder, isPlaceholder: true };
   }, [business]);
 
   const displayImage = getDisplayImage.image;
-  const isImagePng = getDisplayImage.isPng;
+  const isPlaceholder = getDisplayImage.isPlaceholder;
   const displayAlt = (business as any).alt || business.name;
   const displayTotal =
     (typeof business.totalRating === "number" && business.totalRating > 0 && business.totalRating) ||
@@ -133,14 +101,12 @@ export default function BusinessOfTheMonthCard({ business, index: _index = 0 }: 
     (typeof business?.stats?.average_rating === "number" && business.stats.average_rating > 0 && business.stats.average_rating) ||
     0;
 
-  // Handle image error - fallback to PNG if uploaded image fails
+  // Handle image error - fallback to placeholder if uploaded image fails
   const handleImageError = () => {
-    if (!usingFallback && !isImagePng) {
-      // If uploaded image fails, try category PNG
+    if (!usingFallback && !isPlaceholder) {
       setUsingFallback(true);
-      setImgError(false); // Reset to try fallback
+      setImgError(false);
     } else {
-      // PNG also failed or we're already using fallback
       setImgError(true);
     }
   };
@@ -245,58 +211,21 @@ export default function BusinessOfTheMonthCard({ business, index: _index = 0 }: 
             className="relative w-full h-full"
           >
             {!imgError && displayImage ? (
-              isImagePng || displayImage.includes('/png/') || displayImage.endsWith('.png') || usingFallback ? (
-                <div className="relative w-full h-full flex items-center justify-center bg-gradient-to-br from-off-white/95 to-off-white/85 rounded-[12px] shadow-sm">
-                  <Image
-                    src={usingFallback ? getCategoryPng(business.category) : displayImage}
-                    alt={displayAlt}
-                    width={320}
-                    height={350}
-                    sizes="(max-width: 768px) 540px, 340px"
-                    className="w-32 h-32 md:w-36 md:h-36 object-contain"
-                    priority={false}
-                    quality={90}
-                    onError={handleImageError}
-                  />
-                </div>
-              ) : (
-                <div className="relative w-full h-full overflow-hidden rounded-[12px] shadow-sm">
-                  <Image
-                    src={displayImage}
-                    alt={displayAlt}
-                    width={340}
-                    height={400}
-                    sizes="(max-width: 768px) 540px, 340px"
-                    className="w-full h-full object-cover"
-                    priority={false}
-                    quality={90}
-                    onError={handleImageError}
-                  />
-                </div>
-              )
+              <div className="relative w-full h-full overflow-hidden rounded-[12px] shadow-sm">
+                <Image
+                  src={usingFallback ? getCategoryPlaceholder((business as any).sub_interest_id ?? (business as any).subInterestId ?? business.category) : displayImage}
+                  alt={displayAlt}
+                  fill
+                  sizes="(max-width: 768px) 540px, 340px"
+                  className="object-cover"
+                  priority={false}
+                  quality={90}
+                  onError={handleImageError}
+                />
+              </div>
             ) : (
               <div
-                className="relative w-full h-full flex items-center justify-center"
-                style={{ backgroundColor: '#E5E0E5' }}
-              >
-                <div className="w-32 h-32 md:w-36 md:h-36 flex items-center justify-center">
-                  <Image
-                    src={getCategoryPng(business.category)}
-                    alt={displayAlt}
-                    width={144}
-                    height={144}
-                    sizes="144px"
-                    className="w-full h-full object-contain opacity-60"
-                    priority={false}
-                    quality={90}
-                    onError={() => setImgError(true)}
-                  />
-                </div>
-              </div>
-            )}
-            {imgError && (
-              <div
-                className="absolute inset-0 flex items-center justify-center"
+                className="relative w-full h-full flex items-center justify-center rounded-[12px]"
                 style={{ backgroundColor: '#E5E0E5' }}
               >
                 <ImageIcon className="w-16 h-16 text-charcoal/20" aria-hidden="true" />
@@ -427,10 +356,9 @@ export default function BusinessOfTheMonthCard({ business, index: _index = 0 }: 
                   {/* Category row with icon - Pill badge style */}
                   <div className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5">
                     {(() => {
-                      const CategoryIcon = getCategoryIcon(business.category);
-                      const uniqueColor = getUniqueBusinessColor(business.id);
-                      // Log for validation
-                      console.log("BusinessOfTheMonthCard category:", business.category);
+                      const categorySlug = (business as any).sub_interest_id ?? (business as any).subInterestId ?? business.category;
+                      const categoryLabel = (business as any).subInterestLabel ?? getSubcategoryLabel(categorySlug);
+                      const CategoryIcon = getCategoryIcon(categoryLabel);
                       return (
                         <>
                           <div className="w-8 h-8 rounded-full bg-off-white/20 flex items-center justify-center flex-shrink-0">
@@ -447,7 +375,7 @@ export default function BusinessOfTheMonthCard({ business, index: _index = 0 }: 
                               letterSpacing: '0.01em'
                             }}
                           >
-                            {business.category}
+                            {categoryLabel}
                           </span>
                         </>
                       );

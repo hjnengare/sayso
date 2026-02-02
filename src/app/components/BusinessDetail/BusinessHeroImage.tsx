@@ -5,6 +5,8 @@ import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { Star, ChevronLeft, ChevronRight } from "lucide-react";
+import { getSubcategoryPlaceholder } from "../../utils/subcategoryPlaceholders";
+import { isPlaceholderImage } from "../../utils/subcategoryPlaceholders";
 
 interface BusinessHeroImageProps {
   image: string;
@@ -13,6 +15,8 @@ interface BusinessHeroImageProps {
   verified?: boolean;
   images?: string[]; // Array of all images for carousel
   uploaded_images?: string[]; // Uploaded images array
+  /** Canonical subcategory slug for placeholder when no photos (e.g. sub_interest_id) */
+  subcategorySlug?: string | null;
 }
 
 export default function BusinessHeroImage({
@@ -22,27 +26,28 @@ export default function BusinessHeroImage({
   verified = false,
   images = [],
   uploaded_images = [],
+  subcategorySlug,
 }: BusinessHeroImageProps) {
-  // Combine all available images
+  // Combine all available images (exclude placeholders so we show real photos only)
   const allImages = useMemo(() => {
     const imageSet = new Set<string>();
 
     // Priority 1: uploaded_images array
     if (uploaded_images && uploaded_images.length > 0) {
       uploaded_images.forEach(img => {
-        if (img && img.trim()) imageSet.add(img);
+        if (img && img.trim() && !isPlaceholderImage(img)) imageSet.add(img);
       });
     }
 
     // Priority 2: images array
     if (images && images.length > 0) {
       images.forEach(img => {
-        if (img && img.trim()) imageSet.add(img);
+        if (img && img.trim() && !isPlaceholderImage(img)) imageSet.add(img);
       });
     }
 
     // Priority 3: single image prop
-    if (image && image.trim()) {
+    if (image && image.trim() && !isPlaceholderImage(image)) {
       imageSet.add(image);
     }
 
@@ -53,6 +58,7 @@ export default function BusinessHeroImage({
   const hasMultipleImages = allImages.length > 1;
   const currentImage = allImages[currentImageIndex] || image;
   const hasImage = currentImage && currentImage.trim() !== '';
+  const placeholderSrc = getSubcategoryPlaceholder(subcategorySlug ?? undefined);
 
   const handlePrevious = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -130,15 +136,16 @@ export default function BusinessHeroImage({
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
         </>
       ) : (
-        <div className="absolute inset-0 bg-card-bg flex items-center justify-center">
-          <div className="flex flex-col items-center gap-3">
-            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-coral/20 to-coral/10 flex items-center justify-center">
-              <Star className="w-10 h-10 sm:w-12 sm:h-12 text-charcoal" strokeWidth={1.5} />
-            </div>
-            <p className="text-body-sm text-charcoal/70 font-medium uppercase tracking-wide" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-              NO PHOTOS YET
-            </p>
-          </div>
+        <div className="absolute inset-0 bg-card-bg overflow-hidden">
+          <Image
+            src={placeholderSrc}
+            alt={alt}
+            fill
+            className="object-cover"
+            priority
+            quality={85}
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 900px"
+          />
         </div>
       )}
 

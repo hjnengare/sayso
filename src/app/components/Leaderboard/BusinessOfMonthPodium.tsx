@@ -4,9 +4,9 @@ import { memo, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Trophy, Star, ImageIcon } from "lucide-react";
 import Link from "next/link";
-import OptimizedImage from "../Performance/OptimizedImage";
+import Image from "next/image";
 import { BusinessOfTheMonth } from "../../types/community";
-import { getCategoryPng, getCategoryPngFromLabels, isPngIcon } from "../../utils/categoryToPngMapping";
+import { getCategoryPlaceholder, getCategoryPlaceholderFromLabels, isPlaceholderImage } from "../../utils/categoryToPngMapping";
 
 interface BusinessOfMonthPodiumProps {
   topBusinesses: BusinessOfTheMonth[];
@@ -19,49 +19,41 @@ function BusinessImage({ business, size }: { business: BusinessOfTheMonth; size:
 
   // Image fallback logic - matches BusinessCard pattern
   const categoryKey = (business as any).subInterestId || (business as any).interestId || business.category || "default";
-  const displayCategoryLabel = (business as any).subInterestLabel || business.category;
-
   const getDisplayImage = useMemo(() => {
-    // Priority 1: Check uploaded_images array
     const uploadedImages = (business as any).uploaded_images;
     if (uploadedImages && Array.isArray(uploadedImages) && uploadedImages.length > 0) {
       const firstImageUrl = uploadedImages[0];
-
       if (firstImageUrl &&
         typeof firstImageUrl === 'string' &&
         firstImageUrl.trim() !== '' &&
-        !isPngIcon(firstImageUrl) &&
-        !firstImageUrl.includes('/png/')) {
-        return { image: firstImageUrl, isPng: false };
+        !isPlaceholderImage(firstImageUrl)) {
+        return { image: firstImageUrl, isPlaceholder: false };
       }
     }
 
-    // Priority 2: External image_url
     const imageUrl = (business as any).image_url;
     if (imageUrl &&
       typeof imageUrl === 'string' &&
       imageUrl.trim() !== '' &&
-      !isPngIcon(imageUrl)) {
-      return { image: imageUrl, isPng: false };
+      !isPlaceholderImage(imageUrl)) {
+      return { image: imageUrl, isPlaceholder: false };
     }
 
-    // Priority 3: Legacy image field
     if (business.image &&
       typeof business.image === 'string' &&
       business.image.trim() !== '' &&
-      !isPngIcon(business.image)) {
-      return { image: business.image, isPng: false };
+      !isPlaceholderImage(business.image)) {
+      return { image: business.image, isPlaceholder: false };
     }
 
-    // Priority 4: Category PNG fallback
-    const categoryPng = getCategoryPngFromLabels([
+    const placeholder = getCategoryPlaceholderFromLabels([
       (business as any).subInterestId,
       (business as any).subInterestLabel,
       business.category,
       categoryKey,
       business.monthAchievement
-    ]);
-    return { image: categoryPng, isPng: true };
+    ], (business as any).interestId);
+    return { image: placeholder, isPlaceholder: true };
   }, [
     business.image,
     (business as any).image_url,
@@ -69,14 +61,15 @@ function BusinessImage({ business, size }: { business: BusinessOfTheMonth; size:
     categoryKey,
     business.category,
     business.monthAchievement,
+    (business as any).interestId,
   ]);
 
   const displayImage = getDisplayImage.image;
-  const isImagePng = getDisplayImage.isPng;
+  const isPlaceholder = getDisplayImage.isPlaceholder;
   const displayAlt = business.alt || business.name;
 
   const handleImageError = () => {
-    if (!usingFallback && !isImagePng) {
+    if (!usingFallback && !isPlaceholder) {
       setUsingFallback(true);
       setImgError(false);
     } else {
@@ -90,69 +83,21 @@ function BusinessImage({ business, size }: { business: BusinessOfTheMonth; size:
     large: 'w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32',
   };
 
-  const iconSizes = {
-    small: { width: 64, height: 64, className: 'w-12 h-12 sm:w-14 sm:h-14' },
-    medium: { width: 80, height: 80, className: 'w-16 h-16 sm:w-18 sm:h-18' },
-    large: { width: 96, height: 96, className: 'w-20 h-20 sm:w-24 sm:h-24' },
-  };
-
-  const iconSize = iconSizes[size];
-
   return (
-    <div className={`${sizeClasses[size]} relative rounded-[12px] overflow-hidden flex items-center justify-center`}>
+    <div className={`${sizeClasses[size]} relative rounded-[12px] overflow-hidden`}>
       {!imgError && displayImage ? (
-        isImagePng || displayImage.includes('/png/') || displayImage.endsWith('.png') || usingFallback ? (
-          <div className="relative w-full h-full flex items-center justify-center bg-gradient-to-br from-off-white/95 to-off-white/85">
-            <OptimizedImage
-              src={usingFallback ? getCategoryPng(categoryKey) : displayImage}
-              alt={displayAlt}
-              width={iconSize.width}
-              height={iconSize.height}
-              sizes="(max-width: 640px) 64px, (max-width: 768px) 80px, 96px"
-              className={`${iconSize.className} object-contain`}
-              priority={false}
-              quality={90}
-              onError={handleImageError}
-            />
-          </div>
-        ) : (
-          <div className="relative w-full h-full flex items-center justify-center">
-            <OptimizedImage
-              src={displayImage}
-              alt={displayAlt}
-              width={iconSize.width}
-              height={iconSize.height}
-              sizes="(max-width: 640px) 64px, (max-width: 768px) 80px, 96px"
-              className="w-full h-full object-cover"
-              priority={false}
-              quality={90}
-              onError={handleImageError}
-            />
-          </div>
-        )
+        <Image
+          src={usingFallback ? getCategoryPlaceholder(categoryKey) : displayImage}
+          alt={displayAlt}
+          fill
+          sizes="(max-width: 640px) 64px, (max-width: 768px) 80px, 96px"
+          className="object-cover"
+          quality={90}
+          onError={handleImageError}
+        />
       ) : (
         <div
-          className="relative w-full h-full flex items-center justify-center"
-          style={{ backgroundColor: '#E5E0E5' }}
-        >
-          <div className={iconSize.className}>
-            <OptimizedImage
-              src={getCategoryPng(categoryKey)}
-              alt={displayAlt}
-              width={iconSize.width}
-              height={iconSize.height}
-              sizes={`${iconSize.width}px`}
-              className="w-full h-full object-contain opacity-60"
-              priority={false}
-              quality={90}
-              onError={() => setImgError(true)}
-            />
-          </div>
-        </div>
-      )}
-      {imgError && (
-        <div
-          className="absolute inset-0 flex items-center justify-center"
+          className="w-full h-full flex items-center justify-center"
           style={{ backgroundColor: '#E5E0E5' }}
         >
           <ImageIcon className="w-6 h-6 sm:w-8 sm:h-8 text-charcoal/20" aria-hidden="true" />

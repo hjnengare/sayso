@@ -35,6 +35,67 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  // Legacy hash fragment (e.g. email confirmation in different browser): tokens are in #access_token=...&refresh_token=...
+  // Server never sees the hash, so return HTML that sets session client-side then redirects.
+  const typeFromQuery = requestUrl.searchParams.get('type');
+  const nextFromQuery = requestUrl.searchParams.get('next') ?? '/';
+  if (!code && !token) {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"/><title>Confirming…</title></head>
+<body>
+  <p>Confirming your sign-in…</p>
+  <script>
+    (function() {
+      var SUPABASE_URL = ${JSON.stringify(supabaseUrl)};
+      var SUPABASE_ANON_KEY = ${JSON.stringify(supabaseAnonKey)};
+      var REDIRECT_TYPE = ${JSON.stringify(typeFromQuery || '')};
+      var NEXT = ${JSON.stringify(nextFromQuery)};
+      var hash = window.location.hash && window.location.hash.substring(1);
+      var params = new URLSearchParams(hash || '');
+      var access_token = params.get('access_token');
+      var refresh_token = params.get('refresh_token');
+      if (!access_token || !refresh_token) {
+        window.location.replace('/auth/auth-code-error?error=missing_tokens');
+        return;
+      }
+      var script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+      script.async = false;
+      script.onload = function() {
+        var supabase = window.supabase;
+        var client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        client.auth.setSession({ access_token: access_token, refresh_token: refresh_token })
+          .then(function() {
+            if (REDIRECT_TYPE === 'recovery' || REDIRECT_TYPE === 'password_recovery') {
+              window.location.replace('/reset-password?verified=1');
+            } else if (REDIRECT_TYPE === 'email_change' || REDIRECT_TYPE === 'emailchange') {
+              window.location.replace('/profile?email_changed=true');
+            } else {
+              window.location.replace('/verify-email?verified=1');
+            }
+          })
+          .catch(function(err) {
+            console.error('Hash session set error:', err);
+            window.location.replace('/auth/auth-code-error?error=session_set_failed');
+          });
+      };
+      script.onerror = function() {
+        window.location.replace('/auth/auth-code-error?error=script_load');
+      };
+      document.head.appendChild(script);
+    })();
+  </script>
+</body>
+</html>`;
+    return new NextResponse(html, {
+      status: 200,
+      headers: { 'Content-Type': 'text/html; charset=utf-8' },
+    });
+  }
+
   if (code || token) {
     // Create response first so we can set cookies on it
     let response = NextResponse.next();
