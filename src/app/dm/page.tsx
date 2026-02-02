@@ -16,6 +16,7 @@ import {
 import Footer from "../components/Footer/Footer";
 import { useAuth } from "../contexts/AuthContext";
 import { useToast } from "../contexts/ToastContext";
+import { supabase } from "../lib/supabase";
 
 interface BusinessChat {
   id: string;
@@ -115,6 +116,10 @@ export default function DMPage() {
 
   // URL state
   const conversationParam = searchParams?.get("conversation");
+  const ownerIdParam = searchParams?.get("owner_id");
+  const userIdParam = searchParams?.get("user_id");
+  const businessIdParam = searchParams?.get("business_id");
+  const businessFilterParam = searchParams?.get("businessId");
 
   // Data state
   const [chats, setChats] = useState<BusinessChat[]>([]);
@@ -136,6 +141,40 @@ export default function DMPage() {
     return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   };
 
+  // Resolve entry-point params (owner_id/user_id/business_id) into a conversation
+  useEffect(() => {
+    if (!user) return;
+    if (conversationParam) return; // Already have a conversation selected
+    if (!ownerIdParam && !userIdParam) return; // No entry-point params
+
+    const resolveConversation = async () => {
+      try {
+        const body: Record<string, string> = {};
+        if (ownerIdParam) body.owner_id = ownerIdParam;
+        if (userIdParam) body.user_id = userIdParam;
+        if (businessIdParam) body.business_id = businessIdParam;
+
+        const res = await fetch("/api/messages/conversations", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+
+        if (res.ok) {
+          const result = await res.json();
+          const convId = result.data?.id;
+          if (convId) {
+            router.replace(`/dm?conversation=${convId}`, { scroll: false });
+          }
+        }
+      } catch (err) {
+        console.error("Error resolving conversation:", err);
+      }
+    };
+
+    resolveConversation();
+  }, [user, ownerIdParam, userIdParam, businessIdParam, conversationParam, router]);
+
   // Fetch chats
   useEffect(() => {
     const fetchConversations = async () => {
@@ -143,7 +182,10 @@ export default function DMPage() {
 
       try {
         setChatsLoading(true);
-        const response = await fetch("/api/messages/conversations", { cache: "no-store" });
+        const url = businessFilterParam
+          ? `/api/messages/conversations?businessId=${businessFilterParam}`
+          : "/api/messages/conversations";
+        const response = await fetch(url, { cache: "no-store" });
 
         if (!response.ok) {
           throw new Error(`Failed to fetch conversations`);
@@ -207,11 +249,7 @@ export default function DMPage() {
           }))
         );
 
-        // Mark as read
-        await fetch(`/api/messages/conversations/${conversationParam}/read`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-        }).catch(() => {});
+        // Messages are auto-marked as read by the GET endpoint above
       } catch (error) {
         console.error("Error fetching messages:", error);
         setMessages([]);
@@ -227,6 +265,57 @@ export default function DMPage() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // Real-time subscription for new messages in active conversation
+  useEffect(() => {
+    if (!conversationParam || !user) return;
+
+    const channel = supabase
+      .channel(`dm-${conversationParam}`)
+      .on(
+        "postgres_changes" as any,
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+          filter: `conversation_id=eq.${conversationParam}`,
+        },
+        (payload: any) => {
+          const newMsg = payload.new;
+          // Only append messages from the other party (we already append our own optimistically)
+          if (newMsg && newMsg.sender_id !== user.id) {
+            setMessages((prev) => {
+              // Avoid duplicates
+              if (prev.some((m) => m.id === newMsg.id)) return prev;
+              return [
+                ...prev,
+                {
+                  id: newMsg.id,
+                  senderId: newMsg.sender_id,
+                  text: newMsg.content,
+                  timestamp: "Just now",
+                  read: false,
+                },
+              ];
+            });
+
+            // Update the conversation list's last message preview
+            setChats((prev) =>
+              prev.map((chat) =>
+                chat.conversationId === conversationParam
+                  ? { ...chat, lastMessage: newMsg.content, timestamp: "Just now" }
+                  : chat
+              )
+            );
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [conversationParam, user]);
 
   // Handle sending message
   const handleSend = async (e: React.FormEvent) => {

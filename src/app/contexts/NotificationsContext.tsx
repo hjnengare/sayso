@@ -11,6 +11,7 @@ export type NotificationType =
   | 'business'
   | 'user'
   | 'highlyRated'
+  | 'message'
   | 'otp_sent'
   | 'otp_verified'
   | 'claim_status_changed'

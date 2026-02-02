@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bell, Check, X, MessageSquare, Star, Heart, TrendingUp, Clock, ChevronRight, ChevronUp } from "lucide-react";
+import { Bell, Check, X, MessageSquare, MessageCircle, Star, Heart, TrendingUp, Clock, ChevronRight, ChevronUp } from "lucide-react";
 import Footer from "../components/Footer/Footer";
 import { PageLoader } from "../components/Loader";
 import { usePredefinedPageTitle } from "../hooks/usePageTitle";
@@ -40,6 +40,8 @@ export default function NotificationsPage() {
         return Heart;
       case 'highlyRated':
         return Star;
+      case 'message':
+        return MessageCircle;
       default:
         return Bell;
     }
@@ -58,6 +60,8 @@ export default function NotificationsPage() {
         return 'bg-purple-400/10 text-purple-400 border-purple-400/30';
       case 'highlyRated':
         return 'bg-yellow-400/10 text-yellow-400 border-yellow-400/30';
+      case 'message':
+        return 'bg-coral/10 text-coral border-coral/30';
       default:
         return 'bg-sage/10 text-sage border-sage/30';
     }

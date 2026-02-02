@@ -232,14 +232,20 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { owner_id, business_id } = body;
+    const { owner_id, user_id: target_user_id, business_id } = body;
 
-    if (!owner_id) {
+    if (!owner_id && !target_user_id) {
       return NextResponse.json(
-        { error: 'owner_id is required' },
+        { error: 'Either owner_id or user_id is required' },
         { status: 400 }
       );
     }
+
+    // Determine conversation participants based on who is initiating:
+    // - owner_id provided → current user is the customer messaging a business owner
+    // - user_id provided → current user is the business owner messaging a customer
+    const conversationUserId = owner_id ? user.id : target_user_id;
+    const conversationOwnerId = owner_id ? owner_id : user.id;
 
     // Check if conversation already exists
     const { data: existingConversation, error: existingError } = await supabase
@@ -254,8 +260,8 @@ export async function POST(req: NextRequest) {
           verified
         )
       `)
-      .eq('user_id', user.id)
-      .eq('owner_id', owner_id)
+      .eq('user_id', conversationUserId)
+      .eq('owner_id', conversationOwnerId)
       .single();
     
     // If error is "not found" (PGRST116), that's fine - we'll create a new one
@@ -279,13 +285,13 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // If business_id not provided, try to find it from owner_id
+    // If business_id not provided, try to find it from the owner
     let finalBusinessId = business_id;
     if (!finalBusinessId) {
       const { data: business } = await supabase
         .from('businesses')
         .select('id')
-        .eq('owner_id', owner_id)
+        .eq('owner_id', conversationOwnerId)
         .limit(1)
         .single();
       if (business) {
@@ -297,8 +303,8 @@ export async function POST(req: NextRequest) {
     const { data: newConversation, error: createError } = await supabase
       .from('conversations')
       .insert({
-        user_id: user.id,
-        owner_id,
+        user_id: conversationUserId,
+        owner_id: conversationOwnerId,
         business_id: finalBusinessId || null,
       })
       .select('*')

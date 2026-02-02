@@ -501,7 +501,10 @@ export default function OwnerBusinessDashboard() {
                           <p className="text-xs text-charcoal/60">Last 30 days</p>
                         </div>
 
-                        <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-lg p-4">
+                        <Link
+                          href={`/dm?businessId=${business?.id || businessId}`}
+                          className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-lg p-4 hover:border-sage/40 transition-all duration-300 block"
+                        >
                           <div className="flex items-center gap-2 mb-2">
                             <MessageSquare className="w-5 h-5 text-coral" />
                             <span className="text-sm text-charcoal/70">Conversations</span>
@@ -510,7 +513,7 @@ export default function OwnerBusinessDashboard() {
                             {analytics.newConversations}
                           </p>
                           <p className="text-xs text-charcoal/60">Last 30 days</p>
-                        </div>
+                        </Link>
                       </>
                     )}
                   </section>
@@ -540,6 +543,14 @@ export default function OwnerBusinessDashboard() {
                       >
                         <MessageSquare size={14} strokeWidth={2.5} />
                         <span>View & Reply to Reviews</span>
+                      </Link>
+                      <Link
+                        href={`/dm?businessId=${business?.id || businessId}`}
+                        className="inline-flex items-center gap-2 px-4 py-2.5 bg-coral/90 hover:bg-coral text-white rounded-full text-sm font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-95 border border-coral/30 w-fit"
+                        style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                      >
+                        <MessageSquare size={14} strokeWidth={2.5} />
+                        <span>View Messages</span>
                       </Link>
                       <Link
                         href={`/business/${businessId}/edit`}

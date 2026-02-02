@@ -33,7 +33,7 @@ export default function Footer() {
         { name: "Reviews", href: "/discover/reviews" },
         { name: "For You", href: "/for-you" },
         { name: "Saved", href: "/saved" },
-        { name: "Messages", href: "/messages" },
+        { name: "Messages", href: "/dm" },
       ],
     },
     {
