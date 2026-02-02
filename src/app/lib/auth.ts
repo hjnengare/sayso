@@ -481,14 +481,14 @@ export class AuthService {
 
       let { data, error } = await supabase
         .from('profiles')
-        .select('user_id, onboarding_step, onboarding_complete, onboarding_completed_at, interests_count, last_interests_updated, created_at, updated_at, avatar_url, username, display_name, is_top_reviewer, reviews_count, badges_count, subcategories_count, dealbreakers_count, is_active, deactivated_at, role, account_role, email')
+        .select('user_id, onboarding_step, onboarding_complete, onboarding_completed_at, interests_count, last_interests_updated, created_at, updated_at, avatar_url, username, display_name, is_top_reviewer, reviews_count, badges_count, subcategories_count, dealbreakers_count, is_active, deactivated_at, role, account_role, email, email_verified, email_verified_at')
         .eq('user_id', userId)
         .single();
 
       if (error && isSchemaCacheError(error)) {
         ({ data, error } = await supabase
           .from('profiles')
-          .select('user_id, onboarding_step, onboarding_complete, interests_count, last_interests_updated, created_at, updated_at, avatar_url, username, display_name, is_top_reviewer, reviews_count, badges_count, subcategories_count, dealbreakers_count, is_active, deactivated_at, role, account_role, email')
+          .select('user_id, onboarding_step, onboarding_complete, interests_count, last_interests_updated, created_at, updated_at, avatar_url, username, display_name, is_top_reviewer, reviews_count, badges_count, subcategories_count, dealbreakers_count, is_active, deactivated_at, role, account_role, email, email_verified, email_verified_at')
           .eq('user_id', userId)
           .single());
       }
@@ -545,7 +545,9 @@ export class AuthService {
         deactivated_at: data.deactivated_at || undefined,
         role: data.role || 'user',
         account_role: data.account_role || 'user',
-        email: data.email || undefined
+        email: data.email || undefined,
+        email_verified: data.email_verified || false,
+        email_verified_at: data.email_verified_at || undefined
       };
 
       console.log('getUserProfile: Returning profile with avatar_url:', profile.avatar_url);
@@ -643,7 +645,7 @@ export class AuthService {
         type: 'signup',
         email: email.trim().toLowerCase(),
         options: {
-          emailRedirectTo: `${baseUrl}/auth/callback`,
+          emailRedirectTo: `${baseUrl}/auth/callback?type=signup`,
         }
       });
 

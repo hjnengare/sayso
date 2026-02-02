@@ -197,6 +197,26 @@ export async function GET(request: NextRequest) {
           console.log('Email verification callback - checking verification status');
           // Check if email is actually verified now
           if (user.email_confirmed_at) {
+            // Update profile to mark email as verified
+            try {
+              const { error: verifyError } = await supabase
+                .from('profiles')
+                .update({
+                  email_verified: true,
+                  email_verified_at: user.email_confirmed_at,
+                  updated_at: new Date().toISOString()
+                })
+                .eq('user_id', user.id);
+
+              if (verifyError) {
+                console.error('Failed to update email verification status:', verifyError);
+              } else {
+                console.log('Successfully updated email verification status');
+              }
+            } catch (verifyErr) {
+              console.error('Error updating email verification:', verifyErr);
+            }
+
             // CRITICAL: Check user's role to determine redirect destination
             // Priority: user_metadata.account_type (source of truth from registration) > profile role
             // Never send business users to user onboarding (/interests); when role unknown, send to /verify-email so middleware can decide
