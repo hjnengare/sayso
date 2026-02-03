@@ -201,14 +201,14 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
   const handleLogin = async () => {
     if (!email?.trim() || !password?.trim()) {
       setError("Complete all fields");
-      showToast("All fields required", "sage", 2500);
+      showToast("All fields required", "warning", 2500);
       return;
     }
 
     if (!validateEmail(email.trim())) {
       const errorMsg = "Email invalid";
       setError(errorMsg);
-      showToast(errorMsg, "sage", 2500);
+      showToast(errorMsg, "warning", 2500);
       return;
     }
 
@@ -218,7 +218,7 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
     if (!rateLimitResult.allowed) {
       const errorMsg = rateLimitResult.message || "Too many attempts. Try again later.";
       setError(errorMsg);
-      showToast(errorMsg, "sage", 3500);
+      showToast(errorMsg, "error", 3500);
       return;
     }
 
@@ -231,9 +231,9 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
       return;
     }
 
-    const errorMsg = authError || "Email or password is incorrect";
+    const errorMsg = authError || "Incorrect email or password. Please try again.";
     setError(errorMsg);
-    showToast(errorMsg, "sage", 3000);
+    showToast(errorMsg, "error", 3000);
   };
 
   const handleRegister = async () => {
@@ -241,67 +241,67 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
 
     if (!nameValue?.trim() || !email?.trim() || !password?.trim()) {
       setError("Please fill in all fields");
-      showToast("Please fill in all fields", "sage", 3000);
+      showToast("Please fill in all fields", "warning", 3000);
       return;
     }
 
     if (isBusiness) {
       if (!validateBusinessName(businessName.trim())) {
         setError("Please enter a valid business name");
-        showToast("Please enter a valid business name", "sage", 3000);
+        showToast("Please enter a valid business name", "warning", 3000);
         return;
       }
     } else if (!validateUsername(personalUsername.trim())) {
       setError("Please enter a valid username");
-      showToast("Please enter a valid username", "sage", 3000);
+      showToast("Please enter a valid username", "warning", 3000);
       return;
     }
 
     if (!validateEmail(email.trim())) {
-      const msg = "Please enter a valid email address (for example, name@example.com).";
+      const msg = "Please enter a valid email address (e.g. name@example.com).";
       setError(msg);
-      showToast("Please enter a valid email address.", "sage", 3000);
+      showToast("Please enter a valid email address.", "warning", 3000);
       return;
     }
 
     if (email.trim().length > 254) {
       const msg = "Email address is too long (maximum 254 characters).";
       setError(msg);
-      showToast("Email address is too long.", "sage", 3000);
+      showToast("Email address is too long.", "warning", 3000);
       return;
     }
 
     if (email.trim().includes("..") || email.trim().startsWith(".") || email.trim().endsWith(".")) {
       const msg = "Email address format is invalid.";
       setError(msg);
-      showToast("Email address format is invalid.", "sage", 3000);
+      showToast("Email address format is invalid.", "warning", 3000);
       return;
     }
 
     if (!consent) {
       setError("Please accept the Terms and Privacy Policy");
-      showToast("Please accept the Terms and Privacy Policy", "sage", 3000);
+      showToast("Please accept the Terms and Privacy Policy", "warning", 3000);
       return;
     }
 
     const passwordError = validatePassword(password);
     if (passwordError) {
       setError(passwordError);
-      showToast(passwordError, "sage", 4000);
+      showToast(passwordError, "warning", 4000);
       return;
     }
 
     if (passwordStrength.score < 3) {
       const msg = "Please create a stronger password";
       setError(msg);
-      showToast(msg, "sage", 3000);
+      showToast(msg, "warning", 3000);
       return;
     }
 
     if (!isOnline) {
       const msg = "You're offline. Please check your connection and try again.";
       setError(msg);
-      showToast(msg, "sage", 4000);
+      showToast(msg, "error", 4000);
       return;
     }
 
@@ -313,7 +313,7 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
         rateLimitResult.message ||
         "Too many registration attempts. Please try again later.";
       setError(msg);
-      showToast(msg, "sage", 5000);
+      showToast(msg, "error", 5000);
       return;
     }
 
@@ -323,7 +323,7 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
       const msg =
         "We couldn't confirm whether this email already exists. Please try again or log in.";
       setError(msg);
-      showToast(msg, "sage", 4000);
+      showToast(msg, "error", 4000);
       return;
     }
 
@@ -338,7 +338,7 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
       setExistingAccountError(true);
       const msg = `Email already registered for a ${accountLabel} account. Log in or use a different email.`;
       setError(msg);
-      showToast(msg, "sage", 4000);
+      showToast(msg, "error", 4000);
       return;
     }
 
@@ -363,9 +363,9 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
       const lower = authError.toLowerCase();
       if (lower.includes("fetch") || lower.includes("network")) {
         const msg =
-          "Connection error. Please check your internet connection and try again.";
+          "Connection error. Please check your internet and try again.";
         setError(msg);
-        showToast(msg, "sage", 4000);
+        showToast(msg, "error", 4000);
       } else if (
         lower.includes("already in use") ||
         lower.includes("already registered") ||
@@ -378,7 +378,7 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
         setExistingAccountError(true);
         const msg = "Email already exists. Please log in.";
         setError(msg);
-        showToast(msg, "sage", 4000);
+        showToast(msg, "error", 4000);
       } else if (
         lower.includes("invalid email") ||
         (lower.includes("email address") && lower.includes("invalid"))
@@ -386,26 +386,26 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
         const msg =
           "Email address is invalid. Please use a valid address like name@example.com.";
         setError(msg);
-        showToast(msg, "sage", 4000);
+        showToast(msg, "error", 4000);
       } else if (
         lower.includes("password") &&
         (lower.includes("weak") || lower.includes("requirements"))
       ) {
         const msg = "Password must be at least 6 characters long.";
         setError(msg);
-        showToast("Password must be at least 6 characters long", "sage", 4000);
+        showToast(msg, "error", 4000);
       } else if (lower.includes("too many requests") || lower.includes("rate limit")) {
         const msg = "Too many attempts. Please wait a moment and try again.";
         setError(msg);
-        showToast(msg, "sage", 4000);
+        showToast(msg, "error", 4000);
       } else {
         setError(authError);
-        showToast(authError, "sage", 4000);
+        showToast(authError, "error", 4000);
       }
     } else {
       const msg = "Registration failed. Please try again.";
       setError(msg);
-      showToast(msg, "sage", 4000);
+      showToast(msg, "error", 4000);
     }
   };
 
@@ -425,9 +425,9 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
       }
     } catch (err: unknown) {
       console.error("Auth error:", err);
-      const msg = err instanceof Error ? err.message : "An unexpected error occurred";
+      const msg = err instanceof Error ? err.message : "Something went wrong. Please try again.";
       setError(msg);
-      showToast(msg, "sage", 4000);
+      showToast(msg, "error", 4000);
     } finally {
       setSubmitting(false);
     }

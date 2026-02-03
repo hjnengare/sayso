@@ -46,7 +46,7 @@ export default function BusinessCarousel({ businessName, businessImages, subcate
             fill
             className="object-cover"
             priority
-            quality={85}
+            quality={70}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 900px"
           />
         </div>
@@ -106,7 +106,7 @@ export default function BusinessCarousel({ businessName, businessImages, subcate
             fill
             className="object-cover"
             priority={currentImageIndex === 0}
-            quality={50}
+            quality={20}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 900px"
             style={{
               filter: 'blur(40px)',
@@ -135,7 +135,7 @@ export default function BusinessCarousel({ businessName, businessImages, subcate
             fill
             className="object-contain"
             priority={currentImageIndex === 0}
-            quality={90}
+            quality={75}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 900px"
             onError={() => setImageError((prev) => ({ ...prev, [currentImageIndex]: true }))}
           />

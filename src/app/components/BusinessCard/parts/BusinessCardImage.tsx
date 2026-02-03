@@ -34,9 +34,9 @@ const BusinessCardImage: React.FC<BusinessCardImageProps> = ({
             src={usingFallback ? getCategoryPlaceholder(categoryKey) : displayImage}
             alt={displayAlt}
             fill
-            sizes="(max-width: 768px) 540px, 340px"
+            sizes="(max-width: 640px) 92vw, (max-width: 1024px) 50vw, 340px"
             className="object-cover"
-            quality={85}
+            quality={70}
             priority={priority}
             loading={priority ? "eager" : "lazy"}
             onError={onImageError}

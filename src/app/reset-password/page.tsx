@@ -67,33 +67,33 @@ export default function ResetPasswordPage() {
           return; // Don't continue, let the redirect happen
         }
 
-        // Check for existing session (from callback redirect or already logged in)
+        // Check for existing session (from callback redirect, hash exchange, or already logged in)
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        const activeSession = session;
 
-        if (sessionError) {
-          console.error('Session check error:', sessionError);
-          setError("Invalid or expired reset link. Please request a new one.");
-          showToast("Invalid or expired reset link", 'sage', 4000);
-          setIsChecking(false);
-          return;
-        }
-
-        if (session) {
+        if (activeSession) {
           // Valid session exists, user can reset password
           setIsValidToken(true);
-          
+
           // Clear the verified parameter from URL for security
           if (verified) {
             window.history.replaceState(null, '', window.location.pathname);
           }
+
+          // Remove any hash tokens from URL once the session is stored
+          if (window.location.hash) {
+            const cleanUrl = `${window.location.pathname}${window.location.search}`;
+            window.history.replaceState(null, '', cleanUrl);
+          }
         } else {
+          console.error('Session check error:', sessionError);
           setError("Invalid or expired reset link. Please request a new one.");
-          showToast("Invalid or expired reset link", 'sage', 4000);
+          showToast("Invalid or expired reset link", 'error', 4000);
         }
       } catch (err) {
         console.error('Error checking session:', err);
         setError("Failed to verify reset link. Please try again.");
-        showToast("Failed to verify reset link", 'sage', 4000);
+        showToast("Failed to verify reset link", 'error', 4000);
       } finally {
         setIsChecking(false);
       }
@@ -128,14 +128,14 @@ export default function ResetPasswordPage() {
 
     if (!password || !confirmPassword) {
       setError("Please fill in all fields");
-      showToast("Please fill in all fields", 'sage', 3000);
+      showToast("Please fill in all fields", 'warning', 3000);
       setIsSubmitting(false);
       return;
     }
 
     if (password !== confirmPassword) {
       setError("Passwords do not match");
-      showToast("Passwords do not match", 'sage', 3000);
+      showToast("Passwords do not match", 'warning', 3000);
       setIsSubmitting(false);
       return;
     }
@@ -143,7 +143,7 @@ export default function ResetPasswordPage() {
     const passwordError = getPasswordError();
     if (passwordError) {
       setError(passwordError);
-      showToast(passwordError, 'sage', 4000);
+      showToast(passwordError, 'warning', 4000);
       setIsSubmitting(false);
       return;
     }
@@ -156,7 +156,7 @@ export default function ResetPasswordPage() {
       if (updateError) {
         console.error('Password update error:', updateError);
         setError(updateError.message);
-        showToast(updateError.message, 'sage', 4000);
+        showToast(updateError.message, 'error', 4000);
         setIsSubmitting(false);
       } else {
         console.log('Password updated successfully');
@@ -172,9 +172,9 @@ export default function ResetPasswordPage() {
       }
     } catch (error: unknown) {
       console.error('Exception during password reset:', error);
-      const errorMsg = error instanceof Error ? error.message : 'Failed to reset password';
+      const errorMsg = error instanceof Error ? error.message : 'Failed to reset password. Please try again.';
       setError(errorMsg);
-      showToast(errorMsg, 'sage', 4000);
+      showToast(errorMsg, 'error', 4000);
       setIsSubmitting(false);
     }
   };

@@ -432,7 +432,7 @@ export default function HeroCarousel() {
                priority={index < 2}
                loading={index < 2 ? "eager" : "lazy"}
                fetchPriority={index < 2 ? "high" : "auto"}
-               quality={95}
+               quality={80}
                className="object-cover scale-[1.02]"
                style={{ filter: "brightness(0.95) contrast(1.05) saturate(1.1)" }}
                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 80vw"

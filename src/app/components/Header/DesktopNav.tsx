@@ -114,7 +114,7 @@ export default function DesktopNav(props: DesktopNavProps) {
     : "text-charcoal/90 md:text-charcoal/95 hover:text-sage hover:bg-sage/5";
 
   const iconWrapClass = (isActive: boolean) =>
-    `group w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 relative shadow-md ${
+    `group w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 relative ${
       isActive
         ? "text-sage bg-sage/5"
         : whiteText

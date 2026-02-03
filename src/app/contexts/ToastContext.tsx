@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo, ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
 import { CheckCircle, XCircle, AlertTriangle, Info, X, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -29,76 +29,71 @@ export function ToastProvider({ children }: ToastProviderProps) {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [toastQueue, setToastQueue] = useState<Toast[]>([]);
 
-  // Track shown toasts to prevent duplicates
-  const seenToasts = typeof window !== 'undefined'
-    ? new Set<string>(JSON.parse(sessionStorage.getItem('shown-toasts') || '[]'))
-    : new Set<string>();
+  // Persist seenToasts across renders with a ref (not recreated every render)
+  const seenToastsRef = useRef<Set<string>>(
+    typeof window !== 'undefined'
+      ? new Set<string>(JSON.parse(sessionStorage.getItem('shown-toasts') || '[]'))
+      : new Set<string>()
+  );
 
   // Clear all toasts when route changes
   useEffect(() => {
-    console.log('[ToastContext] Route changed to:', pathname);
-    console.log('[ToastContext] Clearing all toasts and queue');
     setToasts([]);
     setToastQueue([]);
   }, [pathname]);
 
-  // Generate unique ID to prevent collisions
-  const generateUniqueId = () => {
-    return `toast_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  };
+  // Stable removeToast — uses functional state updates only, no closure dependencies
+  const removeToast = useCallback((id: string) => {
+    setToasts(prev => prev.filter(toast => toast.id !== id));
+  }, []);
 
-  const showToast = (message: string, type: Toast['type'] = 'info', duration = 4000) => {
-    const id = generateUniqueId();
+  // Process queue: when toasts empty out and queue has items, show the next one
+  useEffect(() => {
+    if (toasts.length > 0 || toastQueue.length === 0) return;
+
+    const nextToast = toastQueue[0];
+    setToastQueue(prev => prev.slice(1));
+    setToasts([nextToast]);
+
+    const timer = setTimeout(() => {
+      removeToast(nextToast.id);
+    }, nextToast.duration || 4000);
+
+    return () => clearTimeout(timer);
+  }, [toasts.length, toastQueue, removeToast]);
+
+  // Stable showToast — uses functional state updates, no closure over toasts/toastQueue
+  const showToast = useCallback((message: string, type: Toast['type'] = 'info', duration = 4000) => {
+    const id = `toast_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const newToast: Toast = { id, message, type, duration };
 
-    // If no toasts are currently showing, show immediately
-    if (toasts.length === 0) {
-      setToasts([newToast]);
-      
-      // Auto remove toast after duration
-      setTimeout(() => {
-        removeToast(id);
-      }, duration);
-    } else {
-      // Add to queue if toasts are already showing
-      setToastQueue(prev => [...prev, newToast]);
-    }
-  };
-
-  const showToastOnce = (key: string, message: string, type: Toast['type'] = 'info', duration = 4000) => {
-    if (seenToasts.has(key)) return;
-    
-    seenToasts.add(key);
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem('shown-toasts', JSON.stringify(Array.from(seenToasts)));
-    }
-    
-    showToast(message, type, duration);
-  };
-
-  const removeToast = (id: string) => {
     setToasts(prev => {
-      const filtered = prev.filter(toast => toast.id !== id);
-      
-      // If no toasts are showing and there are queued toasts, show the next one
-      if (filtered.length === 0 && toastQueue.length > 0) {
-        const nextToast = toastQueue[0];
-        setToastQueue(prevQueue => prevQueue.slice(1));
-        
-        // Auto remove the next toast after its duration
+      if (prev.length === 0) {
+        // Show immediately and schedule auto-removal
         setTimeout(() => {
-          removeToast(nextToast.id);
-        }, nextToast.duration || 4000);
-        
-        return [nextToast];
+          setToasts(current => current.filter(t => t.id !== id));
+        }, duration);
+        return [newToast];
       }
-      
-      return filtered;
+      // Queue it — the effect above will process it when current toasts clear
+      setToastQueue(prevQueue => [...prevQueue, newToast]);
+      return prev;
     });
-  };
+  }, []);
+
+  // Stable showToastOnce — uses ref for seenToasts
+  const showToastOnce = useCallback((key: string, message: string, type: Toast['type'] = 'info', duration = 4000) => {
+    if (seenToastsRef.current.has(key)) return;
+
+    seenToastsRef.current.add(key);
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('shown-toasts', JSON.stringify(Array.from(seenToastsRef.current)));
+    }
+
+    showToast(message, type, duration);
+  }, [showToast]);
 
   const getToastStyles = (type: Toast['type']) => {
-    // All toast types use unified sage background with white text
     return 'bg-sage text-white';
   };
 
@@ -118,11 +113,12 @@ export function ToastProvider({ children }: ToastProviderProps) {
     }
   };
 
-  const value: ToastContextType = {
+  // Memoize context value so consumers don't re-render unnecessarily
+  const value: ToastContextType = useMemo(() => ({
     showToast,
     showToastOnce,
     removeToast
-  };
+  }), [showToast, showToastOnce, removeToast]);
 
   return (
     <ToastContext.Provider value={value}>

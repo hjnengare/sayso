@@ -588,12 +588,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [user]);
 
   const resendVerificationEmail = async (email: string): Promise<boolean> => {
-    setIsLoading(true);
+    // Don't set global isLoading — callers manage their own loading state (isResending).
+    // Setting isLoading here causes the verify-email page to show a full-page spinner,
+    // hiding the resend button and any error feedback.
     setError(null);
 
     try {
       const { error } = await AuthService.resendVerificationEmail(email);
-      
+
       if (error) {
         setError(error.message);
         return false;
@@ -604,8 +606,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const message = error instanceof Error ? error.message : 'Failed to resend verification email';
       setError(message);
       return false;
-    } finally {
-      setIsLoading(false);
     }
   };
 

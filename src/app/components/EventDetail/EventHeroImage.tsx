@@ -62,7 +62,7 @@ export default function EventHeroImage({
         fill
         className="object-contain"
         priority
-        quality={100}
+        quality={80}
         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 1080px"
         style={{ objectFit: 'contain' }}
       />

@@ -98,6 +98,7 @@ export function ImageCarousel({
                                     fill
                                     className="object-cover"
                                     sizes="(max-width: 768px) 100vw, 768px"
+                                    quality={25}
                                     priority={i === 0}
                                     loading={i === 0 ? "eager" : "lazy"}
                                     style={{
@@ -117,6 +118,7 @@ export function ImageCarousel({
                                     fill
                                     className="object-contain transition-transform duration-300 group-hover:scale-105"
                                     sizes="(max-width: 768px) 100vw, 768px"
+                                    quality={75}
                                     priority={i === 0}
                                     loading={i === 0 ? "eager" : "lazy"}
                                 />
@@ -141,6 +143,7 @@ export function ImageCarousel({
                             fill
                             className="object-cover"
                             priority
+                            quality={70}
                             sizes="(max-width: 768px) 100vw, 768px"
                         />
                     </div>
@@ -226,6 +229,7 @@ export function ImageCarousel({
                                     fill
                                     className="object-cover"
                                     sizes="(max-width: 768px) 100vw, 80vw"
+                                    quality={25}
                                     priority
                                     style={{
                                         filter: 'blur(40px)',
@@ -244,6 +248,7 @@ export function ImageCarousel({
                                     fill
                                     className="object-contain"
                                     sizes="(max-width: 768px) 100vw, 80vw"
+                                    quality={75}
                                     priority
                                 />
                             </div>

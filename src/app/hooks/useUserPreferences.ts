@@ -2,7 +2,7 @@
  * Hook to fetch and manage user's interests, subcategories, and deal-breakers
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
 export interface UserPreference {
@@ -22,16 +22,23 @@ export interface UseUserPreferencesResult extends UserPreferences {
   refetch: () => void;
 }
 
+export interface UseUserPreferencesOptions {
+  initialData?: UserPreferences;
+  skipInitialFetch?: boolean;
+}
+
 /**
  * Hook to fetch user's preferences (interests, subcategories, dealbreakers)
  */
-export function useUserPreferences(): UseUserPreferencesResult {
+export function useUserPreferences(options: UseUserPreferencesOptions = {}): UseUserPreferencesResult {
   const { user, isLoading: authLoading } = useAuth();
-  const [interests, setInterests] = useState<UserPreference[]>([]);
-  const [subcategories, setSubcategories] = useState<UserPreference[]>([]);
-  const [dealbreakers, setDealbreakers] = useState<UserPreference[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [interests, setInterests] = useState<UserPreference[]>(options.initialData?.interests ?? []);
+  const [subcategories, setSubcategories] = useState<UserPreference[]>(options.initialData?.subcategories ?? []);
+  const [dealbreakers, setDealbreakers] = useState<UserPreference[]>(options.initialData?.dealbreakers ?? []);
+  const [loading, setLoading] = useState(!(options.skipInitialFetch && options.initialData));
   const [error, setError] = useState<string | null>(null);
+  const hasSkippedRef = useRef(false);
+  const lastUserIdRef = useRef<string | null>(null);
 
   const fetchPreferences = async () => {
     console.log('[useUserPreferences] fetchPreferences called', {
@@ -109,6 +116,22 @@ export function useUserPreferences(): UseUserPreferencesResult {
   };
 
   useEffect(() => {
+    const currentUserId = user?.id ?? null;
+    const userChanged = lastUserIdRef.current !== currentUserId;
+    lastUserIdRef.current = currentUserId;
+
+    const shouldSkipInitial =
+      options.skipInitialFetch &&
+      options.initialData &&
+      !hasSkippedRef.current &&
+      !userChanged &&
+      !authLoading;
+
+    if (shouldSkipInitial) {
+      hasSkippedRef.current = true;
+      return;
+    }
+
     fetchPreferences();
   }, [user?.id, authLoading]); // ✅ Also depend on authLoading to prevent premature fetches
 

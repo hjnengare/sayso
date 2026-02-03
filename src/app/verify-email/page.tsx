@@ -7,7 +7,7 @@ import { Urbanist } from "next/font/google";
 import { useAuth } from "../contexts/AuthContext";
 import { useToast } from "../contexts/ToastContext";
 import { usePrefersReducedMotion } from "../utils/hooks/usePrefersReducedMotion";
-import { Mail, CheckCircle, ExternalLink, ArrowLeft } from "lucide-react";
+import { Mail, CheckCircle, ExternalLink, ArrowLeft, AlertCircle } from "lucide-react";
 import { Loader as AppLoader } from "../components/Loader";
 import WavyTypedTitle from "../../components/Animations/WavyTypedTitle";
 
@@ -165,18 +165,31 @@ export default function VerifyEmailPage() {
 
   const [isResending, setIsResending] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
-  const [pendingEmail, setPendingEmail] = useState<string | null>(null);
   const [verificationSuccess, setVerificationSuccess] = useState(false);
 
+  // Detect expired link from ?expired=1 synchronously to avoid flashes
+  const [linkExpired, setLinkExpired] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return new URLSearchParams(window.location.search).get("expired") === "1";
+  });
+
+  // Read sessionStorage synchronously during init to avoid a flash of "No verification pending"
+  const [pendingEmail] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    return sessionStorage.getItem("pendingVerificationEmail");
+  });
+
   const containerRef = useRef<HTMLDivElement>(null);
+  const redirectingRef = useRef(false);
   const prefersReduced = usePrefersReducedMotion();
 
-  // Load pending email from sessionStorage (client-only)
+  // Clean ?expired param from URL without re-render
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const stored = sessionStorage.getItem("pendingVerificationEmail");
-    if (stored) setPendingEmail(stored);
-  }, []);
+    if (!linkExpired || typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    url.searchParams.delete("expired");
+    window.history.replaceState({}, "", url.pathname + (url.search || ""));
+  }, [linkExpired]);
 
   // Ensure scroll is not locked from previous routes/modals
   useEffect(() => {
@@ -197,25 +210,21 @@ export default function VerifyEmailPage() {
   const getPostVerifyRedirect = useCallback((): string => {
     if (!user) return "/login";
 
-    // Route by profiles.role; business → /my-businesses only; never send business to user onboarding.
-    // When role is unknown, stay on /verify-email so middleware can fetch and redirect (avoids sending business to /interests).
     const profileRole = user?.profile?.role;
     const accountRole = user?.profile?.account_role;
     const legacyCurrentRole = (user as any)?.current_role;
-
     const resolvedRole = profileRole || accountRole || legacyCurrentRole;
 
     if (resolvedRole === "business_owner") return "/my-businesses";
     if (resolvedRole === "user") return "/interests";
-    // Role unknown — stay on verify-email; next request will be handled by middleware
     return "/verify-email";
   }, [user]);
 
-  // Handle verification success from URL flag
+  // Handle verification success from URL flag (?verified=1)
   useEffect(() => {
     if (searchParams.get("verified") !== "1") return;
+    if (redirectingRef.current) return;
 
-    // Mark verification as successful for UI
     setVerificationSuccess(true);
     showToastOnce("email-verified-v1", "Email verified successfully!", "sage", 3000);
 
@@ -225,31 +234,30 @@ export default function VerifyEmailPage() {
       // Clean URL flag so refresh doesn't retrigger
       const url = new URL(window.location.href);
       url.searchParams.delete("verified");
-      router.replace(url.pathname + (url.searchParams.toString() ? `?${url.searchParams.toString()}` : ""), {
-        scroll: false,
-      });
+      window.history.replaceState({}, "", url.pathname + (url.search || ""));
     }
 
-    // Redirect after showing success message
+    redirectingRef.current = true;
     const t = setTimeout(() => {
       if (user) {
-        // User has session - redirect to appropriate page
         router.push(getPostVerifyRedirect());
       } else {
-        // CROSS-DEVICE: No session on this device - redirect to login
-        // The email IS verified, user just needs to log in on this device
         router.push("/login?message=Email+verified!+Please+log+in+to+continue.");
       }
     }, 2500);
 
     return () => clearTimeout(t);
-  }, [searchParams, router, showToastOnce, user, getPostVerifyRedirect]);
+    // Only run once on mount when verified=1 is present; user/role resolved by timeout
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  // If user is already verified, redirect correctly (business vs personal)
+  // If user lands here already verified (no ?verified flag), redirect out
   useEffect(() => {
+    if (redirectingRef.current) return;
     if (!user || !user.email_verified) return;
-    if (searchParams.get("verified")) return;
+    if (verificationSuccess) return; // Already handled by the effect above
 
+    redirectingRef.current = true;
     showToastOnce("email-verified-v1", "Email verified. Account secured.", "sage", 3000);
 
     const t = setTimeout(() => {
@@ -257,7 +265,7 @@ export default function VerifyEmailPage() {
     }, 1200);
 
     return () => clearTimeout(t);
-  }, [user, searchParams, showToastOnce, router, getPostVerifyRedirect]);
+  }, [user, verificationSuccess, showToastOnce, router, getPostVerifyRedirect]);
 
   const handleResendVerification = async () => {
     const email = user?.email || pendingEmail;
@@ -266,9 +274,13 @@ export default function VerifyEmailPage() {
     setIsResending(true);
     try {
       const success = await resendVerificationEmail(email);
-      if (success) showToast("Email sent. Check inbox.", "sage", 2500);
+      if (success) {
+        showToast("Email sent. Check inbox.", "sage", 2500);
+      } else {
+        showToast("Could not resend. Please wait a moment and try again.", "error", 3000);
+      }
     } catch {
-      showToast("Failed to resend. Try again.", "sage");
+      showToast("Failed to resend. Try again.", "error", 3000);
     } finally {
       setIsResending(false);
     }
@@ -348,6 +360,85 @@ export default function VerifyEmailPage() {
                   : "Your email has been verified. Redirecting to login..."}
               </p>
               <div className="w-8 h-8 border-3 border-sage/20 border-t-sage rounded-full animate-spin mx-auto" />
+            </div>
+          </div>
+        </PageShell>
+      </>
+    );
+  }
+
+  // Show expired link state with resend button
+  if (linkExpired) {
+    const expiredEmail = displayEmail;
+    return (
+      <>
+        <style dangerouslySetInnerHTML={{ __html: styles }} />
+        <PageShell>
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center max-w-md mx-auto p-6">
+              <div className="w-20 h-20 mx-auto mb-6 bg-coral/10 rounded-full flex items-center justify-center">
+                <AlertCircle className="w-10 h-10 text-coral" />
+              </div>
+              <h2
+                className="text-2xl font-bold text-charcoal mb-3"
+                style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
+              >
+                Verification Link Expired
+              </h2>
+              <p
+                className="text-base text-charcoal/70 mb-6 leading-relaxed"
+                style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
+              >
+                {expiredEmail
+                  ? <>The verification link for <strong className="text-charcoal">{expiredEmail}</strong> has expired. Request a new one below.</>
+                  : "Your verification link has expired. Request a new one below."}
+              </p>
+
+              <div className="space-y-3">
+                <button
+                  onClick={async () => {
+                    if (!expiredEmail) {
+                      router.push("/register");
+                      return;
+                    }
+                    setIsResending(true);
+                    try {
+                      const success = await resendVerificationEmail(expiredEmail);
+                      if (success) {
+                        showToast("New verification email sent! Check your inbox.", "sage", 3000);
+                        setLinkExpired(false);
+                      } else {
+                        showToast("Could not resend. Please wait a moment and try again.", "error", 3000);
+                      }
+                    } catch {
+                      showToast("Failed to resend. Try again.", "error", 3000);
+                    } finally {
+                      setIsResending(false);
+                    }
+                  }}
+                  disabled={isResending || !expiredEmail}
+                  className="w-full bg-gradient-to-r from-coral to-coral/80 text-white text-base font-600 py-4 px-4 rounded-full hover:from-coral/90 hover:to-coral transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 btn-target btn-press"
+                >
+                  {isResending ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <Mail className="w-5 h-5" />
+                      Resend Verification Email
+                    </>
+                  )}
+                </button>
+
+                <Link
+                  href="/login"
+                  className="block w-full text-center text-base text-charcoal/60 hover:text-charcoal transition-colors duration-300 py-3"
+                >
+                  Back to login
+                </Link>
+              </div>
             </div>
           </div>
         </PageShell>

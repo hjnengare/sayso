@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode, useRef } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useMemo, ReactNode, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from './AuthContext';
 import { useToast } from './ToastContext';
@@ -471,7 +471,7 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
     }
   }, [setSelectedInterests, setSelectedSubInterests, setSelectedDealbreakers]);
 
-  const value: OnboardingContextType = {
+  const value = useMemo<OnboardingContextType>(() => ({
     // Data
     interests,
     subInterests,
@@ -492,7 +492,23 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
     nextStep,
     completeOnboarding,
     resetOnboarding
-  };
+  }), [
+    interests,
+    subInterests,
+    selectedInterests,
+    selectedSubInterests,
+    selectedDealbreakers,
+    error,
+    currentStep,
+    loadInterests,
+    loadSubInterests,
+    setSelectedInterests,
+    setSelectedSubInterests,
+    setSelectedDealbreakers,
+    nextStep,
+    completeOnboarding,
+    resetOnboarding
+  ]);
 
   return (
     <OnboardingContext.Provider value={value}>

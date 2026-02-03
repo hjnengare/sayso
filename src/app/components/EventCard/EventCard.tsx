@@ -163,9 +163,9 @@ function EventCard({ event, index: _index = 0 }: EventCardProps) {
                   src={mediaImage}
                   alt={event.alt || event.title}
                   fill
-                  sizes="(max-width: 640px) 100vw, 540px"
+                  sizes="(max-width: 640px) 92vw, 340px"
                   className={hasRealImage ? 'object-cover rounded-[12px]' : 'object-contain w-32 h-32 sm:w-36 sm:h-36 md:w-32 md:h-32'}
-                  quality={hasRealImage ? 90 : undefined}
+                  quality={hasRealImage ? 75 : 60}
                   priority={false}
                   onLoadingComplete={() => setImageLoaded(true)}
                   onError={() => setImageLoaded(true)}

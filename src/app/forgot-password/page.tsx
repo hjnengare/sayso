@@ -58,14 +58,14 @@ export default function ForgotPasswordPage() {
 
     if (!email) {
       setError("Please enter your email address");
-      showToast("Please enter your email address", 'sage', 3000);
+      showToast("Please enter your email address", 'warning', 3000);
       setIsSubmitting(false);
       return;
     }
 
     if (!validateEmail(email)) {
       setError("Please enter a valid email address");
-      showToast("Please enter a valid email address", 'sage', 3000);
+      showToast("Please enter a valid email address", 'warning', 3000);
       setIsSubmitting(false);
       return;
     }
@@ -78,7 +78,7 @@ export default function ForgotPasswordPage() {
       if (!rateLimitResult.allowed) {
         const errorMsg = rateLimitResult.message || 'Too many password reset requests. Please try again later.';
         setError(errorMsg);
-        showToast(errorMsg, 'sage', 5000);
+        showToast(errorMsg, 'error', 5000);
         setIsSubmitting(false);
         return;
       }
@@ -87,7 +87,7 @@ export default function ForgotPasswordPage() {
 
       if (resetError) {
         setError(resetError.message);
-        showToast(resetError.message, 'sage', 4000);
+        showToast(resetError.message, 'error', 4000);
       } else {
         // Clear rate limit on successful password reset request
         await RateLimiter.recordSuccess(normalizedEmail, 'password_reset');
@@ -95,9 +95,9 @@ export default function ForgotPasswordPage() {
         showToast("Password reset email sent! Check your inbox.", 'success', 5000);
       }
     } catch (error: unknown) {
-      const errorMsg = error instanceof Error ? error.message : 'Failed to send reset email';
+      const errorMsg = error instanceof Error ? error.message : 'Failed to send reset email. Please try again.';
       setError(errorMsg);
-      showToast(errorMsg, 'sage', 4000);
+      showToast(errorMsg, 'error', 4000);
     } finally {
       setIsSubmitting(false);
     }

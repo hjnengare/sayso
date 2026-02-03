@@ -6,6 +6,18 @@ function isSchemaCacheError(error: { message?: string } | null | undefined): boo
   return message.includes('schema cache') && message.includes('onboarding_completed_at');
 }
 
+function isExpiredTokenError(message: string): boolean {
+  const lower = message.toLowerCase();
+  return (
+    lower.includes('expired') ||
+    lower.includes('email link is invalid') ||
+    lower.includes('otp has expired') ||
+    lower.includes('token has expired') ||
+    lower.includes('link is invalid or has expired') ||
+    lower.includes('otp_expired')
+  );
+}
+
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get('code');
@@ -15,11 +27,19 @@ export async function GET(request: NextRequest) {
   const error = requestUrl.searchParams.get('error');
   const error_description = requestUrl.searchParams.get('error_description');
 
-  // Handle OAuth errors
+  // Handle OAuth/auth errors passed as query params
   if (error) {
-    console.error('OAuth error:', error, error_description);
-    
-    // Handle specific OAuth errors
+    console.error('Auth error:', error, error_description);
+    const combinedError = error_description || error || '';
+
+    // Expired verification link → send to verify-email with resend UI
+    if (isExpiredTokenError(combinedError)) {
+      console.log('[Auth Callback] Expired token detected in query params, redirecting to verify-email?expired=1');
+      const dest = new URL('/verify-email', request.url);
+      dest.searchParams.set('expired', '1');
+      return NextResponse.redirect(dest);
+    }
+
     if (error === 'access_denied') {
       return NextResponse.redirect(
         new URL('/auth/auth-code-error?error=Access denied. Please try again.', request.url)
@@ -29,9 +49,9 @@ export async function GET(request: NextRequest) {
         new URL('/auth/auth-code-error?error=Invalid request. Please try again.', request.url)
       );
     }
-    
+
     return NextResponse.redirect(
-      new URL(`/auth/auth-code-error?error=${encodeURIComponent(error_description || error)}`, request.url)
+      new URL(`/auth/auth-code-error?error=${encodeURIComponent(combinedError)}`, request.url)
     );
   }
 
@@ -152,11 +172,13 @@ export async function GET(request: NextRequest) {
       // Handle error in hash (e.g., expired link)
       if (error_param) {
         console.error('Auth error in hash:', error_param, error_description);
-        if (error_description && error_description.includes('expired')) {
-          showError('This verification link has expired. Please request a new one.');
-        } else {
-          showError(error_description || error_param || 'Verification failed');
+        var errText = (error_description || error_param || '').toLowerCase();
+        if (errText.includes('expired') || errText.includes('invalid')) {
+          // Redirect to verify-email with expired flag for proper resend UI
+          window.location.replace('/verify-email?expired=1');
+          return;
         }
+        showError(error_description || error_param || 'Verification failed');
         return;
       }
       
@@ -188,12 +210,12 @@ export async function GET(request: NextRequest) {
         .then(function(result) {
           if (result.error) {
             console.error('Session set error:', result.error);
-            // Even if session set fails on different device, the email IS verified
-            // Just redirect and let the user log in
-            if (result.error.message && result.error.message.includes('expired')) {
-              showError('This link has expired. Your email may already be verified - try logging in.');
+            var errMsg = (result.error.message || '').toLowerCase();
+            if (errMsg.includes('expired') || errMsg.includes('invalid')) {
+              // Token expired — redirect to verify-email with resend UI
+              window.location.replace('/verify-email?expired=1');
             } else {
-              // Redirect anyway - email verification happened server-side
+              // Non-expiry error — email verification likely happened server-side
               console.log('Session error but redirecting - email should be verified');
               redirect(REDIRECT_TYPE);
             }
@@ -580,7 +602,39 @@ export async function GET(request: NextRequest) {
       return redirectResponse;
     }
 
-    console.error('Code exchange error:', exchangeError);
+    const exchangeErrorMsg = exchangeError?.message || '';
+    console.error('Code exchange error:', exchangeErrorMsg);
+
+    // Expired token/OTP → redirect to verify-email with resend UI
+    if (isExpiredTokenError(exchangeErrorMsg)) {
+      console.log('[Auth Callback] Expired token during exchange, redirecting to verify-email?expired=1');
+      const dest = new URL('/verify-email', request.url);
+      dest.searchParams.set('expired', '1');
+      return NextResponse.redirect(dest);
+    }
+
+    // CROSS-BROWSER FIX: If this is a signup verification and the code exchange failed
+    // (e.g., PKCE code_verifier missing because user opened link in a different browser),
+    // Supabase has ALREADY verified the email server-side before redirecting here.
+    // Don't show a confusing error — redirect to login with a success message instead.
+    const callbackType = requestUrl.searchParams.get('type');
+    if (callbackType === 'signup' && code) {
+      const errorLower = exchangeErrorMsg.toLowerCase();
+      const isPkceOrSessionError =
+        errorLower.includes('code verifier') ||
+        errorLower.includes('code_verifier') ||
+        errorLower.includes('invalid flow state') ||
+        errorLower.includes('both auth code and code verifier') ||
+        errorLower.includes('pkce') ||
+        errorLower.includes('session');
+
+      if (isPkceOrSessionError) {
+        console.log('[Auth Callback] PKCE/session error on cross-browser signup verification — email is verified, redirecting to login');
+        const loginUrl = new URL('/login', request.url);
+        loginUrl.searchParams.set('message', 'Email verified! Please log in to continue.');
+        return NextResponse.redirect(loginUrl);
+      }
+    }
   }
 
   // Return the user to an error page with instructions

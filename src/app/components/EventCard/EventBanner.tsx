@@ -33,9 +33,10 @@ export default function EventBanner({
               src={image}
               alt={alt || title}
               fill
-              sizes="(max-width: 768px) 540px, 320px"
+              sizes="(max-width: 640px) 92vw, 320px"
               className="object-cover rounded-t-lg"
               priority={false}
+              quality={70}
             />
             {/* Premium gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-charcoal/40 via-charcoal/5 to-transparent opacity-60" />

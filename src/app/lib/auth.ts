@@ -125,12 +125,22 @@ export class AuthService {
         // Check if error is because email already exists in auth.users
         const errorMessage = error.message?.toLowerCase() || '';
         const errorCode = error.code?.toLowerCase() || '';
-        
-        if (errorMessage.includes('already registered') || 
+
+        // Handle rate limit separately — not an "already registered" error
+        if (errorCode === 'over_email_signup_rate_limit' ||
+            errorMessage.includes('email rate limit exceeded') ||
+            errorMessage.includes('rate limit')) {
+          return {
+            user: null,
+            session: null,
+            error: { message: 'Too many signup attempts. Please wait a few minutes and try again.', code: 'rate_limit' }
+          };
+        }
+
+        if (errorMessage.includes('already registered') ||
             errorMessage.includes('user already exists') ||
-            errorCode === 'user_already_exists' ||
-            errorCode === 'over_email_signup_rate_limit') {
-          
+            errorCode === 'user_already_exists') {
+
           // Email is already registered - check if they can add second account type
           console.log('Email already registered in auth - checking if they can add second account type');
           
@@ -571,11 +581,10 @@ export class AuthService {
   }
 
   private static handleSupabaseError(error: { message: string; error_code?: string }): AuthError {
-    // Handle specific error messages from Supabase
     const message = error.message.toLowerCase();
     const errorCode = error.error_code?.toLowerCase() || '';
 
-    // Check for email already in use - check both error code and message
+    // Email already in use
     if (
       errorCode === 'user_already_registered' ||
       errorCode === 'email_already_registered' ||
@@ -590,48 +599,55 @@ export class AuthService {
       message.includes('unique constraint') ||
       (message.includes('email') && message.includes('already') && (message.includes('use') || message.includes('taken') || message.includes('registered')))
     ) {
-      return { message: '❌ This email address is already in use. Please try logging in instead or use a different email.', code: 'user_exists' };
+      return { message: 'This email is already in use. Please log in or use a different email.', code: 'user_exists' };
     }
 
+    // Invalid credentials
     if (message.includes('invalid login credentials') || message.includes('invalid email or password')) {
-      return { message: '❌ Invalid email or password. Please check your credentials.', code: 'invalid_credentials' };
+      return { message: 'Incorrect email or password. Please try again.', code: 'invalid_credentials' };
     }
 
+    // Email not confirmed
     if (message.includes('email not confirmed')) {
-      return { message: '📧 Please check your email and click the confirmation link to verify your account.', code: 'email_not_confirmed' };
+      return { message: 'Your email is not yet verified. Please check your inbox for the confirmation link.', code: 'email_not_confirmed' };
     }
 
+    // Rate limiting
     if (message.includes('too many requests') || message.includes('rate limit')) {
-      return { message: '⏰ Too many attempts. Please wait a moment and try again.', code: 'rate_limit' };
+      return { message: 'Too many attempts. Please wait a moment and try again.', code: 'rate_limit' };
     }
 
+    // Signups disabled
     if (message.includes('signup is disabled') || message.includes('signups not allowed')) {
-      return { message: '🚫 New registrations are temporarily unavailable. Please try again later.', code: 'signup_disabled' };
+      return { message: 'New registrations are temporarily unavailable. Please try again later.', code: 'signup_disabled' };
     }
 
+    // Weak password
     if (message.includes('password') && (message.includes('weak') || message.includes('requirements'))) {
-      return { message: '🔐 Password must be at least 6 characters long.', code: 'weak_password' };
+      return { message: 'Password must be at least 6 characters long.', code: 'weak_password' };
     }
 
-    if (message.includes('email') && (message.includes('invalid') || message.includes('format'))) {
-      return { message: 'Please enter a valid email address (for example, name@example.com).', code: 'invalid_email' };
+    // Invalid email format
+    if (
+      (message.includes('email') && (message.includes('invalid') || message.includes('format'))) ||
+      (message.includes('email address') && message.includes('invalid'))
+    ) {
+      return { message: 'Please enter a valid email address (e.g. name@example.com).', code: 'invalid_email' };
     }
 
-    if (message.includes('email address') && message.includes('invalid')) {
-      return { message: 'Email address is invalid. Please use a valid address like name@example.com.', code: 'invalid_email' };
-    }
-
+    // Network / connection issues
     if (message.includes('fetch') || message.includes('network') || message.includes('connection')) {
-      return { message: '🌐 Connection issue. Please check your internet and try again.', code: 'network_error' };
+      return { message: 'Connection issue. Please check your internet and try again.', code: 'network_error' };
     }
 
+    // Unprocessable request
     if (message.includes('422') || message.includes('unprocessable')) {
-      return { message: '❌ Registration failed. Please check that your email and password are valid.', code: 'invalid_data' };
+      return { message: 'Request failed. Please check your details and try again.', code: 'invalid_data' };
     }
 
-    // Default fallback with more user-friendly message
+    // Default fallback
     return {
-      message: error.message || '❌ Something went wrong. Please try again in a moment.',
+      message: error.message || 'Something went wrong. Please try again.',
       code: error.error_code || 'unknown_error'
     };
   }

@@ -2,9 +2,9 @@
  * Hook to fetch businesses from the API
  */
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Business } from '../components/BusinessCard/BusinessCard';
-import { useUserPreferences } from './useUserPreferences';
+import { useUserPreferences, type UserPreferences } from './useUserPreferences';
 import { businessUpdateEvents } from '../lib/utils/businessUpdateEvents';
 
 export interface UseBusinessesOptions {
@@ -29,6 +29,13 @@ export interface UseBusinessesOptions {
   searchQuery?: string | null; // Search query (q parameter)
   radiusKm?: number | null; // Distance radius in km (new parameter name)
   sort?: 'relevance' | 'distance' | 'rating_desc' | 'price_asc' | 'combo'; // New sort parameter
+}
+
+export interface UseForYouOptions extends Partial<UseBusinessesOptions> {
+  initialBusinesses?: Business[];
+  skipInitialFetch?: boolean;
+  initialPreferences?: UserPreferences;
+  skipPreferencesFetch?: boolean;
 }
 
 export interface UseBusinessesResult {
@@ -312,12 +319,17 @@ export function useTrendingBusinesses(
 export function useForYouBusinesses(
   limit: number = 20,
   overrideInterestIds?: string[] | undefined,
-  extraOptions: Partial<UseBusinessesOptions> = {}
+  extraOptions: UseForYouOptions = {}
 ): UseBusinessesResult {
-  const { interests, subcategories, dealbreakers, loading: prefsLoading } = useUserPreferences();
-  const [businesses, setBusinesses] = useState<Business[]>([]);
-  const [loading, setLoading] = useState(!extraOptions.skip && !prefsLoading);
+  const { interests, subcategories, dealbreakers, loading: prefsLoading } = useUserPreferences({
+    initialData: extraOptions.initialPreferences,
+    skipInitialFetch: extraOptions.skipPreferencesFetch,
+  });
+  const hasInitialBusinesses = extraOptions.initialBusinesses !== undefined;
+  const [businesses, setBusinesses] = useState<Business[]>(extraOptions.initialBusinesses ?? []);
+  const [loading, setLoading] = useState(!extraOptions.skip && !hasInitialBusinesses && !prefsLoading);
   const [error, setError] = useState<string | null>(null);
+  const skipInitialFetchRef = useRef(true);
 
   // Use overrideInterestIds if provided, otherwise use user preferences
   const interestIds = useMemo(() => {
@@ -427,8 +439,16 @@ export function useForYouBusinesses(
   ]);
 
   useEffect(() => {
+    const shouldSkipInitialFetch =
+      extraOptions.skipInitialFetch && hasInitialBusinesses && skipInitialFetchRef.current;
+
+    if (shouldSkipInitialFetch) {
+      skipInitialFetchRef.current = false;
+      return;
+    }
+
     fetchForYou();
-  }, [fetchForYou]);
+  }, [fetchForYou, extraOptions.skipInitialFetch, hasInitialBusinesses]);
 
   return {
     businesses,
@@ -437,4 +457,3 @@ export function useForYouBusinesses(
     refetch: fetchForYou,
   };
 }
-

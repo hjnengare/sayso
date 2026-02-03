@@ -216,10 +216,10 @@ export default function BusinessOfTheMonthCard({ business, index: _index = 0 }: 
                   src={usingFallback ? getCategoryPlaceholder((business as any).sub_interest_id ?? (business as any).subInterestId ?? business.category) : displayImage}
                   alt={displayAlt}
                   fill
-                  sizes="(max-width: 768px) 540px, 340px"
+                  sizes="(max-width: 640px) 92vw, (max-width: 1024px) 50vw, 340px"
                   className="object-cover"
                   priority={false}
-                  quality={90}
+                  quality={75}
                   onError={handleImageError}
                 />
               </div>
