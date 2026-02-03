@@ -277,6 +277,12 @@ function expandSearchWithSynonyms(query: string): string {
 }
 
 export async function GET(req: Request) {
+  const requestStart = Date.now();
+  const withDuration = (response: NextResponse) => {
+    response.headers.set('X-Duration-Ms', String(Date.now() - requestStart));
+    return response;
+  };
+
   try {
     // =============================================
     // CRITICAL: Create Supabase client WITH request cookies
@@ -287,7 +293,9 @@ export async function GET(req: Request) {
     // =============================================
     // RLS TRUTH TEST: Check if server can see user and businesses
     // =============================================
+    const authStart = Date.now();
     const { data: { user: serverUser }, error: authError } = await supabase.auth.getUser();
+    console.log('[BUSINESSES API] Auth duration ms:', Date.now() - authStart);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('🔐 [BUSINESSES API] Server Auth Check');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -302,10 +310,12 @@ export async function GET(req: Request) {
     });
 
     // RLS truth test - check visible businesses count
+    const countStart = Date.now();
     const { count: visibleCount, error: countError } = await supabase
       .from('businesses')
       .select('id', { head: true, count: 'exact' })
       .eq('status', 'active');
+    console.log('[BUSINESSES API] Visible count duration ms:', Date.now() - countStart);
     
     console.log('[BUSINESSES API] Visible businesses count (RLS truth test):', {
       count: visibleCount,
@@ -441,7 +451,7 @@ export async function GET(req: Request) {
 
     if (feedStrategy === 'mixed') {
       // Use the Netflix-style two-stage recommender (V2)
-      return await handleMixedFeedV2({
+      const response = await handleMixedFeedV2({
         supabase,
         limit,
         category,
@@ -460,6 +470,7 @@ export async function GET(req: Request) {
         longitude: lng,
         userId, // Pass userId for impression tracking and repetition suppression
       });
+      return withDuration(response);
     }
 
     // Try to use the optimized RPC function for listing, fallback to regular query
@@ -983,7 +994,8 @@ export async function GET(req: Request) {
       businesses: transformedBusinesses,
       cursorId: nextCursorId,
     });
-    return applySharedResponseHeaders(response);
+    response.headers.set('X-Feed-Path', 'standard');
+    return withDuration(applySharedResponseHeaders(response));
 
   } catch (error: any) {
     console.error('[BUSINESSES API] Unexpected error:', error);
@@ -993,14 +1005,14 @@ export async function GET(req: Request) {
       name: error?.name,
       code: error?.code,
     });
-    return NextResponse.json(
+    return withDuration(NextResponse.json(
       { 
         error: 'Internal server error', 
         details: error?.message || String(error),
         code: 'INTERNAL_ERROR'
       },
       { status: 500 }
-    );
+    ));
   }
 }
 
@@ -1128,6 +1140,7 @@ type MixedFeedOptions = {
 // =============================================
 
 async function handleMixedFeedV2(options: MixedFeedOptions) {
+  const v2Start = Date.now();
   const {
     supabase,
     limit,
@@ -1175,17 +1188,20 @@ async function handleMixedFeedV2(options: MixedFeedOptions) {
     // Try V2 RPC with explicit error handling
     let rpcData: any[] | null = null;
     let rpcError: any = null;
+    const rpcStart = Date.now();
 
     try {
       const result = await supabase.rpc('recommend_for_you_v2', rpcPayload);
       rpcData = result.data;
       rpcError = result.error;
     } catch (rpcCallError: any) {
+      console.log('[BUSINESSES API] V2 RPC duration ms:', Date.now() - rpcStart);
       // RPC function might not exist yet (migrations not run)
       console.warn('[BUSINESSES API] recommend_for_you_v2 RPC call failed:', rpcCallError?.message || rpcCallError);
       console.log('[BUSINESSES API] Falling back to legacy handleMixedFeed (V2 not available)');
       return handleMixedFeedLegacy(options);
     }
+    console.log('[BUSINESSES API] V2 RPC duration ms:', Date.now() - rpcStart);
 
     if (rpcError) {
       console.error('[BUSINESSES API] recommend_for_you_v2 RPC error:', rpcError);
@@ -1244,11 +1260,13 @@ async function handleMixedFeedV2(options: MixedFeedOptions) {
     // Fetch business_images for the filtered results
     const businessIds = filteredBusinesses.map(b => b.id);
     if (businessIds.length > 0) {
+      const imagesStart = Date.now();
       const { data: imagesData } = await supabase
         .from('business_images')
         .select('business_id, url, type, sort_order, is_primary')
         .in('business_id', businessIds)
         .order('sort_order', { ascending: true });
+      console.log('[BUSINESSES API] V2 images query duration ms:', Date.now() - imagesStart);
 
       if (imagesData) {
         const imagesByBusiness = new Map<string, string[]>();
@@ -1298,6 +1316,8 @@ async function handleMixedFeedV2(options: MixedFeedOptions) {
       businesses: transformedBusinesses,
       cursorId: null,
     });
+    response.headers.set('X-Feed-Path', 'v2');
+    console.log('[BUSINESSES API] V2 total duration ms:', Date.now() - v2Start);
 
     return applySharedResponseHeaders(response);
 
@@ -1310,6 +1330,7 @@ async function handleMixedFeedV2(options: MixedFeedOptions) {
 
 // Legacy mixed feed handler (kept for fallback)
 async function handleMixedFeedLegacy(options: MixedFeedOptions) {
+  const legacyStart = Date.now();
   const {
     supabase,
     limit,
@@ -1400,6 +1421,7 @@ async function handleMixedFeedLegacy(options: MixedFeedOptions) {
   const bucketLimit = Math.min(Math.max(limit * 3, limit + 4), 150);
   const priceFilters = derivePriceFilters(priceRange, preferredPriceRanges);
 
+  const bucketsStart = Date.now();
   const [personalMatches, topRated, explore] = await Promise.all([
     fetchPersonalMatches(supabase, {
       limit: bucketLimit,
@@ -1439,6 +1461,7 @@ async function handleMixedFeedLegacy(options: MixedFeedOptions) {
       dealbreakerIds,
     }),
   ]);
+  console.log('[BUSINESSES API] Legacy buckets duration ms:', Date.now() - bucketsStart);
 
   console.log('[BUSINESSES API] Mixed feed buckets:', {
     personalMatches: personalMatches.length,
@@ -1471,7 +1494,9 @@ async function handleMixedFeedLegacy(options: MixedFeedOptions) {
   }
   
   // Prioritize businesses the user has recently reviewed (within 24 hours)
+  const prioritizeStart = Date.now();
   const prioritizedBlended = await prioritizeRecentlyReviewedBusinesses(supabase, blended);
+  console.log('[BUSINESSES API] Legacy prioritize duration ms:', Date.now() - prioritizeStart);
   
   const transformedBusinesses = prioritizedBlended.map(transformBusinessForCard);
 
@@ -1507,6 +1532,8 @@ async function handleMixedFeedLegacy(options: MixedFeedOptions) {
     businesses: transformedBusinesses, // Changed from "data" to "businesses" for consistency
     cursorId: null, // Mixed feed doesn't use cursor pagination
   });
+  response.headers.set('X-Feed-Path', 'legacy');
+  console.log('[BUSINESSES API] Legacy total duration ms:', Date.now() - legacyStart);
 
   return applySharedResponseHeaders(response);
 }

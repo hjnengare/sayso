@@ -39,6 +39,7 @@ export function useUserPreferences(options: UseUserPreferencesOptions = {}): Use
   const [error, setError] = useState<string | null>(null);
   const hasSkippedRef = useRef(false);
   const lastUserIdRef = useRef<string | null>(null);
+  const initialUserIdRef = useRef<string | null | undefined>(undefined);
 
   const fetchPreferences = async () => {
     console.log('[useUserPreferences] fetchPreferences called', {
@@ -120,15 +121,28 @@ export function useUserPreferences(options: UseUserPreferencesOptions = {}): Use
     const userChanged = lastUserIdRef.current !== currentUserId;
     lastUserIdRef.current = currentUserId;
 
-    const shouldSkipInitial =
-      options.skipInitialFetch &&
-      options.initialData &&
-      !hasSkippedRef.current &&
-      !userChanged &&
-      !authLoading;
+    const hasInitialData = !!options.initialData;
 
-    if (shouldSkipInitial) {
-      hasSkippedRef.current = true;
+    if (options.skipInitialFetch && hasInitialData) {
+      if (!hasSkippedRef.current) {
+        hasSkippedRef.current = true;
+        return;
+      }
+
+      if (authLoading) {
+        return;
+      }
+
+      if (initialUserIdRef.current === undefined) {
+        initialUserIdRef.current = currentUserId;
+      }
+
+      if (!userChanged || currentUserId === initialUserIdRef.current) {
+        return;
+      }
+    }
+
+    if (authLoading) {
       return;
     }
 

@@ -55,6 +55,11 @@ export default function ForYouClient({
     initialData: initialPreferences,
     skipInitialFetch: initialPreferencesLoaded,
   });
+  const hasInitialBusinesses = initialBusinesses.length > 0;
+  const preferences = useMemo(
+    () => ({ interests, subcategories, dealbreakers }),
+    [interests, subcategories, dealbreakers]
+  );
 
   const [currentPage, setCurrentPage] = useState(1);
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -145,15 +150,17 @@ export default function ForYouClient({
     longitude: userLocation?.lng ?? null,
     searchQuery: debouncedSearchQuery.trim().length > 0 ? debouncedSearchQuery : null,
     sort: sortStrategy,
-      skip: prefsLoading, // ✅ Wait for prefs to be ready
       initialBusinesses,
-      skipInitialFetch: !initialError,
-      initialPreferences,
-      skipPreferencesFetch: initialPreferencesLoaded,
+      skipInitialFetch: hasInitialBusinesses,
+      preferences,
+      preferencesLoading: prefsLoading,
     }
   );
 
   const combinedError = error ?? initialError;
+  const shouldShowSkeleton = !hasInitialBusinesses && (loading || prefsLoading || simpleSearchLoading);
+  const canRenderResults = !simpleSearchLoading && (!prefsLoading || hasInitialBusinesses);
+  const canShowError = !!combinedError && !loading && canRenderResults;
 
   // Note: Prioritization of recently reviewed businesses is now handled on the backend
   // The API automatically prioritizes businesses the user has reviewed within the last 24 hours
@@ -400,6 +407,18 @@ export default function ForYouClient({
               Discover personalised recommendations tailored to your interests and preferences. 
               We've handpicked the best local businesses just for you.
             </p>
+            {prefsLoading && hasInitialBusinesses && (
+              <div
+                className="mt-3 inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 text-xs text-charcoal/70 shadow-sm border border-sage/20"
+                aria-live="polite"
+              >
+                <span
+                  className="inline-block h-3 w-3 animate-spin rounded-full border border-charcoal/30 border-t-transparent"
+                  aria-hidden
+                />
+                <span>Personalizing...</span>
+              </div>
+            )}
           </div>
 
           {/* Search Input at top of main content */}
@@ -437,10 +456,10 @@ export default function ForYouClient({
           <div className="py-3 sm:py-4">
             <div className="pt-4 sm:pt-6 md:pt-10">
           {/* ✅ Show skeleton loader while prefs are loading OR businesses are loading OR simple search is loading */}
-          {(loading || prefsLoading || simpleSearchLoading) && (
+          {shouldShowSkeleton && (
             <BusinessGridSkeleton />
           )}
-          {!loading && !prefsLoading && !simpleSearchLoading && combinedError && (
+          {canShowError && (
             <div className="bg-white border border-sage/20 rounded-3xl shadow-sm px-6 py-10 text-center space-y-4">
               <p className="text-charcoal font-semibold text-h2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                 We couldn't load businesses right now.
@@ -458,7 +477,7 @@ export default function ForYouClient({
             </div>
           )}
 
-          {!loading && !prefsLoading && !simpleSearchLoading && !combinedError && (
+          {canRenderResults && !combinedError && (
             <>
               {totalCount === 0 ? (
                 isSearchActive ? (

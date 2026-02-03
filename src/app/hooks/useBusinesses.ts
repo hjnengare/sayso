@@ -4,7 +4,7 @@
 
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Business } from '../components/BusinessCard/BusinessCard';
-import { useUserPreferences, type UserPreferences } from './useUserPreferences';
+import { type UserPreferences } from './useUserPreferences';
 import { businessUpdateEvents } from '../lib/utils/businessUpdateEvents';
 
 export interface UseBusinessesOptions {
@@ -36,6 +36,8 @@ export interface UseForYouOptions extends Partial<UseBusinessesOptions> {
   skipInitialFetch?: boolean;
   initialPreferences?: UserPreferences;
   skipPreferencesFetch?: boolean;
+  preferences?: UserPreferences;
+  preferencesLoading?: boolean;
 }
 
 export interface UseBusinessesResult {
@@ -321,15 +323,18 @@ export function useForYouBusinesses(
   overrideInterestIds?: string[] | undefined,
   extraOptions: UseForYouOptions = {}
 ): UseBusinessesResult {
-  const { interests, subcategories, dealbreakers, loading: prefsLoading } = useUserPreferences({
-    initialData: extraOptions.initialPreferences,
-    skipInitialFetch: extraOptions.skipPreferencesFetch,
-  });
-  const hasInitialBusinesses = extraOptions.initialBusinesses !== undefined;
+  const preferenceSource = extraOptions.preferences ?? extraOptions.initialPreferences;
+  const preferenceInterests = preferenceSource?.interests ?? [];
+  const preferenceSubcategories = preferenceSource?.subcategories ?? [];
+  const preferenceDealbreakers = preferenceSource?.dealbreakers ?? [];
+  const preferencesLoading = extraOptions.preferencesLoading ?? false;
+
+  const hasInitialBusinesses = (extraOptions.initialBusinesses?.length ?? 0) > 0;
   const [businesses, setBusinesses] = useState<Business[]>(extraOptions.initialBusinesses ?? []);
-  const [loading, setLoading] = useState(!extraOptions.skip && !hasInitialBusinesses && !prefsLoading);
+  const [loading, setLoading] = useState(!extraOptions.skip && !hasInitialBusinesses);
   const [error, setError] = useState<string | null>(null);
   const skipInitialFetchRef = useRef(true);
+  const lastRequestKeyRef = useRef<string | null>(null);
 
   // Use overrideInterestIds if provided, otherwise use user preferences
   const interestIds = useMemo(() => {
@@ -337,21 +342,24 @@ export function useForYouBusinesses(
       return overrideInterestIds.length > 0 ? overrideInterestIds : undefined;
     }
     // Combine both interests and subcategories for broader matching
-    const userInterestIds = interests.map((i) => i.id);
+    const userInterestIds = preferenceInterests.map((i) => i.id);
     return userInterestIds.length > 0 ? userInterestIds : undefined;
-  }, [overrideInterestIds, interests]);
+  }, [overrideInterestIds, preferenceInterests]);
 
   // Pass subcategories separately for more precise matching
   const subInterestIds = useMemo(() => {
     if (overrideInterestIds !== undefined) {
       return undefined; // Don't use subcategories when override is provided
     }
-    const userSubInterestIds = subcategories.map((s) => s.id);
+    const userSubInterestIds = preferenceSubcategories.map((s) => s.id);
     return userSubInterestIds.length > 0 ? userSubInterestIds : undefined;
-  }, [overrideInterestIds, subcategories]);
+  }, [overrideInterestIds, preferenceSubcategories]);
 
   // Memoize dealbreakerIds to prevent infinite re-renders
-  const dealbreakerIds = useMemo(() => dealbreakers.map((d) => d.id), [dealbreakers]);
+  const dealbreakerIds = useMemo(
+    () => preferenceDealbreakers.map((d) => d.id),
+    [preferenceDealbreakers]
+  );
 
   const preferredPriceRanges = useMemo(() => {
     if (dealbreakerIds.includes('value-for-money')) {
@@ -360,8 +368,37 @@ export function useForYouBusinesses(
     return undefined;
   }, [dealbreakerIds]);
 
-  const fetchForYou = useCallback(async () => {
-    if (extraOptions.skip || prefsLoading) {
+  const requestKey = useMemo(
+    () =>
+      JSON.stringify({
+        limit,
+        interestIds: interestIds ?? [],
+        subInterestIds: subInterestIds ?? [],
+        dealbreakerIds,
+        preferredPriceRanges: preferredPriceRanges ?? [],
+        latitude: extraOptions.latitude ?? null,
+        longitude: extraOptions.longitude ?? null,
+      }),
+    [
+      limit,
+      interestIds,
+      subInterestIds,
+      dealbreakerIds,
+      preferredPriceRanges,
+      extraOptions.latitude,
+      extraOptions.longitude,
+    ]
+  );
+
+  const shouldWaitForPreferences = preferencesLoading && overrideInterestIds === undefined;
+
+  const fetchForYou = useCallback(async (force = false) => {
+    if (extraOptions.skip || shouldWaitForPreferences) {
+      setLoading(false);
+      return;
+    }
+
+    if (!force && lastRequestKeyRef.current === requestKey) {
       setLoading(false);
       return;
     }
@@ -369,6 +406,7 @@ export function useForYouBusinesses(
     try {
       setLoading(true);
       setError(null);
+      lastRequestKeyRef.current = requestKey;
 
       console.log('[useForYouBusinesses] Fetching with V2 recommender:', {
         interestIds: interestIds?.length || 0,
@@ -430,12 +468,13 @@ export function useForYouBusinesses(
     extraOptions.skip,
     extraOptions.latitude,
     extraOptions.longitude,
-    prefsLoading,
+    shouldWaitForPreferences,
     limit,
     interestIds,
     subInterestIds,
     dealbreakerIds,
     preferredPriceRanges,
+    requestKey,
   ]);
 
   useEffect(() => {
@@ -444,16 +483,20 @@ export function useForYouBusinesses(
 
     if (shouldSkipInitialFetch) {
       skipInitialFetchRef.current = false;
+      if (!lastRequestKeyRef.current) {
+        lastRequestKeyRef.current = requestKey;
+      }
+      setLoading(false);
       return;
     }
 
     fetchForYou();
-  }, [fetchForYou, extraOptions.skipInitialFetch, hasInitialBusinesses]);
+  }, [fetchForYou, extraOptions.skipInitialFetch, hasInitialBusinesses, requestKey]);
 
   return {
     businesses,
     loading,
     error,
-    refetch: fetchForYou,
+    refetch: () => fetchForYou(true),
   };
 }

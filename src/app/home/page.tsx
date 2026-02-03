@@ -105,7 +105,11 @@ export default function Home() {
   const [filters, setFilters] = useState<FilterState>({ minRating: null, distance: null });
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   // ✅ USER PREFERENCES: From onboarding, persistent, used for personalization
-  const { interests, subcategories, loading: prefsLoading } = useUserPreferences();
+  const { interests, subcategories, dealbreakers, loading: prefsLoading } = useUserPreferences();
+  const preferences = useMemo(
+    () => ({ interests, subcategories, dealbreakers }),
+    [interests, subcategories, dealbreakers]
+  );
   const { isLoading: authLoading } = useAuth(); // Get auth loading state
 
   // Destructure and alias refetch functions from business hooks
@@ -123,7 +127,10 @@ export default function Home() {
     loading: forYouLoading,
     error: forYouError,
     refetch: refetchForYou,
-  } = useForYouBusinesses();
+  } = useForYouBusinesses(20, undefined, {
+    preferences,
+    preferencesLoading: prefsLoading,
+  });
 
   const {
     businesses: trendingBusinesses,
@@ -134,8 +141,13 @@ export default function Home() {
 
   // Debug logging for user preferences
   useEffect(() => {
-    console.log("[Home] user prefs:", { interestsLen: interests.length, interests, subcategoriesLen: subcategories.length });
-  }, [interests, subcategories]);
+    console.log("[Home] user prefs:", {
+      interestsLen: interests.length,
+      interests,
+      subcategoriesLen: subcategories.length,
+      dealbreakersLen: dealbreakers.length,
+    });
+  }, [interests, subcategories, dealbreakers]);
 
   // ✅ Determine if we're in "filtered mode" (user explicitly applied filters)
   // CRITICAL: Only true when user has EXPLICITLY initiated filtering
