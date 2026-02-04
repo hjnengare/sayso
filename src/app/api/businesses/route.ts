@@ -272,8 +272,11 @@ function expandSearchWithSynonyms(query: string): string {
 
 export async function GET(req: Request) {
   const requestStart = Date.now();
+  console.log('[BUSINESSES API] GET start at', new Date().toISOString());
   const withDuration = (response: NextResponse) => {
-    response.headers.set('X-Duration-Ms', String(Date.now() - requestStart));
+    const totalMs = Date.now() - requestStart;
+    response.headers.set('X-Duration-Ms', String(totalMs));
+    console.log('[BUSINESSES API] GET end total ms:', totalMs);
     return response;
   };
 
@@ -1077,6 +1080,14 @@ export async function GET(req: Request) {
     return withDuration(applySharedResponseHeaders(response));
 
   } catch (error: any) {
+    const totalMs = Date.now() - requestStart;
+    const isTimeoutOrAbort =
+      error?.name === 'AbortError' ||
+      /timeout|timed out|abort/i.test(String(error?.message ?? ''));
+    if (isTimeoutOrAbort) {
+      console.warn('[BUSINESSES API] GET timed out / aborted:', error?.message ?? error, 'total ms:', totalMs);
+    }
+    console.error('[BUSINESSES API] GET end (error) total ms:', totalMs);
     console.error('[BUSINESSES API] Unexpected error:', error);
     console.error('[BUSINESSES API] Error stack:', error?.stack);
     console.error('[BUSINESSES API] Error details:', {
@@ -1328,7 +1339,7 @@ async function handleMixedFeedV2(options: MixedFeedOptions) {
     const rpcStart = Date.now();
 
     try {
-      const timeoutMs = Number(process.env.FEED_V2_TIMEOUT_MS || 900);
+      const timeoutMs = Number(process.env.FEED_V2_TIMEOUT_MS || 8000);
 
       const callWithTimeout = async (fnName: string, payload: any) => {
         const result = await Promise.race([
@@ -1684,7 +1695,7 @@ async function handleMixedFeedLegacy(options: MixedFeedOptions) {
     }
   }
 
-  const bucketLimit = Math.min(Math.max(limit * 3, limit + 4), 150);
+  const bucketLimit = Math.min(Math.max(limit * 3, limit + 4), 80);
   const priceFilters = derivePriceFilters(priceRange, preferredPriceRanges);
 
   const bucketsStart = Date.now();
