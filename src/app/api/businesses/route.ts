@@ -1451,60 +1451,82 @@ async function handleMixedFeedV2(options: MixedFeedOptions) {
       }
     } catch (rpcCallError: any) {
       console.log('[BUSINESSES API] V2 RPC duration ms:', Date.now() - rpcStart);
-      // RPC function might not exist yet (migrations not run)
       console.warn('[BUSINESSES API] V2 RPC call failed:', rpcCallError?.message || rpcCallError);
       noteV2Failure(Date.now());
-      if (mode === 'v2_with_legacy_fallback') {
-        console.log('[BUSINESSES API] Using legacy handleMixedFeed fallback (mode=v2_with_legacy_fallback)');
-        const legacy = await handleMixedFeedLegacy(options);
-        legacy.headers.set('X-Feed-Path', 'legacy_fallback');
-        return legacy;
+      // Try cold start before falling back (handles missing/broken V2 or schema mismatch)
+      const coldStartResult = await tryColdStartForYou(supabase, {
+        interestIds: interestIds || [],
+        subInterestIds: subInterestIds || [],
+        priceFilters,
+        latitude,
+        longitude,
+        limit: Math.min(limit, 100),
+        seed,
+      });
+      if (coldStartResult.data && coldStartResult.data.length > 0) {
+        rpcData = coldStartResult.data;
+        feedPath = 'cold_start';
+        console.log('[BUSINESSES API] Cold start (after V2 exception) returned', rpcData.length, 'businesses');
       }
-
-      const topPicks = await fetchTopPicksFallback(options, { reason: 'rpc_call_failed' });
-      topPicks.headers.set('X-Feed-Path', 'v2_error_top_picks');
-      return topPicks;
+      if (!rpcData || rpcData.length === 0) {
+        if (mode === 'v2_with_legacy_fallback') {
+          const legacy = await handleMixedFeedLegacy(options);
+          legacy.headers.set('X-Feed-Path', 'legacy_fallback');
+          return legacy;
+        }
+        const topPicks = await fetchTopPicksFallback(options, { reason: 'rpc_call_failed' });
+        topPicks.headers.set('X-Feed-Path', 'v2_error_top_picks');
+        return topPicks;
+      }
     }
     console.log('[BUSINESSES API] V2 RPC duration ms:', Date.now() - rpcStart);
 
+    // When V2 errors (e.g. schema/column mismatch), try cold start before falling back
     if (rpcError) {
-      console.error('[BUSINESSES API] recommend_for_you_v2 RPC error:', rpcError);
-      // Check if it's a "function does not exist" error
-      if (rpcError.code === '42883' || rpcError.message?.includes('does not exist')) {
-        console.log('[BUSINESSES API] V2 RPC function not found, using legacy handler');
-      }
-
+      console.warn('[BUSINESSES API] recommend_for_you_v2 RPC error:', rpcError?.code, rpcError?.message, '- trying cold start');
       noteV2Failure(Date.now());
-      if (mode === 'v2_with_legacy_fallback') {
-        console.log('[BUSINESSES API] Using legacy handleMixedFeed fallback (mode=v2_with_legacy_fallback)');
-        const legacy = await handleMixedFeedLegacy(options);
-        legacy.headers.set('X-Feed-Path', 'legacy_fallback');
-        return legacy;
+      const coldStartResult = await tryColdStartForYou(supabase, {
+        interestIds: interestIds || [],
+        subInterestIds: subInterestIds || [],
+        priceFilters,
+        latitude,
+        longitude,
+        limit: Math.min(limit, 100),
+        seed,
+      });
+      if (coldStartResult.data && coldStartResult.data.length > 0) {
+        rpcData = coldStartResult.data;
+        feedPath = 'cold_start';
+        console.log('[BUSINESSES API] Cold start (after V2 error) returned', rpcData.length, 'businesses');
       }
-
-      const topPicks = await fetchTopPicksFallback(options, { reason: 'rpc_error', details: rpcError?.code || rpcError?.message });
-      topPicks.headers.set('X-Feed-Path', 'v2_error_top_picks');
-      return topPicks;
+      if (!rpcData || rpcData.length === 0) {
+        if (mode === 'v2_with_legacy_fallback') {
+          const legacy = await handleMixedFeedLegacy(options);
+          legacy.headers.set('X-Feed-Path', 'legacy_fallback');
+          return legacy;
+        }
+        const topPicks = await fetchTopPicksFallback(options, { reason: 'rpc_error', details: rpcError?.code || rpcError?.message });
+        topPicks.headers.set('X-Feed-Path', 'v2_error_top_picks');
+        return topPicks;
+      }
     }
 
+    // When V2 returns 0 results, always try cold start (with or without preferences)
     if (!rpcData || rpcData.length === 0) {
       console.log('[BUSINESSES API] V2 RPC returned 0 results; trying preference-driven cold start');
-      const hasPrefs = (interestIds?.length ?? 0) > 0 || (subInterestIds?.length ?? 0) > 0;
-      if (hasPrefs) {
-        const coldStartResult = await tryColdStartForYou(supabase, {
-          interestIds: interestIds || [],
-          subInterestIds: subInterestIds || [],
-          priceFilters,
-          latitude,
-          longitude,
-          limit: Math.min(limit, 100),
-          seed,
-        });
-        if (coldStartResult.data && coldStartResult.data.length > 0) {
-          rpcData = coldStartResult.data;
-          feedPath = 'cold_start';
-          console.log('[BUSINESSES API] Cold start returned', rpcData.length, 'businesses');
-        }
+      const coldStartResult = await tryColdStartForYou(supabase, {
+        interestIds: interestIds || [],
+        subInterestIds: subInterestIds || [],
+        priceFilters,
+        latitude,
+        longitude,
+        limit: Math.min(limit, 100),
+        seed,
+      });
+      if (coldStartResult.data && coldStartResult.data.length > 0) {
+        rpcData = coldStartResult.data;
+        feedPath = 'cold_start';
+        console.log('[BUSINESSES API] Cold start returned', rpcData.length, 'businesses');
       }
       if (!rpcData || rpcData.length === 0) {
         if (mode === 'v2_with_legacy_fallback') {
