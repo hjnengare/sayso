@@ -228,7 +228,7 @@ export default function CommunityHighlights({
               </p>
               <div className="pt-2 flex items-center justify-center">
                 <Link
-                  href="https://sayso.co.za/badges"
+                  href="/badges"
                   className="mi-tap group inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-charcoal text-white text-sm font-semibold shadow-md hover:bg-charcoal/90 transition"
                   aria-label="Learn about badges"
                 >
