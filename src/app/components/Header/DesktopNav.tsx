@@ -355,7 +355,7 @@ export default function DesktopNav(props: DesktopNavProps) {
           <div className="relative">
             <OptimizedLink
               href="/saved"
-              className={`group flex w-10 h-10 items-center justify-center rounded-lg transition-all duration-200 relative shadow-md ${
+              className={`group flex w-10 h-10 items-center justify-center rounded-lg transition-all duration-200 relative ${
                 isSavedActive
                   ? "text-sage bg-sage/5"
                   : whiteText
