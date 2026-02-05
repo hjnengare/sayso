@@ -18,6 +18,7 @@ import BusinessesMap, { BusinessMapItem } from "../components/maps/BusinessesMap
 import { List, Map as MapIcon } from "lucide-react";
 import { Loader } from "../components/Loader/Loader";
 import { usePredefinedPageTitle } from "../hooks/usePageTitle";
+import { useScrollReveal } from "../hooks/useScrollReveal";
 import BusinessGridSkeleton from "../components/Explore/BusinessGridSkeleton";
 import WavyTypedTitle from "../../components/Animations/WavyTypedTitle";
 // Trending = cold-start API (/api/trending): metadata-only score, diversity-first selection, deterministic rotation.
@@ -29,6 +30,7 @@ const ITEMS_PER_PAGE = 12;
 
 export default function TrendingPage() {
   usePredefinedPageTitle('trending');
+  useScrollReveal({ threshold: 0.12, rootMargin: "0px 0px -120px 0px", once: true });
   const [currentPage, setCurrentPage] = useState(1);
 
   const [showScrollTop, setShowScrollTop] = useState(false);

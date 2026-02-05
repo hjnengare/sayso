@@ -105,13 +105,24 @@ export default function ReviewerCard({
   reviewer,
   latestReview,
   variant = "review",
-  index: _index = 0,
+  index = 0,
 }: ReviewerCardProps) {
   const reviewerData = reviewer || review?.reviewer;
   const idForSnap = useMemo(
     () => `reviewer-${reviewerData?.id}`,
     [reviewerData?.id]
   );
+  const revealStyle = useMemo(() => {
+    const bucket = Math.abs(index) % 6;
+    const x = bucket === 1 ? -6 : bucket === 2 ? 6 : bucket === 4 ? -3 : bucket === 5 ? 3 : 0;
+    const y = 10 + (bucket % 3);
+    const delay = Math.min(90, bucket * 18);
+    return {
+      ['--reveal-x' as any]: `${x}px`,
+      ['--reveal-y' as any]: `${y}px`,
+      ['--reveal-delay' as any]: `${delay}ms`,
+    } as React.CSSProperties;
+  }, [index]);
   const [imgError, setImgError] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [userBadges, setUserBadges] = useState<BadgePillData[]>([]);
@@ -163,6 +174,9 @@ export default function ReviewerCard({
       <div
         id={idForSnap}
         className="snap-start snap-always w-full sm:w-[240px] flex-shrink-0"
+        data-reveal
+        data-reveal-variant="premium"
+        style={revealStyle}
       >
         <Link
           href={`/reviewer/${reviewerData?.id || ''}`}

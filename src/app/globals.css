@@ -998,6 +998,35 @@
     opacity: 1;
   }
 
+  /* Premium reveal variant (subtle, Apple-like) */
+  [data-reveal][data-reveal-variant="premium"] {
+    opacity: 0;
+    transform: translate3d(var(--reveal-x, 0px), var(--reveal-y, 12px), 0)
+      scale(var(--reveal-scale, 0.985));
+    filter: blur(var(--reveal-blur, 4px));
+    transition-property: transform, opacity, filter;
+    transition-duration: var(--reveal-duration, 720ms);
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+    will-change: transform, opacity, filter;
+  }
+
+  [data-reveal][data-reveal-variant="premium"].active {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: blur(0px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-section] > *,
+    [data-reveal] {
+      transform: none !important;
+      opacity: 1 !important;
+      filter: none !important;
+      transition: none !important;
+    }
+  }
+
   /* Legacy scroll reveal styles disabled for accessibility */
   .scroll-reveal,
   .scroll-reveal-left,

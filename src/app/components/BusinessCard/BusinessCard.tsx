@@ -161,7 +161,7 @@ function BusinessCard({
   hideStar = false,
   compact = false,
   inGrid = false,
-  index: _index = 0,
+  index = 0,
   ownerView = false,
   showActions: showActionsProp,
 }: {
@@ -179,6 +179,17 @@ function BusinessCard({
   const { user } = useAuth();
   const hasReviewed = false;
   const idForSnap = useMemo(() => `business-${business.id}`, [business.id]);
+  const revealStyle = useMemo(() => {
+    const bucket = Math.abs(index) % 6;
+    const x = bucket === 1 ? -6 : bucket === 2 ? 6 : bucket === 4 ? -3 : bucket === 5 ? 3 : 0;
+    const y = 10 + (bucket % 3);
+    const delay = Math.min(90, bucket * 18);
+    return {
+      ['--reveal-x' as any]: `${x}px`,
+      ['--reveal-y' as any]: `${y}px`,
+      ['--reveal-delay' as any]: `${delay}ms`,
+    } as React.CSSProperties;
+  }, [index]);
 
   // Check if user is a business account
   const isBusinessAccount = useMemo(() => {
@@ -453,7 +464,9 @@ function BusinessCard({
     <li
       id={idForSnap}
       className={`snap-start snap-always flex-shrink-0 ${compact ? 'w-auto' : 'w-[240px] sm:w-[260px] md:w-[340px]'}`}
-      style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
+      data-reveal
+      data-reveal-variant="premium"
+      style={{ ...revealStyle, fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
     >
       <div
         className={`px-1 pt-1 pb-0 rounded-[12px] ${compact ? "lg:py-1 lg:pb-1 lg:min-h-[200px]" : "flex-1"} relative flex-shrink-0 flex flex-col justify-between bg-sage z-10 shadow-md group cursor-pointer w-full sm:h-auto`}

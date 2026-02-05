@@ -12,6 +12,7 @@ import { ChevronUp } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePredefinedPageTitle } from "../hooks/usePageTitle";
+import { useScrollReveal } from "../hooks/useScrollReveal";
 import { FilterState } from "../components/FilterModal/FilterModal";
 import BusinessRow from "../components/BusinessRow/BusinessRow";
 import BusinessRowSkeleton from "../components/BusinessRow/BusinessRowSkeleton";
@@ -67,6 +68,7 @@ export default function HomeClient() {
   // Events and Specials
   const { events, loading: eventsLoading } = useEvents();
   usePredefinedPageTitle('home');
+  useScrollReveal({ threshold: 0.12, rootMargin: "0px 0px -120px 0px", once: true });
 
   const searchParams = useSearchParams();
   const searchQueryParam = searchParams.get('search') || "";

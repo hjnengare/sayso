@@ -46,12 +46,23 @@ const getCategoryIcon = (category: string): React.ComponentType<React.SVGProps<S
   return Tag;
 };
 
-export default function BusinessOfTheMonthCard({ business, index: _index = 0 }: { business: BusinessOfTheMonth; index?: number }) {
+export default function BusinessOfTheMonthCard({ business, index = 0 }: { business: BusinessOfTheMonth; index?: number }) {
   const router = useRouter();
   const { toggleSavedItem, isItemSaved } = useSavedItems();
   const { showToast } = useToast();
   
   const idForSnap = useMemo(() => `business-month-${business.id}`, [business.id]);
+  const revealStyle = useMemo(() => {
+    const bucket = Math.abs(index) % 6;
+    const x = bucket === 1 ? -6 : bucket === 2 ? 6 : bucket === 4 ? -3 : bucket === 5 ? 3 : 0;
+    const y = 10 + (bucket % 3);
+    const delay = Math.min(90, bucket * 18);
+    return {
+      ['--reveal-x' as any]: `${x}px`,
+      ['--reveal-y' as any]: `${y}px`,
+      ['--reveal-delay' as any]: `${delay}ms`,
+    } as React.CSSProperties;
+  }, [index]);
   const [imgError, setImgError] = useState(false);
   const [usingFallback, setUsingFallback] = useState(false);
 
@@ -202,9 +213,12 @@ export default function BusinessOfTheMonthCard({ business, index: _index = 0 }: 
       id={idForSnap}
       className="snap-start snap-always flex-shrink-0 w-[100vw] sm:w-auto sm:w-[260px] md:w-[340px] list-none"
       style={{
+        ...revealStyle,
         fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
         fontWeight: 600,
       }}
+      data-reveal
+      data-reveal-variant="premium"
     >
       <div
         className="relative px-1 pt-1 pb-2 sm:pb-0 bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-visible group cursor-pointer w-full flex flex-col border border-white/60 backdrop-blur-xl ring-1 ring-white/30 shadow-md sm:h-auto"
