@@ -3,13 +3,18 @@ import { createClient } from '@supabase/supabase-js';
 
 /**
  * GET /api/reviewers/top?limit=12
- * Fetches top reviewers based on review count and activity
+ * Fetches top reviewers based on a contributor score (cold-start friendly).
  * PUBLIC ENDPOINT - Uses service role for unauthenticated access
  */
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const limit = parseInt(searchParams.get('limit') || '12');
+
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.warn('[Top Reviewers] Missing Supabase credentials');
+      return NextResponse.json({ ok: true, reviewers: [], total: 0, mode: 'stage1' });
+    }
 
     // Use service role client for public queries
     const supabase = createClient(
@@ -23,57 +28,146 @@ export async function GET(req: Request) {
       }
     );
 
-    // Fetch top reviewers with their stats
-    const { data: reviewers, error } = await supabase
-      .from('profiles')
-      .select(`
-        user_id,
-        username,
-        display_name,
-        avatar_url,
-        reviews_count,
-        is_top_reviewer,
-        badges_count
-      `)
-      .gt('reviews_count', 0) // Only users with reviews
-      .order('reviews_count', { ascending: false })
-      .limit(limit);
+    const REVIEW_POOL_SIZE = 5000;
+    const LONG_REVIEW_CHARS = 240;
 
-    if (error) {
-      console.error('[Top Reviewers] Error fetching reviewers:', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+    const { data: reviewRows, error: reviewError } = await supabase
+      .from('reviews')
+      .select('id, user_id, rating, content, created_at')
+      .order('created_at', { ascending: false })
+      .limit(REVIEW_POOL_SIZE);
+
+    if (reviewError) {
+      console.error('[Top Reviewers] Error fetching reviews:', reviewError);
+      return NextResponse.json({ error: reviewError.message }, { status: 500 });
     }
 
-    // Calculate average rating for each reviewer
-    const reviewersWithRatings = await Promise.all(
-      (reviewers || []).map(async (reviewer) => {
-        const { data: reviews } = await supabase
-          .from('reviews')
-          .select('rating')
-          .eq('user_id', reviewer.user_id);
+    const reviews = Array.isArray(reviewRows) ? reviewRows : [];
+    if (reviews.length === 0) {
+      return NextResponse.json({ ok: true, reviewers: [], total: 0, mode: 'stage1' });
+    }
 
-        const avgRating = reviews?.length
-          ? reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length
-          : 0;
+    const reviewIds: string[] = [];
+    const userStats = new Map<string, { count: number; ratingSum: number; hasLong: boolean; hasPhoto: boolean }>();
+    for (const r of reviews) {
+      if (!r?.user_id) continue;
+      if (r?.id) reviewIds.push(r.id);
+      if (!userStats.has(r.user_id)) {
+        userStats.set(r.user_id, { count: 0, ratingSum: 0, hasLong: false, hasPhoto: false });
+      }
+      const stats = userStats.get(r.user_id)!;
+      stats.count += 1;
+      stats.ratingSum += Number(r.rating || 0);
+      const content = typeof r.content === 'string' ? r.content : '';
+      if (content.trim().length > LONG_REVIEW_CHARS) stats.hasLong = true;
+    }
+
+    // Mark photo reviews
+    if (reviewIds.length > 0) {
+      const batchSize = 250;
+      for (let i = 0; i < reviewIds.length; i += batchSize) {
+        const batch = reviewIds.slice(i, i + batchSize);
+        const { data: imageRows, error: imageError } = await supabase
+          .from('review_images')
+          .select('review_id')
+          .in('review_id', batch);
+        if (imageError) {
+          // Non-fatal; some environments may not have this table
+          console.warn('[Top Reviewers] Error fetching review_images:', imageError.message);
+          break;
+        }
+        const reviewsWithImages = new Set((imageRows || []).map((x: any) => x.review_id).filter(Boolean));
+        if (reviewsWithImages.size === 0) continue;
+        for (const r of reviews) {
+          if (!r?.id || !r?.user_id) continue;
+          if (!reviewsWithImages.has(r.id)) continue;
+          const stats = userStats.get(r.user_id);
+          if (stats) stats.hasPhoto = true;
+        }
+      }
+    }
+
+    const userIds = Array.from(userStats.keys());
+    const { data: profileRows, error: profileError } = await supabase
+      .from('profiles')
+      .select('user_id, username, display_name, avatar_url, is_top_reviewer, badges_count')
+      .in('user_id', userIds);
+
+    if (profileError) {
+      console.warn('[Top Reviewers] Error fetching profiles:', profileError.message);
+    }
+
+    const profileById = new Map<string, any>();
+    for (const p of profileRows || []) {
+      if (p?.user_id) profileById.set(p.user_id, p);
+    }
+
+    // Cold-start friendly contributor score:
+    // - user has written >= 1 review: +3
+    // - any review has photo: +2
+    // - any review exceeds length threshold: +1
+    // - user has any badge: +2
+    const scored = userIds
+      .map((userId) => {
+        const stats = userStats.get(userId)!;
+        const profile = profileById.get(userId) || {};
+        const badgesCount = Number(profile.badges_count || 0);
+        const hasBadge = badgesCount > 0 || Boolean(profile.is_top_reviewer);
+        const score =
+          (stats.count >= 1 ? 3 : 0) +
+          (stats.hasPhoto ? 2 : 0) +
+          (stats.hasLong ? 1 : 0) +
+          (hasBadge ? 2 : 0);
+
+        const avgRating = stats.count > 0 ? stats.ratingSum / stats.count : 0;
+        const displayName = profile.display_name || profile.username || 'Anonymous';
+        const avatarSeedName = profile.display_name || profile.username || 'User';
 
         return {
-          id: reviewer.user_id,
-          name: reviewer.display_name || reviewer.username || 'Anonymous',
-          username: reviewer.username,
-          profilePicture: reviewer.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(reviewer.display_name || 'User')}&background=random`,
-          reviewCount: reviewer.reviews_count || 0,
+          id: userId,
+          name: displayName,
+          username: profile.username,
+          profilePicture:
+            profile.avatar_url ||
+            `https://ui-avatars.com/api/?name=${encodeURIComponent(avatarSeedName)}&background=random`,
+          reviewCount: stats.count,
           rating: Math.round(avgRating * 10) / 10,
-          badge: reviewer.is_top_reviewer ? 'top' as const : undefined,
-          badgesCount: reviewer.badges_count || 0,
-          location: 'Cape Town'
+          badge: profile.is_top_reviewer ? ('top' as const) : undefined,
+          badgesCount,
+          location: 'Cape Town',
+          _score: score,
+          _tie: Math.round(avgRating * 100) + stats.count * 10 + (stats.hasPhoto ? 1 : 0),
         };
       })
-    );
+      .sort((a, b) => {
+        if (b._score !== a._score) return b._score - a._score;
+        if (b.reviewCount !== a.reviewCount) return b.reviewCount - a.reviewCount;
+        if (b._tie !== a._tie) return b._tie - a._tie;
+        return a.id.localeCompare(b.id);
+      });
+
+    const reviewersWithRatings = scored.slice(0, Math.max(0, limit)).map(({ _score, _tie, ...rest }) => rest);
+    const uniqueContributors = userIds.length;
+    const totalReviewsSeen = reviews.length;
+    const mode = uniqueContributors < 25 || totalReviewsSeen < 200 ? 'stage1' : 'normal';
 
     return NextResponse.json({
       ok: true,
       reviewers: reviewersWithRatings,
-      total: reviewersWithRatings.length
+      total: reviewersWithRatings.length,
+      mode,
+      meta: {
+        poolSize: REVIEW_POOL_SIZE,
+        uniqueContributors,
+        totalReviewsSeen,
+        scoring: {
+          reviewWrittenPoints: 3,
+          hasPhotoPoints: 2,
+          hasLongReviewPoints: 1,
+          hasBadgePoints: 2,
+          longReviewChars: LONG_REVIEW_CHARS,
+        },
+      },
     });
 
   } catch (error: any) {

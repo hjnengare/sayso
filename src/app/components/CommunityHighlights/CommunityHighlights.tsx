@@ -52,6 +52,7 @@ export default function CommunityHighlights({
   const router = useRouter();
   const [reviews, setReviews] = useState<Review[]>(propReviews || []);
   const [topReviewers, setTopReviewers] = useState<Reviewer[]>(propTopReviewers || []);
+  const [reviewersMode, setReviewersMode] = useState<'stage1' | 'normal' | null>(null);
   const [loading, setLoading] = useState(!propReviews && !propTopReviewers);
 
   // Fetch data from API if not provided via props
@@ -69,6 +70,7 @@ export default function CommunityHighlights({
           if (reviewersRes?.ok) {
             const data = await reviewersRes.json();
             setTopReviewers(data.reviewers || []);
+            setReviewersMode(data?.mode === 'normal' ? 'normal' : 'stage1');
           }
 
           if (reviewsRes?.ok) {
@@ -96,12 +98,14 @@ export default function CommunityHighlights({
     );
   }
 
-  if (
-    (!topReviewers || topReviewers.length === 0) &&
-    (!businessesOfTheMonth || businessesOfTheMonth.length === 0)
-  ) {
-    return null;
-  }
+  const hasReviewers = !!topReviewers && topReviewers.length > 0;
+  const hasBusinesses = Array.isArray(businessesOfTheMonth) && businessesOfTheMonth.length > 0;
+  const isStage1 = reviewersMode !== 'normal';
+
+  const contributorsHeadingMobile = isStage1 ? 'Early Voices' : 'Top Contributors';
+  const contributorsHeadingDesktop = isStage1 ? 'Early Community Voices' : 'Top Contributors This Month';
+  const contributorsEmptyTitle = 'Be among the first voices shaping Sayso.';
+  const contributorsEmptyBody = 'Write your first review and help set the standard for what’s worth discovering.';
 
   return (
     <section
@@ -133,15 +137,15 @@ export default function CommunityHighlights({
         </div>
 
         {/* Top Reviewers */}
-        {topReviewers && topReviewers.length > 0 && (
+        {hasReviewers && (
           <div className="mt-1">
             <div className="pb-4 sm:pb-8 md:pb-10 flex flex-wrap items-center justify-between gap-2">
                 <h3
                   className="font-urbanist text-base font-700 text-charcoal transition-all duration-300 px-3 sm:px-4 py-1 rounded-lg cursor-none"
                   style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 700 }}
                 >
-                  <span className="sm:hidden">Top Contributors</span>
-                  <span className="hidden sm:inline">Top Contributors This Month</span>
+                  <span className="sm:hidden">{contributorsHeadingMobile}</span>
+                  <span className="hidden sm:inline">{contributorsHeadingDesktop}</span>
                 </h3>
                 <button
                   onClick={() => router.push('/leaderboard?tab=contributors')}
@@ -193,31 +197,31 @@ export default function CommunityHighlights({
         )}
 
         {/* Top Contributors Empty State */}
-        {(!topReviewers || topReviewers.length === 0) && (
+        {!hasReviewers && (
           <div className="mt-1">
             <div className="pb-4 sm:pb-8 md:pb-10 flex flex-wrap items-center justify-between gap-2">
               <h3
                 className="font-urbanist text-base font-700 text-charcoal transition-all duration-300 px-3 sm:px-4 py-1 rounded-lg cursor-none"
                 style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 700 }}
               >
-                <span className="sm:hidden">Top Contributors</span>
-                <span className="hidden sm:inline">Top Contributors This Month</span>
+                <span className="sm:hidden">{contributorsHeadingMobile}</span>
+                <span className="hidden sm:inline">{contributorsHeadingDesktop}</span>
               </h3>
             </div>
             
             <div className="w-full bg-off-white border border-sage/20 rounded-3xl px-6 py-16 text-center space-y-3">
               <h2 className="text-h2 font-semibold text-charcoal" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                Top Contributors Appear Here
+                {contributorsEmptyTitle}
               </h2>
               <p className="text-body-sm text-charcoal/60 max-w-[70ch] mx-auto" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 500 }}>
-                Write and share reviews to become a top contributor and earn recognition badges.
+                {contributorsEmptyBody}
               </p>
             </div>
           </div>
         )}
 
         {/* Businesses of the Month */}
-        {Array.isArray(businessesOfTheMonth) && businessesOfTheMonth.length > 0 && (
+        {hasBusinesses && (
           <section
             className="relative m-0 p-0 w-full mt-3 list-none"
             aria-label="Featured Businesses of the Month by Category"
@@ -268,6 +272,38 @@ export default function CommunityHighlights({
                   ))}
                 </div>
               </ScrollableSection>
+            </div>
+          </section>
+        )}
+
+        {/* Featured Businesses Empty State */}
+        {!hasBusinesses && (
+          <section
+            className="relative m-0 p-0 w-full mt-3 list-none"
+            aria-label="Featured Businesses"
+            style={{
+              fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+            }}
+          >
+            <div className="mx-auto w-full max-w-[2000px] relative z-10">
+              <div className="pb-4 sm:pb-8 md:pb-10 flex flex-wrap items-center justify-between gap-2">
+                <h3
+                  className="font-urbanist text-base font-700 text-charcoal transition-all duration-300 px-3 sm:px-4 py-1 rounded-lg cursor-default"
+                  style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 700 }}
+                >
+                  <span className="sm:hidden">Featured</span>
+                  <span className="hidden sm:inline">Featured Businesses</span>
+                </h3>
+              </div>
+
+              <div className="w-full bg-off-white border border-sage/20 rounded-3xl px-6 py-16 text-center space-y-3">
+                <h2 className="text-h2 font-semibold text-charcoal" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                  Curated by trust and completeness.
+                </h2>
+                <p className="text-body-sm text-charcoal/60 max-w-[70ch] mx-auto" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 500 }}>
+                  As the community grows, this will highlight rising businesses. For now, we’ll feature verified, well-profiled places worth exploring.
+                </p>
+              </div>
             </div>
           </section>
         )}

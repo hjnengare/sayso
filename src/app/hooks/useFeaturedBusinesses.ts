@@ -58,7 +58,7 @@ export interface FeaturedBusinessesMeta {
   period?: string;
   generated_at?: string;
   seed?: string;
-  source?: 'rpc' | 'fallback';
+  source?: 'cold_start' | 'rpc' | 'fallback';
   count?: number;
 }
 
