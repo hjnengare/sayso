@@ -38,8 +38,8 @@ function LeaderboardPodium({ topReviewers }: LeaderboardPodiumProps) {
               fallbackType="profile"
             />
           </div>
-          <div className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 md:-top-2 md:-right-2 w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 bg-gradient-to-br from-coral to-coral/80 rounded-full flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.3)] border-[1.5px] sm:border-2 border-white">
-            <span className="text-[10px] sm:text-body-sm md:text-body font-bold text-white">2</span>
+          <div className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 md:-top-2 md:-right-2 w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 bg-gradient-to-br from-slate-100 to-slate-300 rounded-full flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.3)] border-[1.5px] sm:border-2 border-white">
+            <span className="text-[10px] sm:text-body-sm md:text-body font-bold text-charcoal">2</span>
           </div>
         </div>
         <div className="font-urbanist text-xs sm:text-body-sm md:text-body font-700 text-charcoal mb-1 truncate px-1 sm:px-2 max-w-full overflow-hidden min-h-[1.25rem] sm:min-h-[1.5rem] md:min-h-[1.75rem]">@{topReviewers[1].username}</div>
@@ -48,9 +48,7 @@ function LeaderboardPodium({ topReviewers }: LeaderboardPodiumProps) {
         </div>
         {/* Professional Podium Block */}
         <div className="relative mt-auto">
-          <div className="bg-gradient-to-b from-coral/50 to-coral/30 rounded-t-xl h-12 sm:h-20 md:h-28 lg:h-32 w-full shadow-[0_8px_30px_rgba(0,0,0,0.15)] relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
-          </div>
+          <div className="podium-metal podium-metal--silver rounded-t-xl h-12 sm:h-20 md:h-28 lg:h-32 w-full shadow-[0_10px_34px_rgba(0,0,0,0.16)]" />
         </div>
       </motion.div>
 
@@ -82,9 +80,7 @@ function LeaderboardPodium({ topReviewers }: LeaderboardPodiumProps) {
         </div>
         {/* Professional Podium Block */}
         <div className="relative mt-auto">
-          <div className="bg-gradient-to-b from-sage/60 to-sage/35 rounded-t-xl h-16 sm:h-24 md:h-36 lg:h-48 w-full shadow-[0_12px_40px_rgba(0,0,0,0.2)] relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
-          </div>
+          <div className="podium-metal podium-metal--gold rounded-t-xl h-16 sm:h-24 md:h-36 lg:h-48 w-full shadow-[0_14px_44px_rgba(0,0,0,0.2)]" />
         </div>
       </motion.div>
 
@@ -106,7 +102,7 @@ function LeaderboardPodium({ topReviewers }: LeaderboardPodiumProps) {
               fallbackType="profile"
             />
           </div>
-          <div className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 md:-top-2 md:-right-2 w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 bg-gradient-to-br from-charcoal/70 to-charcoal/50 rounded-full flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.3)] border-[1.5px] sm:border-2 border-white">
+          <div className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 md:-top-2 md:-right-2 w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 bg-gradient-to-br from-[#d2a07a] to-[#8b5a3c] rounded-full flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.3)] border-[1.5px] sm:border-2 border-white">
             <span className="text-[10px] sm:text-body-sm md:text-body font-bold text-white">3</span>
           </div>
         </div>
@@ -116,9 +112,7 @@ function LeaderboardPodium({ topReviewers }: LeaderboardPodiumProps) {
         </div>
         {/* Professional Podium Block */}
         <div className="relative mt-auto">
-          <div className="bg-gradient-to-b from-charcoal/40 to-charcoal/20 rounded-t-xl h-10 sm:h-16 md:h-24 lg:h-28 w-full shadow-[0_8px_30px_rgba(0,0,0,0.15)] relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
-          </div>
+          <div className="podium-metal podium-metal--bronze rounded-t-xl h-10 sm:h-16 md:h-24 lg:h-28 w-full shadow-[0_10px_34px_rgba(0,0,0,0.16)]" />
         </div>
       </motion.div>
     </div>

@@ -136,8 +136,8 @@ function BusinessOfMonthPodium({ topBusinesses }: BusinessOfMonthPodiumProps) {
                 <div className="flex items-center justify-center mx-auto">
                   <BusinessImage business={businesses[1]} size="small" />
                 </div>
-              <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-coral to-coral/80 rounded-full flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.3)] border-2 border-white ring-2 ring-white/50">
-              <span className="text-body-sm sm:text-body font-bold text-white">2</span>
+              <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-slate-100 to-slate-300 rounded-full flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.3)] border-2 border-white ring-2 ring-white/50">
+              <span className="text-body-sm sm:text-body font-bold text-charcoal">2</span>
             </div> 
               </div>
 
@@ -154,9 +154,7 @@ function BusinessOfMonthPodium({ topBusinesses }: BusinessOfMonthPodiumProps) {
 
               {/* Professional Podium Block */}
               <div className="relative mt-auto">
-                <div className="bg-gradient-to-b from-coral/50 to-coral/30 rounded-t-xl h-20 sm:h-28 md:h-32 w-full shadow-[0_8px_30px_rgba(0,0,0,0.15)] relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
-                </div>
+                <div className="podium-metal podium-metal--silver rounded-t-xl h-20 sm:h-28 md:h-32 w-full shadow-[0_10px_34px_rgba(0,0,0,0.16)]" />
               </div>
             </Link>
           ) : (
@@ -164,8 +162,8 @@ function BusinessOfMonthPodium({ topBusinesses }: BusinessOfMonthPodiumProps) {
               <div className="relative mb-2 sm:mb-3">
                 <div className="relative flex items-center justify-center mx-auto">
                   <BusinessImage business={businesses[1]} size="small" />
-                  <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-coral to-coral/80 rounded-full flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.3)] border-2 border-white ring-2 ring-white/50">
-                    <span className="text-body-sm sm:text-body font-bold text-white">2</span>
+                  <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-slate-100 to-slate-300 rounded-full flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.3)] border-2 border-white ring-2 ring-white/50">
+                    <span className="text-body-sm sm:text-body font-bold text-charcoal">2</span>
                   </div>
                 </div>
               </div>
@@ -183,9 +181,7 @@ function BusinessOfMonthPodium({ topBusinesses }: BusinessOfMonthPodiumProps) {
 
               {/* Professional Podium Block */}
               <div className="relative mt-auto">
-                <div className="bg-gradient-to-b from-coral to-coral/70 rounded-t-xl h-20 sm:h-28 md:h-32 w-full shadow-[0_8px_30px_rgba(0,0,0,0.15)] relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
-                </div>
+                <div className="podium-metal podium-metal--silver rounded-t-xl h-20 sm:h-28 md:h-32 w-full shadow-[0_10px_34px_rgba(0,0,0,0.16)]" />
               </div>
             </div>
           )}
@@ -226,9 +222,7 @@ function BusinessOfMonthPodium({ topBusinesses }: BusinessOfMonthPodiumProps) {
 
               {/* Professional Podium Block */}
               <div className="relative mt-auto">
-                <div className="bg-gradient-to-b from-sage/60 to-sage/35 rounded-t-xl h-24 sm:h-36 md:h-48 w-full shadow-[0_12px_40px_rgba(0,0,0,0.2)] relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
-                </div>
+                <div className="podium-metal podium-metal--gold rounded-t-xl h-24 sm:h-36 md:h-48 w-full shadow-[0_14px_44px_rgba(0,0,0,0.2)]" />
               </div>
             </Link>
           ) : (
@@ -258,9 +252,7 @@ function BusinessOfMonthPodium({ topBusinesses }: BusinessOfMonthPodiumProps) {
 
               {/* Professional Podium Block */}
               <div className="relative mt-auto">
-                <div className="bg-gradient-to-b from-sage to-sage/70 rounded-t-xl h-24 sm:h-36 md:h-48 w-full shadow-[0_12px_40px_rgba(0,0,0,0.2)] relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
-                </div>
+                <div className="podium-metal podium-metal--gold rounded-t-xl h-24 sm:h-36 md:h-48 w-full shadow-[0_14px_44px_rgba(0,0,0,0.2)]" />
               </div>
             </div>
           )}
@@ -281,7 +273,7 @@ function BusinessOfMonthPodium({ topBusinesses }: BusinessOfMonthPodiumProps) {
                 <div className="flex items-center justify-center mx-auto">
                   <BusinessImage business={businesses[2]} size="small" />
                 </div>
-                <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-charcoal/70 to-charcoal/50 rounded-full flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.3)] border-2 border-white ring-2 ring-white/50">
+                <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[#d2a07a] to-[#8b5a3c] rounded-full flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.3)] border-2 border-white ring-2 ring-white/50">
                   <span className="text-body-sm sm:text-body font-bold text-white ">3</span>
                 </div>
               </div>
@@ -299,9 +291,7 @@ function BusinessOfMonthPodium({ topBusinesses }: BusinessOfMonthPodiumProps) {
 
               {/* Professional Podium Block */}
               <div className="relative mt-auto">
-                <div className="bg-gradient-to-b from-charcoal/40 to-charcoal/20 rounded-t-xl h-16 sm:h-24 md:h-28 w-full shadow-[0_8px_30px_rgba(0,0,0,0.15)] relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
-                </div>
+                <div className="podium-metal podium-metal--bronze rounded-t-xl h-16 sm:h-24 md:h-28 w-full shadow-[0_10px_34px_rgba(0,0,0,0.16)]" />
               </div>
             </Link>
           ) : (
@@ -309,7 +299,7 @@ function BusinessOfMonthPodium({ topBusinesses }: BusinessOfMonthPodiumProps) {
               <div className="relative mb-2 sm:mb-3">
                 <div className="relative flex items-center justify-center mx-auto ring-3 sm:ring-4 ring-charcoal/20">
                   <BusinessImage business={businesses[2]} size="small" />
-                  <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-charcoal/70 to-charcoal/50 rounded-full flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.3)] border-2 border-white ring-2 ring-white/50">
+                  <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[#d2a07a] to-[#8b5a3c] rounded-full flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.3)] border-2 border-white ring-2 ring-white/50">
                     <span className="text-body-sm sm:text-body font-bold text-white">3</span>
                   </div>
                 </div>
@@ -328,9 +318,7 @@ function BusinessOfMonthPodium({ topBusinesses }: BusinessOfMonthPodiumProps) {
 
               {/* Professional Podium Block */}
               <div className="relative mt-auto">
-                <div className="bg-gradient-to-b from-charcoal/60 to-charcoal/40 rounded-t-xl h-16 sm:h-24 md:h-28 w-full shadow-[0_8px_30px_rgba(0,0,0,0.15)] relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
-                </div>
+                <div className="podium-metal podium-metal--bronze rounded-t-xl h-16 sm:h-24 md:h-28 w-full shadow-[0_10px_34px_rgba(0,0,0,0.16)]" />
               </div>
             </div>
           )}
