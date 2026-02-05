@@ -130,6 +130,7 @@ export default function Home() {
   } = useForYouBusinesses(20, undefined, {
     preferences,
     preferencesLoading: prefsLoading,
+    skip: !user, // Don't fetch For You when not signed in; section shows teaser only
   });
 
   const {
@@ -449,8 +450,8 @@ export default function Home() {
                   {/* For You Section - Only show when NOT filtered */}
                   {!isFiltered && (
                     <div className="relative z-10 snap-start">
-                      {isGuestMode ? (
-                        /* Guest Mode: Show Locked For You Section */
+                      {!user ? (
+                        /* Not signed in: Show Locked For You Section (teaser only) */
                         <div className="mx-auto w-full max-w-[2000px] px-2">
                           <div className="relative border border-charcoal/10 rounded-[12px] p-6 sm:p-8 md:p-10 text-center space-y-3">
                             <h3 className="text-lg sm:text-xl font-bold text-charcoal" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>

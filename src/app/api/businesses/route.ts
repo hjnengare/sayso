@@ -408,7 +408,12 @@ export async function GET(req: Request) {
       ? searchParams.get('dealbreakers')!.split(',').map(id => id.trim()).filter(Boolean)
       : [];
 
-    const feedStrategy = (searchParams.get('feed_strategy') as 'mixed' | 'standard' | null) || 'standard';
+    // feed=for-you and feed_strategy=mixed both use For You (zero-stats: preference + quality only)
+    const feedParam = searchParams.get('feed');
+    const feedStrategy =
+      (searchParams.get('feed_strategy') as 'mixed' | 'standard' | null) ||
+      (feedParam === 'for-you' ? 'mixed' : null) ||
+      'standard';
 
     // Legacy location parameters (keep for backward compatibility)
     const radius = searchParams.get('radius') ? parseFloat(searchParams.get('radius')!) : (radiusKm || 10);
@@ -516,8 +521,8 @@ export async function GET(req: Request) {
           : mappedSubcategories;
       }
 
-      // Use the Netflix-style two-stage recommender (V2)
-      const response = await handleMixedFeedV2({
+      // For You: zero-stats only (preference + quality; no reviews, views, clicks)
+      const response = await handleForYouZeroStats({
         supabase,
         limit,
         category,
@@ -1344,6 +1349,136 @@ async function tryColdStartForYou(
     console.warn('[BUSINESSES API] recommend_for_you_cold_start failed:', err?.message ?? err);
     return { data: null, error: err };
   }
+}
+
+/** Seed component that rotates daily so the feed feels fresh (small datasets, no engagement stats). */
+function createDailySeedComponent(): string {
+  return new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+}
+
+/**
+ * For You zero-stats path: preference + quality only (no reviews, views, clicks).
+ * Uses recommend_for_you_cold_start only. Diversity and freshness via seed (window + daily).
+ */
+async function handleForYouZeroStats(options: MixedFeedOptions): Promise<NextResponse> {
+  const start = Date.now();
+  const {
+    supabase,
+    limit,
+    interestIds,
+    subInterestIds,
+    dealbreakerIds,
+    preferredPriceRanges,
+    latitude,
+    longitude,
+    userId,
+    requestId,
+    seed: windowSeed,
+  } = options;
+
+  const priceFilters = derivePriceFilters(options.priceRange, preferredPriceRanges);
+  const dailyPart = createDailySeedComponent();
+  const seed = windowSeed ? `${windowSeed}-${dailyPart}` : dailyPart;
+
+  console.log('[BUSINESSES API] For You zero-stats:', {
+    limit,
+    interestIds: interestIds?.length || 0,
+    subInterestIds: subInterestIds?.length || 0,
+    dealbreakerIds: dealbreakerIds?.length || 0,
+    seedPrefix: seed.slice(0, 20),
+  });
+
+  const { data: rpcData, error: rpcError } = await tryColdStartForYou(supabase, {
+    interestIds: interestIds || [],
+    subInterestIds: subInterestIds || [],
+    priceFilters,
+    latitude,
+    longitude,
+    limit: Math.min(limit, 100),
+    seed,
+  });
+
+  if (rpcError || !rpcData || rpcData.length === 0) {
+    console.warn('[BUSINESSES API] For You zero-stats empty or error:', rpcError?.message ?? 'no data');
+    const fallback = await fetchTopPicksFallback(options, {
+      reason: 'for_you_zero_stats_empty',
+      details: rpcError?.message ?? null,
+    });
+    fallback.headers.set('X-Feed-Path', 'for_you_zero_stats_fallback');
+    return fallback;
+  }
+
+  const businesses: BusinessRPCResult[] = rpcData.map((row: any) => ({
+    id: row.id,
+    name: row.name,
+    description: row.description,
+    category: row.category,
+    interest_id: row.interest_id,
+    sub_interest_id: row.sub_interest_id,
+    location: row.location,
+    address: row.address,
+    phone: row.phone,
+    email: row.email,
+    website: row.website,
+    image_url: row.image_url,
+    uploaded_images: Array.isArray(row.uploaded_images) ? row.uploaded_images : [],
+    verified: row.verified,
+    price_range: row.price_range,
+    badge: row.badge,
+    slug: row.slug,
+    lat: row.latitude ?? row.lat,
+    lng: row.longitude ?? row.lng,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+    total_reviews: row.total_reviews ?? 0,
+    average_rating: Number(row.average_rating ?? 0),
+    percentiles: row.percentiles ?? null,
+    distance_km: null,
+    cursor_id: row.id,
+    cursor_created_at: row.created_at,
+    personalization_score: row.personalization_score,
+    diversity_rank: row.diversity_rank,
+  }));
+
+  const filteredBusinesses = filterByDealbreakers(businesses, dealbreakerIds);
+
+  const missingImages = filteredBusinesses.some((b) => !b.uploaded_images || b.uploaded_images.length === 0);
+  if (missingImages) {
+    const businessIds = filteredBusinesses.map((b) => b.id);
+    const { data: imagesData } = await supabase
+      .from('business_images')
+      .select('business_id, url, type, sort_order, is_primary')
+      .in('business_id', businessIds)
+      .order('sort_order', { ascending: true });
+    if (imagesData) {
+      const byBusiness = new Map<string, string[]>();
+      for (const img of imagesData) {
+        const list = byBusiness.get(img.business_id) || [];
+        list.push(img.url);
+        byBusiness.set(img.business_id, list);
+      }
+      for (const b of filteredBusinesses) {
+        const urls = byBusiness.get(b.id);
+        if (urls?.length) b.uploaded_images = urls;
+      }
+    }
+  }
+
+  const transformedBusinesses = filteredBusinesses.map(transformBusinessForCard);
+
+  const response = NextResponse.json({
+    businesses: transformedBusinesses,
+    cursorId: null,
+    meta: {
+      requestId: requestId ?? null,
+      seed: seed.slice(0, 30),
+      durationMs: Date.now() - start,
+      feed: 'for-you',
+      zeroStats: true,
+    },
+  });
+  response.headers.set('X-Feed-Path', 'for_you_zero_stats');
+  return applySharedResponseHeaders(response);
 }
 
 // =============================================
@@ -2407,6 +2542,8 @@ const DEALBREAKER_RULES: Record<string, (business: BusinessRPCResult) => boolean
     const costEffectivenessScore = business.percentiles?.['cost-effectiveness'] ?? 100;
     return costEffectivenessScore >= 75;
   },
+  expensive: (business) =>
+    business.price_range !== '$$$$' && business.price_range !== '$$$',
 };
 
 const ONE_DAY_MS = 1000 * 60 * 60 * 24;

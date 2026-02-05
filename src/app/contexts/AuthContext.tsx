@@ -26,6 +26,19 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+/** Safe default when used outside AuthProvider (e.g. SSR or before mount). Guests see this until provider runs. */
+const DEFAULT_AUTH_CONTEXT: AuthContextType = {
+  user: null,
+  isLoading: false,
+  error: null,
+  login: async () => null,
+  register: async () => false,
+  logout: async () => {},
+  updateUser: async () => {},
+  refreshUser: async () => {},
+  resendVerificationEmail: async () => false,
+};
+
 interface AuthProviderProps {
   children: ReactNode;
 }
@@ -629,10 +642,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
   );
 }
 
-export function useAuth() {
+export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);
+  // When outside provider (e.g. SSR, or before layout mounts), return safe guest state so pages like /for-you don't 500
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    return DEFAULT_AUTH_CONTEXT;
   }
   return context;
 }

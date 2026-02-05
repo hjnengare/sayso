@@ -646,6 +646,14 @@ export async function proxy(request: NextRequest) {
   // (Unauthenticated users already returned above)
   if (isPublicRoute) {
     edgeLog('ALLOW', pathname, { hasUser: !!user, emailConfirmed: !!user?.email_confirmed_at });
+    // Rewrite /home → / so the root page renders home content (avoids 404 when app/home route fails to resolve)
+    if (pathname === '/home') {
+      const rewritten = NextResponse.rewrite(new URL('/', request.url));
+      rewritten.headers.set('Cache-Control', response.headers.get('Cache-Control') ?? 'no-store, no-cache, must-revalidate');
+      rewritten.headers.set('Pragma', response.headers.get('Pragma') ?? 'no-cache');
+      rewritten.headers.set('Expires', response.headers.get('Expires') ?? '0');
+      return rewritten;
+    }
     return response;
   }
 

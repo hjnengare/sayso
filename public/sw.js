@@ -7,21 +7,23 @@ const CACHE_NAME = 'klio-v1';
 const IMAGE_CACHE_NAME = 'klio-images-v1';
 const API_CACHE_NAME = 'klio-api-v1';
 
-// Assets to cache on install
+// Assets to cache on install (optional; any failure must not break install)
 const STATIC_ASSETS = [
   '/',
   '/home',
-  '/explore',
   '/for-you',
   '/trending',
   '/leaderboard',
 ];
 
-// Install event - cache static assets
+// Install event - cache static assets. addAll() throws if any request fails (e.g. 404/500),
+// so we add one-by-one and ignore failures so the SW still activates.
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
+      return Promise.allSettled(
+        STATIC_ASSETS.map((url) => cache.add(url).catch(() => {}))
+      );
     })
   );
   self.skipWaiting();
