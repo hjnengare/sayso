@@ -330,7 +330,7 @@ export default function DesktopNav(props: DesktopNavProps) {
   );
 
   const renderIcons = () => (
-    <div className="flex items-center justify-end gap-2 lg:gap-3 min-w-0">
+    <div className="flex items-center justify-end gap-3 min-w-0">
         {/* Notifications */}
         <button
           onClick={onNotificationsClick}
