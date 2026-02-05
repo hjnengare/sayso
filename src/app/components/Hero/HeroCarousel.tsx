@@ -290,12 +290,11 @@ export default function HeroCarousel() {
   const [isHeroReady, setIsHeroReady] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [paused, setPaused] = useState(false);
-  const [progress, setProgress] = useState(0);
   const [heroImages] = useState<string[]>(() => HERO_IMAGES);
   const [heroViewport, setHeroViewport] = useState<HeroViewport>(() => getViewportFromWindow());
   const [heroSeed] = useState<string>(() => getOrCreateSessionSeed());
   const [failedImageUrls, setFailedImageUrls] = useState<Set<string>>(new Set());
-  const progressRef = useRef<NodeJS.Timeout | null>(null);
+  const slideTimeoutRef = useRef<number | null>(null);
   const containerRef = useRef<HTMLElement>(null);
   const currentIndexRef = useRef(currentIndex);
   const cappedHeroImages = useMemo(() => {
@@ -346,7 +345,6 @@ export default function HeroCarousel() {
     if (currentIndex >= slides.length) {
       setCurrentIndex(0);
       currentIndexRef.current = 0;
-      setProgress(0);
     }
   }, [currentIndex, slides.length]);
 
@@ -418,7 +416,6 @@ export default function HeroCarousel() {
 
   const next = useCallback(() => {
     if (slides.length === 0) return;
-    setProgress(0); // Reset progress when advancing
     setCurrentIndex((prev) => {
       const newIndex = (prev + 1) % slides.length;
       currentIndexRef.current = newIndex;
@@ -427,7 +424,6 @@ export default function HeroCarousel() {
   }, [slides.length]);
   const prev = useCallback(() => {
     if (slides.length === 0) return;
-    setProgress(0); // Reset progress when going back
     setCurrentIndex((prev) => {
       const newIndex = (prev - 1 + slides.length) % slides.length;
       currentIndexRef.current = newIndex;
@@ -440,51 +436,34 @@ export default function HeroCarousel() {
     currentIndexRef.current = currentIndex;
   }, [currentIndex]);
 
-  // Progress animation for each slide
+  // Auto-advance slides (avoid frequent state updates on mobile Safari).
   useEffect(() => {
     if (prefersReduced || paused || slides.length === 0) {
-      // Clear progress timer when paused
-      if (progressRef.current) {
-        clearInterval(progressRef.current);
-        progressRef.current = null;
+      if (slideTimeoutRef.current != null) {
+        window.clearTimeout(slideTimeoutRef.current);
+        slideTimeoutRef.current = null;
       }
       return;
     }
 
-    // Reset progress when slide changes
-    setProgress(0);
+    // Clear previous timer before scheduling a new one.
+    if (slideTimeoutRef.current != null) {
+      window.clearTimeout(slideTimeoutRef.current);
+      slideTimeoutRef.current = null;
+    }
 
-    // Animate progress from 0 to 100 over 8 seconds (more natural speed)
-    const interval = 50; // Update every 50ms for smooth animation
-    const totalDuration = 8000; // 8 seconds per slide for a more natural pace
-    const steps = totalDuration / interval;
-    let currentStep = 0;
-
-    progressRef.current = setInterval(() => {
-      currentStep++;
-      const newProgress = Math.min((currentStep / steps) * 100, 100);
-      setProgress(newProgress);
-
-      // When progress reaches 100%, advance to next slide
-      if (newProgress >= 100) {
-        if (progressRef.current) {
-          clearInterval(progressRef.current);
-          progressRef.current = null;
-        }
-        // Use the ref version of next to avoid dependency issues
-        setCurrentIndex((prev) => {
-          const newIndex = (prev + 1) % slides.length;
-          currentIndexRef.current = newIndex;
-          return newIndex;
-        });
-        setProgress(0);
-      }
-    }, interval);
+    slideTimeoutRef.current = window.setTimeout(() => {
+      setCurrentIndex((prev) => {
+        const newIndex = (prev + 1) % slides.length;
+        currentIndexRef.current = newIndex;
+        return newIndex;
+      });
+    }, 8000);
 
     return () => {
-      if (progressRef.current) {
-        clearInterval(progressRef.current);
-        progressRef.current = null;
+      if (slideTimeoutRef.current != null) {
+        window.clearTimeout(slideTimeoutRef.current);
+        slideTimeoutRef.current = null;
       }
     };
   }, [prefersReduced, paused, currentIndex, slides.length]);
@@ -561,7 +540,6 @@ export default function HeroCarousel() {
   const goToSlide = (index: number) => {
     if (slides.length === 0) return;
     setCurrentIndex(index);
-    setProgress(0); // Reset progress when manually navigating
     setPaused(true);
   };
 
@@ -645,12 +623,12 @@ export default function HeroCarousel() {
         <div
           key={slide.id}
           aria-hidden={index !== currentIndex}
-          className={`absolute inset-0 w-auto h-auto overflow-hidden transition-opacity duration-1000 ease-in-out will-change-transform rounded-none md:rounded-none lg:rounded-none ${
+          className={`absolute inset-0 w-auto h-auto overflow-hidden transition-opacity duration-1000 ease-in-out will-change-transform transform-gpu [backface-visibility:hidden] rounded-none md:rounded-none lg:rounded-none ${
             index === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0"
           }`}
         >
            {/* Full Background Image - All Screen Sizes; fallback to /hero when not loading */}
-           <div className="absolute inset-0 rounded-none md:rounded-none lg:rounded-none overflow-hidden px-0 mx-0">
+           <div className="absolute inset-0 rounded-none md:rounded-none lg:rounded-none overflow-hidden px-0 mx-0 transform-gpu [backface-visibility:hidden]">
              <Image
                src={failedImageUrls.has(slide.image) ? HERO_IMAGES[index % HERO_IMAGES.length] : slide.image}
                alt={slide.title}
@@ -659,7 +637,7 @@ export default function HeroCarousel() {
                loading={index === 0 ? "eager" : "lazy"}
                fetchPriority={index === 0 ? "high" : "auto"}
                quality={80}
-               className="object-cover scale-[1.02]"
+               className="object-cover scale-[1.02] transform-gpu [backface-visibility:hidden]"
                style={{ filter: "brightness(0.95) contrast(1.05) saturate(1.1)" }}
                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 80vw"
                onError={() => {
