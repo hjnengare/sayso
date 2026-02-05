@@ -114,7 +114,7 @@ export default function DesktopNav(props: DesktopNavProps) {
     : "text-charcoal/90 md:text-charcoal/95 hover:text-sage hover:bg-sage/5";
 
   const iconWrapClass = (isActive: boolean) =>
-    `group w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 relative ${
+    `mi-tap group w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 relative ${
       isActive
         ? "text-sage bg-sage/5"
         : whiteText
@@ -330,7 +330,7 @@ export default function DesktopNav(props: DesktopNavProps) {
   );
 
   const renderIcons = () => (
-    <div className="flex items-center justify-end gap-3 min-w-0">
+    <div className="flex items-center justify-end gap-2 min-w-0">
         {/* Notifications */}
         <button
           onClick={onNotificationsClick}

@@ -444,6 +444,46 @@
   }
 }
 
+@layer utilities {
+  /* Premium, subtle micro-interactions (safe defaults) */
+  .mi-tap {
+    transform: translateZ(0);
+    transition-property: transform;
+    transition-duration: 160ms;
+    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform;
+  }
+
+  .mi-tap:active {
+    transform: translateY(0.5px) scale(0.99);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .mi-hover {
+      transition-property: transform;
+      transition-duration: 180ms;
+      transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: transform;
+    }
+
+    .mi-hover:hover {
+      transform: translateY(-1px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mi-tap,
+    .mi-hover {
+      transition: none !important;
+    }
+
+    .mi-tap:active,
+    .mi-hover:hover {
+      transform: none !important;
+    }
+  }
+}
+
 @layer components {
 
   /* Skip link for accessibility */

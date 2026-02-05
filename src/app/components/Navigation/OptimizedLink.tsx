@@ -75,7 +75,7 @@ export default function OptimizedLink({
     <Link
       ref={linkRef}
       href={href}
-      className={className}
+      className={[className, "mi-tap"].filter(Boolean).join(" ")}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onClick={handleClick}
