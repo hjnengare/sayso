@@ -1026,9 +1026,13 @@ export async function GET(req: Request) {
         personalization_insights: score.insights,
       };
     });
+    let dealbreakersRelaxed = false;
 
-    // Filter out businesses that violate deal breakers (if user has deal breakers)
-    if (userPreferences.dealbreakerIds.length > 0) {
+    // Filter out businesses that violate deal breakers (if user has deal breakers).
+    // Guardrail: never allow dealbreaker filtering to zero out the entire standard feed.
+    if (userPreferences.dealbreakerIds.length > 0 && personalizedBusinesses.length > 0) {
+      const beforeCount = personalizedBusinesses.length;
+      const preDealbreakerBusinesses = personalizedBusinesses;
       personalizedBusinesses = personalizedBusinesses.filter((business) => {
         const businessForScoring: BusinessForScoring = {
           id: business.id,
@@ -1042,10 +1046,19 @@ export async function GET(req: Request) {
           percentiles: business.percentiles,
           verified: business.verified,
         };
-        
+
         const filtered = filterBusinessesByDealbreakers([businessForScoring], userPreferences.dealbreakerIds);
         return filtered.length > 0;
       });
+
+      if (personalizedBusinesses.length === 0) {
+        console.warn('[BUSINESSES API] Dealbreakers removed all results; relaxing filter for standard feed.', {
+          beforeCount,
+          dealbreakers: userPreferences.dealbreakerIds.length,
+        });
+        personalizedBusinesses = preDealbreakerBusinesses;
+        dealbreakersRelaxed = true;
+      }
     }
 
     // Sort by personalization score if user has preferences
@@ -1122,6 +1135,7 @@ export async function GET(req: Request) {
     const response = NextResponse.json({
       businesses: transformedBusinesses,
       cursorId: nextCursorId,
+      meta: dealbreakersRelaxed ? { dealbreakersRelaxed: true } : undefined,
     });
     response.headers.set('X-Feed-Path', 'standard');
     let res = applySharedResponseHeaders(response);
@@ -1459,7 +1473,15 @@ async function handleForYouZeroStats(options: MixedFeedOptions): Promise<NextRes
     diversity_rank: row.diversity_rank,
   }));
 
-  const filteredBusinesses = filterByDealbreakers(businesses, dealbreakerIds);
+  let filteredBusinesses = filterByDealbreakers(businesses, dealbreakerIds);
+  const filteredOutAll = businesses.length > 0 && filteredBusinesses.length === 0 && (dealbreakerIds?.length || 0) > 0;
+  if (filteredOutAll) {
+    console.warn('[BUSINESSES API] Dealbreakers removed all results; relaxing filter for For You zero-stats.', {
+      dealbreakers: dealbreakerIds?.length || 0,
+      requestId: requestId ?? null,
+    });
+    filteredBusinesses = businesses;
+  }
 
   const missingImages = filteredBusinesses.some((b) => !b.uploaded_images || b.uploaded_images.length === 0);
   if (missingImages) {
@@ -1494,6 +1516,7 @@ async function handleForYouZeroStats(options: MixedFeedOptions): Promise<NextRes
       durationMs: Date.now() - start,
       feed: 'for-you',
       zeroStats: true,
+      dealbreakersRelaxed: filteredOutAll ? true : undefined,
     },
   });
   response.headers.set('X-Feed-Path', 'for_you_zero_stats');
