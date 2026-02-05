@@ -26,7 +26,8 @@ import {
   type UserPreferences,
 } from "@/app/lib/services/personalizationService";
 import { normalizeBusinessImages, type BusinessImage } from "@/app/lib/utils/businessImages";
-import { getSubcategoryLabel } from "@/app/utils/subcategoryPlaceholders";
+import { getSubcategoryLabel, getCategoryLabelFromBusiness } from "@/app/utils/subcategoryPlaceholders";
+import { SUBCATEGORY_TO_INTEREST } from "@/app/lib/onboarding/subcategoryMapping";
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs'; // Use Node.js runtime to avoid Edge Runtime warnings with Supabase
@@ -110,6 +111,7 @@ interface BusinessRPCResult {
   name: string;
   description: string | null;
   category: string;
+  category_label?: string | null;
   interest_id?: string | null;
   sub_interest_id?: string | null;
   location: string;
@@ -138,7 +140,7 @@ interface BusinessRPCResult {
 }
 
 const BUSINESS_SELECT = `
-  id, name, description, category, interest_id, sub_interest_id, location, address,
+  id, name, description, primary_subcategory_slug, primary_subcategory_label, primary_category_slug, location, address,
   phone, email, website, image_url,
   verified, price_range, badge, slug, lat, lng,
   created_at, updated_at,
@@ -160,9 +162,9 @@ type DatabaseBusinessRow = {
   id: string;
   name: string;
   description: string | null;
-  category: string;
-  interest_id: string | null;
-  sub_interest_id: string | null;
+  primary_subcategory_slug: string | null;
+  primary_subcategory_label: string | null;
+  primary_category_slug: string | null;
   location: string;
   address: string | null;
   phone: string | null;
@@ -184,6 +186,16 @@ type DatabaseBusinessRow = {
     percentiles: Record<string, number> | null;
   }>;
 };
+
+/**
+ * Resolve interest_id (parent category) from DB row. When interest_id is null/undefined,
+ * derive it from sub_interest_id using the canonical taxonomy so the UI always has both.
+ */
+function resolveInterestId(b: { interest_id?: string | null; sub_interest_id?: string | null }): string | undefined {
+  if (b.interest_id != null && b.interest_id !== '') return b.interest_id;
+  if (b.sub_interest_id != null && b.sub_interest_id !== '') return SUBCATEGORY_TO_INTEREST[b.sub_interest_id];
+  return undefined;
+}
 
 // Mapping of interests to subcategories
 const INTEREST_TO_SUBCATEGORIES: Record<string, string[]> = {
@@ -623,11 +635,19 @@ export async function GET(req: Request) {
             uploaded_images_count: Array.isArray(b.uploaded_images) ? b.uploaded_images.length : 0,
           })));
           
-          // Normalize RPC rows to lat/lng (RPC may return latitude/longitude)
+          // Normalize RPC rows: lat/lng + map primary_* to category/interest_id/sub_interest_id for pipeline
           const normalized = (data as Array<Record<string, unknown>>).map((row) => {
             const b = { ...row } as unknown as BusinessRPCResult;
             b.lat = (row.lat as number | null) ?? (row.latitude as number | null) ?? null;
             b.lng = (row.lng as number | null) ?? (row.longitude as number | null) ?? null;
+            if (row.primary_subcategory_slug != null) {
+              b.category = (row.primary_subcategory_slug as string) ?? b.category;
+              b.sub_interest_id = (row.primary_subcategory_slug as string) ?? b.sub_interest_id;
+              b.category_label = (row.primary_subcategory_label as string | null) ?? b.category_label ?? null;
+            }
+            if (row.primary_category_slug != null) {
+              b.interest_id = (row.primary_category_slug as string) ?? b.interest_id;
+            }
             return b;
           });
 
@@ -700,7 +720,7 @@ export async function GET(req: Request) {
       let query = supabase
         .from('businesses')
         .select(`
-          id, name, description, category, interest_id, sub_interest_id, location, address, 
+          id, name, description, primary_subcategory_slug, primary_subcategory_label, primary_category_slug, location, address,
           phone, email, website, image_url,
           verified, price_range, badge, slug, created_at, updated_at,
           business_stats (
@@ -726,7 +746,7 @@ export async function GET(req: Request) {
         // Note: RPC function uses ILIKE for case-insensitive matching
         if (category) {
           console.log('[BUSINESSES API] Fallback: Applying category filter:', category);
-          query = (query as any).eq('category', category);
+          query = (query as any).eq('primary_subcategory_slug', category);
         }
         if (badge) {
           console.log('[BUSINESSES API] Fallback: Applying badge filter:', badge);
@@ -750,15 +770,14 @@ export async function GET(req: Request) {
           console.log('[BUSINESSES API]   1. Do businesses have interest_id populated?');
           console.log('[BUSINESSES API]   2. Do interest_id values match? (e.g., "food-drink" vs "Food & Drink")');
           console.log('[BUSINESSES API]   → Run: SELECT interest_id, COUNT(*) FROM businesses GROUP BY interest_id;');
-          query = (query as any).in('interest_id', interestIds);
+          query = (query as any).in('primary_category_slug', interestIds);
         }
-        // Apply sub_interest_id filtering if provided (takes precedence over mapped subcategories)
         if (subInterestIds.length > 0) {
-          console.log('[BUSINESSES API] Fallback: Filtering by sub_interest_id:', subInterestIds);
-          query = (query as any).in('sub_interest_id', subInterestIds);
+          console.log('[BUSINESSES API] Fallback: Filtering by sub_interest_id (primary_subcategory_slug):', subInterestIds);
+          query = (query as any).in('primary_subcategory_slug', subInterestIds);
         } else if (subcategoriesToFilter && subcategoriesToFilter.length > 0) {
           console.log('[BUSINESSES API] Fallback: Filtering by mapped subcategories:', subcategoriesToFilter);
-          query = (query as any).in('category', subcategoriesToFilter);
+          query = (query as any).in('primary_subcategory_slug', subcategoriesToFilter);
         }
       }
       
@@ -774,7 +793,7 @@ export async function GET(req: Request) {
           s.replace(/\\/g, '\\\\').replace(/%/g, '\\%').replace(/_/g, '\\_');
         const safeQ = escapeLike(q);
         query = (query as any).or(
-          `name.ilike.%${safeQ}%,description.ilike.%${safeQ}%,category.ilike.%${safeQ}%,location.ilike.%${safeQ}%`
+          `name.ilike.%${safeQ}%,description.ilike.%${safeQ}%,primary_subcategory_slug.ilike.%${safeQ}%,location.ilike.%${safeQ}%`
         );
       }
 
@@ -849,19 +868,23 @@ export async function GET(req: Request) {
           }
         }
 
+        const row = b as DatabaseBusinessRow & { lat?: number | null; lng?: number | null };
+        const { uploaded_images: fallbackUploadedImages } = normalizeBusinessImages(row);
         return {
-          ...b,
-          interest_id: b.interest_id,
-          sub_interest_id: b.sub_interest_id,
-          lat: b.lat,
-          lng: b.lng,
-          total_reviews: b.business_stats?.[0]?.total_reviews || 0,
-          average_rating: b.business_stats?.[0]?.average_rating || 0,
-          percentiles: b.business_stats?.[0]?.percentiles || null,
-          uploaded_images: b.uploaded_images || [], // Include uploaded_images array
+          ...row,
+          category: row.primary_subcategory_slug ?? (row as any).category ?? '',
+          category_label: row.primary_subcategory_label ?? (row as any).category_label ?? null,
+          interest_id: row.primary_category_slug ?? (row as any).interest_id ?? null,
+          sub_interest_id: row.primary_subcategory_slug ?? (row as any).sub_interest_id ?? null,
+          lat: row.lat,
+          lng: row.lng,
+          total_reviews: row.business_stats?.[0]?.total_reviews || 0,
+          average_rating: row.business_stats?.[0]?.average_rating || 0,
+          percentiles: row.business_stats?.[0]?.percentiles || null,
+          uploaded_images: fallbackUploadedImages ?? [],
           distance_km: distanceKm,
-          cursor_id: b.id,
-          cursor_created_at: b.created_at,
+          cursor_id: row.id,
+          cursor_created_at: row.created_at,
         };
       });
 
@@ -1077,7 +1100,12 @@ export async function GET(req: Request) {
       cursorId: nextCursorId,
     });
     response.headers.set('X-Feed-Path', 'standard');
-    return withDuration(applySharedResponseHeaders(response));
+    let res = applySharedResponseHeaders(response);
+    // Trending page uses standard feed with no search; disable caching so UI updates show immediately
+    if (feedStrategy === 'standard' && !q) {
+      res.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+    }
+    return withDuration(res);
 
   } catch (error: any) {
     const totalMs = Date.now() - requestStart;
@@ -1156,24 +1184,31 @@ export async function HEAD(req: Request) {
       );
     }
 
-    // Transform to card format; display category from sub_interest_id first (canonical slug)
-    const transformedBusinesses = (data || []).map((business: any) => ({
-      id: business.id,
-      name: business.name,
-      image: business.image_url || (business.uploaded_images && business.uploaded_images.length > 0 ? business.uploaded_images[0] : null),
-      category: business.sub_interest_id ? getSubcategoryLabel(business.sub_interest_id) : (getSubcategoryLabel(business.category) ?? business.category),
-      sub_interest_id: business.sub_interest_id ?? undefined,
-      location: business.location,
-      rating: business.average_rating > 0 ? Math.round(business.average_rating * 2) / 2 : undefined,
-      totalRating: business.average_rating > 0 ? business.average_rating : undefined,
-      reviews: business.total_reviews || 0,
-      badge: business.verified && business.badge ? business.badge : undefined,
-      href: `/business/${business.id}`,
-      verified: business.verified || false,
-      priceRange: business.price_range || '$$',
-      hasRating: business.average_rating > 0,
-      percentiles: business.percentiles,
-    }));
+    // Transform to card format; category = canonical slug, category_label = display
+    const transformedBusinesses = (data || []).map((business: any) => {
+      const resolvedInterestId = resolveInterestId(business);
+      return {
+        id: business.id,
+        name: business.name,
+        image: business.image_url || (business.uploaded_images && business.uploaded_images.length > 0 ? business.uploaded_images[0] : null),
+        category: business.category ?? undefined,
+        category_label: business.category_label ?? getCategoryLabelFromBusiness({ category: business.category, category_label: business.category_label, sub_interest_id: business.sub_interest_id, interest_id: resolvedInterestId ?? business.interest_id }),
+        sub_interest_id: business.sub_interest_id ?? undefined,
+        subInterestId: business.sub_interest_id ?? undefined,
+        interest_id: resolvedInterestId ?? business.interest_id ?? undefined,
+        interestId: resolvedInterestId ?? business.interest_id ?? undefined,
+        location: business.location,
+        rating: business.average_rating > 0 ? Math.round(business.average_rating * 2) / 2 : undefined,
+        totalRating: business.average_rating > 0 ? business.average_rating : undefined,
+        reviews: business.total_reviews || 0,
+        badge: business.verified && business.badge ? business.badge : undefined,
+        href: `/business/${business.id}`,
+        verified: business.verified || false,
+        priceRange: business.price_range || '$$',
+        hasRating: business.average_rating > 0,
+        percentiles: business.percentiles,
+      };
+    });
 
     const response = NextResponse.json({
       data: transformedBusinesses,
@@ -1938,13 +1973,13 @@ async function fetchPersonalMatches(
     let query = buildBaseBusinessQuery(supabase);
 
     if (options.category) {
-      query = query.eq('category', options.category);
+      query = query.eq('primary_subcategory_slug', options.category);
       console.log('[BUSINESSES API] fetchPersonalMatches: Applied category filter:', options.category);
     } else if (options.subcategories && options.subcategories.length > 0) {
-      query = query.in('sub_interest_id', options.subcategories);
+      query = query.in('primary_subcategory_slug', options.subcategories);
       console.log('[BUSINESSES API] fetchPersonalMatches: Applied subcategories filter:', options.subcategories);
     } else if (options.interestIds && options.interestIds.length > 0) {
-      query = query.in('interest_id', options.interestIds);
+      query = query.in('primary_category_slug', options.interestIds);
       console.log('[BUSINESSES API] fetchPersonalMatches: Applied interestIds filter:', options.interestIds);
     }
 
@@ -1990,7 +2025,7 @@ async function fetchTopRated(
     let query = buildBaseBusinessQuery(supabase);
 
     if (options.category) {
-      query = query.eq('category', options.category);
+      query = query.eq('primary_subcategory_slug', options.category);
       console.log('[BUSINESSES API] fetchTopRated: Applied category filter:', options.category);
     }
 
@@ -2036,7 +2071,7 @@ async function fetchExplore(
     let query = buildBaseBusinessQuery(supabase);
 
     if (options.category) {
-      query = query.eq('category', options.category);
+      query = query.eq('primary_subcategory_slug', options.category);
       console.log('[BUSINESSES API] fetchExplore: Applied category filter:', options.category);
     }
 
@@ -2101,9 +2136,10 @@ function normalizeBusinessRows(rows: DatabaseBusinessRow[]): BusinessRPCResult[]
       id: row.id,
       name: row.name,
       description: row.description,
-      category: row.category,
-      interest_id: row.interest_id,
-      sub_interest_id: row.sub_interest_id,
+      category: row.primary_subcategory_slug ?? '',
+      category_label: row.primary_subcategory_label ?? null,
+      interest_id: row.primary_category_slug ?? null,
+      sub_interest_id: row.primary_subcategory_slug ?? null,
       location: row.location,
       address: row.address,
       phone: row.phone,
@@ -2346,11 +2382,15 @@ function transformBusinessForCard(business: BusinessRPCResult) {
     transformLog.status = 'transformed';
   }
 
-  // When sub_interest_id is missing, use DB category as label if slug lookup returns "Miscellaneous"
-  const fromCategorySlug = business.category ? getSubcategoryLabel(business.category) : "Miscellaneous";
-  const displayCategory =
-    subInterestLabel ??
-    (fromCategorySlug !== "Miscellaneous" ? fromCategorySlug : (business.category?.trim() || "Miscellaneous"));
+  // Resolve parent category when DB has only sub_interest_id (taxonomy integrity for UI)
+  const resolvedInterestId = resolveInterestId(business);
+  // category = canonical slug; category_label = display (from DB or mapped)
+  const displayLabel = getCategoryLabelFromBusiness({
+    category: business.category,
+    category_label: (business as { category_label?: string | null }).category_label,
+    sub_interest_id: business.sub_interest_id,
+    interest_id: resolvedInterestId ?? business.interest_id,
+  });
 
   const transformed = {
     id: business.id,
@@ -2358,12 +2398,18 @@ function transformBusinessForCard(business: BusinessRPCResult) {
     image: displayImage,
     uploaded_images: business.uploaded_images || [], // Include uploaded_images array for BusinessCard component
     image_url: business.image_url || undefined, // Preserve image_url as fallback
-    category: displayCategory,
+    category: business.category ?? undefined,
+    category_label: displayLabel,
     sub_interest_id: business.sub_interest_id ?? undefined,
     subInterestId: business.sub_interest_id ?? undefined,
-    subInterestLabel: subInterestLabel ?? (displayCategory !== "Miscellaneous" ? displayCategory : undefined),
-    interestId: business.interest_id ?? undefined,
+    subInterestLabel: subInterestLabel ?? (displayLabel !== "Miscellaneous" ? displayLabel : undefined),
+    interest_id: resolvedInterestId ?? business.interest_id ?? undefined,
+    interestId: resolvedInterestId ?? business.interest_id ?? undefined,
     location: business.location,
+    address: business.address ?? undefined,
+    phone: business.phone ?? undefined,
+    website: business.website ?? undefined,
+    description: business.description ?? undefined,
     slug: business.slug || undefined,
     lat: business.lat,
     lng: business.lng,
@@ -2497,13 +2543,13 @@ async function findSimilarBusinesses(
       ? /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(excludeBusinessId)
       : false;
 
-    // Build query for businesses in the same category
+    // Build query for businesses in the same category (DB uses primary_subcategory_slug)
     let query = supabase
       .from('businesses')
       .select(`
         id,
         name,
-        category,
+        primary_subcategory_slug,
         location,
         address,
         slug,
@@ -2514,7 +2560,7 @@ async function findSimilarBusinesses(
           average_rating
         )
       `)
-      .eq('category', category)
+      .eq('primary_subcategory_slug', category)
       .eq('status', 'active')
       .limit(limit + 1); // Get one extra to account for exclusion
 
@@ -2686,11 +2732,13 @@ export async function POST(req: Request) {
       slugSuffix++;
     }
 
-    // Create business
+    // Create business (DB uses primary_subcategory_slug, primary_category_slug after 20260210)
+    const categorySlug = category.trim();
     const businessData: any = {
       name: name.trim(),
       description: description?.trim() || null,
-      category: category.trim(),
+      primary_subcategory_slug: categorySlug,
+      primary_category_slug: SUBCATEGORY_TO_INTEREST[categorySlug] ?? null,
       location: location?.trim() || null, // Can be null for online-only businesses
       address: address?.trim() || null,
       phone: phone?.trim() || null,
@@ -2705,7 +2753,6 @@ export async function POST(req: Request) {
       lat: lat || null,
       lng: lng || null,
       // Note: businessType is used for validation but not stored in DB
-      // If needed in the future, add a business_type column to the businesses table
     };
 
     const { data: newBusiness, error: insertError } = await supabase

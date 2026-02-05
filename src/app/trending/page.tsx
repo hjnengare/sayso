@@ -20,7 +20,7 @@ import { Loader } from "../components/Loader/Loader";
 import { usePredefinedPageTitle } from "../hooks/usePageTitle";
 import BusinessGridSkeleton from "../components/Explore/BusinessGridSkeleton";
 import WavyTypedTitle from "../../components/Animations/WavyTypedTitle";
-
+// Trending = cold-start API (/api/trending): metadata-only score, diversity-first selection, deterministic rotation.
 
 // Note: dynamic and revalidate cannot be exported from client components
 // Client components are automatically dynamic
@@ -54,19 +54,27 @@ export default function TrendingPage() {
   }, [filters.distance]);
 
   // --------------------------------------------------------------------------
-  // Two modes: Trending (global, default) vs Search (standard businesses API)
-  // Both hooks are always called (React rules), but one is skipped via `skip`.
+  // Two modes: default = cold-start trending API; search = /api/businesses with query/filters.
   // --------------------------------------------------------------------------
 
-  // Default mode: global trending backed by the materialized view
+  // Default mode: cold-start trending (/api/trending) — diverse, fresh, deterministic rotation
   const {
     businesses: trendingResults,
     loading: trendingLoading,
     error: trendingError,
     refetch: refetchTrending,
-  } = useTrendingBusinesses({ limit: 50, skip: isSearching });
+  } = useTrendingBusinesses({
+    limit: 50,
+    skip: isSearching,
+  });
 
-  // Search mode: standard businesses API with relevance sort
+  // Alias for non-search (trending API returns same shape as Business card)
+  const defaultResults = trendingResults;
+  const defaultLoading = trendingLoading;
+  const defaultError = trendingError;
+  const refetchDefault = refetchTrending;
+
+  // Search mode: same API with search + filters
   const {
     businesses: searchResults,
     loading: searchLoading,
@@ -74,21 +82,23 @@ export default function TrendingPage() {
     refetch: refetchSearch,
   } = useBusinesses({
     limit: 50,
-    feedStrategy: 'standard',
+    feedStrategy: "standard",
     searchQuery: isSearching ? debouncedSearchQuery : null,
-    sort: 'relevance',
+    sort: "relevance",
     minRating: filters.minRating,
     radiusKm: radiusKm,
     latitude: userLocation?.lat ?? null,
     longitude: userLocation?.lng ?? null,
     skip: !isSearching,
+    cache: "no-store",
   });
 
-  // Pick the active result set
-  const trendingBusinesses = isSearching ? searchResults : trendingResults;
-  const loading = isSearching ? searchLoading : trendingLoading;
-  const error = isSearching ? searchError : trendingError;
-  const refetch = isSearching ? refetchSearch : refetchTrending;
+  const rawBusinesses = isSearching ? searchResults : defaultResults;
+  const loading = isSearching ? searchLoading : defaultLoading;
+  const error = isSearching ? searchError : defaultError;
+  const refetch = isSearching ? refetchSearch : refetchDefault;
+
+  const trendingBusinesses = rawBusinesses;
 
   const totalPages = useMemo(() => Math.ceil(trendingBusinesses.length / ITEMS_PER_PAGE), [trendingBusinesses.length]);
   const currentBusinesses = useMemo(() => {
@@ -97,15 +107,21 @@ export default function TrendingPage() {
     return trendingBusinesses.slice(startIndex, endIndex);
   }, [trendingBusinesses, currentPage]);
 
-  // Convert businesses to map format (filter out null coords)
+  // Convert all businesses to map format (filter out null coords)
+  // Map shows ALL businesses, not just current page
   const mapBusinesses = useMemo((): BusinessMapItem[] => {
     return trendingBusinesses
-      .filter(b => b.lat != null && b.lng != null)
-      .map(b => ({
+      .map((b) => {
+        const lat = (b as any).lat ?? (b as any).latitude ?? null;
+        const lng = (b as any).lng ?? (b as any).longitude ?? null;
+        return { b, lat, lng };
+      })
+      .filter(({ lat, lng }) => lat != null && lng != null)
+      .map(({ b, lat, lng }) => ({
         id: b.id,
         name: b.name,
-        lat: b.lat!,
-        lng: b.lng!,
+        lat: lat as number,
+        lng: lng as number,
         category: b.category,
         image_url: b.image_url,
         slug: b.slug,

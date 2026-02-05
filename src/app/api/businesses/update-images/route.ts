@@ -205,10 +205,10 @@ export async function POST(req: NextRequest) {
   try {
     console.log('[UPDATE-IMAGES] Starting image URL update for all businesses...');
     
-    // Fetch all businesses
+    // Fetch all businesses (use primary_* taxonomy columns after 20260210)
     const { data: businesses, error: fetchError } = await supabase
       .from('businesses')
-      .select('id, name, category, image_url');
+      .select('id, name, primary_subcategory_slug, primary_subcategory_label, image_url');
     
     if (fetchError) {
       console.error('[UPDATE-IMAGES] Error fetching businesses:', fetchError);
@@ -248,7 +248,11 @@ export async function POST(req: NextRequest) {
           continue;
         }
         
-        const newImageUrl = getCategoryImageUrl(business.category, business.name);
+        const subcategorySlug = (business as { primary_subcategory_slug?: string }).primary_subcategory_slug
+          || ((business as { primary_subcategory_label?: string }).primary_subcategory_label
+            ? getSubcategoryForCategory((business as { primary_subcategory_label?: string }).primary_subcategory_label!, business.name)
+            : 'electronics');
+        const newImageUrl = `/png/${getPngForSubcategory(subcategorySlug)}`;
         
         // Only update if the URL has changed
         if (business.image_url !== newImageUrl) {

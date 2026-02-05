@@ -34,6 +34,7 @@ export interface BusinessOfTheMonth {
   id: string;
   name: string;
   category: string;
+  category_label?: string;
   image: string;
   rating: number;
   reviewCount: number;

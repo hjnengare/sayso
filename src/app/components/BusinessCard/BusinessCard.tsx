@@ -38,7 +38,10 @@ type Business = {
   image_url?: string;
   uploaded_images?: string[]; // Array of image URLs from uploaded_images field
   alt: string;
-  category: string;
+  /** Canonical slug (e.g. restaurants). Used for placeholder resolution. */
+  category?: string;
+  /** Display label (e.g. "Restaurants"). Prefer this for UI text. */
+  category_label?: string;
   sub_interest_id?: string | null;
   subInterestId?: string;
   subInterestLabel?: string;
@@ -535,10 +538,6 @@ function BusinessCard({
                     subInterestLabel={displayCategoryLabel}
                     displayCategoryLabel={displayCategoryLabel}
                   />
-                  {/* Description - Stacked below category */}
-                  {business.description && (
-                    <p className="text-caption sm:text-xs text-charcoal/70 line-clamp-2 max-w-full text-center px-1" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 400, WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility' }}>{business.description}</p>
-                  )}
                 </div>
                 {/* Reviews - Refined */}
                 <BusinessCardReviews

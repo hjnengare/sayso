@@ -106,7 +106,9 @@ export default function OnboardingPage() {
                 height={60}
                 className="object-contain w-auto h-[96px] sm:h-[108px] md:h-[120px]"
               />
+              
             </div>
+          
           </div>
 
           {/* MAIN CONTENT */}
@@ -129,6 +131,8 @@ export default function OnboardingPage() {
                 </div>
               </h2>
             </div>
+
+           
 
             <p
               data-reveal
@@ -157,6 +161,9 @@ export default function OnboardingPage() {
                 </Link>
               </div>
             </div>
+            <p data-reveal className="font-urbanist text-sm text-charcoal/80 font-medium italic no-hyphens">
+              Less guessing, more confessing
+            </p>
 
           </div>
         </div>

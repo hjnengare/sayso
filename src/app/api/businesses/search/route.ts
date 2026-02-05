@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSupabase } from '@/app/lib/supabase/server';
 import { getSubcategoryLabel } from '@/app/utils/subcategoryPlaceholders';
+import { getInterestIdForSubcategory } from '@/app/lib/onboarding/subcategoryMapping';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -106,9 +107,9 @@ export async function GET(req: NextRequest) {
 
         const { data: fallbackData, error: fallbackError } = await supabase
           .from('businesses')
-          .select('id, name, category, sub_interest_id, interest_id, location, address, phone, email, website, image_url, verified, lat, lng, slug')
+          .select('id, name, primary_subcategory_slug, primary_subcategory_label, primary_category_slug, location, address, phone, email, website, image_url, verified, lat, lng, slug')
           .eq('status', 'active')
-          .or(`name.ilike.%${query}%, description.ilike.%${query}%, category.ilike.%${query}%`)
+          .or(`name.ilike.%${query}%, description.ilike.%${query}%, primary_subcategory_slug.ilike.%${query}%, primary_subcategory_label.ilike.%${query}%`)
           .limit(limit);
 
         if (fallbackError) {
@@ -119,7 +120,40 @@ export async function GET(req: NextRequest) {
           );
         }
 
-        businesses = (fallbackData || []) as SearchBusinessesResult[];
+        // Map fallback columns (primary_subcategory_*, primary_category_slug) to SearchBusinessesResult shape
+        businesses = (fallbackData || []).map((row: {
+          id: string;
+          name: string;
+          primary_subcategory_slug?: string | null;
+          primary_subcategory_label?: string | null;
+          primary_category_slug?: string | null;
+          location: string;
+          address?: string | null;
+          phone?: string | null;
+          email?: string | null;
+          website?: string | null;
+          image_url?: string | null;
+          verified: boolean;
+          lat?: number | null;
+          lng?: number | null;
+          slug?: string | null;
+        }) => ({
+          id: row.id,
+          name: row.name,
+          category: row.primary_subcategory_label ?? row.primary_subcategory_slug ?? '',
+          sub_interest_id: row.primary_subcategory_slug ?? undefined,
+          interest_id: row.primary_category_slug ?? undefined,
+          location: row.location,
+          address: row.address ?? undefined,
+          phone: row.phone ?? undefined,
+          email: row.email ?? undefined,
+          website: row.website ?? undefined,
+          image_url: row.image_url ?? undefined,
+          verified: row.verified,
+          lat: row.lat ?? null,
+          lng: row.lng ?? null,
+          slug: row.slug ?? null,
+        }));
       } else {
         return NextResponse.json(
           { error: 'Failed to search businesses' },
@@ -193,16 +227,19 @@ export async function GET(req: NextRequest) {
           claim_status = 'unclaimed';
         }
 
-        const subInterestId = business.sub_interest_id || undefined;
+        const subInterestId = (business as SearchBusinessesResult & { primary_subcategory_slug?: string }).primary_subcategory_slug ?? business.sub_interest_id ?? undefined;
         const subInterestLabel = subInterestId ? getSubcategoryLabel(subInterestId) : undefined;
+        const interestId = (business as SearchBusinessesResult & { primary_category_slug?: string }).primary_category_slug ?? business.interest_id ?? (subInterestId ? getInterestIdForSubcategory(subInterestId) : undefined);
+        const categorySlug = (business as SearchBusinessesResult & { primary_subcategory_slug?: string }).primary_subcategory_slug ?? (business as { category?: string }).category;
+        const categoryLabel = (business as SearchBusinessesResult & { primary_subcategory_label?: string }).primary_subcategory_label ?? subInterestLabel ?? getSubcategoryLabel(categorySlug ?? '') ?? categorySlug;
 
         results.push({
           id: business.id,
           name: business.name,
-          category: subInterestLabel ?? getSubcategoryLabel(business.category) ?? business.category,
+          category: categoryLabel,
           subInterestId,
           subInterestLabel,
-          interestId: business.interest_id || undefined,
+          interestId: interestId || undefined,
           location: business.location,
           address: business.address,
           phone: business.phone,
@@ -236,16 +273,19 @@ export async function GET(req: NextRequest) {
 
       // Build results without user-specific status
       for (const business of businesses) {
-        const subInterestId = business.sub_interest_id || undefined;
+        const subInterestId = (business as SearchBusinessesResult & { primary_subcategory_slug?: string }).primary_subcategory_slug ?? business.sub_interest_id ?? undefined;
         const subInterestLabel = subInterestId ? getSubcategoryLabel(subInterestId) : undefined;
+        const interestId = (business as SearchBusinessesResult & { primary_category_slug?: string }).primary_category_slug ?? business.interest_id ?? (subInterestId ? getInterestIdForSubcategory(subInterestId) : undefined);
+        const categorySlug = (business as SearchBusinessesResult & { primary_subcategory_slug?: string }).primary_subcategory_slug ?? (business as { category?: string }).category;
+        const categoryLabel = (business as SearchBusinessesResult & { primary_subcategory_label?: string }).primary_subcategory_label ?? subInterestLabel ?? getSubcategoryLabel(categorySlug ?? '') ?? categorySlug;
 
         results.push({
           id: business.id,
           name: business.name,
-          category: subInterestLabel ?? getSubcategoryLabel(business.category) ?? business.category,
+          category: categoryLabel,
           subInterestId,
           subInterestLabel,
-          interestId: business.interest_id || undefined,
+          interestId: interestId || undefined,
           location: business.location,
           address: business.address,
           phone: business.phone,

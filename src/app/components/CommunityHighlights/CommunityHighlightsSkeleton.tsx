@@ -10,10 +10,10 @@ interface CommunityHighlightsSkeletonProps {
 
 /**
  * Skeleton for CommunityHighlights — structure matches the real section exactly:
- * main header, Top Contributors sub-header + row, Featured Businesses sub-header + row.
+ * main header, Top Contributors sub-header + row (same wrapper/card layout, spread end to end), Featured Businesses.
  */
 export default function CommunityHighlightsSkeleton({
-  reviewerCount = 4,
+  reviewerCount = 8,
   businessCount = 4,
 }: CommunityHighlightsSkeletonProps) {
   return (
@@ -26,12 +26,12 @@ export default function CommunityHighlightsSkeleton({
       }}
     >
       <div className="mx-auto w-full max-w-[2000px] relative z-10 px-2">
-        {/* Main header — same as CommunityHighlights: title only, no CTA */}
+        {/* Main header — same as CommunityHighlights */}
         <div className="pb-4 sm:pb-8 md:pb-10 flex flex-wrap items-center justify-between gap-2">
           <div className="h-8 sm:h-10 w-48 sm:w-64 bg-charcoal/10 rounded-lg animate-pulse px-3 sm:px-4 py-1" />
         </div>
 
-        {/* Top Contributors — sub-header + row, same structure as real */}
+        {/* Top Contributors — exact structure as CommunityHighlights: sub-header + row, same wrappers so skeleton spreads end to end */}
         <div className="mt-1">
           <div className="pb-4 sm:pb-8 md:pb-10 flex flex-wrap items-center justify-between gap-2">
             <div className="h-5 w-56 sm:w-64 bg-charcoal/10 rounded-lg animate-pulse px-3 sm:px-4 py-1" />

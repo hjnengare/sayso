@@ -16,6 +16,8 @@ export interface UseTrendingOptions {
   limit?: number;
   category?: string;
   skip?: boolean;
+  /** When true, appends `debug=1` so the API emits verbose logs (server console). */
+  debug?: boolean;
 }
 
 export interface UseTrendingResult {
@@ -32,7 +34,7 @@ export interface UseTrendingResult {
 export function useTrendingBusinesses(
   options: UseTrendingOptions = {},
 ): UseTrendingResult {
-  const { limit = 20, category, skip = false } = options;
+  const { limit = 20, category, skip = false, debug = false } = options;
 
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [loading, setLoading] = useState(!skip);
@@ -65,6 +67,7 @@ export function useTrendingBusinesses(
       const params = new URLSearchParams();
       params.set('limit', limit.toString());
       if (category) params.set('category', category);
+      if (debug) params.set('debug', '1');
 
       const response = await fetch(`/api/trending?${params.toString()}`, {
         signal: abortController.signal,
@@ -115,7 +118,7 @@ export function useTrendingBusinesses(
         setLoading(false);
       }
     }
-  }, [limit, category, skip]);
+  }, [limit, category, skip, debug]);
 
   useEffect(() => {
     fetchTrending();

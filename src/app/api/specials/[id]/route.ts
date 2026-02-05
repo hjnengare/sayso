@@ -13,6 +13,14 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
+
+    if (!id || id.trim() === '') {
+      return NextResponse.json(
+        { error: 'Special ID is required' },
+        { status: 400 }
+      );
+    }
+
     const supabase = await getServerSupabase(req);
 
     // Fetch the special with business info

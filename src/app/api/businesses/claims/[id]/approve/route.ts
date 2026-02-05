@@ -4,6 +4,7 @@ import { getServiceSupabase } from '@/app/lib/admin';
 import { isAdmin } from '@/app/lib/admin';
 import { EmailService } from '@/app/lib/services/emailService';
 import { createClaimNotification, updateClaimLastNotified } from '@/app/lib/claimNotifications';
+import { getSubcategoryLabel } from '@/app/utils/subcategoryPlaceholders';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -77,7 +78,7 @@ export async function POST(
 
       const { data: business } = await supabase
         .from('businesses')
-        .select('id, name, category, location')
+        .select('id, name, primary_subcategory_slug, primary_subcategory_label, location')
         .eq('id', claimRow.business_id)
         .single();
 
@@ -117,11 +118,14 @@ export async function POST(
       updateClaimLastNotified(claimId).catch(() => {});
 
       if (userEmail && business) {
+        const businessCategory = (business as { primary_subcategory_label?: string; primary_subcategory_slug?: string }).primary_subcategory_label
+          ?? getSubcategoryLabel((business as { primary_subcategory_slug?: string }).primary_subcategory_slug ?? '')
+          ?? undefined;
         EmailService.sendClaimApprovedEmail({
           recipientEmail: userEmail,
           recipientName: (profile?.display_name || profile?.username) as string | undefined,
           businessName: business.name,
-          businessCategory: business.category,
+          businessCategory: businessCategory ?? undefined,
           businessLocation: business.location,
           dashboardUrl,
         }).catch((err) => console.error('Claim approved email failed:', err));
@@ -150,7 +154,7 @@ export async function POST(
 
     const { data: business } = await supabase
       .from('businesses')
-      .select('id, name, category, location')
+      .select('id, name, primary_subcategory_slug, primary_subcategory_label, location')
       .eq('id', request.business_id)
       .single();
 
@@ -217,11 +221,14 @@ export async function POST(
     if (userEmail && business) {
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
       const dashboardUrl = `${baseUrl}/my-businesses/businesses/${request.business_id}`;
+      const businessCategory = (business as { primary_subcategory_label?: string; primary_subcategory_slug?: string }).primary_subcategory_label
+        ?? getSubcategoryLabel((business as { primary_subcategory_slug?: string }).primary_subcategory_slug ?? '')
+        ?? undefined;
       EmailService.sendClaimApprovedEmail({
         recipientEmail: userEmail,
         recipientName: (profile?.display_name || profile?.username) as string | undefined,
         businessName: business.name,
-        businessCategory: business.category,
+        businessCategory: businessCategory ?? undefined,
         businessLocation: business.location,
         dashboardUrl,
       }).catch((err) => console.error('Claim approved email failed:', err));

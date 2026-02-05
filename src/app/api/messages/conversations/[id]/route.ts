@@ -9,9 +9,18 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id: conversationId } = await params;
+
+    if (!conversationId || conversationId.trim() === '') {
+      return NextResponse.json(
+        { error: 'Conversation ID is required' },
+        { status: 400 }
+      );
+    }
+
     const supabase = await getServerSupabase();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
@@ -21,8 +30,6 @@ export async function GET(
         { status: 401 }
       );
     }
-
-    const conversationId = params.id;
 
     // Verify user has access to this conversation
     const { data: conversation, error: convError } = await supabase

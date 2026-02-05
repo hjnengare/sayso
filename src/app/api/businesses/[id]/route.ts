@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSupabase } from '../../../lib/supabase/server';
 import { invalidateBusinessCache, fetchBusinessOptimized } from '../../../lib/utils/optimizedQueries';
 import { notifyBusinessUpdated } from '../../../lib/utils/businessUpdateEvents';
+import { getInterestIdForSubcategory } from '../../../lib/onboarding/subcategoryMapping';
 
 /**
  * GET /api/businesses/[id]
@@ -31,8 +32,25 @@ export async function GET(
         { status: 404 }
       );
     }
-    
-    return NextResponse.json(business);
+
+    // Normalize taxonomy for consumers: DB uses primary_* after migration; expose legacy names too
+    const categorySlug = business.primary_subcategory_slug ?? business.category ?? undefined;
+    const categoryLabel = business.primary_subcategory_label ?? business.category_label ?? undefined;
+    const interestSlug = business.primary_category_slug ?? business.interest_id ?? undefined;
+    const resolvedInterestId =
+      interestSlug ??
+      (categorySlug ? getInterestIdForSubcategory(categorySlug) : undefined);
+
+    const payload = {
+      ...business,
+      category: categorySlug,
+      category_label: categoryLabel,
+      sub_interest_id: categorySlug,
+      interest_id: resolvedInterestId,
+      interestId: resolvedInterestId,
+    };
+
+    return NextResponse.json(payload);
   } catch (error: any) {
     console.error('[API] Error in GET business:', {
       message: error?.message,
@@ -69,6 +87,14 @@ export async function PUT(
 ) {
   try {
     const { id: businessId } = await params;
+
+    if (!businessId || businessId.trim() === '') {
+      return NextResponse.json(
+        { error: 'Business ID is required' },
+        { status: 400 }
+      );
+    }
+
     const supabase = await getServerSupabase(req);
 
     // Get authenticated user
@@ -140,7 +166,7 @@ export async function PUT(
 
     if (name !== undefined) updateData.name = name.trim();
     if (description !== undefined) updateData.description = description?.trim() || null;
-    if (category !== undefined) updateData.category = category.trim();
+    if (category !== undefined) updateData.primary_subcategory_slug = category.trim();
     if (address !== undefined) updateData.address = address?.trim() || null;
     if (phone !== undefined) updateData.phone = phone?.trim() || null;
     if (email !== undefined) updateData.email = email?.trim() || null;
