@@ -61,6 +61,14 @@ export async function POST(
 ) {
   try {
     const { id: businessId } = await params;
+
+    if (!businessId || businessId.trim() === '') {
+      return NextResponse.json(
+        { error: 'Business ID is required' },
+        { status: 400 }
+      );
+    }
+
     const supabase = await getServerSupabase(req);
 
     // Get authenticated user

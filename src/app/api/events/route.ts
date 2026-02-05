@@ -104,16 +104,23 @@ export async function GET(req: NextRequest) {
       query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%,venue_name.ilike.%${search}%,city.ilike.%${search}%`);
     }
 
-    // Apply pagination directly in the query
+    // Apply pagination; allow 15s for slow DB (was 5s, caused false timeouts)
     const queryPromise = query.range(offset, offset + limit - 1);
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Query timeout')), 5000)
-    );
+    const QUERY_TIMEOUT_MS = 15_000;
+    let timeoutId: ReturnType<typeof setTimeout>;
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      timeoutId = setTimeout(() => reject(new Error('Query timeout')), QUERY_TIMEOUT_MS);
+    });
 
-    const { data: events, error, count } = await Promise.race([
-      queryPromise,
+    const result = await Promise.race([
+      queryPromise.then((r) => {
+        clearTimeout(timeoutId!);
+        return r;
+      }),
       timeoutPromise,
-    ]) as any;
+    ]) as Awaited<ReturnType<typeof query.range>>;
+
+    const { data: events, error, count } = result;
 
     if (error) {
       console.error('[Events API] Error fetching events:', error);

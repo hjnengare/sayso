@@ -2,12 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { createHash } from "crypto";
 import { getServerSupabase } from "@/app/lib/supabase/server";
 import { getServiceSupabase } from "@/app/lib/admin";
-import { getCategoryLabelFromBusiness, getSubcategoryLabel } from "@/app/utils/subcategoryPlaceholders";
+import { getCategoryLabelFromBusiness } from "@/app/utils/subcategoryPlaceholders";
 import { getInterestIdForSubcategory } from "@/app/lib/onboarding/subcategoryMapping";
+import {
+  selectFeaturedColdStart,
+  getFeaturedSeed,
+  type FeaturedColdStartCandidate,
+} from "@/app/utils/featuredColdStart";
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
+const FEATURED_POOL_SIZE = 1500;
 const FEATURED_PERIOD = 'month';
 
 const pad2 = (value: number) => value.toString().padStart(2, '0');
@@ -45,10 +51,11 @@ function buildFeaturedEtag(seed: string, data: any[]) {
   return `"${createHash('sha1').update(payload).digest('hex')}"`;
 }
 
-function buildFeaturedReason(business: any) {
+function buildFeaturedReason(business: any, categoryLabel: string) {
   const recent30 = Number(business.recent_reviews_30d ?? 0);
   const totalReviews = Number(business.total_reviews ?? 0);
   const averageRating = Number(business.average_rating ?? 0);
+  const category = (categoryLabel && categoryLabel.trim()) || "our community";
 
   if (recent30 >= 5) {
     return { label: "Rising this month", metric: "recent_reviews_30d", value: recent30 };
@@ -59,7 +66,7 @@ function buildFeaturedReason(business: any) {
   if (averageRating >= 4.7) {
     return { label: "Top rated", metric: "average_rating", value: averageRating };
   }
-  return { label: "Featured pick", metric: "featured_score", value: Number(business.featured_score ?? 0) };
+  return { label: `Sayso Select for ${category}`, metric: "featured_score", value: Number(business.featured_score ?? 0) };
 }
 
 /** Map MV row (quality fallback or new businesses) to featured-like shape for transform. */
@@ -69,6 +76,7 @@ function mvRowToFeaturedShape(b: any, scoreKey: 'quality_score' | null): any {
     name: b.name,
     image_url: b.image_url ?? '',
     category: b.category ?? '',
+    category_label: b.category_label ?? null,
     location: b.location ?? '',
     slug: b.slug ?? b.id,
     verified: Boolean(b.verified),
@@ -106,6 +114,7 @@ async function getFeaturedFallback(
       name,
       image_url,
       category,
+      category_label,
       interest_id,
       sub_interest_id,
       description,
@@ -134,6 +143,7 @@ async function getFeaturedFallback(
         name,
         image_url,
         category,
+        category_label,
         sub_interest_id,
         description,
         location,
@@ -213,11 +223,10 @@ async function getFeaturedFallback(
         Math.log(1 + recent30) * 0.2;
 
       const bucket = business.sub_interest_id || business.category;
-      const displayCategory = (() => {
-        const hasSlug = !!(business.sub_interest_id || business.interest_id);
-        const rawCategory = typeof business.category === "string" ? business.category.trim() : "";
-        const isMissingAll = !hasSlug && rawCategory.length === 0;
-        if (isMissingAll) return "";
+      const rawSlug = typeof business.category === "string" ? business.category.trim() : "";
+      const categoryLabel = (() => {
+        const hasSlug = !!(business.sub_interest_id || business.interest_id || rawSlug);
+        if (!hasSlug) return "";
         return getCategoryLabelFromBusiness(business);
       })();
       const isLocal = !!region && typeof business.location === 'string'
@@ -228,7 +237,8 @@ async function getFeaturedFallback(
         id: business.id,
         name: business.name,
         image_url: business.image_url || '',
-        category: displayCategory,
+        category: rawSlug || (business.sub_interest_id ?? ''),
+        category_label: categoryLabel || undefined,
         interest_id: business.interest_id || null,
         sub_interest_id: business.sub_interest_id,
         description: business.description,
@@ -276,12 +286,13 @@ async function getFeaturedFallback(
     ...sorted.filter((business) => !usedIds.has(business.id)),
   ].slice(0, limit);
 
-  // Transform to match expected format
+  // Transform to match expected format (category = slug, category_label = display label)
   return combined.map((b: any) => ({
     id: b.id,
     name: b.name,
     image_url: b.image_url || '',
-    category: b.category,
+    category: b.category ?? '',
+    category_label: b.category_label ?? undefined,
     interest_id: b.interest_id || null,
     sub_interest_id: b.sub_interest_id,
     description: b.description,
@@ -319,126 +330,176 @@ export async function GET(request: NextRequest) {
     }
     const { searchParams } = new URL(request.url);
 
-    const limit = Math.min(parseInt(searchParams.get('limit') || '12'), 50); // Cap at 50
+    const limit = Math.min(parseInt(searchParams.get('limit') || '12'), 50);
     const region = searchParams.get('region')?.trim() || null;
     const generatedAt = new Date();
     const period = getFeaturedPeriod(generatedAt);
     const seed = buildFeaturedSeed(period, region);
 
     let featuredData: any[] = [];
-    let useRpc = true;
-    const usedIds = new Set<string>();
+    let source: 'cold_start' | 'rpc' | 'fallback' = 'cold_start';
 
-    // 1. Try get_featured_businesses RPC first
-    try {
-      let dataResult: any[] | null = null;
-      let rpcError: any = null;
+    // --- Cold-start path (primary): trust + diversity + daily stability ---
+    const { data: coldStartRows, error: coldStartError } = await supabase.rpc(
+      'get_featured_cold_start_candidates',
+      { p_pool_size: FEATURED_POOL_SIZE, p_city: region },
+    );
 
-      const attempt = await supabase.rpc('get_featured_businesses', {
-        p_region: region,
-        p_limit: limit,
-        p_seed: seed,
+    if (!coldStartError && Array.isArray(coldStartRows) && coldStartRows.length > 0) {
+      const candidates: FeaturedColdStartCandidate[] = coldStartRows.map((r: any) => ({
+        id: r.id,
+        featured_score: r.featured_score,
+        primary_category_slug: r.primary_category_slug,
+        primary_subcategory_slug: r.primary_subcategory_slug,
+        primary_subcategory_label: r.primary_subcategory_label ?? null,
+        is_trusted: !!r.is_trusted,
+      }));
+      const selected = selectFeaturedColdStart(candidates, {
+        limit,
+        seed: getFeaturedSeed(region),
+        maxPerCategory: 3,
       });
-      dataResult = attempt.data;
-      rpcError = attempt.error;
 
-      if (rpcError && rpcError.message?.includes('p_seed')) {
-        const retry = await supabase.rpc('get_featured_businesses', {
+      if (selected.length > 0) {
+        const selectedIds = selected.map((c) => c.id);
+
+        const { data: businessRows } = await supabase
+          .from('businesses')
+          .select(
+            'id, name, description, primary_subcategory_slug, primary_subcategory_label, primary_category_slug, location, address, image_url, verified, slug, status',
+          )
+          .in('id', selectedIds);
+
+        const businessList = Array.isArray(businessRows) ? businessRows : [];
+        const businessById = new Map(businessList.map((b: any) => [b.id, b]));
+
+        const { data: statsRows } = await supabase
+          .from('business_stats')
+          .select('business_id, total_reviews, average_rating')
+          .in('business_id', selectedIds);
+        const statsById = new Map(
+          (Array.isArray(statsRows) ? statsRows : []).map((s: any) => [s.business_id, s]),
+        );
+
+        const selectedScoreById = new Map(selected.map((c) => [c.id, c.featured_score]));
+
+        for (const id of selectedIds) {
+          const b = businessById.get(id);
+          if (!b || (b as any).status !== 'active') continue;
+          const st = statsById.get(id);
+          const sub = (b as any).primary_subcategory_slug ?? '';
+          const cat = (b as any).primary_category_slug ?? null;
+          featuredData.push({
+            id: b.id,
+            name: b.name,
+            image_url: (b as any).image_url ?? '',
+            category: sub,
+            category_label: (b as any).primary_subcategory_label ?? null,
+            interest_id: cat,
+            sub_interest_id: sub,
+            description: (b as any).description ?? null,
+            location: (b as any).location ?? '',
+            slug: (b as any).slug ?? b.id,
+            verified: Boolean((b as any).verified),
+            average_rating: st?.average_rating ?? 0,
+            total_reviews: st?.total_reviews ?? 0,
+            recent_reviews_30d: 0,
+            recent_reviews_7d: 0,
+            bayesian_rating: st?.average_rating ?? null,
+            featured_score: selectedScoreById.get(id) ?? 0,
+            bucket: sub,
+            last_activity_at: null,
+          });
+        }
+      }
+    } else if (coldStartError) {
+      console.warn('[FEATURED API] Cold-start RPC error, falling back to stats RPC:', coldStartError.message);
+    }
+
+    // --- Fallback: stats-based RPC + quality/new fill (when cold-start unavailable or empty) ---
+    if (featuredData.length === 0) {
+      const usedIds = new Set<string>();
+      let useRpc = true;
+      try {
+        const attempt = await supabase.rpc('get_featured_businesses', {
           p_region: region,
           p_limit: limit,
+          p_seed: seed,
         });
-        dataResult = retry.data;
-        rpcError = retry.error;
-      }
-
-      if (rpcError) {
-        console.warn('[FEATURED API] RPC error, using fallback:', rpcError.message);
+        if (attempt.error) {
+          console.warn('[FEATURED API] get_featured_businesses error:', attempt.error.message);
+          useRpc = false;
+        } else {
+          featuredData = attempt.data || [];
+          featuredData.forEach((b: any) => b?.id && usedIds.add(b.id));
+          source = 'rpc';
+        }
+      } catch (e: any) {
         useRpc = false;
-      } else {
-        featuredData = dataResult || [];
-        featuredData.forEach((b: any) => b?.id && usedIds.add(b.id));
       }
-    } catch (rpcError: any) {
-      console.warn('[FEATURED API] RPC call failed, using fallback:', rpcError?.message);
-      useRpc = false;
-    }
-
-    // Use getFeaturedFallback if RPC failed or returned no data
-    if (!useRpc || featuredData.length === 0) {
-      featuredData = await getFeaturedFallback(supabase, { limit, region, seed });
-      featuredData.forEach((b: any) => b?.id && usedIds.add(b.id));
-    }
-
-    // 2. If short, fill with get_quality_fallback_businesses (excluding already used)
-    if (featuredData.length < limit) {
-      const need = limit - featuredData.length;
-      const { data: qualityData } = await supabase.rpc('get_quality_fallback_businesses', {
-        p_limit: limit + need,
-      });
-      const qualityList = Array.isArray(qualityData) ? qualityData : [];
-      for (const b of qualityList) {
-        if (featuredData.length >= limit) break;
-        if (b?.id && !usedIds.has(b.id)) {
+      if (!useRpc || featuredData.length === 0) {
+        featuredData = await getFeaturedFallback(supabase, { limit, region, seed });
+        featuredData.forEach((b: any) => b?.id && usedIds.add(b.id));
+        source = 'fallback';
+      }
+      if (featuredData.length < limit) {
+        const { data: qualityData } = await supabase.rpc('get_quality_fallback_businesses', {
+          p_limit: limit + (limit - featuredData.length),
+        });
+        for (const b of qualityData || []) {
+          if (featuredData.length >= limit || !b?.id || usedIds.has(b.id)) continue;
           usedIds.add(b.id);
           featuredData.push(mvRowToFeaturedShape(b, 'quality_score'));
         }
       }
-    }
-
-    // 3. If still short, fill from get_new_businesses (excluding already used)
-    if (featuredData.length < limit) {
-      const need = limit - featuredData.length;
-      const { data: newData } = await supabase.rpc('get_new_businesses', {
-        p_limit: limit + need,
-        p_category: null,
-      });
-      const newList = Array.isArray(newData) ? newData : [];
-      for (const b of newList) {
-        if (featuredData.length >= limit) break;
-        if (b?.id && !usedIds.has(b.id)) {
+      if (featuredData.length < limit) {
+        const { data: newData } = await supabase.rpc('get_new_businesses', {
+          p_limit: limit + (limit - featuredData.length),
+          p_category: null,
+        });
+        for (const b of newData || []) {
+          if (featuredData.length >= limit || !b?.id || usedIds.has(b.id)) continue;
           usedIds.add(b.id);
           featuredData.push(mvRowToFeaturedShape(b, null));
         }
       }
+      // Legacy diversity pass (when using RPC/fallback)
+      const usedSubcategories = new Set<string>();
+      const diversified: any[] = [];
+      for (const b of featuredData) {
+        const key = (b.sub_interest_id ?? b.category ?? 'misc').toString().trim().toLowerCase();
+        if (!usedSubcategories.has(key)) {
+          diversified.push(b);
+          usedSubcategories.add(key);
+        }
+        if (diversified.length >= limit) break;
+      }
+      if (diversified.length < limit) {
+        const diversifiedIds = new Set(diversified.map((x: any) => x.id));
+        const rest = featuredData.filter((b: any) => b?.id && !diversifiedIds.has(b.id));
+        rest.sort((a: any, b: any) => {
+          const keyA = (a.sub_interest_id ?? a.category ?? 'misc').toString().trim().toLowerCase();
+          const keyB = (b.sub_interest_id ?? b.category ?? 'misc').toString().trim().toLowerCase();
+          if (!usedSubcategories.has(keyA) && usedSubcategories.has(keyB)) return -1;
+          if (usedSubcategories.has(keyA) && !usedSubcategories.has(keyB)) return 1;
+          return 0;
+        });
+        for (const b of rest) {
+          if (diversified.length >= limit) break;
+          diversified.push(b);
+          usedSubcategories.add((b.sub_interest_id ?? b.category ?? 'misc').toString().trim().toLowerCase());
+        }
+      }
+      featuredData = diversified.slice(0, limit);
     }
 
     if (!featuredData || featuredData.length === 0) {
-      console.warn('[FEATURED API] No featured businesses after RPC + fallbacks.');
-      console.log('[FEATURED API] GET end total ms:', Date.now() - start);
+      console.warn('[FEATURED API] No featured businesses.');
       return NextResponse.json({
         data: [],
-        meta: {
-          period,
-          generated_at: generatedAt.toISOString(),
-          seed,
-          source: useRpc ? 'rpc' : 'fallback',
-          count: 0,
-        }
+        meta: { period, generated_at: generatedAt.toISOString(), seed, source, count: 0 },
       });
     }
-
-    // Diversity cap: prefer one per subcategory so one category doesn't dominate
-    const usedSubcategories = new Set<string>();
-    const diversified: typeof featuredData = [];
-    for (const b of featuredData) {
-      const key = (b.sub_interest_id ?? b.bucket ?? b.category ?? 'misc').toString().trim().toLowerCase();
-      if (!usedSubcategories.has(key)) {
-        diversified.push(b);
-        usedSubcategories.add(key);
-      }
-      if (diversified.length >= limit) break;
-    }
-    if (diversified.length < limit) {
-      const diversifiedIds = new Set(diversified.map((x: any) => x.id));
-      for (const b of featuredData) {
-        if (diversified.length >= limit) break;
-        if (b?.id && !diversifiedIds.has(b.id)) {
-          diversified.push(b);
-          diversifiedIds.add(b.id);
-        }
-      }
-    }
-    featuredData = diversified.slice(0, limit);
 
     const featuredEtag = buildFeaturedEtag(seed, featuredData);
     const ifNoneMatch = request.headers.get('if-none-match');
@@ -476,11 +537,12 @@ export async function GET(request: NextRequest) {
       const primaryImage = businessImages.find((img) => img.is_primary) || businessImages[0];
       const uploadedImageUrls = businessImages.map((img) => img.url).filter(Boolean);
 
-      const subInterestSlug = (business.sub_interest_id || business.bucket || business.category || '').toString().trim().toLowerCase();
-      const displayCategory = getSubcategoryLabel(subInterestSlug);
+      const slug = (business.sub_interest_id || business.category || business.bucket || '').toString().trim().toLowerCase();
+      const dbLabel = business.category_label && typeof business.category_label === 'string' ? business.category_label.trim() : '';
+      const categoryLabel = dbLabel || getCategoryLabelFromBusiness(business);
       // Derive parent interest ID from subcategory slug, fall back to DB value
-      const interestId = business.interest_id || getInterestIdForSubcategory(subInterestSlug) || 'miscellaneous';
-      const reason = buildFeaturedReason(business);
+      const interestId = business.interest_id || getInterestIdForSubcategory(slug) || 'miscellaneous';
+      const reason = buildFeaturedReason(business, categoryLabel);
 
       return {
         id: business.id,
@@ -489,14 +551,15 @@ export async function GET(request: NextRequest) {
         image_url: primaryImage?.url || business.image_url || '',
         uploaded_images: uploadedImageUrls,
         alt: primaryImage?.alt_text || business.name,
-        category: displayCategory,
+        category: (business.category ?? slug) || undefined,
+        category_label: categoryLabel,
         // Snake_case for backward compatibility
-        sub_interest_id: subInterestSlug,
+        sub_interest_id: slug || undefined,
         // CamelCase for leaderboard components
         interestId,
-        subInterestId: subInterestSlug,
-        subInterestLabel: displayCategory,
-        description: business.description || `Featured in ${displayCategory}`,
+        subInterestId: slug || undefined,
+        subInterestLabel: categoryLabel,
+        description: business.description || `Sayso Select for ${categoryLabel || 'our community'}`,
         location: business.location || 'Cape Town',
         rating: business.average_rating > 0 ? 5 : 0,
         reviewCount: business.total_reviews,
@@ -505,7 +568,7 @@ export async function GET(request: NextRequest) {
         badge: "featured" as const,
         rank: index + 1,
         href: `/business/${business.slug || business.id}`,
-        monthAchievement: `Featured ${displayCategory}`,
+        monthAchievement: `Sayso Select for ${categoryLabel || 'our community'}`,
         ui_hints: {
           badge: "featured",
           rank: index + 1,
@@ -526,7 +589,7 @@ export async function GET(request: NextRequest) {
         period,
         generated_at: generatedAt.toISOString(),
         seed,
-        source: useRpc ? 'rpc' : 'fallback',
+        source,
         count: featuredBusinesses.length,
       },
     };

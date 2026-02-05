@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSupabase } from '../../../lib/supabase/server';
 import { normalizeBusinessImages } from '../../../lib/utils/businessImages';
 import { getCategoryLabelFromBusiness } from '../../../utils/subcategoryPlaceholders';
+import { getInterestIdForSubcategory } from '../../../lib/onboarding/subcategoryMapping';
 
 type RouteContext = {
   params: Promise<{ id?: string }>;
@@ -175,12 +176,13 @@ export async function GET(req: NextRequest) {
 
         // Normalize business_images to uploaded_images format
         const { uploaded_images, cover_image, logo_url } = normalizeBusinessImages(business);
+        const resolvedInterestId = business.interest_id ?? (business.sub_interest_id ? getInterestIdForSubcategory(business.sub_interest_id) : undefined);
         const displayCategory = (() => {
-          const hasSlug = !!(business.sub_interest_id || business.interest_id);
+          const hasSlug = !!(business.sub_interest_id || resolvedInterestId || business.interest_id);
           const rawCategory = typeof business.category === 'string' ? business.category.trim() : '';
           const isMissingAll = !hasSlug && rawCategory.length === 0;
           if (isMissingAll) return 'Uncategorized';
-          return getCategoryLabelFromBusiness(business);
+          return getCategoryLabelFromBusiness({ ...business, interest_id: resolvedInterestId ?? business.interest_id });
         })();
 
         return {
@@ -188,8 +190,10 @@ export async function GET(req: NextRequest) {
           name: business.name.trim(),
           description: business.description || null,
           category: displayCategory,
-          interest_id: business.interest_id,
-          sub_interest_id: business.sub_interest_id,
+          interest_id: resolvedInterestId ?? business.interest_id ?? undefined,
+          interestId: resolvedInterestId ?? business.interest_id ?? undefined,
+          sub_interest_id: business.sub_interest_id ?? undefined,
+          subInterestId: business.sub_interest_id ?? undefined,
           location: business.location || business.address || 'Location not available',
           address: business.address || null,
           phone: business.phone || null,

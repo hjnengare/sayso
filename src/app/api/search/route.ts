@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSupabase } from "@/app/lib/supabase/server";
-import { getSubcategoryLabel } from "@/app/utils/subcategoryPlaceholders";
+import { getCategoryLabelFromBusiness } from "@/app/utils/subcategoryPlaceholders";
+import { getInterestIdForSubcategory } from "@/app/lib/onboarding/subcategoryMapping";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -50,13 +51,13 @@ export async function GET(req: NextRequest) {
       const { data, error } = await supabase
         .from("businesses")
         .select(
-          `id, slug, name, category, sub_interest_id, interest_id, location, address, phone, email,
+          `id, slug, name, primary_subcategory_slug, primary_subcategory_label, primary_category_slug, location, address, phone, email,
            website, image_url, description, price_range, verified, badge,
            business_stats (average_rating)`
         )
         .eq("status", "active")
         .or(
-          `name.ilike.%${query}%, description.ilike.%${query}%, category.ilike.%${query}%, location.ilike.%${query}%`
+          `name.ilike.%${query}%, description.ilike.%${query}%, primary_subcategory_slug.ilike.%${query}%, primary_subcategory_label.ilike.%${query}%, location.ilike.%${query}%`
         )
         .order("name", { ascending: true })
         .range(offset, offset + limit - 1);
@@ -73,16 +74,18 @@ export async function GET(req: NextRequest) {
         const stats = business.business_stats as
           | Array<{ average_rating: number }>
           | undefined;
-        const subInterestId = (business.sub_interest_id as string) || undefined;
-        const subInterestLabel = subInterestId ? getSubcategoryLabel(subInterestId) : undefined;
+        const categoryLabel = getCategoryLabelFromBusiness(business);
+        const subInterestId = (business.primary_subcategory_slug as string) ?? (business.sub_interest_id as string) ?? undefined;
+        const interestId = (business.primary_category_slug as string) ?? (business.interest_id as string) ?? (subInterestId ? getInterestIdForSubcategory(subInterestId) : undefined);
         return {
           id: business.id,
           slug: business.slug,
           name: business.name,
-          category: subInterestLabel ?? getSubcategoryLabel(business.category as string) ?? business.category,
+          category: (business.primary_subcategory_slug as string) ?? (business.category as string) ?? undefined,
+          category_label: categoryLabel,
           subInterestId,
-          subInterestLabel,
-          interestId: (business.interest_id as string) || undefined,
+          subInterestLabel: categoryLabel !== 'Miscellaneous' ? categoryLabel : undefined,
+          interestId: interestId || undefined,
           location: business.location,
           address: business.address,
           phone: business.phone,
@@ -102,16 +105,18 @@ export async function GET(req: NextRequest) {
     } else {
       // RPC returns relevance-ranked results (includes sub_interest_id)
       results = (rpcData || []).map((business: Record<string, unknown>) => {
-        const subInterestId = (business.sub_interest_id as string) || undefined;
-        const subInterestLabel = subInterestId ? getSubcategoryLabel(subInterestId) : undefined;
+        const categoryLabel = getCategoryLabelFromBusiness(business);
+        const subInterestId = (business.primary_subcategory_slug as string) ?? (business.sub_interest_id as string) ?? undefined;
+        const interestId = (business.primary_category_slug as string) ?? (business.interest_id as string) ?? (subInterestId ? getInterestIdForSubcategory(subInterestId) : undefined);
         return {
           id: business.id,
           slug: business.slug,
           name: business.name,
-          category: subInterestLabel ?? getSubcategoryLabel(business.category as string) ?? business.category,
+          category: (business.primary_subcategory_slug as string) ?? (business.category as string) ?? undefined,
+          category_label: categoryLabel,
           subInterestId,
-          subInterestLabel,
-          interestId: (business.interest_id as string) || undefined,
+          subInterestLabel: categoryLabel !== 'Miscellaneous' ? categoryLabel : undefined,
+          interestId: interestId || undefined,
           location: business.location,
           address: business.address,
           phone: business.phone,

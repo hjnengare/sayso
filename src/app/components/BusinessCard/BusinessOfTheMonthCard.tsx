@@ -64,9 +64,17 @@ export default function BusinessOfTheMonthCard({ business, index: _index = 0 }: 
   const hasReviews = business.reviewCount > 0;
   const ribbonText = useMemo(() => {
     const reasonLabel = (business as any).ui_hints?.reason?.label;
-    const src = reasonLabel || (business as any).monthAchievement || business.badge || "Featured";
-    return src.replace(/^Best\s+/i, "Featured ");
-  }, [(business as any).monthAchievement, (business as any).ui_hints?.reason?.label, business.badge]);
+    const monthAchievement = (business as any).monthAchievement;
+    const raw = reasonLabel || monthAchievement || business.badge || "";
+    const categoryLabel = getCategoryLabelFromBusiness(business) || "our community";
+    if (!raw || raw === "Featured" || raw === "Featured pick") {
+      return `Sayso Select for ${categoryLabel}`;
+    }
+    if (/^Best\s+/i.test(raw)) {
+      return raw.replace(/^Best\s+/i, "Sayso Select for ");
+    }
+    return raw;
+  }, [(business as any).monthAchievement, (business as any).ui_hints?.reason?.label, business.badge, business]);
 
   // Image fallback logic with edge case handling
   const getDisplayImage = useMemo(() => {
@@ -97,6 +105,7 @@ export default function BusinessOfTheMonthCard({ business, index: _index = 0 }: 
       b.sub_interest_id,
       b.subInterestId,
       b.sub_interest_slug,
+      b.category,
       b.interest_id,
       b.interestId,
     ]);

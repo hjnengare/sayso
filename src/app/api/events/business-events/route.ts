@@ -20,21 +20,21 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ success: true, data: [] });
     }
 
-    // Fetch business images for context
+    // Fetch business images for context (business_images uses url, not image_url)
     const { data: businessImages, error: imagesError } = await supabase
       .from('business_images')
-      .select('business_id, image_url');
+      .select('business_id, url');
 
     if (imagesError) {
       console.warn('[Business Events API] business_images fetch error:', imagesError);
     }
 
     const imagesByBusiness = new Map<string, string[]>();
-    (businessImages || []).forEach((img: any) => {
+    (businessImages || []).forEach((img: { business_id: string; url: string }) => {
       if (!imagesByBusiness.has(img.business_id)) {
         imagesByBusiness.set(img.business_id, []);
       }
-      imagesByBusiness.get(img.business_id)!.push(img.image_url);
+      imagesByBusiness.get(img.business_id)!.push(img.url);
     });
 
     // Transform to frontend format with business context and images

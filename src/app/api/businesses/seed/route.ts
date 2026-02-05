@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { getServerSupabase } from '../../../lib/supabase/server';
 import { fetchCapeTownBusinesses } from '../../../lib/services/overpassService';
 import { mapOSMToBusiness, generateInitialStats } from '../../../lib/utils/osmToBusinessMapper';
+import { getSubcategorySlugForOsmCategory } from '../../../lib/utils/osmCategoryToSlug';
+import { getInterestIdForSubcategory } from '../../../lib/onboarding/subcategoryMapping';
+import { SUBCATEGORY_SLUG_TO_LABEL } from '../../../utils/subcategoryPlaceholders';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 180; // Overpass API can be slow (3 minutes)
@@ -245,11 +248,15 @@ export async function POST(req: Request) {
         count: businessesToInsert.length,
         alreadyExists: alreadyExistingCount,
         fetched: osmBusinesses.length,
-        businesses: businessesToInsert.map(b => ({
-          name: b.name,
-          category: b.category,
-          location: b.address,
-        })),
+        businesses: businessesToInsert.map(b => {
+          const slug = getSubcategorySlugForOsmCategory(b.category ?? '', b.name);
+          return {
+            name: b.name,
+            primary_subcategory_slug: slug,
+            primary_category_slug: getInterestIdForSubcategory(slug) ?? undefined,
+            location: b.address,
+          };
+        }),
       });
     }
 
@@ -271,12 +278,23 @@ export async function POST(req: Request) {
     console.log(`[SEED] Inserting ${businessesToInsert.length} businesses in batches of ${batchSize}...`);
     
     for (let i = 0; i < businessesToInsert.length; i += batchSize) {
-      const batch = businessesToInsert.slice(i, i + batchSize);
+      const rawBatch = businessesToInsert.slice(i, i + batchSize);
+      const batch = rawBatch.map((b: Record<string, unknown>) => {
+        const categoryLabel = (b.category as string) ?? '';
+        const slug = getSubcategorySlugForOsmCategory(categoryLabel, b.name as string);
+        const { category, ...rest } = b;
+        return {
+          ...rest,
+          primary_subcategory_slug: slug,
+          primary_subcategory_label: (SUBCATEGORY_SLUG_TO_LABEL[slug as keyof typeof SUBCATEGORY_SLUG_TO_LABEL] ?? categoryLabel) || 'Miscellaneous',
+          primary_category_slug: getInterestIdForSubcategory(slug) ?? null,
+        };
+      });
       const batchNumber = Math.floor(i / batchSize) + 1;
       const totalBatches = Math.ceil(businessesToInsert.length / batchSize);
-      
+
       console.log(`[SEED] Inserting batch ${batchNumber}/${totalBatches} (${batch.length} businesses)...`);
-      
+
       const { data: batchData, error: batchError } = await supabase
         .from('businesses')
         .insert(batch)
@@ -289,7 +307,7 @@ export async function POST(req: Request) {
           console.error(`[SEED] Duplicate key error in batch ${batchNumber}. Checking for duplicates...`);
           // Check for duplicates in this batch
           const batchKeys = new Set<string>();
-          batch.forEach((b, idx) => {
+          batch.forEach((b: Record<string, unknown>, idx: number) => {
             const key = `${b.source}:${b.source_id}`;
             if (batchKeys.has(key)) {
               console.error(`[SEED] Duplicate in batch ${batchNumber} at index ${idx}: ${b.name} - ${key}`);

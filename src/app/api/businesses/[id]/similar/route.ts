@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSupabase } from '../../../../lib/supabase/server';
-import { getSubcategoryLabel } from '../../../../utils/subcategoryPlaceholders';
+import { getCategoryLabelFromBusiness } from '../../../../utils/subcategoryPlaceholders';
+import { getInterestIdForSubcategory } from '../../../../lib/onboarding/subcategoryMapping';
 
 /**
  * GET /api/businesses/[id]/similar
@@ -13,6 +14,14 @@ export async function GET(
 ) {
   try {
     const { id: businessIdentifier } = await params;
+
+    if (!businessIdentifier || businessIdentifier.trim() === '') {
+      return NextResponse.json(
+        { error: 'Business ID or slug is required' },
+        { status: 400 }
+      );
+    }
+
     console.log('[API] GET /api/businesses/[id]/similar - Starting request for:', businessIdentifier);
     const supabase = await getServerSupabase(req);
 
@@ -141,10 +150,15 @@ export async function GET(
     }
 
     // Transform the results to match BusinessCard component format
+    // RPC returns primary_subcategory_slug, primary_category_slug, primary_subcategory_label (no legacy category/sub_interest_id/interest_id)
     const transformedBusinesses = similarBusinesses.map((business: any) => {
       const hasRating = business.average_rating && business.average_rating > 0;
       const hasReviews = business.total_reviews && business.total_reviews > 0;
       const shouldShowBadge = business.verified && business.badge;
+      const categorySlug = business.primary_subcategory_slug ?? business.category;
+      const categoryLabel =
+        business.primary_subcategory_label ??
+        getCategoryLabelFromBusiness({ ...business, category: categorySlug, category_label: business.primary_subcategory_label });
 
       // Prioritize first uploaded image over image_url
       const firstUploadedImage = business.uploaded_images && business.uploaded_images.length > 0 
@@ -156,16 +170,23 @@ export async function GET(
       const businessIdentifier = business.slug || business.id;
       const href = `/business/${businessIdentifier}`;
 
+      const interestId =
+        business.primary_category_slug ??
+        business.interest_id ??
+        (categorySlug ? getInterestIdForSubcategory(categorySlug) : undefined);
+
       return {
         id: business.id,
         name: business.name,
         image: displayImage,
         uploaded_images: business.uploaded_images || [],
         image_url: business.image_url || undefined,
-        category: business.sub_interest_id ? getSubcategoryLabel(business.sub_interest_id) : (business.category || 'Miscellaneous'),
-        subInterestId: business.sub_interest_id || undefined,
-        subInterestLabel: business.sub_interest_id ? getSubcategoryLabel(business.sub_interest_id) : undefined,
-        interestId: business.interest_id || undefined,
+        category: categorySlug ?? undefined,
+        category_label: categoryLabel,
+        sub_interest_id: categorySlug ?? undefined,
+        subInterestId: categorySlug ?? undefined,
+        subInterestLabel: categoryLabel !== 'Miscellaneous' ? categoryLabel : undefined,
+        interestId,
         location: business.location,
         rating: hasRating ? Math.round(business.average_rating * 2) / 2 : undefined,
         totalRating: hasRating ? business.average_rating : undefined,

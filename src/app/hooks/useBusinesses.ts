@@ -29,6 +29,7 @@ export interface UseBusinessesOptions {
   searchQuery?: string | null; // Search query (q parameter)
   radiusKm?: number | null; // Distance radius in km (new parameter name)
   sort?: 'relevance' | 'distance' | 'rating_desc' | 'price_asc' | 'combo'; // New sort parameter
+  cache?: RequestCache; // e.g. 'no-store' to bypass browser/cache (useful for debugging)
 }
 
 export interface UseForYouOptions extends Partial<UseBusinessesOptions> {
@@ -137,7 +138,9 @@ export function useBusinesses(options: UseBusinessesOptions = {}): UseBusinesses
       console.log('[useBusinesses] ⚠️ NOTE: API route logs appear in SERVER TERMINAL, not browser console!');
       console.log('[useBusinesses] Check your Next.js dev server terminal for detailed API logs.');
       
-      const response = await fetch(url);
+      const fetchOptions: RequestInit = {};
+      if (options.cache) fetchOptions.cache = options.cache;
+      const response = await fetch(url, fetchOptions);
       
       if (!response.ok) {
         const contentType = response.headers.get("content-type") || "";
@@ -238,6 +241,7 @@ export function useBusinesses(options: UseBusinessesOptions = {}): UseBusinesses
     options.longitude,
     options.searchQuery,
     options.sort,
+    options.cache,
   ]);
 
   useEffect(() => {
@@ -436,11 +440,14 @@ export function useForYouBusinesses(
 
       const response = await fetch(`/api/businesses?${params.toString()}`);
 
+      const data = await response.json().catch(() => ({}));
+
       if (!response.ok) {
-        throw new Error(`Failed to fetch: ${response.statusText}`);
+        const message =
+          data?.error ?? (response.status === 404 ? 'For You feed unavailable' : response.statusText);
+        throw new Error(`${message} (${response.status})`);
       }
 
-      const data = await response.json();
       const businessesList = data.businesses || data.data || [];
 
       console.log(`[useForYouBusinesses] Received ${businessesList.length} businesses`);

@@ -10,6 +10,7 @@ export interface FeaturedBusiness {
   image: string;
   alt: string;
   category: string;
+  category_label?: string;
   description: string;
   location: string;
   rating: number;

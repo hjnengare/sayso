@@ -13,6 +13,14 @@ export async function POST(
 ) {
   try {
     const { id: businessId } = await params;
+
+    if (!businessId || businessId.trim() === '') {
+      return NextResponse.json(
+        { error: 'Business ID is required' },
+        { status: 400 }
+      );
+    }
+
     const supabase = await getServerSupabase();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
@@ -65,6 +73,14 @@ export async function GET(
 ) {
   try {
     const { id: businessId } = await params;
+
+    if (!businessId || businessId.trim() === '') {
+      return NextResponse.json(
+        { error: 'Business ID is required' },
+        { status: 400 }
+      );
+    }
+
     const supabase = await getServerSupabase();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 

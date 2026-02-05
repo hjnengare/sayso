@@ -30,13 +30,24 @@ BEGIN
       SELECT 
         b.id,
         b.name,
+        b.description,
         b.category,
+        b.category_label,
+        b.interest_id,
+        b.sub_interest_id,
         b.location,
+        b.address,
+        b.phone,
+        b.email,
+        b.website,
+        b.hours,
         b.image_url,
         b.verified,
         b.price_range,
         b.badge,
         b.slug,
+        b.lat,
+        b.lng,
         b.lat AS latitude,
         b.lng AS longitude,
         bs.total_reviews,
@@ -44,6 +55,8 @@ BEGIN
         bs.percentiles,
         (bs.average_rating * LOG(bs.total_reviews + 1)) as weighted_score,
         b.created_at,
+        b.updated_at,
+        b.last_activity_at,
         NOW() as last_refreshed
       FROM businesses b
       INNER JOIN business_stats bs ON b.id = bs.business_id
@@ -62,13 +75,24 @@ BEGIN
       SELECT 
         b.id,
         b.name,
+        b.description,
         b.category,
+        b.category_label,
+        b.interest_id,
+        b.sub_interest_id,
         b.location,
+        b.address,
+        b.phone,
+        b.email,
+        b.website,
+        b.hours,
         b.image_url,
         b.verified,
         b.price_range,
         b.badge,
         b.slug,
+        NULL::DOUBLE PRECISION as lat,
+        NULL::DOUBLE PRECISION as lng,
         NULL::DOUBLE PRECISION as latitude,
         NULL::DOUBLE PRECISION as longitude,
         bs.total_reviews,
@@ -76,6 +100,8 @@ BEGIN
         bs.percentiles,
         (bs.average_rating * LOG(bs.total_reviews + 1)) as weighted_score,
         b.created_at,
+        b.updated_at,
+        b.last_activity_at,
         NOW() as last_refreshed
       FROM businesses b
       INNER JOIN business_stats bs ON b.id = bs.business_id
@@ -143,13 +169,24 @@ BEGIN
       SELECT 
         b.id,
         b.name,
+        b.description,
         b.category,
+        b.sub_interest_id,
+        b.interest_id,
+        b.category_label,
         b.location,
+        b.address,
+        b.phone,
+        b.email,
+        b.website,
+        b.hours,
         b.image_url,
         b.verified,
         b.price_range,
         b.badge,
         b.slug,
+        b.lat,
+        b.lng,
         b.lat AS latitude,
         b.lng AS longitude,
         bs.total_reviews,
@@ -164,6 +201,9 @@ BEGIN
           COALESCE(AVG(r.rating) FILTER (WHERE r.created_at >= NOW() - INTERVAL ''30 days''), 0) * 5
         ) as trending_score,
         MAX(r.created_at) as last_review_date,
+        b.created_at,
+        b.updated_at,
+        b.last_activity_at,
         NOW() as last_refreshed
       FROM businesses b
       INNER JOIN business_stats bs ON b.id = bs.business_id
@@ -171,8 +211,10 @@ BEGIN
       WHERE 
         b.status = ''active''
         AND b.created_at <= NOW() - INTERVAL ''7 days''
-      GROUP BY b.id, b.name, b.category, b.location, b.image_url,
-               b.verified, b.price_range, b.badge, b.slug, b.lat, b.lng,
+      GROUP BY b.id, b.name, b.description, b.category, b.sub_interest_id, b.interest_id, b.category_label, b.location,
+               b.address, b.phone, b.email, b.website, b.hours,
+               b.image_url, b.verified, b.price_range, b.badge, b.slug, b.lat, b.lng,
+               b.created_at, b.updated_at, b.last_activity_at,
                bs.total_reviews, bs.average_rating, bs.percentiles
       HAVING 
         COUNT(DISTINCT r.id) FILTER (WHERE r.created_at >= NOW() - INTERVAL ''30 days'') >= 2
@@ -184,13 +226,24 @@ BEGIN
       SELECT 
         b.id,
         b.name,
+        b.description,
         b.category,
+        b.sub_interest_id,
+        b.interest_id,
+        b.category_label,
         b.location,
+        b.address,
+        b.phone,
+        b.email,
+        b.website,
+        b.hours,
         b.image_url,
         b.verified,
         b.price_range,
         b.badge,
         b.slug,
+        NULL::DOUBLE PRECISION as lat,
+        NULL::DOUBLE PRECISION as lng,
         NULL::DOUBLE PRECISION as latitude,
         NULL::DOUBLE PRECISION as longitude,
         bs.total_reviews,
@@ -205,6 +258,9 @@ BEGIN
           COALESCE(AVG(r.rating) FILTER (WHERE r.created_at >= NOW() - INTERVAL ''30 days''), 0) * 5
         ) as trending_score,
         MAX(r.created_at) as last_review_date,
+        b.created_at,
+        b.updated_at,
+        b.last_activity_at,
         NOW() as last_refreshed
       FROM businesses b
       INNER JOIN business_stats bs ON b.id = bs.business_id
@@ -212,8 +268,10 @@ BEGIN
       WHERE 
         b.status = ''active''
         AND b.created_at <= NOW() - INTERVAL ''7 days''
-      GROUP BY b.id, b.name, b.category, b.location, b.image_url,
-               b.verified, b.price_range, b.badge, b.slug,
+      GROUP BY b.id, b.name, b.description, b.category, b.sub_interest_id, b.interest_id, b.category_label, b.location,
+               b.address, b.phone, b.email, b.website, b.hours,
+               b.image_url, b.verified, b.price_range, b.badge, b.slug,
+               b.created_at, b.updated_at, b.last_activity_at,
                bs.total_reviews, bs.average_rating, bs.percentiles
       HAVING 
         COUNT(DISTINCT r.id) FILTER (WHERE r.created_at >= NOW() - INTERVAL ''30 days'') >= 2
@@ -261,19 +319,32 @@ BEGIN
       SELECT 
         b.id,
         b.name,
+        b.description,
         b.category,
+        b.category_label,
+        b.interest_id,
+        b.sub_interest_id,
         b.location,
+        b.address,
+        b.phone,
+        b.email,
+        b.website,
+        b.hours,
         b.image_url,
         b.verified,
         b.price_range,
         b.badge,
         b.slug,
+        b.lat,
+        b.lng,
         b.lat AS latitude,
         b.lng AS longitude,
         bs.total_reviews,
         bs.average_rating,
         bs.percentiles,
         b.created_at,
+        b.updated_at,
+        b.last_activity_at,
         EXTRACT(DAY FROM NOW() - b.created_at) as days_old,
         NOW() as last_refreshed
       FROM businesses b
@@ -289,19 +360,32 @@ BEGIN
       SELECT 
         b.id,
         b.name,
+        b.description,
         b.category,
+        b.category_label,
+        b.interest_id,
+        b.sub_interest_id,
         b.location,
+        b.address,
+        b.phone,
+        b.email,
+        b.website,
+        b.hours,
         b.image_url,
         b.verified,
         b.price_range,
         b.badge,
         b.slug,
+        NULL::DOUBLE PRECISION as lat,
+        NULL::DOUBLE PRECISION as lng,
         NULL::DOUBLE PRECISION as latitude,
         NULL::DOUBLE PRECISION as longitude,
         bs.total_reviews,
         bs.average_rating,
         bs.percentiles,
         b.created_at,
+        b.updated_at,
+        b.last_activity_at,
         EXTRACT(DAY FROM NOW() - b.created_at) as days_old,
         NOW() as last_refreshed
       FROM businesses b

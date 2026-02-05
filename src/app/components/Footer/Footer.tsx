@@ -96,6 +96,9 @@ export default function Footer() {
               <p className="font-urbanist text-sm sm:text-base text-off-white/80 font-normal text-left max-w-[46ch]">
                 Discover trusted local businesses, events, and community favourites.
               </p>
+              <p className="font-urbanist text-sm text-off-white/70 italic text-left">
+                Less guessing, more confessing
+              </p>
             </div>
 
             {/* Link columns */}

@@ -71,11 +71,12 @@ export default function BusinessProfilePage() {
         const businessName = business.name || 'Unnamed Business';
         // Handle description as string or object { raw, friendly }
         const getDescriptionText = (desc: any): string => {
-            if (!desc) return `${business.category || 'Business'} located in ${business.location || 'Cape Town'}`;
+            const cat = business.category ?? business.primary_subcategory_slug ?? 'Business';
+            if (!desc) return `${cat} located in ${business.location || 'Cape Town'}`;
             if (typeof desc === 'string') return desc;
             if (typeof desc === 'object' && 'friendly' in desc) return desc.friendly || desc.raw || '';
             if (typeof desc === 'object' && 'raw' in desc) return desc.raw || '';
-            return `${business.category || 'Business'} located in ${business.location || 'Cape Town'}`;
+            return `${cat} located in ${business.location || 'Cape Town'}`;
         };
         const businessDescription = getDescriptionText(business.description);
 
@@ -453,6 +454,9 @@ export default function BusinessProfilePage() {
 
     const galleryImages = allImages;
 
+    // Category: API normalizes primary_* to category/sub_interest_id; support both for robustness
+    const categorySlug = business.category ?? business.primary_subcategory_slug ?? 'Business';
+
     // Default values for missing data
     const businessData = {
         id: business.id || businessId,
@@ -460,13 +464,13 @@ export default function BusinessProfilePage() {
         name: business.name || 'Unnamed Business',
         description: (() => {
             const desc = business.description;
-            if (!desc) return `${business.category || 'Business'} located in ${business.location || 'Cape Town'}`;
+            if (!desc) return `${categorySlug} located in ${business.location || 'Cape Town'}`;
             if (typeof desc === 'string') return desc;
             if (typeof desc === 'object' && 'friendly' in desc) return desc.friendly || desc.raw || '';
             if (typeof desc === 'object' && 'raw' in desc) return desc.raw || '';
-            return `${business.category || 'Business'} located in ${business.location || 'Cape Town'}`;
+            return `${categorySlug} located in ${business.location || 'Cape Town'}`;
         })(),
-        category: business.category || 'Business',
+        category: categorySlug,
         location: business.location || 'Cape Town',
         address: business.address,
         latitude: business.lat ?? null,
@@ -552,7 +556,7 @@ export default function BusinessProfilePage() {
                                                 verified={businessData.verified || (businessData as { owner_verified?: boolean }).owner_verified}
                                                 images={businessData.images}
                                                 uploaded_images={businessData.uploaded_images}
-                                                subcategorySlug={business?.sub_interest_id ?? (business as { subInterestId?: string })?.subInterestId}
+                                                subcategorySlug={business?.primary_subcategory_slug ?? business?.sub_interest_id ?? (business as { subInterestId?: string })?.subInterestId}
                                             />
                                             <BusinessInfoComponent
                                                 name={businessData.name}
@@ -612,8 +616,8 @@ export default function BusinessProfilePage() {
                                             <PersonalizationInsights
                                                 business={{
                                                     id: businessData.id,
-                                                    interestId: business.interest_id,
-                                                    subInterestId: business.sub_interest_id,
+                                                    interestId: business.interest_id ?? business.interestId ?? business.primary_category_slug,
+                                                    subInterestId: business.sub_interest_id ?? business.subInterestId ?? business.primary_subcategory_slug,
                                                     category: businessData.category,
                                                     priceRange: businessData.price_range,
                                                     averageRating: businessData.rating,
@@ -755,11 +759,11 @@ export default function BusinessProfilePage() {
 
                             {/* Similar Businesses Section */}
                             <SimilarBusinesses
-                                currentBusinessId={businessId}
+                                currentBusinessId={businessSlug || businessId}
                                 category={businessData.category}
                                 location={businessData.location}
-                                interestId={business?.interest_id || business?.interestId}
-                                subInterestId={business?.sub_interest_id || business?.subInterestId}
+                                interestId={business?.interest_id ?? business?.interestId ?? business?.primary_category_slug}
+                                subInterestId={business?.sub_interest_id ?? business?.subInterestId ?? business?.primary_subcategory_slug}
                                 limit={3}
                             />
                         </section>

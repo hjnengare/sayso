@@ -7,10 +7,18 @@ import { getServerSupabase } from '@/app/lib/supabase/server';
  */
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const businessId = params.id;
+    const { id: businessId } = await params;
+
+    if (!businessId || businessId.trim() === '') {
+      return NextResponse.json(
+        { error: 'Business ID is required' },
+        { status: 400 }
+      );
+    }
+
     const supabase = await getServerSupabase();
     
     // Get current user
@@ -87,10 +95,18 @@ export async function POST(
  */
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const businessId = params.id;
+    const { id: businessId } = await params;
+
+    if (!businessId || businessId.trim() === '') {
+      return NextResponse.json(
+        { error: 'Business ID is required' },
+        { status: 400 }
+      );
+    }
+
     // Use request-scoped client to properly read cookies for RLS
     const supabase = await getServerSupabase(req);
 
@@ -149,10 +165,18 @@ export async function GET(
  */
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const businessId = params.id;
+    const { id: businessId } = await params;
+
+    if (!businessId || businessId.trim() === '') {
+      return NextResponse.json(
+        { error: 'Business ID is required' },
+        { status: 400 }
+      );
+    }
+
     const eventId = req.nextUrl.searchParams.get('eventId');
 
     if (!eventId) {
@@ -255,10 +279,18 @@ export async function PUT(
  */
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const businessId = params.id;
+    const { id: businessId } = await params;
+
+    if (!businessId || businessId.trim() === '') {
+      return NextResponse.json(
+        { error: 'Business ID is required' },
+        { status: 400 }
+      );
+    }
+
     const eventId = req.nextUrl.searchParams.get('eventId');
 
     if (!eventId) {
