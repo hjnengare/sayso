@@ -3,7 +3,7 @@
 
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Award, ArrowRight } from "lucide-react";
 import ReviewerCard from "../ReviewerCard/ReviewerCard";
 import BusinessOfTheMonthCard from "../BusinessCard/BusinessOfTheMonthCard";
@@ -64,6 +64,8 @@ export default function CommunityHighlights({
   const [topReviewers, setTopReviewers] = useState<Reviewer[]>(propTopReviewers || []);
   const [reviewersMode, setReviewersMode] = useState<'stage1' | 'normal' | null>(null);
   const [loading, setLoading] = useState(!propReviews && !propTopReviewers);
+  const badgeMarqueeRef = useRef<HTMLDivElement | null>(null);
+  const badgePauseUntilRef = useRef<number>(0);
 
   // Fetch data from API if not provided via props
   useEffect(() => {
@@ -97,6 +99,56 @@ export default function CommunityHighlights({
 
     fetchData();
   }, [propTopReviewers, propReviews]);
+
+  // Mobile-only: auto "rotate" (auto-scroll) the badge strip.
+  useEffect(() => {
+    const el = badgeMarqueeRef.current;
+    if (!el) return;
+    if (typeof window === "undefined") return;
+
+    const prefersReducedMotion =
+      window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ?? false;
+    if (prefersReducedMotion) return;
+
+    const mq = window.matchMedia?.("(max-width: 639px)");
+    const isMobile = mq?.matches ?? window.innerWidth < 640;
+    if (!isMobile) return;
+
+    let raf = 0;
+
+    const tick = () => {
+      const now = Date.now();
+      if (now >= badgePauseUntilRef.current) {
+        const half = el.scrollWidth / 2;
+        el.scrollLeft += 0.45; // subtle, premium glide
+        if (half > 0 && el.scrollLeft >= half) {
+          el.scrollLeft -= half;
+        }
+      }
+      raf = window.requestAnimationFrame(tick);
+    };
+
+    const pause = (ms: number) => {
+      badgePauseUntilRef.current = Math.max(badgePauseUntilRef.current, Date.now() + ms);
+    };
+
+    const onPointerDown = () => pause(1200);
+    const onTouchStart = () => pause(1200);
+    const onScroll = () => pause(900);
+
+    el.addEventListener("pointerdown", onPointerDown, { passive: true });
+    el.addEventListener("touchstart", onTouchStart, { passive: true });
+    el.addEventListener("scroll", onScroll, { passive: true });
+
+    raf = window.requestAnimationFrame(tick);
+
+    return () => {
+      window.cancelAnimationFrame(raf);
+      el.removeEventListener("pointerdown", onPointerDown);
+      el.removeEventListener("touchstart", onTouchStart);
+      el.removeEventListener("scroll", onScroll);
+    };
+  }, []);
 
   if (loading) {
     return (
@@ -238,20 +290,20 @@ export default function CommunityHighlights({
               </div>
 
               {/* Badge preview strip */}
-              <div className="pt-5">
-                <p className="text-xs text-charcoal/50 font-medium text-center mb-3 sm:hidden">
-                  Swipe to preview badges
-                </p>
+                <div className="pt-5">
+                  <p className="text-xs text-charcoal/50 font-medium text-center mb-3 sm:hidden">
+                    Swipe to preview badges
+                  </p>
 
-                <div className="relative badge-marquee" aria-label="Badge previews">
-                  <div className="badge-track">
-                    {[...badgePreviews, ...badgePreviews].map((badge, idx) => (
-                      <div
-                        key={`${badge.label}-${idx}`}
-                        className="group relative flex items-center gap-2 rounded-full bg-white/70 backdrop-blur-sm border border-charcoal/10 px-4 py-2 shadow-[0_6px_18px_rgba(0,0,0,0.06)] transition-transform duration-200 hover:-translate-y-0.5"
-                        title={badge.description}
-                        tabIndex={0}
-                      >
+                  <div ref={badgeMarqueeRef} className="relative badge-marquee" aria-label="Badge previews">
+                    <div className="badge-track">
+                      {[...badgePreviews, ...badgePreviews].map((badge, idx) => (
+                        <div
+                          key={`${badge.label}-${idx}`}
+                          className="group relative flex items-center gap-2 rounded-full bg-white/70 backdrop-blur-sm border border-charcoal/10 px-4 py-2 shadow-[0_6px_18px_rgba(0,0,0,0.06)] transition-transform duration-200 hover:-translate-y-0.5"
+                          title={badge.description}
+                          tabIndex={0}
+                        >
                         <span className="text-base leading-none" aria-hidden>
                           {badge.icon}
                         </span>
