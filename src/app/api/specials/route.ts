@@ -64,54 +64,77 @@ export async function GET(req: NextRequest) {
     const search = searchParams.get('search')?.trim();
     const businessId = searchParams.get('businessId');
 
-    // Query events_and_specials table for type='special'
-    let query = supabase
-      .from('events_and_specials')
-      .select(`
+    const baseSelect = `
+      id,
+      title,
+      type,
+      description,
+      start_date,
+      end_date,
+      location,
+      icon,
+      image,
+      price,
+      rating,
+      business_id,
+      created_by,
+      created_at,
+      businesses:business_id (
         id,
-        title,
-        type,
-        description,
-        start_date,
-        end_date,
-        location,
-        icon,
-        image,
-        price,
-        rating,
-        booking_url,
-        booking_contact,
-        business_id,
-        created_by,
-        created_at,
-        businesses:business_id (
-          id,
-          name,
-          slug,
-          image_url
-        )
-      `, { count: 'exact' })
-      .eq('type', 'special')
-      .order('start_date', { ascending: true });
+        name,
+        slug,
+        image_url
+      )
+    `;
+    const selectWithBooking = `
+      ${baseSelect},
+      booking_url,
+      booking_contact
+    `;
 
-    // Filter out expired specials (end_date < now or start_date < now if no end_date)
-    const now = new Date().toISOString();
-    query = query.or(`end_date.gte.${now},and(end_date.is.null,start_date.gte.${now})`);
+    const buildQuery = (select: string) => {
+      let query = supabase
+        .from('events_and_specials')
+        .select(select, { count: 'exact' })
+        .eq('type', 'special')
+        .order('start_date', { ascending: true });
 
-    // Filter by business ID if provided
-    if (businessId) {
-      query = query.eq('business_id', businessId);
+      // Filter out expired specials (end_date < now or start_date < now if no end_date)
+      const now = new Date().toISOString();
+      query = query.or(`end_date.gte.${now},and(end_date.is.null,start_date.gte.${now})`);
+
+      // Filter by business ID if provided
+      if (businessId) {
+        query = query.eq('business_id', businessId);
+      }
+
+      // Search across title and description
+      if (search && search.length > 0) {
+        query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`);
+      }
+
+      // Apply pagination
+      query = query.range(offset, offset + limit - 1);
+      return query;
+    };
+
+    let specials: any[] | null = null;
+    let error: any = null;
+    let count: number | null = null;
+
+    // Prefer booking fields when present; fall back gracefully if prod schema is missing them.
+    ({ data: specials, error, count } = await buildQuery(selectWithBooking));
+
+    const errorMessage = String(error?.message ?? '');
+    const isMissingBookingColumn =
+      error &&
+      /does not exist/i.test(errorMessage) &&
+      /events_and_specials\.booking_url|booking_url/i.test(errorMessage);
+
+    if (isMissingBookingColumn) {
+      console.warn('[Specials API] booking_url missing; retrying without booking fields.');
+      ({ data: specials, error, count } = await buildQuery(baseSelect));
     }
-
-    // Search across title and description
-    if (search && search.length > 0) {
-      query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`);
-    }
-
-    // Apply pagination
-    query = query.range(offset, offset + limit - 1);
-
-    const { data: specials, error, count } = await query;
 
     if (error) {
       console.error('[Specials API] Error fetching specials:', error);

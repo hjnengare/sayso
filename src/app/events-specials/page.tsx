@@ -136,6 +136,8 @@ export default function EventsSpecialsPage() {
   const hasAnyData = hasEventsData || hasSpecialsData;
   const isLoading = eventsLoading || specialsLoading;
   const hasError = Boolean(eventsError || specialsError);
+  const isBlockingError = !hasAnyData && hasError;
+  const showPartialErrorBanner = hasAnyData && hasError;
   const shouldShowCta = !hasAnyData && !isLoading && !hasError;
   const combinedErrorMessage = eventsError || specialsError;
 
@@ -291,7 +293,7 @@ export default function EventsSpecialsPage() {
           <div className="py-4">
             {isLoading ? (
               <EventsGridSkeleton count={ITEMS_PER_PAGE} />
-            ) : hasError ? (
+            ) : isBlockingError ? (
               <div className="text-center py-20">
                 <p className="text-coral mb-4">Failed to load events & specials</p>
                 <p className="text-charcoal/60 text-sm">{combinedErrorMessage}</p>
@@ -330,6 +332,19 @@ export default function EventsSpecialsPage() {
               <EmptyState filterType={selectedFilter} />
             ) : (
               <div className="space-y-10">
+                {showPartialErrorBanner && (
+                  <div className="rounded-[16px] border border-charcoal/10 bg-off-white/70 backdrop-blur-md px-4 py-3 flex items-start justify-between gap-3">
+                    <div className="text-sm text-charcoal/70">
+                      Some results may be missing: {combinedErrorMessage}
+                    </div>
+                    <button
+                      onClick={handleRetry}
+                      className="shrink-0 mi-tap px-4 py-1.5 rounded-full bg-charcoal text-white text-sm font-semibold hover:bg-charcoal/90 transition"
+                    >
+                      Retry
+                    </button>
+                  </div>
+                )}
                 {eventsSectionItems.length > 0 && renderGridSection(eventsSectionItems, "Events")}
                 {specialsSectionItems.length > 0 && renderGridSection(specialsSectionItems, "Specials")}
                 {(hasMore || specialsHasMore) && (

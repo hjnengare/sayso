@@ -56,40 +56,64 @@ export async function GET(
       businesses?: Business | Business[];
     };
 
-    const { data: specialRaw, error } = await supabase
-      .from('events_and_specials')
-      .select(`
+    const baseSelect = `
+      id,
+      title,
+      type,
+      description,
+      start_date,
+      end_date,
+      location,
+      icon,
+      image,
+      price,
+      rating,
+      business_id,
+      created_by,
+      created_at,
+      updated_at,
+      businesses:business_id (
         id,
-        title,
-        type,
-        description,
-        start_date,
-        end_date,
-        location,
-        icon,
-        image,
-        price,
-        rating,
-        booking_url,
-        booking_contact,
-        business_id,
-        created_by,
-        created_at,
-        updated_at,
-        businesses:business_id (
-          id,
-          name,
-          slug,
-          image_url,
-          address,
-          phone,
-          website,
-          email
-        )
-      `)
+        name,
+        slug,
+        image_url,
+        address,
+        phone,
+        website,
+        email
+      )
+    `;
+    const selectWithBooking = `
+      ${baseSelect},
+      booking_url,
+      booking_contact
+    `;
+
+    let specialRaw: unknown = null;
+    let error: any = null;
+
+    ({ data: specialRaw, error } = await supabase
+      .from('events_and_specials')
+      .select(selectWithBooking)
       .eq('id', id)
       .eq('type', 'special')
-      .single();
+      .single());
+
+    const errorMessage = String(error?.message ?? '');
+    const isMissingBookingColumn =
+      error &&
+      /does not exist/i.test(errorMessage) &&
+      /events_and_specials\.booking_url|booking_url/i.test(errorMessage);
+
+    if (isMissingBookingColumn) {
+      console.warn('[Specials API] booking_url missing; retrying single special without booking fields.');
+      ({ data: specialRaw, error } = await supabase
+        .from('events_and_specials')
+        .select(baseSelect)
+        .eq('id', id)
+        .eq('type', 'special')
+        .single());
+    }
 
     if (error) {
       if (error.code === 'PGRST116') {
