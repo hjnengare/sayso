@@ -510,12 +510,12 @@ export default function ForYouClient({
                   /* Default empty state for filters/personalization */
                   <div className="bg-white border border-sage/20 rounded-3xl shadow-md px-6 py-16 text-center space-y-3">
                     <h2 className="text-h2 font-semibold text-charcoal" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                      {isFiltered ? 'No businesses match your filters' : "We're still learning your taste"}
+                      {isFiltered ? 'No businesses match your filters' : 'Curated from your interests'}
                     </h2>
                     <p className="text-body-sm text-charcoal/60 max-w-[70ch] mx-auto" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 500 }}>
                       {isFiltered
                         ? 'Try adjusting your filters or check back soon as new businesses join the community.'
-                        : 'Explore a bit and we\'ll personalize more recommendations for you.'}
+                        : 'No matches in your selected categories yet. Adjust your interests or check back as more businesses join.'}
                     </p>
                   </div>
                 )

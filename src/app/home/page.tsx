@@ -497,10 +497,10 @@ export default function Home() {
                             <div className="mx-auto w-full max-w-[2000px] px-2 py-4">
                               <div className="bg-sage/10 border border-sage/30 rounded-lg p-6 text-center">
                                 <p className="text-body text-charcoal/70 mb-2">
-                                  We're still learning your taste
+                                  Curated from your interests
                                 </p>
                                 <p className="text-body-sm text-charcoal/70">
-                                  Explore a bit and we'll personalize more recommendations for you.
+                                  Based on what you selected — no matches in this section yet. See more on For You or explore Trending.
                                 </p>
                               </div>
                             </div>

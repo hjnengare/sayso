@@ -1298,6 +1298,55 @@ type MixedFeedOptions = {
 };
 
 // =============================================
+// PREFERENCE-DRIVEN COLD START (no stats)
+// Used when V2 returns empty but user has preferences — "For You" = matches what you said you like.
+// =============================================
+
+type ColdStartOptions = {
+  interestIds: string[];
+  subInterestIds: string[];
+  priceFilters: string[] | undefined;
+  latitude: number | null;
+  longitude: number | null;
+  limit: number;
+  seed: string | null;
+};
+
+async function tryColdStartForYou(
+  supabase: Awaited<ReturnType<typeof getServerSupabase>>,
+  options: ColdStartOptions
+): Promise<{ data: any[] | null; error: any }> {
+  const {
+    interestIds,
+    subInterestIds,
+    priceFilters,
+    latitude,
+    longitude,
+    limit,
+    seed,
+  } = options;
+  try {
+    const { data, error } = await supabase.rpc('recommend_for_you_cold_start', {
+      p_interest_ids: interestIds,
+      p_sub_interest_ids: subInterestIds,
+      p_price_ranges: priceFilters && priceFilters.length > 0 ? priceFilters : null,
+      p_latitude: latitude,
+      p_longitude: longitude,
+      p_limit: limit,
+      p_seed: seed,
+    });
+    if (error) {
+      console.warn('[BUSINESSES API] recommend_for_you_cold_start RPC error:', error);
+      return { data: null, error };
+    }
+    return { data: Array.isArray(data) ? data : null, error: null };
+  } catch (err: any) {
+    console.warn('[BUSINESSES API] recommend_for_you_cold_start failed:', err?.message ?? err);
+    return { data: null, error: err };
+  }
+}
+
+// =============================================
 // NETFLIX-STYLE TWO-STAGE RECOMMENDER (V2)
 // Stage A: Candidate Generation (fast, broad)
 // Stage B: Ranking (sophisticated scoring)
@@ -1305,6 +1354,7 @@ type MixedFeedOptions = {
 
 async function handleMixedFeedV2(options: MixedFeedOptions) {
   const v2Start = Date.now();
+  let feedPath: 'v2' | 'cold_start' = 'v2';
   const {
     supabase,
     limit,
@@ -1438,15 +1488,34 @@ async function handleMixedFeedV2(options: MixedFeedOptions) {
     }
 
     if (!rpcData || rpcData.length === 0) {
-      console.log('[BUSINESSES API] V2 RPC returned 0 results');
-      if (mode === 'v2_with_legacy_fallback') {
-        const legacy = await handleMixedFeedLegacy(options);
-        legacy.headers.set('X-Feed-Path', 'legacy_fallback_empty');
-        return legacy;
+      console.log('[BUSINESSES API] V2 RPC returned 0 results; trying preference-driven cold start');
+      const hasPrefs = (interestIds?.length ?? 0) > 0 || (subInterestIds?.length ?? 0) > 0;
+      if (hasPrefs) {
+        const coldStartResult = await tryColdStartForYou(supabase, {
+          interestIds: interestIds || [],
+          subInterestIds: subInterestIds || [],
+          priceFilters,
+          latitude,
+          longitude,
+          limit: Math.min(limit, 100),
+          seed,
+        });
+        if (coldStartResult.data && coldStartResult.data.length > 0) {
+          rpcData = coldStartResult.data;
+          feedPath = 'cold_start';
+          console.log('[BUSINESSES API] Cold start returned', rpcData.length, 'businesses');
+        }
       }
-      const topPicks = await fetchTopPicksFallback(options, { reason: 'empty' });
-      topPicks.headers.set('X-Feed-Path', 'v2_empty_top_picks');
-      return topPicks;
+      if (!rpcData || rpcData.length === 0) {
+        if (mode === 'v2_with_legacy_fallback') {
+          const legacy = await handleMixedFeedLegacy(options);
+          legacy.headers.set('X-Feed-Path', 'legacy_fallback_empty');
+          return legacy;
+        }
+        const topPicks = await fetchTopPicksFallback(options, { reason: 'empty' });
+        topPicks.headers.set('X-Feed-Path', 'v2_empty_top_picks');
+        return topPicks;
+      }
     }
 
     console.log('[BUSINESSES API] V2 RPC returned', rpcData.length, 'businesses');
@@ -1570,7 +1639,7 @@ async function handleMixedFeedV2(options: MixedFeedOptions) {
         v2DurationMs: Date.now() - v2Start,
       },
     });
-    response.headers.set('X-Feed-Path', 'v2');
+    response.headers.set('X-Feed-Path', feedPath);
     console.log('[BUSINESSES API] V2 total duration ms:', Date.now() - v2Start);
 
     return applySharedResponseHeaders(response);
