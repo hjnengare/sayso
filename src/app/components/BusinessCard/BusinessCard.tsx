@@ -543,6 +543,15 @@ function BusinessCard({
                     displayCategoryLabel={displayCategoryLabel}
                   />
                 </div>
+                {/* Description - one line clamp */}
+                {business.description && business.description.trim() !== '' && (
+                  <p
+                    className="text-sm text-charcoal/70 line-clamp-2 w-full px-1 text-center"
+                    style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                  >
+                    {business.description.trim()}
+                  </p>
+                )}
                 {/* Reviews - Refined */}
                 <BusinessCardReviews
                   hasRating={hasRating}
