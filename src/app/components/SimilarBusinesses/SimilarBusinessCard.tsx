@@ -2,7 +2,7 @@
 
 import React, { memo } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Star } from "lucide-react";
 import Image from "next/image";
 import { Scissors, Coffee, UtensilsCrossed, Wine, Dumbbell, Activity, Heart, Book, ShoppingBag, Home, Briefcase, MapPin, Music, Film, Camera, Car, GraduationCap, CreditCard, Tag } from "lucide-react";
 import { ImageIcon } from "lucide-react";
@@ -28,6 +28,7 @@ interface SimilarBusinessCardProps {
   priceRange?: string;
   price_range?: string;
   compact?: boolean;
+  distanceKm?: number;
   sub_interest_id?: string | null;
   subInterestId?: string;
   subInterestLabel?: string;
@@ -131,6 +132,7 @@ function SimilarBusinessCard({
   priceRange,
   price_range,
   compact = false,
+  distanceKm,
   sub_interest_id,
   subInterestId,
   subInterestLabel,
@@ -184,6 +186,19 @@ function SimilarBusinessCard({
     >
       {/* Image Section */}
       <div className="relative w-full h-[300px] lg:h-[260px] overflow-hidden rounded-t-[12px]">
+        {/* Rating badge */}
+        {typeof rating === "number" && rating > 0 && (
+          <div className="absolute right-3 top-3 z-20 inline-flex items-center gap-1 rounded-full bg-off-white/95 backdrop-blur-xl px-2.5 py-1 text-charcoal shadow-md border border-white/40">
+            <Star className="w-4 h-4 text-charcoal fill-charcoal" strokeWidth={2.5} aria-hidden />
+            <span
+              className="text-xs font-semibold text-charcoal"
+              style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 600 }}
+            >
+              {Number(rating).toFixed(1)}
+            </span>
+          </div>
+        )}
+
         {!imgError ? (
           <div className="relative w-full h-full overflow-hidden bg-card-bg">
             {/* Blurred background */}
@@ -248,6 +263,23 @@ function SimilarBusinessCard({
           {name}
         </h3>
 
+        {/* Meta: rating / reviews (subtle) */}
+        {(typeof rating === "number" && rating > 0) || (typeof reviews === "number" && reviews > 0) ? (
+          <div className="flex items-center justify-center gap-2 text-xs text-charcoal/60 -mt-0.5">
+            {typeof rating === "number" && rating > 0 && (
+              <span className="inline-flex items-center gap-1">
+                <Star className="w-3.5 h-3.5 text-coral fill-coral" aria-hidden />
+                <span className="font-semibold text-charcoal/70">{Number(rating).toFixed(1)}</span>
+              </span>
+            )}
+            {typeof reviews === "number" && reviews > 0 && (
+              <span className="text-charcoal/60">
+                {reviews} {reviews === 1 ? "review" : "reviews"}
+              </span>
+            )}
+          </div>
+        ) : null}
+
         {/* Description */}
         {description && (
           <p
@@ -272,7 +304,12 @@ function SimilarBusinessCard({
             </div>
               );
             })()}
-            <span className="truncate">{location || address}</span>
+            <span className="truncate">{address || location}</span>
+            {typeof distanceKm === "number" && distanceKm > 0 && (
+              <span className="flex-shrink-0 text-charcoal/50">
+                • {distanceKm.toFixed(distanceKm < 10 ? 1 : 0)} km
+              </span>
+            )}
           </div>
         )}
 

@@ -3,6 +3,25 @@ import { getServerSupabase } from '../../../../lib/supabase/server';
 import { getCategoryLabelFromBusiness } from '../../../../utils/subcategoryPlaceholders';
 import { getInterestIdForSubcategory } from '../../../../lib/onboarding/subcategoryMapping';
 
+function calculateDistanceKm(
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number
+): number {
+  const R = 6371; // km
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
 /**
  * GET /api/businesses/[id]/similar
  * Returns businesses similar to the target business
@@ -95,6 +114,16 @@ export async function GET(
       radius_km: validRadius,
     });
 
+    // Fetch target coords to compute distance client-side (RPC doesn't currently return distance).
+    const { data: targetCoords } = await supabase
+      .from('businesses')
+      .select('lat, lng')
+      .eq('id', targetBusinessId)
+      .maybeSingle();
+
+    const targetLat = (targetCoords as any)?.lat as number | null | undefined;
+    const targetLng = (targetCoords as any)?.lng as number | null | undefined;
+
     // Call the RPC function
     const { data: similarBusinesses, error: rpcError } = await supabase
       .rpc('get_similar_businesses', {
@@ -175,6 +204,16 @@ export async function GET(
         business.interest_id ??
         (categorySlug ? getInterestIdForSubcategory(categorySlug) : undefined);
 
+      const latitude = (business.latitude ?? business.lat) as number | null | undefined;
+      const longitude = (business.longitude ?? business.lng) as number | null | undefined;
+      const distance_km =
+        typeof targetLat === 'number' &&
+        typeof targetLng === 'number' &&
+        typeof latitude === 'number' &&
+        typeof longitude === 'number'
+          ? Math.round(calculateDistanceKm(targetLat, targetLng, latitude, longitude) * 10) / 10
+          : undefined;
+
       return {
         id: business.id,
         name: business.name,
@@ -188,6 +227,11 @@ export async function GET(
         subInterestLabel: categoryLabel !== 'Miscellaneous' ? categoryLabel : undefined,
         interestId,
         location: business.location,
+        address: business.address || undefined,
+        description: business.description || undefined,
+        latitude,
+        longitude,
+        distance_km,
         rating: hasRating ? Math.round(business.average_rating * 2) / 2 : undefined,
         totalRating: hasRating ? business.average_rating : undefined,
         reviews: hasReviews ? business.total_reviews : 0,

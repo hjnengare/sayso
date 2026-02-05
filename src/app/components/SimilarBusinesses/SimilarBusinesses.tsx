@@ -33,6 +33,9 @@ interface SimilarBusiness {
   priceRange?: string;
   href?: string;
   similarity_score?: number;
+  latitude?: number;
+  longitude?: number;
+  distance_km?: number;
   subInterestId?: string;
   subInterestLabel?: string;
 }
@@ -91,8 +94,50 @@ export default function SimilarBusinesses({
         const data = await response.json();
         
         if (isMounted) {
-          setSimilarBusinesses(data.businesses || []);
+          const businesses = (data.businesses || []) as SimilarBusiness[];
+          setSimilarBusinesses(businesses);
           setLoading(false);
+
+          // Best-effort: if we have coordinates but no address, resolve an address.
+          // (Mobile-first: no hover dependency; keeps UI readable.)
+          const needsReverse = businesses.filter(
+            (b) =>
+              (!b.address || b.address.trim() === "") &&
+              typeof b.latitude === "number" &&
+              typeof b.longitude === "number"
+          );
+
+          if (needsReverse.length > 0) {
+            Promise.all(
+              needsReverse.map(async (b) => {
+                try {
+                  const r = await fetch("/api/geocode/reverse", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ latitude: b.latitude, longitude: b.longitude }),
+                  });
+                  if (!r.ok) return { id: b.id, address: undefined as string | undefined };
+                  const j = (await r.json()) as { success?: boolean; address?: string };
+                  if (!j?.success || !j.address) return { id: b.id, address: undefined as string | undefined };
+                  return { id: b.id, address: j.address as string };
+                } catch {
+                  return { id: b.id, address: undefined as string | undefined };
+                }
+              })
+            ).then((resolved) => {
+              if (!isMounted) return;
+              setSimilarBusinesses((prev) => {
+                if (!prev?.length) return prev;
+                const map = new Map(resolved.filter((x) => x.address).map((x) => [x.id, x.address!] as const));
+                if (map.size === 0) return prev;
+                return prev.map((b) => {
+                  const addr = map.get(b.id);
+                  if (!addr) return b;
+                  return { ...b, address: addr };
+                });
+              });
+            });
+          }
         }
       } catch (err: any) {
         console.error('[SimilarBusinesses] Error fetching similar businesses:', err);
@@ -228,6 +273,7 @@ export default function SimilarBusinesses({
                   verified={business.verified}
                   priceRange={business.priceRange}
                   compact={true}
+                  distanceKm={business.distance_km}
                   subInterestId={business.subInterestId}
                   subInterestLabel={business.subInterestLabel}
                 />
