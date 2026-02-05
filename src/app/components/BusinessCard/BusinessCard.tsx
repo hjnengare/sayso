@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState, useEffect, useRef, memo } from "react";
 import { useRouter } from "next/navigation";
-import { Image as ImageIcon, Star, Edit, Share2, Bookmark, Info, ChevronLeft, ChevronRight, TrendingUp, Zap, Scissors, Coffee, UtensilsCrossed, Wine, Dumbbell, Activity, Heart, Book, ShoppingBag, Home, Briefcase, MapPin, Music, Film, Camera, Car, GraduationCap, CreditCard, Tag, Flame, Store, Eye } from "lucide-react";
+import { Image as ImageIcon, Star, Share2, Bookmark, Info, ChevronLeft, ChevronRight, TrendingUp, Zap, Scissors, Coffee, UtensilsCrossed, Wine, Dumbbell, Activity, Heart, Book, ShoppingBag, Home, Briefcase, MapPin, Music, Film, Camera, Car, GraduationCap, CreditCard, Tag, Flame, Store, Eye } from "lucide-react";
 import Image from "next/image";
 import PercentileChip from "../PercentileChip/PercentileChip";
 import VerifiedBadge from "../VerifiedBadge/VerifiedBadge";
@@ -456,7 +456,7 @@ function BusinessCard({
       style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
     >
       <div
-        className={`px-1 pt-1 pb-0 rounded-[12px] ${compact ? "lg:py-1 lg:pb-1 lg:min-h-[200px]" : "flex-1"} relative flex-shrink-0 flex flex-col justify-between bg-sage z-10 shadow-md group w-full sm:h-auto`}
+        className={`px-1 pt-1 pb-0 rounded-[12px] ${compact ? "lg:py-1 lg:pb-1 lg:min-h-[200px]" : "flex-1"} relative flex-shrink-0 flex flex-col justify-between bg-sage z-10 shadow-md group cursor-pointer w-full sm:h-auto`}
         style={{ maxWidth: compact ? "100%" : "540px" } as React.CSSProperties}
         role="link"
         tabIndex={0}
@@ -569,30 +569,18 @@ function BusinessCard({
           </div>
           {/* Mobile actions - Minimal */}
           <div className="flex md:hidden items-center justify-center pt-2 pb-2">
-            {isBusinessAccount ? (
-              // Business account: Show "View Business Profile" button
-              <button
-                className="flex-1 flex items-center justify-center gap-1.5 px-4 py-3 rounded-full text-caption sm:text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-sage/40 border transition-all min-h-[48px] shadow-md bg-gradient-to-br from-navbar-bg to-navbar-bg/90 text-white border-sage/50 active:scale-95"
-                onClick={(e) => { e.stopPropagation(); handleCardClick(); }}
-                aria-label={`View ${business.name} profile`}
-                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
-              >
-                <Eye className="w-3.5 h-3.5" strokeWidth={2.5} />
-                <span>View Business Profile</span>
-              </button>
-            ) : (
-              // Consumer account: Show "Review" button
-              <button
-                className={`flex-1 flex items-center justify-center gap-1.5 px-4 py-3 rounded-full text-caption sm:text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-sage/40 border transition-all min-h-[48px] shadow-md ${hasReviewed ? 'bg-charcoal/20 text-charcoal/70 cursor-not-allowed border-charcoal/20' : 'bg-gradient-to-br from-navbar-bg to-navbar-bg/90 text-white border-sage/50 active:scale-95'}`}
-                onClick={(e) => { e.stopPropagation(); if (!hasReviewed) handleWriteReview(); }}
-                disabled={hasReviewed}
-                aria-label={hasReviewed ? `You have already reviewed ${business.name}` : `Write a review for ${business.name}`}
-                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
-              >
-                <Edit className="w-3.5 h-3.5" strokeWidth={2.5} />
-                <span>{hasReviewed ? 'Already Reviewed' : 'Review'}</span>
-              </button>
-            )}
+            <button
+              className="flex-1 flex items-center justify-center gap-1.5 px-4 py-3 rounded-full text-caption sm:text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-sage/40 border transition-all min-h-[48px] shadow-md bg-gradient-to-br from-navbar-bg to-navbar-bg/90 text-white border-sage/50 active:scale-95"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleCardClick();
+              }}
+              aria-label={`View ${business.name} details`}
+              style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
+            >
+              <Eye className="w-3.5 h-3.5" strokeWidth={2.5} />
+              <span>{isBusinessAccount ? 'View Business Profile' : 'View Details'}</span>
+            </button>
           </div>
         </div>
       </div>
