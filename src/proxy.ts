@@ -390,6 +390,13 @@ export async function proxy(request: NextRequest) {
 
   // CRITICAL (iOS crash fix): No user session — avoid redirecting to onboarding/complete (except root "/" default landing). Only protect protected routes → /login; allow public.
   if (!user) {
+    // Guests should never land on /for-you (empty state can trap navigation on some webviews).
+    // Keep /home public; lock personalization to authenticated users only.
+    if (pathname === '/for-you' || pathname.startsWith('/for-you/')) {
+      const to = '/home';
+      edgeLog('REDIRECT', pathname, { hasUser: false, to, reason: 'guest_for_you' });
+      return redirectWithGuard(request, new URL(to, request.url));
+    }
     if (isPublicRoute) {
       edgeLog('ALLOW', pathname, { hasUser: false });
       return response;
