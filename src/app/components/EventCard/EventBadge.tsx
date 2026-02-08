@@ -1,4 +1,4 @@
-// Generate a unique color for each event based on its ID
+﻿// Generate a unique color for each event based on its ID
 // This ensures every event badge has a different color
 const getUniqueEventColor = (eventId: string): string => {
   // Create a simple hash from the event ID

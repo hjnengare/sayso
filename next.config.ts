@@ -50,6 +50,12 @@ const nextConfig: NextConfig = {
         hostname: '**.tmgrup.com',
         pathname: '/**',
       },
+      // Quicket event images
+      {
+        protocol: 'https',
+        hostname: 'images.quicket.co.za',
+        pathname: '/**',
+      },
     ],
     
     // Content Security Policy for images

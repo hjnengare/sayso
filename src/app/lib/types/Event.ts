@@ -31,6 +31,7 @@ export interface Event {
   startDateISO?: string;
   endDateISO?: string;
   occurrences?: Array<{ startDate: string; endDate?: string; bookingUrl?: string }>;
+  occurrencesCount?: number;
   allDates?: string[];
   canonicalKey?: string;
   businessId?: string;

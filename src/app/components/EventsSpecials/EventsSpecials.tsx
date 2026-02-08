@@ -1,4 +1,4 @@
-// src/components/EventsSpecials/EventsSpecials.tsx
+﻿// src/components/EventsSpecials/EventsSpecials.tsx
 "use client";
 
 import { useRouter } from "next/navigation";
@@ -8,59 +8,7 @@ import EventCardSkeleton from "../EventCard/EventCardSkeleton";
 import type { Event } from "../../lib/types/Event";
 import ScrollableSection from "../ScrollableSection/ScrollableSection";
 import WavyTypedTitle from "../../../components/Animations/WavyTypedTitle";
-import { useState, useEffect } from "react";
-
-const normalize = (value: string | undefined | null) =>
-  (value || '')
-    .toString()
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, '-');
-
-const buildCanonicalKey = (event: Event) => event.canonicalKey || event.id || `${normalize(event.title)}|${normalize(event.location)}`;
-
-const aggregateEvents = (events: Event[]): Event[] => {
-  const map = new Map<string, Event & { occurrences?: Array<{ startDate: string; endDate?: string }>; startDateISO?: string; endDateISO?: string }>();
-
-  for (const evt of events) {
-    const key = buildCanonicalKey(evt);
-    const startISO = evt.startDateISO || evt.startDate;
-    const endISO = evt.endDateISO || evt.endDate;
-
-    const existing = map.get(key);
-    if (!existing) {
-      map.set(key, {
-        ...evt,
-        canonicalKey: key,
-        startDateISO: startISO,
-        endDateISO: endISO,
-        occurrences: evt.occurrences || [{ startDate: startISO, endDate: endISO }],
-      });
-      continue;
-    }
-
-    const occurrences = [...(existing.occurrences || []), ...(evt.occurrences || [{ startDate: startISO, endDate: endISO }])];
-    const allStarts = occurrences.map((o) => o.startDate).filter(Boolean);
-    const allEnds = occurrences.map((o) => o.endDate).filter(Boolean);
-    const minStart = allStarts.length ? allStarts.slice().sort()[0] : existing.startDateISO;
-    const maxEnd = allEnds.length ? allEnds.slice().sort()[allEnds.length - 1] : existing.endDateISO;
-
-    map.set(key, {
-      ...existing,
-      occurrences,
-      startDateISO: minStart,
-      endDateISO: maxEnd,
-      startDate: minStart || existing.startDate,
-      endDate: maxEnd || existing.endDate,
-    });
-  }
-
-  return Array.from(map.values()).sort((a, b) => {
-    const aDate = a.startDateISO ? new Date(a.startDateISO).getTime() : new Date(a.startDate).getTime();
-    const bDate = b.startDateISO ? new Date(b.startDateISO).getTime() : new Date(b.startDate).getTime();
-    return aDate - bDate;
-  });
-};
+import { useMemo } from "react";
 
 export default function EventsSpecials({
   title = "Events & Specials",
@@ -76,41 +24,14 @@ export default function EventsSpecials({
   loading?: boolean;
 }) {
   const router = useRouter();
-  const [businessEvents, setBusinessEvents] = useState<Event[]>([]);
-  const [loadingBusinessEvents, setLoadingBusinessEvents] = useState(true);
 
-  // Fetch business-owned events on mount
-  useEffect(() => {
-    const fetchBusinessEvents = async () => {
-      try {
-        setLoadingBusinessEvents(true);
-        const res = await fetch('/api/events/business-events');
-        if (!res.ok) {
-          console.warn('[EventsSpecials] business-events returned non-200', res.status);
-          setBusinessEvents([]);
-          return;
-        }
-        const result = await res.json();
-        setBusinessEvents(result.data || []);
-      } catch (error) {
-        console.error('Error fetching business events:', error);
-        setBusinessEvents([]);
-      } finally {
-        setLoadingBusinessEvents(false);
-      }
-    };
-
-    fetchBusinessEvents();
-  }, []);
-
-  // Only block on parent loading — don't wait for business-events so events from parent show as soon as ready
+  // Only block on parent loading; the feed is unified server-side.
   const showSkeleton = loading;
 
-  // Merge business events with provided events, sorted by start date (businessEvents may still be [] while loading)
-  const displayEvents = aggregateEvents([
-    ...(businessEvents || []),
-    ...(events || []),
-  ]).slice(0, 10); // Limit to first 10 events after consolidation
+  // Group before render (key: title|day(start_date)|location) and memoize to avoid recomputation.
+  const displayEvents = useMemo(() => {
+    return (events || []).slice(0, 12);
+  }, [events]);
 
   const hasEvents = displayEvents.length > 0;
 
@@ -205,21 +126,27 @@ export default function EventsSpecials({
             </ScrollableSection>
           </div>
         ) : (
-          <div className="rounded-[24px] border border-charcoal/10 bg-gradient-to-br from-sage/10 to-sage/20 p-6 text-center space-y-4">
-            <p className="text-base font-semibold text-charcoal" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
-              We&apos;re curating something special for you
-            </p>
-            <p className="text-sm text-charcoal/70" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
-              Business owners are adding curated events and specials. Check back soon or explore the full list.
-            </p>
-            <button
-              onClick={() => router.push(href)}
-              className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-navbar-bg text-white text-sm font-semibold hover:bg-navbar-bg/90 transition-colors focus:outline-none focus:ring-2 focus:ring-sage/40"
-              style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
-            >
-              Explore events & specials
-              <ArrowRight className="w-4 h-4" />
-            </button>
+          <div className="py-4">
+            <div className="bg-off-white border border-charcoal/10 rounded-lg p-6 text-center">
+              <p className="text-body text-charcoal/70 mb-2">
+                Curated events &amp; specials
+              </p>
+              <p className="text-body-sm text-charcoal/70">
+                Business owners are adding new events and specials. Check back soon.
+              </p>
+
+              <div className="pt-4 flex justify-center">
+                <button
+                  onClick={() => router.push(href)}
+                  className="mi-tap inline-flex items-center justify-center gap-2 rounded-full min-h-[48px] px-6 py-3 text-body font-semibold text-white bg-gradient-to-r from-coral to-coral/85 hover:opacity-95 transition-all duration-200 shadow-md w-full sm:w-auto sm:min-w-[200px]"
+                  style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                  aria-label={`See more: ${title}`}
+                >
+                  <span>See More</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>

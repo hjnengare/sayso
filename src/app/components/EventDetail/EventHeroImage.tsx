@@ -18,26 +18,28 @@ function getOptimizedImageUrl(url: string | null, width: number = 1080): string 
     return "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=1920&h=1080&fit=crop&crop=center&q=90";
   }
 
+  // Fix protocol-relative URLs (e.g. //images.quicket.co.za/...)
+  const fixedUrl = url.startsWith("//") ? `https:${url}` : url;
+
   // If already has query params or is Supabase storage URL, return as-is
-  if (url.includes('?') || url.includes('supabase.co/storage')) {
-    return url;
+  if (fixedUrl.includes('?') || fixedUrl.includes('supabase.co/storage')) {
+    return fixedUrl;
   }
 
   // Try to add width and auto format parameters
   try {
     // Handle relative URLs
-    if (url.startsWith('/')) {
-      return url; // Return relative URLs as-is, Next.js Image will handle optimization
+    if (fixedUrl.startsWith('/')) {
+      return fixedUrl;
     }
 
     // Handle absolute URLs
-    const urlObj = new URL(url);
+    const urlObj = new URL(fixedUrl);
     urlObj.searchParams.set('width', width.toString());
     urlObj.searchParams.set('auto', 'format');
     return urlObj.toString();
   } catch {
-    // If URL parsing fails, return as-is
-    return url;
+    return fixedUrl;
   }
 }
 

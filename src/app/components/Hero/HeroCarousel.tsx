@@ -2,15 +2,11 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import type { CSSProperties } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import SearchInput from "../SearchInput/SearchInput";
 import FilterModal, { FilterState } from "../FilterModal/FilterModal";
-import ActiveFilterBadges from "../FilterActiveBadges/ActiveFilterBadges";
-import WavyTypedTitle from "../../../components/Animations/WavyTypedTitle";
 import HeroSkeleton from "./HeroSkeleton";
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -37,15 +33,6 @@ const HERO_COPY = [
     description: "Find what’s happening near you—today, this weekend, and beyond.",
   },
 ];
-
-const shuffleImages = (images: string[]): string[] => {
-  const result = [...images];
-  for (let i = result.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [result[i], result[j]] = [result[j], result[i]];
-  }
-  return result;
-};
 
 const HERO_SEED_STORAGE_KEY = "sayso.hero.seed.v1";
 
@@ -285,7 +272,6 @@ export default function HeroCarousel() {
   const { user, isLoading: authLoading } = useAuth();
   const [isHeroReady, setIsHeroReady] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [prevIndex, setPrevIndex] = useState<number | null>(null);
   const [textIndex, setTextIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const [heroImages] = useState<string[]>(() => HERO_IMAGES);
@@ -293,7 +279,6 @@ export default function HeroCarousel() {
   const [heroSeed] = useState<string>(() => getOrCreateSessionSeed());
   const [failedImageUrls, setFailedImageUrls] = useState<Set<string>>(new Set());
   const slideTimeoutRef = useRef<number | null>(null);
-  const clearPrevTimeoutRef = useRef<number | null>(null);
   const containerRef = useRef<HTMLElement>(null);
   const currentIndexRef = useRef(currentIndex);
   const isIOS = useMemo(() => {
@@ -308,7 +293,7 @@ export default function HeroCarousel() {
 
   const cappedHeroImages = useMemo(() => {
     // Keep iOS mobile extremely light: fewer slides + fewer image elements prevents Safari tab crashes.
-    const cap = isIOSMobile ? 4 : heroViewport === "mobile" ? 8 : heroViewport === "tablet" ? 14 : null;
+    const cap = isIOSMobile ? 4 : heroViewport === "mobile" ? 5 : heroViewport === "tablet" ? 14 : null;
     const base = Array.isArray(heroImages) ? heroImages : HERO_IMAGES;
     if (!cap) return base;
     return selectStableSubset(base, cap, heroSeed);
@@ -358,28 +343,6 @@ export default function HeroCarousel() {
     }
   }, [currentIndex, slides.length]);
 
-  // Keep only 2 slides mounted (current + previous) to reduce memory pressure on iOS Safari.
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (clearPrevTimeoutRef.current != null) {
-      window.clearTimeout(clearPrevTimeoutRef.current);
-      clearPrevTimeoutRef.current = null;
-    }
-    if (prevIndex == null) return;
-
-    clearPrevTimeoutRef.current = window.setTimeout(() => {
-      setPrevIndex(null);
-      clearPrevTimeoutRef.current = null;
-    }, 1100);
-
-    return () => {
-      if (clearPrevTimeoutRef.current != null) {
-        window.clearTimeout(clearPrevTimeoutRef.current);
-        clearPrevTimeoutRef.current = null;
-      }
-    };
-  }, [currentIndex, prevIndex]);
-
   // Mark hero as ready once auth state is known
   useEffect(() => {
     if (!authLoading) {
@@ -387,8 +350,7 @@ export default function HeroCarousel() {
     }
   }, [authLoading]);
 
-  // Search and filter state
-  const [searchQuery, setSearchQuery] = useState<string>("");
+  // Filter state
   const [filters, setFilters] = useState<FilterState>({ minRating: null, distance: null });
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -433,20 +395,21 @@ export default function HeroCarousel() {
     });
   }, [slides, heroViewport, isIOS]);
 
-  // When slide changes, preload the next 2 slides if not already loaded.
+  // When slide changes, preload upcoming slides.
   useEffect(() => {
     if (typeof window === "undefined" || slides.length === 0) return;
-    if (heroViewport === "mobile" || isIOS) return;
-    const next1 = (currentIndex + 1) % slides.length;
-    const next2 = (currentIndex + 2) % slides.length;
-    [next1, next2].forEach((idx) => {
-      const src = slides[idx].image;
-      if (preloadedImagesRef.current.has(src)) return;
+    // On mobile/iOS: prefetch just the next slide. On larger screens: next 2.
+    const count = heroViewport === "mobile" || isIOS ? 1 : 2;
+    for (let i = 1; i <= count; i++) {
+      const nextIdx = (currentIndex + i) % slides.length;
+      const src = slides[nextIdx].image;
+      if (preloadedImagesRef.current.has(src)) continue;
       preloadedImagesRef.current.add(src);
       const img = new window.Image();
       img.decoding = "async";
+      img.fetchPriority = "low";
       img.src = src;
-    });
+    }
   }, [currentIndex, slides, heroViewport, isIOS]);
 
   const transitionToIndex = useCallback(
@@ -454,7 +417,6 @@ export default function HeroCarousel() {
       if (slides.length === 0) return;
       setCurrentIndex((prev) => {
         const nextIndex = computeNextIndex(prev);
-        setPrevIndex(prev);
         currentIndexRef.current = nextIndex;
         return nextIndex;
       });
@@ -498,9 +460,10 @@ export default function HeroCarousel() {
       slideTimeoutRef.current = null;
     }
 
+    const slideDuration = heroViewport === "mobile" ? 8000 : 5000;
     slideTimeoutRef.current = window.setTimeout(() => {
       transitionToIndex((prev) => (prev + 1) % slides.length);
-    }, 5000);
+    }, slideDuration);
 
     return () => {
       if (slideTimeoutRef.current != null) {
@@ -508,7 +471,7 @@ export default function HeroCarousel() {
         slideTimeoutRef.current = null;
       }
     };
-  }, [prefersReduced, paused, currentIndex, slides.length, transitionToIndex]);
+  }, [prefersReduced, paused, currentIndex, slides.length, transitionToIndex, heroViewport]);
 
   // pause when tab is hidden
   useEffect(() => {
@@ -570,35 +533,12 @@ export default function HeroCarousel() {
     };
   }, [next, prev]);
 
-  const handleUpdateFilter = (filterType: 'minRating' | 'distance', value: number | string | null) => {
-    const newFilters = { ...filters, [filterType]: value };
-    setFilters(newFilters);
-  };
-
-  const handleClearFilters = () => {
-    setFilters({ minRating: null, distance: null });
-  };
-
-  const goToSlide = (index: number) => {
-    if (slides.length === 0) return;
-    setCurrentIndex(index);
-    setPaused(true);
-  };
-
-  // Filter handlers
-  const openFilters = () => {
-    if (isFilterVisible) return;
-    setIsFilterVisible(true);
-    setTimeout(() => setIsFilterOpen(true), 10);
-  };
-
   const closeFilters = () => {
     setIsFilterOpen(false);
     setTimeout(() => setIsFilterVisible(false), 150);
   };
 
   const handleFiltersChange = (f: FilterState) => {
-    // Navigate to explore page with filters applied via URL params
     const params = new URLSearchParams();
     if (f.categories && f.categories.length > 0) {
       params.set('categories', f.categories.join(','));
@@ -609,22 +549,10 @@ export default function HeroCarousel() {
     if (f.distance) {
       params.set('distance', f.distance);
     }
-
     const queryString = params.toString();
     const exploreUrl = queryString ? `/explore?${queryString}` : '/explore';
     router.push(exploreUrl);
     closeFilters();
-  };
-
-  const handleSubmitQuery = (query: string) => {
-    // Navigate to explore page with search query
-    const params = new URLSearchParams();
-    if (query.trim()) {
-      params.set('search', query.trim());
-    }
-    const queryString = params.toString();
-    const exploreUrl = queryString ? `/explore?${queryString}` : '/explore';
-    router.push(exploreUrl);
   };
 
   // Show skeleton while auth is loading
@@ -644,56 +572,52 @@ export default function HeroCarousel() {
     );
   }
 
-  const slideIndicesToRender = (() => {
-    const set = new Set<number>();
-    set.add(currentIndex);
-    if (prevIndex != null && prevIndex !== currentIndex) set.add(prevIndex);
-    return [...set];
-  })();
+  // Render all capped slides simultaneously — no mount/unmount cycles, no flicker.
+  // Opacity is controlled purely via the animate prop keyed to currentIndex.
 
   const currentTextSlide = slides[textIndex % slides.length] ?? slides[0];
 
   return (
     <>
       {/* Hero Container with padding */}
-      <div className="relative w-full px-2 pb-2 pt-[calc(var(--header-height)+0.5rem)] sm:px-0 sm:pb-0 sm:pt-0 md:pt-2 md:px-2">
+      <div className="relative w-full px-0 pb-0 pt-0 sm:px-0 sm:pb-0 sm:pt-0 md:pt-2 md:px-2 md:pb-2">
         {/* Hero Section with rounded corners - 75vh responsive height */}
         <section
           ref={containerRef as React.RefObject<HTMLElement>}
-          className="relative h-[calc(100dvh-var(--header-height)-0.5rem)] sm:h-[90dvh] md:h-[80dvh] w-full overflow-hidden outline-none rounded-[12px] min-h-[420px] sm:min-h-[520px] sm:max-h-[820px] shadow-md"
+          className="relative h-[100dvh] sm:h-[90dvh] md:h-[80dvh] w-full overflow-hidden outline-none rounded-none sm:rounded-[12px] min-h-[420px] sm:min-h-[520px] sm:max-h-[820px] shadow-md"
           aria-label="Hero carousel"
           tabIndex={0}
           style={{ fontFamily: FONT_STACK }}
         >
           {/* Liquid Glass Ambient Lighting */}
-      <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-sage/10 pointer-events-none rounded-[12px] lg:rounded-none" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(255,255,255,0.15)_0%,_transparent_70%)] pointer-events-none rounded-[12px]" />
-      <div className="absolute inset-0 backdrop-blur-[1px] bg-off-white/5 mix-blend-overlay pointer-events-none rounded-[12px]" />
-      {/* Slides - images only */}
-      {slideIndicesToRender.map((index) => {
-        const slide = slides[index];
-        const isActive = index === currentIndex;
-        const isPrev = prevIndex != null && index === prevIndex;
+      <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-sage/10 pointer-events-none rounded-none sm:rounded-[12px]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(255,255,255,0.15)_0%,_transparent_70%)] pointer-events-none rounded-none sm:rounded-[12px]" />
+      <div className="absolute inset-0 backdrop-blur-[1px] bg-off-white/5 mix-blend-overlay pointer-events-none rounded-none sm:rounded-[12px]" />
+      {/* Slides — all capped slides rendered; opacity driven by currentIndex. No mount/unmount flicker. */}
+      {slides.map((slide, idx) => {
+        const isActive = idx === currentIndex;
+        const fallbackImg = HERO_IMAGES[idx % HERO_IMAGES.length];
+        const src = failedImageUrls.has(slide.image) ? fallbackImg : slide.image;
         return (
         <motion.div
           key={slide.id}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: isActive || isPrev ? 1 : 0, zIndex: isActive ? 10 : 0 }}
-          transition={{ duration: 1, ease: "easeInOut" }}
+          initial={false}
+          animate={{ opacity: isActive ? 1 : 0, zIndex: isActive ? 10 : 0 }}
+          transition={{ opacity: { duration: 1.2, ease: "easeInOut" }, zIndex: { duration: 0 } }}
           aria-hidden={!isActive}
-          className="absolute inset-0 w-auto h-auto overflow-hidden will-change-transform transform-gpu [backface-visibility:hidden] rounded-[12px]"
+          className="absolute inset-0 overflow-hidden will-change-[opacity] transform-gpu [backface-visibility:hidden] rounded-none sm:rounded-[12px]"
         >
-           <div className="absolute inset-0 rounded-[12px] overflow-hidden px-0 mx-0 transform-gpu [backface-visibility:hidden]">
+           <div className="absolute inset-0 rounded-none sm:rounded-[12px] overflow-hidden transform-gpu [backface-visibility:hidden]">
               <Image
-                src={failedImageUrls.has(slide.image) ? HERO_IMAGES[index % HERO_IMAGES.length] : slide.image}
-                alt={slide.title}
+                src={src}
+                alt={slide.title ?? "Sayso hero slide"}
                 fill
-                priority={index === 0}
-                loading={index === 0 ? "eager" : "lazy"}
-                fetchPriority={index === 0 ? "high" : "auto"}
+                priority={idx === 0}
+                loading={idx === 0 ? "eager" : "lazy"}
+                fetchPriority={idx === 0 ? "high" : "auto"}
                 quality={heroViewport === "mobile" ? 65 : 80}
                 className={`transform-gpu [backface-visibility:hidden] ${
-                  heroViewport === "mobile" ? "object-contain" : "object-cover scale-[1.02]"
+                  heroViewport === "mobile" ? "object-cover object-center" : "object-cover scale-[1.02]"
                 }`}
                 style={{ filter: "brightness(0.95) contrast(1.05) saturate(1.1)" }}
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 80vw"

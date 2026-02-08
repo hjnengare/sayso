@@ -47,37 +47,40 @@ const EVENT_SPORT_KEYWORDS = [
   "music",
 ];
 
+const fixImageUrl = (url: string): string =>
+  url.startsWith("//") ? `https:${url}` : url;
+
 const getEventMediaImage = (event: Event) => {
   // Priority 0: Uploaded images array (newer events)
   const uploadedImages = (event as any).uploaded_images as string[] | undefined;
   if (uploadedImages && Array.isArray(uploadedImages) && uploadedImages.length > 0) {
     const first = uploadedImages.find((img) => typeof img === "string" && img.trim()) || uploadedImages[0];
     if (first && typeof first === "string" && first.trim()) {
-      return first;
+      return fixImageUrl(first);
     }
   }
 
   // Priority 1: Use real uploaded images from event
   if (event.image && event.image.trim()) {
-    return event.image;
+    return fixImageUrl(event.image);
   }
 
   // Priority 1b: Common API aliases
   if ((event as any).image_url && typeof (event as any).image_url === "string" && (event as any).image_url.trim()) {
-    return (event as any).image_url as string;
+    return fixImageUrl((event as any).image_url as string);
   }
 
   if ((event as any).heroImage && typeof (event as any).heroImage === "string" && (event as any).heroImage.trim()) {
-    return (event as any).heroImage as string;
+    return fixImageUrl((event as any).heroImage as string);
   }
 
   if ((event as any).bannerImage && typeof (event as any).bannerImage === "string" && (event as any).bannerImage.trim()) {
-    return (event as any).bannerImage as string;
+    return fixImageUrl((event as any).bannerImage as string);
   }
 
   // Priority 2: Use business image carousel if available (for business-owned events)
   if ((event as any).businessImages && (event as any).businessImages.length > 0) {
-    return (event as any).businessImages[0];
+    return fixImageUrl((event as any).businessImages[0]);
   }
 
   // Fallback: Generate icon based on event type/keywords
@@ -214,9 +217,18 @@ function EventCard({ event, index: _index = 0 }: EventCardProps) {
               </div>
             </div>
 
+            {event.occurrencesCount != null && event.occurrencesCount > 1 && (
+              <span
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-sage/10 text-sage text-sm font-medium w-fit"
+                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
+              >
+                {event.occurrencesCount} dates available
+              </span>
+            )}
+
             <button
               onClick={handlePrimaryAction}
-              className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-br from-navbar-bg to-navbar-bg/90 text-white rounded-full text-sm font-semibold hover:from-navbar-bg/90 hover:to-navbar-bg/80 active:scale-95 transition-all duration-200 shadow-md border border-sage/50 focus:outline-none focus:ring-2 focus:ring-sage/40"
+              className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-br from-navbar-bg to-navbar-bg/90 text-white rounded-full text-sm font-semibold hover:from-navbar-bg/90 hover:to-navbar-bg/80 active:scale-95 active:translate-y-[1px] transition-all duration-200 shadow-md border border-sage/50 focus:outline-none focus:ring-2 focus:ring-sage/40 transform-gpu touch-manipulation select-none"
               aria-label="Learn more about this event"
               title="View event details"
               style={{
