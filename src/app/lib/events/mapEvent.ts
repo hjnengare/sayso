@@ -75,11 +75,16 @@ export function mapEventsAndSpecialsRowToEventCard(
     }
   }
 
+  // Fix protocol-relative URLs from legacy DB entries
+  const fixedImage = row.image
+    ? row.image.startsWith("//") ? `https:${row.image}` : row.image
+    : null;
+
   return {
     id: row.id,
     title: row.title,
     type: row.type,
-    image: row.image ?? null,
+    image: fixedImage,
     alt: `${row.title} ${row.type}`,
     icon: row.icon ?? undefined,
     location: row.location ?? "Location TBD",

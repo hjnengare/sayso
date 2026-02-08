@@ -3,9 +3,9 @@
 
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
-import { Award, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import ReviewerCard from "../ReviewerCard/ReviewerCard";
 import BusinessOfTheMonthCard from "../BusinessCard/BusinessOfTheMonthCard";
 import ScrollableSection from "../ScrollableSection/ScrollableSection";
@@ -79,8 +79,6 @@ export default function CommunityHighlights({
   const [topReviewers, setTopReviewers] = useState<Reviewer[]>(propTopReviewers || []);
   const [reviewersMode, setReviewersMode] = useState<'stage1' | 'normal' | null>(null);
   const [loading, setLoading] = useState(!propReviews && !propTopReviewers);
-  const badgeMarqueeRef = useRef<HTMLDivElement | null>(null);
-  const badgePauseUntilRef = useRef<number>(0);
 
   // Fetch data from API if not provided via props
   useEffect(() => {
@@ -114,56 +112,6 @@ export default function CommunityHighlights({
 
     fetchData();
   }, [propTopReviewers, propReviews]);
-
-  // Mobile-only: auto "rotate" (auto-scroll) the badge strip.
-  useEffect(() => {
-    const el = badgeMarqueeRef.current;
-    if (!el) return;
-    if (typeof window === "undefined") return;
-
-    const prefersReducedMotion =
-      window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ?? false;
-    if (prefersReducedMotion) return;
-
-    const mq = window.matchMedia?.("(max-width: 639px)");
-    const isMobile = mq?.matches ?? window.innerWidth < 640;
-    if (!isMobile) return;
-
-    let raf = 0;
-
-    const tick = () => {
-      const now = Date.now();
-      if (now >= badgePauseUntilRef.current) {
-        const half = el.scrollWidth / 2;
-        el.scrollLeft += 0.45; // subtle, premium glide
-        if (half > 0 && el.scrollLeft >= half) {
-          el.scrollLeft -= half;
-        }
-      }
-      raf = window.requestAnimationFrame(tick);
-    };
-
-    const pause = (ms: number) => {
-      badgePauseUntilRef.current = Math.max(badgePauseUntilRef.current, Date.now() + ms);
-    };
-
-    const onPointerDown = () => pause(1200);
-    const onTouchStart = () => pause(1200);
-    const onScroll = () => pause(900);
-
-    el.addEventListener("pointerdown", onPointerDown, { passive: true });
-    el.addEventListener("touchstart", onTouchStart, { passive: true });
-    el.addEventListener("scroll", onScroll, { passive: true });
-
-    raf = window.requestAnimationFrame(tick);
-
-    return () => {
-      window.cancelAnimationFrame(raf);
-      el.removeEventListener("pointerdown", onPointerDown);
-      el.removeEventListener("touchstart", onTouchStart);
-      el.removeEventListener("scroll", onScroll);
-    };
-  }, []);
 
   if (loading) {
     return (
@@ -304,13 +252,9 @@ export default function CommunityHighlights({
                 </Link>
               </div>
 
-              {/* Badge preview strip */}
+              {/* Badge preview strip — pure CSS marquee at all breakpoints */}
                 <div className="pt-5">
-                  <p className="text-xs text-charcoal/50 font-medium text-center mb-3 sm:hidden">
-                    Swipe to preview badges
-                  </p>
-
-                  <div ref={badgeMarqueeRef} className="relative badge-marquee" aria-label="Badge previews">
+                  <div className="relative badge-marquee" aria-label="Badge previews">
                     <div className="badge-track">
                       {[...badgePreviews, ...badgePreviews].map((badge, idx) => (
                         <div
@@ -340,7 +284,7 @@ export default function CommunityHighlights({
                         </span>
 
                         {/* Tooltip (desktop) */}
-                        <div className="hidden sm:block pointer-events-none absolute -top-11 left-1/2 -translate-x-1/2 opacity-0 translate-y-1 transition-all duration-200 sm:group-hover:opacity-100 sm:group-hover:translate-y-0 sm:group-focus:opacity-100 sm:group-focus:translate-y-0">
+                        <div className="hidden md:block pointer-events-none absolute -top-11 left-1/2 -translate-x-1/2 opacity-0 translate-y-1 transition-all duration-200 md:group-hover:opacity-100 md:group-hover:translate-y-0 md:group-focus:opacity-100 md:group-focus:translate-y-0">
                           <div className="rounded-xl bg-charcoal text-off-white text-xs font-medium px-3 py-2 shadow-[0_10px_30px_rgba(0,0,0,0.18)] border border-white/10 whitespace-nowrap">
                             {badge.description}
                           </div>
@@ -351,10 +295,10 @@ export default function CommunityHighlights({
 
                   <style dangerouslySetInnerHTML={{ __html: `
                     .badge-marquee {
-                      overflow-x: auto;
-                      overflow-y: visible;
-                      -webkit-overflow-scrolling: touch;
+                      overflow: hidden;
                       scrollbar-width: none;
+                      mask-image: linear-gradient(to right, transparent 0%, black 6%, black 94%, transparent 100%);
+                      -webkit-mask-image: linear-gradient(to right, transparent 0%, black 6%, black 94%, transparent 100%);
                     }
                     .badge-marquee::-webkit-scrollbar { display: none; }
 
@@ -364,21 +308,24 @@ export default function CommunityHighlights({
                       width: max-content;
                       padding: 0 6px 4px 6px;
                       align-items: center;
+                      animation: badge-scroll 28s linear infinite;
+                      will-change: transform;
                     }
 
-                    @media (min-width: 640px) {
+                    /* Pause on touch (mobile) and hover (desktop) */
+                    .badge-marquee:active .badge-track {
+                      animation-play-state: paused;
+                    }
+
+                    @media (min-width: 768px) {
                       .badge-marquee {
-                        overflow: hidden;
                         padding: 0 8px;
                         mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
                         -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
                       }
-
                       .badge-track {
-                        animation: badge-scroll 22s linear infinite;
-                        will-change: transform;
+                        animation-duration: 22s;
                       }
-
                       .badge-marquee:hover .badge-track {
                         animation-play-state: paused;
                       }
