@@ -31,7 +31,7 @@ const HeroCarousel = nextDynamic(
   () => import("../components/Hero/HeroCarousel"),
   {
     loading: () => (
-      <div className="h-[calc(100dvh-var(--header-height)-0.5rem)] sm:h-[90dvh] md:h-[80dvh] bg-gradient-to-b from-charcoal/5 to-transparent animate-pulse" />
+      <div className="h-[100dvh] sm:h-[90dvh] md:h-[80dvh] bg-gradient-to-b from-charcoal/5 to-transparent animate-pulse" />
     ),
   }
 );
@@ -524,7 +524,7 @@ export default function HomeClient() {
               {heroReady ? (
                 <HeroCarousel />
               ) : (
-                <div className="h-[calc(100dvh-var(--header-height)-0.5rem)] sm:h-[90dvh] md:h-[80dvh] bg-gradient-to-b from-charcoal/5 to-transparent" />
+                <div className="h-[100dvh] sm:h-[90dvh] md:h-[80dvh] bg-gradient-to-b from-charcoal/5 to-transparent" />
               )}
             </motion.div>
           )}

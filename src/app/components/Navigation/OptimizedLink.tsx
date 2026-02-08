@@ -103,16 +103,20 @@ export default function OptimizedLink({
 
       e.preventDefault();
 
-      const doc = document as any;
+      const doc = (e.currentTarget?.ownerDocument ?? document) as any;
       const startViewTransition = doc?.startViewTransition as
         | undefined
         | ((callback: () => void) => void);
 
       if (typeof startViewTransition === "function") {
-        // IMPORTANT: call with `document` as receiver to avoid "Illegal invocation" in some browsers.
-        startViewTransition.call(doc, () => {
+        try {
+          // Call as a method to ensure the correct receiver (avoids "Illegal invocation" in some WebKit builds).
+          doc.startViewTransition(() => {
+            router.push(href);
+          });
+        } catch {
           router.push(href);
-        });
+        }
       } else {
         router.push(href);
       }

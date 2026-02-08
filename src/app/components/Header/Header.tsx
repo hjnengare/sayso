@@ -244,6 +244,21 @@ export default function Header({
     return () => document.removeEventListener("mousedown", onDown);
   }, [collapseDesktopSearch]);
 
+  // Body scroll lock when mobile suggestions are visible
+  useEffect(() => {
+    if (isSuggestionsOpen && isMobileSearchOpen) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = prev; };
+    }
+  }, [isSuggestionsOpen, isMobileSearchOpen]);
+
+  // Close search on route change
+  useEffect(() => {
+    setIsMobileSearchOpen(false);
+    collapseDesktopSearch();
+  }, [pathname, collapseDesktopSearch]);
+
   const navigateToSuggestion = useCallback(
     (item: LiveSearchResult) => {
       if (!item?.id) return;
@@ -877,6 +892,25 @@ export default function Header({
           )}
         </div>
       </header>
+
+      {/* Mobile suggestions backdrop */}
+      <AnimatePresence>
+        {isMobileSearchOpen && isSuggestionsOpen && (
+          <motion.div
+            key="search-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-40 bg-charcoal/20 backdrop-blur-[2px] lg:hidden"
+            onClick={() => {
+              setIsMobileSearchOpen(false);
+              setActiveSuggestionIndex(-1);
+            }}
+            aria-hidden
+          />
+        )}
+      </AnimatePresence>
 
       <MobileMenu
         isOpen={isMobileMenuOpen}

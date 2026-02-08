@@ -11,6 +11,13 @@ import { NextResponse, type NextRequest } from 'next/server';
 const ONBOARDING_ROUTES = ['/interests', '/subcategories', '/deal-breakers', '/complete'];
 const PUBLIC_ROUTES = ['/login', '/register', '/onboarding', '/verify-email', '/auth/callback'];
 
+/** Routes guests can browse without authentication (read-only discovery). */
+const GUEST_BROWSABLE_PREFIXES = [
+  '/home', '/explore', '/business/', '/event/', '/special/', '/specials/',
+  '/trending', '/for-you', '/events-specials', '/category/', '/discover/',
+  '/leaderboard', '/reviewer/', '/terms', '/privacy', '/badges',
+];
+
 function isSchemaCacheError(error: { message?: string } | null | undefined): boolean {
   const message = error?.message?.toLowerCase() || '';
   return message.includes('schema cache') && message.includes('onboarding_completed_at');
@@ -76,8 +83,14 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  // No user - redirect to login
+  // No user - allow guest-browsable routes, redirect others to login
   if (!user) {
+    const isGuestBrowsable = GUEST_BROWSABLE_PREFIXES.some(
+      (prefix) => pathname === prefix || pathname.startsWith(prefix)
+    );
+    if (isGuestBrowsable) {
+      return response;
+    }
     const url = request.nextUrl.clone();
     url.pathname = '/login';
     return NextResponse.redirect(url);

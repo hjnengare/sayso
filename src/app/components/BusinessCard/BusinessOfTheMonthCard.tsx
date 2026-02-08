@@ -319,7 +319,7 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
           {/* Premium floating actions - desktop only */}
           <div className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-20 flex-col items-center gap-2 transition-all duration-300 ease-out translate-x-12 opacity-0 md:group-hover:translate-x-0 md:group-hover:opacity-100">
             <button
-              className="w-12 h-10 bg-navbar-bg rounded-full flex items-center justify-center hover:bg-navbar-bg/90 hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40 shadow-md"
+              className="w-12 h-10 bg-navbar-bg rounded-full flex items-center justify-center hover:bg-navbar-bg/90 hover:scale-110 active:scale-95 active:translate-y-[1px] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40 shadow-md transform-gpu touch-manipulation select-none"
               onClick={(e) => {
                 e.stopPropagation();
                 handleWriteReview(e);
@@ -330,7 +330,7 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
               <Edit className="w-4 h-4 text-white" strokeWidth={2.5} />
             </button>
             <button
-              className="w-12 h-10 bg-navbar-bg rounded-full flex items-center justify-center hover:bg-navbar-bg/90 hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40 shadow-md"
+              className="w-12 h-10 bg-navbar-bg rounded-full flex items-center justify-center hover:bg-navbar-bg/90 hover:scale-110 active:scale-95 active:translate-y-[1px] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40 shadow-md transform-gpu touch-manipulation select-none"
               onClick={(e) => {
                 e.stopPropagation();
                 handleBookmark(e);
@@ -344,7 +344,7 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
               />
             </button>
             <button
-              className="w-12 h-10 bg-navbar-bg rounded-full flex items-center justify-center hover:bg-navbar-bg/90 hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40 shadow-md"
+              className="w-12 h-10 bg-navbar-bg rounded-full flex items-center justify-center hover:bg-navbar-bg/90 hover:scale-110 active:scale-95 active:translate-y-[1px] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40 shadow-md transform-gpu touch-manipulation select-none"
               onClick={(e) => {
                 e.stopPropagation();
                 handleShare(e);
@@ -509,7 +509,7 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
           {/* Mobile actions - Minimal */}
           <div className="flex md:hidden items-center justify-center pt-4 border-t border-off-white/30">
             <button
-              className="flex-1 flex items-center justify-center gap-1.5 px-4 py-3 rounded-full text-caption sm:text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-sage/40 border transition-all min-h-[48px] bg-gradient-to-br from-navbar-bg to-navbar-bg/90 text-white border-sage/50 active:scale-95 shadow-md"
+              className="flex-1 flex items-center justify-center gap-1.5 px-4 py-3 rounded-full text-caption sm:text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-sage/40 border transition-all duration-200 min-h-[48px] bg-gradient-to-br from-navbar-bg to-navbar-bg/90 text-white border-sage/50 active:scale-95 active:translate-y-[1px] shadow-md transform-gpu touch-manipulation select-none"
               onClick={(e) => {
                 e.stopPropagation();
                 handleWriteReview(e);
