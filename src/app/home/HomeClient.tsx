@@ -725,7 +725,7 @@ export default function HomeClient() {
                         )}
                       </div>
                     ) : allBusinessesLoading ? (
-                      <CommunityHighlightsSkeleton reviewerCount={4} businessCount={4} />
+                      <CommunityHighlightsSkeleton reviewerCount={12} businessCount={4} />
                     ) : (
                       <CommunityHighlights
                         businessesOfTheMonth={Array.isArray(featuredByCategory) ? featuredByCategory : []}

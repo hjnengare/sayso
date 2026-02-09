@@ -308,7 +308,7 @@ export default function CommunityHighlights({
                       width: max-content;
                       padding: 0 6px 4px 6px;
                       align-items: center;
-                      animation: badge-scroll 28s linear infinite;
+                      animation: badge-scroll 20s linear infinite;
                       will-change: transform;
                     }
 

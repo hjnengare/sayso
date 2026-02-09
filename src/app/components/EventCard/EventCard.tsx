@@ -227,6 +227,16 @@ function EventCard({ event, index = 0 }: EventCardProps) {
                 {event.occurrencesCount} dates available
               </span>
             )}
+            {event.type === "event" && (
+              <span
+                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-sm font-medium w-fit ${
+                  event.businessId ? "bg-navbar-bg/10 text-navbar-bg" : "bg-coral/10 text-coral"
+                }`}
+                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
+              >
+                {event.businessId ? "Business-linked event" : "Community-hosted event"}
+              </span>
+            )}
             <button
               onClick={handlePrimaryAction}
               className="mt-auto w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-br from-navbar-bg to-navbar-bg/90 text-white rounded-full text-sm font-semibold hover:from-navbar-bg/90 hover:to-navbar-bg/80 active:scale-95 active:translate-y-[1px] transition-all duration-200 shadow-md border border-sage/50 focus:outline-none focus:ring-2 focus:ring-sage/40 transform-gpu touch-manipulation select-none"

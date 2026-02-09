@@ -13,7 +13,7 @@ interface CommunityHighlightsSkeletonProps {
  * main header, Top Contributors sub-header + row (same wrapper/card layout, spread end to end), Featured Businesses.
  */
 export default function CommunityHighlightsSkeleton({
-  reviewerCount = 8,
+  reviewerCount = 12,
   businessCount = 4,
 }: CommunityHighlightsSkeletonProps) {
   return (

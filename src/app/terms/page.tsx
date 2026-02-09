@@ -1,22 +1,24 @@
 "use client";
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
 export default function TermsOfUsePage() {
+  const router = useRouter();
+
   return (
     <div
       className="min-h-dvh bg-off-white font-urbanist"
       style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
     >
       <div className="mx-auto max-w-3xl px-4 py-8 sm:py-12">
-        <Link
-          href="/home"
+        <button
+          onClick={() => router.back()}
           className="inline-flex items-center gap-2 text-sm text-charcoal/60 hover:text-charcoal transition-colors mb-6"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to Home
-        </Link>
+          Back
+        </button>
 
         <h1 className="text-2xl sm:text-3xl font-bold text-charcoal mb-2">Terms of Use</h1>
         <p className="text-sm text-charcoal/60 mb-8">Last updated: 28 January 2026</p>
