@@ -29,28 +29,11 @@ export default function PageTransitionProvider({ children }: PageTransitionProvi
   const isFirstRender = useRef(true);
   const previousPathname = useRef(pathname);
   const preserveScrollOnNextRouteRef = useRef(false);
-  const scrollRafOneRef = useRef<number | null>(null);
-  const scrollRafTwoRef = useRef<number | null>(null);
-
-  const cancelPendingScroll = useCallback(() => {
-    if (scrollRafOneRef.current) {
-      window.cancelAnimationFrame(scrollRafOneRef.current);
-      scrollRafOneRef.current = null;
-    }
-    if (scrollRafTwoRef.current) {
-      window.cancelAnimationFrame(scrollRafTwoRef.current);
-      scrollRafTwoRef.current = null;
-    }
-  }, []);
 
   const scrollToTop = useCallback(() => {
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    window.scrollTo({
-      top: 0,
-      left: 0,
-      behavior: prefersReducedMotion ? "auto" : "smooth",
-    });
+    // Use 'instant' to override CSS scroll-smooth on <html> and avoid
+    // animation races with page content rendering.
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   }, []);
 
   // Preserve native restoration for browser back/forward navigation.
@@ -82,24 +65,11 @@ export default function PageTransitionProvider({ children }: PageTransitionProvi
       setTransitionKey((k) => k + 1);
 
       if (!shouldPreserveScroll) {
-        cancelPendingScroll();
-        scrollRafOneRef.current = window.requestAnimationFrame(() => {
-          scrollRafTwoRef.current = window.requestAnimationFrame(() => {
-            // Avoid unnecessary re-scrolls when already at top.
-            if (window.scrollY > 2) {
-              scrollToTop();
-            }
-          });
-        });
+        // Scroll immediately so the new page always starts at the top.
+        scrollToTop();
       }
     }
-  }, [cancelPendingScroll, pathname, scrollToTop]);
-
-  useEffect(() => {
-    return () => {
-      cancelPendingScroll();
-    };
-  }, [cancelPendingScroll]);
+  }, [pathname, scrollToTop]);
 
   // Clear transitioning flag on next paint(s) after route commit.
   useEffect(() => {
