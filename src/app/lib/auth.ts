@@ -20,7 +20,13 @@ export class AuthService {
     return process.env.NEXT_PUBLIC_BASE_URL || window.location.origin;
   }
 
-  static async signUp({ email, password, username, accountType = 'user' }: SignUpData): Promise<{ user: AuthUser | null; session: Session | null; error: AuthError | null }> {
+  static async signUp({
+    email,
+    password,
+    username,
+    accountType = 'user',
+    displayName
+  }: SignUpData): Promise<{ user: AuthUser | null; session: Session | null; error: AuthError | null }> {
     const supabase = this.getClient();
     try {
       // Basic validation
@@ -109,7 +115,8 @@ export class AuthService {
           emailRedirectTo: `${baseUrl}/auth/callback?type=signup`,
           data: {
             username: username.trim(),
-            account_type: accountType // Store account type in user metadata for profile creation
+            account_type: accountType, // Store account type in user metadata for profile creation
+            display_name: displayName?.trim() || undefined
           }
         }
       });
@@ -254,10 +261,14 @@ export class AuthService {
   static async signOut(): Promise<{ error: AuthError | null }> {
     const supabase = this.getClient();
     try {
-      const { error } = await supabase.auth.signOut();
+      const { error } = await supabase.auth.signOut({ scope: 'global' });
 
       if (error) {
-        return { error: this.handleSupabaseError(error) };
+        // Fallback: clear local session even if global revoke fails (network/offline).
+        const { error: localError } = await supabase.auth.signOut({ scope: 'local' });
+        if (localError) {
+          return { error: this.handleSupabaseError(localError) };
+        }
       }
 
       return { error: null };

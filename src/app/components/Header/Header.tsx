@@ -415,6 +415,12 @@ export default function Header({
     }
   };
 
+  const handleAdminSignOut = useCallback(() => {
+    void (async () => {
+      await logout();
+    })();
+  }, [logout]);
+
   // Cleanup debounce on unmount
   useEffect(() => {
     return () => {
@@ -695,7 +701,8 @@ export default function Header({
                 </div>
 
                 <button
-                  onClick={() => void logout()}
+                  type="button"
+                  onClick={handleAdminSignOut}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-white/60 hover:text-coral hover:bg-coral/10 transition-colors"
                   style={sf}
                 >
@@ -712,7 +719,8 @@ export default function Header({
                     <span className="text-sage text-sm font-semibold" style={sf}>admin</span>
                   </OptimizedLink>
                   <button
-                    onClick={() => void logout()}
+                    type="button"
+                    onClick={handleAdminSignOut}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-white/60 hover:text-coral hover:bg-coral/10 transition-colors"
                     style={sf}
                   >
@@ -829,7 +837,7 @@ export default function Header({
                     >
                       <Bell className="w-5 h-5" fill={isNotificationsActive ? "currentColor" : "none"} />
                       {isGuest ? (
-                        <span className="absolute -bottom-0.5 -right-0.5 flex items-center justify-center w-4 h-4 text-charcoal/50">
+                        <span className="absolute -bottom-0.5 -right-0.5 flex items-center justify-center w-4 h-4 text-coral">
                           <Lock className="w-2.5 h-2.5" />
                         </span>
                       ) : unreadCount > 0 ? (
@@ -916,7 +924,7 @@ export default function Header({
                 >
                   <Bell className="w-5 h-5" fill={isNotificationsActive ? "currentColor" : "none"} />
                   {isGuest ? (
-                    <span className="absolute -bottom-0.5 -right-0.5 flex items-center justify-center w-4 h-4 text-charcoal/50">
+                    <span className="absolute -bottom-0.5 -right-0.5 flex items-center justify-center w-4 h-4 text-coral">
                       <Lock className="w-2.5 h-2.5" />
                     </span>
                   ) : unreadCount > 0 ? (

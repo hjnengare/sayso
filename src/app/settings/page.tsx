@@ -23,7 +23,6 @@ export default function SettingsPage() {
   const handleLogout = async () => {
     try {
       await logout();
-      router.push("/onboarding");
     } catch (error) {
       console.error("Error logging out:", error);
     }

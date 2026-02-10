@@ -15,7 +15,13 @@ function isSchemaCacheError(error: { message?: string } | null | undefined): boo
 interface AuthContextType {
   user: AuthUser | null;
   login: (email: string, password: string, desiredRole?: 'user' | 'business_owner') => Promise<AuthUser | null>;
-  register: (email: string, password: string, username: string, accountType?: 'user' | 'business_owner') => Promise<boolean>;
+  register: (
+    email: string,
+    password: string,
+    username: string,
+    accountType?: 'user' | 'business_owner',
+    displayName?: string
+  ) => Promise<boolean>;
   logout: () => Promise<void>;
   updateUser: (userData: Partial<AuthUser>) => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -384,12 +390,24 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-    const register = async (email: string, password: string, username: string, accountType: 'user' | 'business_owner' = 'user'): Promise<boolean> => {
+    const register = async (
+      email: string,
+      password: string,
+      username: string,
+      accountType: 'user' | 'business_owner' = 'user',
+      displayName?: string
+    ): Promise<boolean> => {
       setIsLoading(true);
       setError(null);
       try {
         console.log('AuthContext: Starting registration...', { email, accountType });
-        const { user: authUser, session, error: authError } = await AuthService.signUp({ email, password, username, accountType });
+        const { user: authUser, session, error: authError } = await AuthService.signUp({
+          email,
+          password,
+          username,
+          accountType,
+          displayName
+        });
         if (authError) {
           const rawMessage = authError?.message || '';
           const rawCode = authError?.code || 'unknown';
@@ -455,10 +473,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       if (signOutError) {
         setError(signOutError.message);
-      } else {
-        setUser(null);
-        router.push('/onboarding');
+        return;
       }
+
+      setUser(null);
+
+      // Use hard navigation so stale in-memory state cannot keep admin UI mounted.
+      if (typeof window !== 'undefined') {
+        window.location.replace('/login');
+        return;
+      }
+
+      router.replace('/login');
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Logout failed';
       setError(message);

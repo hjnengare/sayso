@@ -47,7 +47,8 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
   const [authMode, setAuthMode] = useState<AuthMode>(defaultAuthMode);
 
   const [personalUsername, setPersonalUsername] = useState("");
-  const [businessName, setBusinessName] = useState("");
+  const [businessUsername, setBusinessUsername] = useState("");
+  const [publicBusinessName, setPublicBusinessName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -56,7 +57,8 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
   const [isOnline, setIsOnline] = useState(true);
   const [consent, setConsent] = useState(false);
 
-  const [nameTouched, setNameTouched] = useState(false);
+  const [usernameTouched, setUsernameTouched] = useState(false);
+  const [publicBusinessNameTouched, setPublicBusinessNameTouched] = useState(false);
   const [emailTouched, setEmailTouched] = useState(false);
   const [passwordTouched, setPasswordTouched] = useState(false);
 
@@ -117,35 +119,41 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
 
   const resetFormState = () => {
     setPersonalUsername("");
-    setBusinessName("");
+    setBusinessUsername("");
+    setPublicBusinessName("");
     setEmail("");
     setPassword("");
     setConsent(false);
     setError("");
     setExistingAccountError(false);
     setExistingAccountLabel("Personal");
-    setNameTouched(false);
+    setUsernameTouched(false);
+    setPublicBusinessNameTouched(false);
     setEmailTouched(false);
     setPasswordTouched(false);
   };
 
   const validateUsername = (value: string) => /^[a-zA-Z0-9_]{3,20}$/.test(value);
-  const validateBusinessName = (value: string) => value.trim().length >= 2 && value.trim().length <= 80;
+  const validatePublicBusinessName = (value: string) => value.trim().length >= 2 && value.trim().length <= 80;
   const validateEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
-  const getNameError = () => {
-    if (!nameTouched) return "";
-    if (isBusiness) {
-      if (!businessName) return "Business name is required";
-      if (!validateBusinessName(businessName)) return "Business name must be 2-80 characters";
-      return "";
-    }
-
-    if (!personalUsername) return "Username is required";
-    if (personalUsername.length < 3) return "Username must be at least 3 characters";
-    if (personalUsername.length > 20) return "Username must be less than 20 characters";
-    if (!validateUsername(personalUsername)) {
+  const getUsernameError = () => {
+    if (!usernameTouched) return "";
+    const usernameValue = isBusiness ? businessUsername : personalUsername;
+    if (!usernameValue) return "Username is required";
+    if (usernameValue.length < 3) return "Username must be at least 3 characters";
+    if (usernameValue.length > 20) return "Username must be less than 20 characters";
+    if (!validateUsername(usernameValue)) {
       return "Username can only contain letters, numbers, and underscores";
+    }
+    return "";
+  };
+
+  const getPublicBusinessNameError = () => {
+    if (!isBusiness || !publicBusinessNameTouched) return "";
+    if (!publicBusinessName) return "Public business name is required";
+    if (!validatePublicBusinessName(publicBusinessName)) {
+      return "Public business name must be 2-80 characters";
     }
     return "";
   };
@@ -174,7 +182,12 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
           !email ||
           !password ||
           !validateEmail(email) ||
-          (isBusiness ? !businessName || !validateBusinessName(businessName) : !personalUsername || !validateUsername(personalUsername))
+          (isBusiness
+            ? !businessUsername ||
+              !validateUsername(businessUsername) ||
+              !publicBusinessName ||
+              !validatePublicBusinessName(publicBusinessName)
+            : !personalUsername || !validateUsername(personalUsername))
         : !email ||
           !password ||
           !validateEmail(email))
@@ -237,23 +250,23 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
   };
 
   const handleRegister = async () => {
-    const nameValue = isBusiness ? businessName : personalUsername;
+    const usernameValue = isBusiness ? businessUsername : personalUsername;
 
-    if (!nameValue?.trim() || !email?.trim() || !password?.trim()) {
+    if (!usernameValue?.trim() || !email?.trim() || !password?.trim() || (isBusiness && !publicBusinessName?.trim())) {
       setError("Please fill in all fields");
       showToast("Please fill in all fields", "warning", 3000);
       return;
     }
 
-    if (isBusiness) {
-      if (!validateBusinessName(businessName.trim())) {
-        setError("Please enter a valid business name");
-        showToast("Please enter a valid business name", "warning", 3000);
-        return;
-      }
-    } else if (!validateUsername(personalUsername.trim())) {
+    if (!validateUsername(usernameValue.trim())) {
       setError("Please enter a valid username");
       showToast("Please enter a valid username", "warning", 3000);
+      return;
+    }
+
+    if (isBusiness && !validatePublicBusinessName(publicBusinessName.trim())) {
+      setError("Please enter a valid public business name");
+      showToast("Please enter a valid public business name", "warning", 3000);
       return;
     }
 
@@ -343,7 +356,13 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
     }
 
     const desiredRole = isBusiness ? "business_owner" : "user";
-    const success = await register(normalizedEmail, password, nameValue.trim(), desiredRole);
+    const success = await register(
+      normalizedEmail,
+      password,
+      usernameValue.trim(),
+      desiredRole,
+      isBusiness ? publicBusinessName.trim() : undefined
+    );
 
     if (success) {
       await RateLimiter.recordSuccess(normalizedEmail, "register");
@@ -688,27 +707,52 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
                         {isRegisterMode && (
                           <>
                             {isBusiness ? (
-                              <BusinessNameInput
-                                value={businessName}
-                                onChange={(value) => {
-                                  setBusinessName(value);
-                                  if (!nameTouched) setNameTouched(true);
-                                }}
-                                onBlur={() => setNameTouched(true)}
-                                error={getNameError()}
-                                touched={nameTouched}
-                                disabled={isFormDisabled}
-                              />
+                              <>
+                                <UsernameInput
+                                  value={businessUsername}
+                                  onChange={(value) => {
+                                    setBusinessUsername(value);
+                                    if (!usernameTouched) setUsernameTouched(true);
+                                  }}
+                                  onBlur={() => setUsernameTouched(true)}
+                                  error={getUsernameError()}
+                                  touched={usernameTouched}
+                                  disabled={isFormDisabled}
+                                />
+                                <p
+                                  className="text-xs text-white/80 mt-1"
+                                  style={{
+                                    fontFamily:
+                                      "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                                  }}
+                                >
+                                  This is your account username (not your public business name).
+                                </p>
+                                <BusinessNameInput
+                                  value={publicBusinessName}
+                                  onChange={(value) => {
+                                    setPublicBusinessName(value);
+                                    if (!publicBusinessNameTouched) setPublicBusinessNameTouched(true);
+                                  }}
+                                  onBlur={() => setPublicBusinessNameTouched(true)}
+                                  error={getPublicBusinessNameError()}
+                                  touched={publicBusinessNameTouched}
+                                  disabled={isFormDisabled}
+                                  label="Public Business Name"
+                                  placeholder="Your public business name"
+                                  successMessage="Public business name looks good!"
+                                />
+                              </>
                             ) : (
                               <UsernameInput
                                 value={personalUsername}
                                 onChange={(value) => {
                                   setPersonalUsername(value);
-                                  if (!nameTouched) setNameTouched(true);
+                                  if (!usernameTouched) setUsernameTouched(true);
                                 }}
-                                onBlur={() => setNameTouched(true)}
-                                error={getNameError()}
-                                touched={nameTouched}
+                                onBlur={() => setUsernameTouched(true)}
+                                error={getUsernameError()}
+                                touched={usernameTouched}
                                 disabled={isFormDisabled}
                               />
                             )}
@@ -822,7 +866,7 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
 
                         {isRegisterMode && !isBusiness && (
                           <RegistrationProgress
-                            usernameValid={!!personalUsername && !getNameError()}
+                            usernameValid={!!personalUsername && !getUsernameError()}
                             emailValid={!!email && !getEmailError()}
                             passwordStrong={passwordStrength.score >= 3}
                             consentGiven={consent}

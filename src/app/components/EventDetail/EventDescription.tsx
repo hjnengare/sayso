@@ -1,6 +1,7 @@
 // src/components/EventDetail/EventDescription.tsx
 "use client";
 
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import type { Event } from "../../lib/types/Event";
 import { normalizeDescriptionText } from "../../lib/utils/descriptionText";
@@ -13,6 +14,43 @@ export default function EventDescription({ event }: EventDescriptionProps) {
   const normalizedDescription =
     normalizeDescriptionText(event.description) ||
     "Join us for an amazing experience! This event promises to be unforgettable with great company, beautiful surroundings, and memorable moments. Don't miss out on this special opportunity to connect with like-minded people and create lasting memories.";
+  const contentRef = useRef<HTMLParagraphElement>(null);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isCollapsible, setIsCollapsible] = useState(false);
+  const [collapsedHeight, setCollapsedHeight] = useState<number | null>(null);
+  const [expandedHeight, setExpandedHeight] = useState<number | null>(null);
+
+  const animatedHeight = useMemo(() => {
+    if (!isCollapsible) return "auto";
+    if (isExpanded) return expandedHeight ?? "auto";
+    return collapsedHeight ?? "auto";
+  }, [collapsedHeight, expandedHeight, isCollapsible, isExpanded]);
+
+  useEffect(() => {
+    const measure = () => {
+      const el = contentRef.current;
+      if (!el) return;
+
+      const styles = window.getComputedStyle(el);
+      const parsedLineHeight = Number.parseFloat(styles.lineHeight);
+      const lineHeight = Number.isFinite(parsedLineHeight) ? parsedLineHeight : 28;
+      const nextCollapsedHeight = Math.round(lineHeight * 5);
+      const nextExpandedHeight = Math.ceil(el.scrollHeight);
+      const shouldCollapse = nextExpandedHeight > nextCollapsedHeight + 4;
+
+      setCollapsedHeight(nextCollapsedHeight);
+      setExpandedHeight(nextExpandedHeight);
+      setIsCollapsible(shouldCollapse);
+
+      if (!shouldCollapse) {
+        setIsExpanded(false);
+      }
+    };
+
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [normalizedDescription]);
 
   return (
     <motion.div
@@ -32,12 +70,36 @@ export default function EventDescription({ event }: EventDescriptionProps) {
         >
           About This Event
         </h2>
-        <p
-          className="text-body text-charcoal/70 leading-7 whitespace-pre-wrap break-words [overflow-wrap:anywhere]"
-          style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+
+        <motion.div
+          initial={false}
+          animate={{ height: animatedHeight }}
+          transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+          className="relative overflow-hidden"
         >
-          {normalizedDescription}
-        </p>
+          <p
+            ref={contentRef}
+            className="text-body text-charcoal/70 leading-7 whitespace-pre-wrap break-words [overflow-wrap:anywhere]"
+            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+          >
+            {normalizedDescription}
+          </p>
+
+          {isCollapsible && !isExpanded && (
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-card-bg via-card-bg/95 to-transparent" />
+          )}
+        </motion.div>
+
+        {isCollapsible && (
+          <button
+            type="button"
+            onClick={() => setIsExpanded((prev) => !prev)}
+            className="mt-3 text-sm font-semibold text-coral hover:text-coral/80 transition-colors duration-200"
+            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+          >
+            {isExpanded ? "Read less" : "Read more"}
+          </button>
+        )}
       </div>
     </motion.div>
   );

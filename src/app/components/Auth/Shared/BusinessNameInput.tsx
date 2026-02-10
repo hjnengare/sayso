@@ -9,6 +9,9 @@ interface BusinessNameInputProps {
   error?: string;
   touched: boolean;
   disabled?: boolean;
+  label?: string;
+  placeholder?: string;
+  successMessage?: string;
 }
 
 export function BusinessNameInput({
@@ -17,7 +20,10 @@ export function BusinessNameInput({
   onBlur,
   error,
   touched,
-  disabled = false
+  disabled = false,
+  label = "Public Business Name",
+  placeholder = "Your public business name",
+  successMessage = "Public business name looks good!"
 }: BusinessNameInputProps) {
   const hasError = touched && !!error;
   const isValid = touched && value && !error;
@@ -28,7 +34,7 @@ export function BusinessNameInput({
         className="block text-sm font-semibold text-white mb-2"
         style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 600 }}
       >
-        Business Name
+        {label}
       </label>
       <div className="relative group">
         <div
@@ -50,7 +56,7 @@ export function BusinessNameInput({
         </div>
         <input
           type="text"
-          placeholder="Your business name"
+          placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onBlur={onBlur}
@@ -82,7 +88,7 @@ export function BusinessNameInput({
           style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 600 }}
         >
           <CheckCircle className="w-3 h-3" />
-          Business name looks good!
+          {successMessage}
         </p>
       )}
     </div>

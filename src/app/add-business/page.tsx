@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { ChevronRight, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "../contexts/ToastContext";
@@ -79,7 +79,12 @@ export default function AddBusinessPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [touched, setTouched] = useState<Record<string, boolean>>({});
-    const [isGeocoding, setIsGeocoding] = useState(false);
+    const [, setIsGeocoding] = useState(false);
+    const [geocodeStatus, setGeocodeStatus] = useState<"idle" | "searching" | "found" | "not_found" | "error">("idle");
+    const geocodeDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const lastAttemptedLocationRef = useRef("");
+    const lastResolvedLocationRef = useRef("");
+    const latestGeocodeRequestRef = useRef(0);
 
     // Redirect if not authenticated
     useEffect(() => {
@@ -117,39 +122,131 @@ export default function AddBusinessPage() {
         loadSubcategories();
     }, [showToast]);
 
-    // Geocode address to get coordinates
-    const handleGeocodeAddress = async () => {
-        const fullAddress = formData.address || formData.location || '';
-        if (!fullAddress.trim()) {
-            showToast('Please enter an address first', 'sage', 3000);
-            return;
+    const normalizeGeocodeInput = useCallback((value: string) => {
+        return value
+            .trim()
+            .replace(/\s+/g, " ")
+            .replace(/\s*,\s*/g, ", ")
+            .replace(/,+/g, ",")
+            .replace(/\s*,\s*/g, ", ")
+            .replace(/,\s*,+/g, ", ")
+            .replace(/^,\s*|\s*,$/g, "");
+    }, []);
+
+    const geocodeInput = useMemo(() => {
+        const source = formData.address || formData.location || "";
+        return normalizeGeocodeInput(source);
+    }, [formData.address, formData.location, normalizeGeocodeInput]);
+
+    const runGeocode = useCallback(async (options?: { force?: boolean }) => {
+        const query = geocodeInput;
+        if (!query) {
+            setIsGeocoding(false);
+            setGeocodeStatus("idle");
+            return false;
         }
 
-        setIsGeocoding(true);
-        try {
-            const response = await fetch(`/api/geocode?address=${encodeURIComponent(fullAddress)}`);
-            const data = await response.json();
+        if (!options?.force && query === lastAttemptedLocationRef.current) {
+            return false;
+        }
 
-            if (data.success && data.lat && data.lng) {
+        if (!options?.force && query === lastResolvedLocationRef.current) {
+            return false;
+        }
+
+        lastAttemptedLocationRef.current = query;
+        const requestId = ++latestGeocodeRequestRef.current;
+
+        setIsGeocoding(true);
+        setGeocodeStatus("searching");
+
+        try {
+            const response = await fetch(`/api/geocode?address=${encodeURIComponent(query)}`, {
+                cache: "no-store",
+            });
+            const data = await response.json().catch(() => null);
+
+            if (requestId !== latestGeocodeRequestRef.current) {
+                return false;
+            }
+
+            if (
+                response.ok &&
+                data?.success &&
+                typeof data.lat === "number" &&
+                typeof data.lng === "number"
+            ) {
                 setFormData(prev => ({
                     ...prev,
                     lat: data.lat.toString(),
                     lng: data.lng.toString(),
                 }));
-                showToast('Coordinates found!', 'success', 2000);
-            } else {
-                showToast(data.error || 'Could not find coordinates for this address', 'sage', 3000);
+                lastResolvedLocationRef.current = query;
+                setGeocodeStatus("found");
+                return true;
             }
+
+            setGeocodeStatus(response.status === 404 ? "not_found" : "error");
+            return false;
         } catch (error) {
-            console.error('Geocoding error:', error);
-            showToast('Failed to get coordinates. Try using the map picker instead.', 'sage', 3000);
+            console.error("Geocoding error:", error);
+            if (requestId === latestGeocodeRequestRef.current) {
+                setGeocodeStatus("error");
+            }
+            return false;
         } finally {
-            setIsGeocoding(false);
+            if (requestId === latestGeocodeRequestRef.current) {
+                setIsGeocoding(false);
+            }
         }
-    };
+    }, [geocodeInput]);
+
+    useEffect(() => {
+        if (geocodeDebounceRef.current) {
+            clearTimeout(geocodeDebounceRef.current);
+            geocodeDebounceRef.current = null;
+        }
+
+        if (!geocodeInput) {
+            setIsGeocoding(false);
+            setGeocodeStatus("idle");
+            lastAttemptedLocationRef.current = "";
+            lastResolvedLocationRef.current = "";
+            if (formData.lat || formData.lng) {
+                setFormData(prev => ({ ...prev, lat: "", lng: "" }));
+            }
+            return;
+        }
+
+        if (
+            lastResolvedLocationRef.current &&
+            lastResolvedLocationRef.current !== geocodeInput &&
+            (formData.lat || formData.lng)
+        ) {
+            setFormData(prev => ({ ...prev, lat: "", lng: "" }));
+            setGeocodeStatus("idle");
+        }
+
+        geocodeDebounceRef.current = setTimeout(() => {
+            void runGeocode();
+        }, 900);
+
+        return () => {
+            if (geocodeDebounceRef.current) {
+                clearTimeout(geocodeDebounceRef.current);
+                geocodeDebounceRef.current = null;
+            }
+        };
+    }, [formData.lat, formData.lng, geocodeInput, runGeocode]);
+
+    const handleLocationBlurGeocode = useCallback(() => {
+        void runGeocode({ force: true });
+    }, [runGeocode]);
 
     const handleClearCoordinates = () => {
         setFormData(prev => ({ ...prev, lat: '', lng: '' }));
+        lastResolvedLocationRef.current = "";
+        setGeocodeStatus("idle");
         showToast('Coordinates cleared', 'sage', 2000);
     };
 
@@ -631,10 +728,10 @@ export default function AddBusinessPage() {
                                             formData={formData}
                                             errors={errors}
                                             touched={touched}
-                                            isGeocoding={isGeocoding}
+                                            geocodeStatus={geocodeStatus}
                                             onInputChange={handleInputChange}
                                             onBlur={handleBlur}
-                                            onGeocodeAddress={handleGeocodeAddress}
+                                            onLocationBlur={handleLocationBlurGeocode}
                                             onClearCoordinates={handleClearCoordinates}
                                         />
 

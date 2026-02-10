@@ -193,7 +193,7 @@ export default function MobileMenu({
             >
               <span className="text-left flex items-center gap-1.5">
                 {item.label}
-                {showLockIndicator && <Lock className="w-3 h-3 text-white/40" />}
+                {showLockIndicator && <Lock className="w-3 h-3 text-coral" />}
               </span>
             </OptimizedLink>
           );
@@ -223,7 +223,7 @@ export default function MobileMenu({
               >
                 <span className="text-left flex items-center gap-1.5">
                   {label}
-                  {showLockIndicator && <Lock className="w-3 h-3 text-white/40" />}
+                  {showLockIndicator && <Lock className="w-3 h-3 text-coral" />}
                 </span>
               </OptimizedLink>
             );
@@ -249,7 +249,7 @@ export default function MobileMenu({
               >
                 <span className="text-left flex items-center gap-1.5">
                   {label}
-                  {showLockIndicator && <Lock className="w-3 h-3 text-white/40" />}
+                  {showLockIndicator && <Lock className="w-3 h-3 text-coral" />}
                 </span>
               </OptimizedLink>
             );
@@ -272,7 +272,7 @@ export default function MobileMenu({
               >
                 <span className="text-left flex items-center gap-1.5">
                   {item.label}
-                  {showLockIndicator && <Lock className="w-3 h-3 text-white/40" />}
+                  {showLockIndicator && <Lock className="w-3 h-3 text-coral" />}
                 </span>
               </OptimizedLink>
             );
@@ -303,7 +303,7 @@ export default function MobileMenu({
               >
                 <span className="text-left flex items-center gap-1.5">
                   {label}
-                  {showLockIndicator && <Lock className="w-3 h-3 text-white/40" />}
+                  {showLockIndicator && <Lock className="w-3 h-3 text-coral" />}
                 </span>
               </OptimizedLink>
             );
@@ -329,7 +329,7 @@ export default function MobileMenu({
               >
                 <span className="text-left flex items-center gap-1.5">
                   {label}
-                  {showLockIndicator && <Lock className="w-3 h-3 text-white/40" />}
+                  {showLockIndicator && <Lock className="w-3 h-3 text-coral" />}
                 </span>
               </OptimizedLink>
             );
@@ -349,7 +349,7 @@ export default function MobileMenu({
           >
             <span className="text-left flex items-center gap-1.5">
               Saved
-              <Lock className="w-3 h-3 text-white/40" />
+              <Lock className="w-3 h-3 text-coral" />
             </span>
           </OptimizedLink>
         </div>

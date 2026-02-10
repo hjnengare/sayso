@@ -6,14 +6,14 @@ export default function HeroSkeleton() {
     <div className="relative w-full px-0 py-0 md:pt-2 md:px-2">
 
       {/* Hero Section Skeleton — matches HeroCarousel exactly */}
-      <section className="relative h-[78dvh] sm:h-[90dvh] md:h-[80dvh] w-full overflow-hidden outline-none rounded-none md:rounded-none lg:rounded-none min-h-[420px] sm:min-h-[520px] max-h-[820px] shadow-md">
+      <section className="relative h-[78dvh] sm:h-[90dvh] md:h-[80dvh] w-full overflow-hidden outline-none rounded-[12px] min-h-[420px] sm:min-h-[520px] max-h-[820px] shadow-md">
         {/* Background shimmer effect */}
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 rounded-none animate-pulse" />
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 rounded-[12px] animate-pulse" />
 
         {/* Liquid Glass Ambient Lighting */}
-        <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-sage/10 pointer-events-none rounded-none md:rounded-none lg:rounded-none" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(255,255,255,0.15)_0%,_transparent_70%)] pointer-events-none rounded-none md:rounded-none lg:rounded-none" />
-        <div className="absolute inset-0 backdrop-blur-[1px] bg-off-white/5 mix-blend-overlay pointer-events-none rounded-none md:rounded-none lg:rounded-none" />
+        <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-sage/10 pointer-events-none rounded-[12px]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(255,255,255,0.15)_0%,_transparent_70%)] pointer-events-none rounded-[12px]" />
+        <div className="absolute inset-0 backdrop-blur-[1px] bg-off-white/5 mix-blend-overlay pointer-events-none rounded-[12px]" />
 
         {/* Overlay gradients */}
         <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-transparent" />

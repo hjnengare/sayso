@@ -135,7 +135,7 @@ function getCheapestPrice(tickets: QuicketEvent["tickets"]): number | null {
 function buildDescription(event: QuicketEvent): string | null {
   if (event.description) {
     const plain = stripHtml(event.description);
-    if (plain.length > 0) return plain.length > 500 ? plain.slice(0, 497) + "..." : plain;
+    if (plain.length > 0) return plain;
   }
   const cats = event.categories?.map((c) => c.name).filter((n): n is string => !!n && n !== "Other");
   if (cats?.length) return cats.join(" \u00b7 ");

@@ -72,6 +72,7 @@ export interface SignUpData {
   password: string;
   username: string;
   accountType?: 'user' | 'business_owner';
+  displayName?: string;
 }
 
 export interface SignInData {

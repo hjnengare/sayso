@@ -342,7 +342,7 @@ export async function proxy(request: NextRequest) {
     // Event and special routes
     '/event', '/special',
     // User action routes
-    '/notifications', '/add-business', '/add-event', '/add-special', '/claim-business', '/settings',
+    '/notifications', '/add-business', '/add-event', '/add-special', '/claim-business', '/settings', '/admin',
   ];
 
   // Business routes that require authentication
@@ -359,6 +359,8 @@ export async function proxy(request: NextRequest) {
   const isOwnersRoute = ownersRoutes.some(route =>
     request.nextUrl.pathname.startsWith(route)
   );
+
+  const isAdminRoute = pathname === '/admin' || pathname.startsWith('/admin/');
 
   const isBusinessEditRoute = request.nextUrl.pathname.match(/^\/business\/[^\/]+\/edit/);
 
@@ -393,6 +395,11 @@ export async function proxy(request: NextRequest) {
 
   // CRITICAL (iOS crash fix): No user session — avoid redirecting to onboarding/complete (except root "/" default landing). Only protect protected routes → /login; allow public.
   if (!user) {
+    if (isAdminRoute) {
+      const to = '/login';
+      edgeLog('REDIRECT', pathname, { hasUser: false, to, reason: 'guest_admin_route' });
+      return redirectWithGuard(request, new URL(to, request.url));
+    }
     // Guests should never land on /for-you (empty state can trap navigation on some webviews).
     // Keep /home public; lock personalization to authenticated users only.
     if (pathname === '/for-you' || pathname.startsWith('/for-you/')) {
@@ -554,6 +561,39 @@ export async function proxy(request: NextRequest) {
     onboardingComplete: isOnboardingComplete,
   });
 
+  // Server-side hard gate for admin routes.
+  // /admin should never render for guests, non-admin users, or unverified users.
+  if (isAdminRoute && user) {
+    if (!user.email_confirmed_at) {
+      return redirectWithGuard(request, new URL('/verify-email', request.url));
+    }
+
+    if (!isAdminAccount) {
+      const fallbackTarget = onboardingStatus === null
+        ? '/home'
+        : isBusinessAccount
+          ? '/my-businesses'
+          : isOnboardingComplete
+            ? '/complete'
+            : '/interests';
+
+      debugLog('REDIRECT', {
+        requestId,
+        reason: 'non_admin_on_admin_route',
+        to: fallbackTarget,
+        role: onboardingStatus?.role,
+        account_role: onboardingStatus?.account_role,
+      });
+      edgeLog('REDIRECT', pathname, {
+        hasUser: true,
+        emailConfirmed: true,
+        to: fallbackTarget,
+        reason: 'non_admin_on_admin_route',
+      });
+      return redirectWithGuard(request, new URL(fallbackTarget, request.url));
+    }
+  }
+
   // ============================================
   // SINGLE DECISION POINT FOR / — no competing redirects in pages
   // Prevents redirect loop (e.g. iPhone Gmail webview: / ↔ /home).
@@ -571,7 +611,6 @@ export async function proxy(request: NextRequest) {
 
   // RULE 0: Admin accounts go to /admin only
   if (isAdminAccount && user && user.email_confirmed_at) {
-    const isAdminRoute = pathname.startsWith('/admin');
     if (isAdminRoute) {
       debugLog('ALLOW', { requestId, reason: 'admin_on_admin_route', pathname });
       return response;

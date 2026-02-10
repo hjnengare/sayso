@@ -2,17 +2,19 @@
 
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Loader2, X } from "lucide-react";
+import { MapPin, X } from "lucide-react";
 import { BusinessFormData } from "./types";
+
+type GeocodeStatus = "idle" | "searching" | "found" | "not_found" | "error";
 
 interface LocationSectionProps {
   formData: BusinessFormData;
   errors: Record<string, string>;
   touched: Record<string, boolean>;
-  isGeocoding: boolean;
+  geocodeStatus: GeocodeStatus;
   onInputChange: (field: string, value: string | boolean) => void;
   onBlur: (field: string) => void;
-  onGeocodeAddress: () => void;
+  onLocationBlur: () => void;
   onClearCoordinates: () => void;
 }
 
@@ -20,14 +22,15 @@ const LocationSection: React.FC<LocationSectionProps> = ({
   formData,
   errors,
   touched,
-  isGeocoding,
+  geocodeStatus,
   onInputChange,
   onBlur,
-  onGeocodeAddress,
+  onLocationBlur,
   onClearCoordinates,
 }) => {
   const isOnlineOnly = formData.businessType === "online-only";
   const showLocationError = Boolean(touched.location && errors.location);
+  const hasCoordinates = Boolean(formData.lat && formData.lng);
 
   const locationLabel =
     formData.businessType === "service-area"
@@ -77,7 +80,10 @@ const LocationSection: React.FC<LocationSectionProps> = ({
               id="location"
               value={formData.location}
               onChange={(e) => onInputChange("location", e.target.value)}
-              onBlur={() => onBlur("location")}
+              onBlur={() => {
+                onBlur("location");
+                onLocationBlur();
+              }}
               aria-invalid={showLocationError ? "true" : "false"}
               aria-describedby={showLocationError ? "location-error" : undefined}
               aria-required={!isOnlineOnly}
@@ -113,7 +119,49 @@ const LocationSection: React.FC<LocationSectionProps> = ({
               </p>
             )}
 
-            {isOnlineOnly && !showLocationError && (
+            {!showLocationError && geocodeStatus === "searching" && (
+              <p
+                className="mt-2 text-xs text-charcoal/70 font-medium"
+                style={{
+                  fontFamily:
+                    "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                }}
+              >
+                Finding location...
+              </p>
+            )}
+
+            {!showLocationError && geocodeStatus === "found" && hasCoordinates && (
+              <p
+                className="mt-2 text-xs text-sage font-medium"
+                style={{
+                  fontFamily:
+                    "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                }}
+              >
+                Location found ✓
+              </p>
+            )}
+
+            {!showLocationError &&
+              (geocodeStatus === "not_found" || geocodeStatus === "error") && (
+                <p
+                  className="mt-2 text-xs text-charcoal/70 font-medium"
+                  style={{
+                    fontFamily:
+                      "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                  }}
+                >
+                  We couldn&apos;t pinpoint this address yet. You can still continue without coordinates.
+                </p>
+              )}
+
+            {isOnlineOnly &&
+              !showLocationError &&
+              geocodeStatus !== "searching" &&
+              geocodeStatus !== "found" &&
+              geocodeStatus !== "not_found" &&
+              geocodeStatus !== "error" && (
               <p
                 className="mt-2 text-xs text-charcoal/70 font-medium"
                 style={{
@@ -123,31 +171,8 @@ const LocationSection: React.FC<LocationSectionProps> = ({
               >
                 This business operates online only. Location is optional.
               </p>
-            )}
+              )}
           </div>
-
-          {/* Get Coordinates Button */}
-          <motion.button
-            type="button"
-            onClick={onGeocodeAddress}
-            disabled={isGeocoding || (!formData.address && !formData.location)}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="w-full px-4 py-3 bg-sage text-white rounded-full hover:bg-sage/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors"
-            style={{ fontFamily: "Urbanist, sans-serif", fontWeight: 600 }}
-          >
-            {isGeocoding ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Getting coordinates...
-              </>
-            ) : (
-              <>
-                <MapPin className="w-4 h-4" />
-                Get Coordinates from Address
-              </>
-            )}
-          </motion.button>
 
           {/* Selected Coordinates */}
           <AnimatePresence>

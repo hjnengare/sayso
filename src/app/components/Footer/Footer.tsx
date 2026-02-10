@@ -148,7 +148,7 @@ export default function Footer() {
       <div className="relative mx-auto w-full max-w-[2000px] px-4 sm:px-6 lg:px-8">
         <div className="border-t border-white/10 py-10 sm:py-12">
           {/* Subscribe */}
-          <div className="mb-10 sm:mb-12">
+          {/* <div className="mb-10 sm:mb-12">
             <div className="relative overflow-hidden rounded-[20px] border border-white/10 bg-white/[0.04] px-5 py-6 sm:px-7 sm:py-7">
               <div aria-hidden className="pointer-events-none absolute inset-0">
                 <div className="absolute -top-20 left-10 h-40 w-72 rounded-full bg-off-white/10 blur-3xl" />
@@ -223,7 +223,7 @@ export default function Footer() {
                 </p>
               </div>
             </div>
-          </div>
+          </div> */}
 
           <div
             className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr_1fr_1fr] gap-10 lg:gap-12 items-start"

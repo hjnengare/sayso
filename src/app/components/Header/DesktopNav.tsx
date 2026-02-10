@@ -353,9 +353,7 @@ export default function DesktopNav(props: DesktopNavProps) {
                   <span className="relative z-10 whitespace-nowrap">{label}</span>
                   {showLockIndicator && (
                     <Lock
-                      className={`w-3.5 h-3.5 ${
-                        whiteText ? "text-white" : "text-charcoal/60"
-                      }`}
+                      className="w-3.5 h-3.5 text-coral"
                     />
                   )}
                 </OptimizedLink>
@@ -472,7 +470,7 @@ export default function DesktopNav(props: DesktopNavProps) {
                                       >
                                         <span className="truncate">{subLabel}</span>
                                         {showLock && (
-                                          <Lock className="w-3 h-3 text-charcoal/60" />
+                                          <Lock className="w-3 h-3 text-coral" />
                                         )}
                                       </div>
                                       <div className="text-sm sm:text-xs text-charcoal/60 mt-0.5">
@@ -511,7 +509,7 @@ export default function DesktopNav(props: DesktopNavProps) {
             fill="none"
             style={{ textShadow: "0 2px 4px rgba(0, 0, 0, 0.1)" }}
           />
-          <span className="absolute -bottom-0.5 -right-0.5 flex items-center justify-center w-4 h-4 text-charcoal/50">
+          <span className="absolute -bottom-0.5 -right-0.5 flex items-center justify-center w-4 h-4 text-coral">
             <Lock className="w-2.5 h-2.5" />
           </span>
         </OptimizedLink>

@@ -42,9 +42,12 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
     Array<{ id: string; start_date: string; end_date: string | null; booking_url?: string | null; location?: string | null }>
   >([]);
   const [occurrencesCount, setOccurrencesCount] = useState(1);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isNotFound, setIsNotFound] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const hasReviewed = false;
   const mapSectionRef = useRef<HTMLDivElement>(null);
+  const requestVersionRef = useRef(0);
   const hasDirectCta =
     Boolean(event?.bookingUrl || event?.purchaseUrl || (event as any)?.ticketmaster_url || (event as any)?.url) ||
     (((event?.ctaSource ?? "").toLowerCase() === "whatsapp" || Boolean(event?.whatsappNumber)) && Boolean(event));
@@ -59,18 +62,34 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
 
   useEffect(() => {
     const controller = new AbortController();
+    const requestVersion = ++requestVersionRef.current;
+    let isCurrent = true;
+
+    const isStaleRequest = () =>
+      !isCurrent ||
+      controller.signal.aborted ||
+      requestVersion !== requestVersionRef.current;
 
     const fetchEvent = async () => {
+      setIsLoading(true);
+      setIsNotFound(false);
+      setLoadError(null);
+      setEvent(null);
+      setReviews([]);
+      setOccurrencesList([]);
+      setOccurrencesCount(1);
+
       try {
-        setLoading(true);
         const response = await fetch(`/api/events-and-specials/${resolvedParams.id}`, {
           signal: controller.signal,
         });
-        
+
+        if (isStaleRequest()) return;
+
         if (!response.ok) {
           if (response.status === 404) {
             setEvent(null);
-            setLoading(false);
+            setIsNotFound(true);
             return;
           }
           throw new Error(`Failed to fetch event: ${response.statusText}`);
@@ -81,10 +100,14 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
         // Consolidated API: already returns the front-end Event shape
         if (!data?.event || (data.event.type !== "event" && data.event.type !== "special")) {
           setEvent(null);
+          setIsNotFound(true);
           return;
         }
 
+        if (isStaleRequest()) return;
+
         setEvent(data.event as Event);
+        setIsNotFound(false);
         setOccurrencesList(Array.isArray(data?.occurrences_list) ? data.occurrences_list : []);
         setOccurrencesCount(
           Number.isFinite(Number(data?.occurrences))
@@ -100,33 +123,42 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
             signal: controller.signal,
           });
 
+          if (isStaleRequest()) return;
+
           if (!reviewsResponse.ok) {
             setReviews([]);
             return;
           }
 
           const reviewsData = await reviewsResponse.json();
+          if (isStaleRequest()) return;
           setReviews(Array.isArray(reviewsData?.reviews) ? reviewsData.reviews : []);
         } catch (reviewError) {
           if ((reviewError as Error)?.name !== "AbortError") {
+            if (isStaleRequest()) return;
             setReviews([]);
           }
         }
       } catch (err) {
-        if ((err as Error)?.name !== "AbortError") {
+        if ((err as Error)?.name !== "AbortError" && !isStaleRequest()) {
           if (process.env.NODE_ENV !== "production") {
             console.error("[EventDetailPage] Error fetching event:", err);
           }
+          setLoadError("We could not load this event right now. Please try again.");
+          setIsNotFound(false);
+          setEvent(null);
         }
-        setEvent(null);
       } finally {
-        setLoading(false);
+        if (!isStaleRequest()) {
+          setIsLoading(false);
+        }
       }
     };
 
     fetchEvent();
 
     return () => {
+      isCurrent = false;
       controller.abort();
     };
   }, [resolvedParams.id]);
@@ -150,7 +182,7 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
   };
 
   // Loading state - show full page loader with transition
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-dvh bg-off-white">
         <AnimatePresence>
@@ -168,7 +200,7 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
     );
   }
 
-  if (!event) {
+  if (isNotFound) {
     return (
       <div className="min-h-dvh bg-off-white flex items-center justify-center">
         <div className="text-center p-6">
@@ -176,6 +208,25 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
             <Calendar className="w-7 h-7 text-charcoal" />
           </div>
           <h1 className="text-2xl font-bold text-charcoal mb-4" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>Event Not Found</h1>
+          <Link href="/events-specials" className="px-6 py-2.5 bg-gradient-to-br from-charcoal to-charcoal/90 text-white rounded-full text-sm font-600 hover:bg-charcoal/90 transition-all duration-300 border border-white/30 inline-block" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+            Back to Events & Specials
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (loadError || !event) {
+    return (
+      <div className="min-h-dvh bg-off-white flex items-center justify-center">
+        <div className="text-center p-6">
+          <div className="w-16 h-16 bg-gradient-to-br from-white/40 to-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-4 border border-white/40">
+            <Calendar className="w-7 h-7 text-charcoal" />
+          </div>
+          <h1 className="text-2xl font-bold text-charcoal mb-4" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>Unable to Load Event</h1>
+          <p className="text-charcoal/70 mb-6" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+            {loadError || "Please try again."}
+          </p>
           <Link href="/events-specials" className="px-6 py-2.5 bg-gradient-to-br from-charcoal to-charcoal/90 text-white rounded-full text-sm font-600 hover:bg-charcoal/90 transition-all duration-300 border border-white/30 inline-block" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
             Back to Events & Specials
           </Link>
