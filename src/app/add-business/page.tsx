@@ -409,9 +409,18 @@ export default function AddBusinessPage() {
 
             // Create FormData (following review image pattern - server-side upload)
             const formDataToSend = new FormData();
+            const normalizeCategoryValue = (value: string) => value.trim().toLowerCase();
+            const normalizedCategoryInput = normalizeCategoryValue(formData.category);
+            const normalizedCategory =
+                subcategories.find(
+                    (subcategory) =>
+                        normalizeCategoryValue(subcategory.id) === normalizedCategoryInput ||
+                        normalizeCategoryValue(subcategory.label) === normalizedCategoryInput
+                )?.id ?? normalizedCategoryInput;
+
             formDataToSend.append('name', formData.name.trim());
             if (formData.description) formDataToSend.append('description', formData.description.trim());
-            formDataToSend.append('category', formData.category);
+            formDataToSend.append('category', normalizedCategory);
             if (formData.businessType) formDataToSend.append('businessType', formData.businessType);
             formDataToSend.append('isChain', String(formData.isChain || false));
             if (formData.location) formDataToSend.append('location', formData.location.trim());

@@ -18,10 +18,8 @@ import {
 } from "lucide-react";
 import { ChevronRight } from "lucide-react";
 import { PageLoader, Loader } from "../components/Loader";
-import { ClaimModal } from "../components/BusinessClaim/ClaimModal";
 import Link from "next/link";
 import { Suspense } from "react";
-import { AnimatePresence } from "framer-motion";
 
 const Footer = dynamic(() => import("../components/Footer/Footer"), {
   loading: () => null,
@@ -33,8 +31,6 @@ function ClaimBusinessPageContent() {
   const searchParams = useSearchParams();
   const { user, isLoading: authLoading } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedBusiness, setSelectedBusiness] = useState<any | null>(null);
-  const [showClaimModal, setShowClaimModal] = useState(false);
   const [myClaims, setMyClaims] = useState<Array<{
     id: string;
     business_id: string;
@@ -114,14 +110,10 @@ function ClaimBusinessPageContent() {
   // Handle businessId from query params (after login redirect)
   useEffect(() => {
     const businessId = searchParams?.get('businessId');
-    if (businessId && user && businesses.length > 0) {
-      const business = businesses.find(b => b.id === businessId);
-      if (business && business.claim_status === 'unclaimed' && !business.claimed_by_user) {
-        setSelectedBusiness(business);
-        setShowClaimModal(true);
-      }
+    if (businessId && user) {
+      router.replace(`/claim-business/${businessId}`);
     }
-  }, [searchParams, user, businesses]);
+  }, [searchParams, user, router]);
 
   const handleClaimClick = async (business: any) => {
     setActionError(null);
@@ -129,7 +121,7 @@ function ClaimBusinessPageContent() {
 
     try {
       if (!user) {
-        router.push(`/login?redirect=/claim-business?businessId=${business.id}`);
+        router.push(`/login?redirect=/claim-business/${business.id}`);
         return;
       }
 
@@ -148,8 +140,7 @@ function ClaimBusinessPageContent() {
         return;
       }
 
-      setSelectedBusiness(business);
-      setShowClaimModal(true);
+      router.push(`/claim-business/${business.id}`);
     } catch (error) {
       console.error("[Claim business page] Claim button error:", error);
       setActionError("Unable to start claim flow. Please try again.");
@@ -158,19 +149,8 @@ function ClaimBusinessPageContent() {
     }
   };
 
-  const handleClaimSuccess = () => {
-    setShowClaimModal(false);
-    setSelectedBusiness(null);
-    // Refresh "Your claims" list
-    if (user) {
-      void fetchMyClaims();
-    }
-    if (searchQuery.trim().length >= 2) {
-      const event = new Event('input', { bubbles: true });
-      const input = document.querySelector('input[type="text"]') as HTMLInputElement;
-      if (input) input.dispatchEvent(event);
-    }
-  };
+  // Refresh claims list when returning to this page (e.g. after successful claim)
+  // The fetchMyClaims useEffect above already handles this via the user dependency
 
   const getClaimStatusBadge = (displayStatus: string, status: string) => {
     const base = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm font-semibold border";
@@ -573,20 +553,6 @@ function ClaimBusinessPageContent() {
       </main>
 
       <Footer />
-
-      {/* Claim Modal */}
-      <AnimatePresence>
-        {showClaimModal && selectedBusiness && (
-          <ClaimModal
-            business={selectedBusiness}
-            onClose={() => {
-              setShowClaimModal(false);
-              setSelectedBusiness(null);
-            }}
-            onSuccess={handleClaimSuccess}
-          />
-        )}
-      </AnimatePresence>
     </div>
   );
 }

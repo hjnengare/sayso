@@ -518,10 +518,17 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // Helper: Check if user is a business account
+  // Helper: Check if user is an admin account
+  const isAdminAccount =
+    onboardingStatus?.role === 'admin' ||
+    onboardingStatus?.account_role === 'admin';
+
+  // Helper: Check if user is a business account (admin takes priority)
   const isBusinessAccount =
-    onboardingStatus?.role === 'business_owner' ||
-    onboardingStatus?.account_role === 'business_owner';
+    !isAdminAccount && (
+      onboardingStatus?.role === 'business_owner' ||
+      onboardingStatus?.account_role === 'business_owner'
+    );
 
   // Helper: Check if onboarding is complete
   // If we couldn't fetch status (onboardingStatus is null), default to incomplete
@@ -533,6 +540,7 @@ export async function proxy(request: NextRequest) {
     requestId,
     userId: user?.id,
     hasOnboardingStatus: !!onboardingStatus,
+    isAdminAccount,
     isBusinessAccount,
     isOnboardingComplete,
     rawOnboardingComplete: onboardingStatus?.onboarding_complete,
@@ -552,7 +560,7 @@ export async function proxy(request: NextRequest) {
   // Only middleware decides where / goes. One redirect, then return.
   // ============================================
   if (pathname === '/') {
-    const to = !user ? '/home' : (isBusinessAccount ? '/my-businesses' : '/home');
+    const to = !user ? '/home' : (isAdminAccount ? '/admin' : isBusinessAccount ? '/my-businesses' : '/home');
     edgeLog('REDIRECT', pathname, { hasUser: !!user, isBusiness: isBusinessAccount, to });
     return redirectWithGuard(request, new URL(to, request.url));
   }
@@ -560,6 +568,19 @@ export async function proxy(request: NextRequest) {
   // ============================================
   // SIMPLIFIED ONBOARDING GUARD LOGIC (only runs when user exists)
   // ============================================
+
+  // RULE 0: Admin accounts go to /admin only
+  if (isAdminAccount && user && user.email_confirmed_at) {
+    const isAdminRoute = pathname.startsWith('/admin');
+    if (isAdminRoute) {
+      debugLog('ALLOW', { requestId, reason: 'admin_on_admin_route', pathname });
+      return response;
+    }
+    // Admin on any non-admin route → redirect to /admin
+    debugLog('REDIRECT', { requestId, reason: 'admin_on_non_admin_route', to: '/admin' });
+    edgeLog('REDIRECT', pathname, { hasUser: true, emailConfirmed: true, to: '/admin' });
+    return redirectWithGuard(request, new URL('/admin', request.url));
+  }
 
   // RULE 1: Business accounts NEVER see onboarding routes
   if (isBusinessAccount && user && user.email_confirmed_at) {
@@ -596,8 +617,8 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // RULE 2: User accounts - enforce onboarding completion
-  if (!isBusinessAccount && user && user.email_confirmed_at) {
+  // RULE 2: User accounts - enforce onboarding completion (admin already handled in RULE 0)
+  if (!isBusinessAccount && !isAdminAccount && user && user.email_confirmed_at) {
     // If on onboarding route
     if (isOnboardingRoute) {
       // User with complete onboarding should only see /complete
@@ -705,27 +726,32 @@ export async function proxy(request: NextRequest) {
   }
 
   // ROLE-BASED ACCESS CONTROL: Restrict business routes to business accounts only
-  if (user && user.email_confirmed_at && !isBusinessAccount) {
+  // Admin accounts are already redirected to /admin above (RULE 0), so they won't reach here
+  if (user && user.email_confirmed_at && !isBusinessAccount && !isAdminAccount) {
     if (isBusinessAuthRoute || isOwnersRoute || isBusinessEditRoute) {
       const redirectTarget = isOnboardingComplete ? '/complete' : '/interests';
       return redirectWithGuard(request, new URL(redirectTarget, request.url));
     }
   }
 
-  // Auth routes: /verify-email and /login — redirect verified users to correct landing; never send business to user onboarding
+  // Auth routes: /verify-email and /login — redirect verified users to correct landing
   if (isAuthRoute && user) {
     if (pathname.startsWith('/verify-email')) {
       if (!user.email_confirmed_at) {
         edgeLog('ALLOW', pathname, { hasUser: true, emailConfirmed: false });
         return response;
       }
-      // Verified: business → /my-businesses only; personal → /complete or /interests
+      // Verified admin → /admin
+      if (isAdminAccount) {
+        edgeLog('REDIRECT', pathname, { hasUser: true, emailConfirmed: true, to: '/admin', reason: 'verified_admin' });
+        return redirectWithGuard(request, new URL('/admin', request.url));
+      }
+      // Verified business → /my-businesses
       if (isBusinessAccount) {
         edgeLog('REDIRECT', pathname, { hasUser: true, emailConfirmed: true, isBusiness: true, to: '/my-businesses', reason: 'verified_business' });
         return redirectWithGuard(request, new URL('/my-businesses', request.url));
       }
       if (onboardingStatus === null) {
-        // Cannot determine role/onboarding — allow so page can show processing or fetch role; do not send to /interests
         edgeLog('ALLOW', pathname, { hasUser: true, emailConfirmed: true, reason: 'status_unknown' });
         return response;
       }
@@ -736,7 +762,9 @@ export async function proxy(request: NextRequest) {
 
     if (user.email_confirmed_at) {
       let redirectTarget: string;
-      if (isBusinessAccount) {
+      if (isAdminAccount) {
+        redirectTarget = '/admin';
+      } else if (isBusinessAccount) {
         redirectTarget = '/my-businesses';
       } else if (isOnboardingComplete) {
         redirectTarget = '/complete';

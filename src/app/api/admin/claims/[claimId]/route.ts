@@ -47,7 +47,7 @@ export async function GET(
         reviewed_at,
         reviewed_by,
         last_notified_at,
-        businesses ( id, name, category, location, slug, phone, email, website )
+        businesses ( id, name, primary_subcategory_slug, primary_subcategory_label, location, slug, phone, email, website )
       `
       )
       .eq('id', claimId)
@@ -71,7 +71,29 @@ export async function GET(
       reviewed_at: string | null;
       reviewed_by: string | null;
       last_notified_at: string | null;
-      businesses: { id: string; name: string; category: string; location: string; slug: string | null; phone: string | null; email: string | null; website: string | null } | { id: string; name: string; category: string; location: string; slug: string | null; phone: string | null; email: string | null; website: string | null }[];
+      businesses:
+        | {
+            id: string;
+            name: string;
+            primary_subcategory_slug: string | null;
+            primary_subcategory_label: string | null;
+            location: string;
+            slug: string | null;
+            phone: string | null;
+            email: string | null;
+            website: string | null;
+          }
+        | {
+            id: string;
+            name: string;
+            primary_subcategory_slug: string | null;
+            primary_subcategory_label: string | null;
+            location: string;
+            slug: string | null;
+            phone: string | null;
+            email: string | null;
+            website: string | null;
+          }[];
     };
     const claimRow = claim as ClaimRow;
 

@@ -11,6 +11,22 @@ export const runtime = 'nodejs';
 
 const BUCKET = 'business-verification';
 
+async function promoteProfileToBusinessOwner(service: ReturnType<typeof getServiceSupabase>, userId: string) {
+  const { error } = await (service as any)
+    .from('profiles')
+    .update({
+      role: 'business_owner',
+      account_role: 'business_owner',
+      onboarding_step: 'business_setup',
+      updated_at: new Date().toISOString(),
+    } as any)
+    .eq('user_id', userId);
+
+  if (error) {
+    throw error;
+  }
+}
+
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -74,6 +90,12 @@ export async function POST(
           { error: 'Failed to approve claim' },
           { status: 500 }
         );
+      }
+
+      try {
+        await promoteProfileToBusinessOwner(service, claimRow.claimant_user_id);
+      } catch (profileError) {
+        console.error('Failed to promote approved claimant profile:', profileError);
       }
 
       const { data: business } = await supabase
@@ -216,6 +238,12 @@ export async function POST(
         .update({ status: 'pending', reviewed_at: null, reviewed_by: null })
         .eq('id', claimId);
       return NextResponse.json({ error: 'Failed to create business owner record' }, { status: 500 });
+    }
+
+    try {
+      await promoteProfileToBusinessOwner(service, request.user_id);
+    } catch (profileError) {
+      console.error('Failed to promote approved legacy claimant profile:', profileError);
     }
 
     if (userEmail && business) {

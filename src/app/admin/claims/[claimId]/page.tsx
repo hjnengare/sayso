@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import {
-  ArrowLeft,
   Loader2,
   CheckCircle,
   XCircle,
@@ -154,25 +153,11 @@ export default function AdminClaimDetailPage() {
   const canAct = claim.status !== "verified" && claim.status !== "rejected";
 
   return (
-    <div className="min-h-screen bg-charcoal/5">
-      <header className="border-b border-charcoal/10 bg-white sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link
-              href="/admin/claims"
-              className="p-2 rounded-lg hover:bg-charcoal/5 text-charcoal"
-              aria-label="Back to claims"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
-            <h1 className="text-xl font-bold text-charcoal" style={{ fontFamily: "'Urbanist', sans-serif" }}>
-              Claim: {claim.business_name ?? claim.id}
-            </h1>
-          </div>
-        </div>
-      </header>
-
+    <>
       <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+        <h1 className="text-xl font-bold text-charcoal" style={{ fontFamily: "'Urbanist', sans-serif" }}>
+          Claim: {claim.business_name ?? claim.id}
+        </h1>
         {error && (
           <div className="rounded-lg bg-coral/10 border border-coral/20 text-coral px-4 py-3">
             {error}
@@ -321,6 +306,6 @@ export default function AdminClaimDetailPage() {
           </ul>
         </section>
       </main>
-    </div>
+    </>
   );
 }

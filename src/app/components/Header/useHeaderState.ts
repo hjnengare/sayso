@@ -93,7 +93,7 @@ export const useHeaderState = ({
 
   const { savedCount } = useSavedItems();
   const { unreadCount } = useNotifications();
-  const { user, isLoading: authLoading } = useAuth();
+  const { user, isLoading: authLoading, logout } = useAuth();
 
   // ============================================================================
   // USER ROLE & AUTH STATE
@@ -101,7 +101,8 @@ export const useHeaderState = ({
 
   const userCurrentRole =
     user?.profile?.account_role || user?.profile?.role || "user";
-  const isBusinessAccountUser = userCurrentRole === "business_owner";
+  const isAdminUser = userCurrentRole === "admin";
+  const isBusinessAccountUser = !isAdminUser && userCurrentRole === "business_owner";
   const hasMultipleRoles = user?.profile?.role === "both";
   const isGuest = !authLoading && !user;
 
@@ -429,10 +430,12 @@ export const useHeaderState = ({
     user,
     authLoading,
     isGuest,
+    isAdminUser,
     isBusinessAccountUser,
     hasMultipleRoles,
     isCheckingBusinessOwner,
     hasOwnedBusinesses,
+    logout,
 
     // Counts
     savedCount,

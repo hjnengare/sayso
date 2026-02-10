@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Loader, CheckCircle, XCircle } from "lucide-react";
+import { Loader, CheckCircle, XCircle } from "lucide-react";
 
 export default function SeedPage() {
   const router = useRouter();
@@ -148,17 +148,6 @@ export default function SeedPage() {
       <div className="max-w-2xl mx-auto px-4 sm:px-6 md:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <button
-            onClick={() => router.back()}
-            className="flex items-center gap-2 text-charcoal/70 hover:text-charcoal mb-4 transition-colors"
-            style={{
-              fontFamily:
-                "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-            }}
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Back</span>
-          </button>
           <h1
             className="text-2xl font-bold text-charcoal mb-2"
             style={{

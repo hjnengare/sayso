@@ -38,6 +38,11 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
     const [categoryModalPos, setCategoryModalPos] = useState<{left: number; top: number} | null>(null);
     const categoryButtonRef = useRef<HTMLButtonElement>(null);
     const categoryModalRef = useRef<HTMLDivElement>(null);
+    const selectedCategory = subcategories.find(
+        (subcategory) =>
+            subcategory.id === formData.category || subcategory.label === formData.category
+    );
+    const selectedCategoryLabel = selectedCategory?.label ?? formData.category;
 
     const openCategoryModal = useCallback(() => {
         setIsCategoryModalClosing(false);
@@ -187,7 +192,7 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
                                     }`}
                                 >
                                     <span className={formData.category ? 'text-charcoal' : 'text-charcoal/70'}>
-                                        {formData.category || 'Select a category'}
+                                        {selectedCategoryLabel || 'Select a category'}
                                     </span>
                                     <ChevronDown size={20} className={`text-charcoal/60 transition-transform duration-300 ${isCategoryModalOpen ? 'rotate-180' : ''}`} />
                                 </button>
@@ -215,13 +220,15 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
                                         </div>
                                         <div className="py-3">
                                             {subcategories.map((subcategory) => {
-                                                const isSelected = formData.category === subcategory.label;
+                                                const isSelected =
+                                                    formData.category === subcategory.id ||
+                                                    formData.category === subcategory.label;
                                                 return (
                                                     <button
                                                         key={subcategory.id}
                                                         type="button"
                                                         onClick={() => {
-                                                            onInputChange('category', subcategory.label);
+                                                            onInputChange('category', subcategory.id);
                                                             closeCategoryModal();
                                                         }}
                                                         className={`group flex items-start gap-3 px-5 py-3 hover:bg-gradient-to-r hover:from-sage/10 hover:to-coral/5 transition-all duration-200 rounded-lg mx-2 w-[calc(100%-1rem)] text-left ${

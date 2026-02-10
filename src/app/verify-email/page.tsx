@@ -344,6 +344,13 @@ export default function VerifyEmailPage() {
       // 2) Explicitly re-fetch current auth user from Supabase.
       const { data: userData, error: userError } = await supabase.auth.getUser();
       if (userError || !userData?.user) {
+        // No valid session — user likely verified in a different browser.
+        // Redirect to login so they can sign in with their now-verified account.
+        if (manual && !sessionData?.session) {
+          redirectingRef.current = true;
+          router.replace("/login?message=Email+verified!+Please+log+in+to+continue.");
+          return false;
+        }
         if (manual) setVerificationStatusMessage(notVerifiedMessage);
         return false;
       }

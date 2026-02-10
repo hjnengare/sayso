@@ -27,7 +27,12 @@ import {
   type UserPreferences,
 } from "@/app/lib/services/personalizationService";
 import { normalizeBusinessImages, type BusinessImage } from "@/app/lib/utils/businessImages";
-import { getSubcategoryLabel, getCategoryLabelFromBusiness } from "@/app/utils/subcategoryPlaceholders";
+import {
+  CANONICAL_SUBCATEGORY_SLUGS,
+  SUBCATEGORY_SLUG_TO_LABEL,
+  getSubcategoryLabel,
+  getCategoryLabelFromBusiness,
+} from "@/app/utils/subcategoryPlaceholders";
 import { SUBCATEGORY_TO_INTEREST } from "@/app/lib/onboarding/subcategoryMapping";
 
 export const dynamic = 'force-dynamic';
@@ -207,6 +212,46 @@ function resolveInterestId(b: { interest_id?: string | null; sub_interest_id?: s
   if (b.interest_id != null && b.interest_id !== '') return b.interest_id;
   if (b.sub_interest_id != null && b.sub_interest_id !== '') return SUBCATEGORY_TO_INTEREST[b.sub_interest_id];
   return undefined;
+}
+
+const CANONICAL_SUBCATEGORY_SET = new Set<string>(CANONICAL_SUBCATEGORY_SLUGS as readonly string[]);
+
+function normalizeCategoryToken(value: string): string {
+  return value
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/&/g, ' and ')
+    .replace(/[^a-zA-Z0-9\s-]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+}
+
+const CATEGORY_LABEL_TO_SLUG: Record<string, string> = Object.fromEntries(
+  Object.entries(SUBCATEGORY_SLUG_TO_LABEL).map(([slug, label]) => [normalizeCategoryToken(label), slug])
+);
+
+function resolveCanonicalCategorySlug(input: string): string | null {
+  const trimmed = input.trim();
+  if (!trimmed) return null;
+
+  const lowered = trimmed.toLowerCase();
+  if (CANONICAL_SUBCATEGORY_SET.has(lowered)) {
+    return lowered;
+  }
+
+  const normalizedLabel = normalizeCategoryToken(trimmed);
+  const mappedFromLabel = CATEGORY_LABEL_TO_SLUG[normalizedLabel];
+  if (mappedFromLabel) {
+    return mappedFromLabel;
+  }
+
+  const slugified = normalizedLabel.replace(/\s+/g, '-');
+  if (CANONICAL_SUBCATEGORY_SET.has(slugified)) {
+    return slugified;
+  }
+
+  return null;
 }
 
 // Mapping of interests to subcategories
@@ -3065,6 +3110,43 @@ export async function POST(req: Request) {
       );
     }
 
+    const categorySlug = resolveCanonicalCategorySlug(category);
+    if (!categorySlug) {
+      return NextResponse.json(
+        {
+          error: 'There was an issue with the business category. Please select a valid category and try again.',
+          code: 'INVALID_CATEGORY',
+          details: `Unrecognized category value: "${category}"`,
+        },
+        { status: 400 }
+      );
+    }
+
+    // Validate against canonical DB taxonomy when available so FK errors are surfaced as 400 instead of 500.
+    try {
+      const serviceSupabase = getServiceSupabase();
+      const { data: canonicalCategory, error: canonicalCategoryError } = await (serviceSupabase as any)
+        .from('canonical_subcategory_slugs')
+        .select('slug')
+        .eq('slug', categorySlug)
+        .maybeSingle();
+
+      if (canonicalCategoryError) {
+        console.warn('[API] Unable to verify canonical_subcategory_slugs row:', canonicalCategoryError.message);
+      } else if (!canonicalCategory) {
+        return NextResponse.json(
+          {
+            error: 'There was an issue with the business category. Please select a valid category and try again.',
+            code: 'INVALID_CATEGORY',
+            details: `Category slug "${categorySlug}" does not exist in canonical_subcategory_slugs`,
+          },
+          { status: 400 }
+        );
+      }
+    } catch (taxonomyError) {
+      console.warn('[API] Canonical category pre-check skipped:', taxonomyError);
+    }
+
     // Generate slug from name
     const generateSlug = (businessName: string): string => {
       return businessName
@@ -3095,11 +3177,11 @@ export async function POST(req: Request) {
     }
 
     // Create business (DB uses primary_subcategory_slug, primary_category_slug after 20260210)
-    const categorySlug = category.trim();
     const businessData: any = {
       name: name.trim(),
       description: description?.trim() || null,
       primary_subcategory_slug: categorySlug,
+      primary_subcategory_label: SUBCATEGORY_SLUG_TO_LABEL[categorySlug as keyof typeof SUBCATEGORY_SLUG_TO_LABEL] ?? null,
       primary_category_slug: SUBCATEGORY_TO_INTEREST[categorySlug] ?? null,
       location: location?.trim() || null, // Can be null for online-only businesses
       address: address?.trim() || null,
@@ -3139,6 +3221,12 @@ export async function POST(req: Request) {
       } else if (insertError.message) {
         errorMessage = `Unable to save business: ${insertError.message}`;
       }
+
+      const statusCode = errorCode === 'INVALID_CATEGORY'
+        ? 400
+        : errorCode === 'DUPLICATE_BUSINESS'
+          ? 409
+          : 500;
       
       return NextResponse.json(
         { 
@@ -3146,7 +3234,7 @@ export async function POST(req: Request) {
           details: insertError.message,
           code: errorCode
         },
-        { status: 500 }
+        { status: statusCode }
       );
     }
 
@@ -3278,7 +3366,7 @@ export async function POST(req: Request) {
     // Search for similar businesses in the same category
     const similarBusinesses = await findSimilarBusinesses(
       supabase,
-      category,
+      categorySlug,
       name,
       location,
       newBusiness.id,

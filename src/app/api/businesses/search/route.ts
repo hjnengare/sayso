@@ -192,12 +192,12 @@ export async function GET(req: NextRequest) {
         (ownedBusinesses || []).map(o => o.business_id)
       );
 
-      // Check if user has pending requests for any of these businesses
+      // Check if user has pending claims for any of these businesses
       const { data: pendingRequests } = await supabase
-        .from('business_ownership_requests')
+        .from('business_claims')
         .select('business_id')
-        .eq('user_id', userId)
-        .eq('status', 'pending')
+        .eq('claimant_user_id', userId)
+        .in('status', ['draft', 'pending', 'action_required', 'under_review'])
         .in('business_id', businessIds);
 
       const pendingBusinessIds = new Set(

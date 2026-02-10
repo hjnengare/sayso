@@ -10,8 +10,8 @@ export interface User {
 
 export interface Profile {
   id: string;
-  role?: 'user' | 'business_owner' | 'both';
-  account_role?: 'user' | 'business_owner';
+  role?: 'user' | 'business_owner' | 'admin' | 'both';
+  account_role?: 'user' | 'business_owner' | 'admin';
   email?: string;
   email_verified?: boolean;
   email_verified_at?: string;

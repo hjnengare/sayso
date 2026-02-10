@@ -140,25 +140,18 @@ export class AuthService {
         if (errorMessage.includes('already registered') ||
             errorMessage.includes('user already exists') ||
             errorCode === 'user_already_exists') {
-
-          // Email is already registered - check if they can add second account type
-          console.log('Email already registered in auth - checking if they can add second account type');
-          
-          if (existingProfiles && existingProfiles.length > 0) {
-            const existingRole = existingProfiles[0].role;
-            const desiredRole = accountType;
-            
-            if (existingRole !== 'both' && existingRole !== desiredRole) {
-              return {
-                user: null,
-                session: null,
-                error: { 
-                  message: `This email already has a ${existingRole === 'user' ? 'Personal' : 'Business'} account. Log in and go to Settings to add a ${desiredRole === 'user' ? 'Personal' : 'Business'} account to the same email.`,
-                  code: 'email_exists_can_add_account_type'
-                }
-              };
+          const existingRole = existingProfiles?.[0]?.role;
+          const existingLabel = existingRole === 'business_owner' ? 'Business' : 'Personal';
+          return {
+            user: null,
+            session: null,
+            error: {
+              message: existingRole
+                ? `Email already registered for a ${existingLabel} account. Log in or use a different email.`
+                : 'Email already registered. Please log in or use a different email.',
+              code: 'user_exists'
             }
-          }
+          };
         }
         
         return {

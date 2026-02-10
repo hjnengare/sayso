@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Loader2, FileCheck, Filter } from "lucide-react";
+import { Loader2, FileCheck, Filter } from "lucide-react";
 
 type ClaimRow = {
   id: string;
@@ -53,25 +53,11 @@ export default function AdminClaimsPage() {
     s ? new Date(s).toLocaleDateString(undefined, { dateStyle: "short", timeStyle: "short" }) : "—";
 
   return (
-    <div className="min-h-screen bg-charcoal/5">
-      <header className="border-b border-charcoal/10 bg-white sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link
-              href="/admin"
-              className="p-2 rounded-lg hover:bg-charcoal/5 text-charcoal"
-              aria-label="Back to admin"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
-            <h1 className="text-xl font-bold text-charcoal" style={{ fontFamily: "'Urbanist', sans-serif" }}>
-              Business claims
-            </h1>
-          </div>
-        </div>
-      </header>
-
+    <>
       <main className="max-w-6xl mx-auto px-4 py-6">
+        <h1 className="text-xl font-bold text-charcoal mb-6" style={{ fontFamily: "'Urbanist', sans-serif" }}>
+          Business Claims
+        </h1>
         <div className="flex flex-wrap gap-4 mb-6">
           <div className="flex items-center gap-2">
             <Filter className="w-4 h-4 text-charcoal/60" />
@@ -187,6 +173,6 @@ export default function AdminClaimsPage() {
           </div>
         )}
       </main>
-    </div>
+    </>
   );
 }

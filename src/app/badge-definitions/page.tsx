@@ -1,8 +1,9 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronUp } from "lucide-react";
 import { BADGE_MAPPINGS } from "../lib/badgeMappings";
 
 const GROUP_LABELS: Record<string, string> = {
@@ -24,6 +25,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 export default function BadgeDefinitionsPage() {
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const badgesByGroup: Record<string, typeof BADGE_MAPPINGS[string][]> = {};
 
   Object.values(BADGE_MAPPINGS).forEach((badge) => {
@@ -43,6 +45,20 @@ export default function BadgeDefinitionsPage() {
   }
 
   const groupOrder = ["explorer", "specialist", "milestone", "community"];
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 200);
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
     <div
@@ -101,6 +117,17 @@ export default function BadgeDefinitionsPage() {
           })}
         </div>
       </div>
+
+      {showScrollTop && (
+        <button
+          type="button"
+          onClick={scrollToTop}
+          className="fixed bottom-6 right-6 z-40 w-12 h-12 bg-navbar-bg hover:bg-navbar-bg/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg border border-white/20 transition-all duration-300"
+          aria-label="Scroll to top"
+        >
+          <ChevronUp className="w-6 h-6 text-white" strokeWidth={2.5} />
+        </button>
+      )}
     </div>
   );
 }

@@ -297,8 +297,6 @@ export default function CommunityHighlights({
                     .badge-marquee {
                       overflow: hidden;
                       scrollbar-width: none;
-                      mask-image: linear-gradient(to right, transparent 0%, black 6%, black 94%, transparent 100%);
-                      -webkit-mask-image: linear-gradient(to right, transparent 0%, black 6%, black 94%, transparent 100%);
                     }
                     .badge-marquee::-webkit-scrollbar { display: none; }
 
@@ -313,8 +311,13 @@ export default function CommunityHighlights({
                     }
 
                     @media (max-width: 767px) {
+                      .badge-marquee {
+                        /* Safari/Chrome mobile fallback: avoid mask clipping animated content */
+                        mask-image: none;
+                        -webkit-mask-image: none;
+                      }
                       .badge-track {
-                        animation-duration: 6.67s;
+                        animation-duration: 8s;
                       }
                     }
 

@@ -3,7 +3,7 @@
 
 import { useCallback, useEffect, useState, useRef, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Menu, Bell, Settings, Bookmark, Search, X, Lock } from "lucide-react";
+import { Menu, Bell, Settings, Bookmark, Search, X, Lock, Shield, FileCheck, Database, LogOut } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Logo from "../Logo/Logo";
 import OptimizedLink from "../Navigation/OptimizedLink";
@@ -40,9 +40,11 @@ export default function Header({
   const {
     authLoading,
     isGuest,
+    isAdminUser,
     isBusinessAccountUser,
     isCheckingBusinessOwner,
     hasOwnedBusinesses,
+    logout,
     unreadCount,
     savedCount,
     pathname,
@@ -127,8 +129,17 @@ export default function Header({
     "sticky top-0 left-0 right-0 w-full z-50 bg-navbar-bg shadow-md transition-all duration-300 pt-[var(--safe-area-top)]";
     
 
-  const isPersonalLayout = !isBusinessAccountUser;
+  const isPersonalLayout = !isBusinessAccountUser && !isAdminUser;
   const isHomePage = pathname === "/" || pathname === "/home";
+
+  // Admin nav items
+  const ADMIN_NAV = [
+    { href: "/admin", label: "Dashboard", icon: Shield, exact: true },
+    { href: "/admin/claims", label: "Claims", icon: FileCheck, exact: false },
+    { href: "/admin/seed", label: "Seed Data", icon: Database, exact: false },
+  ];
+  const isAdminNavActive = (href: string, exact: boolean) =>
+    exact ? pathname === href : pathname?.startsWith(href);
 
   // Role-aware logo href:
   // - Business accounts → /my-businesses
@@ -652,7 +663,85 @@ export default function Header({
         <div
           className={`relative py-4 z-[1] w-full ${horizontalPaddingClass} flex items-center h-full min-h-[72px] lg:min-h-[80px]`}
         >
-          {isPersonalLayout ? (
+          {isAdminUser ? (
+            /* Admin Layout */
+            <div className="w-full">
+              {/* Desktop: brand left, nav center, sign out right */}
+              <div className="hidden sm:flex items-center justify-between w-full">
+                <OptimizedLink href="/admin" className="group flex items-center gap-1" aria-label="Admin Dashboard">
+                  <Logo variant="default" showMark={false} className="transition-all duration-300" />
+                  <span className="text-sage text-sm font-semibold" style={sf}>admin</span>
+                </OptimizedLink>
+
+                <div className="flex items-center gap-1">
+                  {ADMIN_NAV.map((item) => {
+                    const active = isAdminNavActive(item.href, item.exact);
+                    return (
+                      <OptimizedLink
+                        key={item.href}
+                        href={item.href}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                          active
+                            ? "bg-white/15 text-white"
+                            : "text-white/60 hover:text-white hover:bg-white/10"
+                        }`}
+                        style={sf}
+                      >
+                        <item.icon className="w-4 h-4" />
+                        {item.label}
+                      </OptimizedLink>
+                    );
+                  })}
+                </div>
+
+                <button
+                  onClick={() => void logout()}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-white/60 hover:text-coral hover:bg-coral/10 transition-colors"
+                  style={sf}
+                >
+                  <LogOut className="w-4 h-4" />
+                  Sign out
+                </button>
+              </div>
+
+              {/* Mobile: brand + sign out top row, nav links below */}
+              <div className="flex sm:hidden flex-col w-full gap-1">
+                <div className="flex items-center justify-between">
+                  <OptimizedLink href="/admin" className="group flex items-center gap-1" aria-label="Admin Dashboard">
+                    <Logo variant="mobile" showMark={false} className="transition-all duration-300" />
+                    <span className="text-sage text-sm font-semibold" style={sf}>admin</span>
+                  </OptimizedLink>
+                  <button
+                    onClick={() => void logout()}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-white/60 hover:text-coral hover:bg-coral/10 transition-colors"
+                    style={sf}
+                  >
+                    <LogOut className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar -mb-2">
+                  {ADMIN_NAV.map((item) => {
+                    const active = isAdminNavActive(item.href, item.exact);
+                    return (
+                      <OptimizedLink
+                        key={item.href}
+                        href={item.href}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+                          active
+                            ? "bg-white/15 text-white"
+                            : "text-white/60 hover:text-white hover:bg-white/10"
+                        }`}
+                        style={sf}
+                      >
+                        <item.icon className="w-4 h-4" />
+                        {item.label}
+                      </OptimizedLink>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          ) : isPersonalLayout ? (
             <div className="w-full">
               {/* Desktop Layout: Logo left, Nav center, Search+Icons right */}
               <div className="hidden lg:grid lg:grid-cols-[auto_1fr_auto] lg:items-center lg:gap-4">
@@ -893,36 +982,40 @@ export default function Header({
         </div>
       </header>
 
-      {/* Mobile suggestions backdrop */}
-      <AnimatePresence>
-        {isMobileSearchOpen && isSuggestionsOpen && (
-          <motion.div
-            key="search-backdrop"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-40 bg-charcoal/20 backdrop-blur-[2px] lg:hidden"
-            onClick={() => {
-              setIsMobileSearchOpen(false);
-              setActiveSuggestionIndex(-1);
-            }}
-            aria-hidden
-          />
-        )}
-      </AnimatePresence>
+      {/* Mobile suggestions backdrop (not for admin) */}
+      {!isAdminUser && (
+        <AnimatePresence>
+          {isMobileSearchOpen && isSuggestionsOpen && (
+            <motion.div
+              key="search-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-40 bg-charcoal/20 backdrop-blur-[2px] lg:hidden"
+              onClick={() => {
+                setIsMobileSearchOpen(false);
+                setActiveSuggestionIndex(-1);
+              }}
+              aria-hidden
+            />
+          )}
+        </AnimatePresence>
+      )}
 
-      <MobileMenu
-        isOpen={isMobileMenuOpen}
-        onClose={() => setIsMobileMenuOpen(false)}
-        isBusinessAccountUser={isBusinessAccountUser}
-        isGuest={isGuest}
-        primaryLinks={navLinks.primaryLinks}
-        discoverLinks={DISCOVER_LINKS}
-        businessLinks={navLinks.businessLinks}
-        handleNavClick={handleNavClick}
-        sf={sf}
-      />
+      {!isAdminUser && (
+        <MobileMenu
+          isOpen={isMobileMenuOpen}
+          onClose={() => setIsMobileMenuOpen(false)}
+          isBusinessAccountUser={isBusinessAccountUser}
+          isGuest={isGuest}
+          primaryLinks={navLinks.primaryLinks}
+          discoverLinks={DISCOVER_LINKS}
+          businessLinks={navLinks.businessLinks}
+          handleNavClick={handleNavClick}
+          sf={sf}
+        />
+      )}
     </>
   );
 }

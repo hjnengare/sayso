@@ -39,13 +39,14 @@ export default function ProtectedRoute({
   const subcategoriesCount = user?.profile?.subcategories_count ?? 0;
   const dealbreakersCount = user?.profile?.dealbreakers_count ?? 0;
 
-  // CRITICAL: Extract user role for business vs personal routing
+  // CRITICAL: Extract user role for admin / business / personal routing
   // Check account_role FIRST (this is what gets updated by sync logic)
-  // Then check role as fallback. If EITHER is business_owner, treat as business owner.
+  // Then check role as fallback.
   const currentRole = user?.profile?.account_role;
   const role = user?.profile?.role;
-  const isBusinessOwner = currentRole === 'business_owner' || role === 'business_owner';
-  const userRole = isBusinessOwner ? 'business_owner' : (currentRole ?? role ?? null);
+  const isAdmin = currentRole === 'admin' || role === 'admin';
+  const isBusinessOwner = !isAdmin && (currentRole === 'business_owner' || role === 'business_owner');
+  const userRole = isAdmin ? 'admin' : isBusinessOwner ? 'business_owner' : (currentRole ?? role ?? null);
 
   // Define personal onboarding routes that business owners should NOT access
   const personalOnboardingRoutes = ['/interests', '/subcategories', '/deal-breakers', '/complete'];
@@ -54,6 +55,14 @@ export default function ProtectedRoute({
     // Three states: loading → show loader (no logic); unauthenticated → redirect; authenticated → run role/onboarding logic.
     // Never run protection logic or call APIs until auth is fully resolved (avoids 401s and redirect loops).
     if (isLoading) {
+      return;
+    }
+
+    // CRITICAL: Admin users must ONLY access /admin routes
+    const isOnAdminRoute = pathname?.startsWith('/admin');
+    if (isAdmin && userId && !isOnAdminRoute) {
+      console.log('[ProtectedRoute] Admin on non-admin route, redirecting to /admin');
+      router.replace('/admin');
       return;
     }
 
@@ -100,11 +109,25 @@ export default function ProtectedRoute({
 
     // If user is logged in but route doesn't require auth (e.g., login/register pages)
     if (!requiresAuth && userId) {
-      console.log('ProtectedRoute: User on non-auth route, checking redirects', { isBusinessOwner, userRole });
+      console.log('ProtectedRoute: User on non-auth route, checking redirects', { isAdmin, isBusinessOwner, userRole });
 
       // Check if user is coming from successful email verification
       const emailVerifiedFromUrl = searchParams.get('email_verified') === 'true';
       const verifiedFromUrl = searchParams.get('verified') === '1';
+
+      // CRITICAL: Admin accounts always go to /admin
+      if (isAdmin) {
+        if (!emailVerified && !emailVerifiedFromUrl && !verifiedFromUrl) {
+          if (pathname !== '/verify-email') {
+            console.log('ProtectedRoute: Admin email not verified, redirecting to verify-email');
+            router.replace('/verify-email');
+          }
+        } else if (!isOnAdminRoute) {
+          console.log('ProtectedRoute: Admin verified, redirecting to /admin');
+          router.replace('/admin');
+        }
+        return;
+      }
 
       // CRITICAL: Handle business owners separately from personal users
       if (isBusinessOwner) {
@@ -185,7 +208,7 @@ export default function ProtectedRoute({
       router.push('/complete');
       return;
     }
-  }, [userId, emailVerified, onboardingStep, onboardingComplete, interestsCount, subcategoriesCount, dealbreakersCount, isLoading, router, pathname, requiresAuth, requiresOnboarding, allowedOnboardingSteps, redirectTo, searchParams, userRole, isBusinessOwner, personalOnboardingRoutes, currentRole, role]);
+  }, [userId, emailVerified, onboardingStep, onboardingComplete, interestsCount, subcategoriesCount, dealbreakersCount, isLoading, router, pathname, requiresAuth, requiresOnboarding, allowedOnboardingSteps, redirectTo, searchParams, userRole, isAdmin, isBusinessOwner, personalOnboardingRoutes, currentRole, role]);
 
   // State 1: loading — show loader; do not render children or run any checks (avoids 401s from children calling APIs before session is ready)
   if (isLoading) {

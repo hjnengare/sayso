@@ -24,8 +24,10 @@ export async function GET(req: NextRequest) {
     const method = searchParams.get('method');
     const fromDate = searchParams.get('from');
     const toDate = searchParams.get('to');
-    const limit = Math.min(parseInt(searchParams.get('limit') ?? '50', 10), 100);
-    const offset = parseInt(searchParams.get('offset') ?? '0', 10);
+    const rawLimit = Number.parseInt(searchParams.get('limit') ?? '50', 10);
+    const rawOffset = Number.parseInt(searchParams.get('offset') ?? '0', 10);
+    const limit = Number.isFinite(rawLimit) ? Math.min(Math.max(rawLimit, 1), 100) : 50;
+    const offset = Number.isFinite(rawOffset) ? Math.max(rawOffset, 0) : 0;
 
     const service = getServiceSupabase();
     let query = service
@@ -41,7 +43,7 @@ export async function GET(req: NextRequest) {
         updated_at,
         submitted_at,
         reviewed_at,
-        businesses!inner ( id, name, category, location, slug )
+        businesses!inner ( id, name, primary_subcategory_slug, primary_subcategory_label, location, slug )
       `,
         { count: 'exact' }
       )
