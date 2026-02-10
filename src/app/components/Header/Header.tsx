@@ -82,6 +82,9 @@ export default function Header({
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
   const desktopSearchWrapRef = useRef<HTMLDivElement>(null);
   const mobileSearchWrapRef = useRef<HTMLDivElement>(null);
+  const homeDesktopRowRef = useRef<HTMLDivElement>(null);
+  const homeDesktopNavRef = useRef<HTMLDivElement>(null);
+  const homeDesktopIconsRef = useRef<HTMLDivElement>(null);
   
   // Get search query from URL params
   const urlSearchQuery = searchParams.get('search') || '';
@@ -93,6 +96,7 @@ export default function Header({
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [isDesktopSearchExpanded, setIsDesktopSearchExpanded] = useState(false);
   const [activeSuggestionIndex, setActiveSuggestionIndex] = useState<number>(-1);
+  const [desktopSearchExpandedWidth, setDesktopSearchExpandedWidth] = useState(280);
 
   const {
     query: suggestionQuery,
@@ -163,6 +167,54 @@ export default function Header({
     window.addEventListener("resize", setByViewport);
     return () => window.removeEventListener("resize", setByViewport);
   }, []);
+
+  // Keep home desktop nav links perfectly centered by capping search expansion
+  // to the right-side space that remains after center nav + icons.
+  useEffect(() => {
+    if (!isHomePage || !isPersonalLayout) {
+      setDesktopSearchExpandedWidth(280);
+      return;
+    }
+
+    const minWidth = 44;
+    const preferredWidth = 280;
+    const interItemGap = 12; // gap-3 between search and icons
+    const centerClearance = 16;
+
+    const recalc = () => {
+      if (window.innerWidth < 1024) {
+        setDesktopSearchExpandedWidth(preferredWidth);
+        return;
+      }
+
+      const rowWidth = homeDesktopRowRef.current?.clientWidth ?? 0;
+      const navWidth = homeDesktopNavRef.current?.offsetWidth ?? 0;
+      const iconsWidth = homeDesktopIconsRef.current?.offsetWidth ?? 0;
+
+      if (!rowWidth || !navWidth) {
+        setDesktopSearchExpandedWidth(preferredWidth);
+        return;
+      }
+
+      const sideSpace = (rowWidth - navWidth) / 2;
+      const availableForSearch = Math.floor(sideSpace - iconsWidth - interItemGap - centerClearance);
+      const clamped = Math.max(minWidth, Math.min(preferredWidth, availableForSearch));
+      setDesktopSearchExpandedWidth(Number.isFinite(clamped) ? clamped : preferredWidth);
+    };
+
+    recalc();
+
+    const observer = new ResizeObserver(recalc);
+    if (homeDesktopRowRef.current) observer.observe(homeDesktopRowRef.current);
+    if (homeDesktopNavRef.current) observer.observe(homeDesktopNavRef.current);
+    if (homeDesktopIconsRef.current) observer.observe(homeDesktopIconsRef.current);
+    window.addEventListener("resize", recalc);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", recalc);
+    };
+  }, [isHomePage, isPersonalLayout]);
 
   // Update URL with search query (debounced for live search)
   const updateSearchUrl = useCallback((query: string) => {
@@ -321,9 +373,9 @@ export default function Header({
     }
   };
 
-  const renderSuggestionsDropdown = (mode: "desktop" | "mobile") => {
+  const renderSuggestionsDropdown = (mode: "desktop" | "mobile", desktopWidth: number = 280) => {
     const show = isSuggestionsOpen && (suggestionsLoading || cappedSuggestions.length > 0);
-    const widthClass = mode === "desktop" ? "w-[280px]" : "w-full";
+    const widthClass = mode === "desktop" ? "" : "w-full";
     const topClass = mode === "desktop" ? "top-[44px] right-0" : "top-[56px] left-0 right-0";
 
     return (
@@ -335,6 +387,7 @@ export default function Header({
             exit={{ opacity: 0, y: 8, scale: 0.99 }}
             transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
             className={`absolute ${topClass} ${widthClass} z-[100] rounded-[14px] border border-white/50 bg-off-white/95 backdrop-blur-xl shadow-[0_18px_50px_rgba(0,0,0,0.18),0_8px_20px_rgba(0,0,0,0.10)] overflow-hidden`}
+            style={mode === "desktop" ? { width: desktopWidth } : undefined}
             role="listbox"
             aria-label="Search suggestions"
             onMouseDown={(e) => e.preventDefault()} // keep input focus for clicks
@@ -431,12 +484,16 @@ export default function Header({
   }, []);
 
   // Desktop search input (compact, for right side)
-  const renderDesktopSearchInput = () => (
-    <div ref={desktopSearchWrapRef} className="relative w-[280px] h-10 flex justify-end">
+  const renderDesktopSearchInput = (expandedWidth: number = 280) => (
+    <div
+      ref={desktopSearchWrapRef}
+      className="relative h-10 flex justify-end shrink-0"
+      style={{ width: expandedWidth }}
+    >
       <motion.form
         onSubmit={handleSearchSubmit}
         initial={false}
-        animate={{ width: isDesktopSearchExpanded ? 280 : 44 }}
+        animate={{ width: isDesktopSearchExpanded ? expandedWidth : 44 }}
         transition={{ type: "spring", stiffness: 520, damping: 44, mass: 0.85 }}
         className="absolute right-0 top-0 h-10"
         style={{ transformOrigin: "right center" }}
@@ -499,7 +556,7 @@ export default function Header({
                     }, 90);
                   }}
                   placeholder={headerPlaceholder}
-                  className={`w-[280px] h-10 rounded-full bg-off-white text-charcoal placeholder:text-charcoal/50
+                  className={`h-10 rounded-full bg-off-white text-charcoal placeholder:text-charcoal/50
                     border text-sm
                     focus:outline-none focus:bg-white focus:border-sage focus:ring-1 focus:ring-sage/30
                     hover:bg-white/90 transition-all duration-200
@@ -507,6 +564,7 @@ export default function Header({
                     ${isSearchActive ? "border-sage bg-white" : "border-charcoal/10"}
                   `}
                   style={{
+                    width: expandedWidth,
                     fontFamily:
                       "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                   }}
@@ -514,7 +572,7 @@ export default function Header({
                   autoComplete="off"
                 />
 
-                {renderSuggestionsDropdown("desktop")}
+                {renderSuggestionsDropdown("desktop", expandedWidth)}
               </motion.div>
             )}
           </AnimatePresence>
@@ -752,7 +810,14 @@ export default function Header({
           ) : isPersonalLayout ? (
             <div className="w-full">
               {/* Desktop Layout: Logo left, Nav center, Search+Icons right */}
-              <div className="hidden lg:grid lg:grid-cols-[auto_1fr_auto] lg:items-center lg:gap-4">
+              <div
+                ref={homeDesktopRowRef}
+                className={`hidden lg:grid lg:items-center lg:gap-4 ${
+                  isHomePage
+                    ? "lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]"
+                    : "lg:grid-cols-[auto_1fr_auto]"
+                }`}
+              >
                 {/* Left: Logo */}
                 <div className="flex items-center">
                   <OptimizedLink href={logoHref} className="group flex items-center" aria-label="sayso Home">
@@ -765,14 +830,16 @@ export default function Header({
                 </div>
 
                 {/* Center: Navigation */}
-                <div className="flex justify-center">
+                <div ref={isHomePage ? homeDesktopNavRef : null} className="flex justify-center">
                   <DesktopNav {...desktopNavProps} mode="navOnly" />
                 </div>
 
                 {/* Right: Search + Icons */}
-                <div className="flex items-center justify-end gap-3">
-                  {showSearch && isHomePage && renderDesktopSearchInput()}
-                  <DesktopNav {...desktopNavProps} mode="iconsOnly" />
+                <div className="flex items-center justify-end gap-3 min-w-0">
+                  {showSearch && isHomePage && renderDesktopSearchInput(desktopSearchExpandedWidth)}
+                  <div ref={isHomePage ? homeDesktopIconsRef : null} className="flex items-center justify-end">
+                    <DesktopNav {...desktopNavProps} mode="iconsOnly" />
+                  </div>
                 </div>
               </div>
 
