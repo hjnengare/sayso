@@ -431,6 +431,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           setUser(authUser);
           if (typeof window !== 'undefined') {
             sessionStorage.setItem('pendingVerificationEmail', authUser.email);
+            sessionStorage.setItem('pendingVerificationAccountType', accountType);
           }
           router.push('/verify-email');
         }

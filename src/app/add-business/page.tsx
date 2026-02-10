@@ -47,6 +47,7 @@ export default function AddBusinessPage() {
     const [formData, setFormData] = useState<BusinessFormData>({
         name: "",
         description: "",
+        mainCategory: "",
         category: "",
         businessType: "",
         isChain: false,
@@ -153,19 +154,29 @@ export default function AddBusinessPage() {
     };
 
     const handleInputChange = (field: string, value: string | boolean) => {
-        setFormData(prev => ({
-            ...prev,
-            [field]: value
-        }));
+        setFormData(prev => {
+            if (field === "mainCategory") {
+                return {
+                    ...prev,
+                    mainCategory: String(value),
+                    category: "",
+                };
+            }
 
-        // Clear error when user starts typing
-        if (errors[field]) {
-            setErrors(prev => {
-                const newErrors = { ...prev };
-                delete newErrors[field];
-                return newErrors;
-            });
-        }
+            return {
+                ...prev,
+                [field]: value
+            };
+        });
+
+        setErrors(prev => {
+            const newErrors = { ...prev };
+            delete newErrors[field];
+            if (field === "mainCategory") {
+                delete newErrors.category;
+            }
+            return newErrors;
+        });
     };
 
     const handleHoursChange = (day: string, value: string) => {
@@ -253,9 +264,14 @@ export default function AddBusinessPage() {
                     error = "Business name is too long. Please keep it under 100 characters";
                 }
                 break;
+            case "mainCategory":
+                if (!value) {
+                    error = "Please select a main category for your business";
+                }
+                break;
             case "category":
                 if (!value) {
-                    error = "Please select a category for your business";
+                    error = "Please select a subcategory for your business";
                 }
                 break;
             case "location":
@@ -314,7 +330,7 @@ export default function AddBusinessPage() {
     };
 
     const validateForm = () => {
-        const fieldsToValidate = ["name", "category"];
+        const fieldsToValidate = ["name", "mainCategory", "category"];
 
         // Location is required only for physical and service-area businesses
         if (formData.businessType !== 'online-only') {
@@ -410,17 +426,21 @@ export default function AddBusinessPage() {
             // Create FormData (following review image pattern - server-side upload)
             const formDataToSend = new FormData();
             const normalizeCategoryValue = (value: string) => value.trim().toLowerCase();
-            const normalizedCategoryInput = normalizeCategoryValue(formData.category);
-            const normalizedCategory =
+            const normalizedMainCategory = normalizeCategoryValue(formData.mainCategory);
+            const normalizedSubcategoryInput = normalizeCategoryValue(formData.category);
+            const normalizedSubcategory =
                 subcategories.find(
                     (subcategory) =>
-                        normalizeCategoryValue(subcategory.id) === normalizedCategoryInput ||
-                        normalizeCategoryValue(subcategory.label) === normalizedCategoryInput
-                )?.id ?? normalizedCategoryInput;
+                        normalizeCategoryValue(subcategory.id) === normalizedSubcategoryInput ||
+                        normalizeCategoryValue(subcategory.label) === normalizedSubcategoryInput
+                )?.id ?? normalizedSubcategoryInput;
 
             formDataToSend.append('name', formData.name.trim());
             if (formData.description) formDataToSend.append('description', formData.description.trim());
-            formDataToSend.append('category', normalizedCategory);
+            formDataToSend.append('mainCategory', normalizedMainCategory);
+            // Keep legacy category key for backward compatibility and pass explicit subcategory.
+            formDataToSend.append('category', normalizedSubcategory);
+            formDataToSend.append('subcategory', normalizedSubcategory);
             if (formData.businessType) formDataToSend.append('businessType', formData.businessType);
             formDataToSend.append('isChain', String(formData.isChain || false));
             if (formData.location) formDataToSend.append('location', formData.location.trim());

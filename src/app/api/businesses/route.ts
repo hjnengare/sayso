@@ -266,6 +266,32 @@ const INTEREST_TO_SUBCATEGORIES: Record<string, string[]> = {
   'shopping-lifestyle': ['fashion', 'electronics', 'home-decor', 'books'],
 };
 
+const DEFAULT_SUBCATEGORY_BY_MAIN_CATEGORY: Record<string, string> = {
+  'food-drink': 'restaurants',
+  'beauty-wellness': 'salons',
+  'professional-services': 'finance-insurance',
+  'outdoors-adventure': 'hiking',
+  'experiences-entertainment': 'events-festivals',
+  'arts-culture': 'museums',
+  'family-pets': 'family-activities',
+  'shopping-lifestyle': 'fashion',
+  miscellaneous: 'miscellaneous',
+};
+
+const KNOWN_MAIN_CATEGORY_SLUGS = new Set<string>(Object.keys(DEFAULT_SUBCATEGORY_BY_MAIN_CATEGORY));
+
+function normalizeMainCategorySlug(input: string | null | undefined): string | null {
+  const value = String(input || '').trim().toLowerCase();
+  if (!value) return null;
+  if (value === 'other') return 'miscellaneous';
+  return KNOWN_MAIN_CATEGORY_SLUGS.has(value) ? value : null;
+}
+
+function getFallbackSubcategoryForMainCategory(mainCategorySlug: string | null): string {
+  if (!mainCategorySlug) return 'miscellaneous';
+  return DEFAULT_SUBCATEGORY_BY_MAIN_CATEGORY[mainCategorySlug] ?? 'miscellaneous';
+}
+
 /**
  * Search term synonyms mapping
  * Automatically expands search queries to include common variations
@@ -3059,7 +3085,10 @@ export async function POST(req: Request) {
     const formData = await req.formData();
     const name = formData.get('name')?.toString();
     const description = formData.get('description')?.toString() || null;
-    const category = formData.get('category')?.toString();
+    const legacyCategory = formData.get('category')?.toString() || null;
+    const subcategory = formData.get('subcategory')?.toString() || null;
+    const mainCategory = formData.get('mainCategory')?.toString() || null;
+    const category = (subcategory || legacyCategory || '').trim();
     const businessType = formData.get('businessType')?.toString() || null;
     const location = formData.get('location')?.toString();
     const address = formData.get('address')?.toString() || null;
@@ -3110,7 +3139,13 @@ export async function POST(req: Request) {
       );
     }
 
-    const categorySlug = resolveCanonicalCategorySlug(category);
+    const normalizedMainCategory = normalizeMainCategorySlug(mainCategory);
+    const normalizedCategoryValue = category.trim().toLowerCase();
+    const subcategoryIsOther = normalizedCategoryValue === 'other';
+    const categorySlug = subcategoryIsOther
+      ? getFallbackSubcategoryForMainCategory(normalizedMainCategory || 'miscellaneous')
+      : resolveCanonicalCategorySlug(category);
+
     if (!categorySlug) {
       return NextResponse.json(
         {
@@ -3147,6 +3182,11 @@ export async function POST(req: Request) {
       console.warn('[API] Canonical category pre-check skipped:', taxonomyError);
     }
 
+    const derivedPrimaryCategory = SUBCATEGORY_TO_INTEREST[categorySlug] ?? null;
+    const primaryCategorySlug = subcategoryIsOther
+      ? (normalizedMainCategory || 'miscellaneous')
+      : (derivedPrimaryCategory || normalizedMainCategory || 'miscellaneous');
+
     // Generate slug from name
     const generateSlug = (businessName: string): string => {
       return businessName
@@ -3182,7 +3222,7 @@ export async function POST(req: Request) {
       description: description?.trim() || null,
       primary_subcategory_slug: categorySlug,
       primary_subcategory_label: SUBCATEGORY_SLUG_TO_LABEL[categorySlug as keyof typeof SUBCATEGORY_SLUG_TO_LABEL] ?? null,
-      primary_category_slug: SUBCATEGORY_TO_INTEREST[categorySlug] ?? null,
+      primary_category_slug: primaryCategorySlug,
       location: location?.trim() || null, // Can be null for online-only businesses
       address: address?.trim() || null,
       phone: phone?.trim() || null,
@@ -3280,14 +3320,7 @@ export async function POST(req: Request) {
       console.log('[API] Successfully updated user profile to business_owner for user:', user.id);
     }
 
-    // Initialize business stats
-    await supabase.from('business_stats').insert({
-      business_id: newBusiness.id,
-      total_reviews: 0,
-      average_rating: 0.0,
-      rating_distribution: { "1": 0, "2": 0, "3": 0, "4": 0, "5": 0 },
-      percentiles: {},
-    });
+    // business_stats is created by DB trigger; avoid manual insert to prevent duplicates/races.
 
     // Handle image uploads server-side (following review image pattern)
     const uploadErrors: string[] = [];

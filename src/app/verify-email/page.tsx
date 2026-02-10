@@ -181,6 +181,10 @@ export default function VerifyEmailPage() {
     if (typeof window === "undefined") return null;
     return sessionStorage.getItem("pendingVerificationEmail");
   });
+  const [pendingAccountType] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    return sessionStorage.getItem("pendingVerificationAccountType");
+  });
 
   const containerRef = useRef<HTMLDivElement>(null);
   const redirectingRef = useRef(false);
@@ -236,40 +240,75 @@ export default function VerifyEmailPage() {
     return onboardingDone ? "/home" : "/interests";
   }, [user]);
 
-  // Handle verification success from URL flag (?verified=1)
-  useEffect(() => {
-    if (searchParams.get("verified") !== "1") return;
-    if (redirectingRef.current) return;
+  const getLoginRouteForRole = useCallback((roleRaw?: string | null): string => {
+    const role = String(roleRaw || "").toLowerCase();
+    const isBusiness =
+      role === "business_owner" ||
+      role === "business" ||
+      role === "owner";
+    return isBusiness ? "/business/login" : "/login";
+  }, []);
 
-    setVerificationSuccess(true);
-    showToastOnce("email-verified-v1", "Email verified successfully!", "sage", 3000);
-
-    if (typeof window !== "undefined") {
-      sessionStorage.removeItem("pendingVerificationEmail");
-
-      // Clean URL flag so refresh doesn't retrigger
-      const url = new URL(window.location.href);
-      url.searchParams.delete("verified");
-      window.history.replaceState({}, "", url.pathname + (url.search || ""));
+  const resolvePreferredLoginRoute = useCallback(async (): Promise<string> => {
+    const roleFromUser =
+      user?.profile?.account_role ||
+      user?.profile?.role ||
+      null;
+    if (roleFromUser) {
+      return getLoginRouteForRole(roleFromUser);
     }
 
-    redirectingRef.current = true;
-    const t = setTimeout(() => {
-      if (user) {
-        router.push(getPostVerifyRedirect());
-      } else {
-        router.push("/login?message=Email+verified!+Please+log+in+to+continue.");
-      }
-    }, 2500);
+    if (pendingAccountType) {
+      return getLoginRouteForRole(pendingAccountType);
+    }
 
-    return () => clearTimeout(t);
-  }, []);
+    const email = user?.email || pendingEmail;
+    if (!email) return "/login";
+
+    try {
+      const supabase = getBrowserSupabase();
+      const { data } = await supabase
+        .from("profiles")
+        .select("account_role, role")
+        .eq("email", email.toLowerCase())
+        .limit(1)
+        .maybeSingle();
+
+      const roleFromProfile = (data as { account_role?: string | null; role?: string | null } | null)?.account_role
+        || (data as { account_role?: string | null; role?: string | null } | null)?.role
+        || null;
+      return getLoginRouteForRole(roleFromProfile);
+    } catch {
+      return "/login";
+    }
+  }, [
+    getLoginRouteForRole,
+    pendingAccountType,
+    pendingEmail,
+    user?.email,
+    user?.profile?.account_role,
+    user?.profile?.role,
+  ]);
+
+  const redirectToLoginAfterVerification = useCallback(async (message?: string) => {
+    const loginRoute = await resolvePreferredLoginRoute();
+    const safeMessage = encodeURIComponent(
+      message || "Email verified. Please log in to continue."
+    );
+    redirectingRef.current = true;
+    router.replace(`${loginRoute}?message=${safeMessage}`);
+  }, [resolvePreferredLoginRoute, router]);
 
   // If user lands here already verified (no ?verified flag), redirect out
   useEffect(() => {
     if (redirectingRef.current) return;
     if (!user || !user.email_verified) return;
     if (verificationSuccess) return; // Already handled by the effect above
+
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem("pendingVerificationEmail");
+      sessionStorage.removeItem("pendingVerificationAccountType");
+    }
 
     redirectingRef.current = true;
     showToastOnce("email-verified-v1", "Email verified. Account secured.", "sage", 3000);
@@ -320,8 +359,13 @@ export default function VerifyEmailPage() {
   const checkVerificationStatus = useCallback(async (options?: {
     manual?: boolean;
     showSuccessToast?: boolean;
+    redirectToLoginIfNoSession?: boolean;
   }): Promise<boolean> => {
-    const { manual = false, showSuccessToast = true } = options || {};
+    const {
+      manual = false,
+      showSuccessToast = true,
+      redirectToLoginIfNoSession = false,
+    } = options || {};
     if (redirectingRef.current || checkingRef.current) return false;
 
     checkingRef.current = true;
@@ -333,25 +377,23 @@ export default function VerifyEmailPage() {
     const supabase = getBrowserSupabase();
     const notVerifiedMessage =
       "We still can't detect verification. Please check your inbox and try again.";
+    const loginFallbackMessage = "Email verified. Please log in to continue.";
 
     try {
-      // 1) Revalidate session before checking verification status.
-      const { data: sessionData } = await supabase.auth.getSession();
-      if (sessionData?.session) {
-        await supabase.auth.refreshSession();
-      }
+      // Always re-check and refresh auth state before reading verification fields.
+      const { data: sessionBeforeRefresh } = await supabase.auth.getSession();
+      await supabase.auth.refreshSession().catch(() => undefined);
+      const { data: sessionAfterRefresh } = await supabase.auth.getSession();
+      const hasSession = Boolean(sessionAfterRefresh?.session || sessionBeforeRefresh?.session);
 
-      // 2) Explicitly re-fetch current auth user from Supabase.
       const { data: userData, error: userError } = await supabase.auth.getUser();
       if (userError || !userData?.user) {
-        // No valid session — user likely verified in a different browser.
-        // Redirect to login so they can sign in with their now-verified account.
-        if (manual && !sessionData?.session) {
-          redirectingRef.current = true;
-          router.replace("/login?message=Email+verified!+Please+log+in+to+continue.");
-          return false;
+        if (manual || redirectToLoginIfNoSession || !hasSession) {
+          setVerificationStatusMessage(loginFallbackMessage);
+          await redirectToLoginAfterVerification(loginFallbackMessage);
+        } else if (manual) {
+          setVerificationStatusMessage(notVerifiedMessage);
         }
-        if (manual) setVerificationStatusMessage(notVerifiedMessage);
         return false;
       }
 
@@ -361,7 +403,11 @@ export default function VerifyEmailPage() {
         return false;
       }
 
-      // 3) Email is verified: refresh local auth + route by user type.
+      if (typeof window !== "undefined") {
+        sessionStorage.removeItem("pendingVerificationEmail");
+        sessionStorage.removeItem("pendingVerificationAccountType");
+      }
+
       await refreshUser();
 
       let profile: AuthUser["profile"] | undefined = user?.profile;
@@ -390,6 +436,8 @@ export default function VerifyEmailPage() {
         profile,
       };
 
+      setVerificationSuccess(true);
+      setVerificationStatusMessage(null);
       if (showSuccessToast) {
         showToast("Email verified successfully", "sage", 2200);
       }
@@ -400,18 +448,54 @@ export default function VerifyEmailPage() {
       if (manual) {
         setVerificationStatusMessage("Could not check verification status. Please try again.");
       }
+      return false;
     } finally {
       if (manual) setIsChecking(false);
       checkingRef.current = false;
     }
-
-    return false;
-  }, [getPostVerifyRedirect, refreshUser, router, showToast, user?.email, user?.profile]);
+  }, [
+    getPostVerifyRedirect,
+    redirectToLoginAfterVerification,
+    refreshUser,
+    router,
+    showToast,
+    user?.email,
+    user?.profile,
+  ]);
 
   const handleRefreshUser = async () => {
-    await checkVerificationStatus({ manual: true, showSuccessToast: true });
+    await checkVerificationStatus({
+      manual: true,
+      showSuccessToast: true,
+      redirectToLoginIfNoSession: true,
+    });
   };
 
+  // Handle callback returns such as /verify-email?verified=1 from email links.
+  useEffect(() => {
+    if (redirectingRef.current) return;
+    if (searchParams.get("verified") !== "1") return;
+
+    setVerificationSuccess(true);
+    setVerificationStatusMessage(null);
+    showToastOnce("email-verified-v1", "Email verified. Account secured.", "sage", 3000);
+
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("verified");
+      window.history.replaceState({}, "", url.pathname + (url.search || ""));
+    }
+
+    const timeout = window.setTimeout(() => {
+      void checkVerificationStatus({
+        manual: false,
+        showSuccessToast: false,
+        redirectToLoginIfNoSession: true,
+      });
+    }, 500);
+
+    return () => window.clearTimeout(timeout);
+  }, [checkVerificationStatus, searchParams, showToastOnce]);
   // Auto-poll verification in the background and redirect immediately once confirmed.
   useEffect(() => {
     if (linkExpired || verificationSuccess || redirectingRef.current) return;

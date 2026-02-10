@@ -1,8 +1,6 @@
 "use client";
 
-import React, { useRef, useEffect, useCallback, useState } from "react";
-import { ChevronDown } from "lucide-react";
-import { createPortal } from "react-dom";
+import React, { useMemo } from "react";
 import { motion } from "framer-motion";
 import {
     Store,
@@ -13,6 +11,7 @@ import {
     Link as LinkIcon,
 } from "lucide-react";
 import { Subcategory, BusinessFormData } from "./types";
+import CustomDropdown from "./CustomDropdown";
 
 interface BasicInfoSectionProps {
     formData: BusinessFormData;
@@ -24,6 +23,24 @@ interface BasicInfoSectionProps {
     onBlur: (field: string) => void;
 }
 
+const INTEREST_LABELS: Record<string, string> = {
+    "food-drink": "Food & Drink",
+    "beauty-wellness": "Beauty & Wellness",
+    "professional-services": "Professional Services",
+    "outdoors-adventure": "Outdoors & Adventure",
+    "experiences-entertainment": "Entertainment & Experiences",
+    "arts-culture": "Arts & Culture",
+    "family-pets": "Family & Pets",
+    "shopping-lifestyle": "Shopping & Lifestyle",
+    miscellaneous: "Miscellaneous",
+};
+
+const toTitleCase = (value: string) =>
+    value
+        .split("-")
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(" ");
+
 const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
     formData,
     errors,
@@ -33,84 +50,66 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
     onInputChange,
     onBlur,
 }) => {
-    const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
-    const [isCategoryModalClosing, setIsCategoryModalClosing] = useState(false);
-    const [categoryModalPos, setCategoryModalPos] = useState<{left: number; top: number} | null>(null);
-    const categoryButtonRef = useRef<HTMLButtonElement>(null);
-    const categoryModalRef = useRef<HTMLDivElement>(null);
-    const selectedCategory = subcategories.find(
-        (subcategory) =>
-            subcategory.id === formData.category || subcategory.label === formData.category
-    );
-    const selectedCategoryLabel = selectedCategory?.label ?? formData.category;
+    const mainCategoryOptions = useMemo(() => {
+        const ids = Array.from(
+            new Set(
+                subcategories
+                    .map((subcategory) => (subcategory.interest_id || "").toLowerCase())
+                    .filter((id) => id && id !== "miscellaneous")
+            )
+        );
 
-    const openCategoryModal = useCallback(() => {
-        setIsCategoryModalClosing(false);
-        setIsCategoryModalOpen(true);
-    }, []);
+        const baseOptions = ids
+            .map((id) => ({
+                value: id,
+                label: INTEREST_LABELS[id] || toTitleCase(id),
+            }))
+            .sort((a, b) => a.label.localeCompare(b.label));
 
-    const closeCategoryModal = useCallback(() => {
-        setIsCategoryModalClosing(true);
-        setTimeout(() => {
-            setIsCategoryModalOpen(false);
-            setIsCategoryModalClosing(false);
-        }, 150);
-    }, []);
+        return [...baseOptions, { value: "miscellaneous", label: "Other" }];
+    }, [subcategories]);
 
-    // Position category modal
-    useEffect(() => {
-        if (isCategoryModalOpen && categoryButtonRef.current) {
-            const buttonRect = categoryButtonRef.current.getBoundingClientRect();
-            const viewportWidth = window.innerWidth;
-            const dropdownWidth = 320;
-            const padding = 16;
+    const subcategoryOptions = useMemo(() => {
+        const selectedMain = formData.mainCategory;
+        if (!selectedMain) return [];
 
-            let leftPos = buttonRect.left;
-            const maxLeft = viewportWidth - dropdownWidth - padding;
-            leftPos = Math.max(padding, Math.min(leftPos, maxLeft));
-
-            const gap = 8;
-            setCategoryModalPos({ left: leftPos, top: buttonRect.bottom + gap });
-        } else {
-            setCategoryModalPos(null);
-        }
-    }, [isCategoryModalOpen]);
-
-    // Close category modal when clicking outside
-    useEffect(() => {
-        if (!isCategoryModalOpen) return;
-
-        const handleClickOutside = (event: MouseEvent) => {
-            const target = event.target as Node;
-            const clickedInsideButton = categoryButtonRef.current?.contains(target);
-            const clickedInsideModal = categoryModalRef.current?.contains(target);
-
-            if (!clickedInsideButton && !clickedInsideModal) {
-                closeCategoryModal();
+        const isMiscMain = selectedMain === "miscellaneous";
+        const filtered = subcategories.filter((subcategory) => {
+            if (isMiscMain) {
+                return (
+                    subcategory.interest_id.toLowerCase() === "miscellaneous" ||
+                    subcategory.id.toLowerCase() === "miscellaneous"
+                );
             }
-        };
+            return subcategory.interest_id.toLowerCase() === selectedMain;
+        });
 
-        const timer = setTimeout(() => {
-            document.addEventListener('mousedown', handleClickOutside);
-        }, 0);
+        const dedupedMap = new Map<string, { value: string; label: string }>();
+        filtered.forEach((subcategory) => {
+            const optionValue = subcategory.id.toLowerCase();
+            if (!dedupedMap.has(optionValue)) {
+                dedupedMap.set(optionValue, {
+                    value: optionValue,
+                    label: subcategory.label,
+                });
+            }
+        });
 
-        return () => {
-            clearTimeout(timer);
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [isCategoryModalOpen, closeCategoryModal]);
+        if (isMiscMain && !dedupedMap.has("miscellaneous")) {
+            dedupedMap.set("miscellaneous", {
+                value: "miscellaneous",
+                label: "Miscellaneous",
+            });
+        }
 
-    // Lock body scroll when category modal is open
-    useEffect(() => {
-        if (!isCategoryModalOpen) return;
+        const baseOptions = Array.from(dedupedMap.values()).sort((a, b) => a.label.localeCompare(b.label));
+        return [...baseOptions, { value: "other", label: "Other" }];
+    }, [formData.mainCategory, subcategories]);
 
-        const originalStyle = window.getComputedStyle(document.body).overflow;
-        document.body.style.overflow = 'hidden';
-
-        return () => {
-            document.body.style.overflow = originalStyle;
-        };
-    }, [isCategoryModalOpen]);
+    const selectedMainCategoryLabel =
+        mainCategoryOptions.find((option) => option.value === formData.mainCategory)?.label || "";
+    const selectedSubcategoryLabel =
+        subcategoryOptions.find((option) => option.value === formData.category)?.label || "";
 
     return (
         <div className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden border border-white/60 backdrop-blur-xl shadow-md px-4 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10 lg:px-12 lg:py-10 xl:px-16 xl:py-12 animate-fade-in-up animate-delay-100">
@@ -161,10 +160,10 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
                         )}
                     </div>
 
-                    {/* Category */}
+                    {/* Main Category */}
                     <div>
                         <label className="block text-sm font-semibold text-charcoal mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
-                            Category <span className="text-coral">*</span>
+                            Main Category <span className="text-coral">*</span>
                         </label>
                         {loadingCategories ? (
                             <div className="w-full bg-white/95 backdrop-blur-sm border border-white/60 pl-4 pr-4 py-3 sm:py-4 md:py-5 rounded-full flex items-center gap-2">
@@ -173,82 +172,74 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
                             </div>
                         ) : (
                             <>
-                                <button
-                                    type="button"
-                                    ref={categoryButtonRef}
-                                    onClick={() => {
-                                        if (isCategoryModalOpen) {
-                                            closeCategoryModal();
-                                        } else {
-                                            openCategoryModal();
-                                        }
-                                    }}
-                                    onBlur={() => onBlur('category')}
-                                    style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
-                                    className={`w-full bg-white/95 backdrop-blur-sm border pl-4 pr-4 py-3 sm:py-4 md:py-5 text-body font-semibold text-charcoal focus:outline-none focus:ring-2 transition-all duration-300 hover:border-sage/50 input-mobile rounded-full flex items-center justify-between ${
-                                        errors.category
-                                            ? 'border-navbar-bg focus:border-navbar-bg focus:ring-navbar-bg/20'
-                                            : 'border-white/60 focus:ring-navbar-bg/30 focus:border-navbar-bg'
-                                    }`}
-                                >
-                                    <span className={formData.category ? 'text-charcoal' : 'text-charcoal/70'}>
-                                        {selectedCategoryLabel || 'Select a category'}
-                                    </span>
-                                    <ChevronDown size={20} className={`text-charcoal/60 transition-transform duration-300 ${isCategoryModalOpen ? 'rotate-180' : ''}`} />
-                                </button>
-                                {touched.category && errors.category && (
-                                    <p className="mt-2 text-sm text-navbar-bg font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>{errors.category}</p>
+                                <CustomDropdown
+                                    id="mainCategory"
+                                    name="mainCategory"
+                                    value={formData.mainCategory}
+                                    onChange={(value) => onInputChange('mainCategory', value)}
+                                    onBlur={() => onBlur('mainCategory')}
+                                    placeholder="Select a main category"
+                                    options={mainCategoryOptions}
+                                    searchable
+                                    searchPlaceholder="Search main categories..."
+                                    noOptionsText="No categories found"
+                                />
+                                {selectedMainCategoryLabel && (
+                                    <p className="mt-2 text-xs text-charcoal/70" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                        Selected: {selectedMainCategoryLabel}
+                                    </p>
                                 )}
-                                {/* Category Modal */}
-                                {isCategoryModalOpen && categoryModalPos && typeof window !== 'undefined' && createPortal(
-                                    <div
-                                        ref={categoryModalRef}
-                                        className={`fixed z-[1000] bg-off-white rounded-[12px] border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.12),0_4px_16px_rgba(0,0,0,0.08)] overflow-hidden min-w-[320px] max-w-[400px] max-h-[60vh] overflow-y-auto transition-all duration-300 ease-out backdrop-blur-xl ${
-                                            isCategoryModalClosing ? 'opacity-0 scale-95 translate-y-[-8px]' : 'opacity-100 scale-100 translate-y-0'
-                                        }`}
-                                        style={{
-                                            left: categoryModalPos.left,
-                                            top: categoryModalPos.top,
-                                            fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
-                                            animation: isCategoryModalClosing ? 'none' : 'fadeInScale 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-                                            transformOrigin: 'top center',
-                                        }}
-                                        onClick={(e) => e.stopPropagation()}
-                                    >
-                                        <div className="px-5 pt-4 pb-3 border-b border-charcoal/10 bg-off-white flex items-center gap-2 sticky top-0 z-10">
-                                            <h3 className="text-sm md:text-base font-semibold text-charcoal" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>Select Category</h3>
-                                        </div>
-                                        <div className="py-3">
-                                            {subcategories.map((subcategory) => {
-                                                const isSelected =
-                                                    formData.category === subcategory.id ||
-                                                    formData.category === subcategory.label;
-                                                return (
-                                                    <button
-                                                        key={subcategory.id}
-                                                        type="button"
-                                                        onClick={() => {
-                                                            onInputChange('category', subcategory.id);
-                                                            closeCategoryModal();
-                                                        }}
-                                                        className={`group flex items-start gap-3 px-5 py-3 hover:bg-gradient-to-r hover:from-sage/10 hover:to-coral/5 transition-all duration-200 rounded-lg mx-2 w-[calc(100%-1rem)] text-left ${
-                                                            isSelected ? 'bg-gradient-to-r from-sage/10 to-sage/5' : ''
-                                                        }`}
-                                                        style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
-                                                    >
-                                                        <div className="flex-1">
-                                                            <div className={`text-sm font-semibold ${isSelected ? 'text-sage' : 'text-charcoal group-hover:text-coral'}`}>
-                                                                {subcategory.label}
-                                                            </div>
-                                                        </div>
-                                                    </button>
-                                                );
-                                            })}
-                                        </div>
-                                    </div>,
-                                    document.body
+                                {formData.mainCategory === 'miscellaneous' && (
+                                    <p className="mt-2 text-xs text-charcoal/80" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                        We&apos;ll list this under Miscellaneous.
+                                    </p>
+                                )}
+                                {touched.mainCategory && errors.mainCategory && (
+                                    <p id="mainCategory-error" className="mt-2 text-sm text-navbar-bg font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                        {errors.mainCategory}
+                                    </p>
                                 )}
                             </>
+                        )}
+                    </div>
+
+                    {/* Subcategory */}
+                    <div>
+                        <label className="block text-sm font-semibold text-charcoal mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
+                            Subcategory <span className="text-coral">*</span>
+                        </label>
+                        <CustomDropdown
+                            id="category"
+                            name="category"
+                            value={formData.category}
+                            onChange={(value) => onInputChange('category', value)}
+                            onBlur={() => onBlur('category')}
+                            placeholder={formData.mainCategory ? 'Select a subcategory' : 'Select main category first'}
+                            options={subcategoryOptions}
+                            disabled={!formData.mainCategory || loadingCategories}
+                            searchable
+                            searchPlaceholder="Search subcategories..."
+                            noOptionsText={formData.mainCategory ? 'No subcategories available' : 'Select a main category first'}
+                        />
+                        {!formData.mainCategory && (
+                            <p className="mt-2 text-xs text-charcoal/70" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                Choose a main category before selecting a subcategory.
+                            </p>
+                        )}
+                        {selectedSubcategoryLabel && (
+                            <p className="mt-2 text-xs text-charcoal/70" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                Selected: {selectedSubcategoryLabel}
+                            </p>
+                        )}
+                        {formData.category === 'other' && formData.mainCategory && (
+                            <p className="mt-2 text-xs text-charcoal/80" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                We&apos;ll keep this business discoverable under the selected main category.
+                            </p>
+                        )}
+                        {touched.category && errors.category && (
+                            <p id="category-error" className="mt-2 text-sm text-navbar-bg font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                {errors.category}
+                            </p>
                         )}
                     </div>
 

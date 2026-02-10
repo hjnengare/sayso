@@ -9,6 +9,7 @@ export interface Subcategory {
 export interface BusinessFormData {
     name: string;
     description: string;
+    mainCategory: string;
     category: string;
     businessType: "physical" | "service-area" | "online-only" | "";
     isChain: boolean;
@@ -40,7 +41,8 @@ export interface PriceRangeOption {
 export const getFieldLabel = (fieldName: string): string => {
     const labels: Record<string, string> = {
         name: 'business name',
-        category: 'category',
+        mainCategory: 'main category',
+        category: 'subcategory',
         location: 'location',
         email: 'email address',
         website: 'website URL',
