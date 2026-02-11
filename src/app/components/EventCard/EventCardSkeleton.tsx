@@ -9,13 +9,13 @@ import React from "react";
 export default function EventCardSkeleton() {
   return (
     <li
-      className="flex w-full h-full"
+      className="flex w-full"
       style={{
         fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
       }}
     >
       <article
-        className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden w-full h-full flex flex-col border border-white/60 backdrop-blur-xl shadow-md md:w-[340px] animate-pulse"
+        className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden w-full flex flex-col border border-white/60 backdrop-blur-xl shadow-md md:w-[340px] animate-pulse"
         style={{ maxWidth: "540px" } as React.CSSProperties}
       >
         {/* MEDIA — aspect-ratio 4/3, p-1, rounded-[12px] */}
@@ -41,7 +41,7 @@ export default function EventCardSkeleton() {
         </div>
 
         {/* CONTENT */}
-        <div className="px-4 py-4 bg-gradient-to-b from-card-bg/95 to-card-bg flex flex-col gap-2 rounded-b-[12px] flex-1">
+        <div className="px-4 py-4 bg-gradient-to-b from-card-bg/95 to-card-bg flex flex-col gap-2 rounded-b-[12px]">
           <div className="flex flex-col gap-2">
             <div className="h-5 sm:h-6 w-3/4 bg-charcoal/10 rounded-lg" />
             <div className="w-full flex flex-col gap-1.5">
@@ -50,7 +50,7 @@ export default function EventCardSkeleton() {
             </div>
           </div>
 
-          <div className="mt-auto w-full h-10 px-4 py-2.5 bg-charcoal/10 rounded-full" />
+          <div className="mt-1 w-full h-10 px-4 py-2.5 bg-charcoal/10 rounded-full" />
         </div>
       </article>
     </li>

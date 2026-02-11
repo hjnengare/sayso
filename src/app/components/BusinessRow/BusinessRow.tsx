@@ -117,7 +117,7 @@ export default function BusinessRow({
           </button>
         </div>
 
-        <ScrollableSection>
+        <ScrollableSection enableMobilePeek>
           {/* Gap harmonizes with card radius/shadows; list semantics preserved via <li> inside cards */}
           <style dangerouslySetInnerHTML={{ __html: `
             @media (max-width: 639px) {
@@ -127,7 +127,7 @@ export default function BusinessRow({
               }
             }
           `}} />
-          <div className="flex gap-3 sm:gap-3 md:gap-3 lg:gap-2 xl:gap-2 2xl:gap-2 items-stretch pt-2">
+          <div className="flex gap-2 sm:gap-3 md:gap-3 lg:gap-2 xl:gap-2 2xl:gap-2 items-stretch pt-2">
             {businesses.map((business, index) => (
               <div
                 key={business.id}

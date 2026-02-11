@@ -12,23 +12,26 @@ interface ScrollableSectionProps {
   className?: string;
   showArrows?: boolean;
   arrowColor?: string;
+  enableMobilePeek?: boolean;
 }
 
 export default function ScrollableSection({
   children,
   className = "",
   showArrows = true,
-  arrowColor = "text-charcoal/60"
+  arrowColor = "text-charcoal/60",
+  enableMobilePeek = false,
 }: ScrollableSectionProps) {
   const pathname = usePathname();
   const isHomeRoute = pathname === "/" || pathname.startsWith("/home");
-  const enableMobilePeek = isHomeRoute;
+  const shouldEnableMobilePeek = enableMobilePeek || isHomeRoute;
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showRightArrow, setShowRightArrow] = useState(false);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [hasUserScrolledRight, setHasUserScrolledRight] = useState(false);
 
   const checkScrollPosition = () => {
     if (!scrollRef.current) return;
@@ -40,6 +43,7 @@ export default function ScrollableSection({
     setCanScrollLeft(scrollLeft > 5);
     setShowRightArrow(scrollLeft < maxScrollLeft - 10);
     setShowLeftArrow(scrollLeft > 10);
+    setHasUserScrolledRight((previous) => previous || scrollLeft > 8);
     
     // Calculate scroll progress (0 to 100)
     if (maxScrollLeft > 0) {
@@ -112,7 +116,7 @@ export default function ScrollableSection({
     <div className="relative">
       <div
         ref={scrollRef}
-        className={`horizontal-scroll scrollbar-hide flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory sm:snap-mandatory ${enableMobilePeek ? "home-mobile-peek pr-4 sm:pr-0" : ""} ${className}`}
+        className={`horizontal-scroll scrollbar-hide flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory sm:snap-mandatory ${shouldEnableMobilePeek ? "home-mobile-peek pr-4 sm:pr-0" : ""} ${className}`}
         style={{
           scrollbarWidth: 'none',
           msOverflowStyle: 'none',
@@ -121,13 +125,13 @@ export default function ScrollableSection({
           overscrollBehaviorY: 'auto',
           touchAction: 'pan-x pan-y',
           scrollSnapType: 'x mandatory',
-          scrollPaddingRight: enableMobilePeek ? '1rem' : undefined,
+          scrollPaddingRight: shouldEnableMobilePeek ? '1rem' : undefined,
         } as React.CSSProperties}
       >
         {children}
       </div>
 
-      {enableMobilePeek && (
+      {shouldEnableMobilePeek && (
         <style jsx>{`
           @media (max-width: 639px) {
             .home-mobile-peek [class*="w-[100vw]"] {
@@ -135,7 +139,51 @@ export default function ScrollableSection({
               max-width: calc(100vw - 1rem) !important;
             }
           }
+
+          @keyframes mobile-scroll-indicator-pulse {
+            0% {
+              opacity: 0.6;
+              transform: translate3d(0, -50%, 0);
+            }
+            50% {
+              opacity: 1;
+              transform: translate3d(6px, -50%, 0);
+            }
+            100% {
+              opacity: 0.6;
+              transform: translate3d(0, -50%, 0);
+            }
+          }
+
+          .mobile-scroll-indicator {
+            animation: mobile-scroll-indicator-pulse 1000ms ease-in-out infinite;
+          }
+
+          @media (prefers-reduced-motion: reduce) {
+            .mobile-scroll-indicator {
+              animation: none;
+            }
+          }
         `}</style>
+      )}
+
+      {isHomeRoute && canScrollRight && !hasUserScrolledRight && (
+        <div className="pointer-events-none absolute right-3 top-1/2 z-30 -translate-y-1/2 md:hidden">
+          <svg
+            className="mobile-scroll-indicator h-4 w-4 text-charcoal/65"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 5l7 7-7 7"
+            />
+          </svg>
+        </div>
       )}
 
       {showArrows && (
@@ -149,7 +197,7 @@ export default function ScrollableSection({
                 w-14 h-14 sm:w-12 sm:h-12
                 bg-navbar-bg
                 rounded-full
-                ${enableMobilePeek ? "hidden sm:flex" : "flex"} items-center justify-center
+                ${shouldEnableMobilePeek ? "hidden sm:flex" : "flex"} items-center justify-center
                 transition-all duration-300 ease-out
                 active:scale-95
                 text-white
@@ -189,7 +237,7 @@ export default function ScrollableSection({
                 w-14 h-14 sm:w-12 sm:h-12
                 bg-navbar-bg
                 rounded-full
-                ${enableMobilePeek ? "hidden sm:flex" : "flex"} items-center justify-center
+                ${shouldEnableMobilePeek ? "hidden sm:flex" : "flex"} items-center justify-center
                 transition-all duration-300 ease-out
                 active:scale-95
                 text-white
