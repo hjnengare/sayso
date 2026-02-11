@@ -833,18 +833,18 @@ export default function HeroCarousel() {
             variants={heroTextStaggerVariants}
           >
             <motion.h2
-              className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-off-white drop-shadow-lg mb-3 sm:mb-4 leading-tight tracking-tight"
+              className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-off-white drop-shadow-lg mb-3 sm:mb-4 leading-tight tracking-tight whitespace-pre-line [word-break:normal] [overflow-wrap:normal] [hyphens:none]"
               style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
               variants={heroTitleEntranceVariants}
             >
-              <span className="inline-grid items-center justify-items-center">
-                <span className="invisible col-start-1 row-start-1">
+              <span className="inline-grid items-center justify-items-center whitespace-pre-line [word-break:normal] [overflow-wrap:normal] [hyphens:none]">
+                <span className="invisible col-start-1 row-start-1 whitespace-pre-line [word-break:normal] [overflow-wrap:normal] [hyphens:none]">
                   {titleLayoutFallback}
                 </span>
                 <AnimatePresence mode="sync" initial={false}>
                   <motion.span
                     key={`text-${textMotionKey}`}
-                    className="col-start-1 row-start-1"
+                    className="col-start-1 row-start-1 whitespace-pre-line [word-break:normal] [overflow-wrap:normal] [hyphens:none]"
                     initial={heroTitleSwapMotion.initial}
                     animate={heroTitleSwapMotion.animate}
                     exit={heroTitleSwapMotion.exit}
@@ -856,18 +856,18 @@ export default function HeroCarousel() {
               </span>
             </motion.h2>
             <motion.p
-              className="text-base sm:text-lg lg:text-xl text-off-white/90 drop-shadow-md max-w-xl mb-5 sm:mb-6 leading-relaxed"
+              className="text-base sm:text-lg lg:text-xl text-off-white/90 drop-shadow-md max-w-xl mb-5 sm:mb-6 leading-relaxed whitespace-pre-line [word-break:normal] [overflow-wrap:normal] [hyphens:none]"
               style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 500 }}
               variants={heroSubtitleEntranceVariants}
             >
-              <span className="grid">
-                <span className="invisible col-start-1 row-start-1">
+              <span className="grid whitespace-pre-line [word-break:normal] [overflow-wrap:normal] [hyphens:none]">
+                <span className="invisible col-start-1 row-start-1 whitespace-pre-line [word-break:normal] [overflow-wrap:normal] [hyphens:none]">
                   {descriptionLayoutFallback}
                 </span>
                 <AnimatePresence mode="sync" initial={false}>
                   <motion.span
                     key={`desc-${textMotionKey}`}
-                    className="col-start-1 row-start-1"
+                    className="col-start-1 row-start-1 whitespace-pre-line [word-break:normal] [overflow-wrap:normal] [hyphens:none]"
                     initial={heroSubtitleSwapMotion.initial}
                     animate={heroSubtitleSwapMotion.animate}
                     exit={heroSubtitleSwapMotion.exit}
