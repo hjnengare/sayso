@@ -630,9 +630,34 @@ export class AuthService {
       return { message: 'Your email is not yet verified. Please check your inbox for the confirmation link.', code: 'email_not_confirmed' };
     }
 
+    // Email already confirmed
+    if (
+      message.includes('already confirmed') ||
+      message.includes('email has already been confirmed') ||
+      message.includes('already verified')
+    ) {
+      return { message: 'Your email is already verified. You can log in now.', code: 'already_verified' };
+    }
+
+    // Redirect URL / site URL configuration
+    if (
+      message.includes('redirect') &&
+      (message.includes('not allowed') || message.includes('invalid') || message.includes('mismatch'))
+    ) {
+      return {
+        message: 'Email redirect URL is not configured correctly. Please contact support or try again later.',
+        code: 'invalid_redirect_url'
+      };
+    }
+
     // Rate limiting
-    if (message.includes('too many requests') || message.includes('rate limit')) {
-      return { message: 'Too many attempts. Please wait a moment and try again.', code: 'rate_limit' };
+    if (
+      message.includes('too many requests') ||
+      message.includes('rate limit') ||
+      message.includes('429') ||
+      message.includes('security purposes')
+    ) {
+      return { message: 'Too many attempts. Please wait a few minutes and try again.', code: 'rate_limit' };
     }
 
     // Signups disabled
@@ -672,30 +697,81 @@ export class AuthService {
 
   static async resendVerificationEmail(email: string): Promise<{ error: AuthError | null }> {
     const supabase = this.getClient();
+    const normalizedEmail = email?.trim().toLowerCase();
 
     try {
-      const baseUrl = this.getBaseUrl();
+      if (!normalizedEmail) {
+        return {
+          error: { message: 'Email is required.', code: 'missing_email' }
+        };
+      }
+
+      if (!this.isValidEmail(normalizedEmail)) {
+        return {
+          error: { message: 'Please enter a valid email address.', code: 'invalid_email' }
+        };
+      }
+
+      const baseUrl = this.getBaseUrl().replace(/\/+$/, '');
+      const emailRedirectTo = `${baseUrl}/auth/callback?type=signup`;
+
+      // Helpful runtime diagnostics for local-vs-prod URL mismatches.
+      if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_BASE_URL) {
+        try {
+          const configuredOrigin = new URL(process.env.NEXT_PUBLIC_BASE_URL).origin;
+          const runtimeOrigin = window.location.origin;
+          if (configuredOrigin !== runtimeOrigin) {
+            console.warn('[AuthService.resendVerificationEmail] NEXT_PUBLIC_BASE_URL origin differs from runtime origin', {
+              configuredOrigin,
+              runtimeOrigin,
+            });
+          }
+        } catch (urlError) {
+          console.warn('[AuthService.resendVerificationEmail] NEXT_PUBLIC_BASE_URL is invalid', {
+            value: process.env.NEXT_PUBLIC_BASE_URL,
+            error: urlError,
+          });
+        }
+      }
+
+      console.log('[AuthService.resendVerificationEmail] Requesting resend', {
+        email: normalizedEmail,
+        emailRedirectTo,
+      });
+
       const { error } = await supabase.auth.resend({
         type: 'signup',
-        email: email.trim().toLowerCase(),
+        email: normalizedEmail,
         options: {
-          emailRedirectTo: `${baseUrl}/auth/callback?type=signup`,
+          emailRedirectTo,
         }
       });
 
       if (error) {
-        console.error('Error resending verification email:', error);
+        console.error('[AuthService.resendVerificationEmail] Supabase resend failed', {
+          email: normalizedEmail,
+          emailRedirectTo,
+          error,
+        });
         return {
           error: this.handleSupabaseError(error)
         };
       }
 
+      console.log('[AuthService.resendVerificationEmail] Resend request accepted', {
+        email: normalizedEmail,
+      });
       return { error: null };
     } catch (error: unknown) {
-      console.error('Error in resendVerificationEmail:', error);
+      console.error('[AuthService.resendVerificationEmail] Unexpected error:', {
+        email: normalizedEmail,
+        error,
+      });
       return {
         error: {
-          message: error instanceof Error ? error.message : 'Failed to resend verification email'
+          message: error instanceof Error ? error.message : 'Failed to resend verification email',
+          code: 'unknown_error',
+          details: error,
         }
       };
     }

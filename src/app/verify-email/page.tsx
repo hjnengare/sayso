@@ -158,6 +158,7 @@ const styles = `
     }
   }
 `;
+const RESEND_COOLDOWN_SECONDS = 60;
 
 export default function VerifyEmailPage() {
   const { user, resendVerificationEmail, refreshUser, isLoading } = useAuth();
@@ -166,6 +167,8 @@ export default function VerifyEmailPage() {
   const searchParams = useSearchParams();
 
   const [isResending, setIsResending] = useState(false);
+  const [resendCooldownSeconds, setResendCooldownSeconds] = useState(0);
+  const [resendRateLimitMessage, setResendRateLimitMessage] = useState<string | null>(null);
   const [verificationSuccess, setVerificationSuccess] = useState(false);
   const [verificationStatusMessage, setVerificationStatusMessage] = useState<string | null>(null);
 
@@ -180,10 +183,18 @@ export default function VerifyEmailPage() {
     if (typeof window === "undefined") return null;
     return sessionStorage.getItem("pendingVerificationEmail");
   });
+  const [pendingAccountType] = useState<"user" | "business_owner" | null>(() => {
+    if (typeof window === "undefined") return null;
+    const accountType = sessionStorage.getItem("pendingVerificationAccountType");
+    return accountType === "business_owner" || accountType === "user"
+      ? (accountType as "user" | "business_owner")
+      : null;
+  });
 
   const containerRef = useRef<HTMLDivElement>(null);
   const redirectingRef = useRef(false);
   const checkingRef = useRef(false);
+  const resendSubmittingRef = useRef(false);
   const prefersReduced = usePrefersReducedMotion();
 
   // Clean ?expired param from URL without re-render
@@ -235,24 +246,77 @@ export default function VerifyEmailPage() {
     return onboardingDone ? "/home" : "/interests";
   }, [user]);
 
-  const handleResendVerification = async () => {
-    const email = user?.email || pendingEmail;
-    if (!email) return;
+  useEffect(() => {
+    if (resendCooldownSeconds <= 0) return;
+    const timer = window.setInterval(() => {
+      setResendCooldownSeconds((current) => (current > 1 ? current - 1 : 0));
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [resendCooldownSeconds]);
 
+  const handleResendVerification = useCallback(async (
+    overrideEmail?: string,
+    options?: { onSuccess?: () => void }
+  ) => {
+    const email = overrideEmail || user?.email || pendingEmail;
+    if (!email) {
+      showToast("No email address found. Please register or log in again.", "error", 3200);
+      return;
+    }
+    if (user?.email_verified) {
+      showToast("Your email is already verified.", "info", 2600);
+      return;
+    }
+    if (resendSubmittingRef.current || isResending || resendCooldownSeconds > 0) return;
+
+    resendSubmittingRef.current = true;
     setIsResending(true);
+    setResendRateLimitMessage(null);
+
     try {
-      const success = await resendVerificationEmail(email);
-      if (success) {
+      const result = await resendVerificationEmail(email);
+      if (result.success) {
+        setResendCooldownSeconds(RESEND_COOLDOWN_SECONDS);
         showToast("Email sent. Check inbox.", "sage", 2500);
-      } else {
-        showToast("Could not resend. Please wait a moment and try again.", "error", 3000);
+        options?.onSuccess?.();
+        return;
       }
-    } catch {
+
+      if (result.errorCode === "rate_limit") {
+        setResendRateLimitMessage("Too many attempts. Please wait a few minutes and try again.");
+        setResendCooldownSeconds((current) => Math.max(current, RESEND_COOLDOWN_SECONDS));
+        showToast("Too many attempts. Please wait a few minutes and try again.", "error", 3200);
+        return;
+      }
+
+      if (result.errorCode === "already_verified") {
+        showToast(result.errorMessage || "Your email is already verified.", "info", 3000);
+        return;
+      }
+
+      const errorMessage = result.errorMessage || "Could not resend. Please wait a moment and try again.";
+      console.error("[VerifyEmail] Resend verification failed", {
+        email,
+        code: result.errorCode,
+        message: result.errorMessage,
+      });
+      showToast(errorMessage, "error", 3200);
+    } catch (error) {
+      console.error("[VerifyEmail] Unexpected resend verification error", { email, error });
       showToast("Failed to resend. Try again.", "error", 3000);
     } finally {
+      resendSubmittingRef.current = false;
       setIsResending(false);
     }
-  };
+  }, [
+    isResending,
+    pendingEmail,
+    resendCooldownSeconds,
+    resendVerificationEmail,
+    showToast,
+    user?.email_verified,
+    user?.email,
+  ]);
 
   const handleOpenInbox = () => {
     const email = user?.email || pendingEmail;
@@ -270,6 +334,13 @@ export default function VerifyEmailPage() {
 
     window.open(inboxUrl, "_blank");
   };
+
+  const isResendDisabled = isResending || resendCooldownSeconds > 0;
+  const resendCooldownMessage =
+    resendCooldownSeconds > 0
+      ? `We've sent a link. Try again in ${resendCooldownSeconds} second${resendCooldownSeconds === 1 ? "" : "s"}.`
+      : null;
+  const useDifferentEmailHref = pendingAccountType === "business_owner" ? "/business/register" : "/register";
 
   const checkVerificationStatus = useCallback(async (options?: {
     manual?: boolean;
@@ -514,25 +585,19 @@ export default function VerifyEmailPage() {
                 <button
                   onClick={async () => {
                     if (!expiredEmail) {
-                      router.push("/register");
+                      router.push(useDifferentEmailHref);
                       return;
                     }
-                    setIsResending(true);
-                    try {
-                      const success = await resendVerificationEmail(expiredEmail);
-                      if (success) {
-                        showToast("New verification email sent! Check your inbox.", "sage", 3000);
-                        setLinkExpired(false);
-                      } else {
-                        showToast("Could not resend. Please wait a moment and try again.", "error", 3000);
-                      }
-                    } catch {
-                      showToast("Failed to resend. Try again.", "error", 3000);
-                    } finally {
-                      setIsResending(false);
+                    await handleResendVerification(expiredEmail, {
+                      onSuccess: () => setLinkExpired(false),
+                    });
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" && isResendDisabled) {
+                      event.preventDefault();
                     }
                   }}
-                  disabled={isResending || !expiredEmail}
+                  disabled={isResendDisabled || !expiredEmail}
                   className="w-full bg-gradient-to-r from-coral to-coral/80 text-white text-base font-600 py-4 px-4 rounded-full hover:from-coral/90 hover:to-coral transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 btn-target btn-press"
                 >
                   {isResending ? (
@@ -547,6 +612,32 @@ export default function VerifyEmailPage() {
                     </>
                   )}
                 </button>
+                {(resendCooldownMessage || resendRateLimitMessage) && (
+                  <div className="rounded-lg border border-sage/20 bg-sage/5 px-4 py-3">
+                    <p
+                      className="text-sm text-charcoal/80"
+                      style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
+                    >
+                      {resendRateLimitMessage || resendCooldownMessage}
+                    </p>
+                  </div>
+                )}
+                {resendRateLimitMessage && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <Link
+                      href={useDifferentEmailHref}
+                      className="w-full text-center text-sm text-charcoal/80 hover:text-charcoal transition-colors duration-300 py-2.5 border border-charcoal/15 rounded-lg"
+                    >
+                      Use a different email
+                    </Link>
+                    <Link
+                      href="/login"
+                      className="w-full text-center text-sm text-charcoal/80 hover:text-charcoal transition-colors duration-300 py-2.5 border border-charcoal/15 rounded-lg"
+                    >
+                      Go to login
+                    </Link>
+                  </div>
+                )}
 
                 <Link
                   href="/login"
@@ -563,7 +654,7 @@ export default function VerifyEmailPage() {
   }
 
   // Single unified loading/empty state - prevents layout shift
-  if (isLoading || isResending || !displayEmail) {
+  if (isLoading || !displayEmail) {
     return (
       <>
         <style dangerouslySetInnerHTML={{ __html: styles }} />
@@ -571,15 +662,10 @@ export default function VerifyEmailPage() {
           <div className="flex-1 flex items-center justify-center">
             {isLoading ? (
               <AppLoader size="lg" variant="wavy" color="sage" />
-            ) : isResending ? (
-              <div className="text-center">
-                <div className="w-12 h-12 border-4 border-sage/20 border-t-sage rounded-full animate-spin mx-auto mb-4" />
-                <p className="font-urbanist text-base text-charcoal/70">Sending verification email...</p>
-              </div>
             ) : (
               <div className="text-center max-w-md mx-auto p-6">
                 <p className="text-lg text-charcoal mb-4">No verification pending.</p>
-                <Link href="/register" className="text-sage hover:text-sage/80 underline">
+                <Link href={useDifferentEmailHref} className="text-sage hover:text-sage/80 underline">
                   Go to registration
                 </Link>
               </div>
@@ -682,13 +768,55 @@ export default function VerifyEmailPage() {
 
             <div className="space-y-3 mb-6">
               <button
-                onClick={handleResendVerification}
-                disabled={isResending}
+                onClick={() => {
+                  void handleResendVerification();
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" && isResendDisabled) {
+                    event.preventDefault();
+                  }
+                }}
+                disabled={isResendDisabled}
                 className="w-full bg-gradient-to-r from-coral to-coral/80 text-white text-sm font-600 py-4 px-4 rounded-full hover:from-coral/90 hover:to-coral transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 btn-target btn-press"
               >
-                <Mail className="w-4 h-4" />
-                Resend Verification Email
+                {isResending ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Mail className="w-4 h-4" />
+                    Resend Verification Email
+                  </>
+                )}
               </button>
+              {(resendCooldownMessage || resendRateLimitMessage) && (
+                <div className="rounded-lg border border-sage/20 bg-sage/5 px-4 py-3">
+                  <p
+                    className="text-sm text-charcoal/80"
+                    style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
+                  >
+                    {resendRateLimitMessage || resendCooldownMessage}
+                  </p>
+                </div>
+              )}
+              {resendRateLimitMessage && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <Link
+                    href={useDifferentEmailHref}
+                    className="w-full text-center text-sm text-charcoal/80 hover:text-charcoal transition-colors duration-300 py-2.5 border border-charcoal/15 rounded-lg"
+                  >
+                    Use a different email
+                  </Link>
+                  <Link
+                    href="/login"
+                    className="w-full text-center text-sm text-charcoal/80 hover:text-charcoal transition-colors duration-300 py-2.5 border border-charcoal/15 rounded-lg"
+                  >
+                    Go to login
+                  </Link>
+                </div>
+              )}
             </div>
 
             {verificationStatusMessage && (

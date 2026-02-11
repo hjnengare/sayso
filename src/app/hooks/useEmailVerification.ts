@@ -22,7 +22,12 @@ export function useEmailVerification() {
 
   const resendVerificationEmail = useCallback(async (): Promise<boolean> => {
     if (!userEmail) {
-      showToast('No email found. Log in again.', 'sage');
+      showToast('No email found. Log in again.', 'error');
+      return false;
+    }
+
+    if (isEmailVerified) {
+      showToast('Your email is already verified.', 'info');
       return false;
     }
 
@@ -30,17 +35,28 @@ export function useEmailVerification() {
       const { error } = await AuthService.resendVerificationEmail(userEmail);
       
       if (error) {
-        showToast(error.message, 'sage');
+        console.error('[useEmailVerification] Resend failed', {
+          email: userEmail,
+          code: error.code,
+          message: error.message,
+          details: error.details,
+        });
+        if (error.code === 'rate_limit') {
+          showToast('Too many attempts. Please wait a few minutes and try again.', 'error');
+        } else {
+          showToast(error.message || 'Failed to resend verification email. Please try again.', 'error');
+        }
         return false;
       } else {
-        showToast('Email sent. Check inbox.', 'sage', 2500);
+        showToast('Email sent. Check inbox.', 'success', 2500);
         return true;
       }
     } catch (error) {
-      showToast('Failed to resend. Try again.', 'sage');
+      console.error('[useEmailVerification] Unexpected resend error', { email: userEmail, error });
+      showToast('Failed to resend. Try again.', 'error');
       return false;
     }
-  }, [userEmail, showToast]);
+  }, [isEmailVerified, userEmail, showToast]);
 
   const checkEmailVerification = useCallback((action: string): boolean => {
     if (!isEmailVerified) {

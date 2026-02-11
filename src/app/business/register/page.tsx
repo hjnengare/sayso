@@ -7,7 +7,6 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useToast } from "../../contexts/ToastContext";
 import { usePrefersReducedMotion } from "../../utils/hooks/usePrefersReducedMotion";
 import { useScrollReveal } from "../../hooks/useScrollReveal";
-import { RateLimiter } from "../../lib/rateLimiting";
 import { usePredefinedPageTitle } from "../../hooks/usePageTitle";
 import { InlineLoader } from "../../components/Loader/Loader";
 import { getBrowserSupabase } from "../../lib/supabase/client";
@@ -239,15 +238,6 @@ export default function BusinessRegisterPage() {
       }
 
       const normalizedEmail = email.trim().toLowerCase();
-      const rateLimitResult = await RateLimiter.checkRateLimit(normalizedEmail, "register");
-
-      if (!rateLimitResult.allowed) {
-        const errorMsg = rateLimitResult.message || "Too many registration attempts. Please try again later.";
-        setError(errorMsg);
-        showToast(errorMsg, "sage", 5000);
-        setSubmitting(false);
-        return;
-      }
 
       // FLOW: BUSINESS REGISTER (NO SHARED EMAILS)
       // 1) If email exists in profiles, block signup and ask for a different email.
@@ -289,8 +279,6 @@ export default function BusinessRegisterPage() {
       );
 
       if (success) {
-        await RateLimiter.recordSuccess(normalizedEmail, "register");
-
         setUsername("");
         setEmail("");
         setPassword("");
