@@ -11,7 +11,6 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useToast } from "../../contexts/ToastContext";
 import { usePrefersReducedMotion } from "../../utils/hooks/usePrefersReducedMotion";
 import { useScrollReveal } from "../../hooks/useScrollReveal";
-import { RateLimiter } from "../../lib/rateLimiting";
 import { InlineLoader } from "../Loader/Loader";
 import { getBrowserSupabase } from "../../lib/supabase/client";
 
@@ -209,20 +208,11 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
     }
 
     const normalizedEmail = email.trim().toLowerCase();
-    const rateLimitResult = await RateLimiter.checkRateLimit(normalizedEmail, "login");
-
-    if (!rateLimitResult.allowed) {
-      const errorMsg = rateLimitResult.message || "Too many attempts. Try again later.";
-      setError(errorMsg);
-      showToast(errorMsg, "error", 3500);
-      return;
-    }
 
     const desiredRole = isBusiness ? "business_owner" : "user";
     const loggedInUser = await login(normalizedEmail, password, desiredRole);
 
     if (loggedInUser) {
-      await RateLimiter.recordSuccess(normalizedEmail, "login");
       showToast("Welcome back", "sage", 2000);
       return;
     }
@@ -296,16 +286,6 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
     }
 
     const normalizedEmail = email.trim().toLowerCase();
-    const rateLimitResult = await RateLimiter.checkRateLimit(normalizedEmail, "register");
-
-    if (!rateLimitResult.allowed) {
-      const msg =
-        rateLimitResult.message ||
-        "Too many registration attempts. Please try again later.";
-      setError(msg);
-      showToast(msg, "error", 5000);
-      return;
-    }
 
     const emailCheck = await checkEmailExists(normalizedEmail);
 
@@ -341,8 +321,6 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
     );
 
     if (success) {
-      await RateLimiter.recordSuccess(normalizedEmail, "register");
-
       resetFormState();
       showToast(
         isBusiness

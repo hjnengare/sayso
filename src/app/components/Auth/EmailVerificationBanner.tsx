@@ -24,15 +24,37 @@ export default function EmailVerificationBanner({ onDismiss, className = "" }: E
   }
 
   const handleResend = async () => {
-    if (!user.email) return;
+    if (!user.email) {
+      showToast('No email address found. Please log in again.', 'error');
+      return;
+    }
+    if (user.email_verified) {
+      showToast('Your email is already verified.', 'info');
+      return;
+    }
 
     setIsResending(true);
     try {
-      const success = await resendVerificationEmail(user.email);
-      if (success) {
+      const result = await resendVerificationEmail(user.email);
+      if (result.success) {
         showToast('Verification email sent! Check your inbox and spam folder.', 'success');
+      } else if (result.errorCode === 'rate_limit') {
+        showToast('Too many attempts. Please wait a few minutes and try again.', 'error');
+      } else if (result.errorCode === 'already_verified') {
+        showToast(result.errorMessage || 'Your email is already verified.', 'info');
+      } else {
+        console.error('[EmailVerificationBanner] Resend failed', {
+          code: result.errorCode,
+          message: result.errorMessage,
+          email: user.email,
+        });
+        showToast(result.errorMessage || 'Failed to resend verification email. Please try again.', 'error');
       }
     } catch (error) {
+      console.error('[EmailVerificationBanner] Unexpected resend error', {
+        error,
+        email: user.email,
+      });
       showToast('Failed to resend verification email. Please try again.', 'error');
     } finally {
       setIsResending(false);

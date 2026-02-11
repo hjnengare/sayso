@@ -7,7 +7,6 @@ import { Urbanist } from "next/font/google";
 import { ArrowLeft } from "lucide-react";
 import { AuthService } from "../lib/auth";
 import { useToast } from "../contexts/ToastContext";
-import { RateLimiter } from "../lib/rateLimiting";
 import { useScrollReveal } from "../hooks/useScrollReveal";
 import WavyTypedTitle from "../../components/Animations/WavyTypedTitle";
 
@@ -73,18 +72,6 @@ export default function ForgotPasswordPage() {
     }
 
     try {
-      // Check rate limit before requesting password reset
-      const normalizedEmail = email.trim().toLowerCase();
-      const rateLimitResult = await RateLimiter.checkRateLimit(normalizedEmail, 'password_reset');
-      
-      if (!rateLimitResult.allowed) {
-        const errorMsg = formatAuthMessage(rateLimitResult.message || "", authCopy.rateLimited);
-        setError(errorMsg);
-        showToast(errorMsg, 'error', 5000);
-        setIsSubmitting(false);
-        return;
-      }
-
       const { error: resetError } = await AuthService.resetPasswordForEmail(email);
 
       if (resetError) {
@@ -92,8 +79,6 @@ export default function ForgotPasswordPage() {
         setError(resetErrorMessage);
         showToast(resetErrorMessage, 'error', 4000);
       } else {
-        // Clear rate limit on successful password reset request
-        await RateLimiter.recordSuccess(normalizedEmail, 'password_reset');
         setEmailSent(true);
         showToast("Password reset email sent. Please check your inbox.", 'success', 5000);
       }

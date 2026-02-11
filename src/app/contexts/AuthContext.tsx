@@ -4,7 +4,6 @@ import React, { createContext, useContext, useState, useEffect, ReactNode, useMe
 import { useRouter } from 'next/navigation';
 import { getBrowserSupabase } from '../lib/supabase/client';
 import { AuthService } from '../lib/auth';
-import { RateLimiter } from '../lib/rateLimiting';
 import type { AuthUser } from '../lib/types/database';
 
 function isSchemaCacheError(error: { message?: string } | null | undefined): boolean {
@@ -25,7 +24,11 @@ interface AuthContextType {
   logout: () => Promise<void>;
   updateUser: (userData: Partial<AuthUser>) => Promise<void>;
   refreshUser: () => Promise<void>;
-  resendVerificationEmail: (email: string) => Promise<boolean>;
+  resendVerificationEmail: (email: string) => Promise<{
+    success: boolean;
+    errorCode?: string;
+    errorMessage?: string;
+  }>;
   isLoading: boolean;
   error: string | null;
 }
@@ -42,7 +45,7 @@ const DEFAULT_AUTH_CONTEXT: AuthContextType = {
   logout: async () => {},
   updateUser: async () => {},
   refreshUser: async () => {},
-  resendVerificationEmail: async () => false,
+  resendVerificationEmail: async () => ({ success: false }),
 };
 
 interface AuthProviderProps {
@@ -301,14 +304,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setUser(authUser);
         let activeUser = authUser;
 
-        // Clear rate limit on successful login
-        try {
-          await RateLimiter.recordSuccess(email.trim().toLowerCase(), 'login');
-        } catch (rateLimitError) {
-          console.error('Error clearing rate limit:', rateLimitError);
-          // Don't fail login if rate limit clearing fails
-        }
-
         // Optionally switch role if user selected a different mode and they have access
         if (desiredRole && authUser.profile) {
           const isAdminAccount =
@@ -441,11 +436,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
             has_session: !!session,
             session_data: session
           });
-          try {
-            await RateLimiter.recordSuccess(email.trim().toLowerCase(), 'register');
-          } catch (rateLimitError) {
-            console.error('Error clearing rate limit:', rateLimitError);
-          }
           setUser(authUser);
           if (typeof window !== 'undefined') {
             sessionStorage.setItem('pendingVerificationEmail', authUser.email);
@@ -644,25 +634,68 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }, [user]);
 
-  const resendVerificationEmail = async (email: string): Promise<boolean> => {
-    // Don't set global isLoading — callers manage their own loading state (isResending).
+  const resendVerificationEmail = async (
+    email: string
+  ): Promise<{ success: boolean; errorCode?: string; errorMessage?: string }> => {
+    // Don't set global isLoading - callers manage their own loading state (isResending).
     // Setting isLoading here causes the verify-email page to show a full-page spinner,
     // hiding the resend button and any error feedback.
     setError(null);
+    const normalizedEmail = email?.trim().toLowerCase();
 
     try {
-      const { error } = await AuthService.resendVerificationEmail(email);
-
-      if (error) {
-        setError(error.message);
-        return false;
+      if (!normalizedEmail) {
+        const message = 'No email address available to resend verification.';
+        setError(message);
+        return {
+          success: false,
+          errorCode: 'missing_email',
+          errorMessage: message,
+        };
       }
 
-      return true;
+      // Resend should only apply to accounts that are not yet verified.
+      if (
+        user?.email_verified &&
+        user.email?.trim().toLowerCase() === normalizedEmail
+      ) {
+        return {
+          success: false,
+          errorCode: 'already_verified',
+          errorMessage: 'Your email is already verified. Please log in.',
+        };
+      }
+
+      const { error } = await AuthService.resendVerificationEmail(normalizedEmail);
+
+      if (error) {
+        console.error('AuthContext: resendVerificationEmail failed:', {
+          email: normalizedEmail,
+          code: error.code,
+          message: error.message,
+          details: error.details,
+        });
+        setError(error.message);
+        return {
+          success: false,
+          errorCode: error.code,
+          errorMessage: error.message,
+        };
+      }
+
+      return { success: true };
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Failed to resend verification email';
+      console.error('AuthContext: resendVerificationEmail unexpected error:', {
+        email: normalizedEmail,
+        error,
+      });
       setError(message);
-      return false;
+      return {
+        success: false,
+        errorCode: 'unknown_error',
+        errorMessage: message,
+      };
     }
   };
 
@@ -694,4 +727,5 @@ export function useAuth(): AuthContextType {
   }
   return context;
 }
+
 

@@ -89,18 +89,38 @@ export default function EmailVerificationGuard({
 
   // If email is not verified, show verification prompt
   const handleResendVerification = async () => {
-    if (!userEmail) return;
+    if (!userEmail) {
+      showToast('No email address found. Please log in again.', 'error');
+      return;
+    }
+    if (emailVerified) {
+      showToast('Your email is already verified.', 'info');
+      return;
+    }
 
     setIsResending(true);
     try {
-      const { error } = await AuthService.resendVerificationEmail(userEmail);
+      const { error: resendError } = await AuthService.resendVerificationEmail(userEmail);
 
-      if (error) {
-        showToast(error.message, 'error');
+      if (resendError) {
+        console.error('[EmailVerificationGuard] Resend failed', {
+          email: userEmail,
+          code: resendError.code,
+          message: resendError.message,
+          details: resendError.details,
+        });
+        if (resendError.code === 'rate_limit') {
+          showToast('Too many attempts. Please wait a few minutes and try again.', 'error');
+        } else if (resendError.code === 'already_verified') {
+          showToast(resendError.message || 'Your email is already verified.', 'info');
+        } else {
+          showToast(resendError.message || 'Failed to resend verification email. Please try again.', 'error');
+        }
       } else {
         showToast('Verification email sent! Check your inbox.', 'success');
       }
     } catch (error) {
+      console.error('[EmailVerificationGuard] Unexpected resend error', { email: userEmail, error });
       showToast('Failed to resend verification email. Please try again.', 'error');
     } finally {
       setIsResending(false);

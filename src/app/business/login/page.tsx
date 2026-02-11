@@ -6,7 +6,6 @@ import { ArrowLeft } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useToast } from "../../contexts/ToastContext";
 import { useScrollReveal } from "../../hooks/useScrollReveal";
-import { RateLimiter } from "../../lib/rateLimiting";
 import { usePredefinedPageTitle } from "../../hooks/usePageTitle";
 import WavyTypedTitle from "../../../components/Animations/WavyTypedTitle";
 
@@ -92,27 +91,14 @@ export default function BusinessLoginPage() {
     }
 
     try {
-      // Check rate limit before attempting login
       const normalizedEmail = email.trim().toLowerCase();
-      const rateLimitResult = await RateLimiter.checkRateLimit(normalizedEmail, 'login');
-
-      if (!rateLimitResult.allowed) {
-        const errorMsg = formatAuthMessage(rateLimitResult.message || "", authCopy.rateLimited);
-        setError(errorMsg);
-        showToast(errorMsg, 'sage', 3500);
-        setIsSubmitting(false);
-        return;
-      }
 
       // Login as business owner
-      const loggedInUser = await login(email, password, 'business_owner');
+      const loggedInUser = await login(normalizedEmail, password, 'business_owner');
 
       if (loggedInUser) {
-        // Clear rate limit on successful login
-        await RateLimiter.recordSuccess(email.trim().toLowerCase(), 'login');
         showToast("Welcome back", 'sage', 2000);
       } else {
-        // Rate limit already incremented by checkRateLimit, no need to record failure
         const errorMsg = formatAuthMessage(authError || "", authCopy.loginInvalidCredentials);
         setError(errorMsg);
         showToast(errorMsg, 'sage', 3000);
