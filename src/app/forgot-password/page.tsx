@@ -14,6 +14,8 @@ import WavyTypedTitle from "../../components/Animations/WavyTypedTitle";
 // Import shared components
 import { authStyles } from "../components/Auth/Shared/authStyles";
 import { EmailInput } from "../components/Auth/Shared/EmailInput";
+import { AuthAlert } from "../components/Auth/Shared/AuthAlert";
+import { authCopy, formatAuthMessage } from "../components/Auth/Shared/authCopy";
 
 const urbanist = Urbanist({
   weight: ["400", "600", "700", "800"],
@@ -43,8 +45,8 @@ export default function ForgotPasswordPage() {
 
   const getEmailError = () => {
     if (!emailTouched) return "";
-    if (!email) return "Email is required";
-    if (!validateEmail(email)) return "Please enter a valid email address";
+    if (!email) return authCopy.emailRequired;
+    if (!validateEmail(email)) return authCopy.emailInvalid;
     return "";
   };
 
@@ -57,15 +59,15 @@ export default function ForgotPasswordPage() {
     setEmailTouched(true);
 
     if (!email) {
-      setError("Please enter your email address");
-      showToast("Please enter your email address", 'warning', 3000);
+      setError(authCopy.emailRequired);
+      showToast(authCopy.emailRequired, 'warning', 3000);
       setIsSubmitting(false);
       return;
     }
 
     if (!validateEmail(email)) {
-      setError("Please enter a valid email address");
-      showToast("Please enter a valid email address", 'warning', 3000);
+      setError(authCopy.emailInvalid);
+      showToast(authCopy.emailInvalid, 'warning', 3000);
       setIsSubmitting(false);
       return;
     }
@@ -76,7 +78,7 @@ export default function ForgotPasswordPage() {
       const rateLimitResult = await RateLimiter.checkRateLimit(normalizedEmail, 'password_reset');
       
       if (!rateLimitResult.allowed) {
-        const errorMsg = rateLimitResult.message || 'Too many password reset requests. Please try again later.';
+        const errorMsg = formatAuthMessage(rateLimitResult.message || "", authCopy.rateLimited);
         setError(errorMsg);
         showToast(errorMsg, 'error', 5000);
         setIsSubmitting(false);
@@ -86,16 +88,17 @@ export default function ForgotPasswordPage() {
       const { error: resetError } = await AuthService.resetPasswordForEmail(email);
 
       if (resetError) {
-        setError(resetError.message);
-        showToast(resetError.message, 'error', 4000);
+        const resetErrorMessage = formatAuthMessage(resetError.message, authCopy.resetRequestFailed);
+        setError(resetErrorMessage);
+        showToast(resetErrorMessage, 'error', 4000);
       } else {
         // Clear rate limit on successful password reset request
         await RateLimiter.recordSuccess(normalizedEmail, 'password_reset');
         setEmailSent(true);
-        showToast("Password reset email sent! Check your inbox.", 'success', 5000);
+        showToast("Password reset email sent. Please check your inbox.", 'success', 5000);
       }
     } catch (error: unknown) {
-      const errorMsg = error instanceof Error ? error.message : 'Failed to send reset email. Please try again.';
+      const errorMsg = formatAuthMessage(error instanceof Error ? error.message : "", authCopy.resetRequestFailed);
       setError(errorMsg);
       showToast(errorMsg, 'error', 4000);
     } finally {
@@ -156,7 +159,7 @@ export default function ForgotPasswordPage() {
 
                   <div className="space-y-2">
                     <h2 className="font-urbanist text-xl font-700 text-white" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                      Email sent!
+                      Email sent
                     </h2>
                     <p className="font-urbanist text-body-sm text-white/80" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                       We&apos;ve sent password reset instructions to:
@@ -259,9 +262,7 @@ export default function ForgotPasswordPage() {
               <form onSubmit={handleSubmit} className="space-y-4 relative z-10">
                 {/* Error Message */}
                 {error && (
-                  <div className="bg-orange-50 border border-orange-200 rounded-[12px] p-4 text-center">
-                    <p className="text-caption font-semibold text-orange-600" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>{error}</p>
-                  </div>
+                  <AuthAlert message={error} tone="error" />
                 )}
 
                 <div className="mb-4 text-center">

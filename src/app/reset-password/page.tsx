@@ -7,7 +7,6 @@ import { Urbanist } from "next/font/google";
 import { ArrowLeft } from "lucide-react";
 import { AuthService } from "../lib/auth";
 import { useToast } from "../contexts/ToastContext";
-import { AlertCircle } from "lucide-react";
 import { getBrowserSupabase } from "../lib/supabase/client";
 import { useScrollReveal } from "../hooks/useScrollReveal";
 import { usePredefinedPageTitle } from "../hooks/usePageTitle";
@@ -16,6 +15,8 @@ import WavyTypedTitle from "../../components/Animations/WavyTypedTitle";
 // Import shared components
 import { authStyles } from "../components/Auth/Shared/authStyles";
 import { PasswordInput } from "../components/Auth/Shared/PasswordInput";
+import { AuthAlert } from "../components/Auth/Shared/AuthAlert";
+import { authCopy, formatAuthMessage } from "../components/Auth/Shared/authCopy";
 import { PageLoader, InlineLoader } from "../components/Loader";
 
 const urbanist = Urbanist({
@@ -87,33 +88,32 @@ export default function ResetPasswordPage() {
           }
         } else {
           console.error('Session check error:', sessionError);
-          setError("Invalid or expired reset link. Please request a new one.");
-          showToast("Invalid or expired reset link", 'error', 4000);
+          setError(authCopy.resetLinkInvalid);
+          showToast(authCopy.resetLinkInvalid, 'error', 4000);
         }
       } catch (err) {
         console.error('Error checking session:', err);
-        setError("Failed to verify reset link. Please try again.");
-        showToast("Failed to verify reset link", 'error', 4000);
+        setError(authCopy.resetLinkVerifyFailed);
+        showToast(authCopy.resetLinkVerifyFailed, 'error', 4000);
       } finally {
         setIsChecking(false);
       }
     };
 
     checkSession();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Only run once on mount - router and showToast are stable
 
   const getPasswordError = () => {
     if (!passwordTouched) return "";
-    if (!password) return "Password is required";
-    if (password.length < 6) return "Password must be at least 6 characters";
+    if (!password) return authCopy.passwordRequired;
+    if (password.length < 6) return authCopy.passwordMin;
     return "";
   };
 
   const getConfirmPasswordError = () => {
     if (!confirmPasswordTouched) return "";
-    if (!confirmPassword) return "Please confirm your password";
-    if (confirmPassword !== password) return "Passwords do not match";
+    if (!confirmPassword) return authCopy.passwordConfirmRequired;
+    if (confirmPassword !== password) return authCopy.passwordMismatch;
     return "";
   };
 
@@ -127,15 +127,15 @@ export default function ResetPasswordPage() {
     setConfirmPasswordTouched(true);
 
     if (!password || !confirmPassword) {
-      setError("Please fill in all fields");
-      showToast("Please fill in all fields", 'warning', 3000);
+      setError(authCopy.requiredFields);
+      showToast(authCopy.requiredFields, 'warning', 3000);
       setIsSubmitting(false);
       return;
     }
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      showToast("Passwords do not match", 'warning', 3000);
+      setError(authCopy.passwordMismatch);
+      showToast(authCopy.passwordMismatch, 'warning', 3000);
       setIsSubmitting(false);
       return;
     }
@@ -155,14 +155,15 @@ export default function ResetPasswordPage() {
 
       if (updateError) {
         console.error('Password update error:', updateError);
-        setError(updateError.message);
-        showToast(updateError.message, 'error', 4000);
+        const updateMessage = formatAuthMessage(updateError.message, authCopy.resetPasswordFailed);
+        setError(updateMessage);
+        showToast(updateMessage, 'error', 4000);
         setIsSubmitting(false);
       } else {
         console.log('Password updated successfully');
         
         setResetComplete(true);
-        showToast("Password reset successful!", 'success', 3000);
+        showToast("Your password has been updated.", 'success', 3000);
 
         // Redirect to home after 2 seconds
         setTimeout(() => {
@@ -172,7 +173,7 @@ export default function ResetPasswordPage() {
       }
     } catch (error: unknown) {
       console.error('Exception during password reset:', error);
-      const errorMsg = error instanceof Error ? error.message : 'Failed to reset password. Please try again.';
+      const errorMsg = formatAuthMessage(error instanceof Error ? error.message : "", authCopy.resetPasswordFailed);
       setError(errorMsg);
       showToast(errorMsg, 'error', 4000);
       setIsSubmitting(false);
@@ -225,7 +226,7 @@ export default function ResetPasswordPage() {
               />
             </div>
             <p className="text-body font-normal text-charcoal/70 mb-4 leading-[1.55] px-2 max-w-[70ch] mx-auto animate-fade-in-up animate-delay-700" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 400 }}>
-              This reset link is invalid or has expired
+              This reset link is no longer valid
             </p>
           </div>
 
@@ -244,7 +245,7 @@ export default function ResetPasswordPage() {
                     Link expired
                   </h2>
                   <p className="text-body-sm text-white/90" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                    This password reset link is invalid or has expired. Please request a new one.
+                    This password reset link is no longer valid. Please request a new one.
                   </p>
                 </div>
 
@@ -298,7 +299,7 @@ export default function ResetPasswordPage() {
           <div className="text-center mb-4 pt-16 sm:pt-20">
             <div className="inline-block relative mb-4 animate-fade-in-up animate-delay-400">
               <WavyTypedTitle
-                text="Success!"
+                text="Password updated"
                 as="h2"
                 className={`${urbanist.className} text-3xl md:text-4xl font-semibold mb-2 text-center leading-[1.2] px-2 tracking-tight text-charcoal`}
                 typingSpeedMs={40}
@@ -327,10 +328,10 @@ export default function ResetPasswordPage() {
 
                 <div className="space-y-2">
                   <h2 className="text-heading-md font-bold text-white" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 700 }}>
-                    Password reset!
+                    Password updated
                   </h2>
                   <p className="text-body-sm text-white/90" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                    Your password has been successfully reset. Redirecting you to home...
+                    Your password has been updated. Redirecting you to home.
                   </p>
                 </div>
 
@@ -401,9 +402,7 @@ export default function ResetPasswordPage() {
             <form onSubmit={handleSubmit} className="space-y-4 relative z-10">
               {/* Error Message */}
               {error && (
-                <div className="bg-orange-50 border border-orange-200 rounded-[12px] p-4 text-center">
-                  <p className="text-caption font-semibold text-orange-600" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>{error}</p>
-                </div>
+                <AuthAlert message={error} tone="error" />
               )}
 
               <div className="mb-4 text-center">
@@ -424,13 +423,11 @@ export default function ResetPasswordPage() {
                 placeholder="Enter new password"
                 showStrength={true}
                 touched={passwordTouched}
+                error={getPasswordError()}
+                id="reset-password"
+                label="New password"
+                autoComplete="new-password"
               />
-              {getPasswordError() && passwordTouched && (
-                <p className="text-xs text-orange-600 flex items-center gap-1 mt-1" role="alert" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                  <AlertCircle className="w-3 h-3" />
-                  {getPasswordError()}
-                </p>
-              )}
 
               {/* Confirm Password Input */}
               <PasswordInput
@@ -444,13 +441,11 @@ export default function ResetPasswordPage() {
                 placeholder="Confirm new password"
                 showStrength={false}
                 touched={confirmPasswordTouched}
+                error={getConfirmPasswordError()}
+                id="reset-password-confirm"
+                label="Confirm password"
+                autoComplete="new-password"
               />
-              {getConfirmPasswordError() && confirmPasswordTouched && (
-                <p className="text-xs text-orange-600 flex items-center gap-1 mt-1" role="alert" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                  <AlertCircle className="w-3 h-3" />
-                  {getConfirmPasswordError()}
-                </p>
-              )}
 
               {/* Submit Button */}
               <div className="pt-2 flex justify-center">

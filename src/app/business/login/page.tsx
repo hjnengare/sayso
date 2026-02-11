@@ -14,6 +14,8 @@ import WavyTypedTitle from "../../../components/Animations/WavyTypedTitle";
 import { authStyles } from "../../components/Auth/Shared/authStyles";
 import { EmailInput } from "../../components/Auth/Shared/EmailInput";
 import { PasswordInput } from "../../components/Auth/Shared/PasswordInput";
+import { AuthAlert } from "../../components/Auth/Shared/AuthAlert";
+import { authCopy, formatAuthMessage } from "../../components/Auth/Shared/authCopy";
 // Note: SocialLoginButtons not imported - business accounts use email+password only
 
 export default function BusinessLoginPage() {
@@ -53,15 +55,15 @@ export default function BusinessLoginPage() {
 
   const getEmailError = () => {
     if (!emailTouched) return "";
-    if (!email) return "Email is required";
-    if (!validateEmail(email)) return "Please enter a valid email address";
+    if (!email) return authCopy.emailRequired;
+    if (!validateEmail(email)) return authCopy.emailInvalid;
     return "";
   };
 
   const getPasswordError = () => {
     if (!passwordTouched) return "";
-    if (!password) return "Password is required";
-    if (password.length < 6) return "Password must be at least 6 characters";
+    if (!password) return authCopy.passwordRequired;
+    if (password.length < 6) return authCopy.passwordMin;
     return "";
   };
 
@@ -75,14 +77,14 @@ export default function BusinessLoginPage() {
     setPasswordTouched(true);
 
     if (!email || !password) {
-      setError("Complete all fields");
-      showToast("All fields required", 'sage', 2500);
+      setError(authCopy.requiredFields);
+      showToast(authCopy.requiredFields, 'sage', 2500);
       setIsSubmitting(false);
       return;
     }
 
     if (!validateEmail(email)) {
-      const errorMsg = "Email invalid";
+      const errorMsg = authCopy.emailInvalid;
       setError(errorMsg);
       showToast(errorMsg, 'sage', 2500);
       setIsSubmitting(false);
@@ -95,7 +97,7 @@ export default function BusinessLoginPage() {
       const rateLimitResult = await RateLimiter.checkRateLimit(normalizedEmail, 'login');
 
       if (!rateLimitResult.allowed) {
-        const errorMsg = rateLimitResult.message || 'Too many attempts. Try again later.';
+        const errorMsg = formatAuthMessage(rateLimitResult.message || "", authCopy.rateLimited);
         setError(errorMsg);
         showToast(errorMsg, 'sage', 3500);
         setIsSubmitting(false);
@@ -111,12 +113,12 @@ export default function BusinessLoginPage() {
         showToast("Welcome back", 'sage', 2000);
       } else {
         // Rate limit already incremented by checkRateLimit, no need to record failure
-        const errorMsg = authError || "Email or password is incorrect";
+        const errorMsg = formatAuthMessage(authError || "", authCopy.loginInvalidCredentials);
         setError(errorMsg);
         showToast(errorMsg, 'sage', 3000);
       }
     } catch (error: unknown) {
-      const errorMsg = error instanceof Error ? error.message : 'Login failed';
+      const errorMsg = formatAuthMessage(error instanceof Error ? error.message : "", authCopy.authRequestFailed);
       setError(errorMsg);
       showToast(errorMsg, 'sage', 4000);
     } finally {
@@ -165,9 +167,7 @@ export default function BusinessLoginPage() {
             <form onSubmit={handleSubmit} className="space-y-4 relative z-10">
               {/* Error Message */}
               {error && (
-                <div className="bg-orange-50 border border-orange-200 rounded-[12px] p-4 text-center">
-                  <p className="text-caption font-semibold text-orange-600">{error}</p>
-                </div>
+                <AuthAlert message={error} tone="error" />
               )}
 
               {/* Email Input */}
@@ -197,6 +197,7 @@ export default function BusinessLoginPage() {
                 showStrength={false}
                 touched={passwordTouched}
                 error={getPasswordError()}
+                autoComplete="current-password"
               />
 
               {/* Forgot password link */}

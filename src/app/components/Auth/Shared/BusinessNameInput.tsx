@@ -1,8 +1,10 @@
 "use client";
 
+import { useId } from "react";
 import { Building2, AlertCircle, CheckCircle } from "lucide-react";
 
 interface BusinessNameInputProps {
+  id?: string;
   value: string;
   onChange: (value: string) => void;
   onBlur: () => void;
@@ -15,6 +17,7 @@ interface BusinessNameInputProps {
 }
 
 export function BusinessNameInput({
+  id,
   value,
   onChange,
   onBlur,
@@ -23,14 +26,19 @@ export function BusinessNameInput({
   disabled = false,
   label = "Public Business Name",
   placeholder = "Your public business name",
-  successMessage = "Public business name looks good!"
+  successMessage = "Public business name looks good."
 }: BusinessNameInputProps) {
+  const generatedId = useId().replace(/:/g, "");
+  const inputId = id ?? `auth-business-name-${generatedId}`;
+  const errorId = `${inputId}-error`;
+  const successId = `${inputId}-success`;
   const hasError = touched && !!error;
   const isValid = touched && value && !error;
 
   return (
     <div>
       <label
+        htmlFor={inputId}
         className="block text-sm font-semibold text-white mb-2"
         style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 600 }}
       >
@@ -55,11 +63,15 @@ export function BusinessNameInput({
           )}
         </div>
         <input
+          id={inputId}
+          name={inputId}
           type="text"
           placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onBlur={onBlur}
+          aria-invalid={hasError ? "true" : "false"}
+          aria-describedby={hasError ? errorId : isValid ? successId : undefined}
           style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 600 }}
           className={`w-full bg-white/95 backdrop-blur-sm border pl-12 sm:pl-14 pr-4 py-3 sm:py-4 md:py-5 text-body font-semibold text-charcoal placeholder-charcoal/50 placeholder:font-normal focus:outline-none focus:ring-2 transition-all duration-300 hover:border-sage/50 input-mobile rounded-full ${
             hasError
@@ -73,21 +85,21 @@ export function BusinessNameInput({
       </div>
       {hasError && (
         <p
-          className="text-sm sm:text-xs text-navbar-bg flex items-center gap-1 mt-1"
+          id={errorId}
+          className="auth-field-feedback auth-field-feedback-error"
           role="alert"
-          style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 600 }}
         >
-          <AlertCircle className="w-3 h-3" />
+          <AlertCircle className="w-3 h-3" aria-hidden="true" />
           {error}
         </p>
       )}
       {isValid && (
         <p
-          className="text-sm sm:text-xs text-navbar-bg flex items-center gap-1 mt-1"
+          id={successId}
+          className="auth-field-feedback auth-field-feedback-success"
           role="status"
-          style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 600 }}
         >
-          <CheckCircle className="w-3 h-3" />
+          <CheckCircle className="w-3 h-3" aria-hidden="true" />
           {successMessage}
         </p>
       )}

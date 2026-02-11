@@ -1,6 +1,6 @@
 // Shared mobile-first CSS styles for auth pages
 export const authStyles = `
-  /* Mobile-first typography scale - Body text ≥ 16px */
+  /* Mobile-first typography scale - body text >= 16px */
   .text-body { font-size: 1rem; line-height: 1.5; }
   .text-body-lg { font-size: 1.125rem; line-height: 1.5; }
   .text-heading-sm { font-size: 1.25rem; line-height: 1.4; }
@@ -67,6 +67,77 @@ export const authStyles = `
     font-size: 1rem !important;
     min-height: 48px;
     touch-action: manipulation;
+  }
+
+  /* Shared auth alert styles */
+  .auth-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    border-width: 1px;
+    border-radius: 12px;
+    padding: 0.875rem 1rem;
+    text-align: left;
+    backdrop-filter: blur(4px);
+  }
+
+  .auth-alert-icon {
+    width: 1rem;
+    height: 1rem;
+    margin-top: 0.125rem;
+    flex-shrink: 0;
+  }
+
+  .auth-alert-message {
+    margin: 0;
+    font-family: 'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-size: 0.875rem;
+    line-height: 1.45;
+    font-weight: 600;
+  }
+
+  .auth-alert-error {
+    color: #9a3412;
+    background: rgba(255, 247, 237, 0.95);
+    border-color: rgba(251, 146, 60, 0.35);
+  }
+
+  .auth-alert-warning {
+    color: #92400e;
+    background: rgba(255, 251, 235, 0.95);
+    border-color: rgba(251, 191, 36, 0.35);
+  }
+
+  .auth-alert-info {
+    color: #1e3a8a;
+    background: rgba(239, 246, 255, 0.95);
+    border-color: rgba(147, 197, 253, 0.4);
+  }
+
+  .auth-alert-success {
+    color: #14532d;
+    background: rgba(240, 253, 244, 0.95);
+    border-color: rgba(134, 239, 172, 0.45);
+  }
+
+  /* Shared field feedback styles */
+  .auth-field-feedback {
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-family: 'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    font-weight: 600;
+  }
+
+  .auth-field-feedback-error {
+    color: #c2410c;
+  }
+
+  .auth-field-feedback-success {
+    color: #166534;
   }
 
   /* Premium card styling with gradient shadow */
@@ -201,7 +272,7 @@ export const authStyles = `
       white-space: nowrap;
       max-width: 100%;
     }
-    
+
     .title-no-break h2,
     .title-no-break h1 {
       white-space: nowrap;
@@ -209,5 +280,5 @@ export const authStyles = `
       overflow-wrap: normal;
     }
   }
-
 `;
+

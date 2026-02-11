@@ -1,8 +1,10 @@
 "use client";
 
+import { useId } from "react";
 import { User, AlertCircle, CheckCircle } from "lucide-react";
 
 interface UsernameInputProps {
+  id?: string;
   value: string;
   onChange: (value: string) => void;
   onBlur: () => void;
@@ -12,6 +14,7 @@ interface UsernameInputProps {
 }
 
 export function UsernameInput({
+  id,
   value,
   onChange,
   onBlur,
@@ -19,12 +22,16 @@ export function UsernameInput({
   touched,
   disabled = false
 }: UsernameInputProps) {
+  const generatedId = useId().replace(/:/g, "");
+  const inputId = id ?? `auth-username-${generatedId}`;
+  const errorId = `${inputId}-error`;
+  const successId = `${inputId}-success`;
   const hasError = touched && !!error;
   const isValid = touched && value && !error;
 
   return (
     <div>
-      <label className="block text-sm font-semibold text-white mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
+      <label htmlFor={inputId} className="block text-sm font-semibold text-white mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
         Username
       </label>
       <div className="relative group">
@@ -38,11 +45,16 @@ export function UsernameInput({
             <User className="w-5 h-5" />}
         </div>
         <input
+          id={inputId}
+          name={inputId}
           type="text"
           placeholder="Choose a username"
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onBlur={onBlur}
+          autoComplete="username"
+          aria-invalid={hasError ? "true" : "false"}
+          aria-describedby={hasError ? errorId : isValid ? successId : undefined}
           style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
           className={`w-full bg-white/95 backdrop-blur-sm border pl-12 sm:pl-14 pr-4 py-3 sm:py-4 md:py-5 text-body font-semibold text-charcoal placeholder-charcoal/50 placeholder:font-normal focus:outline-none focus:ring-2 transition-all duration-300 hover:border-sage/50 input-mobile rounded-full ${
             hasError ? 'border-navbar-bg focus:border-navbar-bg focus:ring-navbar-bg/20' :
@@ -55,15 +67,15 @@ export function UsernameInput({
 
       {/* Username validation feedback */}
       {hasError && (
-        <p className="text-sm sm:text-xs text-navbar-bg flex items-center gap-1 mt-1" role="alert" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
-          <AlertCircle className="w-3 h-3" />
+        <p id={errorId} className="auth-field-feedback auth-field-feedback-error" role="alert">
+          <AlertCircle className="w-3 h-3" aria-hidden="true" />
           {error}
         </p>
       )}
       {isValid && (
-        <p className="text-sm sm:text-xs text-navbar-bg flex items-center gap-1 mt-1" role="status" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
-          <CheckCircle className="w-3 h-3" />
-          Username looks good!
+        <p id={successId} className="auth-field-feedback auth-field-feedback-success" role="status">
+          <CheckCircle className="w-3 h-3" aria-hidden="true" />
+          Username looks good.
         </p>
       )}
     </div>
