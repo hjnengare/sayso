@@ -144,14 +144,14 @@ function EventCard({ event, index = 0 }: EventCardProps) {
 
   return (
     <li
-      className="flex w-full h-full"
+      className="flex w-full"
       style={{
         fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
         fontWeight: 600,
       }}
     >
       <article
-        className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden group cursor-pointer w-full h-full flex flex-col border border-white/60 backdrop-blur-xl shadow-md transition-all duration-300 hover:border-white/80 hover:-translate-y-1 hover:shadow-lg md:w-[340px]"
+        className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden group cursor-pointer w-full flex flex-col border border-white/60 backdrop-blur-xl shadow-md transition-all duration-300 hover:border-white/80 hover:-translate-y-1 hover:shadow-lg md:w-[340px]"
         style={{ maxWidth: "540px" } as CSSProperties}
       >
           {/* MEDIA - Full bleed with premium overlay */}
@@ -216,7 +216,7 @@ function EventCard({ event, index = 0 }: EventCardProps) {
           </div>
 
           {/* CONTENT - Minimal, premium spacing */}
-          <div className="px-4 py-4 bg-gradient-to-b from-card-bg/95 to-card-bg flex flex-col gap-2 rounded-b-[12px] flex-1">
+          <div className="px-4 py-4 bg-gradient-to-b from-card-bg/95 to-card-bg flex flex-col gap-2 rounded-b-[12px]">
             <div className="flex flex-col gap-2">
               <motion.h3
                 layoutId={eventTitleLayoutId}

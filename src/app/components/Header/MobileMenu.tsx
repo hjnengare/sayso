@@ -2,37 +2,12 @@ import { CSSProperties, MouseEvent, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import {
   ChevronDown,
-  Facebook,
-  Instagram,
   Lock,
-  Youtube,
-  type LucideIcon,
 } from "lucide-react";
 import OptimizedLink from "../Navigation/OptimizedLink";
 import { NavLink } from "./DesktopNav";
 import MobileMenuToggleIcon from "./MobileMenuToggleIcon";
 import { getMobileMenuActions, shouldShowLockIndicator } from "./headerActionsConfig";
-
-interface SocialLink {
-  key: "instagram" | "facebook" | "youtube";
-  href: string;
-  label: string;
-  Icon: LucideIcon;
-}
-
-const hasUsableExternalHref = (value: string | undefined): value is string => {
-  if (!value || !value.trim()) return false;
-  try {
-    const url = new URL(value);
-    return url.protocol === "https:" || url.protocol === "http:";
-  } catch {
-    return false;
-  }
-};
-
-const resolveSocialHref = (value: string | undefined, fallback: string): string => {
-  return hasUsableExternalHref(value) ? value : fallback;
-};
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -107,26 +82,6 @@ export default function MobileMenu({
     textDecorationColor: "rgba(255,255,255,0.5)",
     textDecorationThickness: "1px",
   };
-  const socialLinks: SocialLink[] = [
-    {
-      key: "instagram",
-      href: resolveSocialHref(process.env.NEXT_PUBLIC_SOCIAL_INSTAGRAM, "https://www.instagram.com"),
-      label: "Visit us on Instagram",
-      Icon: Instagram,
-    },
-    {
-      key: "facebook",
-      href: resolveSocialHref(process.env.NEXT_PUBLIC_SOCIAL_FACEBOOK, "https://www.facebook.com"),
-      label: "Visit us on Facebook",
-      Icon: Facebook,
-    },
-    {
-      key: "youtube",
-      href: resolveSocialHref(process.env.NEXT_PUBLIC_SOCIAL_YOUTUBE, "https://www.youtube.com"),
-      label: "Visit us on YouTube",
-      Icon: Youtube,
-    },
-  ];
 
   // Always render nav links, but show skeleton/placeholder if loading
   if (typeof isBusinessAccountUser === 'undefined') {
@@ -457,22 +412,6 @@ export default function MobileMenu({
               {menuContent}
             </div>
           </nav>
-          {isOpen && socialLinks.length > 0 && (
-            <div className="px-3 pt-2 pb-[calc(env(safe-area-inset-bottom)+12px)] border-t border-charcoal/10 flex items-center justify-center gap-5">
-              {socialLinks.map(({ key, href, label, Icon }) => (
-                <a
-                  key={key}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={label}
-                  className="w-10 h-10 flex items-center justify-center rounded-full text-white/80 hover:text-white hover:bg-white/10 transition-colors duration-200"
-                >
-                  <Icon className="w-5 h-5" />
-                </a>
-              ))}
-            </div>
-          )}
         </div>
       </div>
     </>
