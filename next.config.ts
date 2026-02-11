@@ -20,7 +20,7 @@ const nextConfig: NextConfig = {
     qualities: [25, 50, 75, 85, 90, 100],
     
     // Minimum quality for AVIF (better compression than WebP)
-    minimumCacheTTL: 60, // Cache optimized images for 60 seconds minimum
+    minimumCacheTTL: 86400, // Cache optimized images for 24h to reduce repeat transformations
     
     // CDN domains
     remotePatterns: [

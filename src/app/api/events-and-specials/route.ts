@@ -49,6 +49,7 @@ const normalizeSeriesKey = (row: Pick<EventsAndSpecialsRow, "title" | "business_
  * - limit?: number (default 20)
  */
 export async function GET(req: NextRequest) {
+  const cacheControl = "public, s-maxage=120, stale-while-revalidate=300";
   try {
     const { searchParams } = new URL(req.url);
     const typeParam = (searchParams.get("type") || "").trim().toLowerCase();
@@ -114,7 +115,9 @@ export async function GET(req: NextRequest) {
 
     if (error) {
       console.error("[events-and-specials] query error:", error);
-      return NextResponse.json({ items: [], count: 0, limit, offset }, { status: 200 });
+      const response = NextResponse.json({ items: [], count: 0, limit, offset }, { status: 200 });
+      response.headers.set("Cache-Control", cacheControl);
+      return response;
     }
 
     const rawRows = (data || []) as unknown as EventsAndSpecialsRow[];
@@ -231,15 +234,19 @@ export async function GET(req: NextRequest) {
 
     const paged = consolidated.slice(offset, offset + limit);
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       items: paged,
       count: consolidated.length,
       limit,
       offset,
     });
+    response.headers.set("Cache-Control", cacheControl);
+    return response;
   } catch (err) {
     console.error("[events-and-specials] error:", err);
-    return NextResponse.json({ items: [], count: 0, limit: 20, offset: 0 }, { status: 200 });
+    const response = NextResponse.json({ items: [], count: 0, limit: 20, offset: 0 }, { status: 200 });
+    response.headers.set("Cache-Control", cacheControl);
+    return response;
   }
 }
 

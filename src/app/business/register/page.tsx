@@ -17,9 +17,6 @@ import WavyTypedTitle from "../../../components/Animations/WavyTypedTitle";
 import { authStyles } from "../../components/Auth/Shared/authStyles";
 import { EmailInput } from "../../components/Auth/Shared/EmailInput";
 import { PasswordInput } from "../../components/Auth/Shared/PasswordInput";
-import { BusinessNameInput } from "../../components/Auth/Shared/BusinessNameInput";
-import { AuthAlert } from "../../components/Auth/Shared/AuthAlert";
-import { authCopy, existingAccountMessage, formatAuthMessage } from "../../components/Auth/Shared/authCopy";
 // Note: SocialLoginButtons not imported - business accounts use email+password only
 
 // Import register-specific components
@@ -31,7 +28,6 @@ export default function BusinessRegisterPage() {
   usePredefinedPageTitle("register");
   const prefersReduced = usePrefersReducedMotion();
   const [username, setUsername] = useState("");
-  const [publicBusinessName, setPublicBusinessName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -39,7 +35,6 @@ export default function BusinessRegisterPage() {
   const [isOnline, setIsOnline] = useState(true);
   const [consent, setConsent] = useState(false);
   const [usernameTouched, setUsernameTouched] = useState(false);
-  const [publicBusinessNameTouched, setPublicBusinessNameTouched] = useState(false);
   const [emailTouched, setEmailTouched] = useState(false);
   const [passwordTouched, setPasswordTouched] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -82,31 +77,19 @@ export default function BusinessRegisterPage() {
     return emailRegex.test(email);
   };
 
-  const validatePublicBusinessName = (name: string) => {
-    const trimmed = name.trim();
-    return trimmed.length >= 2 && trimmed.length <= 80;
-  };
-
   const getUsernameError = () => {
     if (!usernameTouched) return "";
-    if (!username) return authCopy.usernameRequired;
-    if (username.length < 3) return authCopy.usernameMin;
-    if (username.length > 20) return authCopy.usernameMax;
-    if (!validateUsername(username)) return authCopy.usernameFormat;
+    if (!username) return "Username is required";
+    if (username.length < 3) return "Username must be at least 3 characters";
+    if (username.length > 20) return "Username must be less than 20 characters";
+    if (!validateUsername(username)) return "Username can only contain letters, numbers, and underscores";
     return "";
   };
 
   const getEmailError = () => {
     if (!emailTouched) return "";
-    if (!email) return authCopy.emailRequired;
-    if (!validateEmail(email)) return authCopy.emailInvalid;
-    return "";
-  };
-
-  const getPublicBusinessNameError = () => {
-    if (!publicBusinessNameTouched) return "";
-    if (!publicBusinessName) return authCopy.publicBusinessNameRequired;
-    if (!validatePublicBusinessName(publicBusinessName)) return authCopy.publicBusinessNameInvalid;
+    if (!email) return "Email is required";
+    if (!validateEmail(email)) return "Please enter a valid email address";
     return "";
   };
 
@@ -132,11 +115,9 @@ export default function BusinessRegisterPage() {
   const isSubmitDisabled = mounted ? (
     submitting || isLoading || !consent || passwordStrength.score < 3 ||
     !username ||
-    !publicBusinessName ||
     !email ||
     !password ||
     !validateUsername(username) ||
-    !validatePublicBusinessName(publicBusinessName) ||
     !validateEmail(email)
   ) : true;
 
@@ -148,11 +129,6 @@ export default function BusinessRegisterPage() {
   const handleEmailChange = (value: string) => {
     setEmail(value);
     if (!emailTouched) setEmailTouched(true);
-  };
-
-  const handlePublicBusinessNameChange = (value: string) => {
-    setPublicBusinessName(value);
-    if (!publicBusinessNameTouched) setPublicBusinessNameTouched(true);
   };
 
   const handlePasswordChange = (value: string) => {
@@ -189,54 +165,50 @@ export default function BusinessRegisterPage() {
 
     try {
       // Enhanced validation
-      if (!username?.trim() || !publicBusinessName?.trim() || !email?.trim() || !password?.trim()) {
-        setError(authCopy.requiredFields);
-        showToast(authCopy.requiredFields, "sage", 3000);
+      if (!username?.trim() || !email?.trim() || !password?.trim()) {
+        setError("Please fill in all fields");
+        showToast("Please fill in all fields", "sage", 3000);
         setSubmitting(false);
         return;
       }
 
       if (!validateUsername(username.trim())) {
-        setError(authCopy.usernameFormat);
-        showToast(authCopy.usernameFormat, "sage", 3000);
-        setSubmitting(false);
-        return;
-      }
-
-      if (!validatePublicBusinessName(publicBusinessName.trim())) {
-        setError(authCopy.publicBusinessNameInvalid);
-        showToast(authCopy.publicBusinessNameInvalid, "sage", 3000);
+        setError("Please enter a valid username");
+        showToast("Please enter a valid username", "sage", 3000);
         setSubmitting(false);
         return;
       }
 
       if (!validateEmail(email.trim())) {
-        const errorMsg = authCopy.emailInvalid;
+        const errorMsg = "Please enter a valid email address (for example, name@example.com).";
         setError(errorMsg);
-        showToast(errorMsg, "sage", 3000);
+        // Only show toast, error already shown inline
+        showToast("Please enter a valid email address.", "sage", 3000);
         setSubmitting(false);
         return;
       }
 
       if (email.trim().length > 254) {
-        const errorMsg = authCopy.emailTooLong;
+        const errorMsg = "Email address is too long (maximum 254 characters).";
         setError(errorMsg);
-        showToast(errorMsg, "sage", 3000);
+        // Only show toast, error already shown inline
+        showToast("Email address is too long.", "sage", 3000);
         setSubmitting(false);
         return;
       }
 
       if (email.trim().includes("..") || email.trim().startsWith(".") || email.trim().endsWith(".")) {
-        const errorMsg = authCopy.emailFormatInvalid;
+        const errorMsg = "Email address format is invalid.";
         setError(errorMsg);
-        showToast(errorMsg, "sage", 3000);
+        // Only show toast, error already shown inline
+        showToast("Email address format is invalid.", "sage", 3000);
         setSubmitting(false);
         return;
       }
 
       if (!consent) {
-        setError(authCopy.consentRequired);
-        showToast(authCopy.consentRequired, "sage", 3000);
+        setError("Please accept the Terms and Privacy Policy");
+        showToast("Please accept the Terms and Privacy Policy", "sage", 3000);
         setSubmitting(false);
         return;
       }
@@ -244,22 +216,24 @@ export default function BusinessRegisterPage() {
       const passwordError = validatePassword(password);
       if (passwordError) {
         setError(passwordError);
+        // Only show toast, error already shown inline
         showToast(passwordError, "sage", 4000);
         setSubmitting(false);
         return;
       }
 
       if (passwordStrength.score < 3) {
-        const errorMsg = authCopy.passwordStrength;
+        const errorMsg = "Please create a stronger password";
         setError(errorMsg);
+        // Only show toast, error already shown inline
         showToast(errorMsg, "sage", 3000);
         setSubmitting(false);
         return;
       }
 
       if (!isOnline) {
-        setError(authCopy.offline);
-        showToast(authCopy.offline, "sage", 4000);
+        setError("You're offline. Please check your connection and try again.");
+        showToast("You're offline. Please check your connection and try again.", "sage", 4000);
         setSubmitting(false);
         return;
       }
@@ -268,7 +242,7 @@ export default function BusinessRegisterPage() {
       const rateLimitResult = await RateLimiter.checkRateLimit(normalizedEmail, "register");
 
       if (!rateLimitResult.allowed) {
-        const errorMsg = formatAuthMessage(rateLimitResult.message || "", authCopy.rateLimited);
+        const errorMsg = rateLimitResult.message || "Too many registration attempts. Please try again later.";
         setError(errorMsg);
         showToast(errorMsg, "sage", 5000);
         setSubmitting(false);
@@ -282,7 +256,8 @@ export default function BusinessRegisterPage() {
       const emailCheck = await checkEmailExists(normalizedEmail);
 
       if (emailCheck === null) {
-        const msg = authCopy.authRequestFailed;
+        const msg =
+          "We couldn't confirm whether this email already exists. Please try again or log in.";
         setError(msg);
         showToast(msg, "sage", 4000);
         setSubmitting(false);
@@ -298,7 +273,7 @@ export default function BusinessRegisterPage() {
               : "Personal";
         setExistingAccountLabel(accountLabel);
         setExistingAccountError(true);
-        const msg = existingAccountMessage(accountLabel);
+        const msg = `Email already registered for a ${accountLabel} account. Log in or use a different email.`;
         setError(msg);
         showToast(msg, "sage", 4000);
         setSubmitting(false);
@@ -310,24 +285,22 @@ export default function BusinessRegisterPage() {
         normalizedEmail,
         password,
         username.trim(),
-        "business_owner",
-        publicBusinessName.trim()
+        "business_owner"
       );
 
       if (success) {
         await RateLimiter.recordSuccess(normalizedEmail, "register");
 
         setUsername("");
-        setPublicBusinessName("");
         setEmail("");
         setPassword("");
-        showToast("Business account created. Please check your email to confirm your account.", "success", 5000);
+        showToast("Business account created! Check your email to confirm your account.", "success", 5000);
       } else {
         if (authError) {
           const lower = authError.toLowerCase();
           if (lower.includes("fetch") || lower.includes("network")) {
-            setError(authCopy.connectionIssue);
-            showToast(authCopy.connectionIssue, "sage", 4000);
+            setError("Connection error. Please check your internet connection and try again.");
+            showToast("Connection error. Please check your internet connection and try again.", "sage", 4000);
           } else if (
             lower.includes("already in use") ||
             lower.includes("already registered") ||
@@ -338,35 +311,33 @@ export default function BusinessRegisterPage() {
             lower.includes("user_exists")
           ) {
             setExistingAccountError(true);
-            const existingMessage = existingAccountMessage(existingAccountLabel || "Personal");
-            setError(existingMessage);
-            showToast(existingMessage, "sage", 4000);
+            setError("Email already registered. Log in or use a different email.");
+            showToast("Email already registered. Log in or use a different email.", "sage", 4000);
           } else if (
             lower.includes("invalid email") ||
             (lower.includes("email address") && lower.includes("invalid"))
           ) {
-            const msg = authCopy.emailInvalid;
+            const msg = "Email address is invalid. Please use a valid address like name@example.com.";
             setError(msg);
             showToast(msg, "sage", 4000);
           } else if (lower.includes("password") && (lower.includes("weak") || lower.includes("requirements"))) {
-            setError(authCopy.passwordMin);
-            showToast(authCopy.passwordMin, "sage", 4000);
+            setError("Password must be at least 6 characters long.");
+            showToast("Password must be at least 6 characters long", "sage", 4000);
           } else if (lower.includes("too many requests") || lower.includes("rate limit")) {
-            setError(authCopy.rateLimited);
-            showToast(authCopy.rateLimited, "sage", 4000);
+            setError("Too many attempts. Please wait a moment and try again.");
+            showToast("Too many attempts. Please wait a moment and try again.", "sage", 4000);
           } else {
-            const parsedMessage = formatAuthMessage(authError, authCopy.registrationFailed);
-            setError(parsedMessage);
-            showToast(parsedMessage, "sage", 4000);
+            setError(authError);
+            showToast(authError, "sage", 4000);
           }
         } else {
-          setError(authCopy.registrationFailed);
-          showToast(authCopy.registrationFailed, "sage", 4000);
+          setError("Registration failed. Please try again.");
+          showToast("Registration failed. Please try again.", "sage", 4000);
         }
       }
     } catch (error: unknown) {
       console.error("Registration error:", error);
-      const errorMessage = formatAuthMessage(error instanceof Error ? error.message : "", authCopy.authRequestFailed);
+      const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
       setError(errorMessage);
       showToast(errorMessage, "sage", 4000);
     } finally {
@@ -415,7 +386,7 @@ export default function BusinessRegisterPage() {
             />
           </div>
           <p className="text-body font-normal text-charcoal/70 mb-4 leading-[1.55] px-2 max-w-[70ch] mx-auto animate-fade-in-up animate-delay-700" style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 400 }}>
-            Register your business to manage your presence, respond to reviews, and connect with customers.
+            Register your business to manage your presence, respond to reviews, and connect with customers!
           </p>
         </div>
 
@@ -451,7 +422,7 @@ export default function BusinessRegisterPage() {
                         "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                     }}
                   >
-                    Account already exists
+                    Account Already Exists
                   </h3>
 
                   <p
@@ -461,7 +432,7 @@ export default function BusinessRegisterPage() {
                         "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                     }}
                   >
-                    {existingAccountMessage(existingAccountLabel)}
+                    Email already registered for a {existingAccountLabel} account. Log in or use a different email.
                   </p>
 
                   <div className="space-y-3">
@@ -487,12 +458,16 @@ export default function BusinessRegisterPage() {
               <form onSubmit={handleSubmit} className="space-y-4 relative z-10">
                 {/* Error Message */}
                 {error && (
-                  <AuthAlert message={error} tone="error" />
+                  <div className="bg-error-50 border border-error-100 rounded-[12px] p-4 text-center">
+                    <p className="text-caption font-semibold text-error-600" style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>{error}</p>
+                  </div>
                 )}
 
                 {/* Offline Message */}
                 {!isOnline && !error && (
-                  <AuthAlert message={authCopy.offline} tone="warning" />
+                  <div className="bg-orange-50 border border-orange-200 rounded-[12px] p-4 text-center">
+                    <p className="text-caption font-semibold text-orange-600" style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>You&apos;re offline. We&apos;ll try again when you&apos;re back online.</p>
+                  </div>
                 )}
 
                 {/* Username Input */}
@@ -511,21 +486,8 @@ export default function BusinessRegisterPage() {
                       "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                   }}
                 >
-                  This is your account username (not your public business name).
+                  This is your account username.
                 </p>
-
-                {/* Public Business Name Input */}
-                <BusinessNameInput
-                  value={publicBusinessName}
-                  onChange={handlePublicBusinessNameChange}
-                  onBlur={() => setPublicBusinessNameTouched(true)}
-                  error={getPublicBusinessNameError()}
-                  touched={publicBusinessNameTouched}
-                  disabled={isFormDisabled}
-                  label="Public Business Name"
-                  placeholder="Your public business name"
-                  successMessage="Public business name looks good."
-                />
 
                 {/* Email Input */}
                 <EmailInput
@@ -555,8 +517,6 @@ export default function BusinessRegisterPage() {
                     }
                   }}
                   touched={passwordTouched}
-                  error={passwordTouched ? validatePassword(password) || undefined : undefined}
-                  autoComplete="new-password"
                 />
 
                 {/* Terms consent */}

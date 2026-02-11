@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSupabase } from '@/app/lib/supabase/server';
 import { getSubcategoryLabel } from '@/app/utils/subcategoryPlaceholders';
 import { getInterestIdForSubcategory } from '@/app/lib/onboarding/subcategoryMapping';
+import { reRankByContactCompleteness } from '@/app/lib/utils/contactCompleteness';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -18,6 +19,7 @@ interface BusinessSearchResult {
   phone?: string;
   email?: string;
   website?: string;
+  hours?: unknown;
   image_url?: string;
   verified: boolean;
   claim_status: 'unclaimed' | 'claimed' | 'pending';
@@ -46,6 +48,7 @@ interface SearchBusinessesResult {
   phone?: string;
   email?: string;
   website?: string;
+  hours?: unknown;
   image_url?: string;
   verified: boolean;
   lat?: number | null;
@@ -59,6 +62,8 @@ interface SearchBusinessesResult {
   is_system?: boolean | null;
   [key: string]: unknown;
 }
+
+type BusinessSearchResultWithHours = BusinessSearchResult & { hours?: unknown };
 
 export async function GET(req: NextRequest) {
   try {
@@ -108,7 +113,7 @@ export async function GET(req: NextRequest) {
 
         const { data: fallbackData, error: fallbackError } = await supabase
           .from('businesses')
-          .select('id, name, primary_subcategory_slug, primary_subcategory_label, primary_category_slug, location, address, phone, email, website, image_url, verified, lat, lng, slug, is_system')
+          .select('id, name, primary_subcategory_slug, primary_subcategory_label, primary_category_slug, location, address, phone, email, website, hours, image_url, verified, lat, lng, slug, is_system')
           .eq('status', 'active')
           .or(`name.ilike.%${query}%, description.ilike.%${query}%, primary_subcategory_slug.ilike.%${query}%, primary_subcategory_label.ilike.%${query}%`)
           .limit(limit);
@@ -133,6 +138,7 @@ export async function GET(req: NextRequest) {
           phone?: string | null;
           email?: string | null;
           website?: string | null;
+          hours?: unknown;
           image_url?: string | null;
           verified: boolean;
           lat?: number | null;
@@ -149,6 +155,7 @@ export async function GET(req: NextRequest) {
           phone: row.phone ?? undefined,
           email: row.email ?? undefined,
           website: row.website ?? undefined,
+          hours: row.hours ?? undefined,
           image_url: row.image_url ?? undefined,
           verified: row.verified,
           lat: row.lat ?? null,
@@ -178,7 +185,7 @@ export async function GET(req: NextRequest) {
     const businessIds = businesses.map(b => b.id);
 
     // Check claim status for each business
-    const results: BusinessSearchResult[] = [];
+    const results: BusinessSearchResultWithHours[] = [];
 
     if (userId) {
       // Check if user owns any of these businesses
@@ -249,6 +256,7 @@ export async function GET(req: NextRequest) {
           phone: business.phone,
           email: business.email,
           website: business.website,
+          hours: business.hours,
           image_url: business.image_url,
           verified: business.verified,
           claim_status,
@@ -295,6 +303,7 @@ export async function GET(req: NextRequest) {
           phone: business.phone,
           email: business.email,
           website: business.website,
+          hours: business.hours,
           image_url: business.image_url,
           verified: business.verified,
           claim_status: claimedBusinessIds.has(business.id) ? 'claimed' : 'unclaimed',
@@ -312,13 +321,16 @@ export async function GET(req: NextRequest) {
       }
     }
 
+    const rankedResults = reRankByContactCompleteness(results, { baseRankWeight: 6 });
+    const responseBusinesses: BusinessSearchResult[] = rankedResults.map(({ hours: _hours, ...rest }) => rest);
+
     return NextResponse.json({
-      businesses: results,
+      businesses: responseBusinesses,
       meta: {
         usedFallback,
         query,
         // Include the best matched alias if available
-        matchedAlias: results[0]?.matched_alias || null,
+        matchedAlias: responseBusinesses[0]?.matched_alias || null,
       }
     }, { status: 200 });
   } catch (error) {

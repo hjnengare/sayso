@@ -4,9 +4,10 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
+import nextDynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import FilterModal, { FilterState } from "../FilterModal/FilterModal";
+import type { FilterState } from "../FilterModal/FilterModal";
 import HeroSkeleton from "./HeroSkeleton";
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -18,6 +19,10 @@ interface HeroSlide {
 }
 
 type HeroViewport = "mobile" | "tablet" | "desktop";
+
+const FilterModal = nextDynamic(() => import("../FilterModal/FilterModal"), {
+  ssr: false,
+});
 
 const HERO_COPY = [
   {
@@ -361,29 +366,11 @@ export default function HeroCarousel() {
     window.matchMedia &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  // Preload first 3 hero images in <head> for fastest LCP (browser fetches before paint).
-  useEffect(() => {
-    if (typeof window === "undefined" || slides.length === 0) return;
-    if (isIOSMobile) return;
-    const preloadCount = 3;
-    const urls = slides.slice(0, preloadCount).map((s) => s.image);
-    const links: HTMLLinkElement[] = [];
-    urls.forEach((href) => {
-      const link = document.createElement("link");
-      link.rel = "preload";
-      link.as = "image";
-      link.href = href;
-      document.head.appendChild(link);
-      links.push(link);
-    });
-    return () => links.forEach((link) => link.remove());
-  }, [slides, isIOSMobile]);
-
-  // Prefetch next 8 hero images so next slides load instantly.
+  // Prefetch a small set of upcoming hero images once first paint settles.
   useEffect(() => {
     if (typeof window === "undefined" || slides.length === 0) return;
     if (heroViewport === "mobile" || isIOS) return;
-    const prefetchCount = heroViewport === "tablet" ? 4 : 6;
+    const prefetchCount = heroViewport === "tablet" ? 2 : 3;
     const imagesToPrefetch = slides.slice(0, prefetchCount).map((slide) => slide.image);
     imagesToPrefetch.forEach((src) => {
       if (preloadedImagesRef.current.has(src)) return;

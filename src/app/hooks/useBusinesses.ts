@@ -2,10 +2,18 @@
  * Hook to fetch businesses from the API
  */
 
-import { useState, useEffect, useLayoutEffect, useMemo, useCallback, useRef } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Business } from '../components/BusinessCard/BusinessCard';
 import { type UserPreferences } from './useUserPreferences';
 import { businessUpdateEvents } from '../lib/utils/businessUpdateEvents';
+
+const isDev = process.env.NODE_ENV === 'development';
+const devLog = (...args: unknown[]) => {
+  if (isDev) console.log(...args);
+};
+const devWarn = (...args: unknown[]) => {
+  if (isDev) console.warn(...args);
+};
 
 export interface UseBusinessesOptions {
   limit?: number;
@@ -57,10 +65,10 @@ export function useBusinesses(options: UseBusinessesOptions = {}): UseBusinesses
   const [error, setError] = useState<string | null>(null);
 
   const fetchBusinesses = useCallback(async () => {
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('📤 [useBusinesses] API Request Details');
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('[useBusinesses] fetchBusinesses called', {
+    devLog('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    devLog('📤 [useBusinesses] API Request Details');
+    devLog('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    devLog('[useBusinesses] fetchBusinesses called', {
       skip: options.skip,
       limit: options.limit,
       interestIds: options.interestIds,
@@ -72,7 +80,7 @@ export function useBusinesses(options: UseBusinessesOptions = {}): UseBusinesses
     });
     
     if (options.skip) {
-      console.log('[useBusinesses] Skipping fetch (skip=true)');
+      devLog('[useBusinesses] Skipping fetch (skip=true)');
       setLoading(false);
       return;
     }
@@ -80,7 +88,7 @@ export function useBusinesses(options: UseBusinessesOptions = {}): UseBusinesses
     try {
       setLoading(true);
       setError(null);
-      console.log('[useBusinesses] Starting fetch...');
+      devLog('[useBusinesses] Starting fetch...');
 
       const params = new URLSearchParams();
       
@@ -94,11 +102,11 @@ export function useBusinesses(options: UseBusinessesOptions = {}): UseBusinesses
       if (options.priceRange) params.set('price_range', options.priceRange);
       if (options.interestIds && options.interestIds.length > 0) {
         params.set('interest_ids', options.interestIds.join(','));
-        console.log('[useBusinesses] Added interest_ids param:', options.interestIds.join(','));
+        devLog('[useBusinesses] Added interest_ids param:', options.interestIds.join(','));
       }
       if (options.subInterestIds && options.subInterestIds.length > 0) {
         params.set('sub_interest_ids', options.subInterestIds.join(','));
-        console.log('[useBusinesses] Added sub_interest_ids param:', options.subInterestIds.join(','));
+        devLog('[useBusinesses] Added sub_interest_ids param:', options.subInterestIds.join(','));
       }
       if (options.priceRanges && options.priceRanges.length > 0) {
         params.set('preferred_price_ranges', options.priceRanges.join(','));
@@ -134,9 +142,9 @@ export function useBusinesses(options: UseBusinessesOptions = {}): UseBusinesses
       }
 
       const url = `/api/businesses?${params.toString()}`;
-      console.log('[useBusinesses] Fetching businesses from:', url);
-      console.log('[useBusinesses] ⚠️ NOTE: API route logs appear in SERVER TERMINAL, not browser console!');
-      console.log('[useBusinesses] Check your Next.js dev server terminal for detailed API logs.');
+      devLog('[useBusinesses] Fetching businesses from:', url);
+      devLog('[useBusinesses] ⚠️ NOTE: API route logs appear in SERVER TERMINAL, not browser console!');
+      devLog('[useBusinesses] Check your Next.js dev server terminal for detailed API logs.');
       
       const fetchOptions: RequestInit = {};
       if (options.cache) fetchOptions.cache = options.cache;
@@ -181,17 +189,17 @@ export function useBusinesses(options: UseBusinessesOptions = {}): UseBusinesses
       const businessesList = data.businesses || data.data || [];
       
       // Prominent logging for debugging
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('🔍 [useBusinesses] API RESPONSE RECEIVED');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('[useBusinesses] Response structure:', {
+      devLog('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      devLog('🔍 [useBusinesses] API RESPONSE RECEIVED');
+      devLog('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      devLog('[useBusinesses] Response structure:', {
         hasBusinesses: 'businesses' in data,
         hasData: 'data' in data,
         businessesCount: data.businesses?.length || 0,
         dataCount: data.data?.length || 0,
         finalCount: businessesList.length,
       });
-      console.log('[useBusinesses] Businesses received:', {
+      devLog('[useBusinesses] Businesses received:', {
         count: businessesList.length,
         hasBusinesses: businessesList.length > 0,
         firstBusiness: businessesList[0] ? {
@@ -202,14 +210,14 @@ export function useBusinesses(options: UseBusinessesOptions = {}): UseBusinesses
         } : 'none',
         sampleIds: businessesList.slice(0, 3).map(b => b.id),
       });
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      devLog('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       
       if (businessesList.length === 0) {
-        console.warn('⚠️ [useBusinesses] WARNING: Received 0 businesses from API!');
-        console.warn('⚠️ Check SERVER TERMINAL for detailed API logs:');
-        console.warn('⚠️ Look for: [BUSINESSES API] Raw active businesses count');
-        console.warn('⚠️ Look for: [BUSINESSES API] Mixed feed buckets');
-        console.warn('⚠️ Look for: [BUSINESSES API] Final transformed businesses');
+        devWarn('⚠️ [useBusinesses] WARNING: Received 0 businesses from API!');
+        devWarn('⚠️ Check SERVER TERMINAL for detailed API logs:');
+        devWarn('⚠️ Look for: [BUSINESSES API] Raw active businesses count');
+        devWarn('⚠️ Look for: [BUSINESSES API] Mixed feed buckets');
+        devWarn('⚠️ Look for: [BUSINESSES API] Final transformed businesses');
       }
       
       setBusinesses(businessesList);
@@ -245,10 +253,10 @@ export function useBusinesses(options: UseBusinessesOptions = {}): UseBusinesses
   ]);
 
   useEffect(() => {
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('🚀 [useBusinesses] useEffect triggered');
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('[useBusinesses] Options:', {
+    devLog('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    devLog('🚀 [useBusinesses] useEffect triggered');
+    devLog('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    devLog('[useBusinesses] Options:', {
       skip: options.skip,
       willFetch: !options.skip,
       limit: options.limit,
@@ -260,11 +268,11 @@ export function useBusinesses(options: UseBusinessesOptions = {}): UseBusinesses
     });
     
     if (options.skip) {
-      console.log('[useBusinesses] ⏭️ Skipping fetch (skip=true)');
+      devLog('[useBusinesses] ⏭️ Skipping fetch (skip=true)');
       setLoading(false);
       return;
     }
-    console.log('[useBusinesses] ✅ Calling fetchBusinesses from useEffect');
+    devLog('[useBusinesses] ✅ Calling fetchBusinesses from useEffect');
     fetchBusinesses();
   }, [fetchBusinesses, options.skip]);
 
@@ -410,7 +418,7 @@ export function useForYouBusinesses(
       setError(null);
       lastRequestKeyRef.current = requestKey;
 
-      console.log('[useForYouBusinesses] Fetching with V2 recommender:', {
+      devLog('[useForYouBusinesses] Fetching with V2 recommender:', {
         interestIds: interestIds?.length || 0,
         subInterestIds: subInterestIds?.length || 0,
         dealbreakerIds: dealbreakerIds.length,
@@ -458,9 +466,9 @@ export function useForYouBusinesses(
 
       const businessesList = data.businesses || data.data || [];
 
-      console.log(`[useForYouBusinesses] Received ${businessesList.length} businesses`);
+      devLog(`[useForYouBusinesses] Received ${businessesList.length} businesses`);
       if (businessesList.length === 0) {
-        console.warn('[useForYouBusinesses] Empty For You response diagnostics:', {
+        devWarn('[useForYouBusinesses] Empty For You response diagnostics:', {
           status: response.status,
           feedPath: response.headers.get('X-Feed-Path'),
           meta: data?.meta ?? null,
@@ -488,8 +496,8 @@ export function useForYouBusinesses(
     shouldWaitForPreferences,
   ]);
 
-  // Fire For You request as soon as the component is committed (before paint) so content shows right away
-  useLayoutEffect(() => {
+  // Fire For You request right after first paint to avoid blocking initial render work.
+  useEffect(() => {
     const shouldSkipInitialFetch =
       extraOptions.skipInitialFetch && hasInitialBusinesses && skipInitialFetchRef.current;
 

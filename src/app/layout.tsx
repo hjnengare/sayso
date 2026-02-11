@@ -56,6 +56,7 @@ const monarchParadox = localFont({
 const dancingScript = Dancing_Script({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
+  preload: false,
   display: "swap",
   variable: "--font-dancing-script",
 });
@@ -63,6 +64,7 @@ const dancingScript = Dancing_Script({
 const permanentMarker = Permanent_Marker({
   subsets: ["latin"],
   weight: "400",
+  preload: false,
   display: "swap",
   variable: "--font-permanent-marker",
 });
@@ -71,6 +73,7 @@ const changaOne = Changa_One({
   subsets: ["latin"],
   weight: "400",
   style: ["normal", "italic"],
+  preload: false,
   display: "swap",
   variable: "--font-changa-one",
 });
@@ -79,6 +82,7 @@ const cormorant = Cormorant({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
   style: ["normal", "italic"],
+  preload: false,
   display: "swap",
   variable: "--font-cormorant",
 });
@@ -87,6 +91,7 @@ const livvic = Livvic({
   subsets: ["latin"],
   weight: ["100", "200", "300", "400", "500", "600", "700", "900"],
   style: ["normal", "italic"],
+  preload: false,
   display: "swap",
   variable: "--font-livvic",
 });
@@ -95,6 +100,7 @@ const playfairDisplay = Playfair_Display({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800", "900"],
   style: ["normal", "italic"],
+  preload: false,
   display: "swap",
   variable: "--font-playfair-display",
 });
@@ -102,6 +108,7 @@ const playfairDisplay = Playfair_Display({
 const barrio = Barrio({
   subsets: ["latin"],
   weight: "400",
+  preload: false,
   display: "swap",
   variable: "--font-barrio",
 });
@@ -121,8 +128,7 @@ export const metadata: Metadata = {
 };
 
 export const runtime = "nodejs";
-// Force dynamic rendering at layout level to prevent static generation issues
-// Layout is a Server Component, so these exports are valid
+// Force dynamic rendering at layout level to avoid static prerender conflicts in client-search pages.
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
@@ -186,13 +192,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('/sw.js')
-                  .then(function(registration) {
-                    console.log('SW registered: ', registration);
-                  })
-                  .catch(function(registrationError) {
-                    console.log('SW registration failed: ', registrationError);
-                  });
+                navigator.serviceWorker.register('/sw.js').catch(function () {});
               }
             `,
           }}

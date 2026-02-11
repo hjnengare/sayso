@@ -5,7 +5,7 @@ export default function HeroSkeleton() {
   return (
     <div className="relative w-full px-0 py-0 md:pt-2 md:px-2">
       {/* Hero Section Skeleton - matches HeroCarousel exactly */}
-      <section className="relative h-[78dvh] sm:h-[90dvh] md:h-[80dvh] w-full overflow-hidden outline-none rounded-none min-h-[420px] sm:min-h-[520px] max-h-[820px] shadow-md">
+      <section className="relative h-[100dvh] sm:h-[90dvh] md:h-[80dvh] w-full overflow-hidden outline-none rounded-none min-h-[420px] sm:min-h-[520px] max-h-[820px] shadow-md">
         {/* Background shimmer effect */}
         <div className="absolute inset-0 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 rounded-none animate-pulse" />
 
