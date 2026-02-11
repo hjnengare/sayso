@@ -17,7 +17,6 @@ import WavyTypedTitle from "../../../components/Animations/WavyTypedTitle";
 import { authStyles } from "../../components/Auth/Shared/authStyles";
 import { EmailInput } from "../../components/Auth/Shared/EmailInput";
 import { PasswordInput } from "../../components/Auth/Shared/PasswordInput";
-import { BusinessNameInput } from "../../components/Auth/Shared/BusinessNameInput";
 // Note: SocialLoginButtons not imported - business accounts use email+password only
 
 // Import register-specific components
@@ -29,7 +28,6 @@ export default function BusinessRegisterPage() {
   usePredefinedPageTitle("register");
   const prefersReduced = usePrefersReducedMotion();
   const [username, setUsername] = useState("");
-  const [publicBusinessName, setPublicBusinessName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -37,7 +35,6 @@ export default function BusinessRegisterPage() {
   const [isOnline, setIsOnline] = useState(true);
   const [consent, setConsent] = useState(false);
   const [usernameTouched, setUsernameTouched] = useState(false);
-  const [publicBusinessNameTouched, setPublicBusinessNameTouched] = useState(false);
   const [emailTouched, setEmailTouched] = useState(false);
   const [passwordTouched, setPasswordTouched] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -80,24 +77,12 @@ export default function BusinessRegisterPage() {
     return emailRegex.test(email);
   };
 
-  const validatePublicBusinessName = (name: string) => {
-    const trimmed = name.trim();
-    return trimmed.length >= 2 && trimmed.length <= 80;
-  };
-
   const getUsernameError = () => {
     if (!usernameTouched) return "";
     if (!username) return "Username is required";
     if (username.length < 3) return "Username must be at least 3 characters";
     if (username.length > 20) return "Username must be less than 20 characters";
     if (!validateUsername(username)) return "Username can only contain letters, numbers, and underscores";
-    return "";
-  };
-
-  const getPublicBusinessNameError = () => {
-    if (!publicBusinessNameTouched) return "";
-    if (!publicBusinessName) return "Public business name is required";
-    if (!validatePublicBusinessName(publicBusinessName)) return "Public business name must be 2-80 characters";
     return "";
   };
 
@@ -130,11 +115,9 @@ export default function BusinessRegisterPage() {
   const isSubmitDisabled = mounted ? (
     submitting || isLoading || !consent || passwordStrength.score < 3 ||
     !username ||
-    !publicBusinessName ||
     !email ||
     !password ||
     !validateUsername(username) ||
-    !validatePublicBusinessName(publicBusinessName) ||
     !validateEmail(email)
   ) : true;
 
@@ -146,11 +129,6 @@ export default function BusinessRegisterPage() {
   const handleEmailChange = (value: string) => {
     setEmail(value);
     if (!emailTouched) setEmailTouched(true);
-  };
-
-  const handlePublicBusinessNameChange = (value: string) => {
-    setPublicBusinessName(value);
-    if (!publicBusinessNameTouched) setPublicBusinessNameTouched(true);
   };
 
   const handlePasswordChange = (value: string) => {
@@ -187,7 +165,7 @@ export default function BusinessRegisterPage() {
 
     try {
       // Enhanced validation
-      if (!username?.trim() || !publicBusinessName?.trim() || !email?.trim() || !password?.trim()) {
+      if (!username?.trim() || !email?.trim() || !password?.trim()) {
         setError("Please fill in all fields");
         showToast("Please fill in all fields", "sage", 3000);
         setSubmitting(false);
@@ -197,13 +175,6 @@ export default function BusinessRegisterPage() {
       if (!validateUsername(username.trim())) {
         setError("Please enter a valid username");
         showToast("Please enter a valid username", "sage", 3000);
-        setSubmitting(false);
-        return;
-      }
-
-      if (!validatePublicBusinessName(publicBusinessName.trim())) {
-        setError("Please enter a valid public business name");
-        showToast("Please enter a valid public business name", "sage", 3000);
         setSubmitting(false);
         return;
       }
@@ -314,15 +285,13 @@ export default function BusinessRegisterPage() {
         normalizedEmail,
         password,
         username.trim(),
-        "business_owner",
-        publicBusinessName.trim()
+        "business_owner"
       );
 
       if (success) {
         await RateLimiter.recordSuccess(normalizedEmail, "register");
 
         setUsername("");
-        setPublicBusinessName("");
         setEmail("");
         setPassword("");
         showToast("Business account created! Check your email to confirm your account.", "success", 5000);
@@ -517,21 +486,8 @@ export default function BusinessRegisterPage() {
                       "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                   }}
                 >
-                  This is your account username (not your public business name).
+                  This is your account username.
                 </p>
-
-                {/* Public Business Name Input */}
-                <BusinessNameInput
-                  value={publicBusinessName}
-                  onChange={handlePublicBusinessNameChange}
-                  onBlur={() => setPublicBusinessNameTouched(true)}
-                  error={getPublicBusinessNameError()}
-                  touched={publicBusinessNameTouched}
-                  disabled={isFormDisabled}
-                  label="Public Business Name"
-                  placeholder="Your public business name"
-                  successMessage="Public business name looks good!"
-                />
 
                 {/* Email Input */}
                 <EmailInput

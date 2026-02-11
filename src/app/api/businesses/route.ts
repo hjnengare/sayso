@@ -19,6 +19,10 @@ import {
   isValidLongitude,
 } from "@/app/lib/utils/searchHelpers";
 import {
+  calculateContactRankingBoost,
+  compareContactCompletenessDesc,
+} from "@/app/lib/utils/contactCompleteness";
+import {
   calculatePersonalizationScore,
   sortByPersonalization,
   filterByDealbreakers as filterBusinessesByDealbreakers,
@@ -125,6 +129,7 @@ interface BusinessRPCResult {
   phone: string | null;
   email: string | null;
   website: string | null;
+  hours?: unknown | null;
   image_url: string | null;
   uploaded_images: string[] | null;
   verified: boolean;
@@ -147,7 +152,7 @@ interface BusinessRPCResult {
 
 const BUSINESS_SELECT = `
   id, name, description, primary_subcategory_slug, primary_subcategory_label, primary_category_slug, location, address,
-  phone, email, website, image_url,
+  phone, email, website, hours, image_url,
   verified, price_range, badge, slug, lat, lng,
   created_at, updated_at,
   business_stats (
@@ -164,7 +169,7 @@ const BUSINESS_SELECT = `
 
 const BUSINESS_SELECT_FALLBACK = `
   id, name, description, primary_subcategory_slug, primary_subcategory_label, primary_category_slug, location, address,
-  phone, email, website, image_url,
+  phone, email, website, hours, image_url,
   verified, price_range, badge, slug, lat, lng,
   created_at, updated_at
 `;
@@ -187,6 +192,7 @@ type DatabaseBusinessRow = {
   phone: string | null;
   email: string | null;
   website: string | null;
+  hours?: unknown | null;
   image_url: string | null;
   business_images?: BusinessImage[] | null;
   verified: boolean;
@@ -1005,21 +1011,43 @@ export async function GET(req: Request) {
         transformedFallbackData.sort((a, b) => {
           const distA = a.distance_km ?? Infinity;
           const distB = b.distance_km ?? Infinity;
-          return distA - distB;
+          const distDiff = distA - distB;
+          if (distDiff !== 0) return distDiff;
+
+          const ratingA = a.average_rating || 0;
+          const ratingB = b.average_rating || 0;
+          if (ratingA !== ratingB) return ratingB - ratingA;
+
+          const contactDiff = compareContactCompletenessDesc(a, b);
+          if (contactDiff !== 0) return contactDiff;
+
+          return a.id.localeCompare(b.id);
         });
       } else if (sortBy === 'rating' || sortBy === 'rating_desc') {
         transformedFallbackData.sort((a, b) => {
           const ratingA = a.average_rating || 0;
           const ratingB = b.average_rating || 0;
           if (ratingA !== ratingB) return ratingB - ratingA;
-          return (b.total_reviews || 0) - (a.total_reviews || 0);
+          const reviewDiff = (b.total_reviews || 0) - (a.total_reviews || 0);
+          if (reviewDiff !== 0) return reviewDiff;
+
+          const contactDiff = compareContactCompletenessDesc(a, b);
+          if (contactDiff !== 0) return contactDiff;
+
+          return a.id.localeCompare(b.id);
         });
       } else if (sortBy === 'price' || sortBy === 'price_asc') {
         transformedFallbackData.sort((a, b) => {
           const priceA = priceRangeToLevel(a.price_range) ?? 999;
           const priceB = priceRangeToLevel(b.price_range) ?? 999;
           if (priceA !== priceB) return priceA - priceB;
-          return (b.average_rating || 0) - (a.average_rating || 0);
+          const ratingDiff = (b.average_rating || 0) - (a.average_rating || 0);
+          if (ratingDiff !== 0) return ratingDiff;
+
+          const contactDiff = compareContactCompletenessDesc(a, b);
+          if (contactDiff !== 0) return contactDiff;
+
+          return a.id.localeCompare(b.id);
         });
       } else if (sortBy === 'combo' && lat !== null && lng !== null) {
         transformedFallbackData.forEach((b) => {
@@ -1027,12 +1055,17 @@ export async function GET(req: Request) {
             b.distance_km,
             b.average_rating,
             priceRangeToLevel(b.price_range)
-          );
+          ) + calculateContactRankingBoost(b, 0.15);
         });
         transformedFallbackData.sort((a, b) => {
           const scoreA = (a as any).combo_score ?? 0;
           const scoreB = (b as any).combo_score ?? 0;
-          return scoreB - scoreA;
+          if (scoreA !== scoreB) return scoreB - scoreA;
+
+          const contactDiff = compareContactCompletenessDesc(a, b);
+          if (contactDiff !== 0) return contactDiff;
+
+          return a.id.localeCompare(b.id);
         });
       } else if (sortBy === 'relevance' && q) {
         // Relevance sorting: businesses with search matches first
@@ -1043,9 +1076,14 @@ export async function GET(req: Request) {
           const reviewsA = a.total_reviews || 0;
           const reviewsB = b.total_reviews || 0;
           // Combine rating and review count for relevance
-          const scoreA = ratingA * 2 + Math.log(reviewsA + 1);
-          const scoreB = ratingB * 2 + Math.log(reviewsB + 1);
-          return scoreB - scoreA;
+          const scoreA = ratingA * 2 + Math.log(reviewsA + 1) + calculateContactRankingBoost(a, 1.2);
+          const scoreB = ratingB * 2 + Math.log(reviewsB + 1) + calculateContactRankingBoost(b, 1.2);
+          if (scoreA !== scoreB) return scoreB - scoreA;
+
+          const contactDiff = compareContactCompletenessDesc(a, b);
+          if (contactDiff !== 0) return contactDiff;
+
+          return a.id.localeCompare(b.id);
         });
       }
 
@@ -1145,9 +1183,14 @@ export async function GET(req: Request) {
     // Sort by personalization score if user has preferences
     if (userPreferences.interestIds.length > 0 || userPreferences.subcategoryIds.length > 0) {
       personalizedBusinesses.sort((a, b) => {
-        const scoreA = a.personalization_score || 0;
-        const scoreB = b.personalization_score || 0;
-        return scoreB - scoreA; // Higher score first
+        const scoreA = (a.personalization_score || 0) + calculateContactRankingBoost(a, 0.8);
+        const scoreB = (b.personalization_score || 0) + calculateContactRankingBoost(b, 0.8);
+        if (scoreA !== scoreB) return scoreB - scoreA; // Higher score first
+
+        const contactDiff = compareContactCompletenessDesc(a, b);
+        if (contactDiff !== 0) return contactDiff;
+
+        return a.id.localeCompare(b.id);
       });
     }
 
@@ -1534,6 +1577,7 @@ async function handleForYouZeroStats(options: MixedFeedOptions): Promise<NextRes
     phone: row.phone,
     email: row.email,
     website: row.website,
+    hours: row.hours,
     image_url: row.image_url,
     uploaded_images: Array.isArray(row.uploaded_images) ? row.uploaded_images : [],
     verified: row.verified,
@@ -1813,6 +1857,7 @@ async function handleMixedFeedV2(options: MixedFeedOptions) {
       phone: row.phone,
       email: row.email,
       website: row.website,
+      hours: row.hours,
       image_url: row.image_url,
       uploaded_images: Array.isArray(row.uploaded_images) ? row.uploaded_images : [],
       verified: row.verified,
@@ -2298,6 +2343,7 @@ async function fetchPersonalMatches(
         phone: row.phone,
         email: row.email,
         website: row.website,
+        hours: row.hours ?? null,
         image_url: row.image_url,
         uploaded_images: row.uploaded_images || [],
         verified: row.verified,
@@ -2355,7 +2401,13 @@ async function fetchPersonalMatches(
     console.log('[BUSINESSES API] fetchPersonalMatches fallback returned', rows.length, 'businesses');
 
     const normalized = filterByMinRating(normalizeBusinessRows(rows), options.minRating)
-      .sort((a, b) => scorePersonal(b) - scorePersonal(a));
+      .sort((a, b) => {
+        const scoreDiff = scorePersonal(b) - scorePersonal(a);
+        if (scoreDiff !== 0) return scoreDiff;
+        const contactDiff = compareContactCompletenessDesc(a, b);
+        if (contactDiff !== 0) return contactDiff;
+        return a.id.localeCompare(b.id);
+      });
     return filterByDealbreakers(normalized, options.dealbreakerIds);
   } catch (err) {
     console.error('[BUSINESSES API] Personal matches fallback fetch error:', err);
@@ -2418,7 +2470,13 @@ async function fetchTopRated(
     console.log('[BUSINESSES API] fetchTopRated returned', rows.length, 'businesses');
 
     const normalized = filterByMinRating(normalizeBusinessRows(rows), options.minRating)
-      .sort((a, b) => scoreTopRated(b) - scoreTopRated(a));
+      .sort((a, b) => {
+        const scoreDiff = scoreTopRated(b) - scoreTopRated(a);
+        if (scoreDiff !== 0) return scoreDiff;
+        const contactDiff = compareContactCompletenessDesc(a, b);
+        if (contactDiff !== 0) return contactDiff;
+        return a.id.localeCompare(b.id);
+      });
     return filterByDealbreakers(normalized, options.dealbreakerIds);
   } catch (err) {
     console.error('[BUSINESSES API] Top rated fetch error:', err);
@@ -2485,7 +2543,13 @@ async function fetchExplore(
     console.log('[BUSINESSES API] fetchExplore returned', rows.length, 'businesses');
 
     const normalized = filterByMinRating(normalizeBusinessRows(rows), options.minRating)
-      .sort((a, b) => scoreExplore(b) - scoreExplore(a));
+      .sort((a, b) => {
+        const scoreDiff = scoreExplore(b) - scoreExplore(a);
+        if (scoreDiff !== 0) return scoreDiff;
+        const contactDiff = compareContactCompletenessDesc(a, b);
+        if (contactDiff !== 0) return contactDiff;
+        return a.id.localeCompare(b.id);
+      });
     return filterByDealbreakers(normalized, options.dealbreakerIds);
   } catch (err) {
     console.error('[BUSINESSES API] Explore fetch error:', err);
@@ -2736,14 +2800,16 @@ function scorePersonal(business: BusinessRPCResult) {
   const recency = calculateRecencyBoost(business.created_at, 1.2);
   const verifiedBonus = business.verified ? 0.4 : 0;
   const photoBonus = business.image_url || (business.uploaded_images && business.uploaded_images.length > 0) ? 0.2 : 0;
-  return rating * 2.2 + reviews + recency + verifiedBonus + photoBonus;
+  const contactBoost = calculateContactRankingBoost(business, 1.0);
+  return rating * 2.2 + reviews + recency + verifiedBonus + photoBonus + contactBoost;
 }
 
 function scoreTopRated(business: BusinessRPCResult) {
   const rating = business.average_rating || 0;
   const reviews = Math.log(Math.max(business.total_reviews || 0, 1) + 1.5);
   const verifiedBonus = business.verified ? 0.5 : 0;
-  return rating * 2.5 + reviews + verifiedBonus;
+  const contactBoost = calculateContactRankingBoost(business, 0.9);
+  return rating * 2.5 + reviews + verifiedBonus + contactBoost;
 }
 
 function scoreExplore(business: BusinessRPCResult) {
@@ -2752,7 +2818,8 @@ function scoreExplore(business: BusinessRPCResult) {
   const ratingSupport = (business.average_rating || 0) * 0.8;
   const photoBonus = business.image_url || (business.uploaded_images && business.uploaded_images.length > 0) ? 0.4 : 0;
   const verifiedBonus = business.verified ? 0.3 : 0;
-  return recency + lowReviewBoost + ratingSupport + photoBonus + verifiedBonus;
+  const contactBoost = calculateContactRankingBoost(business, 0.8);
+  return recency + lowReviewBoost + ratingSupport + photoBonus + verifiedBonus + contactBoost;
 }
 
 function transformBusinessForCard(business: BusinessRPCResult) {

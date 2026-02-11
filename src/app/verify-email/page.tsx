@@ -302,6 +302,7 @@ export default function VerifyEmailPage() {
   // If user lands here already verified (no ?verified flag), redirect out
   useEffect(() => {
     if (redirectingRef.current) return;
+    if (searchParams.get("verified") === "1") return;
     if (!user || !user.email_verified) return;
     if (verificationSuccess) return; // Already handled by the effect above
 
@@ -311,14 +312,13 @@ export default function VerifyEmailPage() {
     }
 
     redirectingRef.current = true;
-    showToastOnce("email-verified-v1", "Email verified. Account secured.", "sage", 3000);
 
     const t = setTimeout(() => {
       router.push(getPostVerifyRedirect());
     }, 1200);
 
     return () => clearTimeout(t);
-  }, [user, verificationSuccess, showToastOnce, router, getPostVerifyRedirect]);
+  }, [user, verificationSuccess, router, getPostVerifyRedirect, searchParams]);
 
   const handleResendVerification = async () => {
     const email = user?.email || pendingEmail;
@@ -360,11 +360,15 @@ export default function VerifyEmailPage() {
     manual?: boolean;
     showSuccessToast?: boolean;
     redirectToLoginIfNoSession?: boolean;
+    successToastMessage?: string;
+    successToastOnceKey?: string;
   }): Promise<boolean> => {
     const {
       manual = false,
       showSuccessToast = true,
       redirectToLoginIfNoSession = false,
+      successToastMessage = "Email verified successfully",
+      successToastOnceKey,
     } = options || {};
     if (redirectingRef.current || checkingRef.current) return false;
 
@@ -439,7 +443,11 @@ export default function VerifyEmailPage() {
       setVerificationSuccess(true);
       setVerificationStatusMessage(null);
       if (showSuccessToast) {
-        showToast("Email verified successfully", "sage", 2200);
+        if (successToastOnceKey) {
+          showToastOnce(successToastOnceKey, successToastMessage, "sage", 3000);
+        } else {
+          showToast(successToastMessage, "sage", 2200);
+        }
       }
       redirectingRef.current = true;
       router.replace(getPostVerifyRedirect(verifiedUser));
@@ -459,6 +467,7 @@ export default function VerifyEmailPage() {
     refreshUser,
     router,
     showToast,
+    showToastOnce,
     user?.email,
     user?.profile,
   ]);
@@ -476,10 +485,6 @@ export default function VerifyEmailPage() {
     if (redirectingRef.current) return;
     if (searchParams.get("verified") !== "1") return;
 
-    setVerificationSuccess(true);
-    setVerificationStatusMessage(null);
-    showToastOnce("email-verified-v1", "Email verified. Account secured.", "sage", 3000);
-
     if (typeof window !== "undefined") {
       const url = new URL(window.location.href);
       url.searchParams.delete("verified");
@@ -489,13 +494,15 @@ export default function VerifyEmailPage() {
     const timeout = window.setTimeout(() => {
       void checkVerificationStatus({
         manual: false,
-        showSuccessToast: false,
+        showSuccessToast: true,
+        successToastMessage: "Email verified. Account secured.",
+        successToastOnceKey: "email-verified-v1",
         redirectToLoginIfNoSession: true,
       });
     }, 500);
 
     return () => window.clearTimeout(timeout);
-  }, [checkVerificationStatus, searchParams, showToastOnce]);
+  }, [checkVerificationStatus, searchParams]);
   // Auto-poll verification in the background and redirect immediately once confirmed.
   useEffect(() => {
     if (linkExpired || verificationSuccess || redirectingRef.current) return;

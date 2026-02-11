@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSupabase } from "@/app/lib/supabase/server";
 import { getCategoryLabelFromBusiness } from "@/app/utils/subcategoryPlaceholders";
 import { getInterestIdForSubcategory } from "@/app/lib/onboarding/subcategoryMapping";
+import { reRankByContactCompleteness } from "@/app/lib/utils/contactCompleteness";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -52,7 +53,7 @@ export async function GET(req: NextRequest) {
         .from("businesses")
         .select(
           `id, slug, name, primary_subcategory_slug, primary_subcategory_label, primary_category_slug, location, address, phone, email,
-           website, image_url, description, price_range, verified, badge,
+           website, hours, image_url, description, price_range, verified, badge,
            business_stats (average_rating)`
         )
         .eq("status", "active")
@@ -91,6 +92,7 @@ export async function GET(req: NextRequest) {
           phone: business.phone,
           email: business.email,
           website: business.website,
+          hours: business.hours,
           image_url: business.image_url,
           description: business.description,
           price_range: business.price_range,
@@ -122,6 +124,7 @@ export async function GET(req: NextRequest) {
           phone: business.phone,
           email: business.email,
           website: business.website,
+          hours: business.hours,
           image_url: business.image_url,
           description: business.description,
           price_range: business.price_range,
@@ -144,13 +147,27 @@ export async function GET(req: NextRequest) {
       });
     }
 
+    const rankedResults = reRankByContactCompleteness(
+      results as Array<
+        Record<string, unknown> & {
+          phone?: string | null;
+          email?: string | null;
+          website?: string | null;
+          address?: string | null;
+          hours?: unknown;
+        }
+      >,
+      { baseRankWeight: 6 }
+    );
+    const responseResults = rankedResults.map(({ hours: _hours, ...rest }) => rest);
+
     return NextResponse.json(
       {
-        results,
+        results: responseResults,
         meta: {
           query,
           minRating,
-          total: results.length,
+          total: responseResults.length,
         },
       },
       { status: 200 }

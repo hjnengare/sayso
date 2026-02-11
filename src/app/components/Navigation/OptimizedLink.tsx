@@ -128,7 +128,7 @@ export default function OptimizedLink({
     <Link
       href={href}
       className={[className, "mi-tap"].filter(Boolean).join(" ")}
-      prefetch={prefetch}
+      prefetch={shouldPrefetch}
       onPointerEnter={schedulePrefetch}
       onFocus={schedulePrefetch}
       onPointerLeave={cancelPrefetch}

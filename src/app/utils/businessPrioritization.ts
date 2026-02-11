@@ -11,9 +11,14 @@
  */
 
 import { CANONICAL_SUBCATEGORY_SLUGS, INTEREST_LABELS } from './subcategoryPlaceholders';
+import {
+  calculateContactRankingBoost,
+  compareContactCompletenessDesc,
+  type ContactCompletenessCandidate,
+} from '@/app/lib/utils/contactCompleteness';
 
 /** Minimal shape needed for tier/priority; feed items (e.g. Business, SearchResult) extend this. */
-export type BusinessWithClassification = {
+export type BusinessWithClassification = ContactCompletenessCandidate & {
   id: string;
   sub_interest_id?: string | null;
   subInterestId?: string | null;
@@ -134,6 +139,9 @@ export function getBusinessPriorityScore(business: BusinessWithClassification): 
 
   if (tier === BusinessTier.TIER_3_MISCELLANEOUS) score -= getMiscellaneousBoost(business);
 
+  // Keep tier boundaries intact while promoting complete, contact-ready profiles.
+  score -= Math.round(calculateContactRankingBoost(business, 80));
+
   return score;
 }
 
@@ -145,7 +153,15 @@ export function getBusinessPriorityScore(business: BusinessWithClassification): 
 export function sortBusinessesByPriority<T extends BusinessWithClassification>(
   businesses: T[]
 ): T[] {
-  return [...businesses].sort((a, b) => getBusinessPriorityScore(a) - getBusinessPriorityScore(b));
+  return [...businesses].sort((a, b) => {
+    const scoreDiff = getBusinessPriorityScore(a) - getBusinessPriorityScore(b);
+    if (scoreDiff !== 0) return scoreDiff;
+
+    const contactDiff = compareContactCompletenessDesc(a, b);
+    if (contactDiff !== 0) return contactDiff;
+
+    return a.id.localeCompare(b.id);
+  });
 }
 
 /**

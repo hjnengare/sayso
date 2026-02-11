@@ -24,11 +24,23 @@ interface PageTransitionProviderProps {
 
 export default function PageTransitionProvider({ children }: PageTransitionProviderProps) {
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [transitionKey, setTransitionKey] = useState(0);
+  const [enterClassName, setEnterClassName] = useState("page-enter");
   const pathname = usePathname();
   const isFirstRender = useRef(true);
   const previousPathname = useRef(pathname);
   const preserveScrollOnNextRouteRef = useRef(false);
+  const animationRafRef = useRef<number | null>(null);
+
+  const retriggerEnterAnimation = useCallback(() => {
+    setEnterClassName("");
+    if (animationRafRef.current != null) {
+      window.cancelAnimationFrame(animationRafRef.current);
+    }
+    animationRafRef.current = window.requestAnimationFrame(() => {
+      setEnterClassName("page-enter");
+      animationRafRef.current = null;
+    });
+  }, []);
 
   const scrollToTop = useCallback(() => {
     // Use 'instant' to override CSS scroll-smooth on <html> and avoid
@@ -62,14 +74,14 @@ export default function PageTransitionProvider({ children }: PageTransitionProvi
       preserveScrollOnNextRouteRef.current = false;
       previousPathname.current = pathname;
       setIsTransitioning(true);
-      setTransitionKey((k) => k + 1);
+      retriggerEnterAnimation();
 
       if (!shouldPreserveScroll) {
         // Scroll immediately so the new page always starts at the top.
         scrollToTop();
       }
     }
-  }, [pathname, scrollToTop]);
+  }, [pathname, retriggerEnterAnimation, scrollToTop]);
 
   // Clear transitioning flag on next paint(s) after route commit.
   useEffect(() => {
@@ -88,7 +100,15 @@ export default function PageTransitionProvider({ children }: PageTransitionProvi
       if (raf1) window.cancelAnimationFrame(raf1);
       if (raf2) window.cancelAnimationFrame(raf2);
     };
-  }, [isTransitioning, transitionKey]);
+  }, [isTransitioning, pathname]);
+
+  useEffect(() => {
+    return () => {
+      if (animationRafRef.current != null) {
+        window.cancelAnimationFrame(animationRafRef.current);
+      }
+    };
+  }, []);
 
   const value = {
     isTransitioning,
@@ -101,7 +121,7 @@ export default function PageTransitionProvider({ children }: PageTransitionProvi
         className="min-h-screen w-full"
         data-page-transition={isTransitioning ? "1" : "0"}
       >
-        <div key={transitionKey} className="page-enter min-h-screen w-full">
+        <div className={`${enterClassName} min-h-screen w-full`}>
           {children}
         </div>
       </div>

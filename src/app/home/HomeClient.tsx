@@ -23,7 +23,6 @@ import { useFeaturedBusinesses } from "../hooks/useFeaturedBusinesses";
 import { useRoutePrefetch } from "../hooks/useRoutePrefetch";
 import { useUserPreferences } from "../hooks/useUserPreferences";
 import { useAuth } from "../contexts/AuthContext";
-import SearchResultsPanel from "../components/SearchResultsPanel/SearchResultsPanel";
 import type { Event } from "../lib/types/Event";
 
 // Dynamically import HeroCarousel - it's heavy with images and animations
@@ -60,6 +59,13 @@ const Footer = nextDynamic(() => import("../components/Footer/Footer"), {
   loading: () => <div className="h-64 bg-charcoal" />,
 });
 
+const SearchResultsPanel = nextDynamic(
+  () => import("../components/SearchResultsPanel/SearchResultsPanel"),
+  {
+    loading: () => <div className="min-h-[40vh] w-full" />,
+  }
+);
+
 const MemoizedBusinessRow = memo(BusinessRow);
 
 function isIOSBrowser(): boolean {
@@ -86,11 +92,14 @@ const homeCardRevealViewport = { once: true, margin: "-50px" as const };
 
 
 export default function HomeClient() {
+  const isDev = process.env.NODE_ENV === "development";
   const [eventsAndSpecials, setEventsAndSpecials] = useState<Event[]>([]);
   const [eventsAndSpecialsLoading, setEventsAndSpecialsLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
+    let idleId: number | null = null;
+    let timeoutId: number | null = null;
 
     const load = async () => {
       try {
@@ -121,9 +130,34 @@ export default function HomeClient() {
       }
     };
 
-    load();
+    const schedule = () => {
+      const anyWindow = window as Window & {
+        requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number;
+        cancelIdleCallback?: (id: number) => void;
+      };
+      if (typeof anyWindow.requestIdleCallback === "function") {
+        idleId = anyWindow.requestIdleCallback(() => {
+          void load();
+        }, { timeout: 1800 });
+      } else {
+        timeoutId = window.setTimeout(() => {
+          void load();
+        }, 1200);
+      }
+    };
+
+    schedule();
     return () => {
       cancelled = true;
+      const anyWindow = window as Window & {
+        cancelIdleCallback?: (id: number) => void;
+      };
+      if (idleId != null && typeof anyWindow.cancelIdleCallback === "function") {
+        anyWindow.cancelIdleCallback(idleId);
+      }
+      if (timeoutId != null) {
+        window.clearTimeout(timeoutId);
+      }
     };
   }, []);
 
@@ -167,6 +201,8 @@ export default function HomeClient() {
   const [hasUserInitiatedFilters, setHasUserInitiatedFilters] = useState(false);
   const [filters, setFilters] = useState<FilterState>({ minRating: null, distance: null });
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const hasActiveFilters = selectedInterestIds.length > 0 || filters.minRating !== null || filters.distance !== null;
+  const isFiltered = hasUserInitiatedFilters && hasActiveFilters;
   // ✅ USER PREFERENCES: From onboarding, persistent, used for personalization
   const { interests, subcategories, dealbreakers, loading: prefsLoading } = useUserPreferences();
   const preferences = useMemo(
@@ -179,17 +215,16 @@ export default function HomeClient() {
   const {
     businesses: allBusinesses,
     loading: allBusinessesLoading,
-    error: allBusinessesError,
     refetch: refetchAllBusinesses,
   } = useBusinesses({
-    // Add any required options here, e.g., filters, location, etc.
+    // Filtered results section is hidden by default; avoid fetching it on first paint.
+    skip: !isFiltered,
   });
 
   const {
     businesses: forYouBusinesses,
     loading: forYouLoading,
     error: forYouError,
-    refetch: refetchForYou,
   } = useForYouBusinesses(20, undefined, {
     preferences,
     preferencesLoading: prefsLoading,
@@ -201,26 +236,18 @@ export default function HomeClient() {
     loading: trendingLoading,
     error: trendingError,
     statusCode: trendingStatus,
-    refetch: refetchTrending,
   } = useTrendingBusinesses();
 
   // Debug logging for user preferences
   useEffect(() => {
+    if (!isDev) return;
     console.log("[Home] user prefs:", {
       interestsLen: interests.length,
       interests,
       subcategoriesLen: subcategories.length,
       dealbreakersLen: dealbreakers.length,
     });
-  }, [interests, subcategories, dealbreakers]);
-
-  // ✅ Determine if we're in "filtered mode" (user explicitly applied filters)
-  // CRITICAL: Only true when user has EXPLICITLY initiated filtering
-  // This is the single source of truth for whether we're in filtered mode
-  const isFiltered = useMemo(() => {
-    // MUST have user-initiated flag AND at least one filter active
-    return hasUserInitiatedFilters && (selectedInterestIds.length > 0 || filters.minRating !== null || filters.distance !== null);
-  }, [hasUserInitiatedFilters, selectedInterestIds, filters]);
+  }, [interests, subcategories, dealbreakers, isDev]);
 
   // Fetch featured businesses from API
   const { featuredBusinesses, loading: featuredLoading, error: featuredError, statusCode: featuredStatus } = useFeaturedBusinesses({
@@ -355,9 +382,7 @@ export default function HomeClient() {
     setSelectedInterestIds([]);
     setFilters({ minRating: null, distance: null });
     setUserLocation(null);
-    // Trigger refetch to clear filters immediately
     refetchAllBusinesses();
-    // Note: For You will automatically show again when not filtered
   };
 
   const handleUpdateFilter = (filterType: 'minRating' | 'distance', value: number | string | null) => {
@@ -389,7 +414,9 @@ export default function HomeClient() {
   const handleToggleInterest = (interestId: string) => {
     // ✅ Mark that user has explicitly initiated filtering
     // This is the ONLY way hasUserInitiatedFilters should become true
-    console.log('[Home] User toggled interest filter:', interestId);
+    if (isDev) {
+      console.log('[Home] User toggled interest filter:', interestId);
+    }
     setHasUserInitiatedFilters(true);
 
     setSelectedInterestIds(prev => {
@@ -397,7 +424,9 @@ export default function HomeClient() {
         ? prev.filter(id => id !== interestId)
         : [...prev, interestId];
 
-      console.log('[Home] Updated selectedInterestIds:', newIds);
+      if (isDev) {
+        console.log('[Home] Updated selectedInterestIds:', newIds);
+      }
 
       // Immediately trigger refetch when category changes
       setTimeout(() => {
@@ -414,6 +443,7 @@ export default function HomeClient() {
 
   // Debug logging for business counts (placed after featuredByCategory is defined)
   useEffect(() => {
+    if (!isDev) return;
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('📊 [Home Page] Business Counts Summary');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -443,17 +473,19 @@ export default function HomeClient() {
       categories: safeFeatured.map(f => f.category),
     });
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  }, [forYouBusinesses, trendingBusinesses, allBusinesses, forYouLoading, trendingLoading, allBusinessesLoading, featuredByCategory, featuredLoading]);
+  }, [forYouBusinesses, trendingBusinesses, allBusinesses, forYouLoading, trendingLoading, allBusinessesLoading, featuredByCategory, featuredLoading, isDev]);
 
-  useRoutePrefetch([
-    "/for-you",
-    "/trending",
-    "/discover/reviews",
-    "/events-specials",
-    "/write-review",
-    "/saved",
-  ]);
-  const hasForYouBusinesses = forYouBusinesses.length > 0;
+  useRoutePrefetch(
+    [
+      "/for-you",
+      "/trending",
+      "/discover/reviews",
+      "/events-specials",
+      "/write-review",
+      "/saved",
+    ],
+    { delay: 1500 }
+  );
   const hasTrendingBusinesses = trendingBusinesses.length > 0;
 
   // iOS WebKit tends to be more sensitive to large above-the-fold image/animation work.
