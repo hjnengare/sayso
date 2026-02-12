@@ -124,7 +124,6 @@ export async function proxy(request: NextRequest) {
     '/register',
     '/business/login',
     '/business/register',
-    '/verify-email',
     '/auth/callback',
   ];
 

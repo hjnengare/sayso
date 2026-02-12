@@ -190,10 +190,7 @@ export default function DesktopNav(props: DesktopNavProps) {
     "group capitalize px-2.5 lg:px-3.5 py-1.5 rounded-lg text-sm sm:text-xs md:text-sm font-semibold relative flex items-center gap-1.5 transition-[color,opacity] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]";
   const navLabelHoverClass =
     "relative z-10 inline-block whitespace-nowrap transition-[transform,text-shadow,opacity] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform lg:group-hover:-translate-y-[2px] lg:group-hover:[text-shadow:0_4px_10px_rgba(15,23,42,0.14)]";
-  const activeIndicatorClass =
-    "after:content-[''] after:absolute after:left-2.5 after:right-2.5 after:bottom-[3px] after:h-px after:rounded-full after:bg-current after:opacity-55";
-
-  const activeTextClass = `text-sage ${activeIndicatorClass}`;
+  const activeTextClass = "text-sage";
   const idleTextClass = whiteText
     ? "text-white/75 hover:text-white"
     : "text-charcoal/70 md:text-charcoal/80 hover:text-charcoal/95";

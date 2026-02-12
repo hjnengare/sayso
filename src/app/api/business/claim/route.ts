@@ -58,6 +58,8 @@ function isValidPhone(phone: string): boolean {
 function toDisplayStatus(status: string, methodAttempted: string | null): string {
   if (status === 'verified') return 'Verified';
   if (status === 'rejected') return 'Rejected';
+  if (status === 'action_required') return 'Action Required';
+  if (status === 'under_review') return 'Under Review';
   if (status === 'pending' || status === 'draft') {
     if (methodAttempted === 'cipc') return 'Under Review';
     if (methodAttempted === 'email' || methodAttempted === 'phone') return 'Action Required';
@@ -66,9 +68,64 @@ function toDisplayStatus(status: string, methodAttempted: string | null): string
   return 'Pending Verification';
 }
 
+function toNextStep(status: string, methodAttempted: string | null): string {
+  if (status === 'verified') return 'dashboard';
+  if (status === 'rejected') return 'rejected';
+  if (status === 'under_review') return 'under_review';
+  if (status === 'action_required') return 'action_required';
+  if (status === 'pending' || status === 'draft') {
+    if (methodAttempted === 'cipc') return 'under_review';
+    if (methodAttempted === 'email' || methodAttempted === 'phone') return 'action_required';
+    return 'pending_verification';
+  }
+  return 'pending_verification';
+}
+
+function mapStartClaimFailure(errorMsg: string): {
+  code: ClaimErrorCode;
+  message: string;
+  status: number;
+} | null {
+  const normalized = errorMsg.toLowerCase();
+
+  if (normalized.includes('already claimed') || normalized.includes('dispute')) {
+    return {
+      code: 'ALREADY_OWNER',
+      message: 'This business is already claimed. Contact support if ownership should be updated.',
+      status: 409,
+    };
+  }
+
+  if (normalized.includes('no contact information')) {
+    return {
+      code: 'DB_ERROR',
+      message: 'This business does not have enough contact information to start verification yet.',
+      status: 400,
+    };
+  }
+
+  if (normalized.includes('not found') || normalized.includes('inactive')) {
+    return {
+      code: 'BUSINESS_NOT_FOUND',
+      message: "We couldn't find that business. Please try again.",
+      status: 404,
+    };
+  }
+
+  if (normalized.includes('already') || normalized.includes('duplicate') || normalized.includes('existing')) {
+    return {
+      code: 'DUPLICATE_CLAIM',
+      message: 'You already have a claim in progress for this business.',
+      status: 409,
+    };
+  }
+
+  return null;
+}
+
 export async function POST(req: NextRequest) {
   try {
-    const supabase = await getServerSupabase();
+    const supabase = await getServerSupabase(req);
 
     // ========================================================================
     // 1. Authentication Check
@@ -231,18 +288,15 @@ export async function POST(req: NextRequest) {
       claim_id?: string; 
       existing?: boolean; 
       status?: string; 
+      method_attempted?: string | null;
       business?: { id: string; name: string; phone?: string; website?: string; email?: string } 
     };
 
     if (!start.success || !start.claim_id) {
-      // Check for duplicate claim error from RPC
       const errorMsg = start.error || '';
-      if (errorMsg.toLowerCase().includes('already') || errorMsg.toLowerCase().includes('duplicate') || errorMsg.toLowerCase().includes('existing')) {
-        return errorResponse(
-          'DUPLICATE_CLAIM',
-          'You already have a claim in progress for this business.',
-          409
-        );
+      const mappedFailure = mapStartClaimFailure(errorMsg);
+      if (mappedFailure) {
+        return errorResponse(mappedFailure.code, mappedFailure.message, mappedFailure.status);
       }
       
       console.error('[Claim API] RPC returned failure:', start);
@@ -254,6 +308,34 @@ export async function POST(req: NextRequest) {
     }
 
     const claimId = start.claim_id;
+
+    // Existing non-draft claims are already in-progress; avoid re-updating rows blocked by RLS.
+    if (start.existing && start.status && start.status !== 'draft') {
+      const { data: existingClaim } = await supabase
+        .from('business_claims')
+        .select('status, method_attempted')
+        .eq('id', claimId)
+        .eq('claimant_user_id', user.id)
+        .maybeSingle();
+
+      const existingStatus = (existingClaim?.status as string | undefined) ?? start.status;
+      const existingMethodAttempted =
+        (existingClaim?.method_attempted as string | null | undefined) ?? start.method_attempted ?? null;
+
+      return NextResponse.json(
+        {
+          success: true,
+          existing: true,
+          claim_id: claimId,
+          status: existingStatus,
+          display_status: toDisplayStatus(existingStatus, existingMethodAttempted),
+          method_attempted: existingMethodAttempted,
+          next_step: toNextStep(existingStatus, existingMethodAttempted),
+          message: 'You already have a claim in progress for this business.',
+        },
+        { status: 200 },
+      );
+    }
 
     // Fetch business contact info for verification detection
     const { data: business } = await supabase
@@ -323,12 +405,19 @@ export async function POST(req: NextRequest) {
       methodAttempted = 'email';
     }
 
-    // Update claim: verification_data, status pending, method_attempted, submitted_at
+    const submissionStatus =
+      methodAttempted === 'cipc'
+        ? 'under_review'
+        : methodAttempted === 'phone' || methodAttempted === 'email'
+          ? 'action_required'
+          : 'pending';
+
+    // Update claim: verification_data, status, method_attempted, submitted_at
     const { error: updateError } = await supabase
       .from('business_claims')
       .update({
         verification_data: verificationData,
-        status: 'pending',
+        status: submissionStatus,
         method_attempted: methodAttempted,
         verification_level: methodAttempted === 'cipc' ? 'level_2' : 'level_1',
         submitted_at: new Date().toISOString(),
@@ -363,20 +452,23 @@ export async function POST(req: NextRequest) {
       }).catch((err) => console.error('Claim received email failed:', err));
     }
 
-    const displayStatus = toDisplayStatus('pending', methodAttempted);
-    const nextStep = methodAttempted === 'cipc' ? 'under_review' : methodAttempted === 'phone' || methodAttempted === 'email' ? 'action_required' : 'pending_verification';
+    const displayStatus = toDisplayStatus(submissionStatus, methodAttempted);
+    const nextStep = toNextStep(submissionStatus, methodAttempted);
 
     return NextResponse.json(
       {
         success: true,
         claim_id: claimId,
-        status: 'pending',
+        status: submissionStatus,
         display_status: displayStatus,
         method_attempted: methodAttempted,
         next_step: nextStep,
-        message: methodAttempted === 'cipc'
-          ? 'Claim submitted. We’ll review your CIPC details shortly.'
-          : 'Claim submitted. Complete the requested verification step.',
+        message:
+          submissionStatus === 'under_review'
+            ? "Claim submitted. We'll review your CIPC details shortly."
+            : submissionStatus === 'action_required'
+              ? 'Claim submitted. Complete the requested verification step.'
+              : 'Claim submitted successfully.',
       },
       { status: 201 }
     );
@@ -389,3 +481,4 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+

@@ -86,7 +86,8 @@ export default function AdminClaimsPage() {
               <option value="email">Email</option>
               <option value="phone">Phone</option>
               <option value="cipc">CIPC</option>
-              <option value="document">Document</option>
+              <option value="documents">Documents</option>
+              <option value="manual">Manual</option>
             </select>
           </div>
         </div>

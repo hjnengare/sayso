@@ -184,6 +184,23 @@ export async function GET(req: NextRequest) {
 
     const businessIds = businesses.map(b => b.id);
 
+    const { data: ownershipRows, error: ownershipError } = await supabase
+      .from('businesses')
+      .select('id, owner_id, owner_verified')
+      .in('id', businessIds);
+
+    if (ownershipError) {
+      console.warn('[SEARCH API] ownership flags lookup failed:', ownershipError.message);
+    }
+
+    const ownershipByBusinessId = new Map<
+      string,
+      { owner_id: string | null; owner_verified: boolean | null }
+    >(
+      ((ownershipRows || []) as Array<{ id: string; owner_id: string | null; owner_verified: boolean | null }>)
+        .map((row) => [row.id, { owner_id: row.owner_id, owner_verified: row.owner_verified }]),
+    );
+
     // Check claim status for each business
     const results: BusinessSearchResultWithHours[] = [];
 
@@ -223,9 +240,12 @@ export async function GET(req: NextRequest) {
 
       // Build results with claim status
       for (const business of businesses) {
-        const isOwnedByUser = ownedBusinessIds.has(business.id);
+        const ownership = ownershipByBusinessId.get(business.id);
+        const isOwnedByUser =
+          ownedBusinessIds.has(business.id) || (ownership?.owner_id != null && ownership.owner_id === userId);
         const hasPendingByUser = pendingBusinessIds.has(business.id);
-        const isClaimed = claimedBusinessIds.has(business.id);
+        const isClaimedByOwnerFlags = Boolean(ownership?.owner_verified) || ownership?.owner_id != null;
+        const isClaimed = claimedBusinessIds.has(business.id) || isClaimedByOwnerFlags;
 
         let claim_status: 'unclaimed' | 'claimed' | 'pending';
         if (isOwnedByUser) {
@@ -285,6 +305,8 @@ export async function GET(req: NextRequest) {
 
       // Build results without user-specific status
       for (const business of businesses) {
+        const ownership = ownershipByBusinessId.get(business.id);
+        const isClaimedByOwnerFlags = Boolean(ownership?.owner_verified) || ownership?.owner_id != null;
         const subInterestId = (business as SearchBusinessesResult & { primary_subcategory_slug?: string }).primary_subcategory_slug ?? business.sub_interest_id ?? undefined;
         const subInterestLabel = subInterestId ? getSubcategoryLabel(subInterestId) : undefined;
         const interestId = (business as SearchBusinessesResult & { primary_category_slug?: string }).primary_category_slug ?? business.interest_id ?? (subInterestId ? getInterestIdForSubcategory(subInterestId) : undefined);
@@ -306,7 +328,7 @@ export async function GET(req: NextRequest) {
           hours: business.hours,
           image_url: business.image_url,
           verified: business.verified,
-          claim_status: claimedBusinessIds.has(business.id) ? 'claimed' : 'unclaimed',
+          claim_status: claimedBusinessIds.has(business.id) || isClaimedByOwnerFlags ? 'claimed' : 'unclaimed',
           pending_by_user: false,
           claimed_by_user: false,
           lat: business.lat ?? null,

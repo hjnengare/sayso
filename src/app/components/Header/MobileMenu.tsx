@@ -33,6 +33,7 @@ export default function MobileMenu({
   sf,
 }: MobileMenuProps) {
   const pathname = usePathname();
+  const isSignupNavLink = (href: string) => href === "/register" || href === "/signup";
   const addMenuItems: readonly NavLink[] = [
     { key: "add-business", label: "Add New Business", href: "/add-business", requiresAuth: true },
     { key: "add-special", label: "Add Special", href: "/add-special", requiresAuth: true },
@@ -54,7 +55,9 @@ export default function MobileMenu({
   }, [isOpen, isAddRouteActive]);
 
   // Use centralized mobile menu actions config
-  const actionItems = getMobileMenuActions(isBusinessAccountUser);
+  const actionItems = getMobileMenuActions(isBusinessAccountUser).filter(
+    (item) => !isSignupNavLink(item.href)
+  );
   const profileAction = actionItems.find((item) => item.href === "/profile");
 
   const orderedPrimaryLinks: readonly NavLink[] = [
@@ -62,12 +65,12 @@ export default function MobileMenu({
     discoverLinks.find((link) => link.href === "/for-you"),
     discoverLinks.find((link) => link.href === "/trending"),
     discoverLinks.find((link) => link.href === "/events-specials"),
-  ].filter(Boolean) as NavLink[];
+  ].filter(Boolean).filter((link) => !isSignupNavLink(link.href)) as NavLink[];
 
   const orderedSecondaryLinks: readonly NavLink[] = [
     primaryLinks.find((link) => link.href === "/leaderboard"),
     { key: "saved", label: "Saved", href: "/saved", requiresAuth: true },
-  ].filter(Boolean) as NavLink[];
+  ].filter(Boolean).filter((link) => !isSignupNavLink(link.href)) as NavLink[];
   
   const mobileRevealClass = `transform transition-all duration-500 ease-out ${
     isOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"

@@ -195,6 +195,7 @@ export default function VerifyEmailPage() {
   const redirectingRef = useRef(false);
   const checkingRef = useRef(false);
   const resendSubmittingRef = useRef(false);
+  const verificationCallbackHandledRef = useRef(false);
   const prefersReduced = usePrefersReducedMotion();
 
   // Clean ?expired param from URL without re-render
@@ -481,9 +482,12 @@ export default function VerifyEmailPage() {
   ]);
 
   // Handle callback returns such as /verify-email?verified=1 from email links.
+  // Retry a few times because session cookies can arrive slightly after navigation.
   useEffect(() => {
     if (redirectingRef.current) return;
+    if (verificationCallbackHandledRef.current) return;
     if (searchParams.get("verified") !== "1") return;
+    verificationCallbackHandledRef.current = true;
 
     if (typeof window !== "undefined") {
       const url = new URL(window.location.href);
@@ -491,17 +495,42 @@ export default function VerifyEmailPage() {
       window.history.replaceState({}, "", url.pathname + (url.search || ""));
     }
 
-    const timeout = window.setTimeout(() => {
-      void checkVerificationStatus({
+    let cancelled = false;
+    let timeoutId: number | null = null;
+    let attempt = 0;
+    const maxAttempts = 5;
+
+    const runVerificationCheck = async () => {
+      if (cancelled || redirectingRef.current) return;
+      attempt += 1;
+
+      const verified = await checkVerificationStatus({
         manual: false,
         fromVerificationCallback: true,
         showSuccessToast: true,
         successToastMessage: "Email verified. Account secured.",
         successToastOnceKey: "email-verified-v1",
       });
-    }, 500);
 
-    return () => window.clearTimeout(timeout);
+      if (verified || cancelled || redirectingRef.current || attempt >= maxAttempts) {
+        return;
+      }
+
+      timeoutId = window.setTimeout(() => {
+        void runVerificationCheck();
+      }, 700);
+    };
+
+    timeoutId = window.setTimeout(() => {
+      void runVerificationCheck();
+    }, 350);
+
+    return () => {
+      cancelled = true;
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId);
+      }
+    };
   }, [checkVerificationStatus, searchParams]);
 
   // Shared, consistent page shell for ALL branches (prevents hydration/layout mismatch)
