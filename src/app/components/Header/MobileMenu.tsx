@@ -366,19 +366,6 @@ export default function MobileMenu({
             );
           })}
         </div>
-        <div className="h-px bg-charcoal/10 my-2 mx-3" />
-        <OptimizedLink
-          key="sign-in"
-          href="/login"
-          onClick={() => onClose()}
-          className={`px-3 py-2 rounded-[12px] text-base font-normal text-white/90 hover:text-white hover:bg-gradient-to-r hover:from-white/10 hover:to-white/5 min-h-[44px] flex items-center justify-center ${mobileTapFeedbackClass} ${mobileRevealClass}`}
-          style={{
-            ...sf,
-            transitionDelay: `${(orderedPrimaryLinks.length + orderedSecondaryLinks.length + 1) * 60}ms`,
-          }}
-        >
-          <span className="text-center uppercase flex items-center gap-1.5">Sign in</span>
-        </OptimizedLink>
       </>
     );
   }
@@ -415,6 +402,21 @@ export default function MobileMenu({
               {menuContent}
             </div>
           </nav>
+          {isGuest && (
+            <div className="px-3 py-3 border-t border-charcoal/10 flex-shrink-0">
+              <OptimizedLink
+                href="/login"
+                onClick={() => onClose()}
+                className={`px-3 py-2 rounded-[12px] text-xs font-normal text-white/80 hover:text-white hover:bg-gradient-to-r hover:from-white/10 hover:to-white/5 min-h-[44px] flex items-center justify-center ${mobileTapFeedbackClass} ${mobileRevealClass}`}
+                style={{
+                  ...sf,
+                  transitionDelay: `${(orderedPrimaryLinks.length + orderedSecondaryLinks.length + 1) * 60}ms`,
+                }}
+              >
+                <span className="text-center uppercase tracking-wide">Sign in</span>
+              </OptimizedLink>
+            </div>
+          )}
         </div>
       </div>
     </>
