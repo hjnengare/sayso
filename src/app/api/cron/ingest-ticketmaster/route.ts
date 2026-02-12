@@ -304,6 +304,7 @@ export async function GET(req: NextRequest) {
     }
 
     if (!isTicketmasterIngestEnabled()) {
+      console.warn("[Cron] Ticketmaster ingest skipped: ENABLE_TICKETMASTER_INGEST is not enabled.");
       return NextResponse.json({
         source: "ticketmaster",
         disabled: true,

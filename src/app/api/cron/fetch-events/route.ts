@@ -5,6 +5,11 @@ import { TicketmasterService } from '@/app/lib/services/ticketmasterService';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60; // 60 seconds max duration
 
+function isTicketmasterIngestEnabled(): boolean {
+  const raw = process.env.ENABLE_TICKETMASTER_INGEST;
+  return raw === "1" || raw?.toLowerCase() === "true";
+}
+
 /**
  * GET /api/cron/fetch-events
  * Cron job endpoint to fetch events from Ticketmaster API and store them in the database
@@ -26,6 +31,15 @@ export const maxDuration = 60; // 60 seconds max duration
  */
 export async function GET(req: NextRequest) {
   try {
+    if (!isTicketmasterIngestEnabled()) {
+      console.warn("[Cron] Ticketmaster fetch-events skipped: ENABLE_TICKETMASTER_INGEST is not enabled.");
+      return NextResponse.json({
+        source: "ticketmaster",
+        disabled: true,
+        message: "Ticketmaster ingest disabled via ENABLE_TICKETMASTER_INGEST",
+      });
+    }
+
     // Optional: Verify cron secret for security
     const cronSecret = process.env.CRON_SECRET;
     if (cronSecret) {

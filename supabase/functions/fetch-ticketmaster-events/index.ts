@@ -545,6 +545,7 @@ Deno.serve(async (req: Request) => {
 
   try {
     if (!isTicketmasterIngestEnabled()) {
+      console.warn("[Ingest] Ticketmaster ingest skipped: ENABLE_TICKETMASTER_INGEST is not enabled.");
       return jsonOk({
         success: true,
         source: "ticketmaster",
