@@ -105,6 +105,11 @@ function isUuid(value: string | null | undefined): value is string {
   return typeof value === "string" && UUID_PATTERN.test(value.trim());
 }
 
+function isTicketmasterIngestEnabled(): boolean {
+  const raw = process.env.ENABLE_TICKETMASTER_INGEST;
+  return raw === "1" || raw?.toLowerCase() === "true";
+}
+
 async function userExists(supabase: any, userId: string): Promise<boolean> {
   if (!isUuid(userId)) return false;
 
@@ -296,6 +301,14 @@ export async function GET(req: NextRequest) {
       if (auth !== `Bearer ${cronSecret}`) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
       }
+    }
+
+    if (!isTicketmasterIngestEnabled()) {
+      return NextResponse.json({
+        source: "ticketmaster",
+        disabled: true,
+        message: "Ticketmaster ingest disabled via ENABLE_TICKETMASTER_INGEST",
+      });
     }
 
     const apiKey = process.env.TICKETMASTER_API_KEY;

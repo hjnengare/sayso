@@ -136,6 +136,12 @@ function isUuid(value: string | null | undefined): value is string {
   return typeof value === "string" && UUID_PATTERN.test(value.trim());
 }
 
+function isTicketmasterIngestEnabled(): boolean {
+  // @ts-ignore
+  const raw = Deno.env.get("ENABLE_TICKETMASTER_INGEST");
+  return raw === "1" || raw?.toLowerCase() === "true";
+}
+
 async function userExists(supabase: SupabaseClient, userId: string): Promise<boolean> {
   if (!isUuid(userId)) return false;
 
@@ -538,6 +544,16 @@ Deno.serve(async (req: Request) => {
   const startMs = Date.now();
 
   try {
+    if (!isTicketmasterIngestEnabled()) {
+      return jsonOk({
+        success: true,
+        source: "ticketmaster",
+        disabled: true,
+        message: "Ticketmaster ingest disabled via ENABLE_TICKETMASTER_INGEST",
+        elapsed_ms: Date.now() - startMs,
+      });
+    }
+
     // ---- Environment ----
     // @ts-ignore
     const apiKey = Deno.env.get("TICKETMASTER_API_KEY");
