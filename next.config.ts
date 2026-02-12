@@ -5,6 +5,13 @@ const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === "true",
 });
 
+const phoneOtpMode = (process.env.PHONE_OTP_MODE ?? '').trim().toLowerCase();
+if (process.env.NODE_ENV === 'production' && phoneOtpMode !== 'twilio') {
+  throw new Error(
+    '[PHONE OTP] Production startup blocked: PHONE_OTP_MODE must be set to "twilio".'
+  );
+}
+
 const nextConfig: NextConfig = {
   // Enhanced Image optimization for maximum performance
   images: {
