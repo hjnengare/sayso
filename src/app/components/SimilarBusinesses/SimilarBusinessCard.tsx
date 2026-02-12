@@ -214,21 +214,19 @@ function SimilarBusinessCard({
               />
             </div>
 
-            {/* Foreground image (padded evenly within the image area) */}
-            <div className="absolute inset-0 flex items-center justify-center p-4">
-              <div className="relative w-full h-full overflow-hidden rounded-[8px]">
-                <Image
-                  src={usingFallback ? placeholderSrc : displayImage}
-                  alt={name}
-                  fill
-                  className="object-contain transition-transform duration-500 ease-out group-hover:scale-[1.02] group-active:scale-[0.98] motion-reduce:transition-none"
-                  sizes="(max-width: 768px) 540px, 340px"
-                  priority={false}
-                  quality={90}
-                  loading="lazy"
-                  onError={handleImageError}
-                />
-              </div>
+            {/* Foreground image (full bleed) */}
+            <div className="absolute inset-0">
+              <Image
+                src={usingFallback ? placeholderSrc : displayImage}
+                alt={name}
+                fill
+                className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.02] group-active:scale-[0.98] motion-reduce:transition-none"
+                sizes="(max-width: 768px) 540px, 340px"
+                priority={false}
+                quality={90}
+                loading="lazy"
+                onError={handleImageError}
+              />
             </div>
             {/* Premium depth overlay */}
             <div
@@ -241,13 +239,11 @@ function SimilarBusinessCard({
             />
           </div>
         ) : (
-          <div className="relative w-full h-full p-4">
-            <div
-              className="relative w-full h-full flex items-center justify-center rounded-[8px] overflow-hidden"
-              style={{ backgroundColor: '#E5E0E5' }}
-            >
-              <ImageIcon className="w-16 h-16 text-charcoal/20" aria-hidden="true" />
-            </div>
+          <div
+            className="relative w-full h-full flex items-center justify-center"
+            style={{ backgroundColor: '#E5E0E5' }}
+          >
+            <ImageIcon className="w-16 h-16 text-charcoal/20" aria-hidden="true" />
           </div>
         )}
       </div>
