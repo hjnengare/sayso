@@ -16,13 +16,22 @@ const args = ["next", "build"];
 const polyfillPath = path.resolve(__dirname, "self-polyfill.js").replace(/\\/g, "/");
 const existingNodeOptions = process.env.NODE_OPTIONS ? `${process.env.NODE_OPTIONS} ` : "";
 const nodeOptions = `${existingNodeOptions}--require ${polyfillPath}`;
+const isCi = process.env.CI === "true" || !!process.env.VERCEL;
+const buildEnv = {
+  ...process.env,
+  NODE_OPTIONS: nodeOptions,
+};
+
+// Local convenience: keep production guard strict in CI/deploy, but avoid
+// forcing every local build command to export PHONE_OTP_MODE manually.
+if (!buildEnv.PHONE_OTP_MODE && !isCi) {
+  buildEnv.PHONE_OTP_MODE = "twilio";
+  console.warn('[build] PHONE_OTP_MODE not set; defaulting to "twilio" for local build.');
+}
 
 const child = spawn(command, args, {
   stdio: "inherit",
-  env: {
-    ...process.env,
-    NODE_OPTIONS: nodeOptions,
-  },
+  env: buildEnv,
   shell: isWindows,
 });
 
