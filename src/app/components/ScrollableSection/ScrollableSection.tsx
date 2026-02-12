@@ -208,7 +208,7 @@ export default function ScrollableSection({
     <div className="relative">
       <div
         ref={scrollRef}
-        className={`horizontal-scroll scrollbar-hide flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory sm:snap-mandatory ${shouldEnableMobilePeek ? "home-mobile-peek" : ""} ${className}`}
+        className={`horizontal-scroll scrollbar-hide scrollable-mobile-center flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory sm:snap-mandatory ${className}`}
         style={{
           scrollbarWidth: 'none',
           msOverflowStyle: 'none',
@@ -217,62 +217,89 @@ export default function ScrollableSection({
           overscrollBehaviorY: 'auto',
           touchAction: 'pan-x pan-y',
           scrollSnapType: 'x mandatory',
-          scrollPaddingLeft: shouldEnableMobilePeek ? '1rem' : undefined,
-          scrollPaddingRight: shouldEnableMobilePeek ? '1rem' : undefined,
         } as React.CSSProperties}
       >
         {children}
       </div>
 
-      {shouldEnableMobilePeek && (
-        <style jsx>{`
-          @media (max-width: 639px) {
-            .home-mobile-peek {
-              scroll-padding-left: 1rem;
-              scroll-padding-right: 1rem;
-            }
-
-            .home-mobile-peek :global(.snap-start[data-mobile-snap-target="true"]) {
-              scroll-snap-align: center !important;
-              scroll-snap-stop: always !important;
-            }
-
-            .home-mobile-peek :global(.snap-start:not([data-mobile-snap-target="true"])) {
-              scroll-snap-align: none !important;
-              scroll-snap-stop: normal !important;
-            }
-
-            .home-mobile-peek [class*="w-[100vw]"] {
-              width: calc(100vw - 1rem) !important;
-              max-width: calc(100vw - 1rem) !important;
-            }
+      <style jsx>{`
+        @media (max-width: 639px) {
+          .scrollable-mobile-center :global(.snap-start[data-mobile-snap-target="true"]) {
+            scroll-snap-align: center !important;
+            scroll-snap-stop: always !important;
           }
 
-          @keyframes mobile-scroll-indicator-pulse {
-            0% {
-              opacity: 0.6;
-              transform: translate3d(0, 0, 0);
-            }
-            50% {
-              opacity: 1;
-              transform: translate3d(4px, 0, 0);
-            }
-            100% {
-              opacity: 0.6;
-              transform: translate3d(0, 0, 0);
-            }
+          .scrollable-mobile-center :global(.snap-start:not([data-mobile-snap-target="true"])) {
+            scroll-snap-align: none !important;
+            scroll-snap-stop: normal !important;
           }
+        }
 
-          .mobile-scroll-indicator {
-            animation: mobile-scroll-indicator-pulse 1000ms ease-in-out infinite;
+        @keyframes mobile-scroll-indicator-pulse {
+          0% {
+            opacity: 0.6;
+            transform: translate3d(0, 0, 0);
           }
+          50% {
+            opacity: 1;
+            transform: translate3d(4px, 0, 0);
+          }
+          100% {
+            opacity: 0.6;
+            transform: translate3d(0, 0, 0);
+          }
+        }
 
-          @media (prefers-reduced-motion: reduce) {
-            .mobile-scroll-indicator {
-              animation: none;
-            }
+        @keyframes mobile-scroll-indicator-pulse-left {
+          0% {
+            opacity: 0.6;
+            transform: translate3d(0, 0, 0);
           }
-        `}</style>
+          50% {
+            opacity: 1;
+            transform: translate3d(-4px, 0, 0);
+          }
+          100% {
+            opacity: 0.6;
+            transform: translate3d(0, 0, 0);
+          }
+        }
+
+        .mobile-scroll-indicator {
+          animation: mobile-scroll-indicator-pulse 1000ms ease-in-out infinite;
+        }
+
+        .mobile-scroll-indicator-left {
+          animation: mobile-scroll-indicator-pulse-left 1000ms ease-in-out infinite;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .mobile-scroll-indicator,
+          .mobile-scroll-indicator-left {
+            animation: none;
+          }
+        }
+      `}</style>
+
+      {isHomeRoute && isMobileViewport && canScrollLeft && (
+        <div className="pointer-events-none absolute left-2.5 top-1/2 z-30 -translate-y-1/2 md:hidden">
+          <span className="inline-flex min-h-7 min-w-7 items-center justify-center rounded-full border border-charcoal/10 bg-off-white/85 px-1.5">
+            <svg
+              className="mobile-scroll-indicator-left h-3.5 w-3.5 text-charcoal/70"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 5l-7 7 7 7"
+              />
+            </svg>
+          </span>
+        </div>
       )}
 
       {isHomeRoute && isMobileViewport && canScrollRight && showSwipeHint && (

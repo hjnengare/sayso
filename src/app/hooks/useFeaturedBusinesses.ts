@@ -69,6 +69,46 @@ export interface FeaturedBusinessesMeta {
   count?: number;
 }
 
+const mapLegacyBusinessToFeatured = (
+  business: any,
+  index: number,
+): FeaturedBusiness => {
+  const totalRating = Number(business?.totalRating ?? business?.rating ?? 0);
+  const reviewCount = Number(business?.reviewCount ?? business?.reviews ?? 0);
+
+  return {
+    id: String(business?.id ?? ''),
+    name: String(business?.name ?? 'Business'),
+    image: business?.image || business?.image_url || '',
+    alt: String(business?.alt ?? business?.name ?? 'Business'),
+    category: String(business?.category ?? business?.sub_interest_id ?? 'miscellaneous'),
+    category_label:
+      typeof business?.category_label === 'string' && business.category_label.trim()
+        ? business.category_label.trim()
+        : undefined,
+    description:
+      typeof business?.description === 'string' && business.description.trim()
+        ? business.description.trim()
+        : 'Featured in the community',
+    location: String(business?.location ?? 'Cape Town'),
+    rating: totalRating,
+    reviewCount,
+    totalRating,
+    reviews: reviewCount,
+    badge: 'featured',
+    rank: index + 1,
+    href: String(business?.href ?? `/business/${business?.slug || business?.id || ''}`),
+    monthAchievement: 'Featured in the community',
+    verified: Boolean(business?.verified),
+    lat: typeof business?.lat === 'number' ? business.lat : null,
+    lng: typeof business?.lng === 'number' ? business.lng : null,
+    ui_hints: {
+      badge: 'featured',
+      rank: index + 1,
+    },
+  };
+};
+
 /**
  * Hook to fetch featured businesses from the API
  */
@@ -91,7 +131,22 @@ export function useFeaturedBusinesses(options: UseFeaturedBusinessesOptions = {}
       if (options.limit) params.set('limit', options.limit.toString());
       if (options.region) params.set('region', options.region);
 
-      const response = await fetch(`/api/featured?${params.toString()}`);
+      let response = await fetch(`/api/featured?${params.toString()}`);
+      let usedLegacyFallback = false;
+
+      if (response.status === 404) {
+        usedLegacyFallback = true;
+        console.warn('[useFeaturedBusinesses] /api/featured returned 404, falling back to /api/businesses');
+
+        const fallbackParams = new URLSearchParams();
+        if (options.limit) fallbackParams.set('limit', options.limit.toString());
+        if (options.region) fallbackParams.set('location', options.region);
+        fallbackParams.set('feed_strategy', 'standard');
+        fallbackParams.set('sort_by', 'total_rating');
+        fallbackParams.set('sort_order', 'desc');
+
+        response = await fetch(`/api/businesses?${fallbackParams.toString()}`);
+      }
 
       if (!response.ok) {
         let message = `Failed to fetch featured businesses: ${response.status}`;
@@ -101,6 +156,17 @@ export function useFeaturedBusinesses(options: UseFeaturedBusinessesOptions = {}
         } catch {
           // keep message
         }
+
+        // Some environments do not expose these API routes (frontend-only deploys).
+        // In that case, degrade to empty state instead of showing raw 404 banners.
+        if (usedLegacyFallback && response.status === 404) {
+          setStatusCode(null);
+          setError(null);
+          setFeaturedBusinesses([]);
+          setMeta(null);
+          return;
+        }
+
         setStatusCode(response.status);
         setError(`${response.status}: ${message}`);
         setFeaturedBusinesses([]);
@@ -109,13 +175,32 @@ export function useFeaturedBusinesses(options: UseFeaturedBusinessesOptions = {}
       }
 
       const data = await response.json();
-      const list = Array.isArray(data)
-        ? data
-        : Array.isArray(data?.data)
-          ? data.data
-          : [];
-      setFeaturedBusinesses(list);
-      setMeta(data && !Array.isArray(data) ? data?.meta ?? null : null);
+
+      if (usedLegacyFallback) {
+        const fallbackList = Array.isArray(data?.businesses)
+          ? data.businesses
+          : Array.isArray(data?.data)
+            ? data.data
+            : [];
+        const normalized = fallbackList
+          .filter((item: any) => item && item.id)
+          .map((item: any, index: number) => mapLegacyBusinessToFeatured(item, index));
+
+        setFeaturedBusinesses(normalized);
+        setMeta({
+          source: 'fallback',
+          count: normalized.length,
+          generated_at: new Date().toISOString(),
+        });
+      } else {
+        const list = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.data)
+            ? data.data
+            : [];
+        setFeaturedBusinesses(list);
+        setMeta(data && !Array.isArray(data) ? data?.meta ?? null : null);
+      }
     } catch (err) {
       console.error('Error fetching featured businesses:', err);
       setStatusCode(null);

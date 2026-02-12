@@ -69,9 +69,26 @@ export function useTrendingBusinesses(
       if (category) params.set('category', category);
       if (debug) params.set('debug', '1');
 
-      const response = await fetch(`/api/trending?${params.toString()}`, {
+      let response = await fetch(`/api/trending?${params.toString()}`, {
         signal: abortController.signal,
       });
+      let usedLegacyFallback = false;
+
+      if (response.status === 404) {
+        usedLegacyFallback = true;
+        console.warn('[useTrendingBusinesses] /api/trending returned 404, falling back to /api/businesses');
+
+        const fallbackParams = new URLSearchParams();
+        fallbackParams.set('limit', limit.toString());
+        if (category) fallbackParams.set('category', category);
+        fallbackParams.set('feed_strategy', 'standard');
+        fallbackParams.set('sort_by', 'total_reviews');
+        fallbackParams.set('sort_order', 'desc');
+
+        response = await fetch(`/api/businesses?${fallbackParams.toString()}`, {
+          signal: abortController.signal,
+        });
+      }
 
       clearTimeout(timeoutId);
 
@@ -84,6 +101,14 @@ export function useTrendingBusinesses(
           // keep message as statusText
         }
         if (abortControllerRef.current === abortController) {
+          if (usedLegacyFallback && response.status === 404) {
+            setBusinesses([]);
+            setCount(0);
+            setRefreshedAt(null);
+            setStatusCode(null);
+            setError(null);
+            return;
+          }
           setStatusCode(response.status);
           setError(`${response.status}: ${message}`);
         }
@@ -93,8 +118,13 @@ export function useTrendingBusinesses(
       const data = await response.json();
 
       if (abortControllerRef.current === abortController) {
-        setBusinesses(data.businesses || []);
-        setCount(data.meta?.count ?? (data.businesses?.length ?? 0));
+        const list = Array.isArray(data?.businesses)
+          ? data.businesses
+          : Array.isArray(data?.data)
+            ? data.data
+            : [];
+        setBusinesses(list);
+        setCount(data.meta?.count ?? list.length);
         setRefreshedAt(data.meta?.refreshedAt || null);
       }
     } catch (err: any) {

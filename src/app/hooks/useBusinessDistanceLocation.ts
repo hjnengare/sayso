@@ -21,6 +21,7 @@ interface LocationStoreState {
 
 const SNOOZE_STORAGE_KEY = "sayso.location.prompt.snooze_until";
 const DENIED_ACK_STORAGE_KEY = "sayso.location.prompt.denied_ack";
+const FIRST_VISIT_REQUEST_KEY = "sayso.location.prompt.first_visit_requested";
 const SNOOZE_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
 
 const listeners = new Set<(nextState: LocationStoreState) => void>();
@@ -76,6 +77,10 @@ function writeNumberToStorage(key: string, value: number) {
 function writeBooleanToStorage(key: string, value: boolean) {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(key, value ? "1" : "0");
+}
+
+function markFirstVisitRequestHandled() {
+  writeBooleanToStorage(FIRST_VISIT_REQUEST_KEY, true);
 }
 
 function isPermissionDenied(error: GeolocationPositionError): boolean {
@@ -140,6 +145,7 @@ async function initializeClientState() {
   const now = Date.now();
   const snoozedUntil = snoozedUntilRaw && snoozedUntilRaw > now ? snoozedUntilRaw : null;
   const deniedDismissed = readBooleanFromStorage(DENIED_ACK_STORAGE_KEY);
+  const shouldRequestOnFirstVisit = !readBooleanFromStorage(FIRST_VISIT_REQUEST_KEY);
 
   updateState({
     initialized: true,
@@ -149,6 +155,9 @@ async function initializeClientState() {
   });
 
   if (!navigator.geolocation) {
+    if (shouldRequestOnFirstVisit) {
+      markFirstVisitRequestHandled();
+    }
     updateState({
       status: "unavailable",
       lastError: "Geolocation is not supported in this browser.",
@@ -163,11 +172,21 @@ async function initializeClientState() {
       });
 
       if (permissionStatus.state === "denied") {
+        if (shouldRequestOnFirstVisit) {
+          markFirstVisitRequestHandled();
+        }
         updateState({ status: "denied", coords: null });
       } else if (permissionStatus.state === "granted") {
+        if (shouldRequestOnFirstVisit) {
+          markFirstVisitRequestHandled();
+        }
         requestCurrentLocation();
       } else {
         updateState({ status: "idle" });
+        if (shouldRequestOnFirstVisit) {
+          markFirstVisitRequestHandled();
+          requestCurrentLocation();
+        }
       }
 
       permissionStatus.onchange = () => {
@@ -186,6 +205,10 @@ async function initializeClientState() {
   }
 
   updateState({ status: "idle" });
+  if (shouldRequestOnFirstVisit) {
+    markFirstVisitRequestHandled();
+    requestCurrentLocation();
+  }
 }
 
 export function isValidCoordinate(value: unknown): value is number {

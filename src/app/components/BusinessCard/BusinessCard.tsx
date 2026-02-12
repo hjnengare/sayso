@@ -252,7 +252,8 @@ function BusinessCard({
     if (!hasCoordinates) return null;
     if (distanceLabel) return distanceLabel;
     if (locationStatus === "loading") return "Calculating...";
-    return null;
+    if (locationStatus === "denied") return "Location off";
+    return "Enable location";
   }, [distanceLabel, hasCoordinates, locationStatus]);
 
 

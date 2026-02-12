@@ -15,9 +15,17 @@ const PerformanceMonitor = dynamic(() => import("./PerformanceMonitor"), {
   ssr: false,
 });
 
+const LocationPermissionBootstrap = dynamic(
+  () => import("../Location/LocationPermissionBootstrap"),
+  {
+    ssr: false,
+  }
+);
+
 export default function ClientPerformanceWrapper() {
   return (
     <>
+      <LocationPermissionBootstrap />
       <LinkPrefetch />
       <ResourcePreloader />
       <PerformanceMonitor />
