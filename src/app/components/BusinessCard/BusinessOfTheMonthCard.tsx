@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Image as ImageIcon, Star, Edit, Bookmark, Share2, Award } from "lucide-react";
+import { Image as ImageIcon, Star, Edit, Bookmark, Share2 } from "lucide-react";
 import { Scissors, Coffee, UtensilsCrossed, Wine, Dumbbell, Activity, Heart, Book, ShoppingBag, Home, Briefcase, MapPin, Music, Film, Camera, Car, GraduationCap, CreditCard, Tag } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Stars from "../Stars/Stars";
@@ -145,7 +145,6 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
       return {
         key: "distance",
         label: distanceDisplayText,
-        Icon: MapPin,
         title: distanceHint ?? distanceDisplayText,
         ariaLabel: `Distance: ${distanceDisplayText}`,
       };
@@ -154,7 +153,6 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
       return {
         key: "select",
         label: selectBadgeText,
-        Icon: Award,
         title: `${selectBadgeText} - ${business.badge}`,
         ariaLabel: selectBadgeText,
       };
@@ -163,7 +161,6 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
       return {
         key: "distance-fallback",
         label: distanceDisplayText,
-        Icon: MapPin,
         title: distanceHint ?? distanceDisplayText,
         ariaLabel: `Distance: ${distanceDisplayText}`,
       };
@@ -408,15 +405,10 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: prefersReducedMotion ? 0 : -6 }}
                     transition={badgeTransition}
-                    className="absolute inset-0 flex items-center gap-1.5 px-2.5"
+                    className="absolute inset-0 flex items-center px-2.5"
                     aria-label={activeOverlayBadge.ariaLabel}
                     title={activeOverlayBadge.title}
                   >
-                    <activeOverlayBadge.Icon
-                      className="w-3.5 h-3.5 flex-shrink-0 text-charcoal/80"
-                      strokeWidth={2.4}
-                      aria-hidden
-                    />
                     <span
                       className="truncate text-[11px] font-medium leading-none text-charcoal"
                       style={{

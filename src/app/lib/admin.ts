@@ -29,12 +29,25 @@ export function getServiceSupabase() {
  */
 export async function isAdmin(userId: string): Promise<boolean> {
   const supabase = getServiceSupabase();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('profiles')
-    .select('role')
+    .select('role, account_role')
     .eq('user_id', userId)
     .maybeSingle();
-  if (data === null || data === undefined) return false;
-  const profile = data as { role: string | null };
-  return profile.role === 'admin';
+
+  if (error) {
+    // Backward-compatible fallback for older schemas without account_role.
+    const { data: fallback } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('user_id', userId)
+      .maybeSingle();
+    if (!fallback) return false;
+    const profile = fallback as { role: string | null };
+    return profile.role === 'admin';
+  }
+
+  if (!data) return false;
+  const profile = data as { role: string | null; account_role?: string | null };
+  return profile.role === 'admin' || profile.account_role === 'admin';
 }
