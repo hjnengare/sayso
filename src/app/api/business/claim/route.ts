@@ -12,7 +12,9 @@ export const runtime = 'nodejs';
 
 type ClaimErrorCode =
   | 'NOT_AUTHENTICATED'
+  | 'FORBIDDEN_ACCOUNT'
   | 'MISSING_FIELDS'
+  | 'INVALID_BUSINESS_ID'
   | 'INVALID_EMAIL'
   | 'INVALID_PHONE'
   | 'EMAIL_DOMAIN_MISMATCH'
@@ -52,6 +54,34 @@ function isValidEmail(email: string): boolean {
 function isValidPhone(phone: string): boolean {
   const digitsOnly = phone.replace(/\D/g, '');
   return digitsOnly.length >= 8;
+}
+
+function isUuid(value: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+    value
+  );
+}
+
+function isMissingColumnError(
+  error: { code?: string; message?: string } | null | undefined,
+  columnName: string
+): boolean {
+  const code = String(error?.code ?? '');
+  const message = String(error?.message ?? '').toLowerCase();
+  return code === '42703' || (message.includes(columnName.toLowerCase()) && message.includes('column'));
+}
+
+function isRpcMissingError(error: { code?: string; message?: string } | null | undefined): boolean {
+  const code = String(error?.code ?? '');
+  const message = String(error?.message ?? '').toLowerCase();
+  return (
+    code === '42883' ||
+    code === 'PGRST202' ||
+    (message.includes('start_business_claim') &&
+      (message.includes('not found') ||
+        message.includes('does not exist') ||
+        message.includes('function')))
+  );
 }
 
 /** Map claim status + method to UI status label (spec: Pending Verification, Action Required, Under Review, Verified, Rejected). */
@@ -123,6 +153,85 @@ function mapStartClaimFailure(errorMsg: string): {
   return null;
 }
 
+type StartClaimResult = {
+  success: boolean;
+  claim_id?: string;
+  existing?: boolean;
+  status?: string;
+  method_attempted?: string | null;
+  error?: string;
+};
+
+async function startClaimWithoutRpc(
+  supabase: Awaited<ReturnType<typeof getServerSupabase>>,
+  businessId: string,
+  userId: string
+): Promise<{ data: StartClaimResult | null; error: { code?: string; message?: string } | null }> {
+  const activeStatuses = ['draft', 'pending', 'action_required', 'under_review'];
+  const { data: existingClaim, error: existingClaimError } = await supabase
+    .from('business_claims')
+    .select('id, status, method_attempted')
+    .eq('business_id', businessId)
+    .eq('claimant_user_id', userId)
+    .in('status', activeStatuses)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (existingClaimError) {
+    return {
+      data: null,
+      error: existingClaimError,
+    };
+  }
+
+  if (existingClaim) {
+    return {
+      data: {
+        success: true,
+        existing: true,
+        claim_id: String(existingClaim.id),
+        status: String(existingClaim.status),
+        method_attempted:
+          existingClaim.method_attempted === null
+            ? null
+            : String(existingClaim.method_attempted),
+      },
+      error: null,
+    };
+  }
+
+  const startedAt = new Date().toISOString();
+  const { data: insertedClaim, error: insertError } = await supabase
+    .from('business_claims')
+    .insert({
+      business_id: businessId,
+      claimant_user_id: userId,
+      status: 'draft',
+      verification_data: { started_at: startedAt },
+    })
+    .select('id, status')
+    .single();
+
+  if (insertError) {
+    return {
+      data: null,
+      error: insertError,
+    };
+  }
+
+  return {
+    data: {
+      success: true,
+      existing: false,
+      claim_id: String(insertedClaim.id),
+      status: String(insertedClaim.status ?? 'draft'),
+      method_attempted: null,
+    },
+    error: null,
+  };
+}
+
 export async function POST(req: NextRequest) {
   try {
     const supabase = await getServerSupabase(req);
@@ -138,26 +247,30 @@ export async function POST(req: NextRequest) {
         401
       );
     }
+    console.log('CLAIM USER:', user?.id);
 
     // ========================================================================
     // 2. Parse & Validate Request Body
     // ========================================================================
-    let body;
+    let body: Record<string, unknown>;
     try {
-      body = await req.json();
+      body = (await req.json()) as Record<string, unknown>;
     } catch {
       return errorResponse('MISSING_FIELDS', 'Invalid request data.', 400);
     }
+    console.log('CLAIM BODY:', body);
 
-    const {
-      business_id,
-      role,
-      phone,
-      email,
-      note,
-      cipc_registration_number,
-      cipc_company_name,
-    } = body;
+    const business_id = String(body.business_id ?? body.businessId ?? '').trim();
+    const roleRaw = String(body.role ?? '').trim();
+    const phone = String(body.phone ?? '').trim();
+    const email = String(body.email ?? body.businessEmail ?? '').trim();
+    const note = String(body.note ?? body.notes ?? '').trim();
+    const cipc_registration_number = String(
+      body.cipc_registration_number ?? body.cipcNumber ?? ''
+    ).trim();
+    const cipc_company_name = String(
+      body.cipc_company_name ?? body.registeredName ?? ''
+    ).trim();
 
     if (!business_id) {
       return errorResponse(
@@ -167,8 +280,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (!isUuid(business_id)) {
+      return errorResponse(
+        'INVALID_BUSINESS_ID',
+        'Business ID format is invalid.',
+        400
+      );
+    }
+
     // Validate email format if provided
-    const trimmedEmail = (email || '').toString().trim();
+    const trimmedEmail = email;
     if (trimmedEmail && !isValidEmail(trimmedEmail)) {
       return errorResponse(
         'INVALID_EMAIL',
@@ -178,7 +299,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Validate phone format if provided
-    const trimmedPhone = (phone || '').toString().trim();
+    const trimmedPhone = phone;
     if (trimmedPhone && !isValidPhone(trimmedPhone)) {
       return errorResponse(
         'INVALID_PHONE',
@@ -197,7 +318,82 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const roleVal = role && ['owner', 'manager'].includes(role) ? role : 'owner';
+    const roleVal = ['owner', 'manager'].includes(roleRaw) ? roleRaw : 'owner';
+
+    // ========================================================================
+    // 2b. Account Type Check (business accounts only)
+    // ========================================================================
+    type ProfileRoleRow = {
+      role?: string | null;
+      account_role?: string | null;
+      account_type?: string | null;
+    };
+
+    let profileData: ProfileRoleRow | null = null;
+    const profileWithAccountType = await supabase
+      .from('profiles')
+      .select('role, account_role, account_type')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (profileWithAccountType.error) {
+      if (isMissingColumnError(profileWithAccountType.error, 'account_type')) {
+        const profileFallback = await supabase
+          .from('profiles')
+          .select('role, account_role')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (profileFallback.error) {
+          console.log('CLAIM ERROR:', profileFallback.error);
+          return errorResponse(
+            'DB_ERROR',
+            'We could not verify your account type right now. Please try again.',
+            500,
+            {
+              db_code: profileFallback.error.code,
+              db_message: profileFallback.error.message,
+            }
+          );
+        }
+
+        profileData = (profileFallback.data as ProfileRoleRow | null) ?? null;
+      } else {
+        console.log('CLAIM ERROR:', profileWithAccountType.error);
+        return errorResponse(
+          'DB_ERROR',
+          'We could not verify your account type right now. Please try again.',
+          500,
+          {
+            db_code: profileWithAccountType.error.code,
+            db_message: profileWithAccountType.error.message,
+          }
+        );
+      }
+    } else {
+      profileData = (profileWithAccountType.data as ProfileRoleRow | null) ?? null;
+    }
+
+    const profileRole = String(profileData?.account_role ?? profileData?.role ?? '').toLowerCase();
+    const profileAccountType = String(profileData?.account_type ?? '').toLowerCase();
+    const metadataAccountType = String(user.user_metadata?.account_type ?? '').toLowerCase();
+    const isBusinessAccount =
+      profileRole === 'business_owner' ||
+      profileAccountType === 'business' ||
+      metadataAccountType === 'business' ||
+      metadataAccountType === 'business_owner';
+
+    if (!isBusinessAccount) {
+      return errorResponse(
+        'FORBIDDEN_ACCOUNT',
+        'Business claims are only available while using a business account.',
+        403,
+        {
+          account_role: profileRole || null,
+          account_type: profileAccountType || metadataAccountType || null,
+        }
+      );
+    }
 
     // ========================================================================
     // 3. Check Business Exists
@@ -210,10 +406,15 @@ export async function POST(req: NextRequest) {
 
     if (businessError) {
       console.error('[Claim API] Business lookup error:', businessError);
+      console.log('CLAIM ERROR:', businessError);
       return errorResponse(
         'DB_ERROR',
         "We couldn't process your claim right now. Please try again.",
-        400
+        500,
+        {
+          db_code: businessError.code,
+          db_message: businessError.message,
+        }
       );
     }
 
@@ -232,7 +433,7 @@ export async function POST(req: NextRequest) {
       return errorResponse(
         'ALREADY_OWNER',
         'You already own this business.',
-        400
+        409
       );
     }
 
@@ -245,52 +446,127 @@ export async function POST(req: NextRequest) {
 
     if (ownerCheckError) {
       console.error('[Claim API] Owner check error:', ownerCheckError);
+      console.log('CLAIM ERROR:', ownerCheckError);
     }
 
     if (existingOwner) {
       return errorResponse(
         'ALREADY_OWNER',
         'You already own this business.',
-        400
+        409
       );
     }
 
     // ========================================================================
     // 5. Start or Get Existing Claim
     // ========================================================================
-    const { data: startResult, error: startError } = await supabase.rpc('start_business_claim', {
+    const { data: rpcStartResult, error: rpcStartError } = await supabase.rpc('start_business_claim', {
       p_business_id: business_id,
       p_claimant_user_id: user.id,
     });
 
-    if (startError) {
-      console.error('[Claim API] start_business_claim RPC error:', startError);
-      
-      // Check for RLS or permission errors
-      if (startError.message?.includes('permission') || startError.code === '42501') {
+    let start: StartClaimResult | null = (rpcStartResult as StartClaimResult | null) ?? null;
+
+    if (rpcStartError) {
+      console.error('[Claim API] start_business_claim RPC error:', rpcStartError);
+      console.log('CLAIM ERROR:', rpcStartError);
+
+      // Some environments miss this RPC; fallback to direct table insert.
+      if (isRpcMissingError(rpcStartError)) {
+        const fallbackStart = await startClaimWithoutRpc(supabase, business_id, user.id);
+        if (fallbackStart.error) {
+          console.error('[Claim API] fallback start claim error:', fallbackStart.error);
+          console.log('CLAIM ERROR:', fallbackStart.error);
+
+          if (fallbackStart.error.code === '42501') {
+            return errorResponse(
+              'RLS_BLOCKED',
+              "You don't have permission to create a claim for this account.",
+              403,
+              {
+                db_code: fallbackStart.error.code,
+                db_message: fallbackStart.error.message,
+              }
+            );
+          }
+
+          if (fallbackStart.error.code === '23505') {
+            return errorResponse(
+              'DUPLICATE_CLAIM',
+              'You already have a claim in progress for this business.',
+              409,
+              {
+                db_code: fallbackStart.error.code,
+                db_message: fallbackStart.error.message,
+              }
+            );
+          }
+
+          return errorResponse(
+            'DB_ERROR',
+            "We couldn't start your claim right now. Please try again.",
+            500,
+            {
+              db_code: fallbackStart.error.code,
+              db_message: fallbackStart.error.message,
+            }
+          );
+        }
+
+        start = fallbackStart.data;
+      } else if (
+        rpcStartError.message?.toLowerCase().includes('permission') ||
+        rpcStartError.code === '42501'
+      ) {
         return errorResponse(
           'RLS_BLOCKED',
-          "We couldn't process your claim right now. Please try again.",
-          403
+          "You don't have permission to create a claim for this account.",
+          403,
+          {
+            db_code: rpcStartError.code,
+            db_message: rpcStartError.message,
+          }
+        );
+      } else if (rpcStartError.code === '23505') {
+        return errorResponse(
+          'DUPLICATE_CLAIM',
+          'You already have a claim in progress for this business.',
+          409,
+          {
+            db_code: rpcStartError.code,
+            db_message: rpcStartError.message,
+          }
+        );
+      } else if (rpcStartError.code === '22P02') {
+        return errorResponse(
+          'INVALID_BUSINESS_ID',
+          'Business ID format is invalid.',
+          400,
+          {
+            db_code: rpcStartError.code,
+            db_message: rpcStartError.message,
+          }
+        );
+      } else {
+        return errorResponse(
+          'DB_ERROR',
+          "We couldn't start your claim right now. Please try again.",
+          500,
+          {
+            db_code: rpcStartError.code,
+            db_message: rpcStartError.message,
+          }
         );
       }
-      
-      return errorResponse(
-        'DB_ERROR',
-        "We couldn't start your claim. Please try again.",
-        400
-      );
     }
 
-    const start = startResult as { 
-      success?: boolean; 
-      error?: string; 
-      claim_id?: string; 
-      existing?: boolean; 
-      status?: string; 
-      method_attempted?: string | null;
-      business?: { id: string; name: string; phone?: string; website?: string; email?: string } 
-    };
+    if (!start) {
+      return errorResponse(
+        'DB_ERROR',
+        "We couldn't start your claim right now. Please try again.",
+        500
+      );
+    }
 
     if (!start.success || !start.claim_id) {
       const errorMsg = start.error || '';
@@ -300,10 +576,11 @@ export async function POST(req: NextRequest) {
       }
       
       console.error('[Claim API] RPC returned failure:', start);
+      console.log('CLAIM ERROR:', start);
       return errorResponse(
         'DB_ERROR',
-        "We couldn't start your claim. Please try again.",
-        400
+        "We couldn't start your claim right now. Please try again.",
+        500
       );
     }
 
