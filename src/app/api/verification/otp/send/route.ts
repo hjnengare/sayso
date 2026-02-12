@@ -5,6 +5,8 @@ import { isAdmin } from '@/app/lib/admin';
 import { sendSms, maskPhoneE164 } from '@/app/lib/services/smsService';
 import { EmailService } from '@/app/lib/services/emailService';
 import { createClaimNotification, updateClaimLastNotified } from '@/app/lib/claimNotifications';
+import { isPhoneOtpAutoMode } from '@/app/lib/services/phoneOtpMode';
+import { movePhoneClaimToUnderReview } from '@/app/lib/services/phoneOtpFlow';
 import crypto from 'crypto';
 
 export const dynamic = 'force-dynamic';
@@ -59,6 +61,38 @@ export async function POST(req: NextRequest) {
     const userIsAdmin = await isAdmin(user.id);
     if (!isClaimant && !userIsAdmin) {
       return NextResponse.json({ error: 'You can only send OTP for your own claim' }, { status: 403 });
+    }
+
+    if (isPhoneOtpAutoMode()) {
+      const autoResult = await movePhoneClaimToUnderReview({
+        claimId,
+        claimantUserId: claimRow.claimant_user_id,
+        businessId: claimRow.business_id,
+        source: 'otp_send',
+        autoVerified: true,
+      });
+
+      if (!autoResult.ok) {
+        const status =
+          autoResult.code === 'NOT_FOUND'
+            ? 404
+            : autoResult.code === 'INVALID_STATUS'
+              ? 409
+              : 500;
+        return NextResponse.json(
+          { error: autoResult.message ?? 'Failed to auto-verify phone OTP.' },
+          { status }
+        );
+      }
+
+      return NextResponse.json({
+        ok: true,
+        autoVerified: true,
+        status: 'under_review',
+        maskedPhone: null,
+        expiresInSeconds: 0,
+        message: 'Phone verification completed automatically. Your claim is under review.',
+      });
     }
 
     const { data: business, error: bizError } = await service

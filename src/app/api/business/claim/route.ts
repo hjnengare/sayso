@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSupabase } from '@/app/lib/supabase/server';
 import { EmailService } from '@/app/lib/services/emailService';
 import { businessEmailDomainMatchesWebsite } from '@/app/lib/utils/claimVerification';
+import { isPhoneOtpAutoMode } from '@/app/lib/services/phoneOtpMode';
+import { movePhoneClaimToUnderReview } from '@/app/lib/services/phoneOtpFlow';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -664,9 +666,34 @@ export async function POST(req: NextRequest) {
         .eq('claimant_user_id', user.id)
         .maybeSingle();
 
-      const existingStatus = (existingClaim?.status as string | undefined) ?? start.status;
+      let existingStatus = (existingClaim?.status as string | undefined) ?? start.status;
       const existingMethodAttempted =
         (existingClaim?.method_attempted as string | null | undefined) ?? start.method_attempted ?? null;
+
+      if (
+        existingMethodAttempted === 'phone' &&
+        isPhoneOtpAutoMode() &&
+        (existingStatus === 'pending' || existingStatus === 'action_required')
+      ) {
+        const autoResult = await movePhoneClaimToUnderReview({
+          claimId,
+          claimantUserId: user.id,
+          businessId: business_id,
+          source: 'claim_submit',
+          autoVerified: true,
+        });
+
+        if (autoResult.ok) {
+          existingStatus = 'under_review';
+        } else {
+          console.error('[CLAIM API] Existing phone auto-verification failed:', {
+            claim_id: claimId,
+            user_id: user.id,
+            code: autoResult.code,
+            message: autoResult.message,
+          });
+        }
+      }
 
       return NextResponse.json(
         {
@@ -754,7 +781,9 @@ export async function POST(req: NextRequest) {
     const submissionStatus =
       methodAttempted === 'cipc'
         ? 'under_review'
-        : methodAttempted === 'phone' || methodAttempted === 'email'
+        : methodAttempted === 'phone'
+          ? 'pending'
+          : methodAttempted === 'email'
           ? 'action_required'
           : 'pending';
 
@@ -781,6 +810,35 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    let finalStatus = submissionStatus;
+    const isAutoPhoneVerification = methodAttempted === 'phone' && isPhoneOtpAutoMode();
+
+    if (isAutoPhoneVerification) {
+      const autoResult = await movePhoneClaimToUnderReview({
+        claimId,
+        claimantUserId: user.id,
+        businessId: business_id,
+        source: 'claim_submit',
+        autoVerified: true,
+      });
+
+      if (!autoResult.ok) {
+        console.error('[CLAIM API] Phone auto-verification failed after submission:', {
+          claim_id: claimId,
+          user_id: user.id,
+          code: autoResult.code,
+          message: autoResult.message,
+        });
+        return errorResponse(
+          'DB_ERROR',
+          "We couldn't complete phone verification right now. Please try again.",
+          500
+        );
+      }
+
+      finalStatus = 'under_review';
+    }
+
     const userEmail = user.email || businessEmail;
     const { data: profile } = await supabase
       .from('profiles')
@@ -798,21 +856,23 @@ export async function POST(req: NextRequest) {
       }).catch((err) => console.error('Claim received email failed:', err));
     }
 
-    const displayStatus = toDisplayStatus(submissionStatus, methodAttempted);
-    const nextStep = toNextStep(submissionStatus, methodAttempted);
+    const displayStatus = toDisplayStatus(finalStatus, methodAttempted);
+    const nextStep = toNextStep(finalStatus, methodAttempted);
 
     return NextResponse.json(
       {
         success: true,
         claim_id: claimId,
-        status: submissionStatus,
+        status: finalStatus,
         display_status: displayStatus,
         method_attempted: methodAttempted,
         next_step: nextStep,
         message:
-          submissionStatus === 'under_review'
-            ? "Claim submitted. We'll review your CIPC details shortly."
-            : submissionStatus === 'action_required'
+          finalStatus === 'under_review' && isAutoPhoneVerification
+            ? "Claim submitted and phone verified. Your claim is now under review."
+            : finalStatus === 'under_review'
+              ? "Claim submitted. We'll review your CIPC details shortly."
+              : finalStatus === 'action_required' || (finalStatus === 'pending' && methodAttempted === 'phone')
               ? 'Claim submitted. Complete the requested verification step.'
               : 'Claim submitted successfully.',
       },

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSupabase } from '@/app/lib/supabase/server';
 import { getServiceSupabase } from '@/app/lib/admin';
-import { EmailService } from '@/app/lib/services/emailService';
-import { createClaimNotification, updateClaimLastNotified } from '@/app/lib/claimNotifications';
+import { isPhoneOtpAutoMode } from '@/app/lib/services/phoneOtpMode';
+import { movePhoneClaimToUnderReview } from '@/app/lib/services/phoneOtpFlow';
 import crypto from 'crypto';
 
 export const dynamic = 'force-dynamic';
@@ -23,14 +23,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const autoMode = isPhoneOtpAutoMode();
     const body = await req.json().catch(() => ({}));
     const claimId = body.claimId ?? body.claim_id;
     const code = body.code?.toString().trim();
-    if (!claimId || !code) {
-      return NextResponse.json({ error: 'claimId and code are required' }, { status: 400 });
+
+    if (!claimId) {
+      return NextResponse.json({ error: 'claimId is required' }, { status: 400 });
     }
-    if (!/^\d{6}$/.test(code)) {
-      return NextResponse.json({ error: 'Code must be 6 digits' }, { status: 400 });
+
+    if (!autoMode) {
+      if (!code) {
+        return NextResponse.json({ error: 'claimId and code are required' }, { status: 400 });
+      }
+      if (!/^\d{6}$/.test(code)) {
+        return NextResponse.json({ error: 'Code must be 6 digits' }, { status: 400 });
+      }
     }
 
     const service = getServiceSupabase();
@@ -47,6 +55,36 @@ export async function POST(req: NextRequest) {
     const claimRow = claim as { claimant_user_id: string; status: string; business_id: string };
     if (claimRow.claimant_user_id !== user.id) {
       return NextResponse.json({ error: 'You can only verify OTP for your own claim' }, { status: 403 });
+    }
+
+    if (autoMode) {
+      const autoResult = await movePhoneClaimToUnderReview({
+        claimId,
+        claimantUserId: claimRow.claimant_user_id,
+        businessId: claimRow.business_id,
+        source: 'otp_verify',
+        autoVerified: true,
+      });
+
+      if (!autoResult.ok) {
+        const status =
+          autoResult.code === 'NOT_FOUND'
+            ? 404
+            : autoResult.code === 'INVALID_STATUS'
+              ? 409
+              : 500;
+        return NextResponse.json(
+          { error: autoResult.message ?? 'Failed to auto-verify phone OTP.' },
+          { status }
+        );
+      }
+
+      return NextResponse.json({
+        ok: true,
+        autoVerified: true,
+        status: 'under_review',
+        message: 'Phone verification completed automatically. Your claim is under review.',
+      });
     }
 
     const { data: otpData, error: otpError } = await service
@@ -75,7 +113,7 @@ export async function POST(req: NextRequest) {
       .update({ attempts: newAttempts })
       .eq('id', otpRow.id);
 
-    const codeHash = hashOtp(code);
+    const codeHash = hashOtp(code as string);
     if (otpRow.code_hash !== codeHash) {
       return NextResponse.json({ error: 'Invalid code' }, { status: 400 });
     }
@@ -85,80 +123,28 @@ export async function POST(req: NextRequest) {
       .update({ verified_at: new Date().toISOString() })
       .eq('id', otpRow.id);
 
-    await (service as any)
-      .from('business_claims')
-      .update({
-        status: 'under_review',
-        method_attempted: 'phone',
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', claimId);
+    const moveResult = await movePhoneClaimToUnderReview({
+      claimId,
+      claimantUserId: claimRow.claimant_user_id,
+      businessId: claimRow.business_id,
+      source: 'otp_verify',
+      autoVerified: false,
+    });
 
-    const { data: business } = await service.from('businesses').select('name').eq('id', claimRow.business_id).single();
-    const claimantId = claimRow.claimant_user_id;
-    const { data: profile } = await service.from('profiles').select('display_name, username').eq('user_id', claimantId).maybeSingle();
-    let recipientEmail: string | undefined;
-    try {
-      const { createClient } = await import('@supabase/supabase-js');
-      const admin = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!,
-        { auth: { autoRefreshToken: false, persistSession: false } }
+    if (!moveResult.ok) {
+      const status =
+        moveResult.code === 'NOT_FOUND'
+          ? 404
+          : moveResult.code === 'INVALID_STATUS'
+            ? 409
+            : 500;
+      return NextResponse.json(
+        { error: moveResult.message ?? 'Failed to complete phone verification.' },
+        { status }
       );
-      const { data: authUser } = await admin.auth.admin.getUserById(claimantId);
-      recipientEmail = authUser?.user?.email ?? undefined;
-    } catch {
-      // ignore
     }
 
-    let businessDisplayName: string;
-    if (business === null || business === undefined) {
-      businessDisplayName = 'your business';
-    } else {
-      const b = business as { name?: string };
-      businessDisplayName = b.name ?? 'your business';
-    }
-    await createClaimNotification({
-      userId: claimantId,
-      claimId,
-      type: 'otp_verified',
-      title: 'Phone verified',
-      message: `Your phone has been verified for ${businessDisplayName}. We'll review your claim shortly.`,
-      link: '/claim-business',
-    });
-    await createClaimNotification({
-      userId: claimantId,
-      claimId,
-      type: 'claim_status_changed',
-      title: 'Claim under review',
-      message: `Your claim for ${businessDisplayName} is now under review.`,
-      link: '/claim-business',
-    });
-    updateClaimLastNotified(claimId).catch(() => {});
-
-    if (recipientEmail) {
-      let recipientName: string | undefined;
-      if (profile === null || profile === undefined) {
-        recipientName = undefined;
-      } else {
-        const p = profile as { display_name?: string; username?: string };
-        recipientName = p.display_name ?? p.username ?? undefined;
-      }
-      let businessName: string;
-      if (business === null || business === undefined) {
-        businessName = 'Your business';
-      } else {
-        const b = business as { name?: string };
-        businessName = b.name ?? 'Your business';
-      }
-      EmailService.sendOtpVerifiedEmail({
-        recipientEmail,
-        recipientName,
-        businessName,
-      }).catch((err) => console.error('OTP verified email failed:', err));
-    }
-
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({ ok: true, status: 'under_review' });
   } catch (err) {
     console.error('OTP verify error:', err);
     return NextResponse.json({ error: 'Something went wrong' }, { status: 500 });
