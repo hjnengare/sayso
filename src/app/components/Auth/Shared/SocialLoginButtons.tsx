@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AuthService } from "@/app/lib/auth";
 import { useToast } from "@/app/contexts/ToastContext";
+import { authCopy, formatAuthMessage } from "./authCopy";
 
 interface SocialLoginButtonsProps {
   accountType?: 'user' | 'business_owner';
@@ -23,13 +24,14 @@ export function SocialLoginButtons({ accountType = 'user' }: SocialLoginButtonsP
 
       if (error) {
         console.error('Google sign-in error:', error);
-        showToast(error.message || 'Failed to sign in with Google', 'error', 4000);
+        showToast(formatAuthMessage(error.message || "", authCopy.authRequestFailed), 'error', 4000);
         setIsGoogleLoading(false);
       }
       // If successful, user will be redirected by Supabase
     } catch (error) {
       console.error('Unexpected error during Google sign-in:', error);
-      showToast('An unexpected error occurred', 'error', 4000);
+      const message = formatAuthMessage(error instanceof Error ? error.message : "", authCopy.authRequestFailed);
+      showToast(message, 'error', 4000);
       setIsGoogleLoading(false);
     }
   };
