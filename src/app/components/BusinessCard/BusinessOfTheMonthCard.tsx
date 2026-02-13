@@ -636,7 +636,6 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
                 fontWeight: 600,
               }}
             >
-              <Edit className="w-3.5 h-3.5" strokeWidth={2.5} />
               <span>Review</span>
             </button>
           </div>
