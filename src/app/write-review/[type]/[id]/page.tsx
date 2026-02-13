@@ -275,6 +275,19 @@ function WriteReviewContent() {
         return;
       }
 
+      if (type === "event" && typeof window !== "undefined") {
+        const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if (!reducedMotion) {
+          import("canvas-confetti").then((mod) => {
+            const confetti = mod.default;
+            const colors = ["#7D9B76", "#E88D67", "#FFFFFF", "#FFD700"];
+            confetti({ particleCount: 40, spread: 60, origin: { y: 0.7 }, colors, zIndex: 9999 });
+            confetti({ particleCount: 25, angle: 60, spread: 55, origin: { x: 0.2, y: 0.8 }, colors, zIndex: 9999 });
+            confetti({ particleCount: 25, angle: 120, spread: 55, origin: { x: 0.8, y: 0.8 }, colors, zIndex: 9999 });
+          }).catch(() => {});
+        }
+      }
+
       showToast("Review submitted successfully!", "success");
       resetForm();
       router.push(type === "event" ? `/event/${id}` : `/special/${id}`);
