@@ -255,40 +255,11 @@ export default function BusinessLocation({
 
                     {/* Address with distance */}
                     <div className="mt-2 ml-11.5">
-                        {/* Always show primary address/location */}
-                        {(location || address) && (
-                            <p
-                                className="text-sm text-charcoal/80 font-medium"
-                                style={{ fontFamily: 'Urbanist, sans-serif' }}
-                            >
-                                {location || address}
-                            </p>
-                        )}
-                        {/* Show secondary address if it's different from primary */}
-                        {address && location && address !== location && (
-                            <p
-                                className="text-sm text-charcoal/60 mt-0.5"
-                                style={{ fontFamily: 'Urbanist, sans-serif' }}
-                            >
-                                {address}
-                            </p>
-                        )}
-                        {/* If only location exists but no address, show a note */}
-                        {location && !address && (
-                            <p
-                                className="text-xs text-charcoal/50 mt-1 italic"
-                                style={{ fontFamily: 'Urbanist, sans-serif' }}
-                            >
-                                Street address will appear here
-                            </p>
-                        )}
-
-                        {/* Address Copy Pill - Always show if address or coordinates available */}
+                        {/* Address Copy Pill */}
                         {(address || latitude || longitude) && (
                             <motion.div
                                 initial={{ opacity: 0, y: -3 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="mt-3"
                             >
                                 <AddressPill
                                     address={address}
