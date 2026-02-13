@@ -188,7 +188,7 @@ function EventCard({ event, index = 0 }: EventCardProps) {
     >
       <Link href={eventDetailHref} className="block w-full">
       <article
-        className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden group cursor-pointer w-full flex flex-col border border-white/60 backdrop-blur-xl shadow-md card-hover-lift md:w-[340px] pb-2"
+        className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden group cursor-pointer w-full flex flex-col border border-white/60 backdrop-blur-xl shadow-md card-hover-lift md:w-[340px] pb-4"
         style={{ maxWidth: "540px" } as CSSProperties}
       >
           {/* MEDIA - Full bleed with premium overlay */}
@@ -384,6 +384,18 @@ function EventCard({ event, index = 0 }: EventCardProps) {
                   </span>
                 )}
               </div>
+            </div>
+            {/* Mobile-only View Details - no icons */}
+            <div className="flex md:hidden items-center justify-center pt-1.5 pb-1.5 px-1">
+              <button
+                type="button"
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); router.push(eventDetailHref); }}
+                className="w-full flex items-center justify-center px-4 py-3 rounded-full text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-sage/40 border transition-all duration-200 min-h-[48px] shadow-md bg-gradient-to-br from-navbar-bg to-navbar-bg/90 text-white border-sage/50 active:scale-95 active:translate-y-[1px] transform-gpu touch-manipulation select-none"
+                aria-label="View event details"
+                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
+              >
+                View Details
+              </button>
             </div>
           </div>
         </article>
