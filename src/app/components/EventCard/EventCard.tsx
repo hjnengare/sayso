@@ -5,7 +5,7 @@ import type { Event } from "../../lib/types/Event";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { ArrowRight, Briefcase } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { getEventIconPng } from "../../utils/eventIconToPngMapping";
 import EventBadge from "./EventBadge";
 import { useState, memo } from "react";
@@ -185,12 +185,7 @@ function EventCard({ event, index = 0 }: EventCardProps) {
               />
 
               {event.type === "event" && event.businessId && (
-                <div className="absolute left-3 bottom-3 z-20 inline-flex items-center gap-1.5 rounded-full bg-off-white/90 backdrop-blur-[2px] px-2.5 py-1 text-[11px] font-medium text-charcoal shadow-[0_2px_8px_rgba(0,0,0,0.12)]">
-                  <Briefcase
-                    className="w-3.5 h-3.5 text-charcoal/80"
-                    strokeWidth={2.4}
-                    aria-hidden
-                  />
+                <div className="absolute left-3 bottom-3 z-20 inline-flex items-center rounded-full bg-off-white/90 backdrop-blur-[2px] px-2.5 py-1 text-[11px] font-medium text-charcoal shadow-[0_2px_8px_rgba(0,0,0,0.12)]">
                   <span
                     className="leading-none"
                     style={{

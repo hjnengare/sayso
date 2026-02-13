@@ -413,9 +413,32 @@ export default function Header({
     [collapseDesktopSearch, router]
   );
 
+  // Handle "View all" button click - preserve search state during navigation
+  const handleViewAll = useCallback(() => {
+    const q = headerSearchQuery.trim();
+    if (!q) return;
+    
+    // Capture current state before any changes
+    const capturedQuery = q;
+    
+    // Only close the modal UI - do NOT clear search query or results
+    // This ensures smooth transition without flashing empty state
+    collapseDesktopSearch();
+    setIsMobileSearchOpen(false);
+    setActiveSuggestionIndex(-1);
+
+    // Navigate immediately with captured query params
+    const params = new URLSearchParams();
+    params.set("search", capturedQuery);
+    router.push(`/?${params.toString()}`);
+  }, [collapseDesktopSearch, headerSearchQuery, router]);
+
+  // Handle general search navigation (form submit, enter key)
   const navigateToSearchResults = useCallback(() => {
     const q = headerSearchQuery.trim();
     if (!q) return;
+    
+    // For general navigation, we can still close modal and navigate normally
     collapseDesktopSearch();
     setIsMobileSearchOpen(false);
     setActiveSuggestionIndex(-1);
@@ -480,7 +503,7 @@ export default function Header({
                 type="button"
                 className="text-xs font-semibold text-coral hover:underline"
                 style={sf}
-                onClick={navigateToSearchResults}
+                onClick={handleViewAll}
               >
                 View all
               </button>
