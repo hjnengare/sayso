@@ -351,7 +351,7 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
                   alt={displayAlt}
                   fill
                   sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 340px"
-                  className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.02] group-active:scale-[0.98] motion-reduce:transition-none"
+                  className="object-cover card-img-zoom group-active:scale-[0.98] motion-reduce:transition-none"
                   priority={index < 2}
                   loading={index < 2 ? "eager" : "lazy"}
                   fetchPriority={index < 2 ? "high" : "auto"}
@@ -360,7 +360,7 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
                   onError={handleImageError}
                 />
                 <div
-                  className="absolute inset-0 pointer-events-none transition-opacity duration-500 ease-out group-hover:opacity-0 motion-reduce:transition-none"
+                  className="absolute inset-0 pointer-events-none card-overlay-fade motion-reduce:transition-none"
                   style={{ background: "hsla(0, 0%, 0%, 0.2)" }}
                   aria-hidden="true"
                 />

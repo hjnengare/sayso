@@ -151,7 +151,7 @@ function EventCard({ event, index = 0 }: EventCardProps) {
       }}
     >
       <article
-        className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden group cursor-pointer w-full flex flex-col border border-white/60 backdrop-blur-xl shadow-md transition-all duration-300 hover:border-white/80 hover:-translate-y-1 hover:shadow-lg md:w-[340px]"
+        className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden group cursor-pointer w-full flex flex-col border border-white/60 backdrop-blur-xl shadow-md card-hover-lift md:w-[340px]"
         style={{ maxWidth: "540px" } as CSSProperties}
       >
           {/* MEDIA - Full bleed with premium overlay */}
@@ -172,14 +172,14 @@ function EventCard({ event, index = 0 }: EventCardProps) {
                 alt={event.alt || event.title}
                 fill
                 sizes="(max-width: 640px) 85vw, 340px"
-                className={hasRealImage ? 'object-cover transition-transform duration-500 ease-out group-hover:scale-[1.02] group-active:scale-[0.98] motion-reduce:transition-none' : 'object-contain w-32 h-32 sm:w-36 sm:h-36 md:w-32 md:h-32 transition-transform duration-500 ease-out group-hover:scale-[1.02] group-active:scale-[0.98] motion-reduce:transition-none'}
+                className={hasRealImage ? 'object-cover card-img-zoom group-active:scale-[0.98] motion-reduce:transition-none' : 'object-contain w-32 h-32 sm:w-36 sm:h-36 md:w-32 md:h-32 card-img-zoom group-active:scale-[0.98] motion-reduce:transition-none'}
                 quality={hasRealImage ? 75 : 60}
                 priority={false}
                 onLoadingComplete={() => setImageLoaded(true)}
                 onError={() => setImageLoaded(true)}
               />
               <div
-                className="absolute inset-0 pointer-events-none z-[1] transition-opacity duration-500 ease-out group-hover:opacity-0 motion-reduce:transition-none"
+                className="absolute inset-0 pointer-events-none z-[1] card-overlay-fade motion-reduce:transition-none"
                 style={{ background: "hsla(0, 0%, 0%, 0.2)" }}
                 aria-hidden="true"
               />
@@ -211,7 +211,7 @@ function EventCard({ event, index = 0 }: EventCardProps) {
           </div>
 
           {/* CONTENT - Minimal, premium spacing */}
-          <div className="px-4 py-4 bg-gradient-to-b from-card-bg/95 to-card-bg flex flex-col gap-2 rounded-b-[12px]">
+          <div className="px-4 pt-3 pb-2.5 bg-gradient-to-b from-card-bg/95 to-card-bg flex flex-col gap-2 rounded-b-[12px]">
             <div className="flex flex-col gap-2">
               <motion.h3
                 layoutId={eventTitleLayoutId}
@@ -261,7 +261,7 @@ function EventCard({ event, index = 0 }: EventCardProps) {
             )}
             <button
               onClick={handlePrimaryAction}
-              className="mt-1 w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-br from-navbar-bg to-navbar-bg/90 text-white rounded-full text-sm font-semibold hover:from-navbar-bg/90 hover:to-navbar-bg/80 active:scale-95 active:translate-y-[1px] transition-all duration-200 shadow-md border border-sage/50 focus:outline-none focus:ring-2 focus:ring-sage/40 transform-gpu touch-manipulation select-none"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-br from-navbar-bg to-navbar-bg/90 text-white rounded-full text-sm font-semibold hover:from-navbar-bg/90 hover:to-navbar-bg/80 active:scale-95 active:translate-y-[1px] transition-all duration-200 shadow-md border border-sage/50 focus:outline-none focus:ring-2 focus:ring-sage/40 transform-gpu touch-manipulation select-none"
               aria-label="Learn more about this event"
               title="View event details"
               style={{

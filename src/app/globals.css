@@ -499,6 +499,56 @@
       transform: none !important;
     }
   }
+
+  /* Card hover effects — only on devices with a real pointer/hover capability.
+     Touch devices stay perfectly still (no lift, zoom, or overlay fade). */
+  .card-hover-lift {
+    transition: transform 300ms ease, box-shadow 300ms ease, border-color 300ms ease;
+  }
+
+  .card-img-zoom {
+    transition: transform 500ms ease-out;
+  }
+
+  .card-overlay-fade {
+    transition: opacity 500ms ease-out;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .card-hover-lift:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      border-color: rgba(255, 255, 255, 0.8);
+    }
+
+    .group:hover .card-img-zoom {
+      transform: scale(1.02);
+    }
+
+    .group:hover .card-overlay-fade {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card-hover-lift,
+    .card-img-zoom,
+    .card-overlay-fade {
+      transition: none !important;
+    }
+
+    .card-hover-lift:hover {
+      transform: none !important;
+    }
+
+    .group:hover .card-img-zoom {
+      transform: none !important;
+    }
+
+    .group:hover .card-overlay-fade {
+      opacity: 0.2 !important;
+    }
+  }
 }
 
 @layer components {
