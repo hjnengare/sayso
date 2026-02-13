@@ -3,12 +3,15 @@
 import type { MouseEvent, CSSProperties } from "react";
 import type { Event } from "../../lib/types/Event";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { Star, Edit, Bookmark, Share2 } from "lucide-react";
 import { getEventIconPng } from "../../utils/eventIconToPngMapping";
 import EventBadge from "./EventBadge";
 import { useState, memo } from "react";
+import { useSavedItems } from "../../contexts/SavedItemsContext";
+import { useToast } from "../../contexts/ToastContext";
 
 const EVENT_IMAGE_BASE_PATH = "/png";
 
@@ -125,24 +128,53 @@ interface EventCardProps {
 
 function EventCard({ event, index = 0 }: EventCardProps) {
   const router = useRouter();
+  const { toggleSavedItem, isItemSaved } = useSavedItems();
+  const { showToast } = useToast();
   const eventMediaLayoutId = `event-media-${event.id}`;
   const eventTitleLayoutId = `event-title-${event.id}`;
   const iconPng = getEventIconPng(event.icon);
   const mediaImage = getEventMediaImage(event);
   const hasRealImage = Boolean(event.image?.trim() || (event as any).businessImages?.length);
-  // PNG fallback icons don't need loading state - only real images do
   const [imageLoaded, setImageLoaded] = useState(!hasRealImage);
   const showLoadingOverlay = hasRealImage && !imageLoaded;
-  
-  // Always show 'Learn More' and always route to detail page
-  const handlePrimaryAction = (e: MouseEvent<HTMLButtonElement>) => {
+
+  const eventDetailHref = event.type === "event" ? `/event/${event.id}` : `/special/${event.id}`;
+  const reviewRoute = event.type === "event" ? `/write-review/event/${event.id}` : `/write-review/special/${event.id}`;
+
+  const hasRating = event.rating != null && Number(event.rating) > 0;
+  const displayRating = hasRating ? Number(event.rating) : undefined;
+  const reviews = (event as any).reviews ?? (event as any).totalReviews ?? 0;
+  const hasReviewed = false;
+
+  const handleWriteReview = (e: MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    // Route to event or special detail page
-    if (event.type === 'special') {
-      router.push(`/specials/${event.id}`);
-    } else {
-      router.push(`/event/${event.id}`);
+    if (!hasReviewed) router.push(reviewRoute);
+  };
+
+  const handleBookmark = (e: MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleSavedItem(event.id);
+  };
+
+  const handleShare = async (e: MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      const shareUrl = `${typeof window !== "undefined" ? window.location.origin : ""}${eventDetailHref}`;
+      const shareText = `Check out ${event.title} on sayso!`;
+      if (typeof navigator !== "undefined" && navigator.share && navigator.canShare?.({ title: event.title, text: shareText, url: shareUrl })) {
+        await navigator.share({ title: event.title, text: shareText, url: shareUrl });
+        showToast("Shared successfully!", "success", 2000);
+      } else if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(shareUrl);
+        showToast("Link copied to clipboard!", "success", 2000);
+      } else {
+        showToast("Failed to copy link.", "sage", 3000);
+      }
+    } catch {
+      showToast("Failed to share. Please try again.", "sage", 3000);
     }
   };
 
@@ -154,6 +186,7 @@ function EventCard({ event, index = 0 }: EventCardProps) {
         fontWeight: 600,
       }}
     >
+      <Link href={eventDetailHref} className="block w-full">
       <article
         className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden group cursor-pointer w-full flex flex-col border border-white/60 backdrop-blur-xl shadow-md card-hover-lift md:w-[340px]"
         style={{ maxWidth: "540px" } as CSSProperties}
@@ -189,6 +222,51 @@ function EventCard({ event, index = 0 }: EventCardProps) {
                 style={{ background: "hsla(0, 0%, 0%, 0.2)" }}
                 aria-hidden="true"
               />
+
+              {/* Rating badge - same style as Business Card */}
+              {hasRating && displayRating !== undefined && (
+                <div className="absolute right-4 top-4 z-20 inline-flex items-center gap-1 rounded-full bg-off-white/95 backdrop-blur-xl px-3 py-1.5 text-charcoal">
+                  <Star className="rounded-full p-1 w-6 h-6 text-charcoal fill-charcoal" strokeWidth={2.5} aria-hidden />
+                  <span className="text-sm font-semibold text-charcoal" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>{Number(displayRating).toFixed(1)}</span>
+                </div>
+              )}
+              {!hasRating && (
+                <div className="absolute right-4 top-4 z-20 inline-flex items-center gap-1 rounded-full bg-off-white/95 backdrop-blur-xl px-3 py-1.5 text-charcoal border border-white/40 shadow-md">
+                  <span className="text-sm font-semibold text-charcoal" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>–</span>
+                </div>
+              )}
+
+              {/* Floating actions - same style as Business Card (desktop only) */}
+              <div data-event-card-action className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-20 flex-col items-center gap-2 transition-all duration-300 ease-out translate-x-12 opacity-0 md:group-hover:translate-x-0 md:group-hover:opacity-100">
+                <button
+                  type="button"
+                  className={`w-10 h-10 bg-off-white/40 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40 shadow-md active:translate-y-[1px] transform-gpu touch-manipulation select-none ${hasReviewed ? 'opacity-50 cursor-not-allowed' : 'hover:bg-off-white/60 hover:scale-110 hover:text-charcoal/90 active:scale-95'}`}
+                  onClick={handleWriteReview}
+                  disabled={hasReviewed}
+                  aria-label={hasReviewed ? `You have already reviewed ${event.title}` : `Write a review for ${event.title}`}
+                  title={hasReviewed ? 'Already reviewed' : 'Write a review'}
+                >
+                  <Edit className={`w-4 h-4 ${hasReviewed ? 'text-charcoal/40' : 'text-charcoal/80'}`} strokeWidth={2.5} />
+                </button>
+                <button
+                  type="button"
+                  className="w-10 h-10 bg-off-white/40 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-off-white/60 hover:scale-110 hover:text-charcoal/90 active:scale-95 active:translate-y-[1px] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40 shadow-md transform-gpu touch-manipulation select-none"
+                  onClick={handleBookmark}
+                  aria-label={isItemSaved(event.id) ? `Remove from saved ${event.title}` : `Save ${event.title}`}
+                  title={isItemSaved(event.id) ? 'Remove from saved' : 'Save'}
+                >
+                  <Bookmark className={`w-4 h-4 ${isItemSaved(event.id) ? 'text-charcoal/80 fill-charcoal/80' : 'text-charcoal/80'}`} strokeWidth={2.5} />
+                </button>
+                <button
+                  type="button"
+                  className="w-10 h-10 bg-off-white/40 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-off-white/60 hover:scale-110 hover:text-charcoal/90 active:scale-95 active:translate-y-[1px] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40 shadow-md transform-gpu touch-manipulation select-none"
+                  onClick={handleShare}
+                  aria-label={`Share ${event.title}`}
+                  title="Share"
+                >
+                  <Share2 className="w-4 h-4 text-charcoal/80" strokeWidth={2.5} />
+                </button>
+              </div>
 
               {event.type === "event" && event.businessId && (
                 <div className="absolute left-3 bottom-3 z-20 inline-flex items-center rounded-full bg-off-white/90 backdrop-blur-[2px] px-2.5 py-1 text-[11px] font-medium text-charcoal shadow-[0_2px_8px_rgba(0,0,0,0.12)]">
@@ -265,21 +343,51 @@ function EventCard({ event, index = 0 }: EventCardProps) {
                 Community-hosted event
               </span>
             )}
-            <button
-              onClick={handlePrimaryAction}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-br from-navbar-bg to-navbar-bg/90 text-white rounded-full text-sm font-semibold hover:from-navbar-bg/90 hover:to-navbar-bg/80 active:scale-95 active:translate-y-[1px] transition-all duration-200 shadow-md border border-sage/50 focus:outline-none focus:ring-2 focus:ring-sage/40 transform-gpu touch-manipulation select-none"
-              aria-label="Learn more about this event"
-              title="View event details"
-              style={{
-                fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
-                fontWeight: 600,
-              }}
-            >
-              <span>View event</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
+            {/* Review count - same styling as Business Card */}
+            <div className="flex flex-col items-center gap-1 mb-0.5 pt-1" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+              <div className="inline-flex items-center justify-center gap-1 min-h-[12px]">
+                {hasRating && displayRating !== undefined ? (
+                  <>
+                    <span
+                      role="link"
+                      tabIndex={0}
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); router.push(eventDetailHref); }}
+                      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); router.push(eventDetailHref); } }}
+                      className="inline-flex items-center justify-center text-body-sm sm:text-base font-bold leading-none text-navbar-bg underline-offset-2 cursor-pointer transition-colors duration-200 hover:text-coral"
+                      style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 700 }}
+                    >
+                      {reviews}
+                    </span>
+                    <span
+                      role="link"
+                      tabIndex={0}
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); router.push(eventDetailHref); }}
+                      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); router.push(eventDetailHref); } }}
+                      className="inline-flex items-center justify-center text-sm leading-none text-navbar-bg underline-offset-2 cursor-pointer transition-colors duration-200 hover:text-coral"
+                      style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 400 }}
+                    >
+                      Reviews
+                    </span>
+                  </>
+                ) : (
+                  <span
+                    role="button"
+                    tabIndex={hasReviewed ? -1 : 0}
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (!hasReviewed) router.push(reviewRoute); }}
+                    onKeyDown={(e) => { if (!hasReviewed && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); router.push(reviewRoute); } }}
+                    className={`inline-flex items-center justify-center text-sm font-normal underline-offset-2 min-w-[92px] text-center transition-colors duration-200 ${hasReviewed ? 'text-charcoal/70 cursor-not-allowed' : 'text-charcoal cursor-pointer hover:text-coral'}`}
+                    style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 400 }}
+                    aria-disabled={hasReviewed}
+                    title={hasReviewed ? 'You have already reviewed this event' : 'Be the first to review'}
+                  >
+                    {hasReviewed ? 'Already reviewed' : 'Be the first to review'}
+                  </span>
+                )}
+              </div>
+            </div>
           </div>
         </article>
+      </Link>
     </li>
   );
 }
