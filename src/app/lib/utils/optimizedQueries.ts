@@ -52,7 +52,7 @@ export async function fetchBusinessOptimized(
         .select('id, slug')
         .eq('slug', businessIdentifier)
         .or('is_system.is.null,is_system.eq.false')
-        .single();
+        .maybeSingle(); // Use maybeSingle to handle 0 or 1 rows gracefully
       return { data, error };
     }
   );
@@ -76,7 +76,7 @@ export async function fetchBusinessOptimized(
             .select('*')
             .eq('id', actualBusinessId)
             .or('is_system.is.null,is_system.eq.false')
-            .single();
+            .maybeSingle(); // Use maybeSingle to handle 0 or 1 rows gracefully
           return { data, error };
         }
       ),
@@ -101,7 +101,7 @@ export async function fetchBusinessOptimized(
             .from('business_stats')
             .select('*')
             .eq('business_id', actualBusinessId)
-            .single();
+            .maybeSingle(); // Use maybeSingle since stats might not exist
           return { data, error };
         }
       ),

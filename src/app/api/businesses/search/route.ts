@@ -115,6 +115,7 @@ export async function GET(req: NextRequest) {
           .from('businesses')
           .select('id, name, primary_subcategory_slug, primary_subcategory_label, primary_category_slug, location, address, phone, email, website, hours, image_url, verified, lat, lng, slug, is_system')
           .eq('status', 'active')
+          .neq('is_system', true) // Exclude system businesses
           .or(`name.ilike.%${query}%, description.ilike.%${query}%, primary_subcategory_slug.ilike.%${query}%, primary_subcategory_label.ilike.%${query}%`)
           .limit(limit);
 
@@ -187,7 +188,8 @@ export async function GET(req: NextRequest) {
     const { data: ownershipRows, error: ownershipError } = await supabase
       .from('businesses')
       .select('id, owner_id, owner_verified')
-      .in('id', businessIds);
+      .in('id', businessIds)
+      .neq('is_system', true); // Exclude system businesses
 
     if (ownershipError) {
       console.warn('[SEARCH API] ownership flags lookup failed:', ownershipError.message);
