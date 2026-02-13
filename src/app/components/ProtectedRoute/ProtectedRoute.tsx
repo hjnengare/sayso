@@ -33,8 +33,9 @@ export default function ProtectedRoute({
   // Extract stable primitives to prevent re-render loops
   const userId = user?.id ?? null;
   const emailVerified = user?.email_verified ?? false;
+  const onboardingStatusKnown = !!user?.profile;
   const onboardingStep = user?.profile?.onboarding_step ?? null;
-  const onboardingComplete = !!user?.profile?.onboarding_completed_at;
+  const onboardingComplete = onboardingStatusKnown && !!user?.profile?.onboarding_completed_at;
   const interestsCount = user?.profile?.interests_count ?? 0;
   const subcategoriesCount = user?.profile?.subcategories_count ?? 0;
   const dealbreakersCount = user?.profile?.dealbreakers_count ?? 0;
@@ -58,6 +59,14 @@ export default function ProtectedRoute({
       return;
     }
 
+    // CRITICAL: Race-condition safety guard.
+    // If user exists but profile data hasn't loaded yet, DO NOT run any redirect logic.
+    // This prevents false redirects during the profile sync window after email verification.
+    if (userId && !onboardingStatusKnown) {
+      console.log('[ProtectedRoute] Profile not ready, skipping all redirects (race condition guard)');
+      return;
+    }
+
     // CRITICAL: Admin users must ONLY access /admin routes
     const isOnAdminRoute = pathname?.startsWith('/admin');
     if (isAdmin && userId && !isOnAdminRoute) {
@@ -78,30 +87,33 @@ export default function ProtectedRoute({
 
     // If authentication is required and user is not logged in
     if (requiresAuth && !userId) {
-      console.log('ProtectedRoute: No user, redirecting to login');
+      console.log('[ProtectedRoute] No user, redirecting to login');
       router.push(redirectTo || '/login');
       return;
     }
 
     // CRITICAL: Block access to /home unless email is verified AND onboarding is complete
     // Only redirect if we're actually on /home, not if we're already being redirected
+    // NOTE: /home is generally public, so this logic mainly applies to authenticated users
     if (requiresAuth && userId && pathname === '/home') {
       if (!emailVerified) {
-        console.log('ProtectedRoute: Email not verified, redirecting to verify-email');
+        console.log('[ProtectedRoute] Email not verified on /home, redirecting to verify-email');
         router.replace('/verify-email');
         return;
       }
 
+      // CRITICAL: Only redirect if we have CONFIRMED incomplete status.
+      // onboardingStatusKnown is already checked above, so at this point we know the profile exists.
       if (!onboardingComplete) {
         // Business owners skip personal onboarding entirely
         if (isBusinessOwner) {
-          console.log('ProtectedRoute: Business owner with incomplete onboarding, redirecting to /my-businesses');
+          console.log('[ProtectedRoute] Business owner with incomplete onboarding, redirecting to /my-businesses');
           router.replace('/my-businesses');
           return;
         }
 
         // Only personal users get routed to onboarding steps
-        console.log('ProtectedRoute: Personal user onboarding incomplete, redirecting to /interests');
+        console.log('[ProtectedRoute] Personal user onboarding incomplete on /home, redirecting to /interests');
         router.replace('/interests');
         return;
       }
@@ -109,8 +121,6 @@ export default function ProtectedRoute({
 
     // If user is logged in but route doesn't require auth (e.g., login/register pages)
     if (!requiresAuth && userId) {
-      console.log('ProtectedRoute: User on non-auth route, checking redirects', { isAdmin, isBusinessOwner, userRole });
-
       // Check if user is coming from successful email verification
       const emailVerifiedFromUrl = searchParams.get('email_verified') === 'true';
       const verifiedFromUrl = searchParams.get('verified') === '1';
@@ -119,11 +129,11 @@ export default function ProtectedRoute({
       if (isAdmin) {
         if (!emailVerified && !emailVerifiedFromUrl && !verifiedFromUrl) {
           if (pathname !== '/verify-email') {
-            console.log('ProtectedRoute: Admin email not verified, redirecting to verify-email');
+            console.log('[ProtectedRoute] Admin email not verified, redirecting to verify-email');
             router.replace('/verify-email');
           }
         } else if (!isOnAdminRoute) {
-          console.log('ProtectedRoute: Admin verified, redirecting to /admin');
+          console.log('[ProtectedRoute] Admin verified, redirecting to /admin');
           router.replace('/admin');
         }
         return;
@@ -133,13 +143,16 @@ export default function ProtectedRoute({
       if (isBusinessOwner) {
         if (!emailVerified && !emailVerifiedFromUrl && !verifiedFromUrl) {
           if (pathname !== '/verify-email') {
-            console.log('ProtectedRoute: Business owner email not verified, redirecting to verify-email');
+            console.log('[ProtectedRoute] Business owner email not verified, redirecting to verify-email');
             router.replace('/verify-email');
           }
         } else {
           // Business owner with verified email - always go to /my-businesses
-          if (pathname !== '/my-businesses' && pathname !== '/claim-business') {
-            console.log('ProtectedRoute: Business owner verified, redirecting to /my-businesses');
+          // CRITICAL: Don't redirect if already on business-related routes
+          const businessRoutes = ['/my-businesses', '/claim-business', '/add-business', '/add-special', '/add-event'];
+          const isOnBusinessRoute = businessRoutes.some(route => pathname?.startsWith(route));
+          if (!isOnBusinessRoute) {
+            console.log('[ProtectedRoute] Business owner verified, redirecting to /my-businesses');
             router.replace('/my-businesses');
           }
         }
@@ -148,20 +161,25 @@ export default function ProtectedRoute({
 
       // Personal user flow
       if (onboardingComplete) {
-        // Only redirect if not already on /complete
-        if (pathname !== '/complete') {
-          console.log('ProtectedRoute: Personal user onboarding complete, redirecting to complete');
-          router.replace('/complete');
+        // Only redirect if not already on /complete or /profile
+        // This prevents redirect loops - completed users can access both
+        if (pathname !== '/complete' && pathname !== '/profile') {
+          console.log('[ProtectedRoute] Personal user onboarding complete, redirecting to /profile');
+          router.replace('/profile');
         }
       } else if (!emailVerified && !emailVerifiedFromUrl && !verifiedFromUrl) {
         // Only redirect if not already on verify-email
         if (pathname !== '/verify-email') {
-          console.log('ProtectedRoute: Personal user email not verified, redirecting to verify-email');
+          console.log('[ProtectedRoute] Personal user email not verified, redirecting to verify-email');
           router.replace('/verify-email');
         }
       } else {
-        console.log('ProtectedRoute: Personal user email verified, redirecting to /interests');
-        if (pathname !== '/interests') {
+        // Email verified but onboarding incomplete
+        // CRITICAL: Only redirect if not already on an onboarding route
+        const onboardingPaths = ['/interests', '/subcategories', '/deal-breakers', '/onboarding'];
+        const isOnOnboardingPath = onboardingPaths.some(route => pathname === route);
+        if (!isOnOnboardingPath) {
+          console.log('[ProtectedRoute] Personal user email verified, redirecting to /interests');
           router.replace('/interests');
         }
       }
@@ -185,21 +203,23 @@ export default function ProtectedRoute({
 
     // CRITICAL: Business owners should never be on personal onboarding routes
     if (userId && isBusinessOwner && isOnboardingRoute) {
-      console.log('ProtectedRoute: Business owner on onboarding route, redirecting to /my-businesses');
+      console.log('[ProtectedRoute] Business owner on onboarding route, redirecting to /my-businesses');
       router.replace('/my-businesses');
       return;
     }
 
     // Allow access to /complete page even if onboarding is complete (it's the celebration page) - personal users only
+    // But redirect from other onboarding routes to /profile if already complete
     if (userId && !isBusinessOwner && onboardingComplete && isOnboardingRoute && pathname !== '/complete') {
-      console.log('ProtectedRoute: Personal user completed onboarding, redirecting from onboarding route to complete');
-      router.push('/complete');
+      console.log('[ProtectedRoute] Personal user completed onboarding, redirecting from onboarding route to /profile');
+      router.push('/profile');
       return;
     }
 
+    // Incomplete personal user on /complete → redirect to /interests (start of onboarding)
     if (userId && !isBusinessOwner && !onboardingComplete && pathname === '/complete') {
-      console.log('ProtectedRoute: Incomplete personal user on /complete, redirecting to /onboarding');
-      router.push('/onboarding');
+      console.log('[ProtectedRoute] Incomplete personal user on /complete, redirecting to /interests');
+      router.push('/interests');
       return;
     }
 
@@ -208,7 +228,7 @@ export default function ProtectedRoute({
       router.push('/complete');
       return;
     }
-  }, [userId, emailVerified, onboardingStep, onboardingComplete, interestsCount, subcategoriesCount, dealbreakersCount, isLoading, router, pathname, requiresAuth, requiresOnboarding, allowedOnboardingSteps, redirectTo, searchParams, userRole, isAdmin, isBusinessOwner, personalOnboardingRoutes, currentRole, role]);
+  }, [userId, emailVerified, onboardingStatusKnown, onboardingStep, onboardingComplete, interestsCount, subcategoriesCount, dealbreakersCount, isLoading, router, pathname, requiresAuth, requiresOnboarding, allowedOnboardingSteps, redirectTo, searchParams, userRole, isAdmin, isBusinessOwner, personalOnboardingRoutes, currentRole, role]);
 
   // State 1: loading — show loader; do not render children or run any checks (avoids 401s from children calling APIs before session is ready)
   if (isLoading) {

@@ -34,8 +34,12 @@ function debugLog(context: string, data: Record<string, unknown>) {
 }
 
 /** Minimal always-on log for Vercel edge (one line). */
-function edgeLog(decision: string, pathname: string, meta: { hasUser?: boolean; emailConfirmed?: boolean; isBusiness?: boolean; onboardingComplete?: boolean; to?: string; reason?: string }) {
-  console.log(`[Edge] ${decision} pathname=${pathname} hasUser=${!!meta.hasUser} emailOk=${!!meta.emailConfirmed} business=${!!meta.isBusiness} onboardingOk=${!!meta.onboardingComplete}${meta.to ? ` to=${meta.to}` : ''}${meta.reason ? ` reason=${meta.reason}` : ''}`);
+function edgeLog(decision: string, pathname: string, meta: { hasUser?: boolean; emailConfirmed?: boolean; isBusiness?: boolean; onboardingComplete?: boolean | null; to?: string; reason?: string }) {
+  const onboardingState =
+    meta.onboardingComplete === null || meta.onboardingComplete === undefined
+      ? 'unknown'
+      : String(meta.onboardingComplete);
+  console.log(`[Edge] ${decision} pathname=${pathname} hasUser=${!!meta.hasUser} emailOk=${!!meta.emailConfirmed} business=${!!meta.isBusiness} onboardingOk=${onboardingState}${meta.to ? ` to=${meta.to}` : ''}${meta.reason ? ` reason=${meta.reason}` : ''}`);
 }
 
 function parseRedirectGuard(request: NextRequest): RedirectGuardState | null {
@@ -113,6 +117,17 @@ function redirectWithGuard(req: NextRequest, url: URL): NextResponse {
 function isSchemaCacheError(error: { message?: string } | null | undefined): boolean {
   const message = error?.message?.toLowerCase() || '';
   return message.includes('schema cache') && message.includes('onboarding_completed_at');
+}
+
+type NormalizedRole = 'admin' | 'business_owner' | 'user';
+
+function normalizeRole(value: string | null | undefined): NormalizedRole | null {
+  const role = String(value || '').toLowerCase().trim();
+  if (!role) return null;
+  if (role === 'admin' || role === 'super_admin' || role === 'superadmin') return 'admin';
+  if (role === 'business_owner' || role === 'business' || role === 'owner') return 'business_owner';
+  if (role === 'user' || role === 'personal') return 'user';
+  return null;
 }
 
 export async function proxy(request: NextRequest) {
@@ -460,129 +475,103 @@ export async function proxy(request: NextRequest) {
   }
 
   // ============================================
-  // FETCH ONBOARDING STATUS USING RPC (only when user exists)
-  // This uses SECURITY DEFINER to bypass RLS issues on mobile hard refresh
+  // FETCH PROFILE STATUS (only when user exists + email confirmed)
+  // Single source of truth for onboarding: profiles.onboarding_completed_at
   // ============================================
 
-  interface OnboardingStatus {
+  interface ProfileStatus {
     found: boolean;
-    onboarding_complete: boolean;
-    onboarding_completed_at?: string | null;
-    account_role: string;
-    role: string;
-    interests_count: number;
-    subcategories_count: number;
-    dealbreakers_count: number;
-    error?: string;
+    onboarding_completed_at: string | null;
+    account_role: string | null;
+    role: string | null;
   }
 
-  let onboardingStatus: OnboardingStatus | null = null;
+  let profileStatus: ProfileStatus | null = null;
 
+  // CRITICAL: Only fetch profile when user exists AND email is confirmed.
+  // If email is not confirmed, skip profile fetch entirely - user needs to verify first.
   if (user && user.email_confirmed_at) {
     try {
-      // Use RPC function instead of direct table query
-      // This bypasses RLS issues that can occur on mobile hard refresh
-      const { data, error: rpcError } = await supabase
-        .rpc('get_onboarding_status', { p_user_id: user.id });
+      const selectWithCompletedAt = 'role, account_role, onboarding_completed_at';
+      const selectWithoutCompletedAt = 'role, account_role';
 
-      debugLog('RPC_RESULT', {
-        requestId,
-        userId: user.id,
-        rpcData: data,
-        rpcError: rpcError?.message,
-      });
+      let { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select(selectWithCompletedAt)
+        .eq('user_id', user.id)
+        .maybeSingle();
 
-      if (rpcError) {
-        console.error('[Middleware] RPC error fetching onboarding status:', rpcError);
-        // Fallback: try direct query (may fail on mobile, but worth a try)
-        const selectWithCompletedAt = 'onboarding_complete, onboarding_completed_at, role, account_role, interests_count, subcategories_count, dealbreakers_count';
-        const selectWithoutCompletedAt = 'onboarding_complete, role, account_role, interests_count, subcategories_count, dealbreakers_count';
-        let { data: profileData, error: profileError } = await supabase
+      if (profileError && isSchemaCacheError(profileError)) {
+        ({ data: profileData, error: profileError } = await supabase
           .from('profiles')
-          .select(selectWithCompletedAt)
+          .select(selectWithoutCompletedAt)
           .eq('user_id', user.id)
-          .maybeSingle();
+          .maybeSingle());
+      }
 
-        if (profileError && isSchemaCacheError(profileError)) {
-          ({ data: profileData, error: profileError } = await supabase
-            .from('profiles')
-            .select(selectWithoutCompletedAt)
-            .eq('user_id', user.id)
-            .maybeSingle());
-        }
-
-        debugLog('FALLBACK_QUERY', {
-          requestId,
-          profileData,
-          profileError: profileError?.message,
-        });
-
-        if (profileError || !profileData) {
-          // CRITICAL: If we can't determine status, DO NOT redirect to onboarding
-          // Instead, allow the request and let the page handle it
-          console.warn('[Middleware] Cannot determine onboarding status, allowing request to proceed');
-          onboardingStatus = null;
-        } else {
-          onboardingStatus = {
-            found: true,
-            onboarding_complete: profileData.onboarding_complete ?? false,
-            onboarding_completed_at: profileData.onboarding_completed_at ?? null,
-            account_role: profileData.account_role ?? 'user',
-            role: profileData.role ?? 'user',
-            interests_count: profileData.interests_count ?? 0,
-            subcategories_count: profileData.subcategories_count ?? 0,
-            dealbreakers_count: profileData.dealbreakers_count ?? 0,
-          };
-        }
-      } else if (data) {
-        onboardingStatus = data as OnboardingStatus;
+      if (profileError) {
+        console.error('[Middleware] Error fetching profile status:', profileError.message);
+        // Race-safe behavior: if profile can't be read, do not force onboarding redirects.
+        // This is critical for RLS read failures - allow request to continue so profile sync can run.
+        profileStatus = null;
+      } else if (!profileData) {
+        // CRITICAL FIX: Profile missing for authenticated user.
+        // This can happen due to race condition where:
+        // 1. User just verified email and got redirected
+        // 2. Profile trigger hasn't completed yet OR sync-profile-role hasn't run
+        // DO NOT redirect to onboarding - allow request to proceed so profile bootstrap can complete.
+        console.warn('[Middleware] Profile missing for authenticated user (race condition likely); allowing request to proceed.');
+        profileStatus = null;
       } else {
-        // No data returned - treat as no profile
-        onboardingStatus = {
-          found: false,
-          onboarding_complete: false,
-          account_role: 'user',
-          role: 'user',
-          interests_count: 0,
-          subcategories_count: 0,
-          dealbreakers_count: 0,
+        profileStatus = {
+          found: true,
+          onboarding_completed_at:
+            'onboarding_completed_at' in profileData
+              ? (profileData.onboarding_completed_at as string | null)
+              : null,
+          account_role: profileData.account_role ?? null,
+          role: profileData.role ?? null,
         };
       }
     } catch (error) {
-      console.error('[Middleware] Error fetching onboarding status:', error);
-      // CRITICAL: On error, DO NOT redirect to onboarding
-      // This prevents the mobile hard refresh bug
-      onboardingStatus = null;
+      console.error('[Middleware] Error fetching profile status:', error);
+      // Race-safe behavior: if profile lookup fails, allow request to continue.
+      profileStatus = null;
     }
   }
 
+  const metadataRoleCandidate =
+    (user?.user_metadata?.account_type as string | undefined) ||
+    (user?.user_metadata?.role as string | undefined) ||
+    (user?.app_metadata?.role as string | undefined) ||
+    null;
+
+  const resolvedRole =
+    normalizeRole(profileStatus?.account_role) ??
+    normalizeRole(profileStatus?.role) ??
+    normalizeRole(metadataRoleCandidate) ??
+    'user';
+
   // Helper: Check if user is an admin account
-  const isAdminAccount =
-    onboardingStatus?.role === 'admin' ||
-    onboardingStatus?.account_role === 'admin';
+  const isAdminAccount = resolvedRole === 'admin';
 
   // Helper: Check if user is a business account (admin takes priority)
-  const isBusinessAccount =
-    !isAdminAccount && (
-      onboardingStatus?.role === 'business_owner' ||
-      onboardingStatus?.account_role === 'business_owner'
-    );
+  const isBusinessAccount = !isAdminAccount && resolvedRole === 'business_owner';
 
-  // Helper: Check if onboarding is complete
-  // If we couldn't fetch status (onboardingStatus is null), default to incomplete
-  const isOnboardingComplete = onboardingStatus === null
-    ? false
-    : onboardingStatus.onboarding_complete === true;
+  // Helper: Check if onboarding is complete (null when unknown).
+  const isOnboardingComplete: boolean | null = profileStatus === null
+    ? null
+    : Boolean(profileStatus.onboarding_completed_at);
 
   debugLog('STATUS_COMPUTED', {
     requestId,
     userId: user?.id,
-    hasOnboardingStatus: !!onboardingStatus,
+    hasProfileStatus: !!profileStatus,
     isAdminAccount,
     isBusinessAccount,
     isOnboardingComplete,
-    rawOnboardingComplete: onboardingStatus?.onboarding_complete,
-    onboardingCompletedAt: onboardingStatus?.onboarding_completed_at,
+    onboardingCompletedAt: profileStatus?.onboarding_completed_at ?? null,
+    resolvedRole,
   });
 
   edgeLog('DECISION', pathname, {
@@ -600,20 +589,23 @@ export async function proxy(request: NextRequest) {
     }
 
     if (!isAdminAccount) {
-      const fallbackTarget = onboardingStatus === null
+      // CRITICAL: If profileStatus is null, redirect to /home (safe default)
+      // rather than making decisions based on incomplete data
+      const fallbackTarget = profileStatus === null
         ? '/home'
         : isBusinessAccount
           ? '/my-businesses'
           : isOnboardingComplete
-            ? '/complete'
+            ? '/profile'
             : '/interests';
 
       debugLog('REDIRECT', {
         requestId,
         reason: 'non_admin_on_admin_route',
         to: fallbackTarget,
-        role: onboardingStatus?.role,
-        account_role: onboardingStatus?.account_role,
+        profileStatusKnown: profileStatus !== null,
+        role: profileStatus?.role,
+        account_role: profileStatus?.account_role,
       });
       edgeLog('REDIRECT', pathname, {
         hasUser: true,
@@ -689,22 +681,36 @@ export async function proxy(request: NextRequest) {
 
   // RULE 2: User accounts - enforce onboarding completion (admin already handled in RULE 0)
   if (!isBusinessAccount && !isAdminAccount && user && user.email_confirmed_at) {
+    // CRITICAL SAFETY GUARD: If profileStatus is null (profile missing or couldn't be read),
+    // DO NOT redirect to onboarding. Allow request to continue so profile sync/bootstrap can complete.
+    // This prevents redirect loops when profile hasn't been created yet or RLS blocks the read.
+    if (profileStatus === null) {
+      debugLog('ALLOW', { requestId, reason: 'profile_status_unknown_race_guard', pathname });
+      edgeLog('ALLOW', pathname, {
+        hasUser: true,
+        emailConfirmed: true,
+        onboardingComplete: null,
+        reason: 'profile_status_unknown',
+      });
+      return response;
+    }
+
     // If on onboarding route
     if (isOnboardingRoute) {
-      // User with complete onboarding should only see /complete
+      // User with complete onboarding should avoid onboarding routes (except /complete celebration page)
       if (isOnboardingComplete) {
         if (pathname === '/complete') {
           debugLog('ALLOW', { requestId, reason: 'completed_user_on_complete', pathname });
           return response;
         }
-        debugLog('REDIRECT', { requestId, reason: 'completed_user_on_onboarding', to: '/complete' });
-        edgeLog('REDIRECT', pathname, { hasUser: true, emailConfirmed: true, onboardingComplete: true, to: '/complete' });
-        return redirectWithGuard(request, new URL('/complete', request.url));
+        debugLog('REDIRECT', { requestId, reason: 'completed_user_on_onboarding', to: '/profile' });
+        edgeLog('REDIRECT', pathname, { hasUser: true, emailConfirmed: true, onboardingComplete: true, to: '/profile' });
+        return redirectWithGuard(request, new URL('/profile', request.url));
       }
       if (pathname === '/complete') {
-        debugLog('REDIRECT', { requestId, reason: 'incomplete_user_on_complete', to: '/onboarding' });
-        edgeLog('REDIRECT', pathname, { hasUser: true, emailConfirmed: true, onboardingComplete: false, to: '/onboarding' });
-        return redirectWithGuard(request, new URL('/onboarding', request.url));
+        debugLog('REDIRECT', { requestId, reason: 'incomplete_user_on_complete', to: '/interests' });
+        edgeLog('REDIRECT', pathname, { hasUser: true, emailConfirmed: true, onboardingComplete: false, to: '/interests' });
+        return redirectWithGuard(request, new URL('/interests', request.url));
       }
       // User with incomplete onboarding CAN access onboarding routes
       debugLog('ALLOW', { requestId, reason: 'incomplete_user_on_onboarding', pathname });
@@ -720,27 +726,15 @@ export async function proxy(request: NextRequest) {
       }
 
       // User with incomplete onboarding must complete onboarding first
-      // CRITICAL: Only redirect if we have confirmed incomplete status
-      if (onboardingStatus !== null && !isOnboardingComplete) {
-        debugLog('REDIRECT', {
-          requestId,
-          reason: 'incomplete_user_on_protected',
-          to: '/interests',
-          onboardingStatus,
-        });
-        console.log('[Middleware] Incomplete user redirected to onboarding from:', pathname, {
-          userId: user.id,
-          onboardingComplete: onboardingStatus.onboarding_complete,
-          interestsCount: onboardingStatus.interests_count,
-          subcategoriesCount: onboardingStatus.subcategories_count,
-          dealbreakersCount: onboardingStatus.dealbreakers_count,
-        });
-        edgeLog('REDIRECT', pathname, { hasUser: true, emailConfirmed: true, onboardingComplete: false, to: '/interests' });
-        return redirectWithGuard(request, new URL('/interests', request.url));
-      }
-      // If onboardingStatus is null (couldn't fetch), allow access
-      debugLog('ALLOW', { requestId, reason: 'status_unknown_allow_access', pathname });
-      return response;
+      // At this point profileStatus is NOT null (we checked above), so this is a confirmed incomplete state
+      debugLog('REDIRECT', {
+        requestId,
+        reason: 'incomplete_user_on_protected',
+        to: '/interests',
+        onboardingCompletedAt: profileStatus.onboarding_completed_at,
+      });
+      edgeLog('REDIRECT', pathname, { hasUser: true, emailConfirmed: true, onboardingComplete: false, to: '/interests' });
+      return redirectWithGuard(request, new URL('/interests', request.url));
     }
   }
 
@@ -799,7 +793,11 @@ export async function proxy(request: NextRequest) {
   // Admin accounts are already redirected to /admin above (RULE 0), so they won't reach here
   if (user && user.email_confirmed_at && !isBusinessAccount && !isAdminAccount) {
     if (isBusinessAuthRoute || isOwnersRoute || isBusinessEditRoute) {
-      const redirectTarget = isOnboardingComplete ? '/complete' : '/interests';
+      const redirectTarget = profileStatus === null
+        ? '/home'
+        : isOnboardingComplete
+          ? '/profile'
+          : '/interests';
       return redirectWithGuard(request, new URL(redirectTarget, request.url));
     }
   }
@@ -821,11 +819,11 @@ export async function proxy(request: NextRequest) {
         edgeLog('REDIRECT', pathname, { hasUser: true, emailConfirmed: true, isBusiness: true, to: '/my-businesses', reason: 'verified_business' });
         return redirectWithGuard(request, new URL('/my-businesses', request.url));
       }
-      if (onboardingStatus === null) {
+      if (profileStatus === null) {
         edgeLog('ALLOW', pathname, { hasUser: true, emailConfirmed: true, reason: 'status_unknown' });
         return response;
       }
-      const redirectTarget = isOnboardingComplete ? '/complete' : '/interests';
+      const redirectTarget = isOnboardingComplete ? '/profile' : '/interests';
       edgeLog('REDIRECT', pathname, { hasUser: true, emailConfirmed: true, onboardingComplete: isOnboardingComplete, to: redirectTarget });
       return redirectWithGuard(request, new URL(redirectTarget, request.url));
     }
@@ -836,10 +834,13 @@ export async function proxy(request: NextRequest) {
         redirectTarget = '/admin';
       } else if (isBusinessAccount) {
         redirectTarget = '/my-businesses';
-      } else if (isOnboardingComplete) {
-        redirectTarget = '/complete';
-      } else {
+      } else if (isOnboardingComplete === true) {
+        redirectTarget = '/profile';
+      } else if (isOnboardingComplete === false) {
         redirectTarget = '/interests';
+      } else {
+        edgeLog('ALLOW', pathname, { hasUser: true, emailConfirmed: true, reason: 'status_unknown' });
+        return response;
       }
       edgeLog('REDIRECT', pathname, { hasUser: true, emailConfirmed: true, isBusiness: isBusinessAccount, onboardingComplete: isOnboardingComplete, to: redirectTarget });
       return redirectWithGuard(request, new URL(redirectTarget, request.url));

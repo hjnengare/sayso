@@ -22,7 +22,6 @@ function isExpiredTokenError(message: string): boolean {
 type ProfileRow = {
   role: string | null;
   account_role: string | null;
-  onboarding_complete: boolean | null;
   onboarding_completed_at?: string | null;
 };
 
@@ -68,8 +67,127 @@ function resolveDestination(role: NormalizedRole, profile: ProfileRow | null): s
   if (role === 'admin') return '/admin';
   if (role === 'business_owner') return '/my-businesses';
 
-  const onboardingComplete = Boolean(profile?.onboarding_completed_at || profile?.onboarding_complete);
-  return onboardingComplete ? '/home' : '/interests';
+  const onboardingComplete = Boolean(profile?.onboarding_completed_at);
+  return onboardingComplete ? '/profile' : '/interests';
+}
+
+async function loadProfile(
+  supabase: ReturnType<typeof createServerClient>,
+  userId: string
+): Promise<ProfileRow | null> {
+  let { data: profileData, error: profileError } = await supabase
+    .from('profiles')
+    .select('role, account_role, onboarding_completed_at')
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  if (profileError && isSchemaCacheError(profileError)) {
+    ({ data: profileData, error: profileError } = await supabase
+      .from('profiles')
+      .select('role, account_role')
+      .eq('user_id', userId)
+      .maybeSingle());
+  }
+
+  if (profileError) {
+    console.warn('[Auth Callback] Failed to fetch profile:', profileError.message);
+    return null;
+  }
+
+  if (!profileData) return null;
+
+  return {
+    role: profileData.role ?? null,
+    account_role: profileData.account_role ?? null,
+    onboarding_completed_at:
+      'onboarding_completed_at' in profileData
+        ? (profileData.onboarding_completed_at as string | null)
+        : null,
+  };
+}
+
+async function ensureProfileAndRole(
+  supabase: ReturnType<typeof createServerClient>,
+  user: User
+): Promise<ProfileRow | null> {
+  const metadataRole =
+    normalizeRole(user.user_metadata?.account_type) ??
+    normalizeRole(user.user_metadata?.role) ??
+    normalizeRole(user.app_metadata?.role);
+
+  let profile = await loadProfile(supabase, user.id);
+
+  // CRITICAL: Profile race condition fix.
+  // If profile doesn't exist, the database trigger (handle_new_user) may still be running.
+  // Retry a few times before attempting to create manually.
+  if (!profile) {
+    // Wait briefly and retry - trigger may still be executing
+    for (let attempt = 0; attempt < 3 && !profile; attempt++) {
+      await new Promise(resolve => setTimeout(resolve, 200 * (attempt + 1)));
+      profile = await loadProfile(supabase, user.id);
+    }
+  }
+
+  if (!profile) {
+    // Trigger didn't create profile - create it manually
+    const insertRole = metadataRole ?? 'user';
+    const insertPayload: Record<string, unknown> = {
+      user_id: user.id,
+      role: insertRole,
+      account_role: insertRole,
+      updated_at: new Date().toISOString(),
+    };
+
+    if (insertRole === 'business_owner') {
+      insertPayload.onboarding_step = 'business_setup';
+    }
+
+    console.log('[Auth Callback] Creating missing profile for user:', user.id);
+
+    const { error: insertError } = await supabase
+      .from('profiles')
+      .upsert(insertPayload, { onConflict: 'user_id' });
+
+    if (insertError) {
+      console.warn('[Auth Callback] Failed to create profile:', insertError.message);
+      return null;
+    }
+
+    profile = await loadProfile(supabase, user.id);
+  }
+
+  if (profile && metadataRole) {
+    const roleNeedsSync =
+      normalizeRole(profile.role) !== metadataRole ||
+      normalizeRole(profile.account_role) !== metadataRole;
+
+    if (roleNeedsSync) {
+      const updates: Record<string, unknown> = {
+        role: metadataRole,
+        account_role: metadataRole,
+        updated_at: new Date().toISOString(),
+      };
+
+      if (metadataRole === 'business_owner') {
+        updates.onboarding_step = 'business_setup';
+      }
+
+      console.log('[Auth Callback] Syncing profile role:', { userId: user.id, from: profile.role, to: metadataRole });
+
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update(updates)
+        .eq('user_id', user.id);
+
+      if (updateError) {
+        console.warn('[Auth Callback] Failed to sync profile role:', updateError.message);
+      } else {
+        profile = await loadProfile(supabase, user.id);
+      }
+    }
+  }
+
+  return profile;
 }
 
 function applyAuthCookies(source: NextResponse, target: NextResponse): NextResponse {
@@ -193,38 +311,27 @@ export async function GET(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   if (userError || !user) {
+    console.warn('[Auth Callback] No user after session exchange:', userError?.message);
     return redirectTo(request, response, '/login', { error: 'session_missing' });
   }
 
-  let profile: ProfileRow | null = null;
+  console.log('[Auth Callback] User authenticated:', {
+    userId: user.id,
+    emailConfirmed: !!user.email_confirmed_at,
+    metadataAccountType: user.user_metadata?.account_type,
+  });
 
-  let { data: profileData, error: profileError } = await supabase
-    .from('profiles')
-    .select('role, account_role, onboarding_complete, onboarding_completed_at')
-    .eq('user_id', user.id)
-    .maybeSingle();
+  // CRITICAL: Ensure profile exists and role/account_type are synchronized BEFORE redirect routing.
+  // This is the single most important step to prevent race conditions.
+  const profile = await ensureProfileAndRole(supabase, user);
 
-  if (profileError && isSchemaCacheError(profileError)) {
-    ({ data: profileData, error: profileError } = await supabase
-      .from('profiles')
-      .select('role, account_role, onboarding_complete')
-      .eq('user_id', user.id)
-      .maybeSingle());
-  }
-
-  if (profileError) {
-    console.warn('[Auth Callback] Failed to fetch profile:', profileError.message);
-  } else if (profileData) {
-    profile = {
-      role: profileData.role ?? null,
-      account_role: profileData.account_role ?? null,
-      onboarding_complete: profileData.onboarding_complete ?? null,
-      onboarding_completed_at:
-        'onboarding_completed_at' in profileData
-          ? (profileData.onboarding_completed_at as string | null)
-          : null,
-    };
-  }
+  console.log('[Auth Callback] Profile state:', {
+    userId: user.id,
+    profileExists: !!profile,
+    role: profile?.role,
+    accountRole: profile?.account_role,
+    onboardingCompletedAt: profile?.onboarding_completed_at,
+  });
 
   // Best effort sync for profile verification metadata.
   if (user.email_confirmed_at) {
@@ -245,6 +352,8 @@ export async function GET(request: NextRequest) {
 
   const resolvedRole = resolveRole(user, profile);
   const destination = resolveDestination(resolvedRole, profile);
+
+  console.log('[Auth Callback] Redirecting:', { userId: user.id, resolvedRole, destination });
 
   return redirectTo(request, response, destination);
 }
