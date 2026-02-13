@@ -155,10 +155,10 @@ function EventCard({ event, index = 0 }: EventCardProps) {
         style={{ maxWidth: "540px" } as CSSProperties}
       >
           {/* MEDIA - Full bleed with premium overlay */}
-          <div className="relative w-full flex-shrink-0 z-10 p-1">
+          <div className="relative w-full flex-shrink-0 z-10">
             <motion.div
               layoutId={eventMediaLayoutId}
-              className="relative w-full overflow-hidden rounded-[12px] flex items-center justify-center bg-gradient-to-br from-off-white/95 to-off-white/85"
+              className="relative w-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-off-white/95 to-off-white/85"
               style={{ aspectRatio: '4 / 3' }}
             >
               {showLoadingOverlay && (
