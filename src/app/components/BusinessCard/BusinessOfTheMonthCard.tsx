@@ -8,6 +8,10 @@ import { useRouter } from "next/navigation";
 import { Image as ImageIcon, Star, Edit, Bookmark, Share2 } from "lucide-react";
 import { Scissors, Coffee, UtensilsCrossed, Wine, Dumbbell, Activity, Heart, Book, ShoppingBag, Home, Briefcase, MapPin, Music, Film, Camera, Car, GraduationCap, CreditCard, Tag } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+
+// Tiny 4x3 SVG matching the card error-state bg (#E5E0E5) — instant visual fill while image loads
+const BLUR_DATA_URL =
+  "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNCIgaGVpZ2h0PSIzIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSI0IiBoZWlnaHQ9IjMiIGZpbGw9IiNlNWUwZTUiLz48L3N2Zz4=";
 import Stars from "../Stars/Stars";
 import VerifiedBadge from "../VerifiedBadge/VerifiedBadge";
 import Tooltip from "../Tooltip/Tooltip";
@@ -358,6 +362,8 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
                   quality={index < 2 ? 85 : 80}
                   style={{ aspectRatio: '4/3' }}
                   onError={handleImageError}
+                  placeholder="blur"
+                  blurDataURL={BLUR_DATA_URL}
                 />
                 <div
                   className="absolute inset-0 pointer-events-none card-overlay-fade motion-reduce:transition-none"

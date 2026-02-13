@@ -27,8 +27,8 @@ const nextConfig: NextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     
     // Explicit quality values allowed (required in Next.js 16)
-    // Include all quality values used in the codebase: 70, 85, 90, 100
-    qualities: [25, 50, 70, 75, 85, 90, 100],
+    // Include all quality values used in the codebase
+    qualities: [20, 25, 50, 60, 70, 75, 80, 85, 90, 100],
     
     // Minimum quality for AVIF (better compression than WebP)
     minimumCacheTTL: 86400, // Cache optimized images for 24h to reduce repeat transformations

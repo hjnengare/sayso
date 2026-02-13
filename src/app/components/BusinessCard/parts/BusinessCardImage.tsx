@@ -4,6 +4,10 @@ import { ImageIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import { getCategoryPlaceholder } from "../../../utils/categoryToPngMapping";
 
+// Tiny 4x3 SVG matching the card error-state bg (#E5E0E5) — instant visual fill while image loads
+const BLUR_DATA_URL =
+  "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNCIgaGVpZ2h0PSIzIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSI0IiBoZWlnaHQ9IjMiIGZpbGw9IiNlNWUwZTUiLz48L3N2Zz4=";
+
 interface BusinessCardImageProps {
   displayImage: string;
   isImagePng?: boolean;
@@ -44,6 +48,8 @@ const BusinessCardImage: React.FC<BusinessCardImageProps> = ({
             loading={priority ? "eager" : "lazy"}
             fetchPriority={priority ? "high" : "auto"}
             onError={onImageError}
+            placeholder="blur"
+            blurDataURL={BLUR_DATA_URL}
             style={{ aspectRatio: '4/3' }}
           />
           <div
