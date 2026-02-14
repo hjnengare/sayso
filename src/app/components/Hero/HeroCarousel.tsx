@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { FilterState } from "../FilterModal/FilterModal";
 import HeroSkeleton from "./HeroSkeleton";
+import MobileHeroSkeleton from "./MobileHeroSkeleton";
 import { useAuth } from '../../contexts/AuthContext';
 
 interface HeroSlide {
@@ -677,7 +678,7 @@ export default function HeroCarousel() {
   if (!isHeroReady) {
     return (
       <div suppressHydrationWarning>
-        <HeroSkeleton />
+        {heroViewport === "mobile" ? <MobileHeroSkeleton /> : <HeroSkeleton />}
       </div>
     );
   }
@@ -685,7 +686,7 @@ export default function HeroCarousel() {
   if (slides.length === 0) {
     return (
       <div suppressHydrationWarning>
-        <HeroSkeleton />
+        {heroViewport === "mobile" ? <MobileHeroSkeleton /> : <HeroSkeleton />}
       </div>
     );
   }
