@@ -340,11 +340,7 @@ function WriteReviewContent() {
     : null;
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.3 }}
+    <div
       className="min-h-dvh bg-off-white relative overflow-x-hidden font-urbanist"
       style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif' }}
     >
@@ -531,7 +527,7 @@ function WriteReviewContent() {
         </main>
       </div>
       <Footer />
-    </motion.div>
+    </div>
   );
 }
 

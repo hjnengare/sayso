@@ -458,11 +458,7 @@ function WriteReviewContent() {
           font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
         }
       `}</style>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.3 }}
+      <div
         className="min-h-dvh bg-off-white relative overflow-x-hidden font-urbanist"
         style={{
           fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif',
@@ -688,7 +684,7 @@ function WriteReviewContent() {
             onClose={() => setIsInfoModalOpen(false)}
           />
         )}
-      </motion.div>
+      </div>
     </>
   );
 }
