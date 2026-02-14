@@ -10,10 +10,10 @@ import SkeletonHeader from "../components/shared/skeletons/SkeletonHeader";
 import SkeletonList from "../components/shared/skeletons/SkeletonList";
 
 import { ChevronRight, Store, CalendarDays, Sparkles, Clock3, MapPin, Plus } from "lucide-react";
-import BusinessCard from "../components/BusinessCard/BusinessCard";
 import { motion } from "framer-motion";
 import type { Business } from "../components/BusinessCard/BusinessCard";
 import Footer from "../components/Footer/Footer";
+import MyBusinessesTable from "./MyBusinessesTable";
 
 type ListingTypeFilter = "all" | "event" | "special";
 
@@ -466,93 +466,101 @@ export default function MyBusinessesPage() {
                   </p>
                 </motion.div>
 
-                <motion.div
-                  className="relative z-10"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.2 }}
-                >
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-3">
-                    {businesses.map((business) => (
-                      <div key={business.id} className="list-none">
-                        <BusinessCard business={business} compact inGrid={true} ownerView={true} />
-                      </div>
-                    ))}
-                  </div>
-                </motion.div>
+                {/* Two-column layout: table (left) + Events & Specials sidebar (right) */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 lg:gap-8 pb-4">
+                  {/* Left: My Businesses table (~65–75%) */}
+                  <motion.div
+                    className="relative z-10 lg:col-span-8 min-w-0"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.2 }}
+                  >
+                    <MyBusinessesTable businesses={businesses} />
+                  </motion.div>
 
-                <motion.section
-                  className="mt-8 px-2 pb-4"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.25 }}
-                >
-                  <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] border border-white/60 shadow-md p-4 sm:p-6">
-                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                      <div>
-                        <h2 className="text-h3 font-semibold text-charcoal" style={{ fontFamily: FONT_STACK }}>
-                          My Events & Specials
-                        </h2>
-                        <p className="text-body-sm text-charcoal/70 mt-1" style={{ fontFamily: FONT_STACK }}>
-                          {filteredOwnerListings.length} shown across {selectedBusinessName}
-                        </p>
+                  {/* Right: Events & Specials sidebar (~25–35%), sticky on desktop */}
+                  <motion.aside
+                    className="lg:col-span-4 w-full lg:sticky lg:top-24 lg:self-start lg:max-h-[calc(100vh-7rem)] flex flex-col min-h-0 mt-8 lg:mt-0"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.25 }}
+                    aria-label="My Events & Specials"
+                  >
+                    <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] border border-white/60 shadow-md flex flex-col min-h-0 h-full overflow-hidden">
+                      {/* Stack 1: Header (title, subtitle, buttons) */}
+                      <div className="flex-shrink-0 p-4 pb-3 border-b border-charcoal/10 space-y-3">
+                        <div className="space-y-1">
+                          <h2 className="text-h3 font-semibold text-charcoal" style={{ fontFamily: FONT_STACK }}>
+                            My Events & Specials
+                          </h2>
+                          <p className="text-body-sm text-charcoal/70" style={{ fontFamily: FONT_STACK }}>
+                            {filteredOwnerListings.length} shown across {selectedBusinessName}
+                          </p>
+                        </div>
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <Link
+                            href="/add-event"
+                            className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-full bg-navbar-bg text-white text-sm font-semibold hover:bg-navbar-bg/90 transition-colors w-full sm:w-auto"
+                            style={{ fontFamily: FONT_STACK }}
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                            Add Event
+                          </Link>
+                          <Link
+                            href="/add-special"
+                            className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-full bg-coral text-white text-sm font-semibold hover:bg-coral/90 transition-colors w-full sm:w-auto"
+                            style={{ fontFamily: FONT_STACK }}
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                            Add Special
+                          </Link>
+                        </div>
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-2">
-                        <Link
-                          href="/add-event"
-                          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-navbar-bg text-white text-sm font-semibold hover:bg-navbar-bg/90 transition-colors"
-                          style={{ fontFamily: FONT_STACK }}
+                      {/* Stack 2: Tabs row (segmented control, full width) */}
+                      <div className="flex-shrink-0 px-4 pt-3">
+                        <div
+                          className="grid grid-cols-3 w-full rounded-full bg-white/80 border border-white/70 p-1 gap-0"
+                          role="tablist"
+                          aria-label="Filter by type"
                         >
-                          <Plus className="w-4 h-4" />
-                          Add Event
-                        </Link>
-                        <Link
-                          href="/add-special"
-                          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-coral text-white text-sm font-semibold hover:bg-coral/90 transition-colors"
-                          style={{ fontFamily: FONT_STACK }}
-                        >
-                          <Plus className="w-4 h-4" />
-                          Add Special
-                        </Link>
-                      </div>
-                    </div>
-
-                    <div className="mt-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                      <div className="inline-flex items-center rounded-full bg-white/80 border border-white/70 p-1">
-                        {(
-                          [
-                            { key: "all", label: `All (${listingCounts.all})` },
-                            { key: "event", label: `Events (${listingCounts.event})` },
-                            { key: "special", label: `Specials (${listingCounts.special})` },
-                          ] as const
-                        ).map((filter) => {
-                          const active = listingsTypeFilter === filter.key;
-                          return (
-                            <button
-                              key={filter.key}
-                              type="button"
-                              onClick={() => setListingsTypeFilter(filter.key)}
-                              className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
-                                active ? "bg-navbar-bg text-white font-semibold" : "text-charcoal/70 hover:text-charcoal"
-                              }`}
-                              style={{ fontFamily: FONT_STACK }}
-                            >
-                              {filter.label}
-                            </button>
-                          );
-                        })}
+                          {(
+                            [
+                              { key: "all", label: "All", count: listingCounts.all },
+                              { key: "event", label: "Events", count: listingCounts.event },
+                              { key: "special", label: "Specials", count: listingCounts.special },
+                            ] as const
+                          ).map((filter) => {
+                            const active = listingsTypeFilter === filter.key;
+                            return (
+                              <button
+                                key={filter.key}
+                                type="button"
+                                role="tab"
+                                aria-selected={active}
+                                onClick={() => setListingsTypeFilter(filter.key)}
+                                className={`px-2 py-2 rounded-full text-xs font-semibold transition-colors truncate ${
+                                  active ? "bg-navbar-bg text-white" : "text-charcoal/70 hover:text-charcoal"
+                                }`}
+                                style={{ fontFamily: FONT_STACK }}
+                              >
+                                {filter.label} ({filter.count})
+                              </button>
+                            );
+                          })}
+                        </div>
                       </div>
 
-                      <div className="flex items-center gap-2">
-                        <label htmlFor="business-listing-filter" className="text-sm text-charcoal/70" style={{ fontFamily: FONT_STACK }}>
+                      {/* Stack 3: Business filter block */}
+                      <div className="flex-shrink-0 px-4 pt-3 space-y-2">
+                        <label htmlFor="business-listing-filter" className="block text-xs font-medium text-charcoal/70" style={{ fontFamily: FONT_STACK }}>
                           Business
                         </label>
                         <select
                           id="business-listing-filter"
                           value={listingsBusinessFilter}
                           onChange={(event) => setListingsBusinessFilter(event.target.value)}
-                          className="bg-white/95 border border-white/60 rounded-full px-4 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-navbar-bg/30"
+                          className="w-full bg-white/95 border border-white/60 rounded-lg px-3 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-navbar-bg/30"
                           style={{ fontFamily: FONT_STACK }}
                         >
                           <option value="all">All businesses</option>
@@ -563,85 +571,86 @@ export default function MyBusinessesPage() {
                           ))}
                         </select>
                       </div>
+
+                      {listingsWarning ? (
+                        <div className="flex-shrink-0 px-4 pt-3">
+                          <div className="rounded-lg border border-coral/20 bg-coral/5 px-3 py-2 text-xs text-charcoal/80" style={{ fontFamily: FONT_STACK }}>
+                            {listingsWarning}
+                          </div>
+                        </div>
+                      ) : null}
+
+                      {/* Stack 4: Scrollable content area */}
+                      <div className="flex-1 min-h-0 overflow-y-auto p-4 pt-3">
+                        {ownerListings.length === 0 ? (
+                          <div className="rounded-[12px] border border-white/70 bg-white/70 p-5 py-8 text-center">
+                            <p className="text-charcoal/80 font-semibold text-sm" style={{ fontFamily: FONT_STACK }}>
+                              No events or specials yet.
+                            </p>
+                            <p className="text-xs text-charcoal/65 mt-1.5" style={{ fontFamily: FONT_STACK }}>
+                              Create an event or special and it will appear here.
+                            </p>
+                          </div>
+                        ) : filteredOwnerListings.length === 0 ? (
+                          <div className="rounded-[12px] border border-white/70 bg-white/70 p-5 py-8 text-center">
+                            <p className="text-charcoal/80 font-semibold text-sm" style={{ fontFamily: FONT_STACK }}>
+                              No listings match your selected filters.
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="space-y-3">
+                            {filteredOwnerListings.map((listing) => (
+                              <article key={listing.id} className="rounded-[12px] border border-white/70 bg-white/85 backdrop-blur-sm p-3 flex flex-col gap-2">
+                                <div className="flex items-center justify-between gap-2">
+                                  <span
+                                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${
+                                      listing.type === "event" ? "bg-navbar-bg/10 text-navbar-bg" : "bg-coral/10 text-coral"
+                                    }`}
+                                    style={{ fontFamily: FONT_STACK }}
+                                  >
+                                    {listing.type === "event" ? <CalendarDays className="w-3 h-3" /> : <Sparkles className="w-3 h-3" />}
+                                    {listing.type === "event" ? "Event" : "Special"}
+                                  </span>
+                                  <span className="text-xs text-charcoal/60 truncate max-w-[50%]" style={{ fontFamily: FONT_STACK }}>
+                                    {listing.businessName}
+                                  </span>
+                                </div>
+
+                                <h3 className="text-sm font-semibold text-charcoal line-clamp-1" style={{ fontFamily: FONT_STACK }}>
+                                  {listing.title}
+                                </h3>
+                                {listing.description ? (
+                                  <p className="text-xs text-charcoal/70 line-clamp-2" style={{ fontFamily: FONT_STACK }}>
+                                    {listing.description}
+                                  </p>
+                                ) : null}
+
+                                <div className="space-y-1">
+                                  <div className="flex items-center gap-1.5 text-xs text-charcoal/70" style={{ fontFamily: FONT_STACK }}>
+                                    <Clock3 className="w-3.5 h-3.5 text-charcoal/50 flex-shrink-0" />
+                                    <span className="truncate">{formatDateRange(listing.startDate, listing.endDate)}</span>
+                                  </div>
+                                  <div className="flex items-center gap-1.5 text-xs text-charcoal/70" style={{ fontFamily: FONT_STACK }}>
+                                    <MapPin className="w-3.5 h-3.5 text-charcoal/50 flex-shrink-0" />
+                                    <span className="line-clamp-1">{listing.location}</span>
+                                  </div>
+                                </div>
+
+                                <Link
+                                  href={getListingDetailHref(listing)}
+                                  className="inline-flex items-center justify-center w-full px-3 py-2 rounded-full bg-charcoal text-white text-xs font-semibold hover:bg-charcoal/90 transition-colors mt-1"
+                                  style={{ fontFamily: FONT_STACK }}
+                                >
+                                  View details
+                                </Link>
+                              </article>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
-
-                    {listingsWarning ? (
-                      <div className="mt-4 rounded-[10px] border border-coral/20 bg-coral/5 px-3 py-2 text-sm text-charcoal/80" style={{ fontFamily: FONT_STACK }}>
-                        {listingsWarning}
-                      </div>
-                    ) : null}
-
-                    {ownerListings.length === 0 ? (
-                      <div className="mt-5 rounded-[12px] border border-white/70 bg-white/70 p-5 text-center">
-                        <p className="text-charcoal/80 font-semibold" style={{ fontFamily: FONT_STACK }}>
-                          No events or specials yet.
-                        </p>
-                        <p className="text-sm text-charcoal/65 mt-1" style={{ fontFamily: FONT_STACK }}>
-                          Create an event or special and it will appear here.
-                        </p>
-                      </div>
-                    ) : filteredOwnerListings.length === 0 ? (
-                      <div className="mt-5 rounded-[12px] border border-white/70 bg-white/70 p-5 text-center">
-                        <p className="text-charcoal/80 font-semibold" style={{ fontFamily: FONT_STACK }}>
-                          No listings match your selected filters.
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="mt-5 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                        {filteredOwnerListings.map((listing) => (
-                          <article key={listing.id} className="rounded-[12px] border border-white/70 bg-white/85 backdrop-blur-sm p-4 flex flex-col gap-3">
-                            <div className="flex items-center justify-between gap-3">
-                              <span
-                                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${
-                                  listing.type === "event" ? "bg-navbar-bg/10 text-navbar-bg" : "bg-coral/10 text-coral"
-                                }`}
-                                style={{ fontFamily: FONT_STACK }}
-                              >
-                                {listing.type === "event" ? <CalendarDays className="w-3.5 h-3.5" /> : <Sparkles className="w-3.5 h-3.5" />}
-                                {listing.type === "event" ? "Event" : "Special"}
-                              </span>
-                              <span className="text-xs text-charcoal/60" style={{ fontFamily: FONT_STACK }}>
-                                {listing.businessName}
-                              </span>
-                            </div>
-
-                            <div>
-                              <h3 className="text-base font-semibold text-charcoal line-clamp-1" style={{ fontFamily: FONT_STACK }}>
-                                {listing.title}
-                              </h3>
-                              {listing.description ? (
-                                <p className="text-sm text-charcoal/70 mt-1 line-clamp-2" style={{ fontFamily: FONT_STACK }}>
-                                  {listing.description}
-                                </p>
-                              ) : null}
-                            </div>
-
-                            <div className="space-y-1.5">
-                              <div className="flex items-center gap-2 text-sm text-charcoal/70" style={{ fontFamily: FONT_STACK }}>
-                                <Clock3 className="w-4 h-4 text-charcoal/50" />
-                                <span>{formatDateRange(listing.startDate, listing.endDate)}</span>
-                              </div>
-                              <div className="flex items-center gap-2 text-sm text-charcoal/70" style={{ fontFamily: FONT_STACK }}>
-                                <MapPin className="w-4 h-4 text-charcoal/50" />
-                                <span className="line-clamp-1">{listing.location}</span>
-                              </div>
-                            </div>
-
-                            <div className="pt-1 mt-auto">
-                              <Link
-                                href={getListingDetailHref(listing)}
-                                className="inline-flex items-center justify-center w-full px-4 py-2 rounded-full bg-charcoal text-white text-sm font-semibold hover:bg-charcoal/90 transition-colors"
-                                style={{ fontFamily: FONT_STACK }}
-                              >
-                                View details
-                              </Link>
-                            </div>
-                          </article>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </motion.section>
+                  </motion.aside>
+                </div>
               </>
             )}
           </div>

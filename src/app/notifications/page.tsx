@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bell, Check, X, MessageSquare, MessageCircle, Star, Heart, TrendingUp, Clock, ChevronRight, ChevronUp } from "lucide-react";
@@ -11,6 +12,7 @@ import { useNotifications } from "../contexts/NotificationsContext";
 
 export default function NotificationsPage() {
   usePredefinedPageTitle('notifications');
+  const router = useRouter();
   const { notifications, isLoading, readNotifications, markAsRead, markAllAsRead, deleteNotification } = useNotifications();
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [filterType, setFilterType] = useState<'All' | 'Unread' | 'Read'>('All');
@@ -302,6 +304,57 @@ export default function NotificationsPage() {
                           const isRead = readNotifications.has(notification.id);
                           const Icon = getNotificationIcon(notification.type);
                           const colorClass = getNotificationColor(notification.type, isRead);
+                          const hasLink = Boolean(notification.link?.trim());
+                          const contentNode = (
+                            <>
+                              {/* Icon */}
+                              <div className={`flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center border-2 ${colorClass} transition-all duration-300`}>
+                                <Icon className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={2.5} />
+                              </div>
+
+                              {/* Content */}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-start justify-between gap-2 mb-2">
+                                  <div className="flex-1 min-w-0">
+                                    <p 
+                                      className={`text-body font-semibold text-charcoal mb-1.5 ${isRead ? '' : 'font-bold'}`}
+                                      style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                                    >
+                                      {notification.message} {notification.title}
+                                    </p>
+                                    <div className="flex items-center gap-2 text-body-sm text-charcoal/60">
+                                      <Clock className="w-3.5 h-3.5 text-charcoal/60" strokeWidth={2} />
+                                      <span style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                        {notification.timeAgo} ago
+                                      </span>
+                                    </div>
+                                  </div>
+
+                                  {/* Actions - stopPropagation so card link doesn't fire when clicking buttons */}
+                                  <div className="flex items-center gap-1 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+                                    {!isRead && (
+                                      <button
+                                        type="button"
+                                        onClick={() => markAsRead(notification.id)}
+                                        className="p-2 hover:bg-sage/10 rounded-full transition-all duration-200 hover:scale-110 group"
+                                        aria-label="Mark as read"
+                                      >
+                                        <Check className="w-4 h-4 text-sage group-hover:text-sage transition-colors" strokeWidth={2.5} />
+                                      </button>
+                                    )}
+                                    <button
+                                      type="button"
+                                      onClick={() => deleteNotification(notification.id)}
+                                      className="p-2 hover:bg-coral/10 rounded-full transition-all duration-200 hover:scale-110 group"
+                                      aria-label="Delete notification"
+                                    >
+                                      <X className="w-4 h-4 text-charcoal/60 group-hover:text-coral transition-colors" strokeWidth={2.5} />
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            </>
+                          );
 
                           return (
                             <motion.div
@@ -314,53 +367,22 @@ export default function NotificationsPage() {
                                 bg-white rounded-2xl border border-charcoal/10 shadow-sm p-4 sm:p-6
                                 transition-all duration-300 hover:shadow-lg hover:border-sage/30 hover:-translate-y-1
                                 ${isRead ? 'opacity-70' : 'ring-1 ring-sage/20'}
+                                ${hasLink ? 'cursor-pointer' : ''}
                               `}
+                              {...(hasLink && {
+                                onClick: () => router.push(notification.link!),
+                                onKeyDown: (e) => {
+                                  if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    router.push(notification.link!);
+                                  }
+                                },
+                                role: 'button' as const,
+                                tabIndex: 0,
+                              })}
                             >
                               <div className="flex items-start gap-4">
-                                {/* Icon */}
-                                <div className={`flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center border-2 ${colorClass} transition-all duration-300`}>
-                                  <Icon className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={2.5} />
-                                </div>
-
-                                {/* Content */}
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-start justify-between gap-2 mb-2">
-                                    <div className="flex-1 min-w-0">
-                                      <p 
-                                        className={`text-body font-semibold text-charcoal mb-1.5 ${isRead ? '' : 'font-bold'}`}
-                                        style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
-                                      >
-                                        {notification.message} {notification.title}
-                                      </p>
-                                      <div className="flex items-center gap-2 text-body-sm text-charcoal/60">
-                                        <Clock className="w-3.5 h-3.5 text-charcoal/60" strokeWidth={2} />
-                                        <span style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                                          {notification.timeAgo} ago
-                                        </span>
-                                      </div>
-                                    </div>
-
-                                    {/* Actions */}
-                                    <div className="flex items-center gap-1 flex-shrink-0">
-                                      {!isRead && (
-                                        <button
-                                          onClick={() => markAsRead(notification.id)}
-                                          className="p-2 hover:bg-sage/10 rounded-full transition-all duration-200 hover:scale-110 group"
-                                          aria-label="Mark as read"
-                                        >
-                                          <Check className="w-4 h-4 text-sage group-hover:text-sage transition-colors" strokeWidth={2.5} />
-                                        </button>
-                                      )}
-                                      <button
-                                        onClick={() => deleteNotification(notification.id)}
-                                        className="p-2 hover:bg-coral/10 rounded-full transition-all duration-200 hover:scale-110 group"
-                                        aria-label="Delete notification"
-                                      >
-                                        <X className="w-4 h-4 text-charcoal/60 group-hover:text-coral transition-colors" strokeWidth={2.5} />
-                                      </button>
-                                    </div>
-                                  </div>
-                                </div>
+                                {contentNode}
                               </div>
                             </motion.div>
                           );
