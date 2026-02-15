@@ -819,7 +819,6 @@ export default function Header({
     openDiscoverDropdown,
     closeDiscoverDropdown,
     scheduleDiscoverDropdownClose,
-    onNotificationsClick: () => setShowSearchBar(true),
     sf,
   };
 
@@ -992,7 +991,7 @@ export default function Header({
                 </AnimatePresence>
 
                 {/* Right side icons */}
-                <div className="flex items-center gap-1 ml-auto">
+                <div className="relative z-[2] flex items-center gap-1 ml-auto">
                   {/* Search icon trigger (mobile only, when search is closed) */}
                   {showSearch && isHomePage && !isMobileSearchOpen && (
                     <button
@@ -1013,7 +1012,7 @@ export default function Header({
                   {!isMobileSearchOpen && (
                     <OptimizedLink
                       href={effectiveIsGuest ? "/login" : "/notifications"}
-                      className={`relative w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 ${
+                      className={`relative z-[2] w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 cursor-pointer pointer-events-auto select-none ${
                         isNotificationsActive
                           ? "text-sage bg-sage/5"
                           : whiteText
@@ -1022,7 +1021,7 @@ export default function Header({
                       }`}
                       aria-label={effectiveIsGuest ? "Sign in for notifications" : "Notifications"}
                     >
-                      <Bell className="w-5 h-5" fill={isNotificationsActive ? "currentColor" : "none"} />
+                      <Bell className="w-5 h-5 pointer-events-none" fill={isNotificationsActive ? "currentColor" : "none"} />
                       {effectiveIsGuest ? (
                         <span
                           className="pointer-events-none absolute -top-0.5 -right-0.5 flex items-center justify-center w-3.5 h-3.5 text-white/85"
@@ -1032,7 +1031,7 @@ export default function Header({
                           <Lock className="w-2.5 h-2.5" strokeWidth={1.9} />
                         </span>
                       ) : unreadCount > 0 ? (
-                        <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-white text-[10px] font-bold rounded-full bg-gradient-to-br from-coral to-coral/90 border border-white/20">
+                        <span className="pointer-events-none absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-white text-[10px] font-bold rounded-full bg-gradient-to-br from-coral to-coral/90 border border-white/20">
                           {unreadCount > 99 ? "99+" : unreadCount}
                         </span>
                       ) : null}
@@ -1109,10 +1108,10 @@ export default function Header({
                 <DesktopNav {...desktopNavProps} mode="iconsOnly" />
               </div>
 
-              <div className="flex lg:hidden items-center gap-2 ml-auto">
+              <div className="relative z-[2] flex lg:hidden items-center gap-2 ml-auto">
                 <OptimizedLink
                   href={effectiveIsGuest ? "/login" : "/notifications"}
-                  className={`relative w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 ${
+                  className={`relative z-[2] w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 cursor-pointer pointer-events-auto select-none ${
                     isNotificationsActive
                       ? "text-sage bg-sage/5"
                       : whiteText
@@ -1121,7 +1120,7 @@ export default function Header({
                   }`}
                   aria-label={effectiveIsGuest ? "Sign in for notifications" : "Notifications"}
                 >
-                  <Bell className="w-5 h-5" fill={isNotificationsActive ? "currentColor" : "none"} />
+                  <Bell className="w-5 h-5 pointer-events-none" fill={isNotificationsActive ? "currentColor" : "none"} />
                   {effectiveIsGuest ? (
                     <span
                       className="pointer-events-none absolute -top-0.5 -right-0.5 flex items-center justify-center w-3.5 h-3.5 text-white/85"
@@ -1131,7 +1130,7 @@ export default function Header({
                       <Lock className="w-2.5 h-2.5" strokeWidth={1.9} />
                     </span>
                   ) : unreadCount > 0 ? (
-                    <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-white text-[10px] font-bold rounded-full bg-gradient-to-br from-coral to-coral/90 border border-white/20">
+                    <span className="pointer-events-none absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-white text-[10px] font-bold rounded-full bg-gradient-to-br from-coral to-coral/90 border border-white/20">
                       {unreadCount > 99 ? "99+" : unreadCount}
                     </span>
                   ) : null}

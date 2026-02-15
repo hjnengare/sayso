@@ -7,10 +7,10 @@ export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 /**
- * POST /api/admin/businesses/[id]/approve
- * Approve a pending business so it becomes publicly visible.
- * Requires admin. Sets status = 'active'.
- * Optional: if DB has approved_at, approved_by columns they can be set via migration.
+ * POST /api/admin/businesses/[id]/disapprove
+ * Reject a pending business. It stays hidden and does not go live.
+ * Requires admin. Sets status = 'rejected', is_hidden = true, optional reason.
+ * Business owners cannot disapprove their own businesses.
  */
 export async function POST(
   req: NextRequest,
@@ -33,6 +33,13 @@ export async function POST(
       return NextResponse.json({ error: 'Business ID is required' }, { status: 400 });
     }
 
+    let body: { reason?: string } = {};
+    try {
+      body = await req.json();
+    } catch {
+      // optional body
+    }
+
     const service = getServiceSupabase();
 
     const { data: business, error: fetchError } = await service
@@ -42,7 +49,7 @@ export async function POST(
       .maybeSingle();
 
     if (fetchError) {
-      console.error('[Admin] Error fetching business for approval:', fetchError);
+      console.error('[Admin] Error fetching business for disapproval:', fetchError);
       return NextResponse.json(
         { error: 'Failed to fetch business', details: fetchError.message },
         { status: 500 }
@@ -63,19 +70,16 @@ export async function POST(
 
     if (biz.owner_id && biz.owner_id === user.id) {
       return NextResponse.json(
-        { error: 'You cannot approve your own business' },
+        { error: 'You cannot disapprove your own business' },
         { status: 403 }
       );
     }
 
     const updatePayload: Record<string, unknown> = {
-      status: 'active',
-      is_hidden: false,
-      verified: true,
+      status: 'rejected',
+      is_hidden: true,
       updated_at: new Date().toISOString(),
-      approved_at: new Date().toISOString(),
-      approved_by: user.id,
-      rejection_reason: null,
+      rejection_reason: typeof body.reason === 'string' ? body.reason.trim() || null : null,
     };
 
     const { error: updateError } = await (service as any)
@@ -84,20 +88,20 @@ export async function POST(
       .eq('id', businessId);
 
     if (updateError) {
-      console.error('[Admin] Error approving business:', updateError);
+      console.error('[Admin] Error disapproving business:', updateError);
       return NextResponse.json(
-        { error: 'Failed to approve business', details: updateError.message },
+        { error: 'Failed to disapprove business', details: updateError.message },
         { status: 500 }
       );
     }
 
     return NextResponse.json({
       success: true,
-      message: 'Business approved and now visible publicly',
+      message: 'Business disapproved and will not be shown publicly',
       business_id: businessId,
     });
   } catch (error) {
-    console.error('[Admin] Error in approve business:', error);
+    console.error('[Admin] Error in disapprove business:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

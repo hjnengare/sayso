@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import {
     Store,
@@ -13,6 +14,8 @@ import {
 import { Subcategory, BusinessFormData } from "./types";
 import CustomDropdown from "./CustomDropdown";
 
+export const DUPLICATE_NAME_ERROR = "A business with this name already exists.";
+
 interface BasicInfoSectionProps {
     formData: BusinessFormData;
     errors: Record<string, string>;
@@ -21,6 +24,7 @@ interface BasicInfoSectionProps {
     loadingCategories: boolean;
     onInputChange: (field: string, value: string | boolean) => void;
     onBlur: (field: string) => void;
+    nameDuplicateCheck?: { checking: boolean; available: boolean | null };
 }
 
 const INTEREST_LABELS: Record<string, string> = {
@@ -50,6 +54,7 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
     loadingCategories,
     onInputChange,
     onBlur,
+    nameDuplicateCheck = { checking: false, available: null },
 }) => {
     const mainCategoryOptions = useMemo(() => {
         const ids = Array.from(
@@ -148,16 +153,39 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
                             }`}
                             placeholder="Enter business name"
                         />
-                        {touched.name && errors.name && (
+                        {nameDuplicateCheck.checking && (
                             <p
-                                id="name-error"
-                                className="mt-2 text-sm text-navbar-bg font-medium flex items-center gap-1.5"
-                                role="alert"
+                                className="mt-2 text-sm text-charcoal/60 font-medium flex items-center gap-1.5"
                                 aria-live="polite"
-                                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', color: 'white' }}
+                                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                             >
-                                {errors.name}
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                Checking availability...
                             </p>
+                        )}
+                        {touched.name && errors.name && !nameDuplicateCheck.checking && (
+                            <div id="name-error" role="alert" aria-live="polite" className="mt-2 space-y-1">
+                                <p
+                                    className="text-sm text-coral font-medium"
+                                    style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                                >
+                                    {errors.name}
+                                </p>
+                                {errors.name === DUPLICATE_NAME_ERROR && (
+                                    <p
+                                        className="text-sm text-charcoal/70"
+                                        style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                                    >
+                                        This business may already be listed.{" "}
+                                        <Link
+                                            href="/claim-business"
+                                            className="text-coral font-semibold hover:underline focus:outline-none focus:underline"
+                                        >
+                                            You can try claiming it instead.
+                                        </Link>
+                                    </p>
+                                )}
+                            </div>
                         )}
                     </div>
 

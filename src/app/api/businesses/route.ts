@@ -3395,6 +3395,7 @@ export async function POST(req: Request) {
     const email = formData.get('email')?.toString() || null;
     const website = formData.get('website')?.toString() || null;
     const priceRange = formData.get('priceRange')?.toString() || '$$';
+    const isChain = formData.get('isChain') === 'true' || formData.get('isChain') === true;
     const hoursRaw = formData.get('hours')?.toString();
     const hours = hoursRaw ? JSON.parse(hoursRaw) : null;
     const latRaw = formData.get('lat')?.toString();
@@ -3486,6 +3487,40 @@ export async function POST(req: Request) {
       ? (normalizedMainCategory || 'miscellaneous')
       : (derivedPrimaryCategory || normalizedMainCategory || 'miscellaneous');
 
+    // Normalize name for duplicate check: LOWER(TRIM(single spaces))
+    const normalizeBusinessName = (n: string): string =>
+      n
+        .trim()
+        .replace(/\s+/g, ' ')
+        .toLowerCase();
+
+    // Duplicate check: non-chain businesses must have unique normalized name
+    if (!isChain && name?.trim()) {
+      const normalizedName = normalizeBusinessName(name);
+      const serviceSupabase = getServiceSupabase();
+      const { data: existingDuplicate, error: dupError } = await (serviceSupabase as any)
+        .from('businesses')
+        .select('id')
+        .eq('normalized_name', normalizedName)
+        .eq('is_chain', false)
+        .neq('status', 'rejected')
+        .maybeSingle();
+
+      if (dupError) {
+        console.warn('[API] Duplicate name check error:', dupError);
+        // Proceed; DB unique index will catch if needed
+      } else if (existingDuplicate) {
+        return NextResponse.json(
+          {
+            error: 'BUSINESS_ALREADY_EXISTS',
+            message: 'A business with this name already exists.',
+            details: 'If this is a franchise or chain location, please mark it as a chain.',
+          },
+          { status: 409 }
+        );
+      }
+    }
+
     // Generate slug from name
     const generateSlug = (businessName: string): string => {
       return businessName
@@ -3533,6 +3568,8 @@ export async function POST(req: Request) {
       slug: finalSlug,
       verified: false, // New businesses start unverified
       status: 'pending_approval', // Requires admin approval before public visibility
+      is_hidden: true, // Not live until admin approves
+      is_chain: isChain,
       lat: lat || null,
       lng: lng || null,
       // Note: businessType is used for validation but not stored in DB
@@ -3552,8 +3589,8 @@ export async function POST(req: Request) {
       let errorCode = 'DATABASE_ERROR';
       
       if (insertError.code === '23505' || insertError.message?.includes('duplicate') || insertError.message?.includes('unique')) {
-        errorMessage = 'A business with this name already exists in our system. Please try a different name or check if this business is already listed.';
-        errorCode = 'DUPLICATE_BUSINESS';
+        errorMessage = 'A business with this name already exists.';
+        errorCode = 'BUSINESS_ALREADY_EXISTS';
       } else if (insertError.code === '23503' || insertError.message?.includes('foreign key')) {
         errorMessage = 'There was an issue with the business category. Please select a valid category and try again.';
         errorCode = 'INVALID_CATEGORY';
@@ -3563,18 +3600,20 @@ export async function POST(req: Request) {
 
       const statusCode = errorCode === 'INVALID_CATEGORY'
         ? 400
-        : errorCode === 'DUPLICATE_BUSINESS'
+        : errorCode === 'BUSINESS_ALREADY_EXISTS'
           ? 409
           : 500;
-      
-      return NextResponse.json(
-        { 
-          error: errorMessage,
-          details: insertError.message,
-          code: errorCode
-        },
-        { status: statusCode }
-      );
+
+      const body =
+        errorCode === 'BUSINESS_ALREADY_EXISTS'
+          ? {
+              error: 'BUSINESS_ALREADY_EXISTS',
+              message: errorMessage,
+              details: 'If this is a franchise or chain location, please mark it as a chain.',
+            }
+          : { error: errorMessage, details: insertError.message, code: errorCode };
+
+      return NextResponse.json(body, { status: statusCode });
     }
 
     // Create business_owners entry

@@ -15,6 +15,7 @@ import { Urbanist } from "next/font/google";
 // Import extracted components
 import {
     BasicInfoSection,
+    DUPLICATE_NAME_ERROR,
     LocationSection,
     ContactSection,
     BusinessImagesSection,
@@ -79,6 +80,9 @@ export default function AddBusinessPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [touched, setTouched] = useState<Record<string, boolean>>({});
+    const [nameDuplicateCheck, setNameDuplicateCheck] = useState<{ checking: boolean; available: boolean | null }>({ checking: false, available: null });
+    const nameDuplicateDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const latestNameCheckRef = useRef(0);
     const [, setIsGeocoding] = useState(false);
     const [geocodeStatus, setGeocodeStatus] = useState<"idle" | "searching" | "found" | "not_found" | "error">("idle");
     const geocodeDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -121,6 +125,60 @@ export default function AddBusinessPage() {
 
         loadSubcategories();
     }, [showToast]);
+
+    // Debounced duplicate name check (non-chain only)
+    useEffect(() => {
+        const name = formData.name?.trim() ?? '';
+        const isChain = !!formData.isChain;
+
+        if (isChain || name.length < 2) {
+            setNameDuplicateCheck({ checking: false, available: null });
+            setErrors(prev => {
+                const next = { ...prev };
+                if (next.name === DUPLICATE_NAME_ERROR) delete next.name;
+                return next;
+            });
+            return;
+        }
+
+        if (nameDuplicateDebounceRef.current) {
+            clearTimeout(nameDuplicateDebounceRef.current);
+        }
+
+        nameDuplicateDebounceRef.current = setTimeout(async () => {
+            const requestId = ++latestNameCheckRef.current;
+            setNameDuplicateCheck({ checking: true, available: null });
+            try {
+                const res = await fetch(
+                    `/api/businesses/check-name?name=${encodeURIComponent(name)}&isChain=${isChain}`
+                );
+                const data = await res.json().catch(() => ({}));
+                if (requestId !== latestNameCheckRef.current) return;
+                const available = data.available === true;
+                setNameDuplicateCheck({ checking: false, available });
+                setErrors(prev => {
+                    const next = { ...prev };
+                    if (available) {
+                        if (next.name === DUPLICATE_NAME_ERROR) delete next.name;
+                    } else {
+                        next.name = DUPLICATE_NAME_ERROR;
+                    }
+                    return next;
+                });
+            } catch {
+                if (requestId === latestNameCheckRef.current) {
+                    setNameDuplicateCheck({ checking: false, available: null });
+                }
+            }
+        }, 500);
+
+        return () => {
+            if (nameDuplicateDebounceRef.current) {
+                clearTimeout(nameDuplicateDebounceRef.current);
+                nameDuplicateDebounceRef.current = null;
+            }
+        };
+    }, [formData.name, formData.isChain]);
 
     const normalizeGeocodeInput = useCallback((value: string) => {
         return value
@@ -265,6 +323,15 @@ export default function AddBusinessPage() {
                 [field]: value
             };
         });
+
+        // Reset duplicate check when name or isChain changes
+        if (field === "name" || field === "isChain") {
+            setNameDuplicateCheck({ checking: false, available: null });
+            if (nameDuplicateDebounceRef.current) {
+                clearTimeout(nameDuplicateDebounceRef.current);
+                nameDuplicateDebounceRef.current = null;
+            }
+        }
 
         setErrors(prev => {
             const newErrors = { ...prev };
@@ -427,6 +494,9 @@ export default function AddBusinessPage() {
     };
 
     const validateForm = () => {
+        if (nameDuplicateCheck.available === false) return false;
+        if (nameDuplicateCheck.checking) return false;
+
         const fieldsToValidate = ["name", "mainCategory", "category"];
 
         // Location is required only for physical and service-area businesses
@@ -566,22 +636,25 @@ export default function AddBusinessPage() {
 
             if (!response.ok) {
                 let errorMessage = 'We couldn\'t create your business listing. Please try again.';
+                const isDuplicateError = data.error === 'BUSINESS_ALREADY_EXISTS' || data.code === 'BUSINESS_ALREADY_EXISTS' || data.code === 'DUPLICATE_BUSINESS';
 
-                if (data.error) {
-                    errorMessage = data.error;
-
-                    if (data.code === 'MISSING_REQUIRED_FIELDS' && data.missingFields) {
-                        const fields = data.missingFields.join(', ');
-                        errorMessage = `Please provide ${fields.toLowerCase()}. These fields are required to create a business listing.`;
-                    } else if (data.code === 'UNAUTHORIZED') {
-                        errorMessage = 'You need to be logged in to create a business listing. Please sign in and try again.';
-                    } else if (data.code === 'DUPLICATE_BUSINESS') {
-                        errorMessage = 'A business with this name already exists in our system. Please try a different name or check if this business is already listed.';
-                    } else if (data.code === 'INVALID_CATEGORY') {
-                        errorMessage = 'There was an issue with the business category. Please select a valid category and try again.';
-                    } else if (data.code === 'INVALID_HOURS_FORMAT') {
-                        errorMessage = 'There was an issue processing your business hours. Please check the format and try again.';
-                    }
+                if (data.error && !isDuplicateError) {
+                    errorMessage = typeof data.message === 'string' ? data.message : data.error;
+                }
+                if (data.code === 'MISSING_REQUIRED_FIELDS' && data.missingFields) {
+                    const fields = data.missingFields.join(', ');
+                    errorMessage = `Please provide ${fields.toLowerCase()}. These fields are required to create a business listing.`;
+                } else if (data.code === 'UNAUTHORIZED') {
+                    errorMessage = 'You need to be logged in to create a business listing. Please sign in and try again.';
+                } else if (isDuplicateError) {
+                    errorMessage = typeof data.message === 'string' ? data.message : 'A business with this name already exists.';
+                    setNameDuplicateCheck({ checking: false, available: false });
+                    setErrors((prev) => ({ ...prev, name: DUPLICATE_NAME_ERROR }));
+                    setTouched((prev) => ({ ...prev, name: true }));
+                } else if (data.code === 'INVALID_CATEGORY') {
+                    errorMessage = 'There was an issue with the business category. Please select a valid category and try again.';
+                } else if (data.code === 'INVALID_HOURS_FORMAT') {
+                    errorMessage = 'There was an issue processing your business hours. Please check the format and try again.';
                 }
 
                 throw new Error(errorMessage);
@@ -721,6 +794,7 @@ export default function AddBusinessPage() {
                                             loadingCategories={loadingCategories}
                                             onInputChange={handleInputChange}
                                             onBlur={handleBlur}
+                                            nameDuplicateCheck={nameDuplicateCheck}
                                         />
 
                                         {/* Location Information Section */}
@@ -803,7 +877,7 @@ export default function AddBusinessPage() {
                                             </Link>
                                             <motion.button
                                                 type="submit"
-                                                disabled={isSubmitting}
+                                                disabled={isSubmitting || nameDuplicateCheck.checking || nameDuplicateCheck.available === false}
                                                 whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
                                                 whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
                                                 style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
