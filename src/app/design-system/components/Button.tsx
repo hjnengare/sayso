@@ -99,15 +99,15 @@ const buttonVariants = {
 
     outline: [
       'border-2 border-sage-500 text-sage-500 bg-transparent shadow-md',
-      'hover:bg-sage-500 hover:text-white hover:shadow-sage-sm',
-      'active:bg-sage-600 active:border-sage-600',
+      'hover:bg-card-bg-500 hover:text-white hover:shadow-sage-sm',
+      'active:bg-card-bg-600 active:border-sage-600',
       'focus:ring-sage-500/30',
     ],
 
     ghost: [
       'text-charcoal-500 bg-transparent shadow-md',
-      'hover:bg-sage-50 hover:text-sage-600',
-      'active:bg-sage-100',
+      'hover:bg-card-bg-50 hover:text-sage-600',
+      'active:bg-card-bg-100',
       'focus:ring-sage-500/20',
     ],
 

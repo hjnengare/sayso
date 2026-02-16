@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Loader } from '../components/Loader';
 import BadgeGrid from '../components/Badges/BadgeGrid';
@@ -28,32 +28,41 @@ export default function AchievementsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const fetchBadges = useCallback(async () => {
+    if (!user) return;
+    try {
+      setIsLoading(true);
+      setError(null);
+      const response = await fetch(`/api/badges/user?user_id=${user.id}`, { cache: 'no-store', credentials: 'include' });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch badges');
+      }
+
+      const data = await response.json();
+      setBadges(data.badges || []);
+      setGrouped(data.grouped || null);
+      setStats(data.stats || null);
+    } catch (err: any) {
+      console.error('[Achievements] Error fetching badges:', err);
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user]);
+
   useEffect(() => {
     if (!user) return;
-
-    async function fetchBadges() {
-      try {
-        setIsLoading(true);
-        const response = await fetch(`/api/badges/user?user_id=${user.id}`);
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch badges');
-        }
-
-        const data = await response.json();
-        setBadges(data.badges || []);
-        setGrouped(data.grouped || null);
-        setStats(data.stats || null);
-      } catch (err: any) {
-        console.error('[Achievements] Error fetching badges:', err);
-        setError(err.message);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
     fetchBadges();
-  }, [user]);
+  }, [user, fetchBadges]);
+
+  // Refetch when user returns to this tab so badges update after review/photo actions
+  useEffect(() => {
+    if (!user) return;
+    const onFocus = () => fetchBadges();
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, [user, fetchBadges]);
 
   if (isLoading) {
     return (

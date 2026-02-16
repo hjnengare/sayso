@@ -157,7 +157,7 @@ className: `${compact ? 'lg:order-2' : ''}`
 ### Background & Effects
 **Both Modes:**
 - Card Background: `bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95`
-- Content Background: `bg-sage/10` (10% sage tint)
+- Content Background: `bg-card-bg/10` (10% sage tint)
 - Border: `border border-white/60`
 - Ring: `ring-1 ring-white/30`
 - Shadow: `shadow-premiumElevated`
@@ -315,7 +315,7 @@ className: `${compact ? 'lg:order-2' : ''}`
 **Card Background:**
 - Base: `card-bg` (custom color)
 - Gradient: `from-card-bg via-card-bg to-card-bg/95`
-- Content: `bg-sage/10` (10% sage tint)
+- Content: `bg-card-bg/10` (10% sage tint)
 
 **Borders:**
 - Main: `border-white/60` (60% white opacity)

@@ -403,7 +403,7 @@ export default function ClaimBusinessFormPage() {
           </p>
           <Link
             href="/claim-business"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-sage text-white text-sm font-semibold hover:bg-sage/90 transition-colors"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-card-bg text-white text-sm font-semibold hover:bg-card-bg/90 transition-colors"
             style={{ fontFamily: FONT }}
           >
             <ArrowLeft className="w-4 h-4" />
@@ -432,7 +432,7 @@ export default function ClaimBusinessFormPage() {
         <div className="max-w-[640px] mx-auto pb-12">
           {/* Header */}
           <div className="py-8 text-center">
-            <div className="w-14 h-14 bg-sage/10 rounded-full flex items-center justify-center mx-auto mb-3 border border-sage/20">
+            <div className="w-14 h-14 bg-card-bg/10 rounded-full flex items-center justify-center mx-auto mb-3 border border-sage/20">
               <Store className="w-6 h-6 text-sage" />
             </div>
             <h1
@@ -450,7 +450,7 @@ export default function ClaimBusinessFormPage() {
           </div>
 
           {/* Business info card */}
-          <div className="bg-sage rounded-[12px] p-4 mb-6 border border-sage/20">
+          <div className="bg-card-bg rounded-[12px] p-4 mb-6 border border-sage/20">
             <h2
               className="text-base font-semibold text-white mb-1"
               style={{ fontFamily: FONT }}
@@ -486,7 +486,7 @@ export default function ClaimBusinessFormPage() {
                   onClick={() => updateFormData({ role: "owner" })}
                   className={`px-4 py-3 rounded-[10px] border-2 transition-all text-sm font-semibold ${
                     formData.role === "owner"
-                      ? "border-sage bg-sage/10 text-sage"
+                      ? "border-sage bg-card-bg/10 text-sage"
                       : "border-charcoal/15 bg-white text-charcoal/70 hover:border-charcoal/30"
                   }`}
                   style={{ fontFamily: FONT }}
@@ -498,7 +498,7 @@ export default function ClaimBusinessFormPage() {
                   onClick={() => updateFormData({ role: "manager" })}
                   className={`px-4 py-3 rounded-[10px] border-2 transition-all text-sm font-semibold ${
                     formData.role === "manager"
-                      ? "border-sage bg-sage/10 text-sage"
+                      ? "border-sage bg-card-bg/10 text-sage"
                       : "border-charcoal/15 bg-white text-charcoal/70 hover:border-charcoal/30"
                   }`}
                   style={{ fontFamily: FONT }}
@@ -612,7 +612,7 @@ export default function ClaimBusinessFormPage() {
 
             {claimStateMessage && (
               <div
-                className="flex items-start gap-3 p-4 rounded-[10px] bg-sage/10 border border-sage/25 text-sage"
+                className="flex items-start gap-3 p-4 rounded-[10px] bg-card-bg/10 border border-sage/25 text-sage"
                 style={{ fontFamily: FONT }}
                 role="status"
                 aria-live="polite"
@@ -625,7 +625,7 @@ export default function ClaimBusinessFormPage() {
                     <button
                       type="button"
                       onClick={() => setOtpModalOpen(true)}
-                      className="mt-2 inline-flex items-center gap-2 rounded-full bg-sage px-3 py-1.5 text-xs font-semibold text-white hover:bg-sage/90 transition-colors"
+                      className="mt-2 inline-flex items-center gap-2 rounded-full bg-card-bg px-3 py-1.5 text-xs font-semibold text-white hover:bg-card-bg/90 transition-colors"
                       style={{ fontFamily: FONT }}
                     >
                       Continue OTP verification

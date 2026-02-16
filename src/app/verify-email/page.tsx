@@ -735,7 +735,7 @@ export default function VerifyEmailPage() {
         <PageShell>
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center max-w-md mx-auto p-6">
-              <div className="w-20 h-20 mx-auto mb-6 bg-sage/20 rounded-full flex items-center justify-center">
+              <div className="w-20 h-20 mx-auto mb-6 bg-card-bg/20 rounded-full flex items-center justify-center">
                 <CheckCircle className="w-10 h-10 text-sage" />
               </div>
               <h2 
@@ -819,7 +819,7 @@ export default function VerifyEmailPage() {
                   )}
                 </button>
                 {(resendCooldownMessage || resendRateLimitMessage) && (
-                  <div className="rounded-lg border border-sage/20 bg-sage/5 px-4 py-3">
+                  <div className="rounded-lg border border-sage/20 bg-card-bg/5 px-4 py-3">
                     <p
                       className="text-sm text-charcoal/80"
                       style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
@@ -1037,7 +1037,7 @@ export default function VerifyEmailPage() {
                 )}
               </button>
               {(resendCooldownMessage || resendRateLimitMessage) && (
-                <div className="rounded-lg border border-sage/20 bg-sage/5 px-4 py-3">
+                <div className="rounded-lg border border-sage/20 bg-card-bg/5 px-4 py-3">
                   <p
                     className="text-sm text-charcoal/80"
                     style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}

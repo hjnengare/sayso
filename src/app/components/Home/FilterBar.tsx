@@ -60,7 +60,7 @@ export function FilterBar() {
           <div ref={locationRef} className="relative flex-shrink-0">
             <button
               onClick={() => setShowLocationMenu(!showLocationMenu)}
-              className="flex items-center gap-2 px-4 py-2 bg-white border border-charcoal/20 rounded-full text-sm font-semibold text-charcoal hover:border-sage hover:bg-sage/5 transition-all duration-200"
+              className="flex items-center gap-2 px-4 py-2 bg-white border border-charcoal/20 rounded-full text-sm font-semibold text-charcoal hover:border-sage hover:bg-card-bg/5 transition-all duration-200"
               style={{ fontFamily: 'Urbanist, system-ui, sans-serif', fontWeight: 600 }}
             >
               <MapPin className="w-4 h-4" />
@@ -74,8 +74,8 @@ export function FilterBar() {
                   <button
                     key={km}
                     onClick={() => handleDistanceChange(km)}
-                    className={`w-full text-left px-4 py-2 text-sm hover:bg-sage/10 transition-colors ${
-                      filters.location.radiusKm === km ? 'bg-sage/20 font-semibold text-sage' : 'text-charcoal'
+                    className={`w-full text-left px-4 py-2 text-sm hover:bg-card-bg/10 transition-colors ${
+                      filters.location.radiusKm === km ? 'bg-card-bg/20 font-semibold text-sage' : 'text-charcoal'
                     }`}
                     style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
                   >
@@ -90,7 +90,7 @@ export function FilterBar() {
           <div ref={ratingRef} className="relative flex-shrink-0">
             <button
               onClick={() => setShowRatingMenu(!showRatingMenu)}
-              className="flex items-center gap-2 px-4 py-2 bg-white border border-charcoal/20 rounded-full text-sm font-semibold text-charcoal hover:border-sage hover:bg-sage/5 transition-all duration-200"
+              className="flex items-center gap-2 px-4 py-2 bg-white border border-charcoal/20 rounded-full text-sm font-semibold text-charcoal hover:border-sage hover:bg-card-bg/5 transition-all duration-200"
               style={{ fontFamily: 'Urbanist, system-ui, sans-serif', fontWeight: 600 }}
             >
               <Star className="w-4 h-4 fill-current" />
@@ -104,8 +104,8 @@ export function FilterBar() {
                   <button
                     key={rating}
                     onClick={() => handleRatingChange(rating)}
-                    className={`w-full text-left px-4 py-2 text-sm hover:bg-sage/10 transition-colors flex items-center gap-2 ${
-                      filters.minRating === rating ? 'bg-sage/20 font-semibold text-sage' : 'text-charcoal'
+                    className={`w-full text-left px-4 py-2 text-sm hover:bg-card-bg/10 transition-colors flex items-center gap-2 ${
+                      filters.minRating === rating ? 'bg-card-bg/20 font-semibold text-sage' : 'text-charcoal'
                     }`}
                     style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
                   >
@@ -122,8 +122,8 @@ export function FilterBar() {
             onClick={toggleAdvanced}
             className={`flex items-center gap-2 px-4 py-2 border rounded-full text-sm font-semibold transition-all duration-200 flex-shrink-0 ${
               hasActiveFilters
-                ? 'bg-sage text-white border-sage'
-                : 'bg-white text-charcoal border-charcoal/20 hover:border-sage hover:bg-sage/5'
+                ? 'bg-card-bg text-white border-sage'
+                : 'bg-white text-charcoal border-charcoal/20 hover:border-sage hover:bg-card-bg/5'
             }`}
             style={{ fontFamily: 'Urbanist, system-ui, sans-serif', fontWeight: 600 }}
           >

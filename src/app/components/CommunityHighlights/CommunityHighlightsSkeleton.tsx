@@ -114,7 +114,7 @@ function BusinessOfTheMonthCardSkeleton() {
         </div>
 
         {/* CONTENT — same padding and layout as BusinessOfTheMonthCard */}
-        <div className="px-4 py-3 sm:px-5 sm:pt-1 md:pt-2 lg:pt-3 pb-0 flex-1 relative flex-shrink-0 flex flex-col justify-between bg-sage/10 z-10 rounded-b-[12px]">
+        <div className="px-4 py-3 sm:px-5 sm:pt-1 md:pt-2 lg:pt-3 pb-0 flex-1 relative flex-shrink-0 flex flex-col justify-between bg-card-bg/10 z-10 rounded-b-[12px]">
           <div className="flex-1 flex flex-col items-center text-center space-y-1">
             <div className="h-6 sm:h-7 w-3/4 bg-charcoal/10 rounded-lg mx-auto" />
             <div className="h-4 w-1/2 bg-charcoal/5 rounded mx-auto" />

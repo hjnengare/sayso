@@ -140,7 +140,7 @@ export default function AdminClaimsPage() {
                         <span
                           className={`inline-flex px-2 py-1 rounded-full text-sm font-medium ${
                             c.status === "verified"
-                              ? "bg-sage/15 text-sage"
+                              ? "bg-card-bg/15 text-sage"
                               : c.status === "rejected"
                                 ? "bg-coral/10 text-coral"
                                 : c.status === "under_review"

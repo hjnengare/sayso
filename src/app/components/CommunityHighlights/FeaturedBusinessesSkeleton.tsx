@@ -34,7 +34,7 @@ export default function FeaturedBusinessesSkeleton({ count = 4 }: FeaturedBusine
                   </div>
 
                   {/* Content Section Skeleton */}
-                  <div className="px-4 sm:px-5 pt-2 pb-2 flex-1 relative flex-shrink-0 flex flex-col justify-between bg-sage/10 z-10 rounded-b-[12px]">
+                  <div className="px-4 sm:px-5 pt-2 pb-2 flex-1 relative flex-shrink-0 flex flex-col justify-between bg-card-bg/10 z-10 rounded-b-[12px]">
                     <div className="flex-1 flex flex-col items-center text-center space-y-1">
                       {/* Business Name Skeleton */}
                       <div className="h-6 w-3/4 bg-charcoal/10 rounded-lg mx-auto" />

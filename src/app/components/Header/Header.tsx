@@ -1000,7 +1000,7 @@ export default function Header({
                       className={`w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 ${
                         whiteText
                           ? "text-white hover:text-white/80 hover:bg-white/10"
-                          : "text-charcoal/80 hover:text-sage hover:bg-sage/5"
+                          : "text-charcoal/80 hover:text-sage hover:bg-card-bg/5"
                       }`}
                       aria-label="Open search"
                     >
@@ -1014,10 +1014,10 @@ export default function Header({
                       href={effectiveIsGuest ? "/onboarding" : "/notifications"}
                       className={`relative z-[2] w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 cursor-pointer pointer-events-auto select-none ${
                         isNotificationsActive
-                          ? "text-sage bg-sage/5"
+                          ? "text-sage bg-card-bg/5"
                           : whiteText
                             ? "text-white hover:text-white/80 hover:bg-white/10"
-                            : "text-charcoal/80 hover:text-sage hover:bg-sage/5"
+                            : "text-charcoal/80 hover:text-sage hover:bg-card-bg/5"
                       }`}
                       aria-label={effectiveIsGuest ? "Sign in for notifications" : "Notifications"}
                     >
@@ -1044,10 +1044,10 @@ export default function Header({
                       href={effectiveIsGuest ? "/onboarding" : "/saved"}
                       className={`relative w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 ${
                         !effectiveIsGuest && isSavedActive
-                          ? "text-sage bg-sage/5"
+                          ? "text-sage bg-card-bg/5"
                           : whiteText
                             ? "text-white hover:text-white/80 hover:bg-white/10"
-                            : "text-charcoal/80 hover:text-sage hover:bg-sage/5"
+                            : "text-charcoal/80 hover:text-sage hover:bg-card-bg/5"
                       }`}
                       aria-label={effectiveIsGuest ? "Sign in for saved items" : "Saved"}
                     >
@@ -1076,7 +1076,7 @@ export default function Header({
                       className={`w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 ${
                         whiteText
                           ? "text-white hover:text-white/80 hover:bg-white/10"
-                          : "text-charcoal/80 hover:text-sage hover:bg-sage/5"
+                          : "text-charcoal/80 hover:text-sage hover:bg-card-bg/5"
                       }`}
                       aria-label="Open menu"
                       aria-expanded={isMobileMenuOpen}
@@ -1113,10 +1113,10 @@ export default function Header({
                   href={effectiveIsGuest ? "/onboarding" : "/notifications"}
                   className={`relative z-[2] w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 cursor-pointer pointer-events-auto select-none ${
                     isNotificationsActive
-                      ? "text-sage bg-sage/5"
+                      ? "text-sage bg-card-bg/5"
                       : whiteText
                         ? "text-white hover:text-white/80 hover:bg-white/10"
-                        : "text-charcoal/80 hover:text-sage hover:bg-sage/5"
+                        : "text-charcoal/80 hover:text-sage hover:bg-card-bg/5"
                   }`}
                   aria-label={effectiveIsGuest ? "Sign in for notifications" : "Notifications"}
                 >
@@ -1141,10 +1141,10 @@ export default function Header({
                     href="/saved"
                     className={`relative w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 ${
                       isSavedActive
-                        ? "text-sage bg-sage/5"
+                        ? "text-sage bg-card-bg/5"
                         : whiteText
                           ? "text-white hover:text-white/80 hover:bg-white/10"
-                          : "text-charcoal/80 hover:text-sage hover:bg-sage/5"
+                          : "text-charcoal/80 hover:text-sage hover:bg-card-bg/5"
                     }`}
                     aria-label="Saved"
                   >
@@ -1162,10 +1162,10 @@ export default function Header({
                     href="/settings"
                     className={`relative w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 ${
                       isSettingsActive
-                        ? "text-sage bg-sage/5"
+                        ? "text-sage bg-card-bg/5"
                         : whiteText
                           ? "text-white hover:text-white/80 hover:bg-white/10"
-                          : "text-charcoal/80 hover:text-sage hover:bg-sage/5"
+                          : "text-charcoal/80 hover:text-sage hover:bg-card-bg/5"
                     }`}
                     aria-label="Settings"
                   >
@@ -1179,7 +1179,7 @@ export default function Header({
                   className={`w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 ${
                     whiteText
                       ? "text-white hover:text-white/80 hover:bg-white/10"
-                      : "text-charcoal/80 hover:text-sage hover:bg-sage/5"
+                      : "text-charcoal/80 hover:text-sage hover:bg-card-bg/5"
                   }`}
                   aria-label="Open menu"
                   aria-expanded={isMobileMenuOpen}

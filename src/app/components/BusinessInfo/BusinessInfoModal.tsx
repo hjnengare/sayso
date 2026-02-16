@@ -70,7 +70,7 @@ export default function BusinessInfoModal({
           </h2>
           <button
             onClick={handleClose}
-            className="w-9 h-9 rounded-full border border-charcoal/10 bg-off-white/70 hover:bg-sage/10 hover:text-sage text-charcoal/80 flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-sage/30 min-h-[44px] min-w-[44px]"
+            className="w-9 h-9 rounded-full border border-charcoal/10 bg-off-white/70 hover:bg-card-bg/10 hover:text-sage text-charcoal/80 flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-sage/30 min-h-[44px] min-w-[44px]"
             aria-label="Close"
           >
             <X className="w-4 h-4" />

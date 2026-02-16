@@ -39,7 +39,7 @@ const sizeConfig: Record<LoaderSize, { spinner: string; dot: string; bar: string
 };
 
 const colorConfig: Record<LoaderColor, { border: string; bg: string; text: string }> = {
-  sage: { border: "border-sage", bg: "bg-sage", text: "text-sage" },
+  sage: { border: "border-sage", bg: "bg-card-bg", text: "text-sage" },
   coral: { border: "border-coral", bg: "bg-coral", text: "text-coral" },
   charcoal: { border: "border-charcoal", bg: "bg-charcoal", text: "text-charcoal" },
   white: { border: "border-white", bg: "bg-white", text: "text-white" },

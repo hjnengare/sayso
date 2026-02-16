@@ -152,26 +152,26 @@ export default function EmailVerificationGuard({
           </p>
 
           {/* Benefits */}
-          <div className="bg-sage/5 rounded-lg p-4 mb-6 text-left">
+          <div className="bg-card-bg/5 rounded-lg p-4 mb-6 text-left">
             <h3 className="font-urbanist text-sm font-600 text-charcoal mb-3 flex items-center gap-2">
               <CheckCircle className="w-4 h-4 text-sage" />
               What you'll unlock:
             </h3>
             <ul className="space-y-2 text-sm sm:text-xs text-charcoal/70">
               <li className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 bg-sage rounded-full"></div>
+                <div className="w-1.5 h-1.5 bg-card-bg rounded-full"></div>
                 Post reviews and share your experiences
               </li>
               <li className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 bg-sage rounded-full"></div>
+                <div className="w-1.5 h-1.5 bg-card-bg rounded-full"></div>
                 Save your favorite local businesses
               </li>
               <li className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 bg-sage rounded-full"></div>
+                <div className="w-1.5 h-1.5 bg-card-bg rounded-full"></div>
                 Join the community leaderboard
               </li>
               <li className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 bg-sage rounded-full"></div>
+                <div className="w-1.5 h-1.5 bg-card-bg rounded-full"></div>
                 Secure account recovery options
               </li>
             </ul>
@@ -193,7 +193,7 @@ export default function EmailVerificationGuard({
             <button
               onClick={handleResendVerification}
               disabled={isResending}
-              className="w-full bg-sage text-white font-urbanist text-sm font-600 py-3 px-4 rounded-[12px] hover:bg-sage/90 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full bg-card-bg text-white font-urbanist text-sm font-600 py-3 px-4 rounded-[12px] hover:bg-card-bg/90 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isResending ? (
                 <>

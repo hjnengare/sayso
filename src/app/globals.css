@@ -566,7 +566,7 @@
 
   /* Skip link for accessibility */
   .skip-link {
-    @apply absolute bg-sage text-white p-2 z-50 no-underline rounded-3;
+    @apply absolute bg-card-bg text-white p-2 z-50 no-underline rounded-3;
     top: -40px;
     left: 6px;
   }

@@ -881,6 +881,10 @@ export async function POST(req: NextRequest) {
           console.log('[Review API] Revalidation done', { businessId: resolvedBusiness.id, slug: resolvedBusiness.slug ?? null });
         }
       }
+      // Also revalidate profile page for logged-in users
+      if (!isAnonymous) {
+        revalidatePath('/profile');
+      }
     } catch (cacheError) {
       console.warn('Error invalidating business cache / revalidating:', cacheError);
     }

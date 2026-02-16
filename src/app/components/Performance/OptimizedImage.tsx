@@ -72,7 +72,7 @@ function OptimizedImage({
   return (
     <div className="relative overflow-hidden">
       {isLoading && (
-        <div className="absolute inset-0 bg-sage/10 animate-pulse flex items-center justify-center">
+        <div className="absolute inset-0 bg-card-bg/10 animate-pulse flex items-center justify-center">
           <div className="w-8 h-8 border-2 border-sage/30 border-t-sage rounded-full animate-spin" />
         </div>
       )}

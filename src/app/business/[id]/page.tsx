@@ -248,7 +248,7 @@ export default function BusinessProfilePage() {
                                                 {/* Rating badge skeleton */}
                                                 <div className="absolute right-4 top-4 z-20 h-8 w-16 rounded-full bg-off-white/40" />
                                                 {/* Verified badge skeleton */}
-                                                <div className="absolute left-4 top-4 z-20 h-8 w-24 rounded-full bg-sage/30" />
+                                                <div className="absolute left-4 top-4 z-20 h-8 w-24 rounded-full bg-card-bg/30" />
                                                 {/* Gallery indicators skeleton */}
                                                 <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
                                                     {[1, 2, 3].map(i => (
@@ -289,7 +289,7 @@ export default function BusinessProfilePage() {
 
                                             {/* Map Skeleton */}
                                             <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-md overflow-hidden">
-                                                <div className="h-[200px] sm:h-[300px] bg-sage/10 animate-pulse" />
+                                                <div className="h-[200px] sm:h-[300px] bg-card-bg/10 animate-pulse" />
                                                 <div className="p-4 space-y-2">
                                                     <div className="h-5 w-48 bg-white/30 rounded animate-pulse" />
                                                     <div className="h-4 w-32 bg-white/20 rounded animate-pulse" />
@@ -314,7 +314,7 @@ export default function BusinessProfilePage() {
                                             {/* Action Card Skeleton */}
                                             <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-md p-6">
                                                 <div className="space-y-4">
-                                                    <div className="h-12 w-full bg-sage/40 rounded-full animate-pulse" />
+                                                    <div className="h-12 w-full bg-card-bg/40 rounded-full animate-pulse" />
                                                     <div className="h-12 w-full bg-coral/40 rounded-full animate-pulse" />
                                                     <div className="flex gap-3">
                                                         <div className="h-10 flex-1 bg-white/30 rounded-full animate-pulse" />

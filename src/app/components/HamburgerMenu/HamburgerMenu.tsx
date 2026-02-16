@@ -16,7 +16,7 @@ export default function HamburgerMenu({ isOpen, onToggle, className = "" }: Hamb
       onClick={onToggle}
       className={`
         w-10 h-10 flex flex-col items-center justify-center space-y-1
-        hover:bg-sage/5 rounded-lg transition-all duration-300
+        hover:bg-card-bg/5 rounded-lg transition-all duration-300
         focus:outline-none focus:ring-2 focus:ring-sage/50 focus:ring-offset-2
         mobile-interaction touch-target-large
         ${className}
@@ -31,7 +31,7 @@ export default function HamburgerMenu({ isOpen, onToggle, className = "" }: Hamb
           className={`block h-0.5 w-5 bg-charcoal/70 transition-all duration-300 ease-in-out
             ${isOpen
               ? 'rotate-45 translate-y-1.5 bg-coral'
-              : 'rotate-0 translate-y-0 hover:bg-sage'
+              : 'rotate-0 translate-y-0 hover:bg-card-bg'
             }
           `}
         />
@@ -41,7 +41,7 @@ export default function HamburgerMenu({ isOpen, onToggle, className = "" }: Hamb
           className={`block h-0.5 w-5 bg-charcoal/70 transition-all duration-300 ease-in-out mt-1
             ${isOpen
               ? 'opacity-0 scale-0'
-              : 'opacity-100 scale-100 hover:bg-sage'
+              : 'opacity-100 scale-100 hover:bg-card-bg'
             }
           `}
         />
@@ -51,7 +51,7 @@ export default function HamburgerMenu({ isOpen, onToggle, className = "" }: Hamb
           className={`block h-0.5 w-5 bg-charcoal/70 transition-all duration-300 ease-in-out mt-1
             ${isOpen
               ? '-rotate-45 -translate-y-1.5 bg-coral'
-              : 'rotate-0 translate-y-0 hover:bg-sage'
+              : 'rotate-0 translate-y-0 hover:bg-card-bg'
             }
           `}
         />

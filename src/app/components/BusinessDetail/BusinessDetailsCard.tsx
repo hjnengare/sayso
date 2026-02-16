@@ -276,12 +276,12 @@ export default function BusinessDetailsCard({ priceRange, verified, hours }: Bus
                   <span
                     className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-sm font-semibold ${
                       openStatus.isOpen
-                        ? 'bg-sage/20 text-sage'
+                        ? 'bg-card-bg/20 text-sage'
                         : 'bg-coral/20 text-coral'
                     }`}
                     style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                   >
-                    <span className={`w-1.5 h-1.5 rounded-full ${openStatus.isOpen ? 'bg-sage' : 'bg-coral'}`} />
+                    <span className={`w-1.5 h-1.5 rounded-full ${openStatus.isOpen ? 'bg-card-bg' : 'bg-coral'}`} />
                     {openStatus.isOpen ? 'Open' : 'Closed'}
                   </span>
                   <span
@@ -306,7 +306,7 @@ export default function BusinessDetailsCard({ priceRange, verified, hours }: Bus
                         <div
                           key={day}
                           className={`flex items-center justify-between py-1 px-2 rounded-lg ${
-                            isToday ? 'bg-sage/10' : ''
+                            isToday ? 'bg-card-bg/10' : ''
                           }`}
                         >
                           <span

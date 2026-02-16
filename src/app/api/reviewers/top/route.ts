@@ -107,31 +107,51 @@ export async function GET(req: Request) {
       if (p?.user_id) profileById.set(p.user_id, p);
     }
 
-    // Batch-fetch earned badges for all reviewers in a single query (avoids N+1)
+    // Batch-fetch earned badges for all reviewers (two queries to avoid PostgREST join issues)
     const badgesByUserId = new Map<string, Array<{ id: string; name: string; icon_path?: string; badge_group?: string }>>();
     try {
-      const { data: userBadgeRows, error: badgeError } = await supabase
+      // 1. Get user_id -> badge_id mappings
+      const { data: userBadgeRows, error: ubError } = await supabase
         .from('user_badges')
-        .select('user_id, badge_id, badges(id, name, icon_path, badge_group)')
+        .select('user_id, badge_id')
         .in('user_id', userIds);
 
-      if (badgeError) {
-        console.warn('[Top Reviewers] Error fetching user badges:', badgeError.message);
-      } else if (userBadgeRows) {
-        for (const row of userBadgeRows as any[]) {
-          if (!row?.user_id || !row?.badges) continue;
-          const badge = row.badges;
-          const mapping = getBadgeMapping(badge.id);
-          const entry = {
-            id: badge.id,
-            name: mapping?.name || badge.name,
-            icon_path: mapping?.pngPath || getBadgePngPath(badge.id),
-            badge_group: badge.badge_group,
-          };
-          if (!badgesByUserId.has(row.user_id)) {
-            badgesByUserId.set(row.user_id, []);
+      if (ubError) {
+        console.warn('[Top Reviewers] Error fetching user_badges:', ubError.message);
+      } else if (userBadgeRows && userBadgeRows.length > 0) {
+        // 2. Fetch badge definitions for all referenced badge IDs
+        const badgeIds = [...new Set(userBadgeRows.map((r: any) => r.badge_id).filter(Boolean))];
+        const { data: badgeRows, error: bError } = await supabase
+          .from('badges')
+          .select('id, name, icon_name, badge_group')
+          .in('id', badgeIds);
+
+        if (bError) {
+          console.warn('[Top Reviewers] Error fetching badges:', bError.message);
+        } else {
+          // Build a lookup by badge ID
+          const badgeLookup = new Map<string, any>();
+          for (const b of badgeRows || []) {
+            if (b?.id) badgeLookup.set(b.id, b);
           }
-          badgesByUserId.get(row.user_id)!.push(entry);
+
+          // Map badges to each user
+          for (const row of userBadgeRows as any[]) {
+            if (!row?.user_id || !row?.badge_id) continue;
+            const badge = badgeLookup.get(row.badge_id);
+            if (!badge) continue;
+            const mapping = getBadgeMapping(badge.id);
+            const entry = {
+              id: badge.id,
+              name: mapping?.name || badge.name,
+              icon_path: mapping?.pngPath || getBadgePngPath(badge.id),
+              badge_group: badge.badge_group,
+            };
+            if (!badgesByUserId.has(row.user_id)) {
+              badgesByUserId.set(row.user_id, []);
+            }
+            badgesByUserId.get(row.user_id)!.push(entry);
+          }
         }
       }
     } catch (badgeErr) {

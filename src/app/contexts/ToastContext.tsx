@@ -94,7 +94,7 @@ export function ToastProvider({ children }: ToastProviderProps) {
   }, [showToast]);
 
   const getToastStyles = (type: Toast['type']) => {
-    return 'bg-sage text-white';
+    return 'bg-card-bg text-white';
   };
 
   const getToastIcon = (type: Toast['type']) => {

@@ -142,7 +142,7 @@ export const generateColorCSSVars = () => {
 export const getTailwindColors = {
   // Background colors
   bg: {
-    primary: 'bg-sage-500',
+    primary: 'bg-card-bg-500',
     secondary: 'bg-coral-500',
     neutral: 'bg-charcoal-500',
     surface: 'bg-off-white-100',
@@ -169,7 +169,7 @@ export const getTailwindColors = {
   
   // Interactive states
   hover: {
-    primary: 'hover:bg-sage-600',
+    primary: 'hover:bg-card-bg-600',
     secondary: 'hover:bg-coral-600',
     neutral: 'hover:bg-charcoal-600',
   },

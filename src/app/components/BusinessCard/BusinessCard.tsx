@@ -525,7 +525,7 @@ function BusinessCard({
     >
       <Link
         href={businessProfileRoute}
-        className={`rounded-[12px] ${compact ? "lg:min-h-[200px]" : "flex-1"} relative flex-shrink-0 flex flex-col justify-between bg-sage z-10 shadow-md group cursor-pointer w-full sm:h-auto overflow-hidden`}
+        className={`rounded-[12px] ${compact ? "lg:min-h-[200px]" : "flex-1"} relative flex-shrink-0 flex flex-col justify-between bg-card-bg z-10 shadow-md group cursor-pointer w-full sm:h-auto overflow-hidden`}
         style={{ maxWidth: compact ? "100%" : "540px" } as React.CSSProperties}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -591,7 +591,7 @@ function BusinessCard({
           )}
         </div>
         {/* CONTENT - Minimal, premium spacing */}
-        <div className={`px-5 pt-2.5 sm:px-6 sm:pt-1 md:pt-2 lg:pt-2.5 pb-2.5 ${compact ? "lg:py-1 lg:pt-2 lg:pb-0 lg:min-h-[160px]" : "flex-1"} relative flex-shrink-0 flex flex-col justify-start bg-sage/10 z-10 rounded-b-[12px]`}>
+        <div className={`px-5 pt-2.5 sm:px-6 sm:pt-1 md:pt-2 lg:pt-2.5 pb-2.5 ${compact ? "lg:py-1 lg:pt-2 lg:pb-0 lg:min-h-[160px]" : "flex-1"} relative flex-shrink-0 flex flex-col justify-start bg-card-bg/10 z-10 rounded-b-[12px]`}>
           <div className="flex flex-col">
             {/* Info Wrapper */}
             <div className="relative overflow-hidden">

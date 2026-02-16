@@ -296,7 +296,7 @@ function CategoryDetailContent() {
             <div className="flex items-center justify-center gap-4 mb-4 relative">
               <Link
                 href="/home"
-                className="absolute left-0 w-10 h-10 rounded-full bg-sage hover:bg-sage/90 flex items-center justify-center transition-colors"
+                className="absolute left-0 w-10 h-10 rounded-full bg-card-bg hover:bg-card-bg/90 flex items-center justify-center transition-colors"
               >
                 <ChevronLeft className="w-5 h-5 text-white" />
               </Link>
@@ -331,7 +331,7 @@ function CategoryDetailContent() {
                         className={`px-4 py-2 rounded-full font-urbanist font-600 text-body-sm transition-all duration-200 active:scale-95 ${
                           isSelected
                             ? "bg-coral text-white shadow-lg"
-                            : "bg-sage/10 text-charcoal/70 hover:bg-sage/20 hover:text-sage border border-sage/30"
+                            : "bg-card-bg/10 text-charcoal/70 hover:bg-card-bg/20 hover:text-sage border border-sage/30"
                         }`}
                         style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                       >
@@ -361,7 +361,7 @@ function CategoryDetailContent() {
               </p>
               <button
                 onClick={refetch}
-                className="inline-flex items-center justify-center px-5 py-2.5 rounded-full bg-sage text-white hover:bg-sage/90 transition-colors text-body font-semibold"
+                className="inline-flex items-center justify-center px-5 py-2.5 rounded-full bg-card-bg text-white hover:bg-card-bg/90 transition-colors text-body font-semibold"
                 style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
               >
                 Try again
@@ -384,7 +384,7 @@ function CategoryDetailContent() {
                   {hasSubcategoryFilter && (
                     <button
                       onClick={() => setSelectedSubcategories([])}
-                      className="mt-4 inline-flex items-center justify-center px-5 py-2.5 rounded-full bg-sage text-white hover:bg-sage/90 transition-colors text-body font-semibold"
+                      className="mt-4 inline-flex items-center justify-center px-5 py-2.5 rounded-full bg-card-bg text-white hover:bg-card-bg/90 transition-colors text-body font-semibold"
                       style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                     >
                       Clear subcategory filters

@@ -14,7 +14,7 @@ export interface BadgeProps {
 }
 
 const variantStyles: Record<BadgeVariant, string> = {
-  sage: 'bg-sage/10 text-sage border-sage/20',
+  sage: 'bg-card-bg/10 text-sage border-sage/20',
   coral: 'bg-coral/10 text-coral border-coral/20',
   success: 'bg-green-50 text-green-700 border-green-200',
   warning: 'bg-orange-50 text-orange-700 border-orange-200',
@@ -30,7 +30,7 @@ const sizeStyles: Record<BadgeSize, string> = {
 };
 
 const dotColorStyles: Record<BadgeVariant, string> = {
-  sage: 'bg-sage',
+  sage: 'bg-card-bg',
   coral: 'bg-coral',
   success: 'bg-green-500',
   warning: 'bg-orange-500',

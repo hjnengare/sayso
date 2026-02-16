@@ -334,7 +334,7 @@ function LeaderboardPage() {
                                             setIsLoadingLeaderboard(false);
                                           });
                                       }}
-                                      className="px-4 py-2 bg-sage text-white rounded-full text-sm font-semibold hover:bg-sage/90 transition-colors"
+                                      className="px-4 py-2 bg-card-bg text-white rounded-full text-sm font-semibold hover:bg-card-bg/90 transition-colors"
                                     >
                                       Retry
                                     </button>
@@ -400,7 +400,7 @@ function LeaderboardPage() {
                   href="/badges"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-full bg-sage text-white hover:bg-sage/90 transition-all duration-200 text-sm font-semibold shadow-sm hover:shadow-md hover:-translate-y-0.5"
+                  className="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-full bg-card-bg text-white hover:bg-card-bg/90 transition-all duration-200 text-sm font-semibold shadow-sm hover:shadow-md hover:-translate-y-0.5"
                   style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                 >
                   <FileText className="w-4 h-4" />

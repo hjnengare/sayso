@@ -447,7 +447,7 @@ export default function AddEventSpecialFormPage({ type }: AddEventSpecialFormPag
               <p className="text-charcoal/80 mb-5" style={fontStyle}>
                 Only verified business owners can create specials.
               </p>
-              <Link href="/claim-business" className="inline-flex rounded-full bg-sage px-5 py-2.5 text-sm font-semibold text-white hover:bg-sage/90 transition-colors duration-200">
+              <Link href="/claim-business" className="inline-flex rounded-full bg-card-bg px-5 py-2.5 text-sm font-semibold text-white hover:bg-card-bg/90 transition-colors duration-200">
                 Verify Business Access
               </Link>
             </div>
@@ -511,7 +511,7 @@ export default function AddEventSpecialFormPage({ type }: AddEventSpecialFormPag
                         <div className="rounded-[12px] border border-coral/20 bg-coral/5 px-4 py-4">
                           <p className="text-sm sm:text-base text-charcoal/80" style={fontStyle}>{copy.emptyBusinessesCopy}</p>
                           {isSpecialForm ? (
-                            <Link href="/add-business" className="inline-flex mt-4 rounded-full bg-sage px-5 py-2.5 text-sm font-semibold text-white hover:bg-sage/90 transition-colors duration-200">
+                            <Link href="/add-business" className="inline-flex mt-4 rounded-full bg-card-bg px-5 py-2.5 text-sm font-semibold text-white hover:bg-card-bg/90 transition-colors duration-200">
                               Add New Business
                             </Link>
                           ) : (
@@ -619,7 +619,7 @@ export default function AddEventSpecialFormPage({ type }: AddEventSpecialFormPag
                           <div className="space-y-3">
                             <label
                               className={`flex flex-col items-center justify-center rounded-[12px] border-2 border-dashed px-4 py-6 text-center transition-colors duration-200 cursor-pointer ${
-                                isDraggingImage ? "border-sage bg-sage/10" : "border-white/70 bg-white/70 hover:border-sage/40"
+                                isDraggingImage ? "border-sage bg-card-bg/10" : "border-white/70 bg-white/70 hover:border-sage/40"
                               } ${isUploadingImage ? "opacity-75 cursor-not-allowed" : ""}`}
                               onDragOver={(e) => {
                                 e.preventDefault();
@@ -747,7 +747,7 @@ export default function AddEventSpecialFormPage({ type }: AddEventSpecialFormPag
                         </div>
 
                         {formData.ctaSource === "whatsapp" ? (
-                          <div className="space-y-4 rounded-[12px] border border-sage/20 bg-sage/5 p-4">
+                          <div className="space-y-4 rounded-[12px] border border-sage/20 bg-card-bg/5 p-4">
                             <div>
                               <label className="block text-sm font-semibold text-charcoal mb-2" style={fontStyle}>
                                 WhatsApp Number <span className="text-coral">*</span>

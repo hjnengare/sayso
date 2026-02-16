@@ -38,7 +38,7 @@ export default function EmptyState({ filterType }: EmptyStateProps) {
       }}
     >
       <div className="text-center w-full">
-        <div className="w-20 h-20 mx-auto mb-6 bg-sage/10 rounded-full flex items-center justify-center">
+        <div className="w-20 h-20 mx-auto mb-6 bg-card-bg/10 rounded-full flex items-center justify-center">
           <Calendar className="w-8 h-8 text-sage" />
         </div>
         <h3 

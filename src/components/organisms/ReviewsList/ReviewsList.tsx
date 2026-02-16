@@ -26,11 +26,14 @@ export const ReviewsList: React.FC<ReviewsListProps> = ({
     ? reviews
     : reviews.slice(0, initialDisplayCount);
 
+  // Add debug logging for reviews
+  console.log('[ReviewsList] Reviews received:', reviews?.length || 0, reviews);
+
   return (
     <div className={`p-6 sm:p-8 bg-card-bg border border-white/50 rounded-[12px] shadow-sm mb-6 ${className}`}>
       <div className="flex items-center justify-between mb-4">
         <Text variant="h5" className="mb-0">{title}</Text>
-        {showToggle && reviews.length > initialDisplayCount && (
+        {showToggle && reviews && reviews.length > initialDisplayCount && (
           <button
             onClick={() => setShowAll(!showAll)}
             className="flex items-center space-x-1"
@@ -45,10 +48,10 @@ export const ReviewsList: React.FC<ReviewsListProps> = ({
           </button>
         )}
       </div>
-      {reviews.length > 0 ? (
+      {reviews && reviews.length > 0 ? (
         <div className="space-y-3">
           {displayedReviews.map((review, index) => (
-            <ReviewItem key={index} {...review} />
+            <ReviewItem key={review.businessName ? `${review.businessName}-${index}` : `review-${index}`} {...review} />
           ))}
         </div>
       ) : (

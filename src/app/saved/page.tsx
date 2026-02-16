@@ -268,7 +268,7 @@ export default function SavedPage() {
                   </p>
                   <button
                     onClick={handleRefetch}
-                    className="px-6 py-3 bg-sage text-white rounded-full text-body font-semibold hover:bg-sage/90 transition-colors"
+                    className="px-6 py-3 bg-card-bg text-white rounded-full text-body font-semibold hover:bg-card-bg/90 transition-colors"
                     style={{ fontFamily: "Urbanist, system-ui, sans-serif" }}
                   >
                     Try Again
@@ -330,8 +330,8 @@ export default function SavedPage() {
                               onClick={() => setSelectedCategory(category === 'All' ? null : category)}
                               className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-urbanist font-500 text-xs sm:text-sm transition-all duration-200 active:scale-95 flex-shrink-0 whitespace-nowrap ${
                                 isSelected
-                                  ? "bg-sage text-white"
-                                  : "bg-white/50 text-charcoal/60 hover:bg-sage/10 hover:text-charcoal border border-charcoal/10"
+                                  ? "bg-card-bg text-white"
+                                  : "bg-white/50 text-charcoal/60 hover:bg-card-bg/10 hover:text-charcoal border border-charcoal/10"
                               }`}
                               style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                             >
@@ -376,7 +376,7 @@ export default function SavedPage() {
                         </p>
                         <Link
                           href="/home"
-                          className="inline-block mt-4 px-6 py-2 bg-sage text-white rounded-full text-sm font-medium hover:bg-sage/90 transition-colors"
+                          className="inline-block mt-4 px-6 py-2 bg-card-bg text-white rounded-full text-sm font-medium hover:bg-card-bg/90 transition-colors"
                         >
                           Explore Businesses
                         </Link>

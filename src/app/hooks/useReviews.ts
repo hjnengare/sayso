@@ -325,7 +325,24 @@ export function useReviewSubmission() {
         return false;
       }
 
-      // Success!
+      // Success! Trigger badge check so new badges are awarded and UI can show them
+      if (currentUser?.id) {
+        fetch('/api/badges/check-and-award', { method: 'POST', credentials: 'include' })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data?.newBadges?.length > 0) {
+              const n = data.newBadges.length;
+              showToast(
+                n === 1
+                  ? `You earned a new badge: ${data.newBadges[0].name}!`
+                  : `You earned ${n} new badges!`,
+                'success',
+                4000
+              );
+            }
+          })
+          .catch(() => {});
+      }
       showToast('Review submitted', 'sage', 3000);
       return true;
     } catch (err) {

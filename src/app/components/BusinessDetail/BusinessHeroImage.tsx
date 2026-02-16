@@ -156,7 +156,7 @@ export default function BusinessHeroImage({
       {/* Verified Badge */}
       {verified && (
         <div className="absolute top-6 left-6 z-20">
-          <span className="px-4 py-2 rounded-full text-body-sm font-600 backdrop-blur-xl border bg-sage/90 text-white border-sage/50" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+          <span className="px-4 py-2 rounded-full text-body-sm font-600 backdrop-blur-xl border bg-card-bg/90 text-white border-sage/50" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
             Verified
           </span>
         </div>

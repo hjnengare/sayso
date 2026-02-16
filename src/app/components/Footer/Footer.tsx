@@ -141,7 +141,7 @@ export default function Footer() {
   return (
     <footer className="relative overflow-hidden bg-charcoal text-off-white mt-16 sm:mt-24 lg:mt-32">
       <div aria-hidden className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-24 left-1/2 h-48 w-[520px] -translate-x-1/2 rounded-full bg-sage/10 blur-3xl" />
+        <div className="absolute -top-24 left-1/2 h-48 w-[520px] -translate-x-1/2 rounded-full bg-card-bg/10 blur-3xl" />
         <div className="absolute bottom-0 left-0 h-32 w-64 bg-off-white/5 blur-2xl" />
       </div>
 
@@ -152,7 +152,7 @@ export default function Footer() {
             <div className="relative overflow-hidden rounded-[20px] border border-white/10 bg-white/[0.04] px-5 py-6 sm:px-7 sm:py-7">
               <div aria-hidden className="pointer-events-none absolute inset-0">
                 <div className="absolute -top-20 left-10 h-40 w-72 rounded-full bg-off-white/10 blur-3xl" />
-                <div className="absolute -bottom-24 right-0 h-44 w-80 rounded-full bg-sage/15 blur-3xl" />
+                <div className="absolute -bottom-24 right-0 h-44 w-80 rounded-full bg-card-bg/15 blur-3xl" />
               </div>
 
               <div className="relative flex flex-col gap-4 sm:gap-5">

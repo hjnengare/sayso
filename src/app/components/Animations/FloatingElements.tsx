@@ -80,7 +80,7 @@ export default function FloatingElements() {
       {mounted && sparkles.map((sparkle) => (
         <motion.div
           key={sparkle.id}
-          className="absolute w-1 h-1 bg-sage/20 rounded-full"
+          className="absolute w-1 h-1 bg-card-bg/20 rounded-full"
           style={{
             left: `${sparkle.x}%`,
             top: `${sparkle.y}%`,

@@ -54,7 +54,7 @@ function PercentileChipsSection({
       {/* Header */}
       <div className="flex items-center justify-between">
         <h3 className="text-charcoal flex items-center gap-2.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-sage"></span>
+          <span className="w-1.5 h-1.5 rounded-full bg-card-bg"></span>
           Performance Insights
         </h3>
         <span className="text-xs text-charcoal/50 font-medium">Based on reviews</span>

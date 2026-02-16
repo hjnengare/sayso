@@ -20,10 +20,11 @@ import {
     Clock,
     ChevronUp,
     ChevronRight,
+    User,
 } from "lucide-react";
 import Footer from "../../components/Footer/Footer";
 import { ReviewsList } from "@/components/organisms/ReviewsList";
-import { Reviewer } from "../../types/community";
+import ReviewerProfileSkeleton from "../../components/ReviewerCard/ReviewerProfileSkeleton";
 
 // CSS animations
 const animations = `
@@ -79,13 +80,14 @@ interface ReviewerProfile {
     location: string;
     memberSince: string;
     helpfulVotes: number;
-    followers: number;
-    following: number;
-    totalViews: number;
+    badgesCount: number;
+    impactScore: number;
     averageRating: number;
     reviews: Array<{
         id: string;
+        businessId: string;
         businessName: string;
+        businessImageUrl?: string | null;
         businessType: string;
         rating: number;
         text: string;
@@ -100,13 +102,7 @@ interface ReviewerProfile {
         icon: string;
         description: string;
         earnedDate: string;
-    }>;
-    achievements: Array<{
-        id: string;
-        title: string;
-        description: string;
-        icon: string;
-        unlocked: boolean;
+        badge_group?: string;
     }>;
 }
 
@@ -128,6 +124,9 @@ export default function ReviewerProfilePage() {
                 const response = await fetch(`/api/reviewers/${reviewerId}`);
                 if (response.ok) {
                     const data = await response.json();
+                    console.log('[Reviewer Profile Page] API response:', data);
+                    console.log('[Reviewer Profile Page] Reviews count:', data.reviewer?.reviews?.length || 0);
+                    console.log('[Reviewer Profile Page] Badges count:', data.reviewer?.badges?.length || 0);
                     setReviewer(data.reviewer);
                 } else {
                     console.error('Failed to fetch reviewer:', response.statusText);
@@ -159,12 +158,20 @@ export default function ReviewerProfilePage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-off-white">
-                <div className="container mx-auto px-4 py-20 text-center">
-                    <div className="text-charcoal/60">Loading reviewer profile...</div>
-                </div>
+            <>
+                <style dangerouslySetInnerHTML={{ __html: animations }} />
+                <style jsx global>{`
+                    .font-urbanist {
+                        font-family: "Urbanist", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, system-ui,
+                            sans-serif;
+                        -webkit-font-smoothing: antialiased;
+                        -moz-osx-font-smoothing: grayscale;
+                        font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+                    }
+                `}</style>
+                <ReviewerProfileSkeleton />
                 <Footer />
-            </div>
+            </>
         );
     }
 
@@ -192,16 +199,16 @@ export default function ReviewerProfilePage() {
                 }
             `}</style>
             <div
-                className="min-h-dvh bg-off-white relative overflow-hidden font-urbanist"
+                className="min-h-dvh bg-gradient-to-br from-off-white via-off-white/98 to-sage/5 relative overflow-hidden font-urbanist"
                 style={{
                     fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                 }}
             >
 
-                <div className="bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white">
+                <div className="pb-0">
                   
                         <main className="relative font-urbanist" id="main-content" role="main" aria-label="Reviewer profile content">
-                            <div className="mx-auto w-full max-w-[2000px] px-3 sm:px-6 lg:px-10 2xl:px-16 relative z-10">
+                            <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-8 2xl:px-12 relative z-10">
                                 {/* Breadcrumb Navigation */}
                                 <nav className="py-1" aria-label="Breadcrumb">
                                     <ol className="flex items-center gap-2 text-sm sm:text-base">
@@ -220,17 +227,18 @@ export default function ReviewerProfilePage() {
                                         </li>
                                     </ol>
                                 </nav>
-                                <div className="pt-2 pb-12 sm:pb-16 md:pb-20">
-                                    <div className="space-y-6">
+                                <div className="pt-4 pb-16 sm:pb-20 md:pb-24">
+                                    <div className="space-y-8">
                                         {/* Profile Header Section */}
                                         <article className="w-full sm:mx-0" aria-labelledby="profile-heading">
-                                            <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-lg relative overflow-hidden animate-fade-in-up">
+                                            <div className="bg-gradient-to-br bg-card-bg backdrop-blur-xl border border-white/80 rounded-[12px] shadow-2xl relative overflow-hidden animate-fade-in-up">
                                                 {/* Decorative elements */}
-                                                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-sage/10 to-transparent rounded-full blur-lg"></div>
-                                                <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-coral/10 to-transparent rounded-full blur-lg"></div>
+                                                <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-sage/15 via-coral/10 to-transparent rounded-full blur-xl"></div>
+                                                <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-coral/15 via-sage/10 to-transparent rounded-full blur-lg"></div>
+                                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
 
-                                                <div className="relative z-10 p-6 sm:p-8">
-                                                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+                                                <div className="relative z-10 p-8 sm:p-10">
+                                                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-8">
                                                         {/* Profile Picture */}
                                                         <div className="relative flex-shrink-0">
                                                             {!imgError && reviewer.profilePicture && reviewer.profilePicture.trim() !== '' ? (
@@ -240,7 +248,7 @@ export default function ReviewerProfilePage() {
                                                                         alt={reviewer.name}
                                                                         width={120}
                                                                         height={120}
-                                                                        className="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded-full border-4 border-white shadow-xl ring-4 ring-white/50"
+                                                                        className="w-28 h-28 sm:w-36 sm:h-36 object-cover rounded-full border-4 border-white shadow-2xl ring-4 ring-white/60"
                                                                         priority
                                                                         onError={() => setImgError(true)}
                                                                     />
@@ -260,8 +268,8 @@ export default function ReviewerProfilePage() {
                                                                     )}
                                                                 </div>
                                                             ) : (
-                                                                <div className="w-24 h-24 sm:w-32 sm:h-32 flex items-center justify-center bg-sage/20 text-sage rounded-full border-4 border-white shadow-xl ring-4 ring-white/50">
-                                                                    <Users className="text-sage/70" size={48} />
+                                                                <div className="w-28 h-28 sm:w-36 sm:h-36 flex items-center justify-center bg-gradient-to-br from-sage/20 to-coral/15 text-sage rounded-full border-4 border-white shadow-2xl ring-4 ring-white/60">
+                                                                    <User className="text-navbar-bg" size={56} />
                                                                 </div>
                                                             )}
                                                         </div>
@@ -328,8 +336,8 @@ export default function ReviewerProfilePage() {
                                         </article>
 
                                         {/* Stats Section */}
-                                        <section className="grid grid-cols-2 sm:grid-cols-4 gap-4" aria-label="Reviewer statistics">
-                                            <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-lg p-4 animate-fade-in-up animate-delay-100">
+                                        <section className="grid grid-cols-2 sm:grid-cols-4 gap-6" aria-label="Reviewer statistics">
+                                            <div className="bg-gradient-to-br bg-card-bg backdrop-blur-xl border border-white/70 rounded-[12px] shadow-xl p-6 animate-fade-in-up animate-delay-100 hover:shadow-2xl transition-all duration-300">
                                                 <div className="flex items-center gap-2 mb-2">
                                                     <ThumbsUp className="w-5 h-5 text-coral" />
                                                     <span className="text-sm text-charcoal/70" style={{
@@ -343,35 +351,35 @@ export default function ReviewerProfilePage() {
                                                     {reviewer.helpfulVotes.toLocaleString('en-US')}
                                                 </div>
                                             </div>
-                                            <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-lg p-4 animate-fade-in-up animate-delay-200">
+                                            <div className="bg-gradient-to-br bg-card-bg backdrop-blur-xl border border-white/70 rounded-[12px] shadow-xl p-6 animate-fade-in-up animate-delay-300 hover:shadow-2xl transition-all duration-300">
                                                 <div className="flex items-center gap-2 mb-2">
-                                                    <Users className="w-5 h-5 text-coral" />
+                                                    <Award className="w-5 h-5 text-coral" />
                                                     <span className="text-sm text-charcoal/70" style={{
                                                         fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-                                                    }}>Followers</span>
+                                                    }}>Badges</span>
                                                 </div>
                                                 <div className="text-2xl font-bold text-charcoal" style={{
                                                     fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                                                     fontWeight: 700,
                                                 }}>
-                                                    {reviewer.followers.toLocaleString('en-US')}
+                                                    {reviewer.badgesCount.toLocaleString('en-US')}
                                                 </div>
                                             </div>
-                                            <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-lg p-4 animate-fade-in-up animate-delay-200">
+                                            <div className="bg-gradient-to-br bg-card-bg backdrop-blur-xl border border-white/70 rounded-[12px] shadow-xl p-6 animate-fade-in-up animate-delay-200 hover:shadow-2xl transition-all duration-300">
                                                 <div className="flex items-center gap-2 mb-2">
-                                                    <Eye className="w-5 h-5 text-coral" />
+                                                    <TrendingUp className="w-5 h-5 text-coral" />
                                                     <span className="text-sm text-charcoal/70" style={{
                                                         fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-                                                    }}>Views</span>
+                                                    }}>Impact</span>
                                                 </div>
                                                 <div className="text-2xl font-bold text-charcoal" style={{
                                                     fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                                                     fontWeight: 700,
                                                 }}>
-                                                    {reviewer.totalViews.toLocaleString('en-US')}
+                                                    {reviewer.impactScore.toLocaleString('en-US')}
                                                 </div>
                                             </div>
-                                            <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-lg p-4 animate-fade-in-up animate-delay-300">
+                                            <div className="bg-gradient-to-br bg-card-bg backdrop-blur-xl border border-white/70 rounded-[12px] shadow-xl p-6 animate-fade-in-up animate-delay-300 hover:shadow-2xl transition-all duration-300">
                                                 <div className="flex items-center gap-2 mb-2">
                                                     <TrendingUp className="w-5 h-5 text-coral" />
                                                     <span className="text-sm text-charcoal/70" style={{
@@ -388,19 +396,27 @@ export default function ReviewerProfilePage() {
                                         </section>
 
                                         {/* Badges Section */}
-                                        {reviewer.badges.length > 0 && (
-                                            <section className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-lg p-6 sm:p-8 animate-fade-in-up" aria-label="Reviewer badges">
+                                        {reviewer.badges && reviewer.badges.length > 0 && (
+                                            <section className="bg-gradient-to-br bg-card-bg backdrop-blur-xl border border-white/70 rounded-[12px] shadow-2xl p-8 sm:p-10 animate-fade-in-up hover:shadow-2xl transition-all duration-500" aria-label="Reviewer badges">
                                                 <h3 className="text-lg font-bold text-charcoal mb-4" style={{
                                                     fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                                                     fontWeight: 700,
                                                 }}>
-                                                    Badges & Achievements
+                                                    Badges & Achievements ({reviewer.badges?.length || 0})
                                                 </h3>
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                                                     {reviewer.badges.map((badge) => (
-                                                        <div key={badge.id} className="bg-off-white/50 rounded-[12px] p-4 border border-white/40">
+                                                        <div key={badge.id} className="bg-gradient-to-br from-white/60 to-off-white/80 rounded-[12px] p-6 border border-white/60 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
                                                             <div className="flex items-center gap-3 mb-2">
-                                                                <span className="text-2xl">{badge.icon}</span>
+                                                                <div className="relative w-8 h-8 flex-shrink-0">
+                                                                    <Image
+                                                                        src={badge.icon}
+                                                                        alt={badge.name}
+                                                                        fill
+                                                                        className="object-contain"
+                                                                        unoptimized
+                                                                    />
+                                                                </div>
                                                                 <div>
                                                                     <div className="text-sm font-bold text-charcoal" style={{
                                                                         fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
@@ -428,23 +444,29 @@ export default function ReviewerProfilePage() {
 
                                         {/* Reviews Section */}
                                         <section
-                                            className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-md p-6 sm:p-8"
+                                            className="bg-card-bg border border-white/70 rounded-[12px] shadow-2xl p-8 sm:p-10 hover:shadow-2xl transition-all duration-500"
                                             aria-label="Reviews written by this reviewer"
                                         >
-                                            <ReviewsList
-                                                reviews={reviewer.reviews.map((review) => ({
+                                           <div className="bg-off-white/80 shadow-md px-4 rounded-[12px] py-3 mb-6 border border-white/60">
+                                             <ReviewsList
+                                                reviews={reviewer.reviews && reviewer.reviews.length > 0 ? reviewer.reviews.map((review) => ({
                                                     businessName: review.businessName,
-                                                    businessImageUrl: null,
+                                                    businessImageUrl: review.businessImageUrl,
                                                     rating: review.rating,
                                                     reviewText: review.text,
+                                                    reviewTitle:  null, 
+                                                    helpfulCount: review.likes,
+                                                    tags: review.tags || [],
                                                     isFeatured: reviewer.badge === "top",
                                                     createdAt: review.date,
-                                                }))}
+                                                    businessId: review.businessId,
+                                                })) : []}
                                                 title={`Reviews by ${reviewer.name}`}
                                                 initialDisplayCount={2}
                                                 showToggle={true}
-                                                className="!p-0 !bg-transparent !border-0 !shadow-none !mb-0"
+                                                className="!p-0 !bg-transparent !border-0 !shadow-none !mb-0 !rounded-none"
                                             />
+                                           </div>
                                         </section>
                                     </div>
                                 </div>
@@ -457,10 +479,10 @@ export default function ReviewerProfilePage() {
                 {showScrollTop && (
                     <button
                         onClick={scrollToTop}
-                        className="fixed bottom-6 right-6 z-40 w-12 h-12 bg-navbar-bg hover:bg-navbar-bg backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg border border-white/20 hover:scale-110 transition-all duration-300"
+                        className="fixed bottom-8 right-8 z-40 w-14 h-14 bg-gradient-to-r from-navbar-bg to-navbar-bg/90 hover:from-navbar-bg/90 hover:to-navbar-bg backdrop-blur-sm rounded-full flex items-center justify-center shadow-2xl border border-white/30 hover:scale-110 transition-all duration-300 hover:shadow-coral/20"
                         aria-label="Scroll to top"
                     >
-                        <ChevronUp className="w-6 h-6 text-white" strokeWidth={2.5} />
+                        <ChevronUp className="w-7 h-7 text-white" strokeWidth={2.5} />
                     </button>
                 )}
 

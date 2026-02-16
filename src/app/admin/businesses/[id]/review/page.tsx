@@ -498,7 +498,7 @@ export default function AdminBusinessReviewPage() {
             type="button"
             onClick={handleApprove}
             disabled={!canApprove || action !== "idle"}
-            className="inline-flex items-center gap-2 rounded-full bg-sage text-white px-5 py-2.5 text-sm font-semibold hover:bg-sage/90 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-2 rounded-full bg-card-bg text-white px-5 py-2.5 text-sm font-semibold hover:bg-card-bg/90 disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ fontFamily: FONT }}
           >
             {action === "approve" ? (

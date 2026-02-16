@@ -490,7 +490,7 @@ export default function BusinessLocation({
                                     {distance !== null && (
                                         <div className="flex items-center gap-3 mt-2">
                                             <span
-                                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-sage/20 text-charcoal/70 text-sm font-medium"
+                                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-card-bg/20 text-charcoal/70 text-sm font-medium"
                                                 style={{ fontFamily: 'Urbanist, sans-serif' }}
                                             >
                                                 <Navigation className="w-3 h-3" />

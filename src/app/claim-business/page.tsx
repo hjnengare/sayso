@@ -155,7 +155,7 @@ function ClaimBusinessPageContent() {
   const getClaimStatusBadge = (displayStatus: string, status: string) => {
     const base = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm font-semibold border";
     if (status === "verified") {
-      return <span className={`${base} bg-sage/15 text-sage border-sage/30`}><Check className="w-3.5 h-3.5" /> Verified</span>;
+      return <span className={`${base} bg-card-bg/15 text-sage border-sage/30`}><Check className="w-3.5 h-3.5" /> Verified</span>;
     }
     if (status === "rejected") {
       return <span className={`${base} bg-red-50 text-red-700 border-red-200`}><XCircle className="w-3.5 h-3.5" /> Rejected</span>;
@@ -193,7 +193,7 @@ function ClaimBusinessPageContent() {
     }
 
     return (
-      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-sage/10 text-sage border border-sage/20">
+      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-card-bg/10 text-sage border border-sage/20">
         <Check className="w-3 h-3" />
         Unclaimed
       </span>
@@ -327,7 +327,7 @@ function ClaimBusinessPageContent() {
 
                   {/* Header Section */}
                   <div className="py-12 text-center">
-                    <div className="w-14 h-14 sm:w-16 sm:h-16 bg-sage/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-sm border border-sage/20">
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 bg-card-bg/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-sm border border-sage/20">
                       <Store className="w-6 h-6 sm:w-7 sm:h-7 text-sage" />
                     </div>
                     <h2 className="font-urbanist text-lg sm:text-xl md:text-2xl font-semibold text-charcoal mb-2 px-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
@@ -465,7 +465,7 @@ function ClaimBusinessPageContent() {
                     {!isSearching && businesses.map((business) => (
                       <div
                         key={business.id}
-                        className="p-4 sm:p-5 bg-sage border border-sage/20 rounded-[12px] shadow-sm
+                        className="p-4 sm:p-5 bg-card-bg border border-sage/20 rounded-[12px] shadow-sm
                                    hover:border-sage/40 hover:shadow-md transition-all duration-300 group"
                       >
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
@@ -503,7 +503,7 @@ function ClaimBusinessPageContent() {
                   {/* Empty State */}
                   {searchQuery && !isSearching && businesses.length === 0 && (
                     <div className="text-center py-8 sm:py-12 px-4">
-                      <div className="w-14 h-14 sm:w-16 sm:h-16 bg-sage/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-sm border border-sage/20">
+                      <div className="w-14 h-14 sm:w-16 sm:h-16 bg-card-bg/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-sm border border-sage/20">
                         <Search className="w-5 h-5 sm:w-6 sm:h-6 text-sage" />
                       </div>
                       <h3 className="font-urbanist text-base sm:text-lg font-semibold text-charcoal mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
@@ -521,7 +521,7 @@ function ClaimBusinessPageContent() {
                   )}
 
                   {/* Help Section */}
-                  <div className="mt-8 sm:mt-12 mb-8 sm:mb-12 p-4 sm:p-6 bg-sage border border-sage/20 rounded-[12px] shadow-md">
+                  <div className="mt-8 sm:mt-12 mb-8 sm:mb-12 p-4 sm:p-6 bg-card-bg border border-sage/20 rounded-[12px] shadow-md">
                     <h3 className="font-urbanist text-base sm:text-lg font-semibold text-white mb-2 px-1" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                       Need help claiming your business?
                     </h3>

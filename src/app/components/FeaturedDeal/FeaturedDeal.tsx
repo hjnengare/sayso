@@ -177,7 +177,7 @@ function FeaturedDeal() {
               <span className="font-urbanist text-sm font-600 text-primary/80 uppercase tracking-wide">
                 Special Offer
               </span>
-              <span className="inline-flex items-center px-3 py-1 bg-sage text-white font-urbanist font-700 text-sm rounded-full">
+              <span className="inline-flex items-center px-3 py-1 bg-card-bg text-white font-urbanist font-700 text-sm rounded-full">
                 -20%
               </span>
             </div>
@@ -222,7 +222,7 @@ function FeaturedDeal() {
             {/* CTA Button */}
             <Link
               href="/featured-deal"
-              className={`group inline-flex items-center gap-3 bg-charcoal text-white font-urbanist font-700 text-base px-8 py-4 rounded-6 transition-all duration-[1200ms] ease-in-out delay-200 hover:bg-sage hover:shadow-1 ${isTransitioning ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'}`}
+              className={`group inline-flex items-center gap-3 bg-charcoal text-white font-urbanist font-700 text-base px-8 py-4 rounded-6 transition-all duration-[1200ms] ease-in-out delay-200 hover:bg-card-bg hover:shadow-1 ${isTransitioning ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'}`}
             >
               Book Now - Only {deal.price}
               <IoArrowForward className="text-lg transition-transform duration-300 group-hover:translate-x-1" />

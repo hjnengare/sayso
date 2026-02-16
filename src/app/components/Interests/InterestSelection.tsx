@@ -19,8 +19,8 @@ export default function InterestSelection({ selectedCount, minSelections, maxSel
       <div
         className={`inline-flex items-center gap-2 rounded-full px-4 py-2 mb-3 transition-colors duration-300 ${
           selectedCount >= minSelections
-            ? "bg-sage/10 border border-sage/30"
-            : "bg-sage/10 border border-sage/20"
+            ? "bg-card-bg/10 border border-sage/30"
+            : "bg-card-bg/10 border border-sage/20"
         }`}
       >
         <span

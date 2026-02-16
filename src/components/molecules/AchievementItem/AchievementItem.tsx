@@ -24,9 +24,9 @@ export const AchievementItem: React.FC<AchievementItemProps> = ({
 
   return (
     <div
-      className={`flex items-center space-x-3 p-3 transition-all duration-200 bg-sage/10 border border-sage/20 rounded-[12px] ${className}`}
+      className={`flex items-center space-x-3 p-3 transition-all duration-200 bg-card-bg/10 border border-sage/20 rounded-[12px] ${className}`}
     >
-      <div className="w-10 h-10 rounded-full flex items-center justify-center bg-sage/20 overflow-hidden flex-shrink-0">
+      <div className="w-10 h-10 rounded-full flex items-center justify-center bg-card-bg/20 overflow-hidden flex-shrink-0">
         {isPngIcon ? (
           <Image
             src={icon}

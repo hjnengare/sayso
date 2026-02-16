@@ -457,7 +457,7 @@ export default function PhoneOtpModal({
                   </div>
                 ) : autoSuccess ? (
                   <div
-                    className="mt-3 rounded-[10px] border border-sage/25 bg-sage/10 px-3 py-2 text-sm text-sage"
+                    className="mt-3 rounded-[10px] border border-sage/25 bg-card-bg/10 px-3 py-2 text-sm text-sage"
                     style={{ fontFamily: FONT }}
                     role="status"
                   >

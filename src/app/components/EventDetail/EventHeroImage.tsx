@@ -78,7 +78,7 @@ export default function EventHeroImage({
         <span className={`px-4 py-2 rounded-full text-body-sm font-600 backdrop-blur-xl border ${
           event.type === "event"
             ? "bg-coral/90 text-white border-coral/50"
-            : "bg-sage/90 text-white border-sage/50"
+            : "bg-card-bg/90 text-white border-sage/50"
         }`} style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
           {event.type === "event" ? "Event" : "Special"}
         </span>

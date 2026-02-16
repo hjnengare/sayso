@@ -76,7 +76,7 @@ export default function AIChat() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-sage hover:bg-sage/90 rounded-full flex items-center justify-center shadow-lg border-2 border-white/20 hover:scale-110 transition-all duration-300 group"
+          className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-card-bg hover:bg-card-bg/90 rounded-full flex items-center justify-center shadow-lg border-2 border-white/20 hover:scale-110 transition-all duration-300 group"
           aria-label="Open AI Assistant"
         >
           <MessageCircle className="w-6 h-6 text-white" strokeWidth={2.5} />
@@ -120,7 +120,7 @@ export default function AIChat() {
                   className={`max-w-[80%] rounded-[12px] px-4 py-2 ${
                     message.role === "user"
                       ? "bg-navbar-bg text-white rounded-tr-sm backdrop-blur-sm"
-                      : "bg-sage text-white rounded-tl-sm"
+                      : "bg-card-bg text-white rounded-tl-sm"
                   }`}
                 >
                   <p className="text-sm leading-relaxed" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
@@ -134,7 +134,7 @@ export default function AIChat() {
             ))}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-sage text-white rounded-[12px] rounded-tl-sm px-4 py-3 flex items-center gap-2">
+                <div className="bg-card-bg text-white rounded-[12px] rounded-tl-sm px-4 py-3 flex items-center gap-2">
                   <Loader className="w-4 h-4 text-white animate-spin" />
                   <span className="text-sm text-white/90">Thinking...</span>
                 </div>
@@ -160,7 +160,7 @@ export default function AIChat() {
               <button
                 onClick={handleSendMessage}
                 disabled={!inputValue.trim() || isLoading}
-                className="w-10 h-10 bg-sage hover:bg-sage/90 disabled:bg-charcoal/10 disabled:cursor-not-allowed rounded-full flex items-center justify-center transition-all duration-200 hover:scale-105 disabled:hover:scale-100"
+                className="w-10 h-10 bg-card-bg hover:bg-card-bg/90 disabled:bg-charcoal/10 disabled:cursor-not-allowed rounded-full flex items-center justify-center transition-all duration-200 hover:scale-105 disabled:hover:scale-100"
                 aria-label="Send message"
               >
                 <Send className="w-4 h-4 text-white" strokeWidth={2.5} />

@@ -55,8 +55,8 @@ class OnboardingErrorBoundary extends Component<Props, State> {
         <div className="min-h-screen flex items-center justify-center p-4 bg-off-white font-urbanist">
           {/* Subtle background gradient accent */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-sage/5 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 left-0 w-80 h-80 bg-sage/3 rounded-full blur-3xl" />
+            <div className="absolute top-0 right-0 w-96 h-96 bg-card-bg/5 rounded-full blur-3xl" />
+            <div className="absolute bottom-0 left-0 w-80 h-80 bg-card-bg/3 rounded-full blur-3xl" />
           </div>
 
           <motion.div 
@@ -68,7 +68,7 @@ class OnboardingErrorBoundary extends Component<Props, State> {
             <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-8 border border-sage/10 shadow-sm">
               {/* Error Icon */}
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-full bg-sage/10 flex items-center justify-center border border-sage/20 flex-shrink-0">
+                <div className="w-10 h-10 rounded-full bg-card-bg/10 flex items-center justify-center border border-sage/20 flex-shrink-0">
                   <div className="w-5 h-5 rounded-full border-2 border-sage border-t-transparent animate-spin" />
                 </div>
                 <h2 className="text-lg font-700 text-charcoal">
@@ -85,7 +85,7 @@ class OnboardingErrorBoundary extends Component<Props, State> {
               <div className="flex gap-3 flex-col sm:flex-row">
                 <button
                   onClick={this.handleReset}
-                  className="flex-1 px-4 py-3 bg-sage text-white rounded-lg font-600 hover:bg-sage/90 transition-all duration-300 font-urbanist focus:outline-none focus:ring-2 focus:ring-sage/30 active:scale-95"
+                  className="flex-1 px-4 py-3 bg-card-bg text-white rounded-lg font-600 hover:bg-card-bg/90 transition-all duration-300 font-urbanist focus:outline-none focus:ring-2 focus:ring-sage/30 active:scale-95"
                 >
                   Try Again
                 </button>
@@ -103,7 +103,7 @@ class OnboardingErrorBoundary extends Component<Props, State> {
                   <summary className="text-sm font-600 text-sage cursor-pointer hover:text-sage/80 transition-colors">
                     Error Details (Development Only)
                   </summary>
-                  <pre className="mt-3 text-xs bg-sage/5 p-3 rounded font-mono text-charcoal/60 overflow-auto max-h-40 whitespace-pre-wrap break-words">
+                  <pre className="mt-3 text-xs bg-card-bg/5 p-3 rounded font-mono text-charcoal/60 overflow-auto max-h-40 whitespace-pre-wrap break-words">
                     {this.state.error.toString()}
                     {'\n\n'}
                     {this.state.error.stack}

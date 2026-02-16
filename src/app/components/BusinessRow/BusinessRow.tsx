@@ -89,7 +89,7 @@ export default function BusinessRow({
           <WavyTypedTitle
             text={title}
             as="h2"
-            className="font-urbanist text-h2 sm:text-h1 font-800 text-charcoal hover:text-sage transition-all duration-300 px-3 sm:px-4 py-1 hover:bg-sage/5 rounded-lg cursor-default"
+            className="font-urbanist text-h2 sm:text-h1 font-800 text-charcoal hover:text-sage transition-all duration-300 px-3 sm:px-4 py-1 hover:bg-card-bg/5 rounded-lg cursor-default"
             typingSpeedMs={40}
             startDelayMs={300}
             waveVariant="subtle"

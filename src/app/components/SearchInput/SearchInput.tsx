@@ -255,7 +255,7 @@ const SearchInput = forwardRef<HTMLFormElement, SearchInputProps>(
                 <Sliders className="w-5 h-5" strokeWidth={2} />
                 {activeFilterCount > 0 && (
                   <span
-                    className="absolute -top-1 -right-1 w-4 h-4 bg-sage text-white text-[10px] font-bold rounded-full flex items-center justify-center"
+                    className="absolute -top-1 -right-1 w-4 h-4 bg-card-bg text-white text-[10px] font-bold rounded-full flex items-center justify-center"
                     style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                   >
                     {activeFilterCount}

@@ -83,7 +83,7 @@ const toastVariants = {
       'bg-info-50 border-info-200 text-info-800',
     ],
     sage: [
-      'bg-sage-50 border-sage-200 text-sage-800',
+      'bg-card-bg-50 border-sage-200 text-sage-800',
     ],
     coral: [
       'bg-coral-50 border-coral-200 text-coral-800',

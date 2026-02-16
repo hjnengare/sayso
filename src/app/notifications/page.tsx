@@ -55,7 +55,7 @@ export default function NotificationsPage() {
     }
     switch (type) {
       case 'review':
-        return 'bg-sage/10 text-sage border-sage/30';
+        return 'bg-card-bg/10 text-sage border-sage/30';
       case 'business':
         return 'bg-coral/10 text-coral border-coral/30';
       case 'user':
@@ -65,7 +65,7 @@ export default function NotificationsPage() {
       case 'message':
         return 'bg-coral/10 text-coral border-coral/30';
       default:
-        return 'bg-sage/10 text-sage border-sage/30';
+        return 'bg-card-bg/10 text-sage border-sage/30';
     }
   };
 
@@ -233,7 +233,7 @@ export default function NotificationsPage() {
                     {unreadCount > 0 && (
                       <button
                         onClick={markAllAsRead}
-                        className="px-4 sm:px-6 py-2 sm:py-2.5 rounded-full font-urbanist font-600 text-body-sm sm:text-body transition-all duration-200 active:scale-95 bg-sage/10 text-sage hover:bg-sage/20 hover:text-sage border border-sage/30 whitespace-nowrap"
+                        className="px-4 sm:px-6 py-2 sm:py-2.5 rounded-full font-urbanist font-600 text-body-sm sm:text-body transition-all duration-200 active:scale-95 bg-card-bg/10 text-sage hover:bg-card-bg/20 hover:text-sage border border-sage/30 whitespace-nowrap"
                         style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                       >
                         Mark all as read
@@ -271,7 +271,7 @@ export default function NotificationsPage() {
                           className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-full font-urbanist font-600 text-body-sm sm:text-body transition-all duration-200 active:scale-95 flex-shrink-0 whitespace-nowrap ${
                             isSelected
                               ? "bg-coral text-white shadow-lg"
-                              : "bg-sage/10 text-charcoal/70 hover:bg-sage/20 hover:text-sage border border-sage/30"
+                              : "bg-card-bg/10 text-charcoal/70 hover:bg-card-bg/20 hover:text-sage border border-sage/30"
                           }`}
                           style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                         >
@@ -336,7 +336,7 @@ export default function NotificationsPage() {
                                       <button
                                         type="button"
                                         onClick={() => markAsRead(notification.id)}
-                                        className="p-2 hover:bg-sage/10 rounded-full transition-all duration-200 hover:scale-110 group"
+                                        className="p-2 hover:bg-card-bg/10 rounded-full transition-all duration-200 hover:scale-110 group"
                                         aria-label="Mark as read"
                                       >
                                         <Check className="w-4 h-4 text-sage group-hover:text-sage transition-colors" strokeWidth={2.5} />

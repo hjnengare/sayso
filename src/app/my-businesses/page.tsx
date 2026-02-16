@@ -385,7 +385,7 @@ export default function MyBusinessesPage() {
               <button
                 type="button"
                 onClick={handleRetry}
-                className="inline-flex items-center gap-2 mt-4 px-5 py-2.5 bg-sage text-white text-body font-semibold rounded-full hover:bg-sage/90 transition-all duration-300"
+                className="inline-flex items-center gap-2 mt-4 px-5 py-2.5 bg-card-bg text-white text-body font-semibold rounded-full hover:bg-card-bg/90 transition-all duration-300"
               >
                 Retry
               </button>
@@ -417,7 +417,7 @@ export default function MyBusinessesPage() {
 
                     <button
                       onClick={() => router.push("/add-business")}
-                      className="inline-flex items-center gap-2 px-6 py-2.5 bg-sage text-white text-body font-semibold rounded-full hover:bg-sage/90 transition-all duration-300"
+                      className="inline-flex items-center gap-2 px-6 py-2.5 bg-card-bg text-white text-body font-semibold rounded-full hover:bg-card-bg/90 transition-all duration-300"
                     >
                       Add your business
                     </button>

@@ -444,7 +444,7 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
           {/* Premium floating actions - desktop only */}
           <div className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-20 flex-col items-center gap-2 transition-all duration-300 ease-out translate-x-12 opacity-0 md:group-hover:translate-x-0 md:group-hover:opacity-100">
             <button
-              className="w-12 h-10 bg-off-white/40 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-off-white/60 hover:scale-110 hover:text-charcoal/90 active:scale-95 active:translate-y-[1px] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40 shadow-md transform-gpu touch-manipulation select-none"
+              className="w-12 h-10 bg-off-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-off-white/60 hover:scale-110 hover:text-charcoal/90 active:scale-95 active:translate-y-[1px] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40 shadow-md transform-gpu touch-manipulation select-none"
               onClick={(e) => {
                 e.stopPropagation();
                 handleWriteReview(e);
@@ -455,7 +455,7 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
               <Edit className="w-4 h-4 text-charcoal/80" strokeWidth={2.5} />
             </button>
             <button
-              className="w-12 h-10 bg-off-white/40 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-off-white/60 hover:scale-110 hover:text-charcoal/90 active:scale-95 active:translate-y-[1px] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40 shadow-md transform-gpu touch-manipulation select-none"
+              className="w-12 h-10 bg-off-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-off-white/60 hover:scale-110 hover:text-charcoal/90 active:scale-95 active:translate-y-[1px] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40 shadow-md transform-gpu touch-manipulation select-none"
               onClick={(e) => {
                 e.stopPropagation();
                 handleBookmark(e);
@@ -469,7 +469,7 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
               />
             </button>
             <button
-              className="w-12 h-10 bg-off-white/40 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-off-white/60 hover:scale-110 hover:text-charcoal/90 active:scale-95 active:translate-y-[1px] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40 shadow-md transform-gpu touch-manipulation select-none"
+              className="w-12 h-10 bg-off-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-off-white/60 hover:scale-110 hover:text-charcoal/90 active:scale-95 active:translate-y-[1px] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40 shadow-md transform-gpu touch-manipulation select-none"
               onClick={(e) => {
                 e.stopPropagation();
                 handleShare(e);
@@ -484,7 +484,7 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
 
         {/* CONTENT - Minimal, premium spacing */}
         <div
-          className="px-5 pt-2.5 sm:px-6 sm:pt-1 md:pt-2 lg:pt-2.5 pb-2.5 flex-1 relative flex-shrink-0 flex flex-col justify-start bg-sage/10 z-10 rounded-b-[12px]"
+          className="px-5 pt-2.5 sm:px-6 sm:pt-1 md:pt-2 lg:pt-2.5 pb-2.5 flex-1 relative flex-shrink-0 flex flex-col justify-start bg-card-bg/10 z-10 rounded-b-[12px]"
         >
           <div className="flex flex-col">
             {/* Info Wrapper */}
@@ -624,7 +624,6 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
                   >
                     <Stars value={hasReviews && displayTotal > 0 ? displayTotal : 0} color="charcoal" size={18} spacing={2.5} />
                   </div>
-                  <BusinessCardPercentiles percentiles={(business as any).percentiles ?? (business as any).stats?.percentiles ?? undefined} />
                 </div>
               </div>
             </div>

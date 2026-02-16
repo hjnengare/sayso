@@ -111,7 +111,7 @@ export default function CollectionsSection() {
       <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-10">
-          <div className="inline-flex items-center px-4 py-2 rounded-full bg-sage/10 text-sage text-sm font-urbanist font-500 mb-4">
+          <div className="inline-flex items-center px-4 py-2 rounded-full bg-card-bg/10 text-sage text-sm font-urbanist font-500 mb-4">
             <Award className="w-4 h-4 mr-2" />
             Featured Collections
           </div>
@@ -197,7 +197,7 @@ export default function CollectionsSection() {
                 {/* Promotional Text */}
                 <div className="mb-4 min-h-[60px] flex items-center">
                   {business.promotionalText ? (
-                    <div className="w-full p-3 bg-sage/5 border border-sage/20 rounded-lg">
+                    <div className="w-full p-3 bg-card-bg/5 border border-sage/20 rounded-lg">
                       <p className="text-sage text-sm font-urbanist font-500 text-center">
                         🎉 {business.promotionalText}
                       </p>
@@ -224,7 +224,7 @@ export default function CollectionsSection() {
         <div className="text-center mt-10">
           <Link
             href="/collections"
-            className="inline-flex items-center px-8 py-4 border border-sage text-sage hover:bg-sage hover:text-white rounded-[12px] font-urbanist text-base font-600 transition-all duration-300 hover:scale-105 group"
+            className="inline-flex items-center px-8 py-4 border border-sage text-sage hover:bg-card-bg hover:text-white rounded-[12px] font-urbanist text-base font-600 transition-all duration-300 hover:scale-105 group"
           >
             View All Collections
             <ChevronRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />

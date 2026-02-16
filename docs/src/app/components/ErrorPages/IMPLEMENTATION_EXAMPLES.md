@@ -533,7 +533,7 @@ export default function ErrorTestPage() {
       <div>
         <button
           onClick={() => setSelected(null)}
-          className="fixed top-4 left-4 z-50 px-4 py-2 bg-sage text-white rounded"
+          className="fixed top-4 left-4 z-50 px-4 py-2 bg-card-bg text-white rounded"
         >
           Back to Test Menu
         </button>
@@ -554,7 +554,7 @@ export default function ErrorTestPage() {
             <button
               key={error.type}
               onClick={() => setSelected(error.type)}
-              className="p-4 bg-white border border-sage/20 rounded-lg text-left hover:bg-sage/5 transition"
+              className="p-4 bg-white border border-sage/20 rounded-lg text-left hover:bg-card-bg/5 transition"
             >
               <h2 className="font-bold text-charcoal">{error.label}</h2>
               <p className="text-sm text-charcoal/70">Click to preview</p>

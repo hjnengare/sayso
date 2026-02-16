@@ -288,6 +288,23 @@ function WriteReviewContent() {
         }
       }
 
+      if (user?.id) {
+        fetch("/api/badges/check-and-award", { method: "POST", credentials: "include" })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data?.newBadges?.length > 0) {
+              const n = data.newBadges.length;
+              showToast(
+                n === 1
+                  ? `You earned a new badge: ${data.newBadges[0].name}!`
+                  : `You earned ${n} new badges!`,
+                "success",
+                4000
+              );
+            }
+          })
+          .catch(() => {});
+      }
       showToast("Review submitted successfully!", "success");
       resetForm();
       router.push(type === "event" ? `/event/${id}` : `/special/${id}`);
@@ -455,7 +472,7 @@ function WriteReviewContent() {
                   >
                     <div className="p-4 md:p-6">
                       {!user && (
-                        <div className="mb-4 rounded-lg border border-sage/20 bg-sage/5 p-3">
+                        <div className="mb-4 rounded-lg border border-sage/20 bg-card-bg/5 p-3">
                           <p className="text-sm font-semibold text-charcoal">Posting as Anonymous</p>
                           <p className="mt-1 text-sm text-charcoal/70">
                             Sign in if you want this review tied to your profile identity.

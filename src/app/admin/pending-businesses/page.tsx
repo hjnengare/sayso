@@ -122,7 +122,7 @@ export default function AdminPendingBusinessesPage() {
                     <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                       <Link
                         href={`/admin/businesses/${b.id}/review`}
-                        className="inline-flex items-center gap-1.5 rounded-full bg-sage text-white px-4 py-2 text-sm font-semibold hover:bg-sage/90"
+                        className="inline-flex items-center gap-1.5 rounded-full bg-card-bg text-white px-4 py-2 text-sm font-semibold hover:bg-card-bg/90"
                         style={{ fontFamily: FONT }}
                       >
                         <Eye className="w-4 h-4" />
@@ -157,7 +157,7 @@ export default function AdminPendingBusinessesPage() {
                 <div className="self-end mt-1">
                   <Link
                     href={`/admin/businesses/${b.id}/review`}
-                    className="inline-flex items-center justify-center gap-1.5 min-h-[44px] rounded-full bg-sage text-white px-4 py-2.5 text-sm font-semibold hover:bg-sage/90"
+                    className="inline-flex items-center justify-center gap-1.5 min-h-[44px] rounded-full bg-card-bg text-white px-4 py-2.5 text-sm font-semibold hover:bg-card-bg/90"
                     style={{ fontFamily: FONT }}
                   >
                     <Eye className="w-4 h-4 shrink-0" />

@@ -63,7 +63,7 @@ export const Avatar: React.FC<AvatarProps> = ({
       className={`
         ${container}
         relative rounded-full overflow-hidden flex-shrink-0
-        ${!showImage ? 'bg-sage text-white' : ''}
+        ${!showImage ? 'bg-card-bg text-white' : ''}
         ${className}
       `}
     >

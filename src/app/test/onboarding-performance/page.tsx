@@ -133,7 +133,7 @@ export default function OnboardingPerformanceTestPage() {
           <button
             onClick={runTests}
             disabled={loading}
-            className="bg-sage text-white px-6 py-3 rounded-lg font-semibold hover:bg-sage/90 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-card-bg text-white px-6 py-3 rounded-lg font-semibold hover:bg-card-bg/90 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Running Tests...' : 'Run Performance Tests'}
           </button>

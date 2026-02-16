@@ -44,20 +44,20 @@ export default function ReviewsList({
             className="bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-sm rounded-lg p-6 border border-sage/5"
           >
             <div className="flex items-start space-x-4 animate-pulse">
-              <div className="w-12 h-12 bg-sage/20 rounded-full flex-shrink-0" />
+              <div className="w-12 h-12 bg-card-bg/20 rounded-full flex-shrink-0" />
               <div className="flex-1">
                 <div className="flex items-center space-x-3 mb-3">
-                  <div className="h-5 bg-sage/20 rounded w-24" />
+                  <div className="h-5 bg-card-bg/20 rounded w-24" />
                   <div className="flex space-x-1">
                     {[...Array(5)].map((_, j) => (
-                      <div key={j} className="w-4 h-4 bg-sage/20 rounded" />
+                      <div key={j} className="w-4 h-4 bg-card-bg/20 rounded" />
                     ))}
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <div className="h-4 bg-sage/20 rounded w-full" />
-                  <div className="h-4 bg-sage/20 rounded w-3/4" />
-                  <div className="h-4 bg-sage/20 rounded w-1/2" />
+                  <div className="h-4 bg-card-bg/20 rounded w-full" />
+                  <div className="h-4 bg-card-bg/20 rounded w-3/4" />
+                  <div className="h-4 bg-card-bg/20 rounded w-1/2" />
                 </div>
               </div>
             </div>
@@ -98,7 +98,7 @@ export default function ReviewsList({
         }}
       >
         <div className="text-center w-full max-w-md">
-          <div className="w-20 h-20 mx-auto mb-3 bg-sage/10 rounded-full flex items-center justify-center">
+          <div className="w-20 h-20 mx-auto mb-3 bg-card-bg/10 rounded-full flex items-center justify-center">
             <MessageCircle className="w-8 h-8 text-navbar-bg/90" />
           </div>
           <h3 

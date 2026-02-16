@@ -63,7 +63,7 @@ export default function SpecialContactInfo({
                         rel="noopener noreferrer"
                         className="flex items-center gap-3 text-charcoal/80 hover:text-sage transition-colors duration-200 group"
                     >
-                        <div className="w-10 h-10 rounded-full bg-sage/10 group-hover:bg-sage/20 flex items-center justify-center flex-shrink-0 transition-colors duration-200">
+                        <div className="w-10 h-10 rounded-full bg-card-bg/10 group-hover:bg-card-bg/20 flex items-center justify-center flex-shrink-0 transition-colors duration-200">
                             <Globe className="w-4 h-4 text-sage" />
                         </div>
                         <span

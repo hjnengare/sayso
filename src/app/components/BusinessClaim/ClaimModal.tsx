@@ -209,7 +209,7 @@ export function ClaimModal({ business, onClose, onSuccess }: ClaimModalProps) {
           transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
           onMouseDown={(event) => event.stopPropagation()}
         >
-          <div className="bg-sage rounded-[16px] border border-white/20 shadow-[0_24px_80px_rgba(0,0,0,0.35)] overflow-hidden">
+          <div className="bg-card-bg rounded-[16px] border border-white/20 shadow-[0_24px_80px_rgba(0,0,0,0.35)] overflow-hidden">
             <div className="flex max-h-[92dvh] sm:max-h-[90dvh] min-h-0 flex-col">
               <div className="shrink-0 border-b border-white/20 px-5 py-4 sm:px-6 sm:py-5 flex items-center justify-between">
                 <h2
@@ -368,7 +368,7 @@ export function ClaimModal({ business, onClose, onSuccess }: ClaimModalProps) {
                   </div>
                 </div>
 
-                <div className="shrink-0 border-t border-white/20 bg-sage/95 px-4 py-4 sm:px-6">
+                <div className="shrink-0 border-t border-white/20 bg-card-bg/95 px-4 py-4 sm:px-6">
                   <div className="flex flex-col sm:flex-row gap-3">
                     <button
                       type="button"

@@ -431,7 +431,7 @@ function WriteReviewContent() {
             onClick={() => router.back()}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="px-6 py-3 bg-sage text-white rounded-full text-body font-semibold"
+            className="px-6 py-3 bg-card-bg text-white rounded-full text-body font-semibold"
           >
             Go Back
           </motion.button>
@@ -500,7 +500,7 @@ function WriteReviewContent() {
                               {/* Review Form */}
                               <div className="p-4 md:p-6">
                                 {!user && (
-                                  <div className="mb-4 rounded-lg border border-sage/20 bg-sage/5 p-3">
+                                  <div className="mb-4 rounded-lg border border-sage/20 bg-card-bg/5 p-3">
                                     <p className="text-sm font-semibold text-charcoal">Posting as Anonymous</p>
                                     <p className="mt-1 text-xs text-charcoal/70">
                                       Sign in if you want this review tied to your profile identity.

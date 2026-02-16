@@ -16,7 +16,7 @@ export default function SubcategorySelection({ selectedCount, maxSelections = 10
 
   return (
     <div className="text-center mb-4">
-      <div className="inline-flex items-center gap-2 rounded-full px-4 py-2 mb-2 bg-sage/10 border border-sage/20">
+      <div className="inline-flex items-center gap-2 rounded-full px-4 py-2 mb-2 bg-card-bg/10 border border-sage/20">
         <span className="text-sm font-semibold text-sage" style={sfPro}>
           {selectedCount} of {maxSelections} selected
         </span>

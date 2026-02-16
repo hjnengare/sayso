@@ -11,6 +11,7 @@ import BusinessOfTheMonthCard from "../BusinessCard/BusinessOfTheMonthCard";
 import ScrollableSection from "../ScrollableSection/ScrollableSection";
 import WavyTypedTitle from "../../../components/Animations/WavyTypedTitle";
 import LocationPromptBanner from "../Location/LocationPromptBanner";
+import CommunityHighlightsSkeleton from "./CommunityHighlightsSkeleton";
 import {
   Review,
   Reviewer,
@@ -115,13 +116,7 @@ export default function CommunityHighlights({
   }, [propTopReviewers, propReviews]);
 
   if (loading) {
-    return (
-      <section className="relative m-0 w-full" aria-label={title}>
-        <div className="mx-auto w-full max-w-[2000px] relative z-10 px-2 py-8">
-          <div className="text-center text-charcoal/60">Loading community highlights...</div>
-        </div>
-      </section>
-    );
+    return <CommunityHighlightsSkeleton />;
   }
 
   const hasReviewers = !!topReviewers && topReviewers.length > 0;
@@ -153,7 +148,7 @@ export default function CommunityHighlights({
           <WavyTypedTitle
             text={title}
             as="h2"
-            className="font-urbanist text-h2 sm:text-h1 font-800 text-charcoal hover:text-sage transition-all duration-300 px-3 sm:px-4 py-1 hover:bg-sage/5 rounded-lg cursor-default"
+            className="font-urbanist text-h2 sm:text-h1 font-800 text-charcoal hover:text-sage transition-all duration-300 px-3 sm:px-4 py-1 hover:bg-card-bg/5 rounded-lg cursor-default"
             typingSpeedMs={40}
             startDelayMs={300}
             waveVariant="subtle"

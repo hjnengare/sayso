@@ -104,7 +104,7 @@ function AreaDetailContent() {
             <div className="flex items-center justify-center gap-4 mb-4 relative">
               <Link
                 href="/explore"
-                className="absolute left-0 w-10 h-10 rounded-full bg-sage hover:bg-sage/90 flex items-center justify-center transition-colors"
+                className="absolute left-0 w-10 h-10 rounded-full bg-card-bg hover:bg-card-bg/90 flex items-center justify-center transition-colors"
               >
                 <ChevronLeft className="w-5 h-5 text-white" />
               </Link>
@@ -144,7 +144,7 @@ function AreaDetailContent() {
               </p>
               <button
                 onClick={refetch}
-                className="inline-flex items-center justify-center px-5 py-2.5 rounded-full bg-sage text-white hover:bg-sage/90 transition-colors text-body font-semibold"
+                className="inline-flex items-center justify-center px-5 py-2.5 rounded-full bg-card-bg text-white hover:bg-card-bg/90 transition-colors text-body font-semibold"
                 style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
               >
                 Try again

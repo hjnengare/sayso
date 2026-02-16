@@ -67,6 +67,12 @@ const nextConfig: NextConfig = {
         hostname: 'images.quicket.co.za',
         pathname: '/**',
       },
+      // UI Avatars (fallback avatar generator)
+      {
+        protocol: 'https',
+        hostname: 'ui-avatars.com',
+        pathname: '/api/**',
+      },
     ],
     
     // Content Security Policy for images

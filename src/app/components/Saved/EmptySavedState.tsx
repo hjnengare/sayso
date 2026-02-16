@@ -81,7 +81,7 @@ export default function EmptySavedState() {
 
         <motion.button
           onClick={() => router.push("/home")}
-          className="inline-flex items-center gap-2 px-6 py-2.5 bg-sage text-white text-body font-semibold rounded-full hover:bg-sage/90 transition-all duration-300"
+          className="inline-flex items-center gap-2 px-6 py-2.5 bg-card-bg text-white text-body font-semibold rounded-full hover:bg-card-bg/90 transition-all duration-300"
           style={{
             fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
           }}

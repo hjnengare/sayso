@@ -35,7 +35,7 @@ const SECTIONS = [
 
 const colorMap = {
   sage: {
-    bg: "bg-sage/10",
+    bg: "bg-card-bg/10",
     border: "border-sage/20",
     icon: "text-sage",
     hover: "hover:border-sage/40",

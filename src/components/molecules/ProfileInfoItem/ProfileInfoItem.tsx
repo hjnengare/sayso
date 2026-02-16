@@ -12,7 +12,7 @@ export interface ProfileInfoItemProps {
 
 const iconColorClasses = {
   coral: 'bg-coral/10',
-  sage: 'bg-sage/10',
+  sage: 'bg-card-bg/10',
   default: 'bg-charcoal/10',
 };
 

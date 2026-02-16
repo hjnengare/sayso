@@ -50,7 +50,7 @@ export const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({
         </div>
       )}
       {success && (
-        <div className="p-3 rounded-lg bg-sage/10 border border-sage/20">
+        <div className="p-3 rounded-lg bg-card-bg/10 border border-sage/20">
           <p className="text-sm text-sage">{success}</p>
         </div>
       )}

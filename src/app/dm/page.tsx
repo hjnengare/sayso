@@ -59,7 +59,7 @@ function ChatItem({
       <div
         className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
           isSelected
-            ? "bg-sage/20 border border-sage/40"
+            ? "bg-card-bg/20 border border-sage/40"
             : "hover:bg-white/50 border border-transparent"
         }`}
       >
@@ -81,7 +81,7 @@ function ChatItem({
             )}
           </div>
         ) : (
-          <div className="w-12 h-12 flex items-center justify-center bg-sage/20 text-sage rounded-lg flex-shrink-0">
+          <div className="w-12 h-12 flex items-center justify-center bg-card-bg/20 text-sage rounded-lg flex-shrink-0">
             <MessageCircle className="w-6 h-6" strokeWidth={1.5} />
           </div>
         )}
@@ -498,7 +498,7 @@ export default function DMPage() {
                         )}
                       </div>
                     ) : (
-                      <div className="w-12 h-12 flex items-center justify-center bg-sage/20 text-sage rounded-lg">
+                      <div className="w-12 h-12 flex items-center justify-center bg-card-bg/20 text-sage rounded-lg">
                         <MessageCircle className="w-6 h-6" strokeWidth={1.5} />
                       </div>
                     )}
@@ -581,7 +581,7 @@ export default function DMPage() {
                   <button
                     type="submit"
                     disabled={!message.trim()}
-                    className="flex-shrink-0 w-9 h-9 bg-sage hover:bg-sage/90 disabled:bg-charcoal/20 disabled:cursor-not-allowed text-white rounded-lg flex items-center justify-center shadow-md shadow-sage/20 hover:shadow-lg transition-all duration-200 disabled:shadow-none"
+                    className="flex-shrink-0 w-9 h-9 bg-card-bg hover:bg-card-bg/90 disabled:bg-charcoal/20 disabled:cursor-not-allowed text-white rounded-lg flex items-center justify-center shadow-md shadow-sage/20 hover:shadow-lg transition-all duration-200 disabled:shadow-none"
                   >
                     <Send className="w-4 h-4" strokeWidth={2} />
                   </button>

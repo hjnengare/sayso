@@ -450,7 +450,7 @@ export function PremiumReviewCard({
             <div className="absolute inset-0 bg-gradient-to-br from-off-white/5 via-transparent to-transparent pointer-events-none z-0" />
             {/* subtle glows - matching BusinessCard style */}
             <span
-                className="pointer-events-none absolute -top-8 -right-8 h-20 w-20 rounded-full blur-lg bg-sage/10"
+                className="pointer-events-none absolute -top-8 -right-8 h-20 w-20 rounded-full blur-lg bg-card-bg/10"
             />
             <span
                 className="pointer-events-none absolute -bottom-8 -left-8 h-20 w-20 rounded-full blur-lg bg-coral/10"
@@ -505,7 +505,7 @@ export function PremiumReviewCard({
                                 </span>
                                 {highlight && !compact && (
                                     <span
-                                        className="inline-flex items-center gap-1 rounded-full border px-1.5 sm:px-2 py-0.5 text-[12px] sm:text-[10px] border-sage/20 bg-sage/10 text-sage"
+                                        className="inline-flex items-center gap-1 rounded-full border px-1.5 sm:px-2 py-0.5 text-[12px] sm:text-[10px] border-sage/20 bg-card-bg/10 text-sage"
                                     >
                                         <ShieldCheck className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                                         <span className="hidden xs:inline">{highlight}</span>
@@ -559,7 +559,7 @@ export function PremiumReviewCard({
                                 {reviewImages.slice(0, compact ? 4 : 8).map((image, index) => (
                                     <div
                                         key={index}
-                                        className="relative aspect-square rounded-md overflow-hidden bg-sage/10 border border-white/30 cursor-pointer group hover:border-sage/50 transition-all duration-200"
+                                        className="relative aspect-square rounded-md overflow-hidden bg-card-bg/10 border border-white/30 cursor-pointer group hover:border-sage/50 transition-all duration-200"
                                         onClick={() => handleImageClick(index)}
                                     >
                                         <img
@@ -586,7 +586,7 @@ export function PremiumReviewCard({
                             {tags.slice(0, compact ? 2 : tags.length).map((t) => (
                                 <span
                                     key={t}
-                                    className={`inline-flex items-center gap-0.5 sm:gap-1 rounded-full border px-1.5 sm:px-2 py-0.5 border-sage/25 bg-sage/10 text-sage ${
+                                    className={`inline-flex items-center gap-0.5 sm:gap-1 rounded-full border px-1.5 sm:px-2 py-0.5 border-sage/25 bg-card-bg/10 text-sage ${
                                         compact ? 'text-[12px] sm:text-[10px]' : 'text-[10px] sm:text-[11px]'
                                     }`}
                                 >
@@ -651,7 +651,7 @@ export function PremiumReviewCard({
                                                         handleEdit();
                                                         setShowMenu(false);
                                                     }}
-                                                    className="w-full px-4 py-2.5 sm:py-3 text-left text-sm font-medium text-charcoal hover:bg-sage/10 flex items-center gap-2 transition-colors border-b border-charcoal/5 whitespace-nowrap min-h-[44px]"
+                                                    className="w-full px-4 py-2.5 sm:py-3 text-left text-sm font-medium text-charcoal hover:bg-card-bg/10 flex items-center gap-2 transition-colors border-b border-charcoal/5 whitespace-nowrap min-h-[44px]"
                                                 >
                                                     <Edit className="h-4 w-4 text-sage flex-shrink-0" />
                                                     <span>Edit Review</span>

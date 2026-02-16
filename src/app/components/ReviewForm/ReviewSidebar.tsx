@@ -60,13 +60,13 @@ export default function ReviewSidebar({
         : "min-w-[240px] sm:min-w-[260px] max-w-[260px] sm:max-w-[280px] bg-gradient-to-br from-white/85 to-white/60 backdrop-blur-md border border-sage/10 rounded-[12px] p-3 sm:p-4 relative overflow-hidden";
     const avatarClasses =
       variant === "desktop"
-        ? "relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-sage/10"
-        : "relative w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden flex-shrink-0 bg-sage/10";
+        ? "relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-card-bg/10"
+        : "relative w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden flex-shrink-0 bg-card-bg/10";
     const textLineClass = "h-3 rounded-full bg-charcoal/10";
 
     return (
       <div key={`${keyBase}-${review?.id ?? `placeholder-${index}`}`} className={containerClasses}>
-        <span className="pointer-events-none absolute -top-8 -right-8 h-20 w-20 rounded-full bg-sage/10 blur-lg" />
+        <span className="pointer-events-none absolute -top-8 -right-8 h-20 w-20 rounded-full bg-card-bg/10 blur-lg" />
         <span className="pointer-events-none absolute -bottom-8 -left-8 h-20 w-20 rounded-full bg-coral/10 blur-lg" />
         <div className="flex gap-3 relative z-10">
           <div className={avatarClasses}>
@@ -208,10 +208,10 @@ export default function ReviewSidebar({
     if (showFallback) {
       return (
         <div className="rounded-[12px] border border-sage/10 bg-gradient-to-br from-white/85 to-white/60 backdrop-blur-md px-4 py-8 relative overflow-hidden border border-white/30">
-          <span className="pointer-events-none absolute -top-8 -right-8 h-20 w-20 rounded-full bg-sage/10 blur-lg" />
+          <span className="pointer-events-none absolute -top-8 -right-8 h-20 w-20 rounded-full bg-card-bg/10 blur-lg" />
           <span className="pointer-events-none absolute -bottom-8 -left-8 h-20 w-20 rounded-full bg-coral/10 blur-lg" />
           <div className="flex flex-col items-center justify-center text-center relative z-10 space-y-3">
-            <div className="w-12 h-12 rounded-full bg-sage/10 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-full bg-card-bg/10 flex items-center justify-center">
               <MessageSquare className="w-6 h-6 text-sage/60" />
             </div>
             <div>
@@ -240,10 +240,10 @@ export default function ReviewSidebar({
     if (showFallback) {
       return (
         <div className="mx-4 rounded-[12px] border border-sage/10 bg-gradient-to-br from-white/85 to-white/60 backdrop-blur-md px-4 py-8 relative overflow-hidden">
-          <span className="pointer-events-none absolute -top-8 -right-8 h-20 w-20 rounded-full bg-sage/10 blur-lg" />
+          <span className="pointer-events-none absolute -top-8 -right-8 h-20 w-20 rounded-full bg-card-bg/10 blur-lg" />
           <span className="pointer-events-none absolute -bottom-8 -left-8 h-20 w-20 rounded-full bg-coral/10 blur-lg" />
           <div className="flex flex-col items-center justify-center text-center relative z-10 space-y-3">
-            <div className="w-12 h-12 rounded-full bg-sage/10 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-full bg-card-bg/10 flex items-center justify-center">
               <MessageSquare className="w-6 h-6 text-sage/60" />
             </div>
             <div>

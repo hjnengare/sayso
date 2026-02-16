@@ -132,7 +132,7 @@ export default function MenuModal({ isOpen, isVisible, onClose }: MenuModalProps
           </div>
           <button
             onClick={onClose}
-            className="w-10 h-10 border border-charcoal/10 bg-charcoal/5 hover:bg-sage/10 flex items-center justify-center rounded-full transition-all duration-200 touch-target-large"
+            className="w-10 h-10 border border-charcoal/10 bg-charcoal/5 hover:bg-card-bg/10 flex items-center justify-center rounded-full transition-all duration-200 touch-target-large"
             aria-label="Close menu"
           >
             <X className="w-4 h-4 text-charcoal/70" />
@@ -151,7 +151,7 @@ export default function MenuModal({ isOpen, isVisible, onClose }: MenuModalProps
           {/* Write Review */}
           <button
             onClick={() => handleNavigation("/business/review")}
-            className="w-full flex items-center space-x-4 p-4 rounded-[12px] hover:bg-sage/5 transition-all duration-200 group mobile-interaction touch-target-large"
+            className="w-full flex items-center space-x-4 p-4 rounded-[12px] hover:bg-card-bg/5 transition-all duration-200 group mobile-interaction touch-target-large"
           >
             <div className="w-10 h-10 bg-coral/10 rounded-full flex items-center justify-center group-hover:bg-coral/20 transition-colors duration-200">
               <Edit className="w-5 h-5 text-coral" />
@@ -172,15 +172,15 @@ export default function MenuModal({ isOpen, isVisible, onClose }: MenuModalProps
             href="/saved"
             onClick={onClose}
             className={`w-full flex items-center space-x-4 p-4 rounded-[12px] transition-all duration-200 group mobile-interaction touch-target-large relative ${
-              isSavedActive ? 'bg-sage/5' : 'hover:bg-sage/5'
+              isSavedActive ? 'bg-card-bg/5' : 'hover:bg-card-bg/5'
             }`}
           >
             <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-200 relative ${
-              isSavedActive ? 'bg-sage/20' : 'bg-sage/10 group-hover:bg-sage/20'
+              isSavedActive ? 'bg-card-bg/20' : 'bg-card-bg/10 group-hover:bg-card-bg/20'
             }`}>
               <Bookmark className={`w-5 h-5 ${isSavedActive ? 'text-sage' : 'text-charcoal/60'}`} fill={isSavedActive ? 'currentColor' : 'none'} />
               {savedCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[12px] h-5 px-1.5 bg-sage text-white text-[11px] font-semibold rounded-full shadow-md">
+                <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[12px] h-5 px-1.5 bg-card-bg text-white text-[11px] font-semibold rounded-full shadow-md">
                   {savedCount > 99 ? '99+' : savedCount}
                 </span>
               )}
@@ -203,11 +203,11 @@ export default function MenuModal({ isOpen, isVisible, onClose }: MenuModalProps
             href="/home"
             onClick={onClose}
             className={`w-full flex items-center space-x-4 p-4 rounded-[12px] transition-all duration-200 group mobile-interaction touch-target-large ${
-              isHomeActive ? 'bg-sage/5' : 'hover:bg-sage/5'
+              isHomeActive ? 'bg-card-bg/5' : 'hover:bg-card-bg/5'
             }`}
           >
             <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-200 ${
-              isHomeActive ? 'bg-sage/20' : 'bg-sage/10 group-hover:bg-sage/20'
+              isHomeActive ? 'bg-card-bg/20' : 'bg-card-bg/10 group-hover:bg-card-bg/20'
             }`}>
               <Home className={`w-5 h-5 ${isHomeActive ? 'text-sage' : 'text-charcoal/60'}`} fill={isHomeActive ? 'currentColor' : 'none'} />
             </div>
@@ -229,11 +229,11 @@ export default function MenuModal({ isOpen, isVisible, onClose }: MenuModalProps
             href="/profile"
             onClick={onClose}
             className={`w-full flex items-center space-x-4 p-4 rounded-[12px] transition-all duration-200 group mobile-interaction touch-target-large ${
-              isProfileActive ? 'bg-sage/5' : 'hover:bg-sage/5'
+              isProfileActive ? 'bg-card-bg/5' : 'hover:bg-card-bg/5'
             }`}
           >
             <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-200 ${
-              isProfileActive ? 'bg-sage/20' : 'bg-sage/10 group-hover:bg-sage/20'
+              isProfileActive ? 'bg-card-bg/20' : 'bg-card-bg/10 group-hover:bg-card-bg/20'
             }`}>
               <User className={`w-5 h-5 ${isProfileActive ? 'text-sage' : 'text-charcoal/60'}`} fill={isProfileActive ? 'currentColor' : 'none'} />
             </div>
@@ -261,9 +261,9 @@ export default function MenuModal({ isOpen, isVisible, onClose }: MenuModalProps
                 searchInput.focus();
               }
             }}
-            className="w-full flex items-center space-x-4 p-4 rounded-[12px] hover:bg-sage/5 transition-all duration-200 group mobile-interaction touch-target-large"
+            className="w-full flex items-center space-x-4 p-4 rounded-[12px] hover:bg-card-bg/5 transition-all duration-200 group mobile-interaction touch-target-large"
           >
-            <div className="w-10 h-10 bg-sage/10 rounded-full flex items-center justify-center group-hover:bg-sage/20 transition-colors duration-200">
+            <div className="w-10 h-10 bg-card-bg/10 rounded-full flex items-center justify-center group-hover:bg-card-bg/20 transition-colors duration-200">
               <Search className="w-5 h-5 text-sage" />
             </div>
             <div className="flex-1 text-left">
@@ -282,7 +282,7 @@ export default function MenuModal({ isOpen, isVisible, onClose }: MenuModalProps
         {user && (
           <div className="mt-8 p-6 border-t border-sage/10">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="w-12 h-12 bg-sage/10 rounded-full flex items-center justify-center">
+              <div className="w-12 h-12 bg-card-bg/10 rounded-full flex items-center justify-center">
                 <User className="w-6 h-6 text-sage" />
               </div>
               <div>
@@ -299,7 +299,7 @@ export default function MenuModal({ isOpen, isVisible, onClose }: MenuModalProps
             <div className="space-y-2">
               <button
                 onClick={() => handleNavigation("/settings")}
-                className="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-sage/5 transition-all duration-200 group mobile-interaction"
+                className="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-card-bg/5 transition-all duration-200 group mobile-interaction"
               >
                 <Settings className="w-4 h-4 text-charcoal/60 group-hover:text-sage transition-colors duration-200" />
                 <span className="font-urbanist text-sm font-bold text-charcoal group-hover:text-sage transition-colors duration-200">
@@ -309,7 +309,7 @@ export default function MenuModal({ isOpen, isVisible, onClose }: MenuModalProps
 
               <button
                 onClick={() => handleNavigation("/help")}
-                className="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-sage/5 transition-all duration-200 group mobile-interaction"
+                className="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-card-bg/5 transition-all duration-200 group mobile-interaction"
               >
                 <HelpCircle className="w-4 h-4 text-charcoal/60 group-hover:text-sage transition-colors duration-200" />
                 <span className="font-urbanist text-sm font-bold text-charcoal group-hover:text-sage transition-colors duration-200">

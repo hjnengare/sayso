@@ -154,6 +154,31 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
       },
     };
 
+    // Revalidate business page so reply shows immediately
+    try {
+      const { revalidatePath } = await import('next/cache');
+      const { data: reviewData } = await supabase
+        .from('reviews')
+        .select('business_id')
+        .eq('id', reviewId)
+        .maybeSingle();
+      
+      if (reviewData?.business_id) {
+        const { data: businessRow } = await supabase
+          .from('businesses')
+          .select('id, slug')
+          .eq('id', reviewData.business_id)
+          .maybeSingle();
+        
+        if (businessRow) {
+          const segment = businessRow.slug || businessRow.id;
+          revalidatePath(`/business/${segment}`);
+        }
+      }
+    } catch (revalErr) {
+      console.warn('[Reply Create] Revalidation error:', revalErr);
+    }
+
     return NextResponse.json({ reply: transformedReply }, { status: 201 });
   } catch (err) {
     console.error('POST /reviews/[id]/replies unexpected error:', err);
@@ -260,6 +285,31 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
       },
     };
 
+    // Revalidate business page so updated reply shows immediately
+    try {
+      const { revalidatePath } = await import('next/cache');
+      const { data: reviewData } = await supabase
+        .from('reviews')
+        .select('business_id')
+        .eq('id', reviewId)
+        .maybeSingle();
+      
+      if (reviewData?.business_id) {
+        const { data: businessRow } = await supabase
+          .from('businesses')
+          .select('id, slug')
+          .eq('id', reviewData.business_id)
+          .maybeSingle();
+        
+        if (businessRow) {
+          const segment = businessRow.slug || businessRow.id;
+          revalidatePath(`/business/${segment}`);
+        }
+      }
+    } catch (revalErr) {
+      console.warn('[Reply Update] Revalidation error:', revalErr);
+    }
+
     return NextResponse.json({ reply: transformedReply });
   } catch (err) {
     console.error('PUT /reviews/[id]/replies unexpected error:', err);
@@ -328,6 +378,31 @@ export async function DELETE(req: NextRequest, { params }: RouteContext) {
         { error: 'Failed to delete reply' },
         { status: 500 }
       );
+    }
+
+    // Revalidate business page so deleted reply disappears immediately
+    try {
+      const { revalidatePath } = await import('next/cache');
+      const { data: reviewData } = await supabase
+        .from('reviews')
+        .select('business_id')
+        .eq('id', reviewId)
+        .maybeSingle();
+      
+      if (reviewData?.business_id) {
+        const { data: businessRow } = await supabase
+          .from('businesses')
+          .select('id, slug')
+          .eq('id', reviewData.business_id)
+          .maybeSingle();
+        
+        if (businessRow) {
+          const segment = businessRow.slug || businessRow.id;
+          revalidatePath(`/business/${segment}`);
+        }
+      }
+    } catch (revalErr) {
+      console.warn('[Reply Delete] Revalidation error:', revalErr);
     }
 
     return NextResponse.json({ success: true });

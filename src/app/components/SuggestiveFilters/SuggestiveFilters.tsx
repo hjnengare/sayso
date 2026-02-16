@@ -102,7 +102,7 @@ export default function SuggestiveFilters({
                   key={option.value}
                   variants={itemVariants}
                   onClick={() => onUpdateFilter('minRating', option.value)}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-off-white border border-sage/30 text-sage hover:bg-sage/10 hover:border-sage/50 transition-all text-sm font-semibold shadow-sm"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-off-white border border-sage/30 text-sage hover:bg-card-bg/10 hover:border-sage/50 transition-all text-sm font-semibold shadow-sm"
                   style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}

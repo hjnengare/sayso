@@ -11,7 +11,7 @@ export default function SelectAccountTypePage() {
           Welcome! Please choose an option:
         </h1>
         <div className="flex flex-col gap-6 w-full max-w-md">
-          <Link href="/login" className="w-full py-3 px-4 rounded-full font-semibold bg-sage text-white text-center hover:bg-sage/90 transition-all duration-300" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 600 }}>
+          <Link href="/login" className="w-full py-3 px-4 rounded-full font-semibold bg-card-bg text-white text-center hover:bg-card-bg/90 transition-all duration-300" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 600 }}>
             Personal Login
           </Link>
           <Link href="/register" className="w-full py-3 px-4 rounded-full font-semibold bg-charcoal text-white text-center hover:bg-charcoal/90 transition-all duration-300" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 600 }}>

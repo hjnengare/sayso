@@ -40,7 +40,7 @@ export default function SpecialHeroImage({ special, isLiked = false, onLike }: S
             
             {/* Special Badge */}
             <div className="absolute top-4 left-4 z-20">
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-sage/90 text-white border border-sage/50 backdrop-blur-sm">
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card-bg/90 text-white border border-sage/50 backdrop-blur-sm">
                     <Percent className="w-3.5 h-3.5" />
                     <span className="text-xs font-semibold" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
                         Special Offer

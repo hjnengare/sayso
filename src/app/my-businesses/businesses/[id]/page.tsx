@@ -483,7 +483,7 @@ export default function OwnerBusinessDashboard() {
                     <div className="relative z-10 p-4 sm:p-6">
                       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                         <div className="relative flex-shrink-0 group">
-                          <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full border-[3px] border-coral shadow-xl overflow-hidden bg-sage/20">
+                          <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full border-[3px] border-coral shadow-xl overflow-hidden bg-card-bg/20">
                             {business.image_url ? (
                               <Image
                                 src={business.image_url}
@@ -530,7 +530,7 @@ export default function OwnerBusinessDashboard() {
                               {business.name}
                             </h1>
                             {business.verified && (
-                              <div className="px-2 py-0.5 rounded-full text-caption font-semibold flex items-center gap-1 bg-sage/20 text-sage">
+                              <div className="px-2 py-0.5 rounded-full text-caption font-semibold flex items-center gap-1 bg-card-bg/20 text-sage">
                                 <Star size={12} />
                                 <span className="capitalize">Verified</span>
                               </div>
@@ -552,7 +552,7 @@ export default function OwnerBusinessDashboard() {
                           <div className="flex items-center gap-2.5 flex-wrap text-xs text-charcoal/70">
                             <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${
                               (business as any).status === 'active'
-                                ? 'bg-sage/15 text-sage'
+                                ? 'bg-card-bg/15 text-sage'
                                 : (business as any).status === 'pending_approval'
                                   ? 'bg-coral/15 text-coral'
                                   : 'bg-charcoal/10 text-charcoal/60'
@@ -657,7 +657,7 @@ export default function OwnerBusinessDashboard() {
                         href={`/business/${businessId}/edit`}
                         className="group bg-gradient-to-br from-card-bg via-card-bg to-card-bg/80 backdrop-blur-xl border border-white/60 rounded-[12px] p-4 flex flex-col items-center gap-2 text-center hover:border-sage/40 hover:translate-y-[-2px] transition-all duration-200"
                       >
-                        <span className="grid h-10 w-10 place-items-center rounded-full bg-sage/15 group-hover:bg-sage/25 transition-colors">
+                        <span className="grid h-10 w-10 place-items-center rounded-full bg-card-bg/15 group-hover:bg-card-bg/25 transition-colors">
                           <Edit className="w-5 h-5 text-sage" />
                         </span>
                         <span className="text-sm font-semibold text-charcoal">Edit Details</span>
@@ -666,7 +666,7 @@ export default function OwnerBusinessDashboard() {
                         href={`/business/${businessId}/edit`}
                         className="group bg-gradient-to-br from-card-bg via-card-bg to-card-bg/80 backdrop-blur-xl border border-white/60 rounded-[12px] p-4 flex flex-col items-center gap-2 text-center hover:border-sage/40 hover:translate-y-[-2px] transition-all duration-200"
                       >
-                        <span className="grid h-10 w-10 place-items-center rounded-full bg-sage/15 group-hover:bg-sage/25 transition-colors">
+                        <span className="grid h-10 w-10 place-items-center rounded-full bg-card-bg/15 group-hover:bg-card-bg/25 transition-colors">
                           <Upload className="w-5 h-5 text-sage" />
                         </span>
                         <span className="text-sm font-semibold text-charcoal">Upload Photos</span>
@@ -684,7 +684,7 @@ export default function OwnerBusinessDashboard() {
                         href="/add-event"
                         className="group bg-gradient-to-br from-card-bg via-card-bg to-card-bg/80 backdrop-blur-xl border border-white/60 rounded-[12px] p-4 flex flex-col items-center gap-2 text-center hover:border-sage/40 hover:translate-y-[-2px] transition-all duration-200"
                       >
-                        <span className="grid h-10 w-10 place-items-center rounded-full bg-sage/15 group-hover:bg-sage/25 transition-colors">
+                        <span className="grid h-10 w-10 place-items-center rounded-full bg-card-bg/15 group-hover:bg-card-bg/25 transition-colors">
                           <Calendar className="w-5 h-5 text-sage" />
                         </span>
                         <span className="text-sm font-semibold text-charcoal">Add Event / Special</span>
@@ -696,7 +696,7 @@ export default function OwnerBusinessDashboard() {
                           <TrendingUp className="w-5 h-5 text-charcoal/40" />
                         </span>
                         <span className="text-sm font-semibold text-charcoal/60">Promote</span>
-                        <span className="text-[10px] bg-sage/20 text-sage px-1.5 py-0.5 rounded-full font-semibold">Soon</span>
+                        <span className="text-[10px] bg-card-bg/20 text-sage px-1.5 py-0.5 rounded-full font-semibold">Soon</span>
                       </div>
                       <button
                         type="button"
@@ -727,7 +727,7 @@ export default function OwnerBusinessDashboard() {
                     <div className="flex items-center gap-3">
                       <div className="flex-1 h-2 bg-charcoal/10 rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-sage rounded-full transition-all duration-500"
+                          className="h-full bg-card-bg rounded-full transition-all duration-500"
                           style={{ width: `${profileCompletion}%` }}
                         />
                       </div>
@@ -738,7 +738,7 @@ export default function OwnerBusinessDashboard() {
                       {growthChecklist.map((item) => (
                         <li key={item.label} className="flex items-center gap-3">
                           <span className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${
-                            item.done ? 'bg-sage/20' : 'bg-charcoal/5'
+                            item.done ? 'bg-card-bg/20' : 'bg-charcoal/5'
                           }`}>
                             {item.done ? (
                               <CheckCircle className="w-3.5 h-3.5 text-sage" />

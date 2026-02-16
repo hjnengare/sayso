@@ -83,7 +83,7 @@ export function AdvancedFilters() {
                     onClick={() => togglePrice(price)}
                     className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-all duration-200 border-2 ${
                       filters.priceRange.includes(price)
-                        ? 'bg-sage text-white border-sage'
+                        ? 'bg-card-bg text-white border-sage'
                         : 'bg-white text-charcoal border-charcoal/20 hover:border-sage'
                     }`}
                     style={{ fontFamily: 'Urbanist, system-ui, sans-serif', fontWeight: 600 }}
@@ -122,7 +122,7 @@ export function AdvancedFilters() {
               <button
                 onClick={() => setOpenNow(!filters.openNow)}
                 className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${
-                  filters.openNow ? 'bg-sage' : 'bg-charcoal/20'
+                  filters.openNow ? 'bg-card-bg' : 'bg-charcoal/20'
                 }`}
                 role="switch"
                 aria-checked={filters.openNow}
@@ -157,7 +157,7 @@ export function AdvancedFilters() {
               <button
                 onClick={() => setMustMeetDealbreakers(!filters.mustMeetDealbreakers)}
                 className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${
-                  filters.mustMeetDealbreakers ? 'bg-sage' : 'bg-charcoal/20'
+                  filters.mustMeetDealbreakers ? 'bg-card-bg' : 'bg-charcoal/20'
                 }`}
                 role="switch"
                 aria-checked={filters.mustMeetDealbreakers}
@@ -182,7 +182,7 @@ export function AdvancedFilters() {
             </button>
             <button
               onClick={toggleAdvanced}
-              className="flex-1 py-3 rounded-full text-sm font-semibold text-white bg-sage hover:bg-sage/90 transition-all duration-200"
+              className="flex-1 py-3 rounded-full text-sm font-semibold text-white bg-card-bg hover:bg-card-bg/90 transition-all duration-200"
               style={{ fontFamily: 'Urbanist, system-ui, sans-serif', fontWeight: 600 }}
             >
               Apply Filters

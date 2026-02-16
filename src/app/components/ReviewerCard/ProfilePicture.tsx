@@ -78,7 +78,7 @@ export default function ProfilePicture({
   if (!src || src.trim() === '' || imgError) {
     return (
       <div className="relative inline-block">
-        <div className={`${sizeClasses[size]} rounded-full bg-sage/10 flex items-center justify-center border-2 border-white ring-2 ring-white/50`}>
+        <div className={`${sizeClasses[size]} rounded-full bg-card-bg/10 flex items-center justify-center border-2 border-white ring-2 ring-white/50`}>
           <User
             className={`${size === 'sm' ? 'w-3 h-3' : size === 'md' ? 'w-3.5 h-3.5' : 'w-4 h-4'} text-sage/70`}
           />

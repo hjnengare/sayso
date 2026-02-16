@@ -395,7 +395,7 @@ export default function SpecialDetailPage({ params }: SpecialDetailPageProps) {
                 
                 {/* Special Badge */}
                 <div className="absolute top-6 left-6">
-                  <span className="px-4 py-2 rounded-full text-sm font-semibold backdrop-blur-md border bg-sage/90 text-white border-sage/50">
+                  <span className="px-4 py-2 rounded-full text-sm font-semibold backdrop-blur-md border bg-card-bg/90 text-white border-sage/50">
                     Special Offer
                   </span>
                 </div>
@@ -472,7 +472,7 @@ export default function SpecialDetailPage({ params }: SpecialDetailPageProps) {
                   )}
 
                   <div className="flex items-center gap-2.5">
-                    <div className="w-10 h-10 bg-sage/10 rounded-full flex items-center justify-center">
+                    <div className="w-10 h-10 bg-card-bg/10 rounded-full flex items-center justify-center">
                       <Percent className="text-sage" size={18} />
                     </div>
                     <div>
@@ -493,7 +493,7 @@ export default function SpecialDetailPage({ params }: SpecialDetailPageProps) {
 
                   {special.businessName && (
                     <div className="flex items-center gap-2.5">
-                      <div className="w-10 h-10 bg-sage/10 rounded-full flex items-center justify-center">
+                      <div className="w-10 h-10 bg-card-bg/10 rounded-full flex items-center justify-center">
                         <Users className="text-sage" size={18} />
                       </div>
                       <div>
@@ -561,7 +561,7 @@ export default function SpecialDetailPage({ params }: SpecialDetailPageProps) {
                     <button className="flex-1 bg-white/40 backdrop-blur-sm hover:bg-coral text-charcoal/90 hover:text-white py-2 px-3 rounded-full transition-all duration-200 border border-white/40">
                       <Facebook size={16} className="mx-auto" />
                     </button>
-                    <button className="flex-1 bg-white/40 backdrop-blur-sm hover:bg-sage text-charcoal/90 hover:text-white py-2 px-3 rounded-full transition-all duration-200 border border-white/40">
+                    <button className="flex-1 bg-white/40 backdrop-blur-sm hover:bg-card-bg text-charcoal/90 hover:text-white py-2 px-3 rounded-full transition-all duration-200 border border-white/40">
                       <Instagram size={16} className="mx-auto" />
                     </button>
                     <button className="flex-1 bg-white/40 backdrop-blur-sm hover:bg-charcoal text-charcoal/90 hover:text-white py-2 px-3 rounded-full transition-all duration-200 border border-white/40">

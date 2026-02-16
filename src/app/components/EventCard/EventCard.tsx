@@ -9,7 +9,7 @@ import { motion } from "framer-motion";
 import { Star, Edit, Bookmark, Share2 } from "lucide-react";
 import { getEventIconPng } from "../../utils/eventIconToPngMapping";
 import EventBadge from "./EventBadge";
-import { useState, memo } from "react";
+import { useState, memo, useEffect } from "react";
 import { useSavedItems } from "../../contexts/SavedItemsContext";
 import { useToast } from "../../contexts/ToastContext";
 
@@ -146,6 +146,69 @@ function EventCard({ event, index = 0 }: EventCardProps) {
   const reviews = (event as any).reviews ?? (event as any).totalReviews ?? 0;
   const hasReviewed = false;
 
+  // Smart countdown state
+  const [countdown, setCountdown] = useState<{ 
+    days: number; 
+    hours: number; 
+    minutes: number; 
+    show: boolean;
+    status: 'upcoming' | 'live' | 'ended';
+  }>({ 
+    days: 0, 
+    hours: 0, 
+    minutes: 0, 
+    show: false,
+    status: 'ended'
+  });
+
+  // Calculate countdown to event start
+  useEffect(() => {
+    const calculateCountdown = () => {
+      const startDate = event.startDateISO || event.startDate;
+      const endDate = event.endDateISO || event.endDate;
+      
+      if (!startDate) {
+        setCountdown({ days: 0, hours: 0, minutes: 0, show: false, status: 'ended' });
+        return;
+      }
+
+      const now = new Date().getTime();
+      const eventStartTime = new Date(startDate).getTime();
+      const eventEndTime = endDate ? new Date(endDate).getTime() : eventStartTime + (24 * 60 * 60 * 1000); // Default to 24h after start if no end date
+      
+      // Event has ended
+      if (now > eventEndTime) {
+        setCountdown({ days: 0, hours: 0, minutes: 0, show: false, status: 'ended' });
+        return;
+      }
+
+      // Event is currently happening
+      if (now >= eventStartTime && now <= eventEndTime) {
+        setCountdown({ days: 0, hours: 0, minutes: 0, show: true, status: 'live' });
+        return;
+      }
+
+      // Event is upcoming
+      const diff = eventStartTime - now;
+      
+      // Only show countdown if event is within 30 days
+      if (diff > 0 && diff <= 30 * 24 * 60 * 60 * 1000) {
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        
+        setCountdown({ days, hours, minutes, show: true, status: 'upcoming' });
+      } else {
+        setCountdown({ days: 0, hours: 0, minutes: 0, show: false, status: 'upcoming' });
+      }
+    };
+
+    calculateCountdown();
+    const interval = setInterval(calculateCountdown, 60000); // Update every minute
+
+    return () => clearInterval(interval);
+  }, [event.startDateISO, event.startDate, event.endDateISO, event.endDate]);
+
   const handleWriteReview = (e: MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -230,17 +293,12 @@ function EventCard({ event, index = 0 }: EventCardProps) {
                   <span className="text-sm font-semibold text-charcoal" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>{Number(displayRating).toFixed(1)}</span>
                 </div>
               )}
-              {!hasRating && (
-                <div className="absolute right-4 top-4 z-20 inline-flex items-center gap-1 rounded-full bg-off-white/95 backdrop-blur-xl px-3 py-1.5 text-charcoal border border-white/40 shadow-md">
-                  <span className="text-sm font-semibold text-charcoal" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>–</span>
-                </div>
-              )}
 
               {/* Floating actions - same style as Business Card (desktop only) */}
               <div data-event-card-action className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-20 flex-col items-center gap-2 transition-all duration-300 ease-out translate-x-12 opacity-0 md:group-hover:translate-x-0 md:group-hover:opacity-100">
                 <button
                   type="button"
-                  className={`w-10 h-10 bg-off-white/40 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40 shadow-md active:translate-y-[1px] transform-gpu touch-manipulation select-none ${hasReviewed ? 'opacity-50 cursor-not-allowed' : 'hover:bg-off-white/60 hover:scale-110 hover:text-charcoal/90 active:scale-95'}`}
+                  className={`w-10 h-10 bg-off-white/90 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40 shadow-md active:translate-y-[1px] transform-gpu touch-manipulation select-none ${hasReviewed ? 'opacity-50 cursor-not-allowed' : 'hover:bg-off-white/60 hover:scale-110 hover:text-charcoal/90 active:scale-95'}`}
                   onClick={handleWriteReview}
                   disabled={hasReviewed}
                   aria-label={hasReviewed ? `You have already reviewed ${event.title}` : `Write a review for ${event.title}`}
@@ -250,7 +308,7 @@ function EventCard({ event, index = 0 }: EventCardProps) {
                 </button>
                 <button
                   type="button"
-                  className="w-10 h-10 bg-off-white/40 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-off-white/60 hover:scale-110 hover:text-charcoal/90 active:scale-95 active:translate-y-[1px] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40 shadow-md transform-gpu touch-manipulation select-none"
+                  className="w-10 h-10 bg-off-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-off-white/60 hover:scale-110 hover:text-charcoal/90 active:scale-95 active:translate-y-[1px] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40 shadow-md transform-gpu touch-manipulation select-none"
                   onClick={handleBookmark}
                   aria-label={isItemSaved(event.id) ? `Remove from saved ${event.title}` : `Save ${event.title}`}
                   title={isItemSaved(event.id) ? 'Remove from saved' : 'Save'}
@@ -259,7 +317,7 @@ function EventCard({ event, index = 0 }: EventCardProps) {
                 </button>
                 <button
                   type="button"
-                  className="w-10 h-10 bg-off-white/40 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-off-white/60 hover:scale-110 hover:text-charcoal/90 active:scale-95 active:translate-y-[1px] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40 shadow-md transform-gpu touch-manipulation select-none"
+                  className="w-10 h-10 bg-off-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-off-white/60 hover:scale-110 hover:text-charcoal/90 active:scale-95 active:translate-y-[1px] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 border border-white/40 shadow-md transform-gpu touch-manipulation select-none"
                   onClick={handleShare}
                   aria-label={`Share ${event.title}`}
                   title="Share"
@@ -268,17 +326,84 @@ function EventCard({ event, index = 0 }: EventCardProps) {
                 </button>
               </div>
 
-              {event.type === "event" && event.businessId && (
-                <div className="absolute left-3 bottom-3 z-20 inline-flex items-center rounded-full bg-off-white/90 backdrop-blur-[2px] px-2.5 py-1 text-[11px] font-medium text-charcoal shadow-[0_2px_8px_rgba(0,0,0,0.12)]">
-                  <span
-                    className="leading-none"
-                    style={{
-                      fontFamily:
-                        "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-                    }}
-                  >
-                    Business-linked event
-                  </span>
+              {/* Smart Countdown Badge */}
+              {countdown.show && (
+                <div className="absolute left-3 bottom-3 z-20 inline-flex items-center gap-1.5 rounded-full bg-off-white/95 backdrop-blur-md px-3 py-1.5 shadow-[0_2px_12px_rgba(0,0,0,0.15)] border border-white/60">
+                  {countdown.status === 'live' ? (
+                    <span 
+                      className="text-sm font-bold text-coral leading-none animate-pulse"
+                      style={{
+                        fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                        fontWeight: 700,
+                      }}
+                    >
+                      LIVE NOW
+                    </span>
+                  ) : (
+                    <>
+                      {countdown.days > 0 && (
+                        <div className="flex items-baseline gap-0.5">
+                          <span 
+                            className="text-sm font-bold text-charcoal leading-none"
+                            style={{
+                              fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                              fontWeight: 700,
+                            }}
+                          >
+                            {countdown.days}
+                          </span>
+                          <span 
+                            className="text-[10px] font-medium text-charcoal/60 leading-none"
+                            style={{
+                              fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                            }}
+                          >
+                            d
+                          </span>
+                        </div>
+                      )}
+                      {(countdown.days > 0 || countdown.hours > 0) && (
+                        <div className="flex items-baseline gap-0.5">
+                          <span 
+                            className="text-sm font-bold text-charcoal leading-none"
+                            style={{
+                              fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                              fontWeight: 700,
+                            }}
+                          >
+                            {countdown.hours}
+                          </span>
+                          <span 
+                            className="text-[10px] font-medium text-charcoal/60 leading-none"
+                            style={{
+                              fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                            }}
+                          >
+                            h
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex items-baseline gap-0.5">
+                        <span 
+                          className="text-sm font-bold text-charcoal leading-none"
+                          style={{
+                            fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                            fontWeight: 700,
+                          }}
+                        >
+                          {countdown.minutes}
+                        </span>
+                        <span 
+                          className="text-[10px] font-medium text-charcoal/60 leading-none"
+                          style={{
+                            fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                          }}
+                        >
+                          m
+                        </span>
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
             </motion.div>
@@ -327,7 +452,7 @@ function EventCard({ event, index = 0 }: EventCardProps) {
 
             {event.occurrencesCount != null && event.occurrencesCount > 1 && (
               <span
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-sage/10 text-sage text-sm font-medium w-fit"
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-card-bg/10 text-sage text-sm font-medium w-fit"
                 style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
               >
                 {event.occurrencesCount} dates available
@@ -385,6 +510,21 @@ function EventCard({ event, index = 0 }: EventCardProps) {
                 )}
               </div>
             </div>
+            
+            {/* Desktop "View Event" Button */}
+            <div className="hidden md:flex items-center justify-center pt-2 pb-0.5 px-1">
+              <button
+                type="button"
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); router.push(eventDetailHref); }}
+                className="w-full flex items-center justify-center px-4 py-2.5 rounded-full text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-sage/40 border transition-all duration-200 shadow-md bg-gradient-to-br from-navbar-bg to-navbar-bg/90 text-white border-sage/50 hover:scale-[1.02] active:scale-95 active:translate-y-[1px] transform-gpu touch-manipulation select-none"
+                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
+                aria-label="View event details"
+              >
+                View Event
+              </button>
+            </div>
+            
+            {/* Mobile "View Details" Button */}
             <div className="md:hidden flex items-center justify-center pt-1.5 pb-1 px-1">
               <button
                 type="button"

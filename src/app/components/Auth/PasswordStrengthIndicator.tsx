@@ -24,8 +24,8 @@ export function PasswordStrengthIndicator({ strength, showChecks = true }: Passw
               score === 0 ? 'w-0 bg-transparent' :
               score === 1 ? 'w-1/4 bg-red-500' :
               score === 2 ? 'w-1/2 bg-yellow-500' :
-              score === 3 ? 'w-3/4 bg-sage' :
-              'w-full bg-sage'
+              score === 3 ? 'w-3/4 bg-card-bg' :
+              'w-full bg-card-bg'
             }`}
           />
         </div>

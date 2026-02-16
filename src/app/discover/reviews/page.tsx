@@ -245,7 +245,7 @@ export default function GeneralReviewsPage() {
           </Link>
           <Link
             href="/write-review"
-            className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-sage hover:bg-sage/90 text-white rounded-full text-sm sm:text-base font-semibold transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg shadow-sage/20 border border-sage/20 whitespace-nowrap"
+            className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-card-bg hover:bg-card-bg/90 text-white rounded-full text-sm sm:text-base font-semibold transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg shadow-sage/20 border border-sage/20 whitespace-nowrap"
             aria-label="Write a review"
           >
             <TrendingUp size={16} strokeWidth={2.5} />
@@ -295,7 +295,7 @@ export default function GeneralReviewsPage() {
                     inline-flex items-center gap-2 px-4 py-2 rounded-full font-urbanist text-sm font-600
                     transition-all duration-premium ease-premium tracking-[-0.015em]
                     ${selectedFilter === filter.id
-                      ? 'bg-sage text-white shadow-premium-md'
+                      ? 'bg-card-bg text-white shadow-premium-md'
                       : 'bg-charcoal/5 text-charcoal/70 hover:bg-charcoal/10 shadow-premium-sm hover:shadow-premium-md'
                     }
                   `}
@@ -348,7 +348,7 @@ export default function GeneralReviewsPage() {
               const bodyText = isNavy ? "text-white/85" : "text-charcoal/90";
               const chipClasses = isNavy
                 ? "bg-white/10 border border-white/25 text-white"
-                : "bg-sage/10 border border-sage/20 text-sage";
+                : "bg-card-bg/10 border border-sage/20 text-sage";
               const buttonClasses = isNavy
                 ? "inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/15 rounded-full font-urbanist text-sm font-600 text-white transition-all duration-premium shadow-premium-sm hover:shadow-premium-md tracking-[-0.015em]"
                 : "inline-flex items-center gap-2 px-4 py-2 bg-charcoal/5 hover:bg-charcoal/10 rounded-full font-urbanist text-sm font-600 text-charcoal/70 transition-all duration-premium shadow-premium-sm hover:shadow-premium-md tracking-[-0.015em]";
@@ -441,7 +441,7 @@ export default function GeneralReviewsPage() {
                     {(!review.images || review.images.length === 0) && (
                       <Link
                         href={`/business/${review.businessId}`}
-                        className="inline-flex items-center gap-2 mb-4 px-3 py-1.5 bg-sage/10 hover:bg-sage/20 rounded-full transition-all duration-premium"
+                        className="inline-flex items-center gap-2 mb-4 px-3 py-1.5 bg-card-bg/10 hover:bg-card-bg/20 rounded-full transition-all duration-premium"
                       >
                         <Briefcase className="w-4 h-4 text-sage" />
                         <span className="font-urbanist text-sm font-600 text-sage tracking-[-0.015em]">

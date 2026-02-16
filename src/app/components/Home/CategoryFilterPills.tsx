@@ -168,8 +168,8 @@ export default function CategoryFilterPills({
                 isActive
                   ? "bg-coral text-white shadow-lg" // Active filter: filled
                   : isPreferred
-                  ? "bg-sage/15 text-sage border-2 border-sage/40 hover:bg-sage/25" // Preferred: subtle highlight
-                  : "bg-sage/10 text-charcoal/70 hover:bg-sage/20 hover:text-sage border border-sage/30" // Default: neutral
+                  ? "bg-card-bg/15 text-sage border-2 border-sage/40 hover:bg-card-bg/25" // Preferred: subtle highlight
+                  : "bg-card-bg/10 text-charcoal/70 hover:bg-card-bg/20 hover:text-sage border border-sage/30" // Default: neutral
               }`}
               style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
               initial={pillInitial}
@@ -184,7 +184,7 @@ export default function CategoryFilterPills({
               {interest.name}
               {/* ✅ Visual indicator for preferred (when not active) */}
               {isPreferred && !isActive && (
-                <span className="absolute -top-1 -right-1 w-2 h-2 bg-sage rounded-full border border-white" />
+                <span className="absolute -top-1 -right-1 w-2 h-2 bg-card-bg rounded-full border border-white" />
               )}
             </motion.button>
           );

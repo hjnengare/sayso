@@ -323,7 +323,7 @@ export default function EventsSpecialsPage() {
                 <div className="mt-4">
                   <button
                     onClick={handleRetry}
-                    className="px-5 py-2 rounded-full bg-sage text-white font-semibold shadow-md hover:bg-sage/90 transition duration-150"
+                    className="px-5 py-2 rounded-full bg-card-bg text-white font-semibold shadow-md hover:bg-card-bg/90 transition duration-150"
                   >
                     Retry
                   </button>

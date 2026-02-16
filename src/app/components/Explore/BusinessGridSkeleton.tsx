@@ -6,7 +6,7 @@ export default function BusinessGridSkeleton() {
       {Array.from({ length: 8 }).map((_, index) => (
         <div key={index} className="list-none">
           <div
-            className="px-1 pt-1 pb-0 rounded-[12px] relative flex-shrink-0 flex flex-col justify-between bg-sage z-10 shadow-md w-full h-[650px] sm:h-auto animate-pulse"
+            className="px-1 pt-1 pb-0 rounded-[12px] relative flex-shrink-0 flex flex-col justify-between bg-card-bg z-10 shadow-md w-full h-[650px] sm:h-auto animate-pulse"
           >
             {/* Image Section Skeleton - matches BusinessCard media height */}
             <div className="relative overflow-hidden z-10 rounded-t-[12px] bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 h-[490px] sm:h-[320px] md:h-[240px]">
@@ -17,7 +17,7 @@ export default function BusinessGridSkeleton() {
 
               {/* Verified badge skeleton - top left */}
               <div className="absolute left-4 top-4 z-20">
-                <div className="h-6 w-6 bg-sage/30 rounded-full" />
+                <div className="h-6 w-6 bg-card-bg/30 rounded-full" />
               </div>
 
               {/* Rating badge skeleton - top right */}
@@ -30,7 +30,7 @@ export default function BusinessGridSkeleton() {
             </div>
 
             {/* Content Section Skeleton - matches BusinessCard content */}
-            <div className="px-4 sm:px-5 pt-1 md:pt-2 lg:pt-3 pb-0 relative flex-shrink-0 flex flex-col md:justify-start justify-between bg-sage/10 z-10 rounded-b-[12px]">
+            <div className="px-4 sm:px-5 pt-1 md:pt-2 lg:pt-3 pb-0 relative flex-shrink-0 flex flex-col md:justify-start justify-between bg-card-bg/10 z-10 rounded-b-[12px]">
               <div className="flex flex-col items-center text-center space-y-2">
                 {/* Business Name skeleton */}
                 <div className="flex items-center justify-center w-full h-[2rem] sm:h-[2.5rem]">

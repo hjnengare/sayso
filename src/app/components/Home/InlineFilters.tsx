@@ -146,8 +146,8 @@ export default function InlineFilters({
                     onClick={() => onDistanceChange(option.value)}
                     className={`px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
                       filters.distance === option.value
-                        ? "bg-sage text-white shadow-md"
-                        : "bg-white/80 text-charcoal/70 border border-charcoal/20 hover:border-sage hover:bg-sage/10"
+                        ? "bg-card-bg text-white shadow-md"
+                        : "bg-white/80 text-charcoal/70 border border-charcoal/20 hover:border-sage hover:bg-card-bg/10"
                     }`}
                     style={{ fontFamily: 'Urbanist, system-ui, sans-serif', fontWeight: 600 }}
                   >

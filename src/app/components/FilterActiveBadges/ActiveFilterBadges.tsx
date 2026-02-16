@@ -62,7 +62,7 @@ export default function ActiveFilterBadges({
         <div ref={ratingRef} className="relative">
           <button
             onClick={() => setOpenDropdown(openDropdown === 'rating' ? null : 'rating')}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-sage/10 text-sage border border-sage/30 hover:bg-sage/20 transition-colors text-sm font-semibold"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card-bg/10 text-sage border border-sage/30 hover:bg-card-bg/20 transition-colors text-sm font-semibold"
             style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
             aria-label="Edit rating filter"
           >
@@ -85,7 +85,7 @@ export default function ActiveFilterBadges({
               }}
               role="button"
               tabIndex={0}
-              className="ml-1 hover:bg-sage/30 rounded-full p-0.5 transition-colors cursor-pointer"
+              className="ml-1 hover:bg-card-bg/30 rounded-full p-0.5 transition-colors cursor-pointer"
               aria-label="Remove rating filter"
             >
               <X className="w-3 h-3" />
@@ -111,8 +111,8 @@ export default function ActiveFilterBadges({
                       }}
                       className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm transition-colors ${
                         filters.minRating === rating
-                          ? 'bg-sage text-white'
-                          : 'text-charcoal hover:bg-sage/10'
+                          ? 'bg-card-bg text-white'
+                          : 'text-charcoal hover:bg-card-bg/10'
                       }`}
                       style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                     >

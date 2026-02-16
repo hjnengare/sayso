@@ -114,7 +114,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
       iconBg: 'bg-gradient-to-br from-sage/20 to-sage/10',
       iconColor: 'text-sage',
       iconRing: 'ring-sage/20',
-      button: 'bg-white/50 text-sage border border-sage hover:bg-sage hover:text-white',
+      button: 'bg-white/50 text-sage border border-sage hover:bg-card-bg hover:text-white',
       buttonShadow: 'shadow-sage/10 hover:shadow-sage/20',
     },
   };

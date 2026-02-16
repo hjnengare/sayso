@@ -49,7 +49,7 @@ export default function ToastNotification({
   const borderClass = isHighlyRated 
     ? "border-coral/60 ring-coral/30" 
     : "border-white/50 ring-white/20";
-  const progressBarBg = isHighlyRated ? "bg-coral/10" : "bg-sage/10";
+  const progressBarBg = isHighlyRated ? "bg-coral/10" : "bg-card-bg/10";
   const progressBarGradient = isHighlyRated 
     ? "from-coral to-coral/90" 
     : "from-sage to-sage/90";

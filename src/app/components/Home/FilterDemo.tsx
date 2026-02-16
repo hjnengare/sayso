@@ -93,10 +93,10 @@ export function FilterDemo() {
               className="list-decimal list-inside space-y-2 text-sm text-charcoal/80"
               style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
             >
-              <li>Wrap your home page with <code className="bg-sage/10 px-1 py-0.5 rounded">FilterProvider</code></li>
-              <li>Add <code className="bg-sage/10 px-1 py-0.5 rounded">FilterBar</code> component below your header</li>
-              <li>Add <code className="bg-sage/10 px-1 py-0.5 rounded">AdvancedFilters</code> component (it's a modal)</li>
-              <li>Use <code className="bg-sage/10 px-1 py-0.5 rounded">useFilters()</code> hook to access filter state</li>
+              <li>Wrap your home page with <code className="bg-card-bg/10 px-1 py-0.5 rounded">FilterProvider</code></li>
+              <li>Add <code className="bg-card-bg/10 px-1 py-0.5 rounded">FilterBar</code> component below your header</li>
+              <li>Add <code className="bg-card-bg/10 px-1 py-0.5 rounded">AdvancedFilters</code> component (it's a modal)</li>
+              <li>Use <code className="bg-card-bg/10 px-1 py-0.5 rounded">useFilters()</code> hook to access filter state</li>
               <li>Apply filters to your business query/API calls</li>
             </ol>
           </div>

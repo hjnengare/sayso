@@ -447,7 +447,7 @@ function BadgeCard({ badge, index }: { badge: BadgeMapping; index: number }) {
         </p>
 
         {/* How to Earn */}
-        <div className="bg-sage/5 rounded-xl px-4 py-3 border border-sage/10">
+        <div className="bg-card-bg/5 rounded-xl px-4 py-3 border border-sage/10">
           <p 
             className="text-xs font-medium text-sage uppercase tracking-wide mb-1"
             style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}

@@ -200,10 +200,10 @@ export default function DesktopNav(props: DesktopNavProps) {
   const iconWrapClass = (isActive: boolean) =>
     `mi-tap group w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 relative ${
       isActive
-        ? "text-sage bg-sage/5"
+        ? "text-sage bg-card-bg/5"
         : whiteText
           ? "text-white hover:text-white/80 hover:bg-white/10"
-          : "text-charcoal/80 hover:text-sage hover:bg-sage/5"
+          : "text-charcoal/80 hover:text-sage hover:bg-card-bg/5"
     }`;
 
   const iconClass = (isActive: boolean) =>
@@ -542,10 +542,10 @@ export default function DesktopNav(props: DesktopNavProps) {
                 href="/saved"
                 className={`group flex w-10 h-10 items-center justify-center rounded-lg transition-all duration-200 relative ${
                   isSavedActive
-                    ? "text-sage bg-sage/5"
+                    ? "text-sage bg-card-bg/5"
                     : whiteText
                       ? "text-white hover:text-white/85 hover:bg-white/10"
-                      : "text-charcoal/80 hover:text-sage hover:bg-sage/5"
+                      : "text-charcoal/80 hover:text-sage hover:bg-card-bg/5"
                 }`}
                 aria-label="Saved"
               >

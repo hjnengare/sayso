@@ -16,8 +16,8 @@ export interface IconButtonProps {
 }
 
 const variantStyles: Record<IconButtonVariant, string> = {
-  default: 'bg-charcoal/5 hover:bg-sage/10 border-charcoal/5 hover:border-sage/20',
-  sage: 'bg-white/90 hover:bg-sage/20 border-sage/50 hover:border-sage/60 text-sage-700 shadow-sm hover:shadow-md ring-1 ring-sage/30 hover:ring-sage/40',
+  default: 'bg-charcoal/5 hover:bg-card-bg/10 border-charcoal/5 hover:border-sage/20',
+  sage: 'bg-white/90 hover:bg-card-bg/20 border-sage/50 hover:border-sage/60 text-sage-700 shadow-sm hover:shadow-md ring-1 ring-sage/30 hover:ring-sage/40',
   coral: 'bg-coral/10 hover:bg-coral/20 border-coral/20 hover:border-coral/30 text-coral',
   ghost: 'bg-transparent hover:bg-charcoal/5 border-transparent',
 };

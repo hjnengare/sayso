@@ -181,7 +181,7 @@ const LocationSection: React.FC<LocationSectionProps> = ({
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
-                className="p-3 bg-sage/10 rounded-[16px] border border-sage/20 overflow-hidden"
+                className="p-3 bg-card-bg/10 rounded-[16px] border border-sage/20 overflow-hidden"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">

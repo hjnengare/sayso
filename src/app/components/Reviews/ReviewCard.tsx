@@ -73,28 +73,28 @@ function ReviewCard({
   const replyFormRef = useRef<HTMLDivElement>(null);
   const [userBadges, setUserBadges] = useState<BadgePillData[]>([]);
 
-  // Fetch user's badges (top 3 most relevant) — only for authenticated viewers
+  // Fetch review author's badges (top 3) — show for all viewers
   useEffect(() => {
-    if (!review.user_id || !user) {
+    const authorId = review.user_id || review.user?.id;
+    if (!authorId) {
       setUserBadges([]);
       return;
     }
 
     async function fetchUserBadges() {
       try {
-        const response = await fetch(`/api/badges/user?user_id=${review.user_id}`);
+        const response = await fetch(`/api/badges/user?user_id=${authorId}`, { cache: 'no-store' });
         if (response.ok) {
           const data = await response.json();
-          // Get earned badges only
           const earnedBadges = (data.badges || [])
             .filter((b: any) => b.earned)
             .map((b: any) => ({
               id: b.id,
               name: b.name,
               icon_path: b.icon_path,
+              badge_group: b.badge_group,
             }));
 
-          // Prioritize: milestone > specialist > explorer > community
           const priorityOrder = ['milestone', 'specialist', 'explorer', 'community'];
           const sortedBadges = earnedBadges.sort((a: any, b: any) => {
             const aIndex = priorityOrder.indexOf(a.badge_group);
@@ -102,7 +102,6 @@ function ReviewCard({
             return aIndex - bIndex;
           });
 
-          // Take top 3
           setUserBadges(sortedBadges.slice(0, 3));
         }
       } catch (err) {
@@ -111,7 +110,7 @@ function ReviewCard({
     }
 
     fetchUserBadges();
-  }, [review.user_id, user]);
+  }, [review.user_id, review.user?.id]);
 
   // Fetch helpful status and count on mount
   useEffect(() => {
@@ -431,27 +430,21 @@ function ReviewCard({
                     className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${
                       isAnonymousReview
                         ? "bg-charcoal/10 text-charcoal/70"
-                        : "bg-sage/15 text-sage"
+                        : "bg-card-bg/15 text-sage"
                     }`}
                   >
                     {isAnonymousReview ? "Anonymous" : "Verified account"}
                   </span>
                 </div>
-                {/* Achievement badges — only visible to authenticated viewers */}
-                {user && userBadges.length > 0 && (
+                {/* Achievement badges — review author's earned badges */}
+                {userBadges.length > 0 && (
                   <div className="flex flex-wrap gap-1">
                     {userBadges.slice(0, 3).map((badge) => (
-                      <span
-                        key={badge.id}
-                        className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] sm:text-xs font-medium bg-off-white/60 text-charcoal/70 border border-sage/20"
-                        title={badge.name}
-                      >
-                        {badge.name}
-                      </span>
+                      <BadgePill key={badge.id} badge={badge} size="sm" />
                     ))}
                     {userBadges.length > 3 && (
-                      <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] sm:text-xs font-medium bg-off-white/60 text-charcoal/50 border border-sage/20">
-                        +{userBadges.length - 3} more
+                      <span className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-bold bg-charcoal/6 text-charcoal/50 border border-charcoal/10">
+                        +{userBadges.length - 3}
                       </span>
                     )}
                   </div>
@@ -542,7 +535,7 @@ function ReviewCard({
 
           {/* Business Info (if showing) */}
           {showBusinessInfo && 'business' in review && (
-            <div className="mb-3 p-2 bg-sage/10 rounded-lg">
+            <div className="mb-3 p-2 bg-card-bg/10 rounded-lg">
               <span className="font-urbanist text-sm font-500 text-sage">
                 Review for: {(review as ReviewWithUser & { business: { name: string } }).business?.name}
               </span>
@@ -564,7 +557,7 @@ function ReviewCard({
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: index * 0.05, duration: 0.3 }}
                   whileHover={{ scale: 1.05 }}
-                  className="inline-flex items-center px-3 py-1 bg-sage/10 text-sage text-sm font-500 rounded-full border border-sage/20 hover:bg-sage/20 transition-colors duration-300"
+                  className="inline-flex items-center px-3 py-1 bg-card-bg/10 text-sage text-sm font-500 rounded-full border border-sage/20 hover:bg-card-bg/20 transition-colors duration-300"
                 >
                   {tag}
                 </motion.span>
@@ -633,8 +626,8 @@ function ReviewCard({
                   onClick={handleLike}
                   className={`flex items-center space-x-2 px-3 py-2 rounded-full transition-all duration-300 ${
                     isLiked
-                      ? 'bg-sage/10 text-sage'
-                      : 'text-charcoal/60 hover:bg-sage/10 hover:text-sage'
+                      ? 'bg-card-bg/10 text-sage'
+                      : 'text-charcoal/60 hover:bg-card-bg/10 hover:text-sage'
                   } ${loadingHelpful ? 'opacity-60 cursor-not-allowed' : ''}`}
                   disabled={!user || loadingHelpful}
                 >
@@ -653,8 +646,8 @@ function ReviewCard({
                   onClick={() => setShowReplyForm(!showReplyForm)}
                   className={`flex items-center space-x-2 px-3 py-2 rounded-full transition-all duration-300 font-semibold ${
                     isOwnerView
-                      ? 'bg-sage text-white hover:bg-sage/90 px-4'
-                      : 'text-charcoal/60 hover:bg-sage/10 hover:text-sage'
+                      ? 'bg-card-bg text-white hover:bg-card-bg/90 px-4'
+                      : 'text-charcoal/60 hover:bg-card-bg/10 hover:text-sage'
                   }`}
                 >
                   <MessageCircle size={isOwnerView ? 16 : 18} />
@@ -725,7 +718,7 @@ function ReviewCard({
                         whileTap={{ scale: 0.95 }}
                         onClick={handleSubmitReply}
                         disabled={!replyText.trim() || submittingReply}
-                        className="px-4 py-2 text-sm font-semibold bg-sage text-white rounded-lg hover:bg-sage/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        className="px-4 py-2 text-sm font-semibold bg-card-bg text-white rounded-lg hover:bg-card-bg/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                         style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                       >
                         <Send size={16} />
@@ -754,7 +747,7 @@ function ReviewCard({
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                       onClick={() => handleEditReply(reply)}
-                      className="w-7 h-7 bg-sage rounded-full flex items-center justify-center hover:bg-sage/90 transition-colors"
+                      className="w-7 h-7 bg-card-bg rounded-full flex items-center justify-center hover:bg-card-bg/90 transition-colors"
                       aria-label="Edit reply"
                       title="Edit reply"
                     >

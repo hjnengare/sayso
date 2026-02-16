@@ -32,7 +32,7 @@ export type Color = keyof typeof colors;
 
 // Tailwind class mappings
 export const colorClasses = {
-  sage: 'bg-sage text-white',
+  sage: 'bg-card-bg text-white',
   coral: 'bg-coral text-white',
   charcoal: 'bg-charcoal text-white',
   lightGray: 'bg-light-gray text-charcoal',

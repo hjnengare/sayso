@@ -44,14 +44,14 @@ export default function SavedBusinessRow({
         <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <h2 
-              className="text-h2 font-semibold text-charcoal hover:text-sage transition-all duration-300 px-3 sm:px-4 py-1 hover:bg-sage/5 rounded-lg cursor-default"
+              className="text-h2 font-semibold text-charcoal hover:text-sage transition-all duration-300 px-3 sm:px-4 py-1 hover:bg-card-bg/5 rounded-lg cursor-default"
               style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
             >
               {title}
             </h2>
             {showCount && savedCount > 0 && (
               <span 
-                className="px-3 py-1 bg-sage/10 text-sage text-body-sm font-semibold rounded-full"
+                className="px-3 py-1 bg-card-bg/10 text-sage text-body-sm font-semibold rounded-full"
                 style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
               >
                 {savedCount}

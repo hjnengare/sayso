@@ -51,7 +51,7 @@ export default function SpecialDetailsCard({ special }: SpecialDetailsCardProps)
                 )}
 
                 <div className="flex items-center gap-2.5">
-                    <div className="w-10 h-10 bg-sage/10 rounded-full flex items-center justify-center flex-shrink-0">
+                    <div className="w-10 h-10 bg-card-bg/10 rounded-full flex items-center justify-center flex-shrink-0">
                         <Percent className="text-sage w-5 h-5" />
                     </div>
                     <div>
@@ -91,7 +91,7 @@ export default function SpecialDetailsCard({ special }: SpecialDetailsCardProps)
                 </div>
 
                 <div className="flex items-center gap-2.5">
-                    <div className="w-10 h-10 bg-sage/10 rounded-full flex items-center justify-center flex-shrink-0">
+                    <div className="w-10 h-10 bg-card-bg/10 rounded-full flex items-center justify-center flex-shrink-0">
                         <Users className="text-sage w-5 h-5" />
                     </div>
                     <div>

@@ -55,7 +55,7 @@ function getStatusLabel(business: Business): { label: string; className: string 
     (business.totalRating != null && business.totalRating > 0) ||
     (business.reviews != null && business.reviews > 0);
   if (!hasRating) {
-    return { label: "New", className: "bg-sage/15 text-sage border-sage/30" };
+    return { label: "New", className: "bg-card-bg/15 text-sage border-sage/30" };
   }
   return { label: "Active", className: "bg-charcoal/5 text-charcoal/80 border-charcoal/10" };
 }
@@ -172,7 +172,7 @@ export default function MyBusinessesTable({ businesses }: MyBusinessesTableProps
                 <Link
                   href={profileRoute}
                   onClick={(e) => e.stopPropagation()}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-body-sm font-semibold bg-sage text-white hover:bg-sage/90 transition-colors focus:outline-none focus:ring-2 focus:ring-sage/40"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-body-sm font-semibold bg-card-bg text-white hover:bg-card-bg/90 transition-colors focus:outline-none focus:ring-2 focus:ring-sage/40"
                   style={{ fontFamily: FONT_STACK }}
                 >
                   View

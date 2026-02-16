@@ -114,7 +114,7 @@ export default function WelcomeModal() {
                   </h3>
 
                   <div className="flex gap-3 items-start">
-                    <div className="w-10 h-10 bg-sage/10 rounded-[12px] flex items-center justify-center flex-shrink-0">
+                    <div className="w-10 h-10 bg-card-bg/10 rounded-[12px] flex items-center justify-center flex-shrink-0">
                       <Star className="w-5 h-5 text-sage" />
                     </div>
                     <div className="flex-1">

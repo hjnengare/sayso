@@ -157,7 +157,7 @@ function CompleteContent() {
         <h3 className="font-semibold mb-3">Your Interests</h3>
         <div className="flex flex-wrap gap-2">
           {selections.interests.map((int) => (
-            <span key={int} className="px-3 py-1 bg-sage/10 text-sage rounded-full text-sm">
+            <span key={int} className="px-3 py-1 bg-card-bg/10 text-sage rounded-full text-sm">
               {int}
             </span>
           ))}

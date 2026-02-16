@@ -173,7 +173,7 @@ export default function AdminClaimDetailPage() {
                 <span
                   className={`inline-flex px-2 py-1 rounded-full font-medium ${
                     claim.status === "verified"
-                      ? "bg-sage/15 text-sage"
+                      ? "bg-card-bg/15 text-sage"
                       : claim.status === "rejected"
                         ? "bg-coral/10 text-coral"
                         : "bg-charcoal/10 text-charcoal"
@@ -229,7 +229,7 @@ export default function AdminClaimDetailPage() {
               <button
                 onClick={handleApprove}
                 disabled={action !== "idle"}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-sage text-white font-medium hover:opacity-90 disabled:opacity-50"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-card-bg text-white font-medium hover:opacity-90 disabled:opacity-50"
               >
                 {action === "approve" ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
                 Approve

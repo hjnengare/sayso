@@ -347,7 +347,7 @@ export default function TrendingPage() {
                 </p>
                 <button
                   onClick={refetch}
-                  className="inline-flex items-center justify-center px-5 py-2.5 rounded-full bg-sage text-white hover:bg-sage/90 transition-colors text-body font-semibold"
+                  className="inline-flex items-center justify-center px-5 py-2.5 rounded-full bg-card-bg text-white hover:bg-card-bg/90 transition-colors text-body font-semibold"
                   style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                 >
                   Try again
@@ -397,7 +397,7 @@ export default function TrendingPage() {
                           onClick={() => setIsMapMode(false)}
                           className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
                             !isMapMode
-                              ? 'bg-sage text-white shadow-sm'
+                              ? 'bg-card-bg text-white shadow-sm'
                               : 'text-charcoal/70 hover:text-charcoal'
                           }`}
                           style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}

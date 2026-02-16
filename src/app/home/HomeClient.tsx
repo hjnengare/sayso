@@ -654,7 +654,7 @@ export default function HomeClient() {
                             />
                           ) : (
                             <div className="mx-auto w-full max-w-[2000px] px-2 py-4">
-                              <div className="bg-sage/10 border border-sage/30 rounded-lg p-6 text-center">
+                              <div className="bg-card-bg/10 border border-sage/30 rounded-lg p-6 text-center">
                                 <p className="text-body text-charcoal/70 mb-2">
                                   Curated from your interests
                                 </p>

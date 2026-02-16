@@ -96,7 +96,7 @@ export default function BadgeModal({ badge, onClose }: BadgeModalProps) {
               ${badge.badge_group === 'explorer' ? 'bg-blue-100 text-blue-700' : ''}
               ${badge.badge_group === 'specialist' ? 'bg-purple-100 text-purple-700' : ''}
               ${badge.badge_group === 'milestone' ? 'bg-coral-100 text-coral-700' : ''}
-              ${badge.badge_group === 'community' ? 'bg-sage-100 text-sage-700' : ''}
+              ${badge.badge_group === 'community' ? 'bg-card-bg-100 text-sage-700' : ''}
             `}>
               {badge.badge_group}
             </span>

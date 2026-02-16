@@ -60,7 +60,7 @@ export default function SearchResultsPanel({
       onClick={onClick}
       className={`rounded-full border px-4 py-1.5 text-sm font-semibold transition-all duration-200 ${
         active
-          ? "border-sage bg-sage/15 shadow-sm text-charcoal"
+          ? "border-sage bg-card-bg/15 shadow-sm text-charcoal"
           : "border-charcoal/10 bg-off-white text-charcoal/80 hover:border-charcoal/30"
       }`}
     >

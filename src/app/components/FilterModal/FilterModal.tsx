@@ -260,7 +260,7 @@ export default function FilterModal({
           </div>
           <button
             onClick={handleClose}
-            className="relative z-10 w-10 h-10 sm:w-9 sm:h-9 rounded-full border border-charcoal/10 bg-off-white/70 hover:bg-sage/10 hover:text-sage text-charcoal/80 flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-sage/30 touch-manipulation"
+            className="relative z-10 w-10 h-10 sm:w-9 sm:h-9 rounded-full border border-charcoal/10 bg-off-white/70 hover:bg-card-bg/10 hover:text-sage text-charcoal/80 flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-sage/30 touch-manipulation"
             aria-label="Close filters"
           >
             <X className="w-5 h-5 sm:w-4 sm:h-4" />
@@ -302,8 +302,8 @@ export default function FilterModal({
                     className={`px-3 sm:px-3 py-2.5 sm:py-2 rounded-full text-sm sm:text-xs flex items-center gap-2 border transition-all min-h-[44px] sm:min-h-0 touch-manipulation
                       ${
                         active
-                          ? "bg-sage text-white border-sage shadow-sm"
-                          : "bg-off-white text-charcoal border-charcoal/10 hover:border-sage/40 hover:bg-sage/5 active:bg-sage/10"
+                          ? "bg-card-bg text-white border-sage shadow-sm"
+                          : "bg-off-white text-charcoal border-charcoal/10 hover:border-sage/40 hover:bg-card-bg/5 active:bg-card-bg/10"
                       }
                     focus:outline-none focus:ring-2 focus:ring-sage/30`}
                     aria-pressed={active}

@@ -25,7 +25,7 @@ export default function PasswordStrength({ password, strength }: PasswordStrengt
           let barColor = 'bg-gray-200';
           if (level <= strength.score) {
             if (isSuccess) {
-              barColor = level <= 2 ? 'bg-yellow-400' : 'bg-sage';
+              barColor = level <= 2 ? 'bg-yellow-400' : 'bg-card-bg';
             } else {
               barColor = 'bg-error-500';
             }

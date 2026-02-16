@@ -231,7 +231,7 @@ import { Toast, ToastContainer } from '@/app/design-system';
 
 ```tsx
 // ✅ Good
-<div className="text-charcoal-500 bg-sage-50">
+<div className="text-charcoal-500 bg-card-bg-50">
 
 // ❌ Avoid
 <div className="text-gray-600 bg-green-100">

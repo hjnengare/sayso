@@ -52,7 +52,7 @@ export default function SpecialPersonalizationInsights({
     return (
         <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-md p-5 sm:p-6">
             <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-full bg-sage/10 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full bg-card-bg/10 flex items-center justify-center">
                     <Sparkles className="w-4 h-4 text-navbar-bg/90" />
                 </div>
                 <h3

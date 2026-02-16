@@ -132,7 +132,7 @@ export default function ErrorPage({
         icon: <IoHome className="w-5 h-5" />,
       },
       icon: (
-        <div className="w-16 h-16 rounded-full bg-sage/10 flex items-center justify-center border border-sage/20">
+        <div className="w-16 h-16 rounded-full bg-card-bg/10 flex items-center justify-center border border-sage/20">
           <div className="w-8 h-8 rounded-full border-2 border-sage border-t-transparent animate-spin" />
         </div>
       ),
@@ -155,8 +155,8 @@ export default function ErrorPage({
     >
       {/* Subtle background gradient accent */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-sage/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-80 h-80 bg-sage/3 rounded-full blur-3xl" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-card-bg/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-card-bg/3 rounded-full blur-3xl" />
       </div>
 
       <div className="relative z-10 flex items-center justify-center min-h-dvh px-4 py-8">
@@ -194,7 +194,7 @@ export default function ErrorPage({
               <PremiumHover scale={1.02}>
                 <Link
                   href={finalPrimaryAction.href}
-                  className="inline-flex items-center justify-center gap-2 w-full sm:w-auto py-4 px-8 bg-sage hover:bg-sage/90 text-white font-urbanist font-600 text-base rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl hover:shadow-sage/20 group"
+                  className="inline-flex items-center justify-center gap-2 w-full sm:w-auto py-4 px-8 bg-card-bg hover:bg-card-bg/90 text-white font-urbanist font-600 text-base rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl hover:shadow-sage/20 group"
                 >
                   {finalPrimaryAction.icon}
                   <span>{finalPrimaryAction.label}</span>

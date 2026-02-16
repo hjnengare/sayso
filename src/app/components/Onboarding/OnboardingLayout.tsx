@@ -158,7 +158,7 @@ export default function OnboardingLayout({
         {showProgress && (
           <div className="fixed top-0 left-0 right-0 z-50 h-1 bg-charcoal/10">
             <div
-              className="h-full bg-sage transition-all duration-700 ease-out progress-bar-fill"
+              className="h-full bg-card-bg transition-all duration-700 ease-out progress-bar-fill"
               style={{ width: `${progressPercentage}%` }}
               role="progressbar"
               aria-valuenow={step}
@@ -201,9 +201,9 @@ export default function OnboardingLayout({
                     key={index}
                     className={`w-3 h-3 rounded-full transition-all duration-500 ${
                       isActive
-                        ? "bg-sage progress-active"
+                        ? "bg-card-bg progress-active"
                         : isCompleted
-                        ? "bg-sage/60"
+                        ? "bg-card-bg/60"
                         : "bg-charcoal/20"
                     }`}
                   />

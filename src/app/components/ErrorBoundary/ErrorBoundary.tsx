@@ -64,8 +64,8 @@ class ErrorBoundary extends Component<Props, State> {
         >
           {/* Subtle background gradient accent */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-sage/5 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 left-0 w-80 h-80 bg-sage/3 rounded-full blur-3xl" />
+            <div className="absolute top-0 right-0 w-96 h-96 bg-card-bg/5 rounded-full blur-3xl" />
+            <div className="absolute bottom-0 left-0 w-80 h-80 bg-card-bg/3 rounded-full blur-3xl" />
           </div>
 
           <motion.div 
@@ -75,7 +75,7 @@ class ErrorBoundary extends Component<Props, State> {
             transition={{ duration: 0.5 }}
           >
             {/* Error Icon */}
-            <div className="w-16 h-16 mx-auto mb-8 rounded-full bg-sage/10 flex items-center justify-center border border-sage/20">
+            <div className="w-16 h-16 mx-auto mb-8 rounded-full bg-card-bg/10 flex items-center justify-center border border-sage/20">
               <div className="w-8 h-8 rounded-full border-2 border-sage border-t-transparent animate-spin" />
             </div>
 
@@ -94,7 +94,7 @@ class ErrorBoundary extends Component<Props, State> {
 
             {/* Error details in development */}
             {process.env.NODE_ENV === 'development' && this.state.error && (
-              <details className="mb-6 text-left bg-sage/5 p-4 rounded-lg border border-sage/10">
+              <details className="mb-6 text-left bg-card-bg/5 p-4 rounded-lg border border-sage/10">
                 <summary className="font-urbanist text-sm font-600 text-sage cursor-pointer hover:text-sage/80 transition-colors">
                   Error Details (Dev Only)
                 </summary>
@@ -112,7 +112,7 @@ class ErrorBoundary extends Component<Props, State> {
                 className={`w-full font-urbanist text-base font-600 py-3 px-6 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 ${
                   isRepeatedError
                     ? 'bg-charcoal/10 text-charcoal/50 cursor-not-allowed'
-                    : 'bg-sage text-white hover:bg-sage/90 active:scale-95'
+                    : 'bg-card-bg text-white hover:bg-card-bg/90 active:scale-95'
                 }`}
               >
                 {isRepeatedError ? 'Unable to Retry' : 'Try Again'}

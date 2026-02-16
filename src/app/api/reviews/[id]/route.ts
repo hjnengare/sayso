@@ -235,6 +235,41 @@ export async function PUT(req: Request, { params }: RouteParams) {
       // Don't fail the request if stats update fails, but log it
     }
 
+    // Cache invalidation: revalidate business page so updated review shows immediately
+    try {
+      const { revalidatePath } = await import('next/cache');
+      
+      const { data: businessRow } = await supabase
+        .from('businesses')
+        .select('id, slug')
+        .eq('id', review.business_id)
+        .maybeSingle();
+      
+      if (businessRow) {
+        const segment = businessRow.slug || businessRow.id;
+        revalidatePath(`/business/${segment}`);
+        if (businessRow.slug && businessRow.slug !== businessRow.id) {
+          revalidatePath(`/business/${businessRow.id}`);
+        }
+      }
+
+      // Also revalidate profile page so contributions reflect the edit
+      revalidatePath('/profile');
+    } catch (revalErr) {
+      console.warn('[Review Edit] Revalidation error:', revalErr);
+    }
+
+    // Trigger badge check so badges update after edit (e.g. new category may qualify)
+    fetch(`${req.headers.get('origin') || 'http://localhost:3000'}/api/badges/check-and-award`, {
+      method: 'POST',
+      headers: {
+        Cookie: req.headers.get('cookie') || '',
+        'Content-Type': 'application/json',
+      },
+    }).catch((err) => {
+      console.warn('[Review Edit] Error triggering badge check:', err);
+    });
+
     return NextResponse.json({
       success: true,
       message: 'Review updated successfully',
@@ -386,26 +421,43 @@ export async function DELETE(req: Request, { params }: RouteParams) {
       // Don't fail the request if stats update fails
     }
 
-    // Recalculate user achievements/badges after review deletion
+    // Cache invalidation: revalidate business page so deleted review disappears immediately
     try {
-      const { count: remainingReviews } = await supabase
-        .from('reviews')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id);
+      const { revalidatePath } = await import('next/cache');
+      const { invalidateBusinessCache } = await import('../../../lib/utils/optimizedQueries');
+      
+      const { data: businessRow } = await supabase
+        .from('businesses')
+        .select('id, slug')
+        .eq('id', businessId)
+        .maybeSingle();
+      
+      if (businessRow) {
+        invalidateBusinessCache(businessRow.id, businessRow.slug ?? undefined);
+        const segment = businessRow.slug || businessRow.id;
+        revalidatePath(`/business/${segment}`);
+        if (businessRow.slug && businessRow.slug !== businessRow.id) {
+          revalidatePath(`/business/${businessRow.id}`);
+        }
+      }
 
-      // Log the new review count for debugging
-      console.log('[/api/reviews] DELETE user review count after deletion:', { 
-        user_id: user.id, 
-        remainingReviews 
-      });
-
-      // The achievements are computed on-the-fly in the GET /api/user/achievements endpoint,
-      // so they will automatically reflect the updated review count on the next fetch.
-      // No need for separate RPC call; the client will see updated badges when refreshing.
-    } catch (achievementError) {
-      console.error('[/api/reviews] DELETE error recalculating achievements:', achievementError);
-      // Don't fail the deletion if achievement recalculation fails
+      // Also revalidate profile page so contributions update immediately
+      revalidatePath('/profile');
+    } catch (revalErr) {
+      console.warn('[Review Delete] Revalidation error:', revalErr);
     }
+
+    // Trigger badge recalculation after review deletion (fire and forget)
+    // This ensures badge counts and progress are updated to reflect the deletion
+    fetch(`${req.headers.get('origin') || 'http://localhost:3000'}/api/badges/check-and-award`, {
+      method: 'POST',
+      headers: {
+        Cookie: req.headers.get('cookie') || '',
+        'Content-Type': 'application/json',
+      },
+    }).catch(err => {
+      console.warn('[Review Delete] Error triggering badge check:', err);
+    });
 
     return NextResponse.json({
       success: true,

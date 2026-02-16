@@ -97,22 +97,22 @@ export default function EmailVerificationModal({
           </p>
 
           {/* Benefits */}
-          <div className="bg-sage/5 rounded-lg p-4 mb-4">
+          <div className="bg-card-bg/5 rounded-lg p-4 mb-4">
             <h4 className="font-urbanist text-sm font-600 text-charcoal mb-2 flex items-center gap-2">
               <CheckCircle className="w-4 h-4 text-sage" />
               What you'll unlock:
             </h4>
             <ul className="space-y-1 text-sm sm:text-xs text-charcoal/70">
               <li className="flex items-center gap-2">
-                <div className="w-1 h-1 bg-sage rounded-full"></div>
+                <div className="w-1 h-1 bg-card-bg rounded-full"></div>
                 Post reviews and share experiences
               </li>
               <li className="flex items-center gap-2">
-                <div className="w-1 h-1 bg-sage rounded-full"></div>
+                <div className="w-1 h-1 bg-card-bg rounded-full"></div>
                 Save favorite businesses
               </li>
               <li className="flex items-center gap-2">
-                <div className="w-1 h-1 bg-sage rounded-full"></div>
+                <div className="w-1 h-1 bg-card-bg rounded-full"></div>
                 Join community leaderboard
               </li>
             </ul>
@@ -140,7 +140,7 @@ export default function EmailVerificationModal({
               <button
                 onClick={handleResendVerification}
                 disabled={isResending}
-                className="bg-sage text-white font-urbanist text-sm font-600 py-2.5 px-4 rounded-lg hover:bg-sage/90 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="bg-card-bg text-white font-urbanist text-sm font-600 py-2.5 px-4 rounded-lg hover:bg-card-bg/90 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isResending ? (
                   <>
@@ -160,7 +160,7 @@ export default function EmailVerificationModal({
             <Link
               href="/verify-email"
               onClick={onClose}
-              className="block w-full bg-off-white border border-sage/30 text-sage font-urbanist text-sm font-600 py-2.5 px-4 rounded-lg hover:bg-sage/5 transition-all duration-300 text-center"
+              className="block w-full bg-off-white border border-sage/30 text-sage font-urbanist text-sm font-600 py-2.5 px-4 rounded-lg hover:bg-card-bg/5 transition-all duration-300 text-center"
             >
               Go to Verification Page
             </Link>

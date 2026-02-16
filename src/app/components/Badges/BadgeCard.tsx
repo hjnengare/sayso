@@ -28,6 +28,15 @@ export default function BadgeCard({ badge, onClick }: BadgeCardProps) {
   const mapping = getBadgeMapping(badge.id);
   const pngPath = mapping?.pngPath || badge.icon_path || getBadgePngPath(badge.id);
 
+  // Group-based color schemes for earned badges
+  const groupColors: Record<string, { bg: string; border: string }> = {
+    explorer:   { bg: "from-blue-50 to-cyan-50/60",      border: "border-blue-200/60"    },
+    specialist: { bg: "from-purple-50 to-fuchsia-50/60",  border: "border-purple-200/60"  },
+    milestone:  { bg: "from-amber-50 to-yellow-50/60",    border: "border-amber-200/60"   },
+    community:  { bg: "from-emerald-50 to-teal-50/60",    border: "border-emerald-200/60" },
+  };
+  const colors = !isLocked ? (groupColors[badge.badge_group] || { bg: "from-sage/5 to-coral/5", border: "border-sage/30" }) : null;
+
   return (
     <motion.div
       className={`
@@ -35,7 +44,7 @@ export default function BadgeCard({ badge, onClick }: BadgeCardProps) {
         ${
           isLocked
             ? "bg-charcoal/5 border-charcoal/10"
-            : "bg-gradient-to-br from-sage/5 to-coral/5 border-sage/30 shadow-md"
+            : `bg-gradient-to-br ${colors!.bg} ${colors!.border} shadow-md`
         }
         hover:scale-105 active:scale-95
       `}

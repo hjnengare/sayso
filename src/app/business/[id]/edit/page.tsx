@@ -647,13 +647,13 @@ export default function BusinessEditPage() {
                     <div className="flex flex-col sm:flex-row gap-3 justify-center">
                         <Link
                             href={`/business/${businessId}`}
-                            className="px-5 py-2.5 rounded-full bg-sage text-white font-urbanist font-600 hover:bg-sage/90 transition-all duration-200"
+                            className="px-5 py-2.5 rounded-full bg-card-bg text-white font-urbanist font-600 hover:bg-card-bg/90 transition-all duration-200"
                         >
                             View Business
                         </Link>
                         <Link
                           href="/claim-business"
-                            className="px-5 py-2.5 rounded-full border border-sage/40 text-charcoal font-urbanist font-600 hover:bg-sage/10 transition-all duration-200"
+                            className="px-5 py-2.5 rounded-full border border-sage/40 text-charcoal font-urbanist font-600 hover:bg-card-bg/10 transition-all duration-200"
                         >
                             Claim Ownership
                         </Link>
@@ -671,7 +671,7 @@ export default function BusinessEditPage() {
                     <p className="text-sm text-charcoal/70 font-urbanist">{error}</p>
                     <Link
                         href={`/business/${businessId}`}
-                        className="px-5 py-2.5 rounded-full bg-sage text-white font-urbanist font-600 hover:bg-sage/90 transition-all duration-200"
+                        className="px-5 py-2.5 rounded-full bg-card-bg text-white font-urbanist font-600 hover:bg-card-bg/90 transition-all duration-200"
                     >
                         Back to Business
                     </Link>
@@ -810,7 +810,7 @@ export default function BusinessEditPage() {
                                                     />
                                                 )}
                                                 {index === 0 && (
-                                                    <div className="absolute top-2 left-2 bg-sage text-white text-xs px-2 py-1 rounded-full font-semibold">
+                                                    <div className="absolute top-2 left-2 bg-card-bg text-white text-xs px-2 py-1 rounded-full font-semibold">
                                                         Primary
                                                     </div>
                                                 )}
@@ -820,7 +820,7 @@ export default function BusinessEditPage() {
                                                     <button
                                                         onClick={() => setAsPrimary(index)}
                                                         disabled={reorderingImage === index}
-                                                        className="bg-sage hover:bg-sage/90 text-white px-3 py-1.5 rounded-sm text-xs font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+                                                        className="bg-card-bg hover:bg-card-bg/90 text-white px-3 py-1.5 rounded-sm text-xs font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
                                                         aria-label="Set as primary image"
                                                     >
                                                         {reorderingImage === index ? (
@@ -859,7 +859,7 @@ export default function BusinessEditPage() {
                                     ))}
                                     
                                     {formData.images.length < 10 && (
-                                        <label className="aspect-square rounded-sm border-2 border-dashed border-charcoal/30 flex items-center justify-center cursor-pointer hover:border-sage hover:bg-sage/5 transition-all duration-200">
+                                        <label className="aspect-square rounded-sm border-2 border-dashed border-charcoal/30 flex items-center justify-center cursor-pointer hover:border-sage hover:bg-card-bg/5 transition-all duration-200">
                                             <div className="text-center">
                                                 <Upload className="w-8 h-8 text-navbar-bg mx-auto mb-2" />
                                                 <span className="font-urbanist text-sm text-charcoal/60">Add Photo</span>
@@ -1012,7 +1012,7 @@ export default function BusinessEditPage() {
                                     </h3>
                                     <button
                                         onClick={addSpecial}
-                                        className="bg-sage hover:bg-sage/90 text-white px-4 py-2 rounded-full text-sm font-600 font-urbanist transition-all duration-300 flex items-center gap-2"
+                                        className="bg-card-bg hover:bg-card-bg/90 text-white px-4 py-2 rounded-full text-sm font-600 font-urbanist transition-all duration-300 flex items-center gap-2"
                                     >
                                         <Plus className="w-4 h-4 text-navbar-bg" />
                                         Add Special
@@ -1105,7 +1105,7 @@ export default function BusinessEditPage() {
                             <button
                                 onClick={handleSave}
                                 disabled={isSaving}
-                                className="px-6 py-3 bg-sage hover:bg-sage/90 text-white rounded-full text-sm font-600 font-urbanist transition-all duration-300 flex items-center gap-2 disabled:opacity-50"
+                                className="px-6 py-3 bg-card-bg hover:bg-card-bg/90 text-white rounded-full text-sm font-600 font-urbanist transition-all duration-300 flex items-center gap-2 disabled:opacity-50"
                             >
                                 <Save className="w-4 h-4 text-navbar-bg" />
                                 {isSaving ? "Saving..." : "Save Changes"}

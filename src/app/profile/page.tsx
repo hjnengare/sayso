@@ -51,7 +51,7 @@ function ProfileHeaderSkeleton() {
         <div className="relative z-10 p-6 sm:p-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
             {/* Avatar Skeleton */}
-            <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-sage/20 animate-pulse flex-shrink-0" />
+            <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-card-bg/20 animate-pulse flex-shrink-0" />
             <div className="flex-1 min-w-0 w-full space-y-4">
               {/* Name Skeleton */}
               <div className="h-8 bg-white/30 rounded-lg w-48 animate-pulse" />
@@ -81,7 +81,7 @@ function StatsGridSkeleton() {
       {[1, 2, 3, 4].map((i) => (
         <div key={i} className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-md p-4">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-5 h-5 bg-sage/20 rounded animate-pulse" />
+            <div className="w-5 h-5 bg-card-bg/20 rounded animate-pulse" />
             <div className="h-4 bg-white/20 rounded w-20 animate-pulse" />
           </div>
           <div className="h-8 bg-white/30 rounded w-12 animate-pulse mb-1" />
@@ -96,13 +96,13 @@ function AchievementsSkeleton() {
   return (
     <section className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-md p-6 sm:p-8">
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 bg-sage/20 rounded-full animate-pulse" />
+        <div className="w-10 h-10 bg-card-bg/20 rounded-full animate-pulse" />
         <div className="h-5 bg-white/30 rounded w-40 animate-pulse" />
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
         {[1, 2, 3, 4].map((i) => (
           <div key={i} className="flex flex-col items-center p-4 bg-white/50 rounded-[16px] border border-white/60">
-            <div className="w-12 h-12 bg-sage/20 rounded-full animate-pulse mb-3" />
+            <div className="w-12 h-12 bg-card-bg/20 rounded-full animate-pulse mb-3" />
             <div className="h-4 bg-white/30 rounded w-20 animate-pulse mb-2" />
             <div className="h-3 bg-white/20 rounded w-24 animate-pulse" />
           </div>
@@ -116,14 +116,14 @@ function ReviewsSkeleton() {
   return (
     <section className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-md p-6 sm:p-8">
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 bg-sage/20 rounded-full animate-pulse" />
+        <div className="w-10 h-10 bg-card-bg/20 rounded-full animate-pulse" />
         <div className="h-5 bg-white/30 rounded w-40 animate-pulse" />
       </div>
       <div className="space-y-4">
         {[1, 2].map((i) => (
           <div key={i} className="p-4 bg-white/50 rounded-[16px] border border-white/60">
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-[12px] bg-sage/20 animate-pulse flex-shrink-0" />
+              <div className="w-12 h-12 rounded-[12px] bg-card-bg/20 animate-pulse flex-shrink-0" />
               <div className="flex-1 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="h-4 bg-white/30 rounded w-32 animate-pulse" />
@@ -1015,14 +1015,14 @@ function ProfileContent() {
                                     />
                                     {profile.is_top_reviewer && (
                                       <div className="absolute -bottom-1 -right-1 z-20">
-                                        <div className="w-8 h-8 bg-sage rounded-full flex items-center justify-center ring-4 ring-white">
+                                        <div className="w-8 h-8 bg-card-bg rounded-full flex items-center justify-center ring-4 ring-white">
                                           <Check className="text-white" size={14} strokeWidth={3} />
                                         </div>
                                       </div>
                                     )}
                                   </div>
                                 ) : (
-                                  <div className="w-24 h-24 sm:w-32 sm:h-32 flex items-center justify-center bg-sage/20 rounded-full border-4 border-coral shadow-xl">
+                                  <div className="w-24 h-24 sm:w-32 sm:h-32 flex items-center justify-center bg-card-bg/20 rounded-full border-4 border-coral shadow-xl">
                                     <User className="text-navbar-bg" size={44} strokeWidth={2.5} />
                                   </div>
                                 )}
@@ -1038,7 +1038,7 @@ function ProfileContent() {
                                     {displayLabel}
                                   </h2>
                                   {profile.is_top_reviewer && (
-                                    <div className="px-2 py-1 rounded-full text-caption font-semibold flex items-center gap-1 bg-sage/20 text-sage">
+                                    <div className="px-2 py-1 rounded-full text-caption font-semibold flex items-center gap-1 bg-card-bg/20 text-sage">
                                       <Award size={12} />
                                       <span className="capitalize">Top Reviewer</span>
                                     </div>
@@ -1217,13 +1217,24 @@ function ProfileContent() {
                         className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-md p-6 sm:p-8"
                         aria-label="Your badges and achievements"
                       >
-                        <div className="flex items-center gap-3 mb-6">
-                          <span className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-coral/20 to-coral/10">
-                            <Award className="w-5 h-5 text-coral" />
-                          </span>
-                          <h3 className="text-base font-semibold text-charcoal">
-                            Badges
-                          </h3>
+                        <div className="flex items-center justify-between mb-6">
+                          <div className="flex items-center gap-3">
+                            <span className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-coral/20 to-coral/10">
+                              <Award className="w-5 h-5 text-coral" />
+                            </span>
+                            <h3 className="text-base font-semibold text-charcoal">
+                              Badges
+                            </h3>
+                          </div>
+                          {achievements.length > 0 && (
+                            <Link
+                              href="/achievements"
+                              className="inline-flex items-center gap-1 text-sm font-semibold text-coral hover:text-charcoal transition-colors"
+                            >
+                              <span>View all</span>
+                              <ChevronRight className="w-4 h-4" />
+                            </Link>
+                          )}
                         </div>
                         {achievements.length === 0 ? (
                           <div className="text-center py-8">
@@ -1232,28 +1243,56 @@ function ProfileContent() {
                             </p>
                           </div>
                         ) : (
-                          <div className="flex flex-wrap gap-4">
-                            {achievements.map((achievement) => {
+                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                            {achievements.map((achievement, idx) => {
                               const correctPngPath = getBadgePngPath(achievement.achievement_id);
+                              const group = achievement.achievements.category || "general";
+                              const groupColors: Record<string, { bg: string; ring: string; accent: string }> = {
+                                explorer:   { bg: "from-blue-50 to-cyan-50/60",      ring: "ring-blue-200/50",    accent: "text-blue-600"    },
+                                specialist: { bg: "from-purple-50 to-fuchsia-50/60",  ring: "ring-purple-200/50",  accent: "text-purple-600"  },
+                                milestone:  { bg: "from-amber-50 to-yellow-50/60",    ring: "ring-amber-200/50",   accent: "text-amber-600"   },
+                                community:  { bg: "from-emerald-50 to-teal-50/60",    ring: "ring-emerald-200/50", accent: "text-emerald-600" },
+                              };
+                              const colors = groupColors[group] || { bg: "from-white to-off-white", ring: "ring-white/60", accent: "text-charcoal" };
                               return (
-                                <div
+                                <motion.div
                                   key={achievement.achievement_id}
-                                  className="flex items-center gap-3 p-4 bg-white/50 rounded-[16px] border border-white/60 flex-shrink-0"
+                                  initial={{ opacity: 0, scale: 0.9 }}
+                                  animate={{ opacity: 1, scale: 1 }}
+                                  transition={{ delay: idx * 0.04, type: "spring", stiffness: 300, damping: 25 }}
+                                  whileHover={{ scale: 1.04, y: -2 }}
+                                  className={`
+                                    flex flex-col items-center text-center p-4 rounded-2xl
+                                    bg-gradient-to-br ${colors.bg}
+                                    ring-1 ${colors.ring}
+                                    border border-white/70 shadow-sm
+                                    cursor-default transition-shadow duration-300
+                                    hover:shadow-md
+                                  `}
                                 >
-                                  <div className="w-12 h-12 flex-shrink-0">
+                                  <div className="relative w-12 h-12 mb-2">
                                     <Image
                                       src={correctPngPath}
                                       alt={achievement.achievements.name}
                                       width={48}
                                       height={48}
-                                      className="w-12 h-12 object-contain"
+                                      className="w-12 h-12 object-contain drop-shadow-sm"
+                                    />
+                                    {/* Subtle shine sweep */}
+                                    <motion.div
+                                      className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/40 to-transparent rounded-lg pointer-events-none"
+                                      initial={{ x: "-100%" }}
+                                      animate={{ x: "200%" }}
+                                      transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 4 + idx * 0.5 }}
                                     />
                                   </div>
-                                  <div className="min-w-0">
-                                    <h4 className="text-sm font-semibold text-charcoal">{achievement.achievements.name}</h4>
-                                    <p className="text-xs text-charcoal/70">{achievement.achievements.description}</p>
-                                  </div>
-                                </div>
+                                  <h4 className={`text-xs font-bold ${colors.accent} leading-tight mb-0.5`}>
+                                    {achievement.achievements.name}
+                                  </h4>
+                                  <p className="text-[10px] text-charcoal/55 leading-snug line-clamp-2">
+                                    {achievement.achievements.description}
+                                  </p>
+                                </motion.div>
                               );
                             })}
                           </div>
