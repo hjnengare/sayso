@@ -42,6 +42,8 @@ export default function AdminPendingBusinessesPage() {
       .catch((err) => setError(err.message || "Something went wrong"))
       .finally(() => setLoading(false));
   };
+  // Optional: total from API when paginated (for "Showing X of Y")
+  const [totalCount, setTotalCount] = useState<number | null>(null);
 
   useEffect(() => {
     fetchPending();

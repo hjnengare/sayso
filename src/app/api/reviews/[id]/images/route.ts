@@ -5,16 +5,39 @@ interface RouteParams {
   params: Promise<{ id: string }>;
 }
 
-const MAX_IMAGES = 10;
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+// Vercel serverless request body limit: 4.5MB. Total request size (all images + form fields) must stay under this.
+// See: https://vercel.com/docs/errors/FUNCTION_PAYLOAD_TOO_LARGE
+const VERCEL_BODY_LIMIT_BYTES = 4.5 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+
+// Keep total image payload under body limit (leave ~200KB for form overhead: action, remove_image_ids, etc.)
+const MAX_IMAGES = 3;
+const MAX_IMAGE_SIZE = 1 * 1024 * 1024; // 1MB per image → 4MB max images, under 4.5MB
 
 /**
  * PUT /api/reviews/[id]/images
- * Update review images (add, replace, or remove)
+ * Update review images (add, replace, or remove).
+ *
+ * For larger uploads, consider client-side uploads: upload from the browser directly to
+ * Supabase Storage (or Vercel Blob), then call this API with only the resulting paths/URLs
+ * so the request body stays small and never hits the 4.5MB function payload limit.
  */
 export async function PUT(req: Request, { params }: RouteParams) {
   try {
+    // Reject oversized requests before reading body (avoids platform 413 and returns a clear JSON message)
+    const contentLength = req.headers.get('Content-Length');
+    if (contentLength) {
+      const size = parseInt(contentLength, 10);
+      if (!Number.isNaN(size) && size > VERCEL_BODY_LIMIT_BYTES) {
+        return NextResponse.json(
+          {
+            error: `Request too large. Total upload must be under ${Math.round(VERCEL_BODY_LIMIT_BYTES / 1024 / 1024)}MB. Use fewer or smaller images (max ${MAX_IMAGES} images, ${MAX_IMAGE_SIZE / 1024 / 1024}MB each).`,
+          },
+          { status: 413 }
+        );
+      }
+    }
+
     const { id } = await params;
     const supabase = await getServerSupabase();
 
