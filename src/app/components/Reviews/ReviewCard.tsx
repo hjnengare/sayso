@@ -747,54 +747,59 @@ function ReviewCard({
                 const isEditing = editingReplyId === reply.id;
                 const isDeleting = deletingReplyId === reply.id;
 
+                const replyDisplayName = reply.user?.name || 'Anonymous';
+                const replyActionButtons = !isEditing && (isOwnerView || reply.user_id === user?.id) ? (
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => handleEditReply(reply)}
+                      className="w-7 h-7 bg-sage rounded-full flex items-center justify-center hover:bg-sage/90 transition-colors"
+                      aria-label="Edit reply"
+                      title="Edit reply"
+                    >
+                      <Edit className="w-[18px] h-[18px] text-white" />
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => handleDeleteReply(reply.id)}
+                      disabled={isDeleting}
+                      className="w-7 h-7 bg-coral rounded-full flex items-center justify-center hover:bg-coral/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      aria-label="Delete reply"
+                      title="Delete reply"
+                    >
+                      <Trash2 className="w-[18px] h-[18px] text-white" />
+                    </motion.button>
+                  </div>
+                ) : null;
+
                 return (
                   <motion.div
                     key={reply.id}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="pl-4 border-l-2 border-sage/20 bg-off-white/30 rounded-r-lg p-3 relative"
+                    className="pl-4 border-l-2 border-sage/20 bg-off-white/30 rounded-r-lg p-3 relative flex flex-col w-full min-w-0"
                   >
-                    <div className="flex items-start justify-between gap-2 mb-1">
-                      <div className="flex items-center gap-2 flex-1">
-                        <span className="font-urbanist text-sm font-semibold text-charcoal-700">
-                          {reply.user?.name || 'Anonymous'}
+                    {/* Row 1: username + time (mobile: stacked/inline); desktop: same row as buttons */}
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2 mb-1">
+                      <div className="flex items-center gap-2 min-w-0 flex-1 sm:flex-initial">
+                        <span className="font-urbanist text-sm font-semibold text-charcoal-700 truncate min-w-0" title={replyDisplayName}>
+                          {replyDisplayName}
                         </span>
-                        <span className="font-urbanist text-xs font-semibold text-charcoal/70">
+                        <span className="font-urbanist text-xs font-semibold text-charcoal/70 flex-shrink-0">
                           {formatDate(reply.created_at)}
                         </span>
                       </div>
-                      {!isEditing && (isOwnerView || reply.user_id === user?.id) && (
-                        <div className="flex items-center gap-1">
-                          <motion.button
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                            onClick={() => handleEditReply(reply)}
-                            className="w-7 h-7 bg-sage rounded-full flex items-center justify-center hover:bg-sage/90 transition-colors"
-                            aria-label="Edit reply"
-                            title="Edit reply"
-                          >
-                            <Edit className="w-[18px] h-[18px] text-white" />
-                          </motion.button>
-                          <motion.button
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                            onClick={() => handleDeleteReply(reply.id)}
-                            disabled={isDeleting}
-                            className="w-7 h-7 bg-coral rounded-full flex items-center justify-center hover:bg-coral/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            aria-label="Delete reply"
-                            title="Delete reply"
-                          >
-                            <Trash2 className="w-[18px] h-[18px] text-white" />
-                          </motion.button>
-                        </div>
-                      )}
+                      {replyActionButtons ? <div className="hidden sm:flex">{replyActionButtons}</div> : null}
                     </div>
+                    {/* Row 2: reply content or edit form */}
                     {isEditing ? (
                       <div className="space-y-2 mt-2">
                         <textarea
                           value={editReplyText}
                           onChange={(e) => setEditReplyText(e.target.value)}
-                          className="w-full px-3 py-2 rounded-lg border border-sage/20 bg-off-white/50 focus:outline-none focus:ring-2 focus:ring-sage/30 focus:border-sage/40 resize-none font-urbanist text-sm"
+                          className="w-full px-3 py-2 rounded-lg border border-sage/20 bg-off-white/50 focus:outline-none focus:ring-2 focus:ring-sage/30 focus:border-sage/40 resize-none font-urbanist text-sm min-w-0"
                           rows={2}
                           autoFocus
                         />
@@ -819,10 +824,16 @@ function ReviewCard({
                         </div>
                       </div>
                     ) : (
-                      <p className="font-urbanist text-sm font-bold text-charcoal/80">
+                      <p className="font-urbanist text-sm font-bold text-charcoal/80 min-w-0 break-words">
                         {reply.content}
                       </p>
                     )}
+                    {/* Row 3: action buttons on mobile only, right-aligned */}
+                    {replyActionButtons ? (
+                      <div className="flex sm:hidden items-center justify-end gap-1 mt-2 w-full">
+                        {replyActionButtons}
+                      </div>
+                    ) : null}
                   </motion.div>
                 );
               })}

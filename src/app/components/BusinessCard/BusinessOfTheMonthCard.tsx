@@ -29,6 +29,7 @@ import {
   isValidCoordinate,
   useBusinessDistanceLocation,
 } from "../../hooks/useBusinessDistanceLocation";
+import BusinessCardPercentiles from "./parts/BusinessCardPercentiles";
 
 // Map categories to lucide-react icons (normalize only for icon selection)
 const getCategoryIcon = (category: string): React.ComponentType<React.SVGProps<SVGSVGElement>> => {
@@ -623,6 +624,7 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
                   >
                     <Stars value={hasReviews && displayTotal > 0 ? displayTotal : 0} color="charcoal" size={18} spacing={2.5} />
                   </div>
+                  <BusinessCardPercentiles percentiles={(business as any).percentiles ?? (business as any).stats?.percentiles ?? undefined} />
                 </div>
               </div>
             </div>

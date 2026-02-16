@@ -93,45 +93,81 @@ export default function AdminPendingBusinessesPage() {
       )}
 
       {!loading && businesses.length > 0 && (
-        <div className="rounded-[12px] border border-charcoal/15 bg-white overflow-hidden">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-charcoal/15 bg-charcoal/5">
-                <th className="px-4 py-3 font-semibold text-charcoal" style={{ fontFamily: FONT }}>Name</th>
-                <th className="px-4 py-3 font-semibold text-charcoal" style={{ fontFamily: FONT }}>Category</th>
-                <th className="px-4 py-3 font-semibold text-charcoal" style={{ fontFamily: FONT }}>Submitted By</th>
-                <th className="px-4 py-3 font-semibold text-charcoal" style={{ fontFamily: FONT }}>Date</th>
-                <th className="px-4 py-3 font-semibold text-charcoal" style={{ fontFamily: FONT }}>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {businesses.map((b) => (
-                <tr
-                  key={b.id}
-                  className="border-b border-charcoal/10 hover:bg-charcoal/5 cursor-pointer"
-                  onClick={() => router.push(`/admin/businesses/${b.id}/review`)}
-                >
-                  <td className="px-4 py-3 font-medium text-charcoal hover:text-sage transition-colors" style={{ fontFamily: FONT }}>
-                    {b.name}
-                  </td>
-                  <td className="px-4 py-3 text-charcoal/80" style={{ fontFamily: FONT }}>{b.primary_subcategory_label ?? "—"}</td>
-                  <td className="px-4 py-3 text-charcoal/80" style={{ fontFamily: FONT }}>{b.owner_email ?? "—"}</td>
-                  <td className="px-4 py-3 text-charcoal/70" style={{ fontFamily: FONT }}>{formatDate(b.created_at)}</td>
-                  <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
-                    <Link
-                      href={`/admin/businesses/${b.id}/review`}
-                      className="inline-flex items-center gap-1.5 rounded-full bg-sage text-white px-4 py-2 text-sm font-semibold hover:bg-sage/90"
-                      style={{ fontFamily: FONT }}
-                    >
-                      <Eye className="w-4 h-4" />
-                      Review
-                    </Link>
-                  </td>
+        <>
+          {/* Desktop / Tablet: table (unchanged) */}
+          <div className="hidden sm:block rounded-[12px] border border-charcoal/15 bg-white overflow-hidden">
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="border-b border-charcoal/15 bg-charcoal/5">
+                  <th className="px-4 py-3 font-semibold text-charcoal" style={{ fontFamily: FONT }}>Name</th>
+                  <th className="px-4 py-3 font-semibold text-charcoal" style={{ fontFamily: FONT }}>Category</th>
+                  <th className="px-4 py-3 font-semibold text-charcoal" style={{ fontFamily: FONT }}>Submitted By</th>
+                  <th className="px-4 py-3 font-semibold text-charcoal" style={{ fontFamily: FONT }}>Date</th>
+                  <th className="px-4 py-3 font-semibold text-charcoal" style={{ fontFamily: FONT }}>Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {businesses.map((b) => (
+                  <tr
+                    key={b.id}
+                    className="border-b border-charcoal/10 hover:bg-charcoal/5 cursor-pointer"
+                    onClick={() => router.push(`/admin/businesses/${b.id}/review`)}
+                  >
+                    <td className="px-4 py-3 font-medium text-charcoal hover:text-sage transition-colors" style={{ fontFamily: FONT }}>
+                      {b.name}
+                    </td>
+                    <td className="px-4 py-3 text-charcoal/80" style={{ fontFamily: FONT }}>{b.primary_subcategory_label ?? "—"}</td>
+                    <td className="px-4 py-3 text-charcoal/80" style={{ fontFamily: FONT }}>{b.owner_email ?? "—"}</td>
+                    <td className="px-4 py-3 text-charcoal/70" style={{ fontFamily: FONT }}>{formatDate(b.created_at)}</td>
+                    <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                      <Link
+                        href={`/admin/businesses/${b.id}/review`}
+                        className="inline-flex items-center gap-1.5 rounded-full bg-sage text-white px-4 py-2 text-sm font-semibold hover:bg-sage/90"
+                        style={{ fontFamily: FONT }}
+                      >
+                        <Eye className="w-4 h-4" />
+                        Review
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile: card row per business */}
+          <div className="sm:hidden flex flex-col gap-2">
+            {businesses.map((b) => (
+              <div
+                key={b.id}
+                className="rounded-[12px] border border-charcoal/15 bg-white p-4 flex flex-col gap-2 min-w-0"
+              >
+                <p className="font-semibold text-charcoal truncate" style={{ fontFamily: FONT }} title={b.name}>
+                  {b.name}
+                </p>
+                <p className="text-sm text-charcoal/70" style={{ fontFamily: FONT }}>
+                  {b.primary_subcategory_label ?? "—"}
+                </p>
+                <p className="text-sm text-charcoal/70 truncate min-w-0" style={{ fontFamily: FONT }} title={b.owner_email ?? undefined}>
+                  {b.owner_email ?? "—"}
+                </p>
+                <p className="text-xs text-charcoal/60" style={{ fontFamily: FONT }}>
+                  {formatDate(b.created_at)}
+                </p>
+                <div className="self-end mt-1">
+                  <Link
+                    href={`/admin/businesses/${b.id}/review`}
+                    className="inline-flex items-center justify-center gap-1.5 min-h-[44px] rounded-full bg-sage text-white px-4 py-2.5 text-sm font-semibold hover:bg-sage/90"
+                    style={{ fontFamily: FONT }}
+                  >
+                    <Eye className="w-4 h-4 shrink-0" />
+                    Review
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       )}
     </main>
   );

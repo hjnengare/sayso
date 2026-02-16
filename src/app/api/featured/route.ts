@@ -82,6 +82,7 @@ function mvRowToFeaturedShape(b: any, scoreKey: 'quality_score' | null): any {
     verified: Boolean(b.verified),
     average_rating: Number(b.average_rating ?? 0),
     total_reviews: Number(b.total_reviews ?? 0),
+    percentiles: b.percentiles ?? null,
     recent_reviews_30d: 0,
     recent_reviews_7d: 0,
     featured_score: scoreKey ? Number(b[scoreKey] ?? 0) : 0,
@@ -387,7 +388,7 @@ export async function GET(request: NextRequest) {
 
         const { data: statsRows } = await supabase
           .from('business_stats')
-          .select('business_id, total_reviews, average_rating')
+          .select('business_id, total_reviews, average_rating, percentiles')
           .in('business_id', selectedIds);
         const statsById = new Map(
           (Array.isArray(statsRows) ? statsRows : []).map((s: any) => [s.business_id, s]),
@@ -417,6 +418,7 @@ export async function GET(request: NextRequest) {
             verified: Boolean((b as any).verified),
             average_rating: st?.average_rating ?? 0,
             total_reviews: st?.total_reviews ?? 0,
+            percentiles: st?.percentiles ?? null,
             recent_reviews_30d: 0,
             recent_reviews_7d: 0,
             bayesian_rating: st?.average_rating ?? null,
@@ -631,6 +633,12 @@ export async function GET(request: NextRequest) {
         recent_reviews_7d: business.recent_reviews_7d ?? 0,
         bayesian_rating: business.bayesian_rating ?? null,
         verified: Boolean(business.verified),
+        stats: {
+          average_rating: business.average_rating,
+          total_reviews: business.total_reviews,
+          percentiles: business.percentiles ?? null,
+        },
+        percentiles: business.percentiles ?? null,
       };
     });
 

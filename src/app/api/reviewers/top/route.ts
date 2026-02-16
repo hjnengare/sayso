@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { getBadgeMapping, getBadgePngPath } from '../../../lib/badgeMappings';
 
 /**
  * GET /api/reviewers/top?limit=12
@@ -106,6 +107,37 @@ export async function GET(req: Request) {
       if (p?.user_id) profileById.set(p.user_id, p);
     }
 
+    // Batch-fetch earned badges for all reviewers in a single query (avoids N+1)
+    const badgesByUserId = new Map<string, Array<{ id: string; name: string; icon_path?: string; badge_group?: string }>>();
+    try {
+      const { data: userBadgeRows, error: badgeError } = await supabase
+        .from('user_badges')
+        .select('user_id, badge_id, badges(id, name, icon_path, badge_group)')
+        .in('user_id', userIds);
+
+      if (badgeError) {
+        console.warn('[Top Reviewers] Error fetching user badges:', badgeError.message);
+      } else if (userBadgeRows) {
+        for (const row of userBadgeRows as any[]) {
+          if (!row?.user_id || !row?.badges) continue;
+          const badge = row.badges;
+          const mapping = getBadgeMapping(badge.id);
+          const entry = {
+            id: badge.id,
+            name: mapping?.name || badge.name,
+            icon_path: mapping?.pngPath || getBadgePngPath(badge.id),
+            badge_group: badge.badge_group,
+          };
+          if (!badgesByUserId.has(row.user_id)) {
+            badgesByUserId.set(row.user_id, []);
+          }
+          badgesByUserId.get(row.user_id)!.push(entry);
+        }
+      }
+    } catch (badgeErr) {
+      console.warn('[Top Reviewers] Badge fetch failed (non-fatal):', badgeErr);
+    }
+
     // Cold-start friendly contributor score:
     // - user has written >= 1 review: +3
     // - any review has photo: +2
@@ -138,6 +170,7 @@ export async function GET(req: Request) {
           rating: Math.round(avgRating * 10) / 10,
           badge: profile.is_top_reviewer ? ('top' as const) : undefined,
           badgesCount,
+          badges: badgesByUserId.get(userId) || [],
           location: 'Cape Town',
           _score: score,
           _tie: Math.round(avgRating * 100) + stats.count * 10 + (stats.hasPhoto ? 1 : 0),

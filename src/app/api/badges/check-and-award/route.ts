@@ -20,23 +20,33 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get all badges that user hasn't earned yet
+    // Get badge IDs the user has already earned (authoritative list for NOT IN)
+    const { data: earnedRows, error: earnedError } = await supabase
+      .from('user_badges')
+      .select('badge_id')
+      .eq('user_id', user.id);
+
+    if (earnedError) {
+      console.error('[Badge Check] Error fetching earned badges:', earnedError);
+      return NextResponse.json({ error: 'Failed to fetch user badges' }, { status: 500 });
+    }
+
+    const earnedBadgeIds = (earnedRows ?? []).map((r) => r.badge_id).filter(Boolean);
     const { data: unearnedBadges, error: badgesError } = await supabase
       .from('badges')
-      .select('*')
-      .not('id', 'in', (
-        supabase
-          .from('user_badges')
-          .select('badge_id')
-          .eq('user_id', user.id)
-      ));
+      .select('*');
 
     if (badgesError) {
-      console.error('[Badge Check] Error fetching unearned badges:', badgesError);
+      console.error('[Badge Check] Error fetching badges:', badgesError);
       return NextResponse.json({ error: 'Failed to fetch badges' }, { status: 500 });
     }
 
-    if (!unearnedBadges || unearnedBadges.length === 0) {
+    const unearned =
+      earnedBadgeIds.length > 0 && Array.isArray(unearnedBadges)
+        ? unearnedBadges.filter((b) => !earnedBadgeIds.includes(b.id))
+        : unearnedBadges ?? [];
+
+    if (!unearned || unearned.length === 0) {
       return NextResponse.json({
         ok: true,
         message: 'All badges already earned',
@@ -47,7 +57,7 @@ export async function POST(req: Request) {
     // Check each unearned badge
     const newlyEarnedBadges = [];
 
-    for (const badge of unearnedBadges) {
+    for (const badge of unearned) {
       const { data: earned, error: checkError } = await supabase.rpc(
         'check_badge_earned',
         {

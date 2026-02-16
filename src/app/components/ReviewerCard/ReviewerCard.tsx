@@ -127,19 +127,32 @@ export default function ReviewerCard({
   const [isHovered, setIsHovered] = useState(false);
   const [userBadges, setUserBadges] = useState<BadgePillData[]>([]);
 
+  // Use badges from reviewer prop (batch-fetched by /api/reviewers/top) when available.
+  // Falls back to per-card fetch only when prop badges are not provided.
+  const MAX_VISIBLE_BADGES = 3;
+  const propBadges = reviewerData?.badges;
 
-  // Fetch user's badges (top 2 most relevant)
-  // Note: Badge API expects real UUIDs from auth.users table
-  // Mock reviewer IDs ("1", "2", etc.) will return empty results gracefully
   useEffect(() => {
+    // If badges were provided via props, use those directly (no N+1)
+    if (propBadges && propBadges.length > 0) {
+      const priorityOrder = ['milestone', 'specialist', 'explorer', 'community'];
+      const sorted = [...propBadges].sort((a, b) => {
+        const aIdx = priorityOrder.indexOf(a.badge_group || '');
+        const bIdx = priorityOrder.indexOf(b.badge_group || '');
+        return aIdx - bIdx;
+      });
+      setUserBadges(sorted);
+      return;
+    }
+
+    // Fallback: fetch per-card (for contexts that don't provide prop badges)
     if (!reviewerData?.id) return;
 
     async function fetchUserBadges() {
       try {
-        const response = await fetch(`/api/badges/user?user_id=${reviewerData.id}`);
+        const response = await fetch(`/api/badges/user?user_id=${reviewerData!.id}`);
         if (response.ok) {
           const data = await response.json();
-          // Get earned badges only
           const earnedBadges = (data.badges || [])
             .filter((b: any) => b.earned)
             .map((b: any) => ({
@@ -149,7 +162,6 @@ export default function ReviewerCard({
               badge_group: b.badge_group,
             }));
 
-          // Prioritize: milestone > specialist > explorer > community
           const priorityOrder = ['milestone', 'specialist', 'explorer', 'community'];
           const sortedBadges = earnedBadges.sort((a: any, b: any) => {
             const aIndex = priorityOrder.indexOf(a.badge_group);
@@ -157,8 +169,7 @@ export default function ReviewerCard({
             return aIndex - bIndex;
           });
 
-          // Take top 2
-          setUserBadges(sortedBadges.slice(0, 2));
+          setUserBadges(sortedBadges);
         }
       } catch (err) {
         console.error('Error fetching user badges:', err);
@@ -166,7 +177,10 @@ export default function ReviewerCard({
     }
 
     fetchUserBadges();
-  }, [reviewerData?.id]);
+  }, [reviewerData?.id, propBadges]);
+
+  const visibleBadges = userBadges.slice(0, MAX_VISIBLE_BADGES);
+  const overflowCount = Math.max(0, userBadges.length - MAX_VISIBLE_BADGES);
 
 
   if (variant === "reviewer" || reviewer) {
@@ -282,11 +296,21 @@ export default function ReviewerCard({
             {/* Badges with entrance animation */}
             <div className="mt-auto flex items-center justify-between gap-2">
               {/* User's earned badges from badge system */}
-              <div className="flex items-center gap-1.5 flex-wrap flex-1 min-w-0">
-                {userBadges.map((badge) => (
+              {visibleBadges.length > 0 && (
+              <div className="flex items-center gap-1 flex-wrap flex-1 min-w-0">
+                {visibleBadges.map((badge) => (
                   <BadgePill key={badge.id} badge={badge} size="sm" />
                 ))}
+                {overflowCount > 0 && (
+                  <span
+                    className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-charcoal/8 text-[10px] font-semibold text-charcoal/50"
+                    style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
+                  >
+                    +{overflowCount}
+                  </span>
+                )}
               </div>
+              )}
 
               {/* Card Actions - always visible on mobile, slide-up on desktop */}
               <div className="flex gap-1.5 transition-all duration-500 ease-out md:translate-y-4 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 flex-shrink-0">
@@ -383,11 +407,19 @@ export default function ReviewerCard({
         </div>
 
         {/* User's earned badges - shown below reviewer info */}
-        {userBadges.length > 0 && (
-          <div className="px-2 pb-2 flex items-center gap-1.5 flex-wrap">
-            {userBadges.map((badge) => (
+        {visibleBadges.length > 0 && (
+          <div className="px-2 pb-2 flex items-center gap-1 flex-wrap">
+            {visibleBadges.map((badge) => (
               <BadgePill key={badge.id} badge={badge} size="sm" />
             ))}
+            {overflowCount > 0 && (
+              <span
+                className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-charcoal/8 text-[10px] font-semibold text-charcoal/50"
+                style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
+              >
+                +{overflowCount}
+              </span>
+            )}
           </div>
         )}
 

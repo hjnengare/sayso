@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getServerSupabase } from '../../../../lib/supabase/server';
 
 type RouteContext = {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 };
 
 /**
@@ -51,6 +52,20 @@ export async function POST(_req: NextRequest, { params }: RouteContext) {
       );
     }
 
+    // Revalidate business page so cached review data (e.g. helpful_count) stays in sync
+    try {
+      const { data: reviewRow } = await supabase.from('reviews').select('business_id').eq('id', reviewId).maybeSingle();
+      if (reviewRow?.business_id) {
+        const { data: businessRow } = await supabase.from('businesses').select('slug, id').eq('id', reviewRow.business_id).maybeSingle();
+        if (businessRow) {
+          const segment = businessRow.slug || businessRow.id;
+          revalidatePath(`/business/${segment}`);
+        }
+      }
+    } catch (revalErr) {
+      console.warn('Helpful: revalidatePath failed', revalErr);
+    }
+
     return NextResponse.json({ helpful: true, alreadyVoted: false });
   } catch (err) {
     console.error('POST /reviews/[id]/helpful unexpected error:', err);
@@ -97,6 +112,20 @@ export async function DELETE(_req: NextRequest, { params }: RouteContext) {
         { error: 'Failed to remove helpful vote' },
         { status: 500 }
       );
+    }
+
+    // Revalidate business page so cached review data stays in sync
+    try {
+      const { data: reviewRow } = await supabase.from('reviews').select('business_id').eq('id', reviewId).maybeSingle();
+      if (reviewRow?.business_id) {
+        const { data: businessRow } = await supabase.from('businesses').select('slug, id').eq('id', reviewRow.business_id).maybeSingle();
+        if (businessRow) {
+          const segment = businessRow.slug || businessRow.id;
+          revalidatePath(`/business/${segment}`);
+        }
+      }
+    } catch (revalErr) {
+      console.warn('Helpful: revalidatePath failed', revalErr);
     }
 
     // Even if nothing was deleted, returning success keeps UX simple

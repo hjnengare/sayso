@@ -13,6 +13,7 @@ export interface Reviewer {
   badge?: "top" | "verified" | "local";
   trophyBadge?: "gold" | "silver" | "bronze" | "rising-star" | "community-favorite";
   badgesCount?: number;
+  badges?: Array<{ id: string; name: string; icon_path?: string; badge_group?: string }>;
   location: string;
 }
 
@@ -57,7 +58,9 @@ export interface BusinessOfTheMonth {
   stats?: {
     average_rating?: number;
     total_reviews?: number;
+    percentiles?: Record<string, number> | null;
   };
+  percentiles?: Record<string, number> | null;
   verified?: boolean;
   address?: string;
   lat?: number | null;

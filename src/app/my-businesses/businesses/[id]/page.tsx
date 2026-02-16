@@ -6,8 +6,9 @@ import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "../../../contexts/AuthContext";
 import { BusinessOwnershipService } from "../../../lib/services/businessOwnershipService";
 import { PageLoader, Loader } from "../../../components/Loader";
-import { Store, MapPin, Star, MessageSquare, Edit, ArrowLeft, Eye, TrendingUp, ChevronRight, Camera, Upload, Loader2, CheckCircle, Calendar } from "lucide-react";
+import { Store, MapPin, Star, MessageSquare, Edit, ArrowLeft, Eye, TrendingUp, ChevronRight, Camera, Upload, Loader2, CheckCircle, Calendar, Trash2 } from "lucide-react";
 import Link from "next/link";
+import { ConfirmationDialog } from "@/components/molecules/ConfirmationDialog";
 
 function formatRelativeDate(dateStr: string): string {
   const now = new Date();
@@ -69,6 +70,9 @@ export default function OwnerBusinessDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [hasAccess, setHasAccess] = useState(false);
   const [uploadingProfilePicture, setUploadingProfilePicture] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const { showToast } = useToast();
 
   const profileCompletion = useMemo(() => {
@@ -254,6 +258,36 @@ export default function OwnerBusinessDashboard() {
       window.removeEventListener('focus', handleFocus);
     };
   }, [business?.id]);
+
+  const handleDeleteClick = () => {
+    setDeleteError(null);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!business?.id) return;
+    setIsDeleting(true);
+    setDeleteError(null);
+    try {
+      const res = await fetch(`/api/businesses/${business.id}`, { method: "DELETE" });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setDeleteError(data?.error ?? "Failed to delete business");
+        showToast(data?.error ?? "Failed to delete business", "error", 4000);
+        return;
+      }
+      showToast("Business deleted", "sage", 3000);
+      const { notifyBusinessDeleted } = await import("../../../lib/utils/businessUpdateEvents");
+      notifyBusinessDeleted(business.id);
+      setIsDeleteDialogOpen(false);
+      router.push("/my-businesses");
+    } catch (err: any) {
+      setDeleteError(err?.message ?? "Something went wrong");
+      showToast(err?.message ?? "Something went wrong", "error", 4000);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   // Listen for business deletion events
   useEffect(() => {
@@ -664,6 +698,17 @@ export default function OwnerBusinessDashboard() {
                         <span className="text-sm font-semibold text-charcoal/60">Promote</span>
                         <span className="text-[10px] bg-sage/20 text-sage px-1.5 py-0.5 rounded-full font-semibold">Soon</span>
                       </div>
+                      <button
+                        type="button"
+                        onClick={handleDeleteClick}
+                        className="group bg-gradient-to-br from-card-bg via-card-bg to-card-bg/80 backdrop-blur-xl border border-coral/40 rounded-[12px] p-4 flex flex-col items-center gap-2 text-center hover:border-coral/70 hover:bg-coral/5 transition-all duration-200"
+                        aria-label="Delete business"
+                      >
+                        <span className="grid h-10 w-10 place-items-center rounded-full bg-coral/10 group-hover:bg-coral/20 transition-colors">
+                          <Trash2 className="w-5 h-5 text-coral" />
+                        </span>
+                        <span className="text-sm font-semibold text-coral">Delete Business</span>
+                      </button>
                     </div>
                   </section>
 
@@ -715,6 +760,23 @@ export default function OwnerBusinessDashboard() {
               </div>
             </div>
           </main>
+
+          <ConfirmationDialog
+            isOpen={isDeleteDialogOpen}
+            onClose={() => {
+              setIsDeleteDialogOpen(false);
+              setDeleteError(null);
+            }}
+            onConfirm={handleConfirmDelete}
+            title="Delete business?"
+            message="This will permanently delete this business and all related data (reviews, events/specials, claims, stats). This cannot be undone."
+            confirmText="Delete Business"
+            cancelText="Cancel"
+            variant="danger"
+            requireConfirmText="DELETE"
+            isLoading={isDeleting}
+            error={deleteError}
+          />
     </div>
   );
 }

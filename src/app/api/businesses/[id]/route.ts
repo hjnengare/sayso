@@ -3,6 +3,7 @@ import { getServerSupabase } from '../../../lib/supabase/server';
 import { invalidateBusinessCache, fetchBusinessOptimized } from '../../../lib/utils/optimizedQueries';
 import { notifyBusinessUpdated } from '../../../lib/utils/businessUpdateEvents';
 import { getInterestIdForSubcategory } from '../../../lib/onboarding/subcategoryMapping';
+import { isAdmin } from '../../../lib/admin';
 
 /**
  * GET /api/businesses/[id]
@@ -31,6 +32,28 @@ export async function GET(
         { error: 'Business not found' },
         { status: 404 }
       );
+    }
+
+    // Hide non-active businesses from public access (pending/rejected must not leak)
+    if (business.status !== 'active') {
+      let isOwnerOrAdmin = false;
+      try {
+        const supabase = await getServerSupabase(req);
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          isOwnerOrAdmin =
+            business.owner_id === user.id ||
+            (await isAdmin(user.id));
+        }
+      } catch {
+        // No auth or auth error — treat as anonymous
+      }
+      if (!isOwnerOrAdmin) {
+        return NextResponse.json(
+          { error: 'Business not found' },
+          { status: 404 }
+        );
+      }
     }
 
     // Normalize taxonomy for consumers: DB uses primary_* after migration; expose legacy names too
