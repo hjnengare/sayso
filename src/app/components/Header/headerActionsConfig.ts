@@ -210,7 +210,7 @@ export const getLinkHref = (
   isGuest: boolean
 ): string => {
   if (isGuest && requiresAuth) {
-    return "/login";
+    return "/onboarding";
   }
   return href;
 };

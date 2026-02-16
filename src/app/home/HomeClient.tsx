@@ -627,7 +627,7 @@ export default function HomeClient() {
                                 Create Account
                               </Link>
                               <Link
-                                href="/login"
+                                href="/onboarding"
                                 className="mi-tap inline-flex items-center justify-center rounded-full min-h-[48px] px-6 py-3 text-body font-semibold text-charcoal border border-charcoal/15 bg-white hover:bg-off-white transition-all duration-200 shadow-sm w-full sm:w-auto sm:min-w-[180px]"
                                 style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                               >

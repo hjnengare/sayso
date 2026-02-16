@@ -573,7 +573,7 @@ export default function Header({
 
   useEffect(() => {
     if (effectiveIsAdminUser) {
-      void router.prefetch('/login');
+      void router.prefetch('/onboarding');
     }
   }, [effectiveIsAdminUser, router]);
 
@@ -1011,7 +1011,7 @@ export default function Header({
                   {/* Notifications */}
                   {!isMobileSearchOpen && (
                     <OptimizedLink
-                      href={effectiveIsGuest ? "/login" : "/notifications"}
+                      href={effectiveIsGuest ? "/onboarding" : "/notifications"}
                       className={`relative z-[2] w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 cursor-pointer pointer-events-auto select-none ${
                         isNotificationsActive
                           ? "text-sage bg-sage/5"
@@ -1041,7 +1041,7 @@ export default function Header({
                   {/* Saved */}
                   {!effectiveIsBusinessAccountUser && !isMobileSearchOpen && (
                     <OptimizedLink
-                      href={effectiveIsGuest ? "/login" : "/saved"}
+                      href={effectiveIsGuest ? "/onboarding" : "/saved"}
                       className={`relative w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 ${
                         !effectiveIsGuest && isSavedActive
                           ? "text-sage bg-sage/5"
@@ -1110,7 +1110,7 @@ export default function Header({
 
               <div className="relative z-[2] flex lg:hidden items-center gap-2 ml-auto">
                 <OptimizedLink
-                  href={effectiveIsGuest ? "/login" : "/notifications"}
+                  href={effectiveIsGuest ? "/onboarding" : "/notifications"}
                   className={`relative z-[2] w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 cursor-pointer pointer-events-auto select-none ${
                     isNotificationsActive
                       ? "text-sage bg-sage/5"

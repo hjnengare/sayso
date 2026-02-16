@@ -301,7 +301,7 @@ export const useHeaderState = ({
           e.preventDefault();
           e.stopPropagation();
         }
-        router.push("/login");
+        router.push("/onboarding");
       }
     },
     [requiresAuthForNav, router]

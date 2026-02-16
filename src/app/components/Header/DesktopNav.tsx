@@ -499,7 +499,7 @@ export default function DesktopNav(props: DesktopNavProps) {
       {/* Notifications */}
       {isGuest ? (
         <OptimizedLink
-          href="/login"
+          href="/onboarding"
           className={`${iconWrapClass(false)} cursor-pointer pointer-events-auto select-none relative z-[2]`}
           aria-label="Sign in for notifications"
         >
@@ -572,7 +572,7 @@ export default function DesktopNav(props: DesktopNavProps) {
           {/* Profile (personal only) */}
           <div className="relative">
             <OptimizedLink
-              href={isGuest ? "/login" : "/profile"}
+              href={isGuest ? "/onboarding" : "/profile"}
               className={iconWrapClass(isProfileActive)}
               aria-label={isGuest ? "Sign in" : "Profile"}
             >
@@ -588,7 +588,7 @@ export default function DesktopNav(props: DesktopNavProps) {
         /* Business actions */
         <div className="relative">
           <OptimizedLink
-            href={isGuest ? "/login" : "/settings"}
+            href={isGuest ? "/onboarding" : "/settings"}
             className={iconWrapClass(isSettingsActive)}
             aria-label={isGuest ? "Sign in" : "Settings"}
           >

@@ -175,7 +175,7 @@ export default function MobileMenu({
                 {addMenuItems.map((item) => {
                   const itemActive = isRouteActive(item.href);
                   const targetHref = shouldShowLockIndicator(isGuest, item.requiresAuth)
-                    ? "/login"
+                    ? "/onboarding"
                     : item.href;
                   return (
                     <OptimizedLink
@@ -208,7 +208,7 @@ export default function MobileMenu({
           return (
             <OptimizedLink
               key={item.href}
-              href={showLockIndicator ? "/login" : item.href}
+              href={showLockIndicator ? "/onboarding" : item.href}
               onClick={() => onClose()}
               className={`px-3 py-2 rounded-full text-base font-normal text-white hover:text-white flex items-center justify-center min-h-[44px] ${mobileTapFeedbackClass} ${mobileRevealClass}`}
               style={{
@@ -235,7 +235,7 @@ export default function MobileMenu({
             return (
               <OptimizedLink
                 key={key}
-                href={showLockIndicator ? "/login" : href}
+                href={showLockIndicator ? "/onboarding" : href}
                 onClick={(e) => {
                   handleNavClick(href, e);
                   onClose();
@@ -265,7 +265,7 @@ export default function MobileMenu({
             return (
               <OptimizedLink
                 key={key}
-                href={showLockIndicator ? "/login" : href}
+                href={showLockIndicator ? "/onboarding" : href}
                 onClick={(e) => {
                   handleNavClick(href, e);
                   onClose();
@@ -321,7 +321,7 @@ export default function MobileMenu({
             return (
               <OptimizedLink
                 key={key}
-                href={showLockIndicator ? "/login" : href}
+                href={showLockIndicator ? "/onboarding" : href}
                 onClick={(e) => {
                   handleNavClick(href, e);
                   onClose();
@@ -347,7 +347,7 @@ export default function MobileMenu({
             return (
               <OptimizedLink
                 key={key}
-                href={showLockIndicator ? "/login" : href}
+                href={showLockIndicator ? "/onboarding" : href}
                 onClick={(e) => {
                   handleNavClick(href, e);
                   onClose();
@@ -405,7 +405,7 @@ export default function MobileMenu({
           {isGuest && (
             <div className="px-3 py-3 border-t border-charcoal/10 flex-shrink-0">
               <OptimizedLink
-                href="/login"
+                href="/onboarding"
                 onClick={() => onClose()}
                 className={`px-3 py-2 rounded-[12px] text-xs font-normal text-white/80 hover:text-white hover:bg-gradient-to-r hover:from-white/10 hover:to-white/5 min-h-[44px] flex items-center justify-center ${mobileTapFeedbackClass} ${mobileRevealClass}`}
                 style={{
