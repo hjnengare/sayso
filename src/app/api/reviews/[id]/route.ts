@@ -315,24 +315,23 @@ export async function DELETE(req: Request, { params }: RouteParams) {
 
     const businessId = review.business_id;
 
-    // Get all review images before deletion
+    // Get all review images before deletion so we can remove files from storage
     const { data: reviewImages } = await supabase
       .from('review_images')
       .select('storage_path')
       .eq('review_id', id);
 
-    // Delete images from storage
-    if (reviewImages && reviewImages.length > 0) {
-      const filePaths = reviewImages.map(img => img.storage_path);
-      
-      for (const filePath of filePaths) {
-        const { error: deleteError } = await supabase.storage
-          .from('review_images')
-          .remove([filePath]);
+    const storagePaths = (reviewImages ?? [])
+      .map((img) => img?.storage_path)
+      .filter((path): path is string => Boolean(path));
 
-        if (deleteError) {
-          console.error('Error deleting review image from storage:', deleteError);
-        }
+    if (storagePaths.length > 0) {
+      const { error: storageError } = await supabase.storage
+        .from('review_images')
+        .remove(storagePaths);
+
+      if (storageError) {
+        console.error('Error deleting review images from storage (continuing with DB deletion):', storageError);
       }
     }
 

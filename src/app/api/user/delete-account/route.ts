@@ -27,7 +27,7 @@ export async function DELETE(req: Request) {
       // Continue with account deletion even if storage deletion fails
     }
 
-    // Delete review images from storage
+    // Delete all review images from storage (bucket: review_images) so no orphaned files remain
     try {
       const { data: reviews } = await supabase
         .from('reviews')
@@ -35,22 +35,26 @@ export async function DELETE(req: Request) {
         .eq('user_id', user.id);
 
       if (reviews && reviews.length > 0) {
-        const reviewIds = reviews.map(r => r.id);
+        const reviewIds = reviews.map((r) => r.id);
         const { data: images } = await supabase
           .from('review_images')
-          .select('image_url')
+          .select('storage_path')
           .in('review_id', reviewIds);
 
-        if (images && images.length > 0) {
-          const pathsToDelete = images.map(img => {
-            // Extract path from full URL
-            const urlParts = img.image_url.split('/');
-            return urlParts[urlParts.length - 1];
-          });
-          
-          await supabase.storage
-            .from('review-images')
-            .remove(pathsToDelete);
+        const storagePaths = (images ?? [])
+          .map((img) => img?.storage_path)
+          .filter((path): path is string => Boolean(path));
+
+        if (storagePaths.length > 0) {
+          const { error: storageError } = await supabase.storage
+            .from('review_images')
+            .remove(storagePaths);
+
+          if (storageError) {
+            console.error('Error deleting review images from storage (continuing with account deletion):', storageError);
+          } else {
+            console.log(`Deleted ${storagePaths.length} review image file(s) for user ${user.id}`);
+          }
         }
       }
     } catch (storageError) {

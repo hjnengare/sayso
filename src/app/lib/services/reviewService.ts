@@ -240,20 +240,21 @@ export class ReviewService {
         throw new Error('Unauthorized: Cannot delete another user\'s review');
       }
 
-      // Delete review images from storage
+      // Delete review images from storage (bucket: review_images)
       const { data: images } = await supabase
         .from('review_images')
-        .select('image_url')
+        .select('storage_path')
         .eq('review_id', reviewId);
 
-      if (images) {
-        for (const image of images) {
-          const filePath = image.image_url.split('/').pop();
-          if (filePath) {
-            await supabase.storage
-              .from('review-images')
-              .remove([`review-images/${filePath}`]);
-          }
+      const storagePaths = (images ?? [])
+        .map((img) => img?.storage_path)
+        .filter((path): path is string => Boolean(path));
+      if (storagePaths.length > 0) {
+        const { error: storageError } = await supabase.storage
+          .from('review_images')
+          .remove(storagePaths);
+        if (storageError) {
+          console.error('Error deleting review images from storage:', storageError);
         }
       }
 
