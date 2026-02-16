@@ -613,7 +613,10 @@ export default function ForYouClient({
                   <div className="mb-4 px-2 flex items-center justify-end">
                     <div className="flex items-center gap-1 bg-white/80 backdrop-blur-sm rounded-full p-1 border border-white/30 shadow-sm">
                       <button
-                        onClick={() => setIsMapMode(false)}
+                        onClick={() => {
+                          console.log('[ForYou] Switching to List mode');
+                          setIsMapMode(false);
+                        }}
                         className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
                           !isMapMode
                             ? 'bg-card-bg text-white shadow-sm'
@@ -625,7 +628,10 @@ export default function ForYouClient({
                         List
                       </button>
                       <button
-                        onClick={() => setIsMapMode(true)}
+                        onClick={() => {
+                          console.log('[ForYou] Switching to Map mode, businesses:', mapBusinesses.length);
+                          setIsMapMode(true);
+                        }}
                         className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
                           isMapMode
                             ? 'bg-coral text-white shadow-sm'
@@ -644,10 +650,10 @@ export default function ForYouClient({
                     {isMapMode ? (
                       <motion.div
                         key="map-view"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.3 }}
+                        initial={isDesktop ? { opacity: 0 } : false}
+                        animate={isDesktop ? { opacity: 1 } : {}}
+                        exit={isDesktop ? { opacity: 0 } : {}}
+                        transition={isDesktop ? { duration: 0.3 } : undefined}
                         className="w-full h-[calc(100vh-300px)] min-h-[500px] rounded-[12px] overflow-hidden border border-white/30 shadow-lg"
                       >
                         <BusinessesMap

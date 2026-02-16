@@ -83,7 +83,7 @@ function WriteReviewContent() {
   // Fetch reviews for "What others are saying" section - use actual business ID from loaded business
   // Only fetch after business data is loaded to ensure we have the actual database ID (not slug)
   const actualBusinessId = business?.id || businessId;
-  const { reviews, loading: reviewsLoading, refetch: refetchReviews } = useReviews(business?.id ? actualBusinessId : undefined);
+  const { reviews, loading: reviewsLoading, refetch: refetchReviews, addOptimisticReview, replaceOptimisticReview } = useReviews(business?.id ? actualBusinessId : undefined);
 
   // Fetch existing review data if in edit mode (guests cannot edit)
   useEffect(() => {
@@ -353,8 +353,39 @@ function WriteReviewContent() {
       }
     }
 
+    // Build optimistic review to show immediately in the "What Others Are Saying" section
+    const tempId = `optimistic-${Date.now()}`;
+    const optimisticReview = {
+      id: tempId,
+      user_id: user?.id || null,
+      business_id: actualBusinessId,
+      rating: overallRating,
+      title: reviewTitle || null,
+      content: reviewText,
+      tags: selectedTags,
+      helpful_count: 0,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      profile: user ? {
+        user_id: user.id,
+        display_name: (user as any).display_name || (user as any).user_metadata?.display_name || null,
+        username: (user as any).username || (user as any).user_metadata?.username || null,
+        avatar_url: (user as any).avatar_url || (user as any).user_metadata?.avatar_url || null,
+      } : {},
+      user: {
+        id: user?.id || '',
+        name: user ? ((user as any).display_name || (user as any).user_metadata?.display_name || 'You') : 'Anonymous',
+        avatar_url: (user as any)?.avatar_url || (user as any)?.user_metadata?.avatar_url || null,
+      },
+      review_images: [],
+      images: [],
+    };
+
+    // Insert optimistic review immediately
+    addOptimisticReview?.(optimisticReview as any);
+
     // Create new review
-    const success = await submitReview({
+    const result = await submitReview({
       business_id: actualBusinessId,
       rating: overallRating,
       title: reviewTitle,
@@ -363,52 +394,65 @@ function WriteReviewContent() {
       images: selectedImages,
     });
 
-    if (success) {
-      // Refresh server cache and refetch reviews so UI shows new review without full reload
+    if (!result.success) {
+      // Rollback optimistic review on failure
+      // removeReview is not destructured but we can refetch to clean up
       refetchReviews?.();
-      router.refresh();
+      return;
+    }
 
-      // Trigger confetti celebration
-      const duration = 3000;
-      const animationEnd = Date.now() + duration;
-      const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
+    // Replace optimistic review with real data if available
+    if (result.review?.id) {
+      replaceOptimisticReview?.(tempId, {
+        ...optimisticReview,
+        ...result.review,
+      } as any);
+    }
 
-      function randomInRange(min: number, max: number) {
-        return Math.random() * (max - min) + min;
+    // Refresh server cache so the business page loads with fresh reviews on navigation
+    refetchReviews?.();
+    router.refresh();
+
+    // Trigger confetti celebration
+    const duration = 3000;
+    const animationEnd = Date.now() + duration;
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
+
+    function randomInRange(min: number, max: number) {
+      return Math.random() * (max - min) + min;
+    }
+
+    const interval = setInterval(() => {
+      const timeLeft = animationEnd - Date.now();
+
+      if (timeLeft <= 0) {
+        return clearInterval(interval);
       }
 
-      const interval = setInterval(() => {
-        const timeLeft = animationEnd - Date.now();
+      const particleCount = 50 * (timeLeft / duration);
 
-        if (timeLeft <= 0) {
-          return clearInterval(interval);
-        }
+      // Create confetti bursts from different positions
+      confetti({
+        ...defaults,
+        particleCount,
+        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+        colors: ['#7D9B76', '#E88D67', '#FFFFFF', '#FFD700'],
+      });
+      confetti({
+        ...defaults,
+        particleCount,
+        origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+        colors: ['#7D9B76', '#E88D67', '#FFFFFF', '#FFD700'],
+      });
+    }, 250);
 
-        const particleCount = 50 * (timeLeft / duration);
+    resetForm();
 
-        // Create confetti bursts from different positions
-        confetti({
-          ...defaults,
-          particleCount,
-          origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
-          colors: ['#7D9B76', '#E88D67', '#FFFFFF', '#FFD700'],
-        });
-        confetti({
-          ...defaults,
-          particleCount,
-          origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
-          colors: ['#7D9B76', '#E88D67', '#FFFFFF', '#FFD700'],
-        });
-      }, 250);
-
-      resetForm();
-
-      // Navigate back to business profile (fresh data via revalidatePath + refetch on mount)
-      setTimeout(() => {
-        const targetId = business?.slug || business?.id || businessId;
-        router.push(`/business/${targetId}`);
-      }, 1500);
-    }
+    // Navigate back to business profile (fresh data via revalidatePath + refetch on mount)
+    setTimeout(() => {
+      const targetId = business?.slug || business?.id || businessId;
+      router.push(`/business/${targetId}`);
+    }, 1500);
   };
 
   // Loading state

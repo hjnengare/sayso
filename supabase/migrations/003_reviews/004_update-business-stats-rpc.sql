@@ -9,8 +9,8 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 DECLARE
-  total_reviews INTEGER;
-  average_rating DECIMAL(3,2);
+  calc_total_reviews INTEGER;
+  calc_average_rating DECIMAL(3,2);
   rating_dist JSONB;
   percentiles JSONB;
   business_category TEXT;
@@ -39,7 +39,7 @@ DECLARE
   cost_effectiveness_percentile DECIMAL;
 BEGIN
   -- Get business category for category-specific comparisons
-  SELECT category INTO business_category
+  SELECT primary_subcategory_slug INTO business_category
   FROM businesses
   WHERE id = p_business_id;
 
@@ -48,8 +48,8 @@ BEGIN
     COUNT(*)::INTEGER,
     COALESCE(ROUND(AVG(rating)::numeric, 2), 0)
   INTO
-    total_reviews,
-    average_rating
+    calc_total_reviews,
+    calc_average_rating
   FROM reviews
   WHERE business_id = p_business_id;
 
@@ -71,8 +71,8 @@ BEGIN
   );
 
   -- If no reviews exist, set defaults and skip percentile calculations
-  IF total_reviews = 0 THEN
-    average_rating := 0;
+  IF calc_total_reviews = 0 THEN
+    calc_average_rating := 0;
     percentiles := jsonb_build_object(
       'punctuality', 0,
       'friendliness', 0,
@@ -138,7 +138,7 @@ BEGIN
   -- ============================================
   -- Calculate percentile rank compared to other businesses in the same category
   
-  IF business_category IS NOT NULL AND total_reviews > 0 THEN
+  IF business_category IS NOT NULL AND calc_total_reviews > 0 THEN
     -- Get category average rating and business count
     SELECT 
       COALESCE(ROUND(AVG(bs.average_rating)::numeric, 2), 0),
@@ -146,7 +146,7 @@ BEGIN
     INTO category_avg_rating, category_business_count
     FROM businesses b
     LEFT JOIN business_stats bs ON b.id = bs.business_id
-    WHERE b.category = business_category 
+    WHERE b.primary_subcategory_slug = business_category 
       AND b.status = 'active'
       AND bs.total_reviews > 0;
     
@@ -161,11 +161,11 @@ BEGIN
               SELECT COUNT(*)::DECIMAL
               FROM businesses b2
               LEFT JOIN business_stats bs2 ON b2.id = bs2.business_id
-              WHERE b2.category = business_category 
+              WHERE b2.primary_subcategory_slug = business_category 
                 AND b2.status = 'active'
                 AND b2.id != p_business_id
                 AND bs2.total_reviews > 0
-                AND bs2.average_rating < average_rating
+                AND bs2.average_rating < calc_average_rating
             ) / GREATEST(category_business_count - 1, 1)::DECIMAL) * 100,
             0
           )
@@ -203,7 +203,7 @@ BEGIN
       FROM businesses b
       LEFT JOIN reviews r ON r.business_id = b.id
       LEFT JOIN business_stats bs ON b.id = bs.business_id
-      WHERE b.category = business_category 
+      WHERE b.primary_subcategory_slug = business_category 
         AND b.status = 'active'
         AND b.id != p_business_id
         AND bs.total_reviews > 0
@@ -232,7 +232,7 @@ BEGIN
       FROM businesses b
       LEFT JOIN reviews r ON r.business_id = b.id
       LEFT JOIN business_stats bs ON b.id = bs.business_id
-      WHERE b.category = business_category 
+      WHERE b.primary_subcategory_slug = business_category 
         AND b.status = 'active'
         AND b.id != p_business_id
         AND bs.total_reviews > 0
@@ -261,7 +261,7 @@ BEGIN
       FROM businesses b
       LEFT JOIN reviews r ON r.business_id = b.id
       LEFT JOIN business_stats bs ON b.id = bs.business_id
-      WHERE b.category = business_category 
+      WHERE b.primary_subcategory_slug = business_category 
         AND b.status = 'active'
         AND b.id != p_business_id
         AND bs.total_reviews > 0
@@ -290,7 +290,7 @@ BEGIN
       FROM businesses b
       LEFT JOIN reviews r ON r.business_id = b.id
       LEFT JOIN business_stats bs ON b.id = bs.business_id
-      WHERE b.category = business_category 
+      WHERE b.primary_subcategory_slug = business_category 
         AND b.status = 'active'
         AND b.id != p_business_id
         AND bs.total_reviews > 0
@@ -361,8 +361,8 @@ BEGIN
   )
   VALUES (
     p_business_id,
-    total_reviews,
-    average_rating,
+    calc_total_reviews,
+    calc_average_rating,
     rating_dist,
     percentiles,
     NOW()

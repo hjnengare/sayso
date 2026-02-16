@@ -1,6 +1,7 @@
--- Create or replace RPC to update business statistics for a business
--- Uses SECURITY DEFINER so it can run despite RLS on business_stats
--- Enhanced with true percentile rankings, tag-based calculations, and category-specific comparisons
+-- Fix: "column reference 'average_rating' is ambiguous" error in update_business_stats()
+-- The PL/pgSQL variable `average_rating` clashes with the `business_stats.average_rating` column
+-- when referenced inside subqueries that join business_stats. Rename local vars to `calc_*` prefix.
+-- Also includes fix: use `primary_subcategory_slug` instead of nonexistent `category` column on businesses.
 
 CREATE OR REPLACE FUNCTION public.update_business_stats(p_business_id UUID)
 RETURNS void
@@ -14,24 +15,24 @@ DECLARE
   rating_dist JSONB;
   percentiles JSONB;
   business_category TEXT;
-  
+
   -- Tag-based metrics
   punctuality_score DECIMAL := 50.0;
   friendliness_score DECIMAL := 50.0;
   trustworthiness_score DECIMAL := 50.0;
   cost_effectiveness_score DECIMAL := 50.0;
-  
+
   -- Category comparison metrics
   category_avg_rating DECIMAL;
   category_business_count INTEGER;
   category_percentile_rank DECIMAL := 50.0;
-  
+
   -- Category-specific tag percentile rankings
   category_punctuality_percentile DECIMAL := 50.0;
   category_friendliness_percentile DECIMAL := 50.0;
   category_trustworthiness_percentile DECIMAL := 50.0;
   category_cost_effectiveness_percentile DECIMAL := 50.0;
-  
+
   -- Final percentile calculations
   punctuality_percentile DECIMAL;
   friendliness_percentile DECIMAL;
@@ -84,48 +85,48 @@ BEGIN
     -- TAG-BASED PERCENTILE CALCULATIONS
     -- ============================================
     -- Calculate percentiles based on review tags and compare to category average
-  
+
   -- Punctuality: Based on "On Time" tag percentage
-  SELECT 
-    CASE 
+  SELECT
+    CASE
       WHEN COUNT(*) = 0 THEN 50.0 -- Default if no reviews
-      ELSE GREATEST(0, LEAST(100, 
+      ELSE GREATEST(0, LEAST(100,
         ROUND((COUNT(*) FILTER (WHERE 'On Time' = ANY(tags))::DECIMAL / COUNT(*)::DECIMAL) * 100, 0)
       ))
     END
   INTO punctuality_score
   FROM reviews
   WHERE business_id = p_business_id;
-  
+
   -- Friendliness: Based on "Friendly" tag percentage
-  SELECT 
-    CASE 
+  SELECT
+    CASE
       WHEN COUNT(*) = 0 THEN 50.0
-      ELSE GREATEST(0, LEAST(100, 
+      ELSE GREATEST(0, LEAST(100,
         ROUND((COUNT(*) FILTER (WHERE 'Friendly' = ANY(tags))::DECIMAL / COUNT(*)::DECIMAL) * 100, 0)
       ))
     END
   INTO friendliness_score
   FROM reviews
   WHERE business_id = p_business_id;
-  
+
   -- Trustworthiness: Based on "Trustworthy" tag percentage
-  SELECT 
-    CASE 
+  SELECT
+    CASE
       WHEN COUNT(*) = 0 THEN 50.0
-      ELSE GREATEST(0, LEAST(100, 
+      ELSE GREATEST(0, LEAST(100,
         ROUND((COUNT(*) FILTER (WHERE 'Trustworthy' = ANY(tags))::DECIMAL / COUNT(*)::DECIMAL) * 100, 0)
       ))
     END
   INTO trustworthiness_score
   FROM reviews
   WHERE business_id = p_business_id;
-  
+
   -- Cost Effectiveness: Based on "Good Value" tag percentage
-  SELECT 
-    CASE 
+  SELECT
+    CASE
       WHEN COUNT(*) = 0 THEN 50.0
-      ELSE GREATEST(0, LEAST(100, 
+      ELSE GREATEST(0, LEAST(100,
         ROUND((COUNT(*) FILTER (WHERE 'Good Value' = ANY(tags))::DECIMAL / COUNT(*)::DECIMAL) * 100, 0)
       ))
     END
@@ -137,23 +138,23 @@ BEGIN
   -- TRUE PERCENTILE RANKING (vs Category)
   -- ============================================
   -- Calculate percentile rank compared to other businesses in the same category
-  
+
   IF business_category IS NOT NULL AND calc_total_reviews > 0 THEN
     -- Get category average rating and business count
-    SELECT 
+    SELECT
       COALESCE(ROUND(AVG(bs.average_rating)::numeric, 2), 0),
       COUNT(DISTINCT b.id)::INTEGER
     INTO category_avg_rating, category_business_count
     FROM businesses b
     LEFT JOIN business_stats bs ON b.id = bs.business_id
-    WHERE b.primary_subcategory_slug = business_category 
+    WHERE b.primary_subcategory_slug = business_category
       AND b.status = 'active'
       AND bs.total_reviews > 0;
-    
+
     -- Calculate percentile rank: percentage of businesses in category with lower average rating
     -- This is a true percentile ranking comparing this business to others in the same category
-    SELECT 
-      CASE 
+    SELECT
+      CASE
         WHEN category_business_count <= 1 THEN 50.0 -- Default if only one business in category
         ELSE GREATEST(0, LEAST(100,
           ROUND(
@@ -161,7 +162,7 @@ BEGIN
               SELECT COUNT(*)::DECIMAL
               FROM businesses b2
               LEFT JOIN business_stats bs2 ON b2.id = bs2.business_id
-              WHERE b2.primary_subcategory_slug = business_category 
+              WHERE b2.primary_subcategory_slug = business_category
                 AND b2.status = 'active'
                 AND b2.id != p_business_id
                 AND bs2.total_reviews > 0
@@ -172,7 +173,7 @@ BEGIN
         ))
       END
     INTO category_percentile_rank;
-    
+
     -- If category comparison data is available, use it to adjust tag-based scores
     -- Otherwise, use pure tag-based calculation
     IF category_percentile_rank IS NULL THEN
@@ -187,29 +188,29 @@ BEGIN
   -- ============================================
   -- Calculate how this business's tag scores rank vs other businesses in the category
   -- This gives us true percentile rankings for each tag metric
-  
+
   IF business_category IS NOT NULL AND category_business_count > 1 THEN
     -- Calculate tag-based percentiles using a more efficient approach
     -- We'll use window functions and CTEs for better performance
-    
+
     -- Punctuality percentile: rank this business's punctuality_score vs category
     WITH category_tag_scores AS (
-      SELECT 
+      SELECT
         b.id as business_id,
-        CASE 
+        CASE
           WHEN COUNT(r.id) = 0 THEN 0
           ELSE (COUNT(*) FILTER (WHERE 'On Time' = ANY(r.tags))::DECIMAL / COUNT(r.id)::DECIMAL) * 100
         END as punctuality_tag_score
       FROM businesses b
       LEFT JOIN reviews r ON r.business_id = b.id
       LEFT JOIN business_stats bs ON b.id = bs.business_id
-      WHERE b.primary_subcategory_slug = business_category 
+      WHERE b.primary_subcategory_slug = business_category
         AND b.status = 'active'
         AND b.id != p_business_id
         AND bs.total_reviews > 0
       GROUP BY b.id
     )
-    SELECT 
+    SELECT
       GREATEST(0, LEAST(100,
         ROUND(
           ((SELECT COUNT(*)::DECIMAL
@@ -220,25 +221,25 @@ BEGIN
         )
       ))
     INTO category_punctuality_percentile;
-    
+
     -- Friendliness percentile
     WITH category_tag_scores AS (
-      SELECT 
+      SELECT
         b.id as business_id,
-        CASE 
+        CASE
           WHEN COUNT(r.id) = 0 THEN 0
           ELSE (COUNT(*) FILTER (WHERE 'Friendly' = ANY(r.tags))::DECIMAL / COUNT(r.id)::DECIMAL) * 100
         END as friendliness_tag_score
       FROM businesses b
       LEFT JOIN reviews r ON r.business_id = b.id
       LEFT JOIN business_stats bs ON b.id = bs.business_id
-      WHERE b.primary_subcategory_slug = business_category 
+      WHERE b.primary_subcategory_slug = business_category
         AND b.status = 'active'
         AND b.id != p_business_id
         AND bs.total_reviews > 0
       GROUP BY b.id
     )
-    SELECT 
+    SELECT
       GREATEST(0, LEAST(100,
         ROUND(
           ((SELECT COUNT(*)::DECIMAL
@@ -249,25 +250,25 @@ BEGIN
         )
       ))
     INTO category_friendliness_percentile;
-    
+
     -- Trustworthiness percentile
     WITH category_tag_scores AS (
-      SELECT 
+      SELECT
         b.id as business_id,
-        CASE 
+        CASE
           WHEN COUNT(r.id) = 0 THEN 0
           ELSE (COUNT(*) FILTER (WHERE 'Trustworthy' = ANY(r.tags))::DECIMAL / COUNT(r.id)::DECIMAL) * 100
         END as trustworthiness_tag_score
       FROM businesses b
       LEFT JOIN reviews r ON r.business_id = b.id
       LEFT JOIN business_stats bs ON b.id = bs.business_id
-      WHERE b.primary_subcategory_slug = business_category 
+      WHERE b.primary_subcategory_slug = business_category
         AND b.status = 'active'
         AND b.id != p_business_id
         AND bs.total_reviews > 0
       GROUP BY b.id
     )
-    SELECT 
+    SELECT
       GREATEST(0, LEAST(100,
         ROUND(
           ((SELECT COUNT(*)::DECIMAL
@@ -278,25 +279,25 @@ BEGIN
         )
       ))
     INTO category_trustworthiness_percentile;
-    
+
     -- Cost Effectiveness percentile
     WITH category_tag_scores AS (
-      SELECT 
+      SELECT
         b.id as business_id,
-        CASE 
+        CASE
           WHEN COUNT(r.id) = 0 THEN 0
           ELSE (COUNT(*) FILTER (WHERE 'Good Value' = ANY(r.tags))::DECIMAL / COUNT(r.id)::DECIMAL) * 100
         END as cost_effectiveness_tag_score
       FROM businesses b
       LEFT JOIN reviews r ON r.business_id = b.id
       LEFT JOIN business_stats bs ON b.id = bs.business_id
-      WHERE b.primary_subcategory_slug = business_category 
+      WHERE b.primary_subcategory_slug = business_category
         AND b.status = 'active'
         AND b.id != p_business_id
         AND bs.total_reviews > 0
       GROUP BY b.id
     )
-    SELECT 
+    SELECT
       GREATEST(0, LEAST(100,
         ROUND(
           ((SELECT COUNT(*)::DECIMAL
@@ -307,40 +308,40 @@ BEGIN
         )
       ))
     INTO category_cost_effectiveness_percentile;
-    
+
     -- Use null coalescing for defaults
     category_punctuality_percentile := COALESCE(category_punctuality_percentile, 50.0);
     category_friendliness_percentile := COALESCE(category_friendliness_percentile, 50.0);
     category_trustworthiness_percentile := COALESCE(category_trustworthiness_percentile, 50.0);
     category_cost_effectiveness_percentile := COALESCE(category_cost_effectiveness_percentile, 50.0);
   END IF;
-  
+
   -- ============================================
   -- FINAL PERCENTILE CALCULATION
   -- ============================================
   -- Combine tag-based scores with category-specific tag percentile rankings
   -- Weight: 60% tag score + 40% category tag percentile (more weight on category comparison)
-  
+
   -- Punctuality: 60% tag score + 40% category tag percentile
   punctuality_percentile := GREATEST(0, LEAST(100,
     ROUND((punctuality_score * 0.6 + category_punctuality_percentile * 0.4), 0)
   ));
-  
+
   -- Friendliness: 60% tag score + 40% category tag percentile
   friendliness_percentile := GREATEST(0, LEAST(100,
     ROUND((friendliness_score * 0.6 + category_friendliness_percentile * 0.4), 0)
   ));
-  
+
   -- Trustworthiness: 60% tag score + 40% category tag percentile
   trustworthiness_percentile := GREATEST(0, LEAST(100,
     ROUND((trustworthiness_score * 0.6 + category_trustworthiness_percentile * 0.4), 0)
   ));
-  
+
   -- Cost Effectiveness: 60% tag score + 40% category tag percentile
   cost_effectiveness_percentile := GREATEST(0, LEAST(100,
     ROUND((cost_effectiveness_score * 0.6 + category_cost_effectiveness_percentile * 0.4), 0)
   ));
-  
+
   -- Build percentiles JSONB with tag-based calculations
   percentiles := jsonb_build_object(
     'punctuality', punctuality_percentile,
@@ -349,7 +350,7 @@ BEGIN
     'cost-effectiveness', cost_effectiveness_percentile
   );
 
-  END IF; -- End of IF total_reviews > 0 block
+  END IF; -- End of IF calc_total_reviews > 0 block
 
   INSERT INTO business_stats (
     business_id,
@@ -383,4 +384,3 @@ GRANT EXECUTE ON FUNCTION public.update_business_stats(UUID) TO service_role;
 
 -- Refresh schema cache so PostgREST sees the function
 NOTIFY pgrst, 'reload schema';
-

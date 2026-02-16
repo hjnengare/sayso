@@ -130,6 +130,18 @@ export function useReviews(businessId?: string) {
     };
   }, [businessId]);
 
+  const addOptimisticReview = (review: ReviewWithUser) => {
+    setReviews(prev => [review, ...prev]);
+  };
+
+  const replaceOptimisticReview = (tempId: string, realReview: ReviewWithUser) => {
+    setReviews(prev => prev.map(r => r.id === tempId ? realReview : r));
+  };
+
+  const removeReview = (reviewId: string) => {
+    setReviews(prev => prev.filter(r => r.id !== reviewId));
+  };
+
   const refetch = async () => {
     if (!businessId) return;
 
@@ -176,7 +188,10 @@ export function useReviews(businessId?: string) {
     reviews,
     loading,
     error,
-    refetch
+    refetch,
+    addOptimisticReview,
+    replaceOptimisticReview,
+    removeReview,
   };
 }
 
@@ -244,7 +259,7 @@ export function useReviewSubmission() {
   const { showToast } = useToast();
   const { checkEmailVerification } = useEmailVerification();
 
-  const submitReview = async (reviewData: ReviewFormData): Promise<boolean> => {
+  const submitReview = async (reviewData: ReviewFormData): Promise<{ success: boolean; review?: any }> => {
     // Wait for auth to finish loading (up to 2 seconds)
     let attempts = 0;
     while (isLoading && attempts < 4) {
@@ -269,7 +284,7 @@ export function useReviewSubmission() {
     if (currentUser && !currentUser.email_verified) {
       if (!checkEmailVerification('submit reviews')) {
         setError('You must verify your email to submit reviews');
-        return false;
+        return { success: false };
       }
     }
     // When !currentUser, allow submission — API will accept as anonymous for business reviews
@@ -313,7 +328,7 @@ export function useReviewSubmission() {
         const errorMessage = 'Something went wrong. Please try again.';
         setError(errorMessage);
         showToast(errorMessage, 'sage');
-        return false;
+        return { success: false };
       }
 
       // Check for error responses (structured or legacy)
@@ -322,8 +337,10 @@ export function useReviewSubmission() {
         setError(errorMessage);
         showToast(errorMessage, 'sage');
         console.error('[Review Submit] Error:', result);
-        return false;
+        return { success: false };
       }
+
+      const createdReview = result.review || null;
 
       // Success! Trigger badge check so new badges are awarded and UI can show them
       if (currentUser?.id) {
@@ -344,13 +361,13 @@ export function useReviewSubmission() {
           .catch(() => {});
       }
       showToast('Review submitted', 'sage', 3000);
-      return true;
+      return { success: true, review: createdReview };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to submit review';
       setError(errorMessage);
       showToast(errorMessage, 'sage');
       console.error('[Review Submit] Unexpected error:', err);
-      return false;
+      return { success: false };
     } finally {
       setSubmitting(false);
     }

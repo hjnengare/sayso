@@ -37,9 +37,9 @@ function PercentileChip({ label, value }: PercentileChipProps) {
 
   const tooltipText = getTooltipText();
 
-  // Render icon based on label with coral color
+  // Render icon based on label
   const renderIcon = () => {
-    const baseClasses = "w-5 h-5 sm:w-3.5 sm:h-3.5 flex-shrink-0 text-charcoal/90 stroke-[2.5]";
+    const baseClasses = `w-3.5 h-3.5 sm:w-3 sm:h-3 flex-shrink-0 stroke-[2] ${isPlaceholder ? 'text-charcoal/40' : 'text-charcoal/80'}`;
 
     switch (normalizedLabel) {
       case 'punctuality':
@@ -71,16 +71,18 @@ function PercentileChip({ label, value }: PercentileChipProps) {
           event.preventDefault();
         }
       }}
-      className="inline-flex items-center gap-1 sm:gap-0.5 px-3 sm:px-2 cursor-help group relative flex-shrink-0">
-      <div 
-        className="relative cursor-pointer"
-        title={isPlaceholder ? tooltipText : `${value}%`}
+      className={`inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full cursor-help group relative flex-shrink-0 transition-colors duration-200 ${
+        isPlaceholder
+          ? 'bg-charcoal/[0.03]'
+          : 'bg-charcoal/[0.04] hover:bg-charcoal/[0.08]'
+      }`}
+    >
+      {icon}
+      <span className={`text-[10px] sm:text-[9px] font-semibold whitespace-nowrap leading-none ${
+        isPlaceholder ? 'text-charcoal/40' : 'text-charcoal/80'
+      }`}
+        style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
       >
-        {icon}
-      </div>
-      <span className={`text-xs sm:text-[10px] font-bold whitespace-nowrap leading-tight ${
-        isPlaceholder ? 'text-charcoal/60' : 'text-charcoal'
-      }`}>
         {percentageText}
       </span>
     </div>

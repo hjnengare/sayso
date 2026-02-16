@@ -251,7 +251,7 @@ function EventCard({ event, index = 0 }: EventCardProps) {
     >
       <Link href={eventDetailHref} className="block w-full">
       <article
-        className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden group cursor-pointer w-full flex flex-col border border-white/60 backdrop-blur-xl shadow-md card-hover-lift md:w-[340px] pb-4"
+        className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden group cursor-pointer w-full flex flex-col border border-white/60 backdrop-blur-xl shadow-md md:w-[340px] pb-4"
         style={{ maxWidth: "540px" } as CSSProperties}
       >
           {/* MEDIA - Full bleed with premium overlay */}
@@ -331,7 +331,7 @@ function EventCard({ event, index = 0 }: EventCardProps) {
                 <div className="absolute left-3 bottom-3 z-20 inline-flex items-center gap-1.5 rounded-full bg-off-white/95 backdrop-blur-md px-3 py-1.5 shadow-[0_2px_12px_rgba(0,0,0,0.15)] border border-white/60">
                   {countdown.status === 'live' ? (
                     <span 
-                      className="text-sm font-bold text-coral leading-none animate-pulse"
+                      className="text-xs font-bold text-charcoal/90 leading-none animate-pulse"
                       style={{
                         fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                         fontWeight: 700,
@@ -344,7 +344,7 @@ function EventCard({ event, index = 0 }: EventCardProps) {
                       {countdown.days > 0 && (
                         <div className="flex items-baseline gap-0.5">
                           <span 
-                            className="text-sm font-bold text-charcoal leading-none"
+                            className="text-xs font-bold text-charcoal/90 leading-none"
                             style={{
                               fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                               fontWeight: 700,
@@ -353,7 +353,7 @@ function EventCard({ event, index = 0 }: EventCardProps) {
                             {countdown.days}
                           </span>
                           <span 
-                            className="text-[10px] font-medium text-charcoal/60 leading-none"
+                            className="text-[10px] font-medium text-charcoal/90 leading-none"
                             style={{
                               fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                             }}
@@ -365,7 +365,7 @@ function EventCard({ event, index = 0 }: EventCardProps) {
                       {(countdown.days > 0 || countdown.hours > 0) && (
                         <div className="flex items-baseline gap-0.5">
                           <span 
-                            className="text-sm font-bold text-charcoal leading-none"
+                            className="text-xs font-bold text-charcoal/90 leading-none"
                             style={{
                               fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                               fontWeight: 700,
@@ -374,7 +374,7 @@ function EventCard({ event, index = 0 }: EventCardProps) {
                             {countdown.hours}
                           </span>
                           <span 
-                            className="text-[10px] font-medium text-charcoal/60 leading-none"
+                            className="text-[10px] font-medium text-charcoal/90 leading-none"
                             style={{
                               fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                             }}
@@ -385,7 +385,7 @@ function EventCard({ event, index = 0 }: EventCardProps) {
                       )}
                       <div className="flex items-baseline gap-0.5">
                         <span 
-                          className="text-sm font-bold text-charcoal leading-none"
+                          className="text-xs font-bold text-charcoal/90 leading-none"
                           style={{
                             fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                             fontWeight: 700,
@@ -394,7 +394,7 @@ function EventCard({ event, index = 0 }: EventCardProps) {
                           {countdown.minutes}
                         </span>
                         <span 
-                          className="text-[10px] font-medium text-charcoal/60 leading-none"
+                          className="text-[10px] font-medium text-charcoal/90 leading-none"
                           style={{
                             fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                           }}

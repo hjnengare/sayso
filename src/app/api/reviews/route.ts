@@ -649,8 +649,16 @@ export async function POST(req: NextRequest) {
     if (statsBusinessId && UUID_REGEX.test(statsBusinessId)) {
       try {
         console.log('[Review API] Starting stats update', { businessId: statsBusinessId });
+        // Use service role client for stats update so anonymous reviews also trigger it
+        const statsClient = isAnonymous
+          ? createClient(
+              process.env.NEXT_PUBLIC_SUPABASE_URL!,
+              process.env.SUPABASE_SERVICE_ROLE_KEY!,
+              { auth: { autoRefreshToken: false, persistSession: false } }
+            )
+          : supabase;
         for (let attempt = 0; attempt < 3; attempt++) {
-          const { error: statsUpdateError } = await supabase.rpc('update_business_stats', {
+          const { error: statsUpdateError } = await statsClient.rpc('update_business_stats', {
             p_business_id: statsBusinessId,
           });
           if (!statsUpdateError) {
