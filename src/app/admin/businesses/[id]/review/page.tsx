@@ -212,11 +212,34 @@ export default function AdminBusinessReviewPage() {
       ? `https://www.google.com/maps?q=${business.lat},${business.lng}`
       : null;
 
-  if (loading || !business) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-charcoal/5 flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-sage" />
       </div>
+    );
+  }
+
+  if (!business) {
+    return (
+      <main className="max-w-4xl mx-auto px-4 py-6" style={{ fontFamily: FONT }}>
+        <div className="mb-6 flex items-center justify-between">
+          <h1 className="text-xl font-bold text-charcoal">Review Business</h1>
+          <Link
+            href="/admin/pending-businesses"
+            className="text-sm font-medium text-charcoal/70 hover:text-charcoal"
+          >
+            ← Back to Pending
+          </Link>
+        </div>
+        <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center">
+          <AlertTriangle className="w-8 h-8 text-red-400 mx-auto mb-3" />
+          <p className="text-red-800 font-medium">{error || "Business not found"}</p>
+          <p className="text-red-600/70 text-sm mt-1">
+            This business may have been deleted or the link is invalid.
+          </p>
+        </div>
+      </main>
     );
   }
 
