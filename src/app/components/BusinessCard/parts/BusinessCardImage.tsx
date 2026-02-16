@@ -42,7 +42,7 @@ const BusinessCardImage: React.FC<BusinessCardImageProps> = ({
             alt={displayAlt}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 340px, 340px"
-            className="object-cover card-img-zoom group-active:scale-[0.98] motion-reduce:transition-none"
+            className="object-cover card-img-zoom sm:group-active:scale-[0.98] motion-reduce:transition-none"
             quality={priority ? 85 : 75}
             priority={priority}
             loading={priority ? "eager" : "lazy"}

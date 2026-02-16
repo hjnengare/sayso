@@ -3395,7 +3395,7 @@ export async function POST(req: Request) {
     const email = formData.get('email')?.toString() || null;
     const website = formData.get('website')?.toString() || null;
     const priceRange = formData.get('priceRange')?.toString() || '$$';
-    const isChain = formData.get('isChain') === 'true' || formData.get('isChain') === true;
+    const isChain = formData.get('isChain')?.toString() === 'true';
     const hoursRaw = formData.get('hours')?.toString();
     const hours = hoursRaw ? JSON.parse(hoursRaw) : null;
     const latRaw = formData.get('lat')?.toString();

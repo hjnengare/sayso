@@ -530,6 +530,17 @@
     }
   }
 
+  @media (max-width: 767px) {
+    .card-img-zoom {
+      transition: none !important;
+    }
+
+    .group:hover .card-img-zoom,
+    .group:active .card-img-zoom {
+      transform: none !important;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .card-hover-lift,
     .card-img-zoom,
