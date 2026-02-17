@@ -211,8 +211,6 @@ export default function HomeClient() {
     () => ({ interests, subcategories, dealbreakers }),
     [interests, subcategories, dealbreakers]
   );
-  const { isLoading: authLoading } = useAuth(); // Get auth loading state
-
   // Destructure and alias refetch functions from business hooks
   const {
     businesses: allBusinesses,
@@ -255,7 +253,7 @@ export default function HomeClient() {
   const { featuredBusinesses, loading: featuredLoading, error: featuredError, statusCode: featuredStatus } = useFeaturedBusinesses({
     limit: 12,
     region: userLocation ? 'Cape Town' : null, // TODO: Get actual region from user location
-    skip: authLoading,
+    skip: false,
   });
 
   // Search is active when there's a query in the URL or live query
@@ -525,16 +523,16 @@ export default function HomeClient() {
     const scheduleIdle = () => {
       const anyWindow = window as any;
       if (typeof anyWindow.requestIdleCallback === 'function') {
-        idleId = anyWindow.requestIdleCallback(() => markReady(), { timeout: 2500 });
+        idleId = anyWindow.requestIdleCallback(() => markReady(), { timeout: 1200 });
         cleanupFns.push(() => anyWindow.cancelIdleCallback?.(idleId));
       } else {
-        delayId = window.setTimeout(() => markReady(), 2500);
+        delayId = window.setTimeout(() => markReady(), 1200);
         cleanupFns.push(() => delayId != null && clearTimeout(delayId));
       }
     };
 
     // Small delay so the first paint happens before we schedule heavier work.
-    delayId = window.setTimeout(() => scheduleIdle(), 300);
+    delayId = window.setTimeout(() => scheduleIdle(), 100);
     cleanupFns.push(() => delayId != null && clearTimeout(delayId));
 
     return () => {
@@ -593,8 +591,8 @@ export default function HomeClient() {
                 /* Discovery Mode - Default Home Page Content */
                 <motion.div
                   key="curated-feed"
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.4, 0, 0.2, 1], delay: 0.1 } }}
+                  initial={{ opacity: 1, y: 0 }}
+                  animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20, transition: { duration: 0.25, ease: [0.4, 0, 0.2, 1] } }}
                   className="flex flex-col gap-8 sm:gap-10 md:gap-12 pt-0"
                 >
@@ -816,7 +814,7 @@ export default function HomeClient() {
                           <p className="text-charcoal/70">Status: {featuredStatus}</p>
                         )}
                       </div>
-                    ) : allBusinessesLoading ? (
+                    ) : featuredLoading ? (
                       <CommunityHighlightsSkeleton reviewerCount={12} businessCount={4} />
                     ) : (
                       <CommunityHighlights
@@ -835,7 +833,7 @@ export default function HomeClient() {
                           <p className="text-charcoal/70">Status: {featuredStatus}</p>
                         )}
                       </div>
-                    ) : allBusinessesLoading ? (
+                    ) : featuredLoading ? (
                       <CommunityHighlightsSkeleton reviewerCount={12} businessCount={4} />
                     ) : (
                       <CommunityHighlights
