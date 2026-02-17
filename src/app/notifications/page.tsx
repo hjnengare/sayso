@@ -8,14 +8,136 @@ import { Bell, Check, X, MessageSquare, MessageCircle, Star, Heart, TrendingUp, 
 import Footer from "../components/Footer/Footer";
 import { PageLoader } from "../components/Loader";
 import { usePredefinedPageTitle } from "../hooks/usePageTitle";
-import { useNotifications } from "../contexts/NotificationsContext";
+import { useNotifications, type ToastNotificationData, type NotificationType } from "../contexts/NotificationsContext";
+import { useAuth } from "../contexts/AuthContext";
+import { formatTimeAgo } from "../utils/formatTimeAgo";
+import { usePreviousPageBreadcrumb } from "../hooks/usePreviousPageBreadcrumb";
+
+interface BusinessNotificationApiItem {
+  id: string;
+  type: string;
+  message: string;
+  title: string;
+  created_at?: string | null;
+  read?: boolean;
+  link?: string | null;
+}
 
 export default function NotificationsPage() {
   usePredefinedPageTitle('notifications');
   const router = useRouter();
-  const { notifications, isLoading, readNotifications, markAsRead, markAllAsRead, deleteNotification } = useNotifications();
+  const { user } = useAuth();
+  const userCurrentRole = user?.profile?.account_role || user?.profile?.role || "user";
+  const isBusinessAccountUser = userCurrentRole === "business_owner";
+  const { previousHref, previousLabel } = usePreviousPageBreadcrumb({
+    fallbackHref: isBusinessAccountUser ? "/my-businesses" : "/home",
+    fallbackLabel: isBusinessAccountUser ? "My Businesses" : "Home",
+  });
+  const {
+    notifications: personalNotifications,
+    isLoading: isPersonalLoading,
+    readNotifications: personalReadNotifications,
+    markAsRead,
+    markAllAsRead,
+    deleteNotification,
+  } = useNotifications();
+  const [businessNotifications, setBusinessNotifications] = useState<ToastNotificationData[]>([]);
+  const [businessReadNotifications, setBusinessReadNotifications] = useState<Set<string>>(new Set());
+  const [isBusinessLoading, setIsBusinessLoading] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [filterType, setFilterType] = useState<'All' | 'Unread' | 'Read'>('All');
+
+  useEffect(() => {
+    if (!isBusinessAccountUser) {
+      setBusinessNotifications([]);
+      setBusinessReadNotifications(new Set());
+      setIsBusinessLoading(false);
+      return;
+    }
+
+    let isCancelled = false;
+
+    const fetchBusinessNotifications = async () => {
+      setIsBusinessLoading(true);
+
+      try {
+        const response = await fetch('/api/business/notifications', {
+          method: 'GET',
+          cache: 'no-store',
+        });
+
+        if (!response.ok) {
+          const errorBody = await response.json().catch(() => null);
+          console.error('[BusinessNotificationsPage] Failed to fetch business notifications', {
+            endpoint: '/api/business/notifications',
+            status: response.status,
+            errorMessage: errorBody?.error || response.statusText,
+            hasSession: !!user,
+          });
+          if (!isCancelled) {
+            setBusinessNotifications([]);
+            setBusinessReadNotifications(new Set());
+            setIsBusinessLoading(false);
+          }
+          return;
+        }
+
+        const data = await response.json();
+        const items = Array.isArray(data?.items)
+          ? (data.items as BusinessNotificationApiItem[])
+          : [];
+
+        const mapped = items.map((item, index) => {
+          const rawType = item.type as NotificationType;
+          const type = rawType || 'business';
+          return {
+            id: item.id || `business-notification-${index}`,
+            type,
+            message: item.message || '',
+            title: item.title || '',
+            timeAgo: item.created_at ? formatTimeAgo(item.created_at) : 'just now',
+            image: '/png/restaurants.png',
+            imageAlt: 'Business notification',
+            link: item.link || undefined,
+          } as ToastNotificationData;
+        });
+
+        const readIds = new Set(
+          items
+            .filter(item => item.read)
+            .map(item => item.id)
+            .filter(Boolean)
+        );
+
+        if (!isCancelled) {
+          setBusinessNotifications(mapped);
+          setBusinessReadNotifications(readIds);
+          setIsBusinessLoading(false);
+        }
+      } catch (error) {
+        console.error('[BusinessNotificationsPage] Error fetching business notifications', {
+          endpoint: '/api/business/notifications',
+          errorMessage: error instanceof Error ? error.message : String(error),
+          hasSession: !!user,
+        });
+        if (!isCancelled) {
+          setBusinessNotifications([]);
+          setBusinessReadNotifications(new Set());
+          setIsBusinessLoading(false);
+        }
+      }
+    };
+
+    fetchBusinessNotifications();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [isBusinessAccountUser, user?.id]);
+
+  const notifications = isBusinessAccountUser ? businessNotifications : personalNotifications;
+  const isLoading = isBusinessAccountUser ? isBusinessLoading : isPersonalLoading;
+  const readNotifications = isBusinessAccountUser ? businessReadNotifications : personalReadNotifications;
 
   // Handle scroll to top button visibility
   useEffect(() => {
@@ -65,7 +187,7 @@ export default function NotificationsPage() {
 
   const getNotificationColor = (type: string, isRead: boolean) => {
     if (isRead) {
-      return 'bg-charcoal/5 text-charcoal/70 border-charcoal/10';
+      return 'bg-white/5 text-white/50 border-white/10';
     }
     switch (type) {
       case 'review':
@@ -127,14 +249,14 @@ export default function NotificationsPage() {
               <ol className="flex items-center gap-2 text-sm sm:text-base">
                 <li>
                   <Link
-                    href="/home"
+                    href={previousHref}
                     className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium"
                     style={{
                       fontFamily:
                         "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                     }}
                   >
-                    Home
+                    {previousLabel}
                   </Link>
                 </li>
                 <li className="flex items-center">
@@ -258,7 +380,7 @@ export default function NotificationsPage() {
                         {filterType !== 'All' && ` (${filterType.toLowerCase()})`}
                       </p>
                     </div>
-                    {unreadCount > 0 && (
+                    {!isBusinessAccountUser && unreadCount > 0 && (
                       <button
                         onClick={markAllAsRead}
                         className="px-4 sm:px-6 py-2 sm:py-2.5 rounded-full font-urbanist font-600 text-body-sm sm:text-body transition-all duration-200 active:scale-95 bg-card-bg/10 text-sage hover:bg-card-bg/20 hover:text-sage border border-sage/30 whitespace-nowrap"
@@ -327,7 +449,7 @@ export default function NotificationsPage() {
                 ) : (
                   <div className="pb-12 sm:pb-16 md:pb-20">
                     <AnimatePresence mode="wait" initial={false}>
-                      <div className="space-y-3 sm:space-y-4" key={filterType}>
+                      <div className="space-y-0" key={filterType}>
                         {filteredNotifications.map((notification, index) => {
                           const isRead = readNotifications.has(notification.id);
                           const Icon = getNotificationIcon(notification.type);
@@ -345,13 +467,13 @@ export default function NotificationsPage() {
                                 <div className="flex items-start justify-between gap-2 mb-2">
                                   <div className="flex-1 min-w-0">
                                     <p 
-                                      className={`text-body font-semibold text-charcoal mb-1.5 ${isRead ? '' : 'font-bold'}`}
+                                      className={`text-body mb-1.5 ${isRead ? 'line-through text-white/40 opacity-70 font-medium' : 'text-white font-semibold'}`}
                                       style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                                     >
                                       {notification.message} {notification.title}
                                     </p>
-                                    <div className="flex items-center gap-2 text-body-sm text-charcoal/60">
-                                      <Clock className="w-3.5 h-3.5 text-charcoal/60" strokeWidth={2} />
+                                    <div className={`flex items-center gap-2 text-body-sm ${isRead ? 'line-through text-white/40 opacity-70' : 'text-white/70'}`}>
+                                      <Clock className={`w-3.5 h-3.5 ${isRead ? 'text-white/40' : 'text-white/70'}`} strokeWidth={2} />
                                       <span style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                                         {notification.timeAgo} ago
                                       </span>
@@ -360,7 +482,7 @@ export default function NotificationsPage() {
 
                                   {/* Actions - stopPropagation so card link doesn't fire when clicking buttons */}
                                   <div className="flex items-center gap-1 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
-                                    {!isRead && (
+                                    {!isBusinessAccountUser && !isRead && (
                                       <button
                                         type="button"
                                         onClick={() => markAsRead(notification.id)}
@@ -370,14 +492,16 @@ export default function NotificationsPage() {
                                         <Check className="w-4 h-4 text-sage group-hover:text-sage transition-colors" strokeWidth={2.5} />
                                       </button>
                                     )}
-                                    <button
-                                      type="button"
-                                      onClick={() => deleteNotification(notification.id)}
-                                      className="p-2 hover:bg-coral/10 rounded-full transition-all duration-200 hover:scale-110 group"
-                                      aria-label="Delete notification"
-                                    >
-                                      <X className="w-4 h-4 text-charcoal/60 group-hover:text-coral transition-colors" strokeWidth={2.5} />
-                                    </button>
+                                    {!isBusinessAccountUser && (
+                                      <button
+                                        type="button"
+                                        onClick={() => deleteNotification(notification.id)}
+                                        className="p-2 hover:bg-coral/10 rounded-full transition-all duration-200 hover:scale-110 group"
+                                        aria-label="Delete notification"
+                                      >
+                                        <X className="w-4 h-4 text-white/60 group-hover:text-coral transition-colors" strokeWidth={2.5} />
+                                      </button>
+                                    )}
                                   </div>
                                 </div>
                               </div>
@@ -392,9 +516,9 @@ export default function NotificationsPage() {
                               exit={{ opacity: 0, y: -20 }}
                               transition={{ delay: index * 0.05 }}
                               className={`
-                                bg-white rounded-2xl border border-charcoal/10 shadow-sm p-4 sm:p-6
-                                transition-all duration-300 hover:shadow-lg hover:border-sage/30 hover:-translate-y-1
-                                ${isRead ? 'opacity-70' : 'ring-1 ring-sage/20'}
+                                bg-card-bg rounded-xl p-4 mb-3 last:mb-0 border border-white/10
+                                transition-all duration-200 hover:bg-white/5
+                                ${isRead ? 'opacity-70' : ''}
                                 ${hasLink ? 'cursor-pointer' : ''}
                               `}
                               {...(hasLink && {

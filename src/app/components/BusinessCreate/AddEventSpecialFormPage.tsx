@@ -23,6 +23,7 @@ import { Urbanist } from "next/font/google";
 import { useAuth } from "@/app/contexts/AuthContext";
 import { useToast } from "@/app/contexts/ToastContext";
 import { PageLoader } from "@/app/components/Loader";
+import { usePreviousPageBreadcrumb } from "@/app/hooks/usePreviousPageBreadcrumb";
 import { authStyles } from "@/app/components/Auth/Shared/authStyles";
 import { animations } from "@/app/add-business/components/types";
 import { BusinessOwnershipService } from "@/app/lib/services/businessOwnershipService";
@@ -134,6 +135,10 @@ export default function AddEventSpecialFormPage({ type }: AddEventSpecialFormPag
   const copy = COPY[type];
   const targetRoute = useMemo(() => (type === "event" ? "/add-event" : "/add-special"), [type]);
   const backRoute = type === "event" ? "/events-specials" : "/my-businesses";
+  const { previousHref, previousLabel } = usePreviousPageBreadcrumb({
+    fallbackHref: backRoute,
+    fallbackLabel: type === "event" ? "Events & Specials" : "My Businesses",
+  });
 
   const [businesses, setBusinesses] = useState<OwnedBusinessOption[]>([]);
   const [isLoadingBusinesses, setIsLoadingBusinesses] = useState(true);
@@ -472,8 +477,8 @@ export default function AddEventSpecialFormPage({ type }: AddEventSpecialFormPag
               <nav className="py-1" aria-label="Breadcrumb">
                 <ol className="flex items-center gap-2 text-sm sm:text-base">
                   <li>
-                    <Link href={backRoute} className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={fontStyle}>
-                      {type === "event" ? "Events & Specials" : "My Businesses"}
+                    <Link href={previousHref} className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={fontStyle}>
+                      {previousLabel}
                     </Link>
                   </li>
                   <li className="flex items-center">

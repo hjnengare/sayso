@@ -553,7 +553,7 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
 
                 {existingAccountError ? (
                   <div className="space-y-6 text-center relative z-10">
-                    <div className="bg-blue-50 border border-blue-200 rounded-[12px] p-6">
+                    <div className="bg-off-white border border-blue-200 rounded-[12px] p-6">
                       <div className="w-16 h-16 mx-auto mb-4 bg-blue-100 rounded-full flex items-center justify-center">
                         <svg
                           className="w-8 h-8 text-blue-600"
@@ -631,7 +631,7 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
                     >
                       <form onSubmit={handleSubmit} className="space-y-4 relative z-10">
                         {error && (
-                          <div className="bg-error-50 border border-error-100 rounded-[12px] p-4 text-center">
+                          <div className="bg-off-white border border-error-100 rounded-[12px] p-4 text-center">
                             <p
                               className="text-caption font-semibold text-error-600"
                               style={{
@@ -645,7 +645,7 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
                         )}
 
                         {!isOnline && !error && isRegisterMode && (
-                          <div className="bg-orange-50 border border-orange-200 rounded-[12px] p-4 text-center">
+                          <div className="bg-off-white border border-orange-200 rounded-[12px] p-4 text-center">
                             <p
                               className="text-caption font-semibold text-orange-600"
                               style={{

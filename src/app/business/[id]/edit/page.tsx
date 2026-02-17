@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { PageLoader } from "../../../components/Loader";
 import { useRequireBusinessOwner } from "../../../hooks/useBusinessAccess";
+import { usePreviousPageBreadcrumb } from "../../../hooks/usePreviousPageBreadcrumb";
 import { getBrowserSupabase } from "../../../lib/supabase/client";
 import { ConfirmationDialog } from "@/components/molecules/ConfirmationDialog";
 import EventsForm from "../../../components/BusinessEdit/EventsForm";
@@ -69,6 +70,10 @@ export default function BusinessEditPage() {
     const { showToast } = useToast();
     const paramId = params?.id;
     const businessId = Array.isArray(paramId) ? paramId[0] : paramId;
+    const { previousHref, previousLabel } = usePreviousPageBreadcrumb({
+        fallbackHref: businessId ? `/business/${businessId}` : "/my-businesses",
+        fallbackLabel: "Business",
+    });
     const redirectTarget = businessId ? `/business/${businessId}` : "/login";
     
     const { isChecking, hasAccess } = useRequireBusinessOwner({
@@ -717,8 +722,8 @@ export default function BusinessEditPage() {
                                 <nav className="py-1" aria-label="Breadcrumb">
                                     <ol className="flex items-center gap-2 text-sm sm:text-base flex-nowrap overflow-x-auto scrollbar-hide">
                                         <li className="flex-shrink-0">
-                                            <Link href={`/business/${businessId}`} className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium whitespace-nowrap truncate max-w-[150px] sm:max-w-none" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                                                Business
+                                            <Link href={previousHref} className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium whitespace-nowrap truncate max-w-[150px] sm:max-w-none" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                                {previousLabel}
                                             </Link>
                                         </li>
                                         <li className="flex items-center flex-shrink-0">

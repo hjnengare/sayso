@@ -48,6 +48,7 @@ import type { Business } from "../../../lib/types/database";
 import { useToast } from "../../../contexts/ToastContext";
 import { STORAGE_BUCKETS } from "../../../lib/utils/storageBucketConfig";
 import Image from "next/image";
+import { usePreviousPageBreadcrumb } from "../../../hooks/usePreviousPageBreadcrumb";
 
 interface BusinessStats {
   average_rating: number | null;
@@ -58,6 +59,10 @@ export default function OwnerBusinessDashboard() {
   const router = useRouter();
   const params = useParams();
   const businessId = params?.id as string;
+  const { previousHref, previousLabel } = usePreviousPageBreadcrumb({
+    fallbackHref: "/my-businesses",
+    fallbackLabel: "My Businesses",
+  });
   const { user, isLoading: authLoading } = useAuth();
   const [business, setBusiness] = useState<Business | null>(null);
   const [stats, setStats] = useState<BusinessStats | null>(null);
@@ -454,8 +459,8 @@ export default function OwnerBusinessDashboard() {
               <nav className="py-1" aria-label="Breadcrumb">
                 <ol className="flex items-center gap-2 text-sm sm:text-base">
                   <li>
-                    <Link href="/my-businesses" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                      My Businesses
+                    <Link href={previousHref} className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                      {previousLabel}
                     </Link>
                   </li>
                   <li className="flex items-center">

@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "../contexts/ToastContext";
 import { useAuth } from "../contexts/AuthContext";
 import { PageLoader } from "../components/Loader";
+import { usePreviousPageBreadcrumb } from "../hooks/usePreviousPageBreadcrumb";
 import dynamic from "next/dynamic";
 import { authStyles } from "../components/Auth/Shared/authStyles";
 import { Urbanist } from "next/font/google";
@@ -39,6 +40,10 @@ const Footer = dynamic(() => import("../components/Footer/Footer"), {
 
 export default function AddBusinessPage() {
     const router = useRouter();
+    const { previousHref, previousLabel } = usePreviousPageBreadcrumb({
+        fallbackHref: "/my-businesses",
+        fallbackLabel: "My Businesses",
+    });
     const { showToast } = useToast();
     const { user, isLoading: authLoading } = useAuth();
     const ownershipPricingNotice =
@@ -734,8 +739,8 @@ export default function AddBusinessPage() {
                                 <nav className="py-1" aria-label="Breadcrumb">
                                     <ol className="flex items-center gap-2 text-sm sm:text-base">
                                         <li>
-                                            <Link href="/my-businesses" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                                                My Businesses
+                                            <Link href={previousHref} className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                                {previousLabel}
                                             </Link>
                                         </li>
                                         <li className="flex items-center">

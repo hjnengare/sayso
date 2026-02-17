@@ -92,7 +92,7 @@ export const useHeaderState = ({
   // ============================================================================
 
   const { savedCount } = useSavedItems();
-  const { unreadCount } = useNotifications();
+  const { unreadCount: personalUnreadCount } = useNotifications();
   const { user, isLoading: authLoading, logout } = useAuth();
 
   // ============================================================================
@@ -105,6 +105,7 @@ export const useHeaderState = ({
   const isBusinessAccountUser = !isAdminUser && userCurrentRole === "business_owner";
   const hasMultipleRoles = user?.profile?.role === "both";
   const isGuest = !authLoading && !user;
+  const [businessUnreadCount, setBusinessUnreadCount] = useState(0);
 
   // ============================================================================
   // BUSINESS ACCESS CHECK
@@ -117,6 +118,63 @@ export const useHeaderState = ({
   const ownedBusinessesCount = ownedBusinesses?.length ?? 0;
   const hasOwnedBusinesses = ownedBusinessesCount > 0;
 
+  useEffect(() => {
+    if (!user || !isBusinessAccountUser) {
+      setBusinessUnreadCount(0);
+      return;
+    }
+
+    let isCancelled = false;
+
+    const fetchBusinessUnreadCount = async () => {
+      try {
+        const response = await fetch("/api/business/notifications", {
+          method: "GET",
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          const errorBody = await response.json().catch(() => null);
+          console.error("[Header] Failed to fetch business notifications", {
+            endpoint: "/api/business/notifications",
+            status: response.status,
+            errorMessage: errorBody?.error || response.statusText,
+            hasSession: !!user,
+          });
+          if (!isCancelled) {
+            setBusinessUnreadCount(0);
+          }
+          return;
+        }
+
+        const data = await response.json();
+        const nextCountRaw = Number(data?.unreadCount);
+        const nextCount = Number.isFinite(nextCountRaw)
+          ? Math.max(0, nextCountRaw)
+          : 0;
+
+        if (!isCancelled) {
+          setBusinessUnreadCount(nextCount);
+        }
+      } catch (error) {
+        console.error("[Header] Error fetching business notifications", {
+          endpoint: "/api/business/notifications",
+          errorMessage: error instanceof Error ? error.message : String(error),
+          hasSession: !!user,
+        });
+        if (!isCancelled) {
+          setBusinessUnreadCount(0);
+        }
+      }
+    };
+
+    fetchBusinessUnreadCount();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [user?.id, isBusinessAccountUser]);
+
   // ============================================================================
   // NAVIGATION LINKS (COMPUTED)
   // ============================================================================
@@ -126,6 +184,9 @@ export const useHeaderState = ({
     isCheckingBusinessOwner,
     hasOwnedBusinesses
   );
+  const unreadCount = isBusinessAccountUser
+    ? businessUnreadCount
+    : personalUnreadCount;
 
   // ============================================================================
   // REFS

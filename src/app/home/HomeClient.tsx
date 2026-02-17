@@ -27,12 +27,13 @@ import { useAuth } from "../contexts/AuthContext";
 import type { Event } from "../lib/types/Event";
 
 // Dynamically import HeroCarousel - it's heavy with images and animations
+import HeroSkeleton from "../components/Hero/HeroSkeleton";
+import MobileHeroSkeleton from "../components/Hero/MobileHeroSkeleton";
+
 const HeroCarousel = nextDynamic(
   () => import("../components/Hero/HeroCarousel"),
   {
-    loading: () => (
-      <div className="h-[100dvh] sm:h-[90dvh] md:h-[80dvh] bg-gradient-to-b from-charcoal/5 to-transparent animate-pulse" />
-    ),
+    loading: () => <HeroSkeleton />,
   }
 );
 import { useLiveSearch } from "../hooks/useLiveSearch";
@@ -553,15 +554,17 @@ export default function HomeClient() {
             >
               {heroReady ? (
                 <HeroCarousel />
+              ) : isDesktop ? (
+                <HeroSkeleton />
               ) : (
-                <div className="h-[100dvh] sm:h-[90dvh] md:h-[80dvh] bg-gradient-to-b from-charcoal/5 to-transparent pt-0 md:pt-2 md:px-2" />
+                <MobileHeroSkeleton />
               )}
             </motion.div>
           )}
         </AnimatePresence>
 
         <main 
-          className={`bg-off-white relative min-h-dvh transition-[padding] duration-300 ease-out ${isSearchActive ? 'pt-4' : 'pt-0'}`} 
+          className={`bg-off-white relative min-h-dvh transition-[padding] duration-300 ease-out ${isSearchActive ? 'pt-4' : 'pt-8 sm:pt-10 md:pt-12'}`} 
           style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
         >
           <div ref={contentRef} className="mx-auto w-full max-w-[2000px]">

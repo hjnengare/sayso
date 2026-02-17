@@ -8,6 +8,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { BusinessOwnershipService } from "../lib/services/businessOwnershipService";
 import SkeletonHeader from "../components/shared/skeletons/SkeletonHeader";
 import SkeletonList from "../components/shared/skeletons/SkeletonList";
+import { usePreviousPageBreadcrumb } from "../hooks/usePreviousPageBreadcrumb";
 
 import { ChevronRight, Store, CalendarDays, Sparkles, Clock3, MapPin, Plus } from "lucide-react";
 import { motion } from "framer-motion";
@@ -95,6 +96,10 @@ function getListingDetailHref(listing: OwnerListing): string {
 export default function MyBusinessesPage() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
+  const { previousHref, previousLabel } = usePreviousPageBreadcrumb({
+    fallbackHref: "/home",
+    fallbackLabel: "Home",
+  });
 
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [ownerListings, setOwnerListings] = useState<OwnerListing[]>([]);
@@ -437,8 +442,8 @@ export default function MyBusinessesPage() {
                 >
                   <ol className="flex items-center gap-2 text-sm sm:text-base">
                     <li>
-                      <Link href="/home" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: FONT_STACK }}>
-                        Home
+                      <Link href={previousHref} className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: FONT_STACK }}>
+                        {previousLabel}
                       </Link>
                     </li>
                     <li className="flex items-center">

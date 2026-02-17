@@ -20,6 +20,7 @@ import { ChevronRight } from "lucide-react";
 import { PageLoader, Loader } from "../components/Loader";
 import Link from "next/link";
 import { Suspense } from "react";
+import { usePreviousPageBreadcrumb } from "../hooks/usePreviousPageBreadcrumb";
 
 const Footer = dynamic(() => import("../components/Footer/Footer"), {
   loading: () => null,
@@ -28,6 +29,10 @@ const Footer = dynamic(() => import("../components/Footer/Footer"), {
 
 function ClaimBusinessPageContent() {
   const router = useRouter();
+  const { previousHref, previousLabel } = usePreviousPageBreadcrumb({
+    fallbackHref: "/my-businesses",
+    fallbackLabel: "My Businesses",
+  });
   const searchParams = useSearchParams();
   const { user, isLoading: authLoading } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
@@ -305,8 +310,8 @@ function ClaimBusinessPageContent() {
           <nav className="py-1" aria-label="Breadcrumb">
             <ol className="flex items-center gap-2 text-sm sm:text-base">
               <li>
-                <Link href="/my-businesses" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                  My Businesses
+                <Link href={previousHref} className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                  {previousLabel}
                 </Link>
               </li>
               <li className="flex items-center">

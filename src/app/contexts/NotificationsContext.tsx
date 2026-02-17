@@ -74,6 +74,17 @@ export function NotificationsProvider({ children }: NotificationsProviderProps) 
   const [readNotifications, setReadNotifications] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
+  const userCurrentRole = user?.profile?.account_role || user?.profile?.role || "user";
+  const isBusinessAccountUser = userCurrentRole === "business_owner";
+  
+  // Ensure clean state on user change (fixes stuck counts when switching accounts)
+  useEffect(() => {
+    if (!user || isBusinessAccountUser) {
+      setNotifications([]);
+      setReadNotifications(new Set());
+      setIsLoading(false);
+    }
+  }, [user?.id, isBusinessAccountUser]);
 
   // Convert database notification to ToastNotificationData format
   const convertToToastNotification = useCallback((dbNotification: DatabaseNotification): ToastNotificationData => {
@@ -91,6 +102,12 @@ export function NotificationsProvider({ children }: NotificationsProviderProps) 
 
   const fetchNotifications = useCallback(async () => {
     if (!user) {
+      setNotifications([]);
+      setReadNotifications(new Set());
+      setIsLoading(false);
+      return;
+    }
+    if (isBusinessAccountUser) {
       setNotifications([]);
       setReadNotifications(new Set());
       setIsLoading(false);
@@ -140,15 +157,19 @@ export function NotificationsProvider({ children }: NotificationsProviderProps) 
       
       // Network errors - handle gracefully
       if (errorMessage.includes('fetch') || errorMessage.includes('network')) {
+        console.warn('[Notifications] Network error, resetting to empty state');
         setNotifications([]);
+        setReadNotifications(new Set());
         setIsLoading(false);
       } else {
         console.error('Error fetching notifications:', error);
+        // On error, reset to empty state (prevents stuck counts)
         setNotifications([]);
+        setReadNotifications(new Set());
         setIsLoading(false);
       }
     }
-  }, [user, convertToToastNotification]);
+  }, [user, isBusinessAccountUser, convertToToastNotification]);
 
   useEffect(() => {
     fetchNotifications();
@@ -156,7 +177,7 @@ export function NotificationsProvider({ children }: NotificationsProviderProps) 
 
   // Real-time subscription for new notifications
   useEffect(() => {
-    if (!user) return;
+    if (!user || isBusinessAccountUser) return;
 
     const supabase = getBrowserSupabase();
     
@@ -232,7 +253,7 @@ export function NotificationsProvider({ children }: NotificationsProviderProps) 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, convertToToastNotification]);
+  }, [user, isBusinessAccountUser, convertToToastNotification]);
 
   const markAsRead = useCallback(async (id: string) => {
     // Optimistically update UI
@@ -310,7 +331,12 @@ export function NotificationsProvider({ children }: NotificationsProviderProps) 
     }
   }, [notifications]);
 
-  const unreadCount = notifications.filter(n => !readNotifications.has(n.id)).length;
+  // Calculate unread count with defensive guards (prevent stuck counts)
+  const unreadCount = useMemo(() => {
+    const count = notifications.filter(n => !readNotifications.has(n.id)).length;
+    // Ensure always returns a valid non-negative number
+    return Math.max(0, count || 0);
+  }, [notifications, readNotifications]);
 
   return (
     <NotificationsContext.Provider

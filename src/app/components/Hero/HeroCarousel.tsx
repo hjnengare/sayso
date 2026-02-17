@@ -10,6 +10,7 @@ import Link from "next/link";
 import type { FilterState } from "../FilterModal/FilterModal";
 import HeroSkeleton from "./HeroSkeleton";
 import MobileHeroSkeleton from "./MobileHeroSkeleton";
+import HeroFallback from "./HeroFallback";
 import { useAuth } from '../../contexts/AuthContext';
 
 interface HeroSlide {
@@ -273,7 +274,11 @@ const HERO_IMAGES: string[] = [
   "/hero/zoe-reeve-xjJd9fu9OkM-unsplash.jpg",
 ];
 
-export default function HeroCarousel() {
+interface HeroCarouselProps {
+  onReady?: () => void;
+}
+
+export default function HeroCarousel({ onReady }: HeroCarouselProps) {
   const router = useRouter();
   const { user } = useAuth();
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -310,6 +315,10 @@ export default function HeroCarousel() {
   const slides = useMemo(() => buildSlides(cappedHeroImages, heroSeed), [cappedHeroImages, heroSeed]);
   const slidesRef = useRef<HeroSlide[]>(slides);
   const preloadedImagesRef = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    onReady?.();
+  }, [onReady]);
 
   useEffect(() => {
     if (typeof window === "undefined" || !window.matchMedia) return;
@@ -667,9 +676,10 @@ export default function HeroCarousel() {
   };
 
   if (slides.length === 0) {
+    console.error("[HeroCarousel] No slides available. Rendering fallback hero.");
     return (
       <div suppressHydrationWarning>
-        {heroViewport === "mobile" ? <MobileHeroSkeleton /> : <HeroSkeleton />}
+        <HeroFallback onReady={onReady} />
       </div>
     );
   }
