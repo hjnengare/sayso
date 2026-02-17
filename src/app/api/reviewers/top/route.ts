@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getBadgeMapping, getBadgePngPath } from '../../../lib/badgeMappings';
+import { isTopContributor } from '../../../lib/topContributor';
 
 /**
  * GET /api/reviewers/top?limit=12
@@ -49,7 +50,7 @@ export async function GET(req: Request) {
     }
 
     const reviewIds: string[] = [];
-    const userStats = new Map<string, { count: number; ratingSum: number; hasLong: boolean; hasPhoto: boolean }>();
+    const userStats = new Map<string, { count: number; ratingSum: number; hasLong: boolean; hasPhoto: boolean; helpfulReceived: number }>();
     const reviewIdToUserId = new Map<string, string>();
     for (const r of reviews) {
       if (!r?.user_id) continue;
@@ -58,7 +59,7 @@ export async function GET(req: Request) {
         reviewIdToUserId.set(r.id, r.user_id);
       }
       if (!userStats.has(r.user_id)) {
-        userStats.set(r.user_id, { count: 0, ratingSum: 0, hasLong: false, hasPhoto: false });
+        userStats.set(r.user_id, { count: 0, ratingSum: 0, hasLong: false, hasPhoto: false, helpfulReceived: 0 });
       }
       const stats = userStats.get(r.user_id)!;
       stats.count += 1;
@@ -88,6 +89,28 @@ export async function GET(req: Request) {
           if (!userId) continue;
           const stats = userStats.get(userId);
           if (stats) stats.hasPhoto = true;
+        }
+      }
+    }
+
+    // Count helpful votes per user (for Top Contributor eligibility)
+    if (reviewIds.length > 0) {
+      const batchSize = 250;
+      for (let i = 0; i < reviewIds.length; i += batchSize) {
+        const batch = reviewIds.slice(i, i + batchSize);
+        const { data: voteRows, error: voteError } = await supabase
+          .from('review_helpful_votes')
+          .select('review_id')
+          .in('review_id', batch);
+        if (voteError) {
+          console.warn('[Top Reviewers] Error fetching helpful votes:', voteError.message);
+          break;
+        }
+        for (const v of voteRows || []) {
+          const userId = reviewIdToUserId.get(v.review_id);
+          if (!userId) continue;
+          const stats = userStats.get(userId);
+          if (stats) stats.helpfulReceived += 1;
         }
       }
     }
@@ -203,7 +226,13 @@ export async function GET(req: Request) {
         return a.id.localeCompare(b.id);
       });
 
-    const reviewersWithRatings = scored.slice(0, Math.max(0, limit)).map(({ _score, _tie, ...rest }) => rest);
+    // Filter to Top Contributors only (centralized eligibility check)
+    const eligible = scored.filter((r) => {
+      const stats = userStats.get(r.id);
+      return isTopContributor(r.reviewCount, stats?.helpfulReceived ?? 0);
+    });
+
+    const reviewersWithRatings = eligible.slice(0, Math.max(0, limit)).map(({ _score, _tie, ...rest }) => rest);
     const uniqueContributors = userIds.length;
     const totalReviewsSeen = reviews.length;
     const mode = uniqueContributors < 25 || totalReviewsSeen < 200 ? 'stage1' : 'normal';
