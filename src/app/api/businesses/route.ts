@@ -610,7 +610,7 @@ export async function GET(req: Request) {
 
     // feed=for-you and feed_strategy=mixed both use For You (zero-stats: preference + quality only)
     const feedParam = searchParams.get('feed');
-    const feedStrategy =
+    let feedStrategy: 'mixed' | 'standard' =
       (searchParams.get('feed_strategy') as 'mixed' | 'standard' | null) ||
       (feedParam === 'for-you' ? 'mixed' : null) ||
       'standard';
@@ -634,6 +634,14 @@ export async function GET(req: Request) {
       }
     }
 
+    // Guest/unauthenticated users requesting mixed feed get demoted to
+    // the standard feed so they see a generic listing instead of a 401.
+    if (feedStrategy === 'mixed' && !userId) {
+      console.log('FOR_YOU GUEST FALLBACK', { message: 'No user — falling back to standard feed.' });
+      feedStrategy = 'standard';
+    }
+
+    // ── Mixed feed (authenticated users only) ──
     if (feedStrategy === 'mixed') {
       const requestId = searchParams.get('rid') || createRequestId();
       const ip =
@@ -645,8 +653,6 @@ export async function GET(req: Request) {
         (lat !== null && lng !== null && isValidLatitude(lat) && isValidLongitude(lng))
           ? `geo:${lat.toFixed(2)},${lng.toFixed(2)}`
           : 'global';
-
-      // Deterministic seed to keep ordering stable for a short window.
       const explicitSeed = searchParams.get('seed');
       const seedWindowMinutesEnv = Number(process.env.FEED_SEED_WINDOW_MINUTES || 15);
       const seedWindowMinutes = Number.isFinite(seedWindowMinutesEnv) ? seedWindowMinutesEnv : 15;
@@ -657,35 +663,12 @@ export async function GET(req: Request) {
             regionKey,
             windowMinutes: seedWindowMinutes,
           });
-
       const preferenceSource =
         interestIds.length > 0 || subInterestIds.length > 0
           ? 'client'
           : userId
             ? 'server'
             : 'none';
-
-      console.log('FOR_YOU USER', {
-        authUid: userId,
-        requestId,
-        preferenceSource,
-      });
-
-      if (!userId) {
-        const authErrorResponse = createForYouErrorResponse({
-          status: 401,
-          code: 'FOR_YOU_UNAUTHORIZED',
-          message: 'Authentication required for For You feed.',
-          requestId,
-        });
-        console.error('FOR_YOU ERROR', {
-          status: 401,
-          code: 'FOR_YOU_UNAUTHORIZED',
-          requestId,
-          message: 'No authenticated user for mixed feed request.',
-        });
-        return withDuration(authErrorResponse);
-      }
 
       const etagKey = JSON.stringify({
         v: 1,
