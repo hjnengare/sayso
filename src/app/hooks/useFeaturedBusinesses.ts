@@ -216,6 +216,21 @@ export function useFeaturedBusinesses(options: UseFeaturedBusinessesOptions = {}
     fetchFeaturedBusinesses();
   }, [fetchFeaturedBusinesses]);
 
+  // Refetch when the page becomes visible again (e.g. user navigated away and came back)
+  // This ensures fresh review counts, ratings, etc. after submitting a review
+  useEffect(() => {
+    if (options.skip) return;
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchFeaturedBusinesses();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [options.skip, fetchFeaturedBusinesses]);
+
   const refetch = useCallback(() => {
     fetchFeaturedBusinesses();
   }, [fetchFeaturedBusinesses]);

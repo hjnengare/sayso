@@ -276,6 +276,21 @@ export function useBusinesses(options: UseBusinessesOptions = {}): UseBusinesses
     fetchBusinesses();
   }, [fetchBusinesses, options.skip]);
 
+  // Refetch when the page becomes visible again (e.g. user navigated away and came back)
+  // This ensures fresh review counts, ratings, etc. after submitting a review
+  useEffect(() => {
+    if (options.skip) return;
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchBusinesses();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [options.skip, fetchBusinesses]);
+
   // Listen for business update events and refetch
   useEffect(() => {
     if (options.skip) return;
@@ -517,6 +532,21 @@ export function useForYouBusinesses(
 
     fetchForYou();
   }, [fetchForYou, extraOptions.skipInitialFetch, hasInitialBusinesses, requestKey, shouldWaitForPreferences]);
+
+  // Refetch when the page becomes visible again (e.g. user navigated away and came back)
+  // This ensures fresh review counts, ratings, etc. after submitting a review
+  useEffect(() => {
+    if (extraOptions.skip || shouldWaitForPreferences) return;
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchForYou(true);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [extraOptions.skip, shouldWaitForPreferences, fetchForYou]);
 
   return {
     businesses,

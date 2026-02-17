@@ -159,6 +159,21 @@ export function useTrendingBusinesses(
     };
   }, [fetchTrending]);
 
+  // Refetch when the page becomes visible again (e.g. user navigated away and came back)
+  // This ensures fresh review counts, ratings, etc. after submitting a review
+  useEffect(() => {
+    if (skip) return;
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchTrending();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [skip, fetchTrending]);
+
   return {
     businesses,
     loading,

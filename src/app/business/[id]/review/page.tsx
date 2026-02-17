@@ -409,10 +409,6 @@ function WriteReviewContent() {
       } as any);
     }
 
-    // Refresh server cache so the business page loads with fresh reviews on navigation
-    refetchReviews?.();
-    router.refresh();
-
     // Trigger confetti celebration
     const duration = 3000;
     const animationEnd = Date.now() + duration;
@@ -448,10 +444,11 @@ function WriteReviewContent() {
 
     resetForm();
 
-    // Navigate back to business profile (fresh data via revalidatePath + refetch on mount)
+    // Navigate back to business profile with a full page load to guarantee fresh data.
+    // router.push uses Next.js client-side cache which can serve stale reviews.
     setTimeout(() => {
       const targetId = business?.slug || business?.id || businessId;
-      router.push(`/business/${targetId}`);
+      window.location.href = `/business/${targetId}`;
     }, 1500);
   };
 
