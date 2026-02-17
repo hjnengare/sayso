@@ -20,82 +20,56 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get badge IDs the user has already earned (authoritative list for NOT IN)
-    const { data: earnedRows, error: earnedError } = await supabase
-      .from('user_badges')
-      .select('badge_id')
-      .eq('user_id', user.id);
+    // Call check_user_badges RPC which checks all badges and awards new ones
+    // Returns a table of newly awarded badges (awarded_badge_id, badge_name)
+    const { data: awardedBadges, error: checkError } = await supabase.rpc(
+      'check_user_badges',
+      { p_user_id: user.id }
+    );
 
-    if (earnedError) {
-      console.error('[Badge Check] Error fetching earned badges:', earnedError);
-      return NextResponse.json({ error: 'Failed to fetch user badges' }, { status: 500 });
+    if (checkError) {
+      console.error('[Badge Check] Error checking badges:', checkError);
+      return NextResponse.json({ error: 'Failed to check badges' }, { status: 500 });
     }
 
-    const earnedBadgeIds = (earnedRows ?? []).map((r) => r.badge_id).filter(Boolean);
-    const { data: unearnedBadges, error: badgesError } = await supabase
-      .from('badges')
-      .select('*');
-
-    if (badgesError) {
-      console.error('[Badge Check] Error fetching badges:', badgesError);
-      return NextResponse.json({ error: 'Failed to fetch badges' }, { status: 500 });
-    }
-
-    const unearned =
-      earnedBadgeIds.length > 0 && Array.isArray(unearnedBadges)
-        ? unearnedBadges.filter((b) => !earnedBadgeIds.includes(b.id))
-        : unearnedBadges ?? [];
-
-    if (!unearned || unearned.length === 0) {
+    // If no new badges were awarded
+    if (!awardedBadges || awardedBadges.length === 0) {
+      console.log(`[Badge Check] User ${user.id} earned 0 new badges: []`);
       return NextResponse.json({
         ok: true,
-        message: 'All badges already earned',
+        message: 'No new badges earned',
         newBadges: []
       });
     }
 
-    // Check each unearned badge
-    const newlyEarnedBadges = [];
+    // Fetch full badge details for the newly awarded badges
+    const awardedBadgeIds = awardedBadges.map((b: any) => b.awarded_badge_id);
+    const { data: badgeDetails, error: badgeError } = await supabase
+      .from('badges')
+      .select('*')
+      .in('id', awardedBadgeIds);
 
-    for (const badge of unearned) {
-      const { data: earned, error: checkError } = await supabase.rpc(
-        'check_badge_earned',
-        {
-          p_user_id: user.id,
-          p_badge_id: badge.id
-        }
-      );
-
-      if (checkError) {
-        console.error(`[Badge Check] Error checking badge ${badge.id}:`, checkError);
-        continue;
-      }
-
-      if (earned) {
-        // Award the badge
-        const { error: awardError } = await supabase
-          .from('user_badges')
-          .insert({
-            user_id: user.id,
-            badge_id: badge.id
-          });
-
-        if (awardError) {
-          // Ignore duplicate key errors (race condition - badge already awarded)
-          if (!awardError.message?.includes('duplicate')) {
-            console.error(`[Badge Check] Error awarding badge ${badge.id}:`, awardError);
-          }
-        } else {
-          newlyEarnedBadges.push({
-            id: badge.id,
-            name: badge.name,
-            description: badge.description,
-            icon_path: badge.icon_path,
-            badge_group: badge.badge_group
-          });
-        }
-      }
+    if (badgeError) {
+      console.error('[Badge Check] Error fetching badge details:', badgeError);
+      // Return what we have from the RPC call
+      const simpleBadges = awardedBadges.map((b: any) => ({
+        id: b.awarded_badge_id,
+        name: b.badge_name
+      }));
+      return NextResponse.json({
+        ok: true,
+        newBadges: simpleBadges,
+        message: `Congratulations! You earned ${simpleBadges.length} new badge(s)!`
+      });
     }
+
+    const newlyEarnedBadges = (badgeDetails ?? []).map((badge) => ({
+      id: badge.id,
+      name: badge.name,
+      description: badge.description,
+      icon_path: badge.icon_path,
+      badge_group: badge.badge_group
+    }));
 
     console.log(`[Badge Check] User ${user.id} earned ${newlyEarnedBadges.length} new badges:`,
       newlyEarnedBadges.map(b => b.name));
