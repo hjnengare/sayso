@@ -1,7 +1,8 @@
 "use client";
 
-import { useId } from "react";
+import { useId, useState } from "react";
 import { Mail, AlertCircle, CheckCircle } from "lucide-react";
+import { AutoDismissFeedback } from "./AutoDismissFeedback";
 
 interface EmailInputProps {
   id?: string;
@@ -34,6 +35,8 @@ export function EmailInput({
   const hasError = touched && !!error;
   const isValid = touched && value && !error;
 
+  const [focusKey, setFocusKey] = useState(0);
+
   return (
     <div>
       <label htmlFor={inputId} className="block text-sm font-semibold text-white mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
@@ -57,6 +60,7 @@ export function EmailInput({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onBlur={onBlur}
+          onFocus={() => setFocusKey((k) => k + 1)}
           autoComplete={autoComplete}
           aria-invalid={hasError ? "true" : "false"}
           aria-describedby={hasError ? errorId : undefined}
@@ -69,13 +73,13 @@ export function EmailInput({
           disabled={disabled}
         />
       </div>
-      {/* Error message */}
-      {hasError && error && (
+      {/* Error message — auto-dismiss */}
+      <AutoDismissFeedback type="error" message={hasError ? error! : null} resetKey={focusKey}>
         <p id={errorId} className="auth-field-feedback auth-field-feedback-error" role="alert">
           <AlertCircle className="w-3 h-3" aria-hidden="true" />
           {error}
         </p>
-      )}
+      </AutoDismissFeedback>
     </div>
   );
 }

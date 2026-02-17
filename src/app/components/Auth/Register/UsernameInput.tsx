@@ -1,7 +1,8 @@
 "use client";
 
-import { useId } from "react";
+import { useId, useState } from "react";
 import { User, AlertCircle, CheckCircle } from "lucide-react";
+import { AutoDismissFeedback } from "../Shared/AutoDismissFeedback";
 
 interface UsernameInputProps {
   id?: string;
@@ -29,6 +30,8 @@ export function UsernameInput({
   const hasError = touched && !!error;
   const isValid = touched && value && !error;
 
+  const [focusKey, setFocusKey] = useState(0);
+
   return (
     <div>
       <label htmlFor={inputId} className="block text-sm font-semibold text-white mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
@@ -52,6 +55,7 @@ export function UsernameInput({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onBlur={onBlur}
+          onFocus={() => setFocusKey((k) => k + 1)}
           autoComplete="username"
           aria-invalid={hasError ? "true" : "false"}
           aria-describedby={hasError ? errorId : isValid ? successId : undefined}
@@ -65,19 +69,19 @@ export function UsernameInput({
         />
       </div>
 
-      {/* Username validation feedback */}
-      {hasError && (
+      {/* Username validation feedback — auto-dismiss */}
+      <AutoDismissFeedback type="error" message={hasError ? error! : null} resetKey={focusKey}>
         <p id={errorId} className="auth-field-feedback auth-field-feedback-error" role="alert">
           <AlertCircle className="w-3 h-3" aria-hidden="true" />
           {error}
         </p>
-      )}
-      {isValid && (
+      </AutoDismissFeedback>
+      <AutoDismissFeedback type="success" message={isValid ? "Username looks good." : null} resetKey={focusKey}>
         <p id={successId} className="auth-field-feedback auth-field-feedback-success" role="status">
           <CheckCircle className="w-3 h-3" aria-hidden="true" />
           Username looks good.
         </p>
-      )}
+      </AutoDismissFeedback>
     </div>
   );
 }

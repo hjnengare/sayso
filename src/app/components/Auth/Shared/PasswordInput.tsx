@@ -2,6 +2,7 @@
 
 import { useId, useState } from "react";
 import { Lock, Eye, EyeOff, AlertCircle, CheckCircle } from "lucide-react";
+import { AutoDismissFeedback } from "./AutoDismissFeedback";
 
 interface PasswordInputProps {
   id?: string;
@@ -57,6 +58,8 @@ export function PasswordInput({
   const lowercaseCheck = 'lowercase' in checks ? checks.lowercase : false;
   const numberCheck = 'number' in checks ? checks.number : false;
 
+  const [focusKey, setFocusKey] = useState(0);
+
   return (
     <div>
       <label htmlFor={inputId} className="block text-sm font-semibold text-white mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
@@ -82,6 +85,7 @@ export function PasswordInput({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onBlur={onBlur}
+          onFocus={() => setFocusKey((k) => k + 1)}
           autoComplete={autoComplete}
           aria-invalid={hasError ? "true" : "false"}
           aria-describedby={hasError ? errorId : undefined}
@@ -110,13 +114,13 @@ export function PasswordInput({
         </button>
       </div>
 
-      {/* Error message */}
-      {hasError && error && (
+      {/* Error message — auto-dismiss */}
+      <AutoDismissFeedback type="error" message={hasError ? error! : null} resetKey={focusKey}>
         <p id={errorId} className="auth-field-feedback auth-field-feedback-error" role="alert">
           <AlertCircle className="w-3 h-3" aria-hidden="true" />
           {error}
         </p>
-      )}
+      </AutoDismissFeedback>
     </div>
   );
 }

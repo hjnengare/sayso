@@ -1,7 +1,8 @@
 "use client";
 
-import { useId } from "react";
+import { useId, useState } from "react";
 import { Building2, AlertCircle, CheckCircle } from "lucide-react";
+import { AutoDismissFeedback } from "./AutoDismissFeedback";
 
 interface BusinessNameInputProps {
   id?: string;
@@ -34,6 +35,8 @@ export function BusinessNameInput({
   const successId = `${inputId}-success`;
   const hasError = touched && !!error;
   const isValid = touched && value && !error;
+
+  const [focusKey, setFocusKey] = useState(0);
 
   return (
     <div>
@@ -70,6 +73,7 @@ export function BusinessNameInput({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onBlur={onBlur}
+          onFocus={() => setFocusKey((k) => k + 1)}
           aria-invalid={hasError ? "true" : "false"}
           aria-describedby={hasError ? errorId : isValid ? successId : undefined}
           style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 600 }}
@@ -83,7 +87,7 @@ export function BusinessNameInput({
           disabled={disabled}
         />
       </div>
-      {hasError && (
+      <AutoDismissFeedback type="error" message={hasError ? error! : null} resetKey={focusKey}>
         <p
           id={errorId}
           className="auth-field-feedback auth-field-feedback-error"
@@ -92,8 +96,8 @@ export function BusinessNameInput({
           <AlertCircle className="w-3 h-3" aria-hidden="true" />
           {error}
         </p>
-      )}
-      {isValid && (
+      </AutoDismissFeedback>
+      <AutoDismissFeedback type="success" message={isValid ? successMessage : null} resetKey={focusKey}>
         <p
           id={successId}
           className="auth-field-feedback auth-field-feedback-success"
@@ -102,7 +106,7 @@ export function BusinessNameInput({
           <CheckCircle className="w-3 h-3" aria-hidden="true" />
           {successMessage}
         </p>
-      )}
+      </AutoDismissFeedback>
     </div>
   );
 }

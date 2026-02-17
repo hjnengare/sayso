@@ -19,6 +19,15 @@ function isExpiredTokenError(message: string): boolean {
   );
 }
 
+function isPKCEMismatchError(message: string): boolean {
+  const lower = message.toLowerCase();
+  return (
+    lower.includes('code challenge') ||
+    lower.includes('code verifier') ||
+    lower.includes('pkce')
+  );
+}
+
 type ProfileRow = {
   role: string | null;
   account_role: string | null;
@@ -229,6 +238,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(new URL('/verify-email?expired=1', request.url));
     }
 
+    if (isPKCEMismatchError(combinedError)) {
+      console.log('[Auth Callback] PKCE mismatch from query params — redirecting to login');
+      return NextResponse.redirect(
+        new URL('/login?message=' + encodeURIComponent('Email verified successfully! Please sign in.'), request.url)
+      );
+    }
+
     return NextResponse.redirect(
       new URL(`/auth/auth-code-error?error=${encodeURIComponent(errorDescription || error)}`, request.url)
     );
@@ -289,6 +305,16 @@ export async function GET(request: NextRequest) {
 
     if (isExpiredTokenError(message)) {
       return redirectTo(request, response, '/verify-email', { expired: '1' });
+    }
+
+    // Cross-browser/device verification: PKCE code verifier only exists in
+    // the original browser. The email IS confirmed server-side, so redirect
+    // the user to login with a success message instead of showing an error.
+    if (isPKCEMismatchError(message)) {
+      console.log('[Auth Callback] PKCE mismatch (cross-browser verification) — redirecting to login');
+      return redirectTo(request, response, '/login', {
+        message: 'Email verified successfully! Please sign in.',
+      });
     }
 
     return redirectTo(request, response, '/auth/auth-code-error', {

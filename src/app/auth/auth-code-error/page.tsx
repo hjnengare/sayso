@@ -1,11 +1,12 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import ErrorPage from "../../components/ErrorPages/ErrorPage";
 import { IoArrowBack } from "react-icons/io5";
 
 export default function AuthCodeErrorPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const errorParam = searchParams.get('error') || 'Authentication failed';
 
   return (
@@ -15,7 +16,7 @@ export default function AuthCodeErrorPage() {
       description={errorParam}
       secondaryAction={{
         label: "Try Again",
-        onClick: () => window.history.back(),
+        onClick: () => router.push("/login"),
         icon: <IoArrowBack className="w-5 h-5" />,
       }}
     />

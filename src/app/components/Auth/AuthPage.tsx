@@ -17,6 +17,7 @@ import { getBrowserSupabase } from "../../lib/supabase/client";
 import WavyTypedTitle from "../../../components/Animations/WavyTypedTitle";
 
 import { authStyles } from "./Shared/authStyles";
+import { AutoDismissFeedback } from "./Shared/AutoDismissFeedback";
 import { EmailInput } from "./Shared/EmailInput";
 import { PasswordInput } from "./Shared/PasswordInput";
 import { SocialLoginButtons } from "./Shared/SocialLoginButtons";
@@ -630,7 +631,7 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
                       transition={{ duration: 0.25, ease: "easeOut" }}
                     >
                       <form onSubmit={handleSubmit} className="space-y-4 relative z-10">
-                        {error && (
+                        <AutoDismissFeedback type="error" message={error || null}>
                           <div className="bg-off-white border border-error-100 rounded-[12px] p-4 text-center">
                             <p
                               className="text-caption font-semibold text-error-600"
@@ -642,9 +643,9 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
                               {error}
                             </p>
                           </div>
-                        )}
+                        </AutoDismissFeedback>
 
-                        {!isOnline && !error && isRegisterMode && (
+                        <AutoDismissFeedback type="error" message={!isOnline && !error && isRegisterMode ? "offline" : null}>
                           <div className="bg-off-white border border-orange-200 rounded-[12px] p-4 text-center">
                             <p
                               className="text-caption font-semibold text-orange-600"
@@ -656,7 +657,7 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
                               You&apos;re offline. We&apos;ll try again when you&apos;re back online.
                             </p>
                           </div>
-                        )}
+                        </AutoDismissFeedback>
 
                         {isRegisterMode && (
                           <>
