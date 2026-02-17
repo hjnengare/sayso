@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -11,6 +11,7 @@ import {
   ExternalLink,
   AlertTriangle,
   FileText,
+  RefreshCw,
 } from "lucide-react";
 
 const FONT = "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif";
@@ -49,44 +50,131 @@ const REJECT_REASONS = [
   { value: "other", label: "Other" },
 ] as const;
 
+type FetchState =
+  | { status: "loading" }
+  | { status: "success"; data: BusinessDetail }
+  | { status: "not_found"; message: string }
+  | { status: "error"; message: string };
+
+function SkeletonBlock({ className }: { className?: string }) {
+  return <div className={`animate-pulse rounded-lg bg-charcoal/10 ${className ?? ""}`} />;
+}
+
+function ReviewSkeleton() {
+  return (
+    <main className="max-w-4xl mx-auto px-4 py-6" style={{ fontFamily: FONT }}>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-charcoal">Review Business</h1>
+          <p className="text-sm text-charcoal/60 mt-1">Loading submission details…</p>
+        </div>
+        <Link
+          href="/admin/pending-businesses"
+          className="text-sm font-medium text-charcoal/70 hover:text-charcoal"
+        >
+          ← Back to Pending
+        </Link>
+      </div>
+
+      <div className="space-y-6">
+        {/* Core Info skeleton */}
+        <section className="rounded-[12px] border border-charcoal/15 bg-white p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <SkeletonBlock className="w-5 h-5" />
+            <SkeletonBlock className="h-5 w-24" />
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i}>
+                <SkeletonBlock className="h-3 w-20 mb-2" />
+                <SkeletonBlock className="h-4 w-40" />
+              </div>
+            ))}
+            <div className="sm:col-span-2">
+              <SkeletonBlock className="h-3 w-20 mb-2" />
+              <SkeletonBlock className="h-16 w-full" />
+            </div>
+          </div>
+        </section>
+
+        {/* Validation Checklist skeleton */}
+        <section className="rounded-[12px] border border-charcoal/15 bg-white p-6">
+          <SkeletonBlock className="h-5 w-40 mb-4" />
+          <div className="space-y-3">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-2">
+                <SkeletonBlock className="w-4 h-4 rounded-full" />
+                <SkeletonBlock className="h-4 w-48" />
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Action buttons skeleton */}
+        <div className="flex flex-wrap gap-3 pt-4">
+          <SkeletonBlock className="h-10 w-28 rounded-full" />
+          <SkeletonBlock className="h-10 w-24 rounded-full" />
+        </div>
+      </div>
+    </main>
+  );
+}
+
 export default function AdminBusinessReviewPage() {
   const router = useRouter();
   const params = useParams();
   const id = params?.id as string;
-  const [business, setBusiness] = useState<BusinessDetail | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [fetchState, setFetchState] = useState<FetchState>({ status: "loading" });
   const [duplicateCheck, setDuplicateCheck] = useState<{
     checking: boolean;
     available: boolean | null;
   }>({ checking: false, available: null });
   const [action, setAction] = useState<"idle" | "approve" | "disapprove">("idle");
+  const [actionError, setActionError] = useState<string | null>(null);
   const [showDisapproveModal, setShowDisapproveModal] = useState(false);
   const [rejectReason, setRejectReason] = useState<string>("");
   const [rejectComment, setRejectComment] = useState("");
 
-  useEffect(() => {
+  const fetchBusiness = useCallback(() => {
     if (!id) return;
+    setFetchState({ status: "loading" });
     const controller = new AbortController();
     fetch(`/api/admin/businesses/${id}`, { signal: controller.signal })
-      .then((res) => {
+      .then(async (res) => {
         if (res.status === 403) {
           router.replace("/");
-          return null;
+          return;
         }
-        if (!res.ok) throw new Error("Failed to load business");
-        return res.json();
-      })
-      .then((data) => {
-        if (data) setBusiness(data);
+        const body = await res.json().catch(() => ({}));
+        if (res.status === 404) {
+          // Distinguish "not pending anymore" vs "truly not found"
+          const msg = body?.details?.includes("not pending")
+            ? "This business is no longer pending review."
+            : "Business not found. It may have been deleted or the link is invalid.";
+          setFetchState({ status: "not_found", message: msg });
+          return;
+        }
+        if (!res.ok) {
+          throw new Error(body?.error || "Failed to load business");
+        }
+        setFetchState({ status: "success", data: body });
       })
       .catch((err) => {
-        if (err.name === 'AbortError') return;
-        setError(err.message || "Something went wrong");
-      })
-      .finally(() => setLoading(false));
+        if (err.name === "AbortError") return;
+        setFetchState({
+          status: "error",
+          message: err.message || "Failed to load business. Please try again.",
+        });
+      });
     return () => controller.abort();
   }, [id, router]);
+
+  useEffect(() => {
+    const cleanup = fetchBusiness();
+    return cleanup;
+  }, [fetchBusiness]);
+
+  const business = fetchState.status === "success" ? fetchState.data : null;
 
   useEffect(() => {
     if (!business?.name || business.is_chain) {
@@ -153,7 +241,7 @@ export default function AdminBusinessReviewPage() {
   const handleApprove = async () => {
     if (!id || !canApprove) return;
     setAction("approve");
-    setError(null);
+    setActionError(null);
     try {
       const res = await fetch(`/api/admin/businesses/${id}/approve`, {
         method: "POST",
@@ -163,7 +251,7 @@ export default function AdminBusinessReviewPage() {
       router.push("/admin/pending-businesses");
       router.refresh();
     } catch (err) {
-      setError(
+      setActionError(
         err instanceof Error ? err.message : "Failed to approve business"
       );
     } finally {
@@ -179,11 +267,11 @@ export default function AdminBusinessReviewPage() {
 
   const handleDisapprove = async () => {
     if (!id || !rejectReason.trim()) {
-      setError("Please select a rejection reason.");
+      setActionError("Please select a rejection reason.");
       return;
     }
     setAction("disapprove");
-    setError(null);
+    setActionError(null);
     try {
       const res = await fetch(`/api/admin/businesses/${id}/disapprove`, {
         method: "POST",
@@ -199,7 +287,7 @@ export default function AdminBusinessReviewPage() {
       router.push("/admin/pending-businesses");
       router.refresh();
     } catch (err) {
-      setError(
+      setActionError(
         err instanceof Error ? err.message : "Failed to disapprove business"
       );
     } finally {
@@ -207,20 +295,13 @@ export default function AdminBusinessReviewPage() {
     }
   };
 
-  const mapUrl =
-    business?.lat != null && business?.lng != null
-      ? `https://www.google.com/maps?q=${business.lat},${business.lng}`
-      : null;
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-charcoal/5 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-sage" />
-      </div>
-    );
+  // ── Loading ──────────────────────────────────────────────
+  if (fetchState.status === "loading") {
+    return <ReviewSkeleton />;
   }
 
-  if (!business) {
+  // ── Error (network / server) ─────────────────────────────
+  if (fetchState.status === "error") {
     return (
       <main className="max-w-4xl mx-auto px-4 py-6" style={{ fontFamily: FONT }}>
         <div className="mb-6 flex items-center justify-between">
@@ -234,14 +315,52 @@ export default function AdminBusinessReviewPage() {
         </div>
         <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center">
           <AlertTriangle className="w-8 h-8 text-red-400 mx-auto mb-3" />
-          <p className="text-red-800 font-medium">{error || "Business not found"}</p>
-          <p className="text-red-600/70 text-sm mt-1">
-            This business may have been deleted or the link is invalid.
-          </p>
+          <p className="text-red-800 font-medium">{fetchState.message}</p>
+          <button
+            type="button"
+            onClick={fetchBusiness}
+            className="inline-flex items-center gap-2 mt-4 rounded-full border border-charcoal/20 bg-white px-4 py-2 text-sm font-semibold text-charcoal hover:bg-charcoal/5"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Try again
+          </button>
         </div>
       </main>
     );
   }
+
+  // ── Not found ────────────────────────────────────────────
+  if (fetchState.status === "not_found") {
+    return (
+      <main className="max-w-4xl mx-auto px-4 py-6" style={{ fontFamily: FONT }}>
+        <div className="mb-6 flex items-center justify-between">
+          <h1 className="text-xl font-bold text-charcoal">Review Business</h1>
+          <Link
+            href="/admin/pending-businesses"
+            className="text-sm font-medium text-charcoal/70 hover:text-charcoal"
+          >
+            ← Back to Pending
+          </Link>
+        </div>
+        <div className="rounded-lg border border-charcoal/15 bg-off-white/50 p-6 text-center">
+          <AlertTriangle className="w-8 h-8 text-charcoal/40 mx-auto mb-3" />
+          <p className="text-charcoal/80 font-medium">{fetchState.message}</p>
+          <Link
+            href="/admin/pending-businesses"
+            className="inline-flex items-center gap-2 mt-4 rounded-full border border-charcoal/20 bg-white px-4 py-2 text-sm font-semibold text-charcoal hover:bg-charcoal/5"
+          >
+            View pending businesses
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
+  // ── Success ──────────────────────────────────────────────
+  const mapUrl =
+    business?.lat != null && business?.lng != null
+      ? `https://www.google.com/maps?q=${business.lat},${business.lng}`
+      : null;
 
   return (
     <main className="max-w-4xl mx-auto px-4 py-6">
@@ -269,13 +388,13 @@ export default function AdminBusinessReviewPage() {
         </Link>
       </div>
 
-      {error && (
+      {actionError && (
         <div
           className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 text-sm mb-6 flex items-center gap-2"
           style={{ fontFamily: FONT }}
         >
           <AlertTriangle className="w-5 h-5 shrink-0" />
-          {error}
+          {actionError}
         </div>
       )}
 
@@ -464,7 +583,7 @@ export default function AdminBusinessReviewPage() {
           </ul>
         </section>
 
-        {business.uploaded_images && business.uploaded_images.length > 0 && (
+        {((business.uploaded_images && business.uploaded_images.length > 0) || business.image_url) && (
           <section
             className="rounded-[12px] border border-charcoal/15 bg-white p-6"
             style={{ fontFamily: FONT }}

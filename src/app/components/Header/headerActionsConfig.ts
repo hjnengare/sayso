@@ -151,14 +151,15 @@ export const getBusinessNavLinks = (
 
   // Always show "My Businesses" for business accounts
   const myBusinessesLink = BUSINESS_LINKS.find(link => link.key === "my-businesses")!;
+  const claimBusinessLink = BUSINESS_LINKS.find(link => link.key === "claim-business")!;
 
   if (isCheckingBusinessOwner) {
-    return [myBusinessesLink];
+    return [myBusinessesLink, claimBusinessLink];
   }
 
   if (hasOwnedBusinesses) {
-    // Has businesses: show My Businesses + Add a new Business (hide Claim)
-    return BUSINESS_LINKS.filter((link) => link.key !== "claim-business");
+    // Keep claim available even when user already owns businesses.
+    return BUSINESS_LINKS.filter((link, idx, arr) => arr.findIndex(l => l.key === link.key) === idx);
   }
 
   // No businesses yet: show My Businesses + Claim a Business + Add a new Business

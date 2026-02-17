@@ -49,7 +49,6 @@ export async function GET(
         email,
         website,
         image_url,
-        uploaded_images,
         price_range,
         status,
         owner_id,
@@ -62,15 +61,33 @@ export async function GET(
         normalized_name
       `)
       .eq('id', businessId)
-      .single();
+      .maybeSingle();
 
-    if (error || !business) {
+    if (error) {
+      console.error('[Admin] Business query error:', error);
+      return NextResponse.json({ error: 'Business not found', details: error.message }, { status: 404 });
+    }
+    if (!business) {
       return NextResponse.json({ error: 'Business not found' }, { status: 404 });
     }
 
+    // Fetch uploaded images from business_images table
+    const { data: imageRows } = await (service as any)
+      .from('business_images')
+      .select('url, is_primary, sort_order')
+      .eq('business_id', businessId);
+    const sortedImages = (imageRows || [])
+      .slice()
+      .sort((a: any, b: any) => {
+        if (a.is_primary && !b.is_primary) return -1;
+        if (!a.is_primary && b.is_primary) return 1;
+        return (a.sort_order ?? 0) - (b.sort_order ?? 0);
+      });
+    const uploadedImages = sortedImages.map((r: any) => r.url).filter(Boolean);
+
     let ownerEmail: string | null = null;
     if (business.owner_id) {
-      const { data: profile } = await service
+      const { data: profile } = await (service as any)
         .from('profiles')
         .select('email')
         .eq('user_id', business.owner_id)
@@ -81,6 +98,7 @@ export async function GET(
 
     return NextResponse.json({
       ...business,
+      uploaded_images: uploadedImages,
       owner_email: ownerEmail,
     });
   } catch (err) {

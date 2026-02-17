@@ -202,10 +202,25 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
 
   // Image fallback logic with edge case handling
   const getDisplayImage = useMemo(() => {
-    // Priority 1: Check for uploaded business images array
+    // Priority 1: Check business_images array with is_primary flag (most explicit)
+    const businessImages = (business as any).business_images;
+    if (businessImages && Array.isArray(businessImages) && businessImages.length > 0) {
+      // First try to find image explicitly marked as primary
+      const primaryImage = businessImages.find((img: any) => img?.is_primary === true);
+      const imageUrl = primaryImage?.url || businessImages[0]?.url;
+
+      if (imageUrl &&
+          typeof imageUrl === 'string' &&
+          imageUrl.trim() !== '' &&
+          !isPlaceholderImage(imageUrl)) {
+        return { image: imageUrl, isPlaceholder: false };
+      }
+    }
+
+    // Priority 2: Check uploaded_images array (backward compatibility, pre-sorted by is_primary DESC)
     const uploadedImages = (business as any).uploaded_images;
     if (uploadedImages && Array.isArray(uploadedImages) && uploadedImages.length > 0) {
-      const firstImage = uploadedImages[0];
+      const firstImage = uploadedImages[0]; // First image is primary due to ORDER BY is_primary DESC
       if (firstImage &&
           typeof firstImage === 'string' &&
           firstImage.trim() !== '' &&
@@ -214,7 +229,7 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
       }
     }
 
-    // Priority 2: Check image_url (API compatibility)
+    // Priority 3: Check image_url (API compatibility)
     const imageUrl = business.image || (business as any).image_url;
     if (imageUrl &&
         typeof imageUrl === 'string' &&
@@ -223,7 +238,7 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
       return { image: imageUrl, isPlaceholder: false };
     }
 
-    // Priority 3: Canonical subcategory placeholder only (no old fuzzy mapping)
+    // Priority 4: Canonical subcategory placeholder only (no old fuzzy mapping)
     const b = business as any;
     const placeholder = getSubcategoryPlaceholderFromCandidates([
       b.sub_interest_id,

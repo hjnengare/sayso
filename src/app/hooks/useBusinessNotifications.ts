@@ -3,18 +3,23 @@
 import { useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { useToast } from '../contexts/ToastContext';
+import { useAuth } from '../contexts/AuthContext';
 
 export function useBusinessNotifications() {
   const { showToast } = useToast();
+  const { user } = useAuth();
   const businessChannelRef = useRef<any>(null);
   const statsChannelRef = useRef<any>(null);
   const reviewsChannelRef = useRef<any>(null);
   const lastNotificationTimeRef = useRef<number>(0);
   const notifiedHighRatedBusinesses = useRef<Set<string>>(new Set());
+  const userCurrentRole = user?.profile?.account_role || user?.profile?.role || 'user';
+  const isBusinessAccountUser = userCurrentRole === 'business_owner';
 
   useEffect(() => {
     // Don't subscribe if not in browser
     if (typeof window === 'undefined') return;
+    if (!user?.id || !isBusinessAccountUser) return;
 
     // Throttle notifications to prevent spam (min 5 seconds between notifications)
     const THROTTLE_MS = 5000;
@@ -122,7 +127,7 @@ export function useBusinessNotifications() {
 
     // Subscribe to new inserts in the businesses table
     const businessChannel = supabase
-      .channel('business-notifications')
+      .channel(`notifications-business-${user.id}-businesses`)
       .on(
         'postgres_changes',
         {
@@ -140,7 +145,7 @@ export function useBusinessNotifications() {
 
     // Subscribe to updates in the business_stats table for highly rated businesses
     const statsChannel = supabase
-      .channel('business-stats-notifications')
+      .channel(`notifications-business-${user.id}-stats`)
       .on(
         'postgres_changes',
         {
@@ -158,7 +163,7 @@ export function useBusinessNotifications() {
 
     // Subscribe to new reviews
     const reviewsChannel = supabase
-      .channel('reviews-notifications')
+      .channel(`notifications-business-${user.id}-reviews`)
       .on(
         'postgres_changes',
         {
@@ -193,5 +198,5 @@ export function useBusinessNotifications() {
         console.log('🔌 Unsubscribed from reviews notifications');
       }
     };
-  }, []); // ✅ Empty deps - subscribe once on mount, global subscriptions don't need user context
+  }, [isBusinessAccountUser, showToast, user?.id]);
 }

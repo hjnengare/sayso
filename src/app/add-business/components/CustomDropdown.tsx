@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 import { createPortal } from "react-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 interface CustomDropdownProps {
     id?: string;
@@ -165,74 +165,72 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
                 </motion.div>
             </motion.button>
 
-            <AnimatePresence>
-                {isOpen && dropdownPos && typeof window !== 'undefined' && createPortal(
-                    <motion.div
-                        ref={dropdownRef}
-                        id={id ? `${id}-dropdown` : undefined}
-                        initial={{ opacity: 0, y: -8, scale: 0.96 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -4, scale: 0.98 }}
-                        transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
-                        className="fixed z-[10000] bg-off-white rounded-[12px] border border-white/60 shadow-[0_16px_48px_rgba(0,0,0,0.18),0_8px_24px_rgba(0,0,0,0.12)] backdrop-blur-xl overflow-hidden"
-                        style={{
-                            top: dropdownPos.top,
-                            left: dropdownPos.left,
-                            width: dropdownPos.width,
-                            maxHeight: dropdownPos.maxHeight,
-                            fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
-                        }}
-                        onClick={(e) => e.stopPropagation()}
-                        role="listbox"
+            {isOpen && dropdownPos && typeof window !== 'undefined' && createPortal(
+                <motion.div
+                    ref={dropdownRef}
+                    id={id ? `${id}-dropdown` : undefined}
+                    initial={{ opacity: 0, y: -8, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -4, scale: 0.98 }}
+                    transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+                    className="fixed z-[10000] bg-off-white rounded-[12px] border border-white/60 shadow-[0_16px_48px_rgba(0,0,0,0.18),0_8px_24px_rgba(0,0,0,0.12)] backdrop-blur-xl overflow-hidden"
+                    style={{
+                        top: dropdownPos.top,
+                        left: dropdownPos.left,
+                        width: dropdownPos.width,
+                        maxHeight: dropdownPos.maxHeight,
+                        fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                    role="listbox"
+                >
+                    {searchable && (
+                        <div className="sticky top-0 z-10 bg-off-white/95 backdrop-blur-xl border-b border-charcoal/10 p-3">
+                            <input
+                                ref={searchInputRef}
+                                type="text"
+                                value={searchTerm}
+                                onChange={(event) => setSearchTerm(event.target.value)}
+                                placeholder={searchPlaceholder}
+                                className="w-full rounded-[10px] border border-charcoal/10 bg-white/90 px-3 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-navbar-bg/20"
+                                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                            />
+                        </div>
+                    )}
+                    <div
+                        className="overflow-y-auto overscroll-contain touch-pan-y"
+                        style={{ maxHeight: searchable ? dropdownPos.maxHeight - 64 : dropdownPos.maxHeight }}
                     >
-                        {searchable && (
-                            <div className="sticky top-0 z-10 bg-off-white/95 backdrop-blur-xl border-b border-charcoal/10 p-3">
-                                <input
-                                    ref={searchInputRef}
-                                    type="text"
-                                    value={searchTerm}
-                                    onChange={(event) => setSearchTerm(event.target.value)}
-                                    placeholder={searchPlaceholder}
-                                    className="w-full rounded-[10px] border border-charcoal/10 bg-white/90 px-3 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-navbar-bg/20"
-                                    style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
-                                />
+                        {filteredOptions.length === 0 && (
+                            <div className="px-4 py-3 text-sm text-charcoal/70" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                {noOptionsText}
                             </div>
                         )}
-                        <div
-                            className="overflow-y-auto overscroll-contain touch-pan-y"
-                            style={{ maxHeight: searchable ? dropdownPos.maxHeight - 64 : dropdownPos.maxHeight }}
-                        >
-                            {filteredOptions.length === 0 && (
-                                <div className="px-4 py-3 text-sm text-charcoal/70" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                                    {noOptionsText}
-                                </div>
-                            )}
-                            {filteredOptions.map((option, index) => (
-                                <motion.button
-                                    key={`${option.value}-${index}`}
-                                    type="button"
-                                    onClick={() => {
-                                        onChange(option.value);
-                                        closeDropdown();
-                                    }}
-                                    whileHover={{ backgroundColor: 'rgba(139, 169, 139, 0.1)' }}
-                                    className={`w-full px-4 py-3 text-left text-sm font-semibold transition-colors duration-150 ${
-                                        option.value === value
-                                            ? 'bg-gradient-to-r from-sage/10 to-sage/5 text-charcoal'
-                                            : 'text-charcoal'
-                                    }`}
-                                    style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
-                                    role="option"
-                                    aria-selected={option.value === value}
-                                >
-                                    {option.label}
-                                </motion.button>
-                            ))}
-                        </div>
-                    </motion.div>,
-                    document.body
-                )}
-            </AnimatePresence>
+                        {filteredOptions.map((option, index) => (
+                            <motion.button
+                                key={`${option.value}-${index}`}
+                                type="button"
+                                onClick={() => {
+                                    onChange(option.value);
+                                    closeDropdown();
+                                }}
+                                whileHover={{ backgroundColor: 'rgba(139, 169, 139, 0.1)' }}
+                                className={`w-full px-4 py-3 text-left text-sm font-semibold transition-colors duration-150 ${
+                                    option.value === value
+                                        ? 'bg-gradient-to-r from-sage/10 to-sage/5 text-charcoal'
+                                        : 'text-charcoal'
+                                }`}
+                                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
+                                role="option"
+                                aria-selected={option.value === value}
+                            >
+                                {option.label}
+                            </motion.button>
+                        ))}
+                    </div>
+                </motion.div>,
+                document.body
+            )}
         </div>
     );
 };

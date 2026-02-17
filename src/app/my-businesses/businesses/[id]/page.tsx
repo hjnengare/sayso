@@ -437,7 +437,7 @@ export default function OwnerBusinessDashboard() {
               <p className="text-charcoal/70">{error || 'Business not found'}</p>
               <Link
                 href="/my-businesses"
-                className="inline-flex items-center gap-2 mt-4 text-sage hover:text-sage/80"
+                className="inline-flex items-center gap-2 mt-4 text-navbar-bg hover:text-navbar-bg/80"
                 style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
               >
                 <ArrowLeft className="w-4 h-4" />
@@ -535,7 +535,7 @@ export default function OwnerBusinessDashboard() {
                               {business.name}
                             </h1>
                             {business.verified && (
-                              <div className="px-2 py-0.5 rounded-full text-caption font-semibold flex items-center gap-1 bg-card-bg/20 text-sage">
+                              <div className="px-2 py-0.5 rounded-full text-caption font-semibold flex items-center gap-1 bg-card-bg/20 text-navbar-bg">
                                 <Star size={12} />
                                 <span className="capitalize">Verified</span>
                               </div>
@@ -557,7 +557,7 @@ export default function OwnerBusinessDashboard() {
                           <div className="flex items-center gap-2.5 flex-wrap text-xs text-charcoal/70">
                             <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${
                               (business as any).status === 'active'
-                                ? 'bg-card-bg/15 text-sage'
+                                ? 'bg-card-bg/15 text-navbar-bg'
                                 : (business as any).status === 'pending_approval'
                                   ? 'bg-coral/15 text-coral'
                                   : 'bg-charcoal/10 text-charcoal/60'
@@ -608,7 +608,7 @@ export default function OwnerBusinessDashboard() {
                         <p className="text-3xl font-extrabold text-charcoal">
                           {stats?.total_reviews || 0}
                         </p>
-                        <p className={`text-xs mt-0.5 ${(analytics?.newReviews || 0) > 0 ? 'text-sage font-medium' : 'text-charcoal/50'}`}>
+                        <p className={`text-xs mt-0.5 ${(analytics?.newReviews || 0) > 0 ? 'text-navbar-bg font-medium' : 'text-charcoal/50'}`}>
                           +{analytics?.newReviews || 0} in last 30d
                         </p>
                       </div>
@@ -623,7 +623,7 @@ export default function OwnerBusinessDashboard() {
                         <p className="text-3xl font-extrabold text-charcoal">
                           {analytics?.profileViews ?? '--'}
                         </p>
-                        <p className={`text-xs mt-0.5 ${(analytics?.profileViews || 0) > 0 ? 'text-sage font-medium' : 'text-charcoal/50'}`}>
+                        <p className={`text-xs mt-0.5 ${(analytics?.profileViews || 0) > 0 ? 'text-navbar-bg font-medium' : 'text-charcoal/50'}`}>
                           +{analytics?.profileViews || 0} in last 30d
                         </p>
                       </div>
@@ -641,7 +641,7 @@ export default function OwnerBusinessDashboard() {
                         <p className="text-3xl font-extrabold text-charcoal">
                           {analytics?.newConversations ?? '--'}
                         </p>
-                        <p className={`text-xs mt-0.5 ${(analytics?.newConversations || 0) > 0 ? 'text-sage font-medium' : 'text-charcoal/50'}`}>
+                        <p className={`text-xs mt-0.5 ${(analytics?.newConversations || 0) > 0 ? 'text-navbar-bg font-medium' : 'text-charcoal/50'}`}>
                           +{analytics?.newConversations || 0} in last 30d
                         </p>
                       </div>
@@ -653,7 +653,7 @@ export default function OwnerBusinessDashboard() {
                   <section aria-label="Quick actions" className="space-y-3">
                     <h3 className="text-base font-semibold text-charcoal flex items-center gap-3">
                       <span className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-sage/20 to-sage/10">
-                        <Store className="w-4 h-4 text-sage" />
+                        <Store className="w-4 h-4 text-navbar-bg" />
                       </span>
                       Quick Actions
                     </h3>
@@ -662,8 +662,8 @@ export default function OwnerBusinessDashboard() {
                         href={`/business/${businessId}/edit`}
                         className="group bg-gradient-to-br from-card-bg via-card-bg to-card-bg/80 backdrop-blur-xl border border-white/60 rounded-[12px] p-4 flex flex-col items-center gap-2 text-center hover:border-sage/40 hover:translate-y-[-2px] transition-all duration-200"
                       >
-                        <span className="grid h-10 w-10 place-items-center rounded-full bg-card-bg/15 group-hover:bg-card-bg/25 transition-colors">
-                          <Edit className="w-5 h-5 text-sage" />
+                        <span className="grid h-10 w-10 place-items-center rounded-full bg-navbar-bg/15 group-hover:bg-navbar-bg/25 transition-colors">
+                          <Edit className="w-5 h-5 text-navbar-bg" />
                         </span>
                         <span className="text-sm font-semibold text-charcoal">Edit Details</span>
                       </Link>
@@ -671,8 +671,8 @@ export default function OwnerBusinessDashboard() {
                         href={`/business/${businessId}/edit`}
                         className="group bg-gradient-to-br from-card-bg via-card-bg to-card-bg/80 backdrop-blur-xl border border-white/60 rounded-[12px] p-4 flex flex-col items-center gap-2 text-center hover:border-sage/40 hover:translate-y-[-2px] transition-all duration-200"
                       >
-                        <span className="grid h-10 w-10 place-items-center rounded-full bg-card-bg/15 group-hover:bg-card-bg/25 transition-colors">
-                          <Upload className="w-5 h-5 text-sage" />
+                        <span className="grid h-10 w-10 place-items-center rounded-full bg-navbar-bg/15 group-hover:bg-navbar-bg/25 transition-colors">
+                          <Upload className="w-5 h-5 text-navbar-bg" />
                         </span>
                         <span className="text-sm font-semibold text-charcoal">Upload Photos</span>
                       </Link>
@@ -680,8 +680,8 @@ export default function OwnerBusinessDashboard() {
                         href={`/my-businesses/businesses/${businessId}/reviews`}
                         className="group bg-gradient-to-br from-card-bg via-card-bg to-card-bg/80 backdrop-blur-xl border border-white/60 rounded-[12px] p-4 flex flex-col items-center gap-2 text-center hover:border-sage/40 hover:translate-y-[-2px] transition-all duration-200"
                       >
-                        <span className="grid h-10 w-10 place-items-center rounded-full bg-coral/15 group-hover:bg-coral/25 transition-colors">
-                          <MessageSquare className="w-5 h-5 text-coral" />
+                        <span className="grid h-10 w-10 place-items-center rounded-full bg-navbar-bg/15 group-hover:bg-navbar-bg/25 transition-colors">
+                          <MessageSquare className="w-5 h-5 text-navbar-bg" />
                         </span>
                         <span className="text-sm font-semibold text-charcoal">View Reviews</span>
                       </Link>
@@ -689,19 +689,19 @@ export default function OwnerBusinessDashboard() {
                         href="/add-event"
                         className="group bg-gradient-to-br from-card-bg via-card-bg to-card-bg/80 backdrop-blur-xl border border-white/60 rounded-[12px] p-4 flex flex-col items-center gap-2 text-center hover:border-sage/40 hover:translate-y-[-2px] transition-all duration-200"
                       >
-                        <span className="grid h-10 w-10 place-items-center rounded-full bg-card-bg/15 group-hover:bg-card-bg/25 transition-colors">
-                          <Calendar className="w-5 h-5 text-sage" />
+                        <span className="grid h-10 w-10 place-items-center rounded-full bg-navbar-bg/15 group-hover:bg-navbar-bg/25 transition-colors">
+                          <Calendar className="w-5 h-5 text-navbar-bg" />
                         </span>
                         <span className="text-sm font-semibold text-charcoal">Add Event / Special</span>
                       </Link>
                       <div
                         className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/80 backdrop-blur-xl border border-white/60 rounded-[12px] p-4 flex flex-col items-center gap-2 text-center opacity-60 cursor-default"
                       >
-                        <span className="grid h-10 w-10 place-items-center rounded-full bg-charcoal/10">
-                          <TrendingUp className="w-5 h-5 text-charcoal/40" />
+                        <span className="grid h-10 w-10 place-items-center rounded-full bg-navbar-bg/15">
+                          <TrendingUp className="w-5 h-5 text-navbar-bg" />
                         </span>
                         <span className="text-sm font-semibold text-charcoal/60">Promote</span>
-                        <span className="text-[10px] bg-card-bg/20 text-sage px-1.5 py-0.5 rounded-full font-semibold">Soon</span>
+                        <span className="text-[10px] bg-card-bg/20 text-navbar-bg px-1.5 py-0.5 rounded-full font-semibold">Soon</span>
                       </div>
                       <button
                         type="button"
@@ -709,8 +709,8 @@ export default function OwnerBusinessDashboard() {
                         className="group bg-gradient-to-br from-card-bg via-card-bg to-card-bg/80 backdrop-blur-xl border border-coral/40 rounded-[12px] p-4 flex flex-col items-center gap-2 text-center hover:border-coral/70 hover:bg-coral/5 transition-all duration-200"
                         aria-label="Delete business"
                       >
-                        <span className="grid h-10 w-10 place-items-center rounded-full bg-coral/10 group-hover:bg-coral/20 transition-colors">
-                          <Trash2 className="w-5 h-5 text-coral" />
+                        <span className="grid h-10 w-10 place-items-center rounded-full bg-navbar-bg/15 group-hover:bg-navbar-bg/25 transition-colors">
+                          <Trash2 className="w-5 h-5 text-navbar-bg" />
                         </span>
                         <span className="text-sm font-semibold text-coral">Delete Business</span>
                       </button>
@@ -724,15 +724,15 @@ export default function OwnerBusinessDashboard() {
                   >
                     <div className="flex items-center gap-3">
                       <span className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-sage/20 to-sage/10">
-                        <TrendingUp className="w-4 h-4 text-sage" />
+                        <TrendingUp className="w-4 h-4 text-navbar-bg" />
                       </span>
-                      <h3 className="text-base font-semibold text-charcoal">Grow Your Visibility</h3>
+                      <h3 className="text-base font-semibold text-navbar-bg">Grow Your Visibility</h3>
                     </div>
 
                     <div className="flex items-center gap-3">
                       <div className="flex-1 h-2 bg-charcoal/10 rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-card-bg rounded-full transition-all duration-500"
+                          className="h-full bg-navbar-bg rounded-full transition-all duration-500"
                           style={{ width: `${profileCompletion}%` }}
                         />
                       </div>
@@ -743,10 +743,10 @@ export default function OwnerBusinessDashboard() {
                       {growthChecklist.map((item) => (
                         <li key={item.label} className="flex items-center gap-3">
                           <span className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${
-                            item.done ? 'bg-card-bg/20' : 'bg-charcoal/5'
+                            item.done ? 'bg-navbar-bg/20' : 'bg-charcoal/5'
                           }`}>
                             {item.done ? (
-                              <CheckCircle className="w-3.5 h-3.5 text-sage" />
+                              <CheckCircle className="w-3.5 h-3.5 text-navbar-bg" />
                             ) : (
                               <span className="w-2 h-2 rounded-full bg-charcoal/20" />
                             )}

@@ -103,6 +103,14 @@ export const useHeaderState = ({
     user?.profile?.account_role || user?.profile?.role || "user";
   const isAdminUser = userCurrentRole === "admin";
   const isBusinessAccountUser = !isAdminUser && userCurrentRole === "business_owner";
+  const isBusinessNotificationRoute = Boolean(
+    pathname?.startsWith("/my-businesses") ||
+    pathname?.startsWith("/add-business") ||
+    pathname?.startsWith("/claim-business") ||
+    pathname?.startsWith("/add-event") ||
+    pathname?.startsWith("/add-special")
+  );
+  const shouldUseBusinessNotifications = isBusinessAccountUser || isBusinessNotificationRoute;
   const hasMultipleRoles = user?.profile?.role === "both";
   const isGuest = !authLoading && !user;
   const [businessUnreadCount, setBusinessUnreadCount] = useState(0);
@@ -119,7 +127,7 @@ export const useHeaderState = ({
   const hasOwnedBusinesses = ownedBusinessesCount > 0;
 
   useEffect(() => {
-    if (!user || !isBusinessAccountUser) {
+    if (!user || !shouldUseBusinessNotifications) {
       setBusinessUnreadCount(0);
       return;
     }
@@ -128,7 +136,7 @@ export const useHeaderState = ({
 
     const fetchBusinessUnreadCount = async () => {
       try {
-        const response = await fetch("/api/business/notifications", {
+        const response = await fetch("/api/notifications/business", {
           method: "GET",
           cache: "no-store",
         });
@@ -136,7 +144,7 @@ export const useHeaderState = ({
         if (!response.ok) {
           const errorBody = await response.json().catch(() => null);
           console.error("[Header] Failed to fetch business notifications", {
-            endpoint: "/api/business/notifications",
+            endpoint: "/api/notifications/business",
             status: response.status,
             errorMessage: errorBody?.error || response.statusText,
             hasSession: !!user,
@@ -158,7 +166,7 @@ export const useHeaderState = ({
         }
       } catch (error) {
         console.error("[Header] Error fetching business notifications", {
-          endpoint: "/api/business/notifications",
+          endpoint: "/api/notifications/business",
           errorMessage: error instanceof Error ? error.message : String(error),
           hasSession: !!user,
         });
@@ -173,7 +181,7 @@ export const useHeaderState = ({
     return () => {
       isCancelled = true;
     };
-  }, [user?.id, isBusinessAccountUser]);
+  }, [user?.id, shouldUseBusinessNotifications]);
 
   // ============================================================================
   // NAVIGATION LINKS (COMPUTED)
@@ -184,9 +192,9 @@ export const useHeaderState = ({
     isCheckingBusinessOwner,
     hasOwnedBusinesses
   );
-  const unreadCount = isBusinessAccountUser
+  const unreadCount = shouldUseBusinessNotifications
     ? businessUnreadCount
-    : personalUnreadCount;
+    : Math.max(0, personalUnreadCount || 0);
 
   // ============================================================================
   // REFS

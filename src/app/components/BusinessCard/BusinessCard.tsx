@@ -44,6 +44,7 @@ type Business = {
   image?: string;
   image_url?: string;
   uploaded_images?: string[]; // Array of image URLs from uploaded_images field
+  business_images?: Array<{ url: string; is_primary?: boolean; sort_order?: number }>; // Array of image objects with metadata
   alt: string;
   /** Canonical slug (e.g. restaurants). Used for placeholder resolution. */
   category?: string;
@@ -437,9 +438,11 @@ function BusinessCard({
   }
 
   const getDisplayImage = useMemo(() => {
-    // Priority 1: Check uploaded_images array (new source of truth)
-    if (business.uploaded_images && Array.isArray(business.uploaded_images) && business.uploaded_images.length > 0) {
-      const imageUrl = business.uploaded_images[0];
+    // Priority 1: Check business_images array with is_primary flag (most explicit)
+    if (business.business_images && Array.isArray(business.business_images) && business.business_images.length > 0) {
+      // First try to find image explicitly marked as primary
+      const primaryImage = business.business_images.find(img => img.is_primary === true);
+      const imageUrl = primaryImage?.url || business.business_images[0]?.url;
 
       if (imageUrl &&
           typeof imageUrl === 'string' &&
@@ -449,7 +452,19 @@ function BusinessCard({
       }
     }
 
-    // Priority 2: External image_url
+    // Priority 2: Check uploaded_images array (backward compatibility, pre-sorted by is_primary DESC)
+    if (business.uploaded_images && Array.isArray(business.uploaded_images) && business.uploaded_images.length > 0) {
+      const imageUrl = business.uploaded_images[0]; // First image is primary due to ORDER BY is_primary DESC
+
+      if (imageUrl &&
+          typeof imageUrl === 'string' &&
+          imageUrl.trim() !== '' &&
+          !isPlaceholderImage(imageUrl)) {
+        return { image: imageUrl, isPlaceholder: false };
+      }
+    }
+
+    // Priority 3: External image_url
     if (business.image_url &&
       typeof business.image_url === 'string' &&
       business.image_url.trim() !== '' &&
@@ -457,7 +472,7 @@ function BusinessCard({
       return { image: business.image_url, isPlaceholder: false };
     }
 
-    // Priority 3: Legacy image field
+    // Priority 4: Legacy image field
     if (business.image &&
       typeof business.image === 'string' &&
       business.image.trim() !== '' &&
@@ -465,7 +480,7 @@ function BusinessCard({
       return { image: business.image, isPlaceholder: false };
     }
 
-    // Priority 4: Canonical subcategory placeholder only (no fuzzy/old mapping)
+    // Priority 5: Canonical subcategory placeholder only (no fuzzy/old mapping)
     const placeholder = getSubcategoryPlaceholderFromCandidates([
       (business as { sub_interest_id?: string }).sub_interest_id,
       business.subInterestId,
@@ -476,6 +491,7 @@ function BusinessCard({
     ]);
     return { image: placeholder, isPlaceholder: true };
   }, [
+    business.business_images,
     business.uploaded_images,
     business.image_url,
     business.image,

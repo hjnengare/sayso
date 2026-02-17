@@ -26,6 +26,11 @@ interface BusinessInfoModalProps {
   onClose: () => void;
 }
 
+const formatPriceRangeDisplay = (priceRange?: string | null): string => {
+  if (!priceRange) return "";
+  return priceRange.includes("$") ? priceRange.replace(/\$/g, "R") : priceRange;
+};
+
 export default function BusinessInfoModal({ 
   businessInfo, 
   buttonRef, 
@@ -33,6 +38,7 @@ export default function BusinessInfoModal({
   onClose 
 }: BusinessInfoModalProps) {
   const [isClosing, setIsClosing] = useState(false);
+  const displayPriceRange = formatPriceRangeDisplay(businessInfo.price_range);
 
   const handleClose = () => {
     setIsClosing(true);
@@ -115,7 +121,7 @@ export default function BusinessInfoModal({
             <DollarSign className={`w-4 h-4 flex-shrink-0 ${businessInfo.price_range ? 'text-sage' : 'text-charcoal/30'}`} />
             <span className="font-medium text-charcoal/60">Price Range:</span>
             <span className={!businessInfo.price_range ? 'italic text-charcoal/60' : ''}>
-              {businessInfo.price_range || 'Not specified'}
+              {displayPriceRange || 'Not specified'}
             </span>
           </div>
 

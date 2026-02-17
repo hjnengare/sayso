@@ -625,7 +625,12 @@ export default function BusinessEditPage() {
         "Bakery", "Food Truck", "Catering", "Grocery", "Other", "Miscellaneous"
     ];
 
-    const priceRanges = ["$", "$$", "$$$", "$$$$"];
+    const priceRanges = [
+        { value: "$", label: "R" },
+        { value: "$$", label: "RR" },
+        { value: "$$$", label: "RRR" },
+        { value: "$$$$", label: "RRRR" },
+    ];
 
     const days = [
         { key: "monday", label: "Monday" },
@@ -970,7 +975,7 @@ export default function BusinessEditPage() {
                                             className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-full text-sm font-urbanist text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
                                         >
                                             {priceRanges.map(range => (
-                                                <option key={range} value={range}>{range}</option>
+                                                <option key={range.value} value={range.value}>{range.label}</option>
                                             ))}
                                         </select>
                                     </div>

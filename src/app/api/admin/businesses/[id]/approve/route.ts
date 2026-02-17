@@ -135,15 +135,35 @@ export async function POST(
     // Create notification for business owner
     if (biz.owner_id) {
       try {
-        await (service as any).rpc('create_business_approved_notification', {
+        console.log('[Admin] Creating business approval notification...', {
+          owner_id: biz.owner_id,
+          business_id: businessId,
+          business_name: biz.name
+        });
+        
+        const { data: notifData, error: notifError } = await (service as any).rpc('create_business_approved_notification', {
           p_owner_id: biz.owner_id,
           p_business_id: businessId,
           p_business_name: biz.name || 'Your business'
         });
+        
+        if (notifError) {
+          console.error('[Admin] RPC error creating business approval notification:', {
+            error: notifError,
+            message: notifError.message,
+            details: notifError.details,
+            hint: notifError.hint,
+            code: notifError.code
+          });
+        } else {
+          console.log('[Admin] Business approval notification created successfully:', notifData);
+        }
       } catch (notifError) {
         // Log error but don't fail the approval
-        console.error('[Admin] Failed to create business approval notification:', notifError);
+        console.error('[Admin] Exception creating business approval notification:', notifError);
       }
+    } else {
+      console.warn('[Admin] No owner_id found for business, skipping notification');
     }
 
     return NextResponse.json({

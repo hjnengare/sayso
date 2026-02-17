@@ -276,8 +276,8 @@ export default function BusinessDetailsCard({ priceRange, verified, hours }: Bus
                   <span
                     className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-sm font-semibold ${
                       openStatus.isOpen
-                        ? 'bg-card-bg/20 text-sage'
-                        : 'bg-coral/20 text-coral'
+                        ? 'bg-card-bg/20 text-navbar-bg'
+                        : 'bg-coral/20 text-sage/80'
                     }`}
                     style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                   >

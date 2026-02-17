@@ -3,21 +3,13 @@
 import { useState, useEffect } from "react";
 import {
   LineChart,
-  Line,
   BarChart,
-  Bar,
   AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+} from "@tremor/react";
 import { BarChart3, Eye, Star, MessageSquare, ThumbsUp, Calendar } from "lucide-react";
 import { useReducedMotion } from "../../../utils/useReducedMotion";
 
-/** Chart stroke/fill use theme token navbar-bg; hex for reliable SVG rendering */
+/** Chart stroke/fill use theme token navbar-bg */
 const CHART_COLOR = "#722F37";
 
 export type AnalyticsData = {
@@ -38,6 +30,11 @@ function formatShortDate(dateStr: string): string {
   return d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 }
 
+/** Ensure charts always render axes even with no data */
+const EMPTY_VIEWS = [{ date: "No data", views: 0 }];
+const EMPTY_REVIEWS = [{ date: "No data", count: 0 }];
+const EMPTY_RATINGS = [{ date: "No data", avgRating: 0 }];
+
 function SkeletonChart({ className }: { className?: string }) {
   return (
     <div
@@ -47,14 +44,11 @@ function SkeletonChart({ className }: { className?: string }) {
   );
 }
 
-const chartTickStyle = { fontSize: 11, fill: "#374151", fontWeight: 500 };
-
 export function BusinessAnalyticsSection({ businessId }: { businessId: string }) {
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const reducedMotion = useReducedMotion();
-  const duration = reducedMotion ? 0 : chartAnimationDuration;
 
   useEffect(() => {
     let cancelled = false;
@@ -128,6 +122,18 @@ export function BusinessAnalyticsSection({ businessId }: { businessId: string })
     return null;
   }
 
+  const viewsData = data.viewsOverTime.length > 0
+    ? data.viewsOverTime.map((d) => ({ ...d, date: formatShortDate(d.date) }))
+    : EMPTY_VIEWS;
+
+  const reviewsData = data.reviewsOverTime.length > 0
+    ? data.reviewsOverTime.map((d) => ({ ...d, date: formatShortDate(d.date) }))
+    : EMPTY_REVIEWS;
+
+  const ratingData = data.ratingTrend.length > 0
+    ? data.ratingTrend.map((d) => ({ date: formatShortDate(d.date), avgRating: d.avgRating ?? 0 }))
+    : EMPTY_RATINGS;
+
   return (
     <section
       className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-lg p-6 sm:p-8 space-y-6"
@@ -144,136 +150,69 @@ export function BusinessAnalyticsSection({ businessId }: { businessId: string })
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Total Views over time - always render chart (axes + 0 series when no data) */}
+        {/* Profile Views */}
         <div className="bg-white/60 border border-white/80 rounded-[12px] p-4 shadow-sm min-h-[220px]">
           <div className="flex items-center gap-2 mb-3">
             <Eye className="w-4 h-4 text-navbar-bg" />
             <span className="text-sm font-semibold text-charcoal">Profile Views</span>
           </div>
-          <ResponsiveContainer width="100%" height={180}>
-            <LineChart
-              data={data.viewsOverTime}
-              margin={{ top: 4, right: 4, left: -8, bottom: 0 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" />
-              <XAxis
-                dataKey="date"
-                tickFormatter={formatShortDate}
-                tick={chartTickStyle}
-              />
-              <YAxis
-                allowDecimals={false}
-                tick={chartTickStyle}
-              />
-              <Tooltip
-                labelFormatter={formatShortDate}
-                contentStyle={{
-                  borderRadius: 8,
-                  border: "1px solid rgba(0,0,0,0.12)",
-                  fontFamily: "Urbanist, system-ui, sans-serif",
-                  color: "#1f2937",
-                }}
-              />
-              <Line
-                type="monotone"
-                dataKey="views"
-                stroke={CHART_COLOR}
-                strokeWidth={2}
-                dot={false}
-                isAnimationActive={!reducedMotion}
-                animationDuration={duration}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+          <LineChart
+            className="h-44"
+            data={viewsData}
+            index="date"
+            categories={["views"]}
+            colors={[CHART_COLOR]}
+            showLegend={false}
+            showAnimation={!reducedMotion}
+            animationDuration={chartAnimationDuration}
+            allowDecimals={false}
+            yAxisWidth={32}
+            noDataText="No views yet"
+          />
         </div>
 
-        {/* Reviews over time - always render chart */}
+        {/* Reviews Over Time */}
         <div className="bg-white/60 border border-white/80 rounded-[12px] p-4 shadow-sm min-h-[220px]">
           <div className="flex items-center gap-2 mb-3">
             <MessageSquare className="w-4 h-4 text-navbar-bg" />
             <span className="text-sm font-semibold text-charcoal">Reviews Over Time</span>
           </div>
-          <ResponsiveContainer width="100%" height={180}>
-            <BarChart
-              data={data.reviewsOverTime}
-              margin={{ top: 4, right: 4, left: -8, bottom: 0 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" vertical={false} />
-              <XAxis
-                dataKey="date"
-                tickFormatter={formatShortDate}
-                tick={chartTickStyle}
-              />
-              <YAxis
-                allowDecimals={false}
-                tick={chartTickStyle}
-              />
-              <Tooltip
-                labelFormatter={formatShortDate}
-                contentStyle={{
-                  borderRadius: 8,
-                  border: "1px solid rgba(0,0,0,0.12)",
-                  fontFamily: "Urbanist, system-ui, sans-serif",
-                  color: "#1f2937",
-                }}
-              />
-              <Bar
-                dataKey="count"
-                fill={CHART_COLOR}
-                radius={[4, 4, 0, 0]}
-                isAnimationActive={!reducedMotion}
-                animationDuration={duration}
-              />
-            </BarChart>
-          </ResponsiveContainer>
+          <BarChart
+            className="h-44"
+            data={reviewsData}
+            index="date"
+            categories={["count"]}
+            colors={[CHART_COLOR]}
+            showLegend={false}
+            showAnimation={!reducedMotion}
+            animationDuration={chartAnimationDuration}
+            allowDecimals={false}
+            yAxisWidth={32}
+            noDataText="No reviews yet"
+          />
         </div>
 
-        {/* Average Rating trend - always render chart */}
+        {/* Average Rating Trend */}
         <div className="bg-white/60 border border-white/80 rounded-[12px] p-4 shadow-sm min-h-[220px]">
           <div className="flex items-center gap-2 mb-3">
             <Star className="w-4 h-4 text-navbar-bg" />
             <span className="text-sm font-semibold text-charcoal">Average Rating Trend</span>
           </div>
-          <ResponsiveContainer width="100%" height={180}>
-            <AreaChart
-              data={data.ratingTrend.map((d) => ({
-                ...d,
-                avgRating: d.avgRating ?? 0,
-              }))}
-              margin={{ top: 4, right: 4, left: -8, bottom: 0 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" />
-              <XAxis
-                dataKey="date"
-                tickFormatter={formatShortDate}
-                tick={chartTickStyle}
-              />
-              <YAxis
-                domain={[0, 5]}
-                tick={chartTickStyle}
-              />
-              <Tooltip
-                labelFormatter={formatShortDate}
-                formatter={(value: number) => [value?.toFixed(1) ?? "—", "Avg rating"]}
-                contentStyle={{
-                  borderRadius: 8,
-                  border: "1px solid rgba(0,0,0,0.12)",
-                  fontFamily: "Urbanist, system-ui, sans-serif",
-                  color: "#1f2937",
-                }}
-              />
-              <Area
-                type="monotone"
-                dataKey="avgRating"
-                stroke={CHART_COLOR}
-                fill={CHART_COLOR}
-                fillOpacity={0.2}
-                strokeWidth={2}
-                isAnimationActive={!reducedMotion}
-                animationDuration={duration}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+          <AreaChart
+            className="h-44"
+            data={ratingData}
+            index="date"
+            categories={["avgRating"]}
+            colors={[CHART_COLOR]}
+            showLegend={false}
+            showAnimation={!reducedMotion}
+            animationDuration={chartAnimationDuration}
+            minValue={0}
+            maxValue={5}
+            valueFormatter={(v: number) => v.toFixed(1)}
+            yAxisWidth={32}
+            noDataText="No ratings yet"
+          />
         </div>
 
         {/* Helpful votes + Events & Specials */}

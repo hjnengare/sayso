@@ -2,6 +2,22 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSupabase } from '@/app/lib/supabase/server';
 import { createEventOrSpecial } from '@/app/lib/events/createEventSpecial';
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** Resolve a slug or UUID param to a UUID. Returns null if not found. */
+async function resolveBusinessId(
+  supabase: Awaited<ReturnType<typeof getServerSupabase>>,
+  idOrSlug: string,
+): Promise<string | null> {
+  if (UUID_RE.test(idOrSlug)) return idOrSlug;
+  const { data } = await supabase
+    .from('businesses')
+    .select('id')
+    .eq('slug', idOrSlug)
+    .maybeSingle();
+  return data?.id ?? null;
+}
+
 /**
  * POST /api/businesses/[id]/events
  * Create a new event/special for a business (business owner only)
@@ -21,7 +37,13 @@ export async function POST(
     }
 
     const supabase = await getServerSupabase();
-    
+
+    // Resolve slug to UUID
+    const resolvedId = await resolveBusinessId(supabase, businessId);
+    if (!resolvedId) {
+      return NextResponse.json({ error: 'Business not found' }, { status: 404 });
+    }
+
     // Get current user
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
@@ -33,7 +55,7 @@ export async function POST(
       supabase,
       userId: user.id,
       body,
-      forcedBusinessId: businessId,
+      forcedBusinessId: resolvedId,
     });
 
     if (result.ok === false) {
@@ -70,10 +92,16 @@ export async function GET(
     // Use request-scoped client to properly read cookies for RLS
     const supabase = await getServerSupabase(req);
 
+    // Resolve slug to UUID
+    const resolvedId = await resolveBusinessId(supabase, businessId);
+    if (!resolvedId) {
+      return NextResponse.json({ error: 'Business not found' }, { status: 404 });
+    }
+
     let listingsQuery = supabase
       .from('events_and_specials')
       .select('*')
-      .eq('business_id', businessId);
+      .eq('business_id', resolvedId);
 
     if (ownerView) {
       // Owner dashboard should show all listings, not only upcoming.
@@ -87,13 +115,13 @@ export async function GET(
         supabase
           .from('businesses')
           .select('id')
-          .eq('id', businessId)
+          .eq('id', resolvedId)
           .eq('owner_id', user.id)
           .maybeSingle(),
         supabase
           .from('business_owners')
           .select('id')
-          .eq('business_id', businessId)
+          .eq('business_id', resolvedId)
           .eq('user_id', user.id)
           .maybeSingle(),
       ]);
@@ -124,8 +152,8 @@ export async function GET(
     // Fetch business images for context
     const { data: businessImages } = await supabase
       .from('business_images')
-      .select('image_url')
-      .eq('business_id', businessId);
+      .select('url')
+      .eq('business_id', resolvedId);
 
     // Transform to frontend format with business images
     const events = (data || []).map((e: any) => ({
@@ -142,7 +170,7 @@ export async function GET(
       price: e.price,
       description: e.description,
       businessId: e.business_id,
-      businessImages: (businessImages || []).map((img: any) => img.image_url),
+      businessImages: (businessImages || []).map((img: any) => img.url),
       createdBy: e.created_by,
       createdAt: e.created_at,
       isBusinessOwned: true,
@@ -187,6 +215,12 @@ export async function PUT(
 
     const supabase = await getServerSupabase();
 
+    // Resolve slug to UUID
+    const resolvedId = await resolveBusinessId(supabase, businessId);
+    if (!resolvedId) {
+      return NextResponse.json({ error: 'Business not found' }, { status: 404 });
+    }
+
     // Get current user
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
@@ -197,7 +231,7 @@ export async function PUT(
     const { data: business, error: businessError } = await supabase
       .from('businesses')
       .select('id, owner_id')
-      .eq('id', businessId)
+      .eq('id', resolvedId)
       .single();
 
     if (businessError || !business) {
@@ -222,7 +256,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Event not found' }, { status: 404 });
     }
 
-    if (event.business_id !== businessId) {
+    if (event.business_id !== resolvedId) {
       return NextResponse.json(
         { error: 'Event does not belong to this business' },
         { status: 400 }
@@ -301,6 +335,12 @@ export async function DELETE(
 
     const supabase = await getServerSupabase();
 
+    // Resolve slug to UUID
+    const resolvedId = await resolveBusinessId(supabase, businessId);
+    if (!resolvedId) {
+      return NextResponse.json({ error: 'Business not found' }, { status: 404 });
+    }
+
     // Get current user
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
@@ -311,7 +351,7 @@ export async function DELETE(
     const { data: business, error: businessError } = await supabase
       .from('businesses')
       .select('id, owner_id')
-      .eq('id', businessId)
+      .eq('id', resolvedId)
       .single();
 
     if (businessError || !business) {
@@ -336,7 +376,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Event not found' }, { status: 404 });
     }
 
-    if (event.business_id !== businessId) {
+    if (event.business_id !== resolvedId) {
       return NextResponse.json(
         { error: 'Event does not belong to this business' },
         { status: 400 }

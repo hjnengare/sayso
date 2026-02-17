@@ -69,6 +69,8 @@ interface DatabaseNotification {
   updated_at: string;
 }
 
+const USER_NOTIFICATIONS_ENDPOINT = '/api/notifications/user';
+
 export function NotificationsProvider({ children }: NotificationsProviderProps) {
   const [notifications, setNotifications] = useState<ToastNotificationData[]>([]);
   const [readNotifications, setReadNotifications] = useState<Set<string>>(new Set());
@@ -119,12 +121,12 @@ export function NotificationsProvider({ children }: NotificationsProviderProps) 
       
       // Use shared API client with deduplication and caching
       const data = await apiClient.fetch<{ notifications: DatabaseNotification[] }>(
-        '/api/notifications',
+        USER_NOTIFICATIONS_ENDPOINT,
         {},
         {
           ttl: 10000, // 10 second cache
           useCache: true,
-          cacheKey: '/api/notifications',
+          cacheKey: `${USER_NOTIFICATIONS_ENDPOINT}:${user.id}`,
         }
       );
       
@@ -183,7 +185,7 @@ export function NotificationsProvider({ children }: NotificationsProviderProps) 
     
     // Subscribe to notifications table for current user
     const channel = supabase
-      .channel('notifications-changes')
+      .channel(`notifications-user-${user.id}`)
       .on(
         'postgres_changes',
         {

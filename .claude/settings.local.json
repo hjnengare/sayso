@@ -74,7 +74,10 @@
       "Bash(npx next build:*)",
       "Bash(npx jest --testPathPattern=__tests__)",
       "Bash(npx jest:*)",
-      "Bash(git diff:*)"
+      "Bash(git diff:*)",
+      "Bash(git ls-tree:*)",
+      "WebFetch(domain:www.npmjs.com)",
+      "Bash(npm view:*)"
     ],
     "deny": [],
     "ask": [],

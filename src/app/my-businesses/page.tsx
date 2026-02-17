@@ -38,7 +38,9 @@ interface OwnerListingsFetchResult {
 const FONT_STACK = "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif";
 const LISTINGS_REQUEST_TIMEOUT_MS = 7000;
 const OWNER_DATA_REQUEST_TIMEOUT_MS = 7600;
-const LOADING_WATCHDOG_TIMEOUT_MS = 8000;
+// Watchdog needs to account for two sequential API calls (owner data + listings)
+// Max theoretical time: 7.6s + 7.6s = 15.2s, so set to 18s with buffer
+const LOADING_WATCHDOG_TIMEOUT_MS = 18000;
 
 function withTimeout<T>(promise: Promise<T>, timeoutMs: number, timeoutMessage: string): Promise<T> {
   let timeoutId: ReturnType<typeof setTimeout> | undefined;
@@ -189,6 +191,9 @@ export default function MyBusinessesPage() {
       if (isFetchingRef.current && !showLoading) {
         return;
       }
+      
+      // Track if we already set loading to false to prevent race conditions
+      let loadingCleared = false;
       isFetchingRef.current = true;
       fetchCallCountRef.current += 1;
       if (process.env.NODE_ENV !== "production") {
@@ -225,7 +230,10 @@ export default function MyBusinessesPage() {
         setError("Couldn't load businesses. Please try again.");
       } finally {
         isFetchingRef.current = false;
-        if (showLoading) setIsLoading(false);
+        if (showLoading && !loadingCleared) {
+          setIsLoading(false);
+          loadingCleared = true;
+        }
       }
     },
     [fetchOwnerListings],

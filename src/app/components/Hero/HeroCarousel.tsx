@@ -10,7 +10,6 @@ import Link from "next/link";
 import type { FilterState } from "../FilterModal/FilterModal";
 import HeroSkeleton from "./HeroSkeleton";
 import MobileHeroSkeleton from "./MobileHeroSkeleton";
-import HeroFallback from "./HeroFallback";
 import { useAuth } from '../../contexts/AuthContext';
 
 interface HeroSlide {
@@ -274,13 +273,10 @@ const HERO_IMAGES: string[] = [
   "/hero/zoe-reeve-xjJd9fu9OkM-unsplash.jpg",
 ];
 
-interface HeroCarouselProps {
-  onReady?: () => void;
-}
-
-export default function HeroCarousel({ onReady }: HeroCarouselProps) {
+export default function HeroCarousel() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
+  const [isHeroReady, setIsHeroReady] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [textIndex, setTextIndex] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -315,10 +311,6 @@ export default function HeroCarousel({ onReady }: HeroCarouselProps) {
   const slides = useMemo(() => buildSlides(cappedHeroImages, heroSeed), [cappedHeroImages, heroSeed]);
   const slidesRef = useRef<HeroSlide[]>(slides);
   const preloadedImagesRef = useRef<Set<string>>(new Set());
-
-  useEffect(() => {
-    onReady?.();
-  }, [onReady]);
 
   useEffect(() => {
     if (typeof window === "undefined" || !window.matchMedia) return;
@@ -365,6 +357,13 @@ export default function HeroCarousel({ onReady }: HeroCarouselProps) {
       currentIndexRef.current = 0;
     }
   }, [currentIndex, slides.length]);
+
+  // Mark hero as ready once auth state is known
+  useEffect(() => {
+    if (!authLoading) {
+      setIsHeroReady(true);
+    }
+  }, [authLoading]);
 
   // Preload first hero image for mobile-first LCP optimization
   useEffect(() => {
@@ -675,11 +674,19 @@ export default function HeroCarousel({ onReady }: HeroCarouselProps) {
     closeFilters();
   };
 
-  if (slides.length === 0) {
-    console.error("[HeroCarousel] No slides available. Rendering fallback hero.");
+  // Show skeleton while auth is loading
+  if (!isHeroReady) {
     return (
       <div suppressHydrationWarning>
-        <HeroFallback onReady={onReady} />
+        {heroViewport === "mobile" ? <MobileHeroSkeleton /> : <HeroSkeleton />}
+      </div>
+    );
+  }
+
+  if (slides.length === 0) {
+    return (
+      <div suppressHydrationWarning>
+        {heroViewport === "mobile" ? <MobileHeroSkeleton /> : <HeroSkeleton />}
       </div>
     );
   }
@@ -909,7 +916,7 @@ export default function HeroCarousel({ onReady }: HeroCarouselProps) {
             >
               {!user ? (
                 <Link
-                  href="/onboarding"
+                  href="/login"
                   className="mi-tap group relative inline-flex items-center justify-center rounded-full min-h-[48px] py-3 px-10 sm:px-12 text-base font-semibold text-white text-center bg-gradient-to-r from-coral to-coral/80 hover:from-sage hover:to-sage transition-all duration-300 shadow-lg hover:shadow-xl focus:outline-none focus-visible:ring-4 focus-visible:ring-sage/30 focus-visible:ring-offset-2 w-full max-w-[320px] sm:w-auto sm:min-w-[180px]"
                   style={{
                     fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',

@@ -3,6 +3,16 @@ import { getServerSupabase } from '@/app/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
+type ProfileRoleRow = {
+  role?: string | null;
+  account_role?: string | null;
+};
+
+function isBusinessOwnerRole(profile: ProfileRoleRow | null): boolean {
+  const role = String(profile?.account_role ?? profile?.role ?? '').toLowerCase().trim();
+  return role === 'business_owner';
+}
+
 /**
  * GET /api/notifications
  * Fetch notifications for the authenticated user
@@ -13,6 +23,8 @@ export const dynamic = 'force-dynamic';
  *   - offset: number - offset for pagination (default: 0)
  */
 export async function GET(req: NextRequest) {
+  const endpoint = '/api/notifications';
+
   try {
     const supabase = await getServerSupabase(req);
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -21,6 +33,33 @@ export async function GET(req: NextRequest) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
+      );
+    }
+
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('role, account_role')
+      .eq('user_id', user.id)
+      .maybeSingle<ProfileRoleRow>();
+
+    if (profileError) {
+      console.error('[NotificationsAPI] Profile lookup failed', {
+        endpoint,
+        status: 500,
+        errorCode: profileError.code ?? null,
+        errorMessage: profileError.message,
+        hasSession: true,
+      });
+      return NextResponse.json(
+        { error: 'Failed to validate notification scope' },
+        { status: 500 }
+      );
+    }
+
+    if (isBusinessOwnerRole(profile)) {
+      return NextResponse.json(
+        { error: 'Business account should use /api/notifications/business' },
+        { status: 403 }
       );
     }
 

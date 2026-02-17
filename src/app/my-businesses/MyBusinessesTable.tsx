@@ -17,15 +17,34 @@ const FONT_STACK = "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans
 
 function getDisplayImage(business: Business): { src: string; isPlaceholder: boolean } {
   const raw = business as any;
+  
+  // Priority 1: Check business_images array with is_primary flag (most explicit)
+  if (raw.business_images && Array.isArray(raw.business_images) && raw.business_images.length > 0) {
+    // First try to find image explicitly marked as primary
+    const primaryImage = raw.business_images.find((img: any) => img?.is_primary === true);
+    const imageUrl = primaryImage?.url || raw.business_images[0]?.url;
+    
+    if (imageUrl && typeof imageUrl === "string" && !isPlaceholderImage(imageUrl)) {
+      return { src: imageUrl, isPlaceholder: false };
+    }
+  }
+  
+  // Priority 2: Check uploaded_images array (backward compatibility, pre-sorted by is_primary DESC)
   if (raw.uploaded_images?.[0] && typeof raw.uploaded_images[0] === "string" && !isPlaceholderImage(raw.uploaded_images[0])) {
     return { src: raw.uploaded_images[0], isPlaceholder: false };
   }
+  
+  // Priority 3: Check image_url
   if (business.image_url && !isPlaceholderImage(business.image_url)) {
     return { src: business.image_url, isPlaceholder: false };
   }
+  
+  // Priority 4: Check legacy image field
   if (business.image && !isPlaceholderImage(business.image)) {
     return { src: business.image, isPlaceholder: false };
   }
+  
+  // Priority 5: Canonical subcategory placeholder
   const slug = getCategorySlugFromBusiness(business);
   const placeholder = getSubcategoryPlaceholderFromCandidates([
     raw.sub_interest_id,

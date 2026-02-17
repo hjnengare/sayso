@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSupabase } from '../../../../lib/supabase/server';
+import {
+  applyAnonymousCookie,
+  resolveAnonymousId,
+} from '../../../../lib/utils/anonymousReviews';
 
 export const dynamic = 'force-dynamic';
 
 /**
  * POST /api/businesses/[id]/views
- * Record a profile view (authenticated, deduplicated per day, skips owner)
+ * Record a profile view (deduplicated per day, skips owner)
  */
 export async function POST(
   req: NextRequest,
@@ -22,41 +26,77 @@ export async function POST(
     }
 
     const supabase = await getServerSupabase();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-    // Silently skip for unauthenticated users
-    if (authError || !user) {
-      return NextResponse.json({ recorded: false }, { status: 200 });
-    }
-
-    // Check if viewer is the business owner (skip recording)
+    // Look up owner first so we can skip owner self-views.
     const { data: business } = await supabase
       .from('businesses')
       .select('owner_id')
       .eq('id', businessId)
       .single();
 
-    if (business?.owner_id === user.id) {
+    // If business lookup fails, do not fail page load.
+    if (!business) {
       return NextResponse.json({ recorded: false }, { status: 200 });
     }
 
-    // Insert view (ON CONFLICT DO NOTHING handles daily dedup)
-    const { error: insertError } = await supabase
-      .from('business_profile_views')
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    // Authenticated viewer path.
+    if (!authError && user) {
+      if (business.owner_id === user.id) {
+        return NextResponse.json({ recorded: false }, { status: 200 });
+      }
+
+      const { error: insertError } = await supabase
+        .from('business_profile_views')
+        .insert({
+          business_id: businessId,
+          viewer_id: user.id,
+        });
+
+      // 23505 = unique_violation (already viewed today) - not an error.
+      if (insertError && insertError.code !== '23505') {
+        console.error('Error recording authenticated profile view:', insertError);
+        return NextResponse.json({ recorded: false }, { status: 200 });
+      }
+
+      return NextResponse.json(
+        { recorded: !insertError },
+        { status: 200 }
+      );
+    }
+
+    // Guest viewer path (deduped by anonymous_id + day).
+    const { anonymousId, setCookie } = resolveAnonymousId(req);
+    const { error: guestInsertError } = await supabase
+      .from('business_profile_guest_views')
       .insert({
         business_id: businessId,
-        viewer_id: user.id,
+        anonymous_id: anonymousId,
       });
 
-    // 23505 = unique_violation (already viewed today) — not an error
-    if (insertError && insertError.code !== '23505') {
-      console.error('Error recording profile view:', insertError);
-      return NextResponse.json({ recorded: false }, { status: 200 });
+    if (guestInsertError && guestInsertError.code !== '23505') {
+      console.error('Error recording guest profile view:', guestInsertError);
+      const errorResponse = NextResponse.json({ recorded: false }, { status: 200 });
+      if (setCookie) {
+        applyAnonymousCookie(errorResponse, anonymousId);
+      }
+      return errorResponse;
     }
 
-    return NextResponse.json({ recorded: true }, { status: 200 });
+    const response = NextResponse.json(
+      { recorded: !guestInsertError },
+      { status: 200 }
+    );
+    if (setCookie) {
+      applyAnonymousCookie(response, anonymousId);
+    }
+    return response;
   } catch (error) {
-    // Fire-and-forget — never fail the page load
+    // Fire-and-forget: never fail the page load.
     console.error('Error in record view API:', error);
     return NextResponse.json({ recorded: false }, { status: 200 });
   }
@@ -82,13 +122,16 @@ export async function GET(
     }
 
     const supabase = await getServerSupabase();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Verify caller owns the business
+    // Verify caller owns the business.
     const { data: business } = await supabase
       .from('businesses')
       .select('owner_id')
@@ -99,24 +142,38 @@ export async function GET(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // Parse days param (default 30)
+    // Parse days param (default 30).
     const { searchParams } = new URL(req.url);
     const days = parseInt(searchParams.get('days') || '30', 10);
     const sinceDate = new Date();
     sinceDate.setDate(sinceDate.getDate() - days);
+    const since = sinceDate.toISOString().split('T')[0];
 
-    const { count, error: countError } = await supabase
-      .from('business_profile_views')
-      .select('*', { count: 'exact', head: true })
-      .eq('business_id', businessId)
-      .gte('viewed_at', sinceDate.toISOString().split('T')[0]);
+    const [authViewsResult, guestViewsResult] = await Promise.all([
+      supabase
+        .from('business_profile_views')
+        .select('*', { count: 'exact', head: true })
+        .eq('business_id', businessId)
+        .gte('viewed_at', since),
+      supabase
+        .from('business_profile_guest_views')
+        .select('*', { count: 'exact', head: true })
+        .eq('business_id', businessId)
+        .gte('viewed_at', since),
+    ]);
 
-    if (countError) {
-      console.error('Error fetching view count:', countError);
+    if (authViewsResult.error) {
+      console.error('Error fetching authenticated view count:', authViewsResult.error);
       return NextResponse.json({ error: 'Failed to fetch view count' }, { status: 500 });
     }
 
-    return NextResponse.json({ count: count || 0 });
+    if (guestViewsResult.error) {
+      console.error('Error fetching guest view count:', guestViewsResult.error);
+      return NextResponse.json({ error: 'Failed to fetch view count' }, { status: 500 });
+    }
+
+    const totalCount = (authViewsResult.count || 0) + (guestViewsResult.count || 0);
+    return NextResponse.json({ count: totalCount });
   } catch (error) {
     console.error('Error in get views API:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

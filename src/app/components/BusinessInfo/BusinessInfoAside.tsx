@@ -15,6 +15,11 @@ const sectionTitleStyle: CSSProperties = {
   fontFamily: '"Urbanist", system-ui, sans-serif',
 };
 
+const formatPriceRangeDisplay = (priceRange?: string | null): string => {
+  if (!priceRange) return "";
+  return priceRange.includes("$") ? priceRange.replace(/\$/g, "R") : priceRange;
+};
+
 export default function BusinessInfoAside({ businessInfo, className = "", stacked = false }: BusinessInfoAsideProps) {
   const infoRows: Array<{
     icon: ReactNode;
@@ -108,7 +113,7 @@ export default function BusinessInfoAside({ businessInfo, className = "", stacke
     {
       icon: <DollarSign size={20} className="flex-shrink-0 text-navbar-bg" />,
       label: "Price Range",
-      value: businessInfo.price_range,
+      value: formatPriceRangeDisplay(businessInfo.price_range),
     },
   ];
 

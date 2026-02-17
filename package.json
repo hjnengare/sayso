@@ -37,6 +37,7 @@
     "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.75.0",
+    "@tremor/react": "^4.0.0-beta-tremor-v4.4",
     "@types/mapbox-gl": "^3.4.1",
     "canvas-confetti": "^1.9.3",
     "clsx": "^2.1.1",

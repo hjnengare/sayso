@@ -61,7 +61,7 @@ export default function NotificationsPage() {
       setIsBusinessLoading(true);
 
       try {
-        const response = await fetch('/api/business/notifications', {
+        const response = await fetch('/api/notifications/business', {
           method: 'GET',
           cache: 'no-store',
         });
@@ -69,7 +69,7 @@ export default function NotificationsPage() {
         if (!response.ok) {
           const errorBody = await response.json().catch(() => null);
           console.error('[BusinessNotificationsPage] Failed to fetch business notifications', {
-            endpoint: '/api/business/notifications',
+            endpoint: '/api/notifications/business',
             status: response.status,
             errorMessage: errorBody?.error || response.statusText,
             hasSession: !!user,
@@ -116,7 +116,7 @@ export default function NotificationsPage() {
         }
       } catch (error) {
         console.error('[BusinessNotificationsPage] Error fetching business notifications', {
-          endpoint: '/api/business/notifications',
+          endpoint: '/api/notifications/business',
           errorMessage: error instanceof Error ? error.message : String(error),
           hasSession: !!user,
         });
