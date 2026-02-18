@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Loader2, Store, Eye } from "lucide-react";
+import { Loader2, Store, Eye, ChevronLeft } from "lucide-react";
 
 const FONT = "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif";
 
@@ -65,10 +65,11 @@ export default function AdminPendingBusinessesPage() {
         </div>
         <Link
           href="/admin"
-          className="text-sm font-medium text-charcoal/70 hover:text-charcoal"
+          className="text-sm font-medium text-charcoal/70 hover:text-charcoal flex items-center gap-1.5"
           style={{ fontFamily: FONT }}
         >
-          ← Back to Admin
+          <ChevronLeft className="w-4 h-4" />
+          Back to Admin
         </Link>
       </div>
 

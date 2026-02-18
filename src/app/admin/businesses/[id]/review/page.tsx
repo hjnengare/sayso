@@ -12,6 +12,7 @@ import {
   AlertTriangle,
   FileText,
   RefreshCw,
+  ChevronLeft,
 } from "lucide-react";
 
 const FONT = "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif";
@@ -70,9 +71,10 @@ function ReviewSkeleton() {
         </div>
         <Link
           href="/admin/pending-businesses"
-          className="text-sm font-medium text-charcoal/70 hover:text-charcoal"
+          className="text-sm font-medium text-charcoal/70 hover:text-charcoal flex items-center gap-1.5"
         >
-          ← Back to Pending
+          <ChevronLeft className="w-4 h-4" />
+          Back to Pending
         </Link>
       </div>
 
@@ -308,9 +310,10 @@ export default function AdminBusinessReviewPage() {
           <h1 className="text-xl font-bold text-charcoal">Review Business</h1>
           <Link
             href="/admin/pending-businesses"
-            className="text-sm font-medium text-charcoal/70 hover:text-charcoal"
+            className="text-sm font-medium text-charcoal/70 hover:text-charcoal flex items-center gap-1.5"
           >
-            ← Back to Pending
+            <ChevronLeft className="w-4 h-4" />
+            Back to Pending
           </Link>
         </div>
         <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center">
@@ -337,9 +340,10 @@ export default function AdminBusinessReviewPage() {
           <h1 className="text-xl font-bold text-charcoal">Review Business</h1>
           <Link
             href="/admin/pending-businesses"
-            className="text-sm font-medium text-charcoal/70 hover:text-charcoal"
+            className="text-sm font-medium text-charcoal/70 hover:text-charcoal flex items-center gap-1.5"
           >
-            ← Back to Pending
+            <ChevronLeft className="w-4 h-4" />
+            Back to Pending
           </Link>
         </div>
         <div className="rounded-lg border border-charcoal/15 bg-off-white/50 p-6 text-center">
@@ -381,10 +385,11 @@ export default function AdminBusinessReviewPage() {
         </div>
         <Link
           href="/admin/pending-businesses"
-          className="text-sm font-medium text-charcoal/70 hover:text-charcoal"
+          className="text-sm font-medium text-charcoal/70 hover:text-charcoal flex items-center gap-1.5"
           style={{ fontFamily: FONT }}
         >
-          ← Back to Pending
+          <ChevronLeft className="w-4 h-4" />
+          Back to Pending
         </Link>
       </div>
 

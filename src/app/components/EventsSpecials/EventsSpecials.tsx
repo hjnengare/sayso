@@ -7,8 +7,28 @@ import EventCard from "../EventCard/EventCard";
 import EventCardSkeleton from "../EventCard/EventCardSkeleton";
 import type { Event } from "../../lib/types/Event";
 import ScrollableSection from "../ScrollableSection/ScrollableSection";
-import WavyTypedTitle from "../../../components/Animations/WavyTypedTitle";
+import { motion } from "framer-motion";
 import { useMemo } from "react";
+import { useIsDesktop } from "../../hooks/useIsDesktop";
+
+// Animation variants for staggered card appearance (matching badge page)
+const containerVariants = {
+  hidden: { opacity: 1 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.08, delayChildren: 0.1 },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20, filter: "blur(4px)" },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const },
+  },
+};
 
 export default function EventsSpecials({
   title = "Events & Specials",
@@ -33,6 +53,7 @@ export default function EventsSpecials({
   premiumCtaHover?: boolean;
 }) {
   const router = useRouter();
+  const isDesktop = useIsDesktop();
 
   // Only block on parent loading; the feed is unified server-side.
   const showSkeleton = loading;
@@ -90,21 +111,19 @@ export default function EventsSpecials({
     >
       <div className="mx-auto w-full max-w-[2000px] relative z-10 px-2">
         <div className="pb-4 sm:pb-8 md:pb-10 flex flex-wrap items-center justify-between gap-2">
-          <WavyTypedTitle
-            text={title}
-            as="h2"
-            className={`font-urbanist text-h2 sm:text-h1 font-${titleFontWeight} text-charcoal hover:text-sage transition-all duration-300 px-3 sm:px-4 py-1 hover:bg-card-bg/5 rounded-lg cursor-default`}
-            typingSpeedMs={40}
-            startDelayMs={300}
-            waveVariant="subtle"
-            loopWave={true}
-            enableScrollTrigger={true}
-            disableWave={true}
+          <motion.h2
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="font-urbanist text-2xl sm:text-3xl md:text-4xl font-bold text-charcoal hover:text-sage transition-all duration-300 px-3 sm:px-4 py-1 hover:bg-card-bg/5 rounded-lg cursor-default"
             style={{
               fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
               fontWeight: titleFontWeight,
             }}
-          />
+          >
+            {title}
+          </motion.h2>
 
           <button
             onClick={() => router.push(href)}
@@ -138,14 +157,36 @@ export default function EventsSpecials({
         {hasEvents ? (
           <div className="pt-2">
             <ScrollableSection showArrows={true} className="items-stretch py-2">
-              {displayEvents.map((event, index) => (
-                <div
-                  key={event.id ?? `event-${index}`}
-                  className="snap-start snap-always flex-shrink-0 w-[100vw] sm:w-auto min-w-[clamp(220px,18vw,320px)] list-none flex justify-center"
+              {isDesktop ? (
+                <motion.div
+                  variants={containerVariants}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, margin: "-50px" }}
+                  className="flex gap-3 items-stretch"
                 >
-                  <EventCard event={event} index={index} />
-                </div>
-              ))}
+                  {displayEvents.map((event, index) => (
+                    <motion.div
+                      key={event.id ?? `event-${index}`}
+                      variants={itemVariants}
+                      className="snap-start snap-always flex-shrink-0 w-[100vw] sm:w-auto min-w-[clamp(220px,18vw,320px)] list-none flex justify-center"
+                    >
+                      <EventCard event={event} index={index} />
+                    </motion.div>
+                  ))}
+                </motion.div>
+              ) : (
+                <>
+                  {displayEvents.map((event, index) => (
+                    <div
+                      key={event.id ?? `event-${index}`}
+                      className="snap-start snap-always flex-shrink-0 w-[100vw] sm:w-auto min-w-[clamp(220px,18vw,320px)] list-none flex justify-center"
+                    >
+                      <EventCard event={event} index={index} />
+                    </div>
+                  ))}
+                </>
+              )}
             </ScrollableSection>
           </div>
         ) : (

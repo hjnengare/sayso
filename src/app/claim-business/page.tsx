@@ -301,13 +301,23 @@ function ClaimBusinessPageContent() {
   };
 
   return (
-    <div className="min-h-dvh bg-off-white">
+    <div className="min-h-dvh bg-off-white relative">
+      {/* Background Gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5 pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)] pointer-events-none" />
+      
       {/* Header */}
 
-      <main className="">
-        <div className="mx-auto w-full max-w-[2000px] px-2">
+      <main className="relative">
+        {/* Background Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5 pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)] pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)] pointer-events-none" />
+        
+        <div className="mx-auto w-full max-w-[2000px] px-2 relative z-10">
           {/* Breadcrumb Navigation */}
-          <nav className="py-1" aria-label="Breadcrumb">
+          <nav className="pb-1" aria-label="Breadcrumb">
             <ol className="flex items-center gap-2 text-sm sm:text-base">
               <li>
                 <Link href={previousHref} className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>

@@ -4,7 +4,7 @@ import nextDynamic from "next/dynamic";
 import Link from "next/link";
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronRight, ChevronUp, Store } from "lucide-react";
+import { ChevronRight, ChevronLeft, ChevronUp, Store } from "lucide-react";
 import Pagination from "../components/EventsPage/Pagination";
 import EmailVerificationGuard from "../components/Auth/EmailVerificationGuard";
 import { useSavedItems } from "../contexts/SavedItemsContext";
@@ -213,8 +213,12 @@ export default function SavedPage() {
           fontFamily: '"Urbanist", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
         }}
       >
+        {/* Background Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)]" />
 
-        <main className="flex-1 relative">
+        <main className="flex-1 relative z-10">
           <div className="pb-12 sm:pb-16 md:pb-20">
             <motion.div
               className="mx-auto w-full max-w-[2000px] px-3 relative mb-4"
@@ -223,31 +227,19 @@ export default function SavedPage() {
               transition={{ duration: 0.3 }}
             >
               {/* Breadcrumb Navigation */}
-              <nav className="py-1" aria-label="Breadcrumb">
+              <nav className="pb-1" aria-label="Breadcrumb">
                 <ol className="flex items-center gap-2 text-sm sm:text-base">
                   <li>
                     <Link
                       href="/home"
-                      className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium"
+                      className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium flex items-center gap-1.5"
                       style={{
                         fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                       }}
                     >
-                      Home
+                      <ChevronLeft className="w-4 h-4" />
+                      Back to Home
                     </Link>
-                  </li>
-                  <li className="flex items-center">
-                    <ChevronRight className="w-4 h-4 text-charcoal/60" />
-                  </li>
-                  <li>
-                    <span
-                      className="text-charcoal font-semibold"
-                      style={{
-                        fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-                      }}
-                    >
-                      Saved
-                    </span>
                   </li>
                 </ol>
               </nav>
@@ -291,9 +283,10 @@ export default function SavedPage() {
                     transition={{ duration: 0.4, delay: 0.1 }}
                   >
                     <h1
-                      className="text-h2 sm:text-h1 font-bold text-charcoal"
+                      className="text-2xl sm:text-3xl md:text-4xl font-bold text-charcoal"
                       style={{
                         fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                        fontWeight: 800,
                       }}
                     >
                       Your Saved Gems

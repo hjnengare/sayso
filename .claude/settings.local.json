@@ -77,12 +77,17 @@
       "Bash(git diff:*)",
       "Bash(git ls-tree:*)",
       "WebFetch(domain:www.npmjs.com)",
-      "Bash(npm view:*)"
+      "Bash(npm view:*)",
+      "Bash(git log:*)"
     ],
     "deny": [],
     "ask": [],
     "additionalDirectories": [
       "c:\\Users\\HilarioNengare\\Projects\\KLIO"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "playwright-test"
+  ],
+  "enableAllProjectMcpServers": true
 }

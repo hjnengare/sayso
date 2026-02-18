@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useMemo } from "react";
-import { ArrowLeft, Briefcase, Image as ImageIcon, ThumbsUp, FileText, Star, ChevronRight, TrendingUp } from "lucide-react";
+import { ArrowLeft, Briefcase, Image as ImageIcon, ThumbsUp, FileText, Star, ChevronRight, ChevronLeft, TrendingUp } from "lucide-react";
 import VerifiedBadge from "../../components/VerifiedBadge/VerifiedBadge";
 
 // Mock reviews data - in production this would come from API
@@ -218,11 +218,10 @@ export default function GeneralReviewsPage() {
 
   return (
     <div className="min-h-screen  bg-off-white   relative overflow-hidden">
-      {/* Premium background elements */}
-      <div className="absolute inset-0 opacity-30 pointer-events-none">
-        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-gradient-to-br from-sage/8 via-sage/4 to-transparent rounded-full blur-lg" />
-        <div className="absolute bottom-1/3 left-1/4 w-80 h-80 bg-gradient-to-br from-coral/6 via-coral/3 to-transparent rounded-full blur-lg" />
-      </div>
+      {/* Background Gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)]" />
 
       {/* Premium Header */}
       <motion.header
@@ -257,20 +256,13 @@ export default function GeneralReviewsPage() {
 
       <div className="mx-auto w-full max-w-[2000px] px-2 pt-20 sm:pt-24 py-6 sm:py-8 relative z-10">
         {/* Breadcrumb Navigation */}
-        <nav className="py-1" aria-label="Breadcrumb">
+        <nav className="pb-1" aria-label="Breadcrumb">
           <ol className="flex items-center gap-2 text-sm sm:text-base">
             <li>
-              <Link href="/home" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                Home
+              <Link href="/home" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium flex items-center gap-1.5" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                <ChevronLeft className="w-4 h-4" />
+                Back to Home
               </Link>
-            </li>
-            <li className="flex items-center">
-              <ChevronRight className="w-4 h-4 text-charcoal/60" />
-            </li>
-            <li>
-              <span className="text-charcoal font-semibold" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                Discover Reviews
-              </span>
             </li>
           </ol>
         </nav>

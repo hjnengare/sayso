@@ -19,7 +19,7 @@ export default function EventInfo({ event, sharedTitleLayoutId }: EventInfoProps
     >
       <motion.h1
         layoutId={sharedTitleLayoutId}
-        className="text-h1 font-semibold text-charcoal mb-3"
+        className="font-urbanist text-2xl sm:text-3xl md:text-4xl font-bold text-charcoal mb-3"
         style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
       >
         {event.title}

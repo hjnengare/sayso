@@ -714,7 +714,7 @@ export default function HeroCarousel() {
       }
     : {
         hidden: {},
-        visible: { transition: { staggerChildren: 0.1, delayChildren: 0.08 } },
+        visible: { transition: { staggerChildren: 0.15, delayChildren: 0.2 } },
       };
   const heroTitleEntranceVariants = prefersReduced
     ? {
@@ -722,12 +722,12 @@ export default function HeroCarousel() {
         visible: { opacity: 1, transition: { duration: 0.22, ease: [0.22, 1, 0.36, 1] as const } },
       }
     : {
-        hidden: { opacity: 0, y: 10, filter: "blur(2px)" },
+        hidden: { opacity: 0, y: 20, filter: "blur(4px)" },
         visible: {
           opacity: 1,
           y: 0,
           filter: "blur(0px)",
-          transition: { duration: 0.32, ease: [0.22, 1, 0.36, 1] as const },
+          transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] as const },
         },
       };
   const heroSubtitleEntranceVariants = prefersReduced
@@ -736,12 +736,12 @@ export default function HeroCarousel() {
         visible: { opacity: 1, transition: { duration: 0.2, ease: [0.22, 1, 0.36, 1] as const } },
       }
     : {
-        hidden: { opacity: 0, y: 8, filter: "blur(1.5px)" },
+        hidden: { opacity: 0, y: 20, filter: "blur(4px)" },
         visible: {
           opacity: 1,
           y: 0,
           filter: "blur(0px)",
-          transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] as const },
+          transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] as const },
         },
       };
   const heroCtaEntranceVariants = prefersReduced
@@ -750,12 +750,12 @@ export default function HeroCarousel() {
         visible: { opacity: 1, transition: { duration: 0.2, ease: [0.22, 1, 0.36, 1] as const } },
       }
     : {
-        hidden: { opacity: 0, y: 6, filter: "blur(1px)" },
+        hidden: { opacity: 0, y: 20, filter: "blur(4px)" },
         visible: {
           opacity: 1,
           y: 0,
           filter: "blur(0px)",
-          transition: { duration: 0.28, ease: [0.22, 1, 0.36, 1] as const },
+          transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] as const },
         },
       };
   const heroTitleSwapMotion = prefersReduced
@@ -858,7 +858,7 @@ export default function HeroCarousel() {
       <div data-testid="hero-text" className="absolute inset-0 z-30 flex items-center justify-center w-full pt-[var(--safe-area-top)] sm:pt-[var(--header-height)] translate-y-0 sm:-translate-y-4 px-6 sm:px-10 pointer-events-none">
           <motion.div
             className="w-full max-w-3xl flex flex-col items-center justify-center text-center pb-12 sm:pb-20"
-            initial={false}
+            initial="hidden"
             animate="visible"
             variants={heroTextStaggerVariants}
           >

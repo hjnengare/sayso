@@ -247,10 +247,11 @@ function CategoryDetailContent() {
             </h1>
             <Link
               href="/home"
-              className="text-sage hover:text-sage/80 font-semibold transition-colors"
+              className="text-sage hover:text-sage/80 font-semibold transition-colors flex items-center gap-1.5"
               style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
             >
-              ← Back to Home
+              <ChevronLeft className="w-4 h-4" />
+              Back to Home
             </Link>
           </div>
         </main>
@@ -260,10 +261,19 @@ function CategoryDetailContent() {
   }
 
   return (
-    <div className="min-h-dvh bg-off-white">
+    <div className="min-h-dvh bg-off-white relative">
+      {/* Background Gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5 pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)] pointer-events-none" />
 
-      <main className="">
-        <div className="mx-auto w-full max-w-[2000px] px-4 sm:px-6">
+      <main className="relative">
+        {/* Background Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5 pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)] pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)] pointer-events-none" />
+        
+        <div className="relative mx-auto w-full max-w-[2000px] px-4 sm:px-6">
           {/* Breadcrumb */}
           <nav className="pt-2" aria-label="Breadcrumb">
             <ol className="flex items-center gap-2 text-sm sm:text-base">
@@ -302,8 +312,8 @@ function CategoryDetailContent() {
               </Link>
               <div className="text-center">
                 <h1 
-                  className={`${urbanist.className} text-2xl sm:text-3xl md:text-4xl font-semibold leading-[1.2] tracking-tight text-charcoal`}
-                  style={{ fontFamily: urbanist.style.fontFamily }}
+                  className={`${urbanist.className} text-2xl sm:text-3xl md:text-4xl font-bold leading-[1.2] tracking-tight text-charcoal`}
+                  style={{ fontFamily: urbanist.style.fontFamily, fontWeight: 800 }}
                 >
                   {category?.name || 'Category'}
                 </h1>

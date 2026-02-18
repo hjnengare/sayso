@@ -4,7 +4,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense, useMemo, useRef } from "react";
 import dynamic from "next/dynamic";
 import { Urbanist } from "next/font/google";
-import { Edit, Star, ChevronUp, Info, ChevronRight } from "lucide-react";
+import { Edit, Star, ChevronUp, Info, ChevronRight, ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import confetti from "canvas-confetti";
 import { motion, AnimatePresence } from "framer-motion";
@@ -520,30 +520,33 @@ function WriteReviewContent() {
           fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif',
         }}
       >
+        {/* Background Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5 pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)] pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)] pointer-events-none" />
+        
         {/* Main Header */}
 
         <div className="bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white">
             <main className="relative font-sf-pro" id="main-content" role="main" aria-label="Write review content">
+              {/* Background Gradient */}
+              <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5 pointer-events-none" />
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)] pointer-events-none" />
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)] pointer-events-none" />
+              
               <div className="mx-auto w-full max-w-[2000px] px-3 relative z-10">
                 {/* Breadcrumb Navigation */}
-                <nav className="py-1" aria-label="Breadcrumb">
+                <nav className="pb-1" aria-label="Breadcrumb">
                   <ol className="flex items-center gap-2 text-sm sm:text-base">
                     <li>
-                      <Link 
+                      <Link
                         href={`/business/${business?.slug || business?.id || businessId}`}
-                        className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium truncate max-w-[200px] sm:max-w-none"
+                        className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium flex items-center gap-1.5 truncate max-w-[200px] sm:max-w-none"
                         style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                       >
-                        {businessName}
+                        <ChevronLeft className="w-4 h-4 flex-shrink-0" />
+                        Back to {businessName}
                       </Link>
-                    </li>
-                    <li className="flex items-center">
-                      <ChevronRight className="w-4 h-4 text-charcoal/60" />
-                    </li>
-                    <li>
-                      <span className="text-charcoal font-semibold" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                        Review
-                      </span>
                     </li>
                   </ol>
                 </nav>
@@ -617,7 +620,7 @@ function WriteReviewContent() {
                             <WavyTypedTitle
                               text="What Others Are Saying"
                               as="h2"
-                              className={`${urbanist.className} text-h3 font-semibold text-charcoal border-b border-charcoal/10 pt-4 pb-2`}
+                              className={`${urbanist.className} text-2xl sm:text-3xl md:text-4xl font-bold text-charcoal border-b border-charcoal/10 pt-4 pb-2`}
                               typingSpeedMs={40}
                               startDelayMs={300}
                               waveVariant="subtle"

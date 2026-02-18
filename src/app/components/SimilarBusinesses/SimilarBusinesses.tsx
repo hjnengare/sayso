@@ -176,14 +176,13 @@ export default function SimilarBusinesses({
             <WavyTypedTitle
               text="You Might Also Like"
               as="h3"
-              className="font-urbanist text-lg sm:text-xl font-700 text-charcoal"
+              className="font-urbanist text-2xl sm:text-3xl md:text-4xl font-bold text-charcoal"
                 typingSpeedMs={40}
                 startDelayMs={300}
                 waveVariant="subtle"
                 loopWave={true}
-                style={{ 
+                style={{
                   fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-                  fontWeight: 700,
                 }}
               />
             </div>
@@ -235,16 +234,15 @@ export default function SimilarBusinesses({
             <WavyTypedTitle
               text="You Might Also Like"
               as="h2"
-              className="font-urbanist text-lg sm:text-xl font-700 text-charcoal"
+              className="font-urbanist text-2xl sm:text-3xl md:text-4xl font-bold text-charcoal"
               typingSpeedMs={40}
               startDelayMs={300}
               waveVariant="subtle"
               loopWave={false}
               triggerOnTypingComplete={false}
               enableScrollTrigger={false}
-              style={{ 
+              style={{
                 fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-                fontWeight: 700,
               }}
             />
           </div>

@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useToast } from "../../../contexts/ToastContext";
 import { PageLoader } from "../../../components/Loader";
@@ -12,14 +13,6 @@ import ReviewForm from "../../../components/ReviewForm/ReviewForm";
 import OptimizedImage from "../../../components/Performance/OptimizedImage";
 import { useReviewForm } from "../../../hooks/useReviewForm";
 import { useDealbreakerQuickTags } from "../../../hooks/useDealbreakerQuickTags";
-
-function IconChevronRight({ className = "" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
-      <path d="m9 18 6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
 
 function IconStar({ className = "" }: { className?: string }) {
   return (
@@ -361,11 +354,21 @@ function WriteReviewContent() {
       className="min-h-dvh bg-off-white relative overflow-x-hidden font-urbanist"
       style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif' }}
     >
-      <div className="bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white">
+      {/* Background Gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5 pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)] pointer-events-none" />
+      
+      <div className="bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white relative z-10">
         <main className="relative" id="main-content" role="main" aria-label="Write review content">
+          {/* Background Gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5 pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)] pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)] pointer-events-none" />
+          
           <div className="mx-auto w-full max-w-[2000px] px-3 relative z-10">
             {/* Breadcrumb */}
-            <nav className="py-1" aria-label="Breadcrumb">
+            <nav className="pb-1" aria-label="Breadcrumb">
               <ol className="flex items-center gap-1 sm:gap-2 text-sm sm:text-base flex-nowrap min-w-0">
                 <li className="shrink-0">
                   <Link
@@ -377,7 +380,7 @@ function WriteReviewContent() {
                   </Link>
                 </li>
                 <li className="flex items-center shrink-0">
-                  <IconChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-charcoal/60" />
+                  <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-charcoal/60" />
                 </li>
                 <li className="min-w-0">
                   <Link
@@ -389,7 +392,7 @@ function WriteReviewContent() {
                   </Link>
                 </li>
                 <li className="flex items-center shrink-0">
-                  <IconChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-charcoal/60" />
+                  <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-charcoal/60" />
                 </li>
                 <li className="shrink-0">
                   <span className="text-charcoal font-semibold">Review</span>
@@ -426,7 +429,7 @@ function WriteReviewContent() {
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <h1 className="text-lg sm:text-xl font-bold text-charcoal mb-1 line-clamp-2">{displayTitle}</h1>
+                        <h1 className="font-urbanist text-lg sm:text-xl font-bold text-charcoal mb-1 line-clamp-2">{displayTitle}</h1>
 
                         {businessName && (
                           <p className="text-charcoal/70 text-sm mb-2">by {businessName}</p>
@@ -470,7 +473,12 @@ function WriteReviewContent() {
                     transition={{ delay: 0.2 }}
                     className="bg-card-bg border-0 sm:border border-white/60 rounded-[12px] shadow-none sm:shadow-lg relative overflow-hidden"
                   >
-                    <div className="p-4 md:p-6">
+                    {/* Background Gradient */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5" />
+                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)]" />
+                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)]" />
+                    
+                    <div className="p-4 md:p-6 relative z-10">
                       {!user && (
                         <div className="mb-4 rounded-lg border border-sage/20 bg-card-bg/5 p-3">
                           <p className="text-sm font-semibold text-charcoal">Posting as Anonymous</p>
@@ -520,7 +528,7 @@ function WriteReviewContent() {
                 {/* Sidebar — context card (desktop only) */}
                 <div className="hidden lg:block space-y-6">
                   <div className="bg-card-bg border border-white/60 rounded-[12px] p-5 shadow-lg sticky top-28">
-                    <h3 className="text-base font-semibold text-charcoal mb-3">
+                    <h3 className="font-urbanist text-base font-bold text-charcoal mb-3">
                       {isEvent ? "About this Event" : "About this Special"}
                     </h3>
                     {displayImage && (

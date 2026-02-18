@@ -430,7 +430,7 @@ export default function Header({
     // Navigate immediately with captured query params
     const params = new URLSearchParams();
     params.set("search", capturedQuery);
-    router.push(`/?${params.toString()}`);
+    router.push(`/home?${params.toString()}`);
   }, [collapseDesktopSearch, headerSearchQuery, router]);
 
   // Handle general search navigation (form submit, enter key)
@@ -445,7 +445,7 @@ export default function Header({
 
     const params = new URLSearchParams();
     params.set("search", q);
-    router.push(`/?${params.toString()}`);
+    router.push(`/home?${params.toString()}`);
   }, [collapseDesktopSearch, headerSearchQuery, router]);
 
   const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {

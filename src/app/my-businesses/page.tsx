@@ -424,10 +424,20 @@ export default function MyBusinessesPage() {
 
   if ((authLoading || isLoading) && !error) {
     return (
-      <div className="min-h-dvh bg-off-white">
-        <main>
-          <div className="mx-auto w-full max-w-[2000px] px-2">
-            <nav className="py-1" aria-label="Breadcrumb">
+      <div className="min-h-dvh bg-off-white relative">
+        {/* Background Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5 pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)] pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)] pointer-events-none" />
+        
+        <main className="relative">
+          {/* Background Gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5 pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)] pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)] pointer-events-none" />
+          
+          <div className="mx-auto w-full max-w-[2000px] px-2 relative z-10">
+            <nav className="pb-1" aria-label="Breadcrumb">
               <SkeletonHeader width="w-1/3" height="h-6" className="mb-2" />
             </nav>
             <div className="mb-8 sm:mb-12 px-2">
@@ -450,9 +460,19 @@ export default function MyBusinessesPage() {
 
   if (error) {
     return (
-      <div className="min-h-dvh bg-off-white">
-        <main>
-          <div className="mx-auto w-full max-w-[2000px] px-4 sm:px-6 lg:px-8">
+      <div className="min-h-dvh bg-off-white relative">
+        {/* Background Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5 pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)] pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)] pointer-events-none" />
+        
+        <main className="relative">
+          {/* Background Gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5 pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)] pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)] pointer-events-none" />
+          
+          <div className="mx-auto w-full max-w-[2000px] px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="max-w-4xl mx-auto text-center py-12">
               <p className="text-charcoal/70">{error}</p>
               <button
@@ -470,10 +490,20 @@ export default function MyBusinessesPage() {
   }
 
   return (
-    <div className="min-h-dvh bg-off-white">
+    <div className="min-h-dvh bg-off-white relative">
+      {/* Background Gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5 pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)] pointer-events-none" />
+      
       <div className="bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white">
-        <main>
-          <div className="mx-auto w-full max-w-[2000px] px-2">
+        <main className="relative">
+          {/* Background Gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5 pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)] pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)] pointer-events-none" />
+          
+          <div className="mx-auto w-full max-w-[2000px] px-2 relative z-10">
             {(!businesses || businesses.length === 0) && (!ownerListings || ownerListings.length === 0) && (
               <div className="relative z-10 min-h-[calc(100vh-200px)] flex items-center justify-center">
                 <div className="mx-auto w-full max-w-[2000px] px-2 font-urbanist">
@@ -539,7 +569,7 @@ export default function MyBusinessesPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.1 }}
                 >
-                  <h1 className="text-h2 sm:text-h1 font-bold text-charcoal" style={{ fontFamily: FONT_STACK }}>
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-charcoal" style={{ fontFamily: FONT_STACK, fontWeight: 800 }}>
                     {businesses && businesses.length > 0 ? "My Businesses" : "My Events & Specials"}
                   </h1>
                   <p className="text-body-sm text-charcoal/60 mt-2" style={{ fontFamily: FONT_STACK }}>

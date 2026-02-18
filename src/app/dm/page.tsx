@@ -10,6 +10,7 @@ import {
   Check,
   Send,
   ChevronRight,
+  ChevronLeft,
   Search,
   MoreVertical,
 } from "lucide-react";
@@ -389,11 +390,16 @@ export default function DMPage() {
   }, [conversationParam, chats]);
 
   return (
-    <div className="min-h-dvh bg-off-white flex flex-col overflow-hidden" style={{ fontFamily: "'Urbanist', system-ui, sans-serif" }}>
-      <div className="flex-shrink-0">
+    <div className="min-h-dvh bg-off-white flex flex-col overflow-hidden relative" style={{ fontFamily: "'Urbanist', system-ui, sans-serif" }}>
+      {/* Background Gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)]" />
+      
+      <div className="flex-shrink-0 relative z-10">
       </div>
 
-      <div className="flex-1 flex overflow-hidden min-h-0 pt-16 sm:pt-20 md:pt-20">
+      <div className="flex-1 flex overflow-hidden min-h-0 pt-16 sm:pt-20 md:pt-20 relative z-10">
         {/* LEFT: Conversation list */}
         <div className="w-full md:w-[400px] lg:w-[480px] flex flex-col bg-off-white md:border-r border-white/60 overflow-hidden min-h-0">
           {/* Header */}
@@ -401,15 +407,10 @@ export default function DMPage() {
             <nav className="mb-4" aria-label="Breadcrumb">
               <ol className="flex items-center gap-2 text-sm">
                 <li>
-                  <Link href="/home" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium">
-                    Home
+                  <Link href="/home" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium flex items-center gap-1.5">
+                    <ChevronLeft className="w-4 h-4" />
+                    Back to Home
                   </Link>
-                </li>
-                <li className="flex items-center">
-                  <ChevronRight className="w-4 h-4 text-charcoal/60" />
-                </li>
-                <li>
-                  <span className="text-charcoal font-semibold">Messages</span>
                 </li>
               </ol>
             </nav>

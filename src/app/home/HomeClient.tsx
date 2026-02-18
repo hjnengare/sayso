@@ -543,7 +543,7 @@ export default function HomeClient() {
 
   return (
     <>
-      <div className="min-h-dvh flex flex-col">
+      <div suppressHydrationWarning className="min-h-dvh flex flex-col bg-off-white">
         {/* Hero Carousel - Hidden smoothly when search is active */}
         <AnimatePresence mode="wait">
           {!isSearchActive && (
@@ -564,10 +564,15 @@ export default function HomeClient() {
         </AnimatePresence>
 
         <main 
-          className={`bg-off-white relative min-h-dvh transition-[padding] duration-300 ease-out ${isSearchActive ? 'pt-4' : 'pt-8 sm:pt-10 md:pt-12'}`} 
+          suppressHydrationWarning
+          className={`relative min-h-dvh transition-[padding] duration-300 ease-out ${isSearchActive ? 'pt-2' : 'pt-2'}`} 
           style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
         >
-          <div ref={contentRef} className="mx-auto w-full max-w-[2000px]">
+          {/* Background Gradient Overlays */}
+          <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)]" />
+          <div suppressHydrationWarning ref={contentRef} className="relative mx-auto w-full max-w-[2000px]">
             <AnimatePresence mode="wait">
               {isSearchActive ? (
                 /* Search Results Mode */
@@ -607,19 +612,42 @@ export default function HomeClient() {
                         <>
                       {!user ? (
                         /* Not signed in: Show Locked For You Section (teaser only) */
-                        <div className="mx-auto w-full max-w-[2000px] px-2">
+                        <motion.div
+                          initial={isDesktop ? { opacity: 0, y: 40 } : false}
+                          whileInView={isDesktop ? { opacity: 1, y: 0 } : undefined}
+                          viewport={isDesktop ? { once: true } : undefined}
+                          transition={isDesktop ? { duration: 0.6, ease: [0.16, 1, 0.3, 1] } : undefined}
+                          className="mx-auto w-full max-w-[2000px] px-2"
+                        >
                           <div className="relative border border-charcoal/10 bg-off-white rounded-[14px] p-6 sm:p-8 md:p-10 text-center space-y-4 shadow-[0_1px_0_rgba(0,0,0,0.02)]">
-                            <h3 className="text-lg sm:text-xl font-extrabold text-charcoal" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                            <motion.h3
+                              initial={isDesktop ? { opacity: 0, x: -20 } : { opacity: 0, x: -20 }}
+                              whileInView={{ opacity: 1, x: 0 }}
+                              viewport={{ once: true }}
+                              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: isDesktop ? 0.1 : 0 }}
+                              className="text-lg sm:text-xl font-extrabold text-charcoal"
+                              style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                            >
                               For You
-                            </h3>
-                            <p
+                            </motion.h3>
+                            <motion.p
+                              initial={isDesktop ? { opacity: 0, y: 10 } : false}
+                              whileInView={isDesktop ? { opacity: 1, y: 0 } : undefined}
+                              viewport={isDesktop ? { once: true } : undefined}
+                              transition={isDesktop ? { duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.2 } : undefined}
                               className="text-body sm:text-base text-charcoal/60 max-w-[60ch] mx-auto"
                               style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                             >
                               Create an account to unlock personalised recommendations.
-                            </p>
+                            </motion.p>
 
-                            <div className="pt-2 w-full flex flex-col sm:flex-row items-stretch justify-center gap-3">
+                            <motion.div
+                              initial={isDesktop ? { opacity: 0, y: 10 } : false}
+                              whileInView={isDesktop ? { opacity: 1, y: 0 } : undefined}
+                              viewport={isDesktop ? { once: true } : undefined}
+                              transition={isDesktop ? { duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.3 } : undefined}
+                              className="pt-2 w-full flex flex-col sm:flex-row items-stretch justify-center gap-3"
+                            >
                               <Link
                                 href="/register"
                                 className="mi-tap inline-flex items-center justify-center rounded-full min-h-[48px] px-6 py-3 text-body font-semibold text-white bg-gradient-to-r from-coral to-coral/85 hover:opacity-95 transition-all duration-200 shadow-md w-full sm:w-auto sm:min-w-[180px]"
@@ -634,9 +662,9 @@ export default function HomeClient() {
                               >
                                 Sign In
                               </Link>
-                            </div>
+                            </motion.div>
                           </div>
-                        </div>
+                        </motion.div>
                       ) : (
                         /* Regular For You Section (Authenticated Users) */
                         <>

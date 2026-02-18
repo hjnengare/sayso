@@ -415,10 +415,21 @@ export default function ClaimBusinessFormPage() {
   }
 
   return (
-    <div className="min-h-dvh bg-off-white">
-      <main className="mx-auto w-full max-w-[2000px] px-4">
+    <div className="min-h-dvh bg-off-white relative">
+      {/* Background Gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5 pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)] pointer-events-none" />
+      
+      <main className="mx-auto w-full max-w-[2000px] px-4 relative">
+        {/* Background Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5 pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)] pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)] pointer-events-none" />
+        
+        
         {/* Back navigation */}
-        <div className="pt-4 pb-2">
+        <div className="pt-4 pb-2 relative z-10">
           <Link
             href="/claim-business"
             className="inline-flex items-center gap-1.5 text-sm text-charcoal/70 hover:text-charcoal transition-colors"
@@ -429,7 +440,7 @@ export default function ClaimBusinessFormPage() {
           </Link>
         </div>
 
-        <div className="max-w-[640px] mx-auto pb-12">
+        <div className="max-w-[640px] mx-auto pb-12 relative z-10">
           {/* Header */}
           <div className="py-8 text-center">
             <div className="w-14 h-14 bg-card-bg/10 rounded-full flex items-center justify-center mx-auto mb-3 border border-sage/20">

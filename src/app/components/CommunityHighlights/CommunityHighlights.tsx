@@ -9,9 +9,10 @@ import { ArrowRight } from "lucide-react";
 import ReviewerCard from "../ReviewerCard/ReviewerCard";
 import BusinessOfTheMonthCard from "../BusinessCard/BusinessOfTheMonthCard";
 import ScrollableSection from "../ScrollableSection/ScrollableSection";
-import WavyTypedTitle from "../../../components/Animations/WavyTypedTitle";
+import { motion } from "framer-motion";
 import LocationPromptBanner from "../Location/LocationPromptBanner";
 import CommunityHighlightsSkeleton from "./CommunityHighlightsSkeleton";
+import { useIsDesktop } from "../../hooks/useIsDesktop";
 import {
   Review,
   Reviewer,
@@ -57,6 +58,25 @@ const sampleReviewTexts = [
   "Exceptional! From the moment we walked in, everything was perfect. Must visit!"
 ];
 
+// Animation variants for staggered card appearance (matching badge page)
+const containerVariants = {
+  hidden: { opacity: 1 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.08, delayChildren: 0.1 },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20, filter: "blur(4px)" },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const },
+  },
+};
+
 interface CommunityHighlightsProps {
   title?: string;
   reviews?: Review[]; // Made optional - will fetch from API if not provided
@@ -77,6 +97,7 @@ export default function CommunityHighlights({
   variant = "reviews",
 }: CommunityHighlightsProps) {
   const router = useRouter();
+  const isDesktop = useIsDesktop();
   const [reviews, setReviews] = useState<Review[]>(propReviews || []);
   const [topReviewers, setTopReviewers] = useState<Reviewer[]>(propTopReviewers || []);
   const [reviewersMode, setReviewersMode] = useState<'stage1' | 'normal' | null>(null);
@@ -145,34 +166,31 @@ export default function CommunityHighlights({
       <div className="mx-auto w-full max-w-[2000px] relative z-10 px-2">
         {/* Header */}
         <div className="pb-4 sm:pb-8 md:pb-10 flex flex-wrap items-center justify-between gap-2">
-          <WavyTypedTitle
-            text={title}
-            as="h2"
-            className="font-urbanist text-h2 sm:text-h1 font-800 text-charcoal hover:text-sage transition-all duration-300 px-3 sm:px-4 py-1 hover:bg-card-bg/5 rounded-lg cursor-default"
-            typingSpeedMs={40}
-            startDelayMs={300}
-            waveVariant="subtle"
-            loopWave={true}
-            enableScrollTrigger={true}
-            disableWave={true}
+          <motion.h2
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="font-urbanist text-2xl sm:text-3xl md:text-4xl font-bold text-charcoal hover:text-sage transition-all duration-300 px-3 sm:px-4 py-1 hover:bg-card-bg/5 rounded-lg cursor-default"
             style={{ 
               fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
               fontWeight: 800,
             }}
-          />
+          >
+            {title}
+          </motion.h2>
         </div>
 
         {/* Top Reviewers */}
         {hasReviewers && (
           <div className="mt-1">
             <div className="pb-4 sm:pb-8 md:pb-10 flex flex-wrap items-center justify-between gap-2">
-                <h3
-                  className="font-urbanist text-base font-800 text-charcoal transition-all duration-300 px-3 sm:px-4 py-1 rounded-lg cursor-none"
-                  style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 800 }}
-                >
-                  <span className="sm:hidden">{contributorsHeadingMobile}</span>
-                  <span className="hidden sm:inline">{contributorsHeadingDesktop}</span>
-                </h3>
+                <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-gradient-to-r from-sage/20 to-sage/10 border border-sage/30 mb-4">
+                  <span className="text-sm font-semibold text-sage" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
+                    <span className="sm:hidden">{contributorsHeadingMobile}</span>
+                    <span className="hidden sm:inline">{contributorsHeadingDesktop}</span>
+                  </span>
+                </div>
                 <button
                   onClick={() => router.push('/leaderboard?tab=contributors')}
                   className="group inline-flex items-center gap-1 text-body-sm sm:text-caption font-normal text-charcoal transition-colors duration-200 ease-[cubic-bezier(0.25,0.1,0.25,1)] hover:text-sage focus:outline-none px-4 py-2 -mx-2 relative motion-reduce:transition-none"
@@ -226,13 +244,12 @@ export default function CommunityHighlights({
         {!hasReviewers && (
           <div className="mt-1">
             <div className="pb-4 sm:pb-8 md:pb-10 flex flex-wrap items-center justify-between gap-2">
-              <h3
-                className="font-urbanist text-base font-800 text-charcoal transition-all duration-300 px-3 sm:px-4 py-1 rounded-lg cursor-none"
-                style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 800 }}
-              >
-                <span className="sm:hidden">{contributorsHeadingMobile}</span>
-                <span className="hidden sm:inline">{contributorsHeadingDesktop}</span>
-              </h3>
+              <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-gradient-to-r from-sage/20 to-sage/10 border border-sage/30 mb-4">
+                <span className="text-sm font-semibold text-sage" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
+                  <span className="sm:hidden">{contributorsHeadingMobile}</span>
+                  <span className="hidden sm:inline">{contributorsHeadingDesktop}</span>
+                </span>
+              </div>
             </div>
             
             <div className="w-full bg-off-white border border-sage/20 rounded-3xl px-6 py-16 text-center space-y-3">
@@ -367,14 +384,13 @@ export default function CommunityHighlights({
           >
             <LocationPromptBanner hasCoordinateBusinesses={hasCoordinateBusinesses} />
             <div className="mx-auto w-full max-w-[2000px] relative z-10">
-              <div className="pb-4 sm:pb-8 md:pb-10 flex flex-wrap items-center justify-between gap-2">
-                <h3
-                  className="font-urbanist text-base font-800 text-charcoal transition-all duration-300 px-3 sm:px-4 py-1 rounded-lg cursor-default"
-                  style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 800 }}
-                >
-                  <span className="sm:hidden">Featured Businesses</span>
-                  <span className="hidden sm:inline">Featured Businesses of the Month by Category</span>
-                </h3>
+              <div className="pt-12 pb-4 sm:pb-8 md:pb-10 flex flex-wrap items-center justify-between gap-2">
+                <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-gradient-to-r from-sage/20 to-sage/10 border border-sage/30 mb-4">
+                  <span className="text-sm font-semibold text-sage" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
+                    <span className="sm:hidden">Featured Businesses</span>
+                    <span className="hidden sm:inline">Featured Businesses of the Month by Category</span>
+                  </span>
+                </div>
                 <button
                   onClick={() => router.push('/leaderboard?tab=businesses')}
                   className="group inline-flex items-center gap-1 text-body-sm sm:text-caption font-normal text-charcoal transition-colors duration-200 ease-[cubic-bezier(0.25,0.1,0.25,1)] hover:text-sage focus:outline-none px-4 py-2 -mx-2 relative motion-reduce:transition-none"
@@ -398,16 +414,39 @@ export default function CommunityHighlights({
                     }
                   }
                 `}} />
-                <div className="flex gap-3 sm:gap-3 md:gap-3 lg:gap-2 xl:gap-2 2xl:gap-2 items-stretch pt-2 list-none">
-                  {(Array.isArray(businessesOfTheMonth) ? businessesOfTheMonth : []).map((business, index) => (
-                    <div key={business.id} className="snap-start snap-always flex-shrink-0 w-[100vw] sm:w-auto sm:min-w-[25%] md:min-w-[25%] lg:min-w-[20%] xl:min-w-[18%] 2xl:min-w-[16%] list-none flex justify-center business-month-card-full-width">
-                      <BusinessOfTheMonthCard
-                        business={business}
-                        index={index}
-                      />
-                    </div>
-                  ))}
-                </div>
+                {isDesktop ? (
+                  <motion.div
+                    variants={containerVariants}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true, margin: "-50px" }}
+                    className="flex gap-3 sm:gap-3 md:gap-3 lg:gap-2 xl:gap-2 2xl:gap-2 items-stretch pt-2 list-none"
+                  >
+                    {(Array.isArray(businessesOfTheMonth) ? businessesOfTheMonth : []).map((business, index) => (
+                      <motion.div
+                        key={business.id}
+                        variants={itemVariants}
+                        className="snap-start snap-always flex-shrink-0 w-[100vw] sm:w-auto sm:min-w-[25%] md:min-w-[25%] lg:min-w-[20%] xl:min-w-[18%] 2xl:min-w-[16%] list-none flex justify-center business-month-card-full-width"
+                      >
+                        <BusinessOfTheMonthCard
+                          business={business}
+                          index={index}
+                        />
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                ) : (
+                  <div className="flex gap-3 sm:gap-3 md:gap-3 lg:gap-2 xl:gap-2 2xl:gap-2 items-stretch pt-2 list-none">
+                    {(Array.isArray(businessesOfTheMonth) ? businessesOfTheMonth : []).map((business, index) => (
+                      <div key={business.id} className="snap-start snap-always flex-shrink-0 w-[100vw] sm:w-auto sm:min-w-[25%] md:min-w-[25%] lg:min-w-[20%] xl:min-w-[18%] 2xl:min-w-[16%] list-none flex justify-center business-month-card-full-width">
+                        <BusinessOfTheMonthCard
+                          business={business}
+                          index={index}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </ScrollableSection>
             </div>
           </section>
@@ -424,13 +463,12 @@ export default function CommunityHighlights({
           >
             <div className="mx-auto w-full max-w-[2000px] relative z-10">
               <div className="pb-4 sm:pb-8 md:pb-10 flex flex-wrap items-center justify-between gap-2">
-                <h3
-                  className="font-urbanist text-base font-800 text-charcoal transition-all duration-300 px-3 sm:px-4 py-1 rounded-lg cursor-default"
-                  style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 800 }}
-                >
-                  <span className="sm:hidden">Featured</span>
-                  <span className="hidden sm:inline">Featured Businesses</span>
-                </h3>
+                <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-gradient-to-r from-sage/20 to-sage/10 border border-sage/30 mb-4">
+                  <span className="text-sm font-semibold text-sage" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
+                    <span className="sm:hidden">Featured</span>
+                    <span className="hidden sm:inline">Featured Businesses</span>
+                  </span>
+                </div>
               </div>
 
               <div className="w-full bg-off-white border border-sage/20 rounded-3xl px-6 py-16 text-center space-y-3">

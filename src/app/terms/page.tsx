@@ -9,10 +9,15 @@ export default function TermsOfUsePage() {
 
   return (
     <div
-      className="min-h-dvh bg-off-white font-urbanist"
+      className="min-h-dvh bg-off-white font-urbanist relative overflow-hidden"
       style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
     >
-      <div className="mx-auto max-w-3xl px-4 py-8 sm:py-12">
+      {/* Background Gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)]" />
+      
+      <div className="mx-auto max-w-3xl px-4 py-8 sm:py-12 relative z-10">
         <button
           onClick={() => router.back()}
           className="inline-flex items-center gap-2 text-sm text-charcoal/60 hover:text-charcoal transition-colors mb-6"

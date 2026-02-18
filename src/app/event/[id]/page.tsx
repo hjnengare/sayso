@@ -249,7 +249,11 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
         style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
       >
 
-        <div className="bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white">
+        <div className="bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white relative overflow-hidden">
+          {/* Background Gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)]" />
    
             {/* Main Content Section */}
             <section
@@ -262,23 +266,10 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
                 {/* Breadcrumb Navigation */}
                 <nav className="pt-2" aria-label="Breadcrumb">
                   <ol className="flex items-center gap-1 sm:gap-2 text-sm sm:text-base flex-nowrap min-w-0">
-                    <li className="hidden sm:block shrink-0">
-                      <Link href="/home" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium">Home</Link>
-                    </li>
-                    <li className="hidden sm:flex items-center shrink-0">
-                      <ChevronRight className="w-4 h-4 text-charcoal/60" />
-                    </li>
                     <li className="shrink-0">
-                      <Link href="/events" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium whitespace-nowrap">
-                        <span className="sm:hidden">Events</span>
-                        <span className="hidden sm:inline">Events & Specials</span>
+                      <Link href="/events-specials" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium whitespace-nowrap">
+                        ← Back to Events & Specials
                       </Link>
-                    </li>
-                    <li className="flex items-center shrink-0">
-                      <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-charcoal/60" />
-                    </li>
-                    <li className="min-w-0">
-                      <span className="text-charcoal font-semibold block truncate">{event.title}</span>
                     </li>
                   </ol>
                 </nav>

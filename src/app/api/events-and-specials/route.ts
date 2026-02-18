@@ -61,6 +61,11 @@ export async function GET(req: NextRequest) {
 
     const type = typeParam === "event" || typeParam === "special" ? (typeParam as "event" | "special") : null;
 
+    // Search param: applied as ILIKE across title, location, description
+    const searchParam = (searchParams.get("search") || "").trim().slice(0, 200);
+    // Escape ILIKE wildcards in user input so they're treated as literals
+    const ilikePat = searchParam.replace(/%/g, "\\%").replace(/_/g, "\\_");
+
     const supabase = await getServerSupabase(req);
 
     // SAST-aware cutoff: midnight today in UTC+2
@@ -86,6 +91,12 @@ export async function GET(req: NextRequest) {
       query = query.eq("type", type);
     }
 
+    if (ilikePat) {
+      query = query.or(
+        `title.ilike.%${ilikePat}%,location.ilike.%${ilikePat}%,description.ilike.%${ilikePat}%`
+      );
+    }
+
     let data: any[] | null = null;
     let error: any = null;
 
@@ -108,6 +119,12 @@ export async function GET(req: NextRequest) {
 
       if (type) {
         retryQuery = retryQuery.eq("type", type);
+      }
+
+      if (ilikePat) {
+        retryQuery = retryQuery.or(
+          `title.ilike.%${ilikePat}%,location.ilike.%${ilikePat}%,description.ilike.%${ilikePat}%`
+        );
       }
 
       ({ data, error } = await retryQuery);
@@ -232,7 +249,9 @@ export async function GET(req: NextRequest) {
       })
       .sort((a, b) => new Date(a.startDateISO || a.startDate).getTime() - new Date(b.startDateISO || b.startDate).getTime());
 
-    const paged = consolidated.slice(offset, offset + limit);
+    // When a search query is active return all consolidated matches (client handles display).
+    // For normal browsing, apply server-side pagination.
+    const paged = searchParam ? consolidated : consolidated.slice(offset, offset + limit);
 
     const response = NextResponse.json({
       items: paged,

@@ -53,12 +53,17 @@ export default function CityPageClient({
   return (
     <div className="min-h-dvh bg-off-white">
       
-      <main className="pt-20 pb-16 px-4 sm:px-6 md:px-8">
+      <main className="pt-20 pb-6 px-4 sm:px-6 md:px-8 relative overflow-hidden">
+        {/* Background Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)]" />
+        
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="max-w-7xl mx-auto"
+          className="max-w-7xl mx-auto relative z-10"
         >
           {/* Page Header */}
           <div className="mb-8">

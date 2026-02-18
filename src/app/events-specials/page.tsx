@@ -6,18 +6,38 @@ import { motion } from "framer-motion";
 import Footer from "../components/Footer/Footer";
 import FilterTabs from "../components/EventsPage/FilterTabs";
 import ResultsCount from "../components/EventsPage/ResultsCount";
-import EventsGrid from "../components/EventsPage/EventsGrid";
+import EventCard from "../components/EventCard/EventCard";
 import EventsGridSkeleton from "../components/EventsPage/EventsGridSkeleton";
 import EmptyState from "../components/EventsPage/EmptyState";
 import SearchInput from "../components/SearchInput/SearchInput";
 import type { Event } from "../lib/types/Event";
 import { useDebounce } from "../hooks/useDebounce";
-import { ChevronRight, ChevronDown } from "lucide-react";
+import { ChevronRight, ChevronDown, ChevronLeft } from "lucide-react";
 import { Loader } from "../components/Loader/Loader";
 import WavyTypedTitle from "../../components/Animations/WavyTypedTitle";
 import ScrollToTopButton from "../components/Navigation/ScrollToTopButton";
+import { useIsDesktop } from "../hooks/useIsDesktop";
 
 const ITEMS_PER_PAGE = 20;
+
+// Animation variants for staggered card appearance
+const containerVariants = {
+  hidden: { opacity: 1 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.08, delayChildren: 0.1 },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20, filter: "blur(4px)" },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const },
+  },
+};
 
 export default function EventsSpecialsPage() {
   const [selectedFilter, setSelectedFilter] = useState<"all" | "event" | "special">("all");
@@ -69,11 +89,38 @@ export default function EventsSpecialsPage() {
     }
   };
 
-  // Initial fetch + refetch when filter changes
+  // Fetch when filter or search changes.
+  // When a search is active, hit the API with `search` so ALL matching events are
+  // returned (including manually curated ones beyond the current page window).
   useEffect(() => {
     setOffset(0);
-    fetchPage(0, false);
-  }, [selectedFilter]);
+    if (debouncedSearchQuery.trim()) {
+      const q = debouncedSearchQuery.trim();
+      setLoading(true);
+      setError(null);
+      const url = new URL("/api/events-and-specials", window.location.origin);
+      url.searchParams.set("search", q);
+      if (selectedFilter !== "all") url.searchParams.set("type", selectedFilter);
+      fetch(url.toString())
+        .then((res) => {
+          if (!res.ok) throw new Error(`Failed to fetch: ${res.status}`);
+          return res.json();
+        })
+        .then((data) => {
+          setItems((data.items || []) as Event[]);
+          setCount(data.count || 0);
+          setHasMore(false); // all matches returned at once
+        })
+        .catch((e: any) => {
+          setError(e?.message || "Failed to search");
+          setItems([]);
+        })
+        .finally(() => setLoading(false));
+    } else {
+      fetchPage(0, false);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedFilter, debouncedSearchQuery]);
 
   // Merge events and specials for unified display
   const mergedEvents = useMemo(() => {
@@ -84,7 +131,7 @@ export default function EventsSpecialsPage() {
     });
   }, [items]);
 
-  // Client-side filtering for type (all/event/special)
+  // Client-side filtering for search query
   const filteredEvents = useMemo(() => {
     let filtered = mergedEvents;
 
@@ -117,12 +164,6 @@ export default function EventsSpecialsPage() {
 
   const eventsSectionItems = filteredEvents.filter((event) => event.type === "event");
   const specialsSectionItems = filteredEvents.filter((event) => event.type === "special");
-
-  // Reset when filter changes
-  useEffect(() => {
-    // Reset is handled by the hook when search changes
-    // This effect is for filter type changes only
-  }, [selectedFilter]);
 
   useEffect(() => {
     const updateIsDesktop = () => setIsDesktop(typeof window !== "undefined" && window.innerWidth >= 1024);
@@ -164,17 +205,27 @@ export default function EventsSpecialsPage() {
   const renderGridSection = (items: Event[], title: string) => (
     <section key={title} className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-charcoal">{title}</h2>
+        <h2 className="text-lg font-semibold text-charcoal" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>{title}</h2>
       </div>
       {isDesktop ? (
-        <div className="relative">
-          <EventsGrid
-            events={items}
-            disableMotion
-            cardWrapperClass="desktop-card-shimmer"
-            cardOverlayClass="desktop-shimmer-veil"
-          />
-        </div>
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4"
+        >
+          {items.map((event, index) => (
+            <motion.div
+              key={event.id}
+              variants={itemVariants}
+              className="list-none relative desktop-card-shimmer"
+            >
+              <span aria-hidden className="desktop-shimmer-veil" />
+              <EventCard event={event} index={index} />
+            </motion.div>
+          ))}
+        </motion.div>
       ) : (
         <motion.div
           key={`${title}-${items.length}`}
@@ -186,63 +237,65 @@ export default function EventsSpecialsPage() {
             ease: [0.16, 1, 0.3, 1],
           }}
         >
-          <EventsGrid events={items} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+            {items.map((event, index) => (
+              <motion.div
+                key={event.id}
+                className="list-none"
+                initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{
+                  type: "spring",
+                  damping: 25,
+                  stiffness: 200,
+                  delay: index * 0.06 + 0.1,
+                }}
+              >
+                <EventCard event={event} index={index} />
+              </motion.div>
+            ))}
+          </div>
         </motion.div>
       )}
     </section>
   );
 
   return (
-    <div className="min-h-dvh bg-off-white">
+    <div className="min-h-dvh bg-off-white relative">
+      {/* Background Gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5 pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)] pointer-events-none" />
 
       <main
-        className="bg-off-white"
+        className="bg-off-white relative"
         style={{
           fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
         }}
       >
-        <div className="mx-auto w-full max-w-[2000px] px-2">
-          <style>{`
-            .desktop-card-shimmer {
-              position: relative;
-              overflow: hidden;
-            }
-            .desktop-shimmer-veil {
-              pointer-events: none;
-              position: absolute;
-              inset: 0;
-              background: linear-gradient(120deg, rgba(255,255,255,0) 45%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0) 55%);
-              transform: translateX(-150%);
-              animation: desktopShimmer 10s linear infinite;
-              opacity: 0.4;
-            }
-            @keyframes desktopShimmer {
-              0% { transform: translateX(-150%); }
-              100% { transform: translateX(150%); }
-            }
-          `}</style>
+        {/* Background Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5 pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)] pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)] pointer-events-none" />
+        
+        <div className="relative mx-auto w-full max-w-[2000px] px-2">
 
+ {/* Background Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5 pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)] pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)] pointer-events-none" />
+        
           <nav aria-label="Breadcrumb">
             <ol className="flex items-center gap-2 text-sm sm:text-base">
               <li>
                 <Link
                   href="/home"
-                  className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium"
+                  className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium flex items-center gap-1.5"
                   style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                 >
-                  Home
+                  <ChevronLeft className="w-4 h-4" />
+                  Back to Home
                 </Link>
-              </li>
-              <li className="flex items-center">
-                <ChevronRight className="w-4 h-4 text-charcoal/60" />
-              </li>
-              <li>
-                <span
-                  className="text-charcoal font-semibold"
-                  style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
-                >
-                  Events & Specials
-                </span>
               </li>
             </ol>
           </nav>
@@ -270,6 +323,7 @@ export default function EventsSpecialsPage() {
                   enableScrollTrigger={true}
                   style={{
                     fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                    fontWeight: 800,
                     wordBreak: 'keep-all',
                     overflowWrap: 'break-word',
                     whiteSpace: 'normal',
@@ -397,6 +451,27 @@ export default function EventsSpecialsPage() {
           </div>
         </div>
       </main>
+
+      {isDesktop && (
+        <style jsx>{`
+          .desktop-card-shimmer {
+            position: relative;
+          }
+          .desktop-shimmer-veil {
+            position: absolute;
+            inset: -2px;
+            pointer-events: none;
+            background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.04) 35%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 65%, transparent 100%);
+            opacity: 0.08;
+            animation: desktopShimmer 10s linear infinite;
+          }
+          @keyframes desktopShimmer {
+            0% { transform: translateX(-120%); }
+            40% { transform: translateX(120%); }
+            100% { transform: translateX(120%); }
+          }
+        `}</style>
+      )}
 
       <ScrollToTopButton threshold={360} />
 

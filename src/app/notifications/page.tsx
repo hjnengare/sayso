@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bell, Check, X, MessageSquare, MessageCircle, Star, Heart, TrendingUp, Clock, ChevronRight, ChevronUp, Award, ThumbsUp, CheckCircle, ImageIcon, Trophy } from "lucide-react";
+import { Bell, Check, X, MessageSquare, MessageCircle, Star, Heart, TrendingUp, Clock, ChevronRight, ChevronLeft, ChevronUp, Award, ThumbsUp, CheckCircle, ImageIcon, Trophy } from "lucide-react";
 import Footer from "../components/Footer/Footer";
 import { PageLoader } from "../components/Loader";
 import { usePredefinedPageTitle } from "../hooks/usePageTitle";
@@ -216,8 +216,12 @@ export default function NotificationsPage() {
         fontFamily: '"Urbanist", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
       }}
     >
+      {/* Background Gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)]" />
 
-      <div className="relative">
+      <div className="relative z-10">
         <div className=" pb-12 sm:pb-16 md:pb-20">
           <div className="mx-auto w-full max-w-[2000px] px-3 relative mb-4">
             {/* Breadcrumb Navigation */}
@@ -229,28 +233,15 @@ export default function NotificationsPage() {
                 <li>
                   <Link
                     href={breadcrumbHref}
-                    className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium"
+                    className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium flex items-center gap-1.5"
                     style={{
                       fontFamily:
                         "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                     }}
                   >
-                    {breadcrumbLabel}
+                    <ChevronLeft className="w-4 h-4" />
+                    Back to {breadcrumbLabel}
                   </Link>
-                </li>
-                <li className="flex items-center">
-                  <ChevronRight className="w-4 h-4 text-charcoal/60" />
-                </li>
-                <li>
-                  <span
-                    className="text-charcoal font-semibold"
-                    style={{
-                      fontFamily:
-                        "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-                    }}
-                  >
-                    Notifications
-                  </span>
                 </li>
               </ol>
             </nav>

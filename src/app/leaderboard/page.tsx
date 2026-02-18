@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import nextDynamic from "next/dynamic";
-import { ChevronRight, Award, FileText, ExternalLink } from "lucide-react";
+import { ChevronRight, ChevronLeft, Award, FileText, ExternalLink } from "lucide-react";
 import EmailVerificationGuard from "../components/Auth/EmailVerificationGuard";
 import LeaderboardPodium from "../components/Leaderboard/LeaderboardPodium";
 import LeaderboardList from "../components/Leaderboard/LeaderboardList";
@@ -189,7 +189,11 @@ function LeaderboardPage() {
 
   return (
     <EmailVerificationGuard>
-      <div className="min-h-dvh bg-off-white">
+      <div className="min-h-dvh bg-off-white relative overflow-hidden">
+        {/* Background Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)]" />
 
         <motion.div 
           className={contentClassName}
@@ -202,7 +206,7 @@ function LeaderboardPage() {
                   <div className="mx-auto w-full max-w-[2000px] px-2">
                     {/* Breadcrumb */}
                     <motion.nav 
-                      className="pt-2 px-2" 
+                      className="pb-2 px-2" 
                       aria-label="Breadcrumb"
                       variants={isDesktop ? itemVariants : undefined}
                       initial={isDesktop ? "hidden" : false}
@@ -210,17 +214,10 @@ function LeaderboardPage() {
                     >
                       <ol className="flex items-center gap-2 text-sm sm:text-base">
                         <li>
-                          <Link href="/home" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                            Home
+                          <Link href="/home" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium flex items-center gap-1.5" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                            <ChevronLeft className="w-4 h-4" />
+                            Back to Home
                           </Link>
-                        </li>
-                        <li className="flex items-center">
-                          <ChevronRight className="w-4 h-4 text-charcoal/60" />
-                        </li>
-                        <li>
-                          <span className="text-charcoal font-semibold" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                            Community Highlights
-                          </span>
                         </li>
                       </ol>
                     </motion.nav>
@@ -253,6 +250,7 @@ function LeaderboardPage() {
                             enableScrollTrigger={true}
                             style={{
                               fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                              fontWeight: 800,
                               wordBreak: 'keep-all',
                               overflowWrap: 'break-word',
                               whiteSpace: 'normal',
@@ -376,7 +374,7 @@ function LeaderboardPage() {
         </motion.div>
 
         {/* Badge Definitions Section - Before Footer */}
-        <section className="py-4 sm:py-8 bg-off-white">
+        <section className="relative z-50 py-4 sm:py-8 bg-off-white">
           <div className="mx-auto w-full max-w-[2000px] px-4 sm:px-6">
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
               <div className="text-center sm:text-left">

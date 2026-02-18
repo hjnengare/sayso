@@ -5,7 +5,7 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import BusinessCard from "../components/BusinessCard/BusinessCard";
 import Footer from "../components/Footer/Footer";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, ChevronLeft } from "lucide-react";
 import Pagination from "../components/EventsPage/Pagination";
 import { useBusinesses } from "../hooks/useBusinesses";
 import { useTrendingBusinesses } from "../hooks/useTrendingBusinesses";
@@ -22,7 +22,27 @@ import { useScrollReveal } from "../hooks/useScrollReveal";
 import BusinessGridSkeleton from "../components/Explore/BusinessGridSkeleton";
 import WavyTypedTitle from "../../components/Animations/WavyTypedTitle";
 import ScrollToTopButton from "../components/Navigation/ScrollToTopButton";
+import { useIsDesktop } from "../hooks/useIsDesktop";
 // Trending = cold-start API (/api/trending): metadata-only score, diversity-first selection, deterministic rotation.
+
+// Animation variants for staggered card appearance
+const containerVariants = {
+  hidden: { opacity: 1 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.08, delayChildren: 0.1 },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20, filter: "blur(4px)" },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const },
+  },
+};
 
 // Note: dynamic and revalidate cannot be exported from client components
 // Client components are automatically dynamic
@@ -235,26 +255,33 @@ export default function TrendingPage() {
   };
 
   return (
-    <div className="min-h-dvh bg-off-white">
+    <div className="min-h-dvh bg-off-white relative">
+      {/* Background Gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5 pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)] pointer-events-none" />
       {/* Header */}
 
-      <main>
-        <div className="mx-auto w-full max-w-[2000px] px-2">
+      <main className="relative">
+        {/* Background Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5 pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)] pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)] pointer-events-none" />
+        
+        <div className="relative mx-auto w-full max-w-[2000px] px-2">
+           {/* Background Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5 pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)] pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)] pointer-events-none" />
+        
           {/* Breadcrumb */}
-          <nav className="py-1" aria-label="Breadcrumb">
+          <nav className="pb-1" aria-label="Breadcrumb">
             <ol className="flex items-center gap-2 text-sm sm:text-base">
               <li>
-                <Link href="/home" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                  Home
+                <Link href="/home" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium flex items-center gap-1.5" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                  <ChevronLeft className="w-4 h-4" />
+                  Back to Home
                 </Link>
-              </li>
-              <li className="flex items-center">
-                <ChevronRight className="w-4 h-4 text-charcoal/60" />
-              </li>
-              <li>
-                <span className="text-charcoal font-semibold" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                  Trending
-                </span>
               </li>
             </ol>
           </nav>
@@ -263,10 +290,9 @@ export default function TrendingPage() {
           <div className="mb-6 sm:mb-8 px-4 sm:px-6 text-center pt-4">
             <div className="my-4">
               <h1
-                className="font-urbanist text-2xl sm:text-3xl md:text-4xl font-700 leading-[1.2] tracking-tight text-charcoal mx-auto"
+                className="font-urbanist text-2xl sm:text-3xl md:text-4xl font-bold leading-[1.2] tracking-tight text-charcoal mx-auto"
                 style={{
                   fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-                  fontWeight: 700,
                   wordBreak: 'keep-all',
                   overflowWrap: 'break-word',
                   whiteSpace: 'normal',
@@ -283,7 +309,7 @@ export default function TrendingPage() {
                   enableScrollTrigger={true}
                   style={{
                     fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-                    fontWeight: 700,
+                    fontWeight: 800,
                     wordBreak: 'keep-all',
                     overflowWrap: 'break-word',
                     whiteSpace: 'normal',
@@ -444,10 +470,17 @@ export default function TrendingPage() {
                         </motion.div>
                       ) : (
                         isDesktop ? (
-                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 sm:gap-3 md:gap-3 lg:gap-2 xl:gap-2 2xl:gap-2">
+                          <motion.div
+                            variants={containerVariants}
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true, margin: "-50px" }}
+                            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 sm:gap-3 md:gap-3 lg:gap-2 xl:gap-2 2xl:gap-2"
+                          >
                             {currentBusinesses.map((business) => (
-                              <div
+                              <motion.div
                                 key={business.id}
+                                variants={itemVariants}
                                 className="list-none relative overflow-hidden desktop-card-shimmer"
                               >
                                 <span aria-hidden className="desktop-shimmer-veil" />
@@ -457,9 +490,9 @@ export default function TrendingPage() {
                                 <div className="hidden md:block">
                                   <BusinessCard business={business} compact />
                                 </div>
-                              </div>
+                              </motion.div>
                             ))}
-                          </div>
+                          </motion.div>
                         ) : (
                           <motion.div
                             key={currentPage}

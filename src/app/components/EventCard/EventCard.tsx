@@ -1,6 +1,6 @@
 "use client";
 
-import type { MouseEvent, CSSProperties } from "react";
+import type { MouseEvent } from "react";
 import type { Event } from "../../lib/types/Event";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -243,7 +243,7 @@ function EventCard({ event, index = 0 }: EventCardProps) {
 
   return (
     <li
-      className="flex w-full"
+      className="flex w-[100vw] sm:w-auto sm:w-[260px] md:w-[340px]"
       style={{
         fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
         fontWeight: 600,
@@ -251,15 +251,13 @@ function EventCard({ event, index = 0 }: EventCardProps) {
     >
       <Link href={eventDetailHref} className="block w-full">
       <article
-        className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden group cursor-pointer w-full flex flex-col border border-white/60 backdrop-blur-xl shadow-md md:w-[340px] pb-4"
-        style={{ maxWidth: "540px" } as CSSProperties}
+        className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden group cursor-pointer w-full flex flex-col border border-white/60 backdrop-blur-xl shadow-md pb-4"
       >
           {/* MEDIA - Full bleed with premium overlay */}
           <div className="relative w-full flex-shrink-0 z-10">
             <motion.div
               layoutId={eventMediaLayoutId}
-              className="relative w-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-off-white/95 to-off-white/85"
-              style={{ aspectRatio: '4 / 3' }}
+              className="relative w-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-off-white/95 to-off-white/85 h-[280px] sm:h-[300px] md:h-[220px]"
             >
               {showLoadingOverlay && (
                 <div className="absolute inset-0 bg-charcoal/5 animate-pulse z-10 flex items-center justify-center">
@@ -272,7 +270,7 @@ function EventCard({ event, index = 0 }: EventCardProps) {
                 alt={event.alt || event.title}
                 fill
                 sizes="(max-width: 640px) 85vw, 340px"
-                className={hasRealImage ? 'object-cover card-img-zoom sm:group-active:scale-[0.98] motion-reduce:transition-none' : 'object-contain w-32 h-32 sm:w-36 sm:h-36 md:w-32 md:h-32 card-img-zoom sm:group-active:scale-[0.98] motion-reduce:transition-none'}
+                className={hasRealImage ? "object-cover card-img-zoom sm:group-active:scale-[0.98] motion-reduce:transition-none" : "object-contain w-32 h-32 sm:w-36 sm:h-36 md:w-32 md:h-32 card-img-zoom sm:group-active:scale-[0.98] motion-reduce:transition-none"}
                 quality={hasRealImage ? 75 : 60}
                 priority={false}
                 onLoadingComplete={() => setImageLoaded(true)}
