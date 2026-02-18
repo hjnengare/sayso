@@ -188,10 +188,11 @@ export default function SimilarBusinesses({
             </div>
           </div>
         </div>
-        <ul className="list-none flex flex-col sm:flex-row sm:justify-between gap-4 md:gap-6 relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6">
-          {[...Array(limit)].map((_, i) => (
-            <li key={i} className="flex-1 min-w-0">
-              <div className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden w-full flex flex-col border border-white/60 backdrop-blur-xl shadow-md animate-pulse md:w-[340px] md:h-[416px]">
+        <div className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6">
+          <ul className="list-none grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+            {[...Array(limit)].map((_, i) => (
+              <li key={i}>
+              <div className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden w-full flex flex-col border border-white/60 backdrop-blur-xl shadow-md animate-pulse h-full min-h-[416px]">
                 {/* Image Section Skeleton */}
                 <div className="relative w-full h-[300px] lg:h-[260px] overflow-hidden rounded-t-[12px] bg-gradient-to-br from-off-white/90 via-off-white/85 to-off-white/90" />
                 {/* Content Section Skeleton */}
@@ -203,9 +204,10 @@ export default function SimilarBusinesses({
                   <div className="mt-3 h-10 w-full bg-charcoal/10 rounded-full" />
                 </div>
               </div>
-            </li>
-          ))}
-        </ul>
+              </li>
+            ))}
+          </ul>
+        </div>
       </section>
     );
   }
@@ -250,10 +252,11 @@ export default function SimilarBusinesses({
       </div>
 
       <StaggeredContainer>
-        <ul className="list-none flex flex-col sm:flex-row sm:justify-between gap-4 md:gap-6 relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6">
-          {similarBusinesses.map((business, index) => (
-            <AnimatedElement key={business.id} index={index} direction="bottom">
-              <li className="flex-1 min-w-0">
+        <div className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6">
+          <ul className="list-none grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+            {similarBusinesses.map((business, index) => (
+              <AnimatedElement key={business.id} index={index} direction="bottom">
+                <li>
                 <SimilarBusinessCard
                   id={business.id}
                   slug={business.slug}
@@ -275,10 +278,11 @@ export default function SimilarBusinesses({
                   subInterestId={business.subInterestId}
                   subInterestLabel={business.subInterestLabel}
                 />
-              </li>
-            </AnimatedElement>
-          ))}
-        </ul>
+                </li>
+              </AnimatedElement>
+            ))}
+          </ul>
+        </div>
       </StaggeredContainer>
     </section>
   );

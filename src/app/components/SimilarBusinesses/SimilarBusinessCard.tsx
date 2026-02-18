@@ -172,9 +172,9 @@ function SimilarBusinessCard({
   return (
     <Link
       href={`/business/${businessIdentifier}`}
-      className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden group cursor-pointer w-full flex flex-col border border-white/60 backdrop-blur-xl shadow-md transition-all duration-300 hover:border-white/80 hover:-translate-y-1 hover:shadow-lg md:w-[340px] md:h-[416px]"
+      className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden group cursor-pointer w-full h-full flex flex-col border border-white/60 backdrop-blur-xl shadow-md transition-all duration-300 hover:border-white/80 hover:-translate-y-1 hover:shadow-lg"
       style={{
-        maxWidth: "540px",
+        minHeight: "416px",
       } as React.CSSProperties}
     >
       {/* Image Section */}

@@ -400,7 +400,7 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
             </section>
 
             {/* Reviews Section */}
-            <section className="mx-auto w-full max-w-[2000px] px-2 relative z-10 mt-8">
+            <section className="mx-auto w-full max-w-[2000px] px-2 relative z-10 mt-8 pb-8">
               <div className="text-center mb-6">
                 <WavyTypedTitle
                   text="Event Reviews"
