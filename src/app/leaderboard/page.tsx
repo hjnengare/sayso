@@ -285,7 +285,7 @@ function LeaderboardPage() {
 
                       {/* Tabs */}
                         <motion.div 
-                          className="flex justify-center pt-2 md:mb-8 px-2"
+                          className="flex justify-center pt-2 mb-8 px-2"
                           variants={isDesktop ? itemVariants : undefined}
                           initial={isDesktop ? "hidden" : false}
                           animate={isDesktop ? "visible" : undefined}

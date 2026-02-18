@@ -15,8 +15,23 @@ import {
   Trash2,
   Upload,
 } from "lucide-react";
+import { CANONICAL_SUBCATEGORY_SLUGS, SUBCATEGORY_SLUG_TO_LABEL } from "../../utils/subcategoryPlaceholders";
 
 const FONT = "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif";
+
+// Primary category slugs (from INTEREST_LABELS)
+const PRIMARY_CATEGORY_OPTIONS = [
+  { value: "food-drink", label: "Food & Drink" },
+  { value: "beauty-wellness", label: "Beauty & Wellness" },
+  { value: "professional-services", label: "Professional Services" },
+  { value: "travel", label: "Travel" },
+  { value: "outdoors-adventure", label: "Outdoors & Adventure" },
+  { value: "experiences-entertainment", label: "Entertainment & Experiences" },
+  { value: "arts-culture", label: "Arts & Culture" },
+  { value: "family-pets", label: "Family & Pets" },
+  { value: "shopping-lifestyle", label: "Shopping & Lifestyle" },
+  { value: "miscellaneous", label: "Miscellaneous" },
+];
 
 type SeedRow = Record<string, unknown>;
 
@@ -73,6 +88,7 @@ type ManualRow = {
   name: string;
   location: string;
   primary_subcategory_slug: string;
+  primary_category_slug: string;
   address: string;
   description: string;
   phone: string;
@@ -91,12 +107,17 @@ type ManualRow = {
   lat: string;
   lng: string;
   hours: string;
+  slug: string;
+  owner_id: string;
+  category_raw: string;
+  rejection_reason: string;
 };
 
 const EMPTY_MANUAL_ROW: ManualRow = {
   name: "",
   location: "",
   primary_subcategory_slug: "",
+  primary_category_slug: "",
   address: "",
   description: "",
   phone: "",
@@ -115,6 +136,10 @@ const EMPTY_MANUAL_ROW: ManualRow = {
   lat: "",
   lng: "",
   hours: "",
+  slug: "",
+  owner_id: "",
+  category_raw: "",
+  rejection_reason: "",
 };
 
 function cloneEmptyManualRow(): ManualRow {
@@ -147,6 +172,7 @@ function toManualSeedRow(row: ManualRow): SeedRow {
     name: row.name,
     location: row.location,
     primary_subcategory_slug: row.primary_subcategory_slug,
+    primary_category_slug: row.primary_category_slug,
     address: row.address,
     description: row.description,
     phone: row.phone,
@@ -165,6 +191,10 @@ function toManualSeedRow(row: ManualRow): SeedRow {
     lat: row.lat,
     lng: row.lng,
     hours: row.hours,
+    slug: row.slug,
+    owner_id: row.owner_id,
+    category_raw: row.category_raw,
+    rejection_reason: row.rejection_reason,
   };
 }
 
@@ -561,7 +591,20 @@ export default function SeedPage() {
             <div className="grid gap-3 sm:grid-cols-3">
               <input value={singleRow.name} onChange={(event) => setSingleRow((prev) => ({ ...prev, name: event.target.value }))} placeholder="Name *" className="rounded-lg border border-charcoal/20 px-3 py-2 text-sm" style={{ fontFamily: FONT }} />
               <input value={singleRow.location} onChange={(event) => setSingleRow((prev) => ({ ...prev, location: event.target.value }))} placeholder="Location *" className="rounded-lg border border-charcoal/20 px-3 py-2 text-sm" style={{ fontFamily: FONT }} />
-              <input value={singleRow.primary_subcategory_slug} onChange={(event) => setSingleRow((prev) => ({ ...prev, primary_subcategory_slug: event.target.value }))} placeholder="primary_subcategory_slug *" className="rounded-lg border border-charcoal/20 px-3 py-2 text-sm" style={{ fontFamily: FONT }} />
+              <select value={singleRow.primary_subcategory_slug} onChange={(event) => setSingleRow((prev) => ({ ...prev, primary_subcategory_slug: event.target.value }))} className="rounded-lg border border-charcoal/20 px-3 py-2 text-sm" style={{ fontFamily: FONT }}>
+                <option value="">Select Subcategory *</option>
+                {CANONICAL_SUBCATEGORY_SLUGS.map((slug) => (
+                  <option key={slug} value={slug}>{SUBCATEGORY_SLUG_TO_LABEL[slug]}</option>
+                ))}
+              </select>
+              <select value={singleRow.primary_category_slug} onChange={(event) => setSingleRow((prev) => ({ ...prev, primary_category_slug: event.target.value }))} className="rounded-lg border border-charcoal/20 px-3 py-2 text-sm" style={{ fontFamily: FONT }}>
+                <option value="">Primary Category (optional)</option>
+                {PRIMARY_CATEGORY_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+              <input value={singleRow.slug} onChange={(event) => setSingleRow((prev) => ({ ...prev, slug: event.target.value }))} placeholder="Slug (optional, auto-generated)" className="rounded-lg border border-charcoal/20 px-3 py-2 text-sm" style={{ fontFamily: FONT }} />
+              <input value={singleRow.category_raw} onChange={(event) => setSingleRow((prev) => ({ ...prev, category_raw: event.target.value }))} placeholder="Category Raw (optional)" className="rounded-lg border border-charcoal/20 px-3 py-2 text-sm" style={{ fontFamily: FONT }} />
               <input value={singleRow.address} onChange={(event) => setSingleRow((prev) => ({ ...prev, address: event.target.value }))} placeholder="Address" className="rounded-lg border border-charcoal/20 px-3 py-2 text-sm" style={{ fontFamily: FONT }} />
               <input value={singleRow.description} onChange={(event) => setSingleRow((prev) => ({ ...prev, description: event.target.value }))} placeholder="Description" className="rounded-lg border border-charcoal/20 px-3 py-2 text-sm" style={{ fontFamily: FONT }} />
               <input value={singleRow.phone} onChange={(event) => setSingleRow((prev) => ({ ...prev, phone: event.target.value }))} placeholder="Phone" className="rounded-lg border border-charcoal/20 px-3 py-2 text-sm" style={{ fontFamily: FONT }} />
@@ -569,6 +612,7 @@ export default function SeedPage() {
               <input value={singleRow.website} onChange={(event) => setSingleRow((prev) => ({ ...prev, website: event.target.value }))} placeholder="Website" className="rounded-lg border border-charcoal/20 px-3 py-2 text-sm" style={{ fontFamily: FONT }} />
               <input value={singleRow.image_url} onChange={(event) => setSingleRow((prev) => ({ ...prev, image_url: event.target.value }))} placeholder="Image URL" className="rounded-lg border border-charcoal/20 px-3 py-2 text-sm" style={{ fontFamily: FONT }} />
               <input value={singleRow.badge} onChange={(event) => setSingleRow((prev) => ({ ...prev, badge: event.target.value }))} placeholder="Badge" className="rounded-lg border border-charcoal/20 px-3 py-2 text-sm" style={{ fontFamily: FONT }} />
+              <input value={singleRow.owner_id} onChange={(event) => setSingleRow((prev) => ({ ...prev, owner_id: event.target.value }))} placeholder="Owner ID (UUID, optional)" className="rounded-lg border border-charcoal/20 px-3 py-2 text-sm" style={{ fontFamily: FONT }} />
               <select value={singleRow.verified} onChange={(event) => setSingleRow((prev) => ({ ...prev, verified: event.target.value }))} className="rounded-lg border border-charcoal/20 px-3 py-2 text-sm" style={{ fontFamily: FONT }}>
                 <option value="">verified (optional)</option><option value="true">TRUE</option><option value="false">FALSE</option>
               </select>
@@ -591,6 +635,7 @@ export default function SeedPage() {
               <select value={singleRow.status} onChange={(event) => setSingleRow((prev) => ({ ...prev, status: event.target.value }))} className="rounded-lg border border-charcoal/20 px-3 py-2 text-sm" style={{ fontFamily: FONT }}>
                 <option value="active">active</option><option value="inactive">inactive</option><option value="pending">pending</option><option value="pending_approval">pending_approval</option><option value="rejected">rejected</option>
               </select>
+              <input value={singleRow.rejection_reason} onChange={(event) => setSingleRow((prev) => ({ ...prev, rejection_reason: event.target.value }))} placeholder="Rejection Reason (if rejected)" className="rounded-lg border border-charcoal/20 px-3 py-2 text-sm" style={{ fontFamily: FONT }} />
               <input value={singleRow.hours} onChange={(event) => setSingleRow((prev) => ({ ...prev, hours: event.target.value }))} placeholder='Hours JSON, e.g. {"monday":"09:00-17:00"}' className="rounded-lg border border-charcoal/20 px-3 py-2 text-sm sm:col-span-3" style={{ fontFamily: FONT }} />
             </div>
             <div className="mt-3">
@@ -615,6 +660,8 @@ export default function SeedPage() {
                     <th className="px-2 py-2">Name</th>
                     <th className="px-2 py-2">Location</th>
                     <th className="px-2 py-2">Subcategory Slug</th>
+                    <th className="px-2 py-2">Primary Category</th>
+                    <th className="px-2 py-2">Category Raw</th>
                     <th className="px-2 py-2">Price</th>
                     <th className="px-2 py-2">Status</th>
                     <th className="px-2 py-2">Address</th>
@@ -628,7 +675,23 @@ export default function SeedPage() {
                     <tr key={`manual-row-${index}`} className="border-b border-charcoal/5">
                       <td className="px-2 py-2"><input value={row.name} onChange={(event) => handleManualRowChange(index, "name", event.target.value)} className="w-40 rounded border border-charcoal/20 px-2 py-1" /></td>
                       <td className="px-2 py-2"><input value={row.location} onChange={(event) => handleManualRowChange(index, "location", event.target.value)} className="w-36 rounded border border-charcoal/20 px-2 py-1" /></td>
-                      <td className="px-2 py-2"><input value={row.primary_subcategory_slug} onChange={(event) => handleManualRowChange(index, "primary_subcategory_slug", event.target.value)} className="w-44 rounded border border-charcoal/20 px-2 py-1" /></td>
+                      <td className="px-2 py-2">
+                        <select value={row.primary_subcategory_slug} onChange={(event) => handleManualRowChange(index, "primary_subcategory_slug", event.target.value)} className="w-44 rounded border border-charcoal/20 px-2 py-1">
+                          <option value="">Select...</option>
+                          {CANONICAL_SUBCATEGORY_SLUGS.map((slug) => (
+                            <option key={slug} value={slug}>{SUBCATEGORY_SLUG_TO_LABEL[slug]}</option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="px-2 py-2">
+                        <select value={row.primary_category_slug} onChange={(event) => handleManualRowChange(index, "primary_category_slug", event.target.value)} className="w-48 rounded border border-charcoal/20 px-2 py-1">
+                          <option value="">Select...</option>
+                          {PRIMARY_CATEGORY_OPTIONS.map((opt) => (
+                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="px-2 py-2"><input value={row.category_raw} onChange={(event) => handleManualRowChange(index, "category_raw", event.target.value)} className="w-36 rounded border border-charcoal/20 px-2 py-1" placeholder="Category Raw" /></td>
                       <td className="px-2 py-2">
                         <select value={row.price_range} onChange={(event) => handleManualRowChange(index, "price_range", event.target.value)} className="rounded border border-charcoal/20 px-2 py-1">
                           <option value="$">$</option><option value="$$">$$</option><option value="$$$">$$$</option><option value="$$$$">$$$$</option>

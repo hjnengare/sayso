@@ -156,7 +156,7 @@ export default function CommunityHighlights({
 
   return (
     <section
-      className="relative m-0 w-full"
+      className="relative m-0 w-full pb-8 sm:pb-10 md:pb-12"
       aria-label={title}
       style={{
         fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
