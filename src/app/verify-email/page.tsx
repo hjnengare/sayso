@@ -1078,6 +1078,14 @@ export default function VerifyEmailPage() {
             <p className="text-xs text-charcoal/70 text-center">
               Didn&apos;t receive the email? Check your spam folder or try resending.
             </p>
+            <div className="text-center mt-4">
+              <Link
+                href="/login"
+                className="text-xs text-charcoal/60 hover:text-charcoal/80 transition-colors duration-300 underline"
+              >
+                I&apos;ve verified my email
+              </Link>
+            </div>
           </div>
         </div>
       </PageShell>
