@@ -19,6 +19,8 @@ import ScrollToTopButton from "../components/Navigation/ScrollToTopButton";
 import { useIsDesktop } from "../hooks/useIsDesktop";
 
 const ITEMS_PER_PAGE = 20;
+const REQUEST_TIMEOUT_MS = 12000;
+const REQUEST_RETRY_DELAY_MS = 250;
 
 // Animation variants for staggered card appearance
 const containerVariants = {
@@ -54,11 +56,44 @@ export default function EventsSpecialsPage() {
   
   // Prefetch cache to make subsequent "Load More" clicks instant
   const prefetchCacheRef = useRef<{ offset: number; data: any } | null>(null);
+  const requestSequenceRef = useRef(0);
+
+  const fetchJsonWithTimeout = async (url: string, retryOnTimeout = true) => {
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+    try {
+      const res = await fetch(url, {
+        signal: controller.signal,
+        cache: "no-store",
+      });
+
+      if (!res.ok) {
+        throw new Error(`Failed to fetch: ${res.status}`);
+      }
+
+      return await res.json();
+    } catch (error: any) {
+      const isTimeoutAbort = error?.name === "AbortError";
+      if (isTimeoutAbort && retryOnTimeout) {
+        await new Promise((resolve) => setTimeout(resolve, REQUEST_RETRY_DELAY_MS));
+        return fetchJsonWithTimeout(url, false);
+      }
+      if (isTimeoutAbort) {
+        throw new Error("Request timed out. Please try again.");
+      }
+      throw error;
+    } finally {
+      window.clearTimeout(timeoutId);
+    }
+  };
 
   // Debounce search query for smoother real-time filtering (300ms delay)
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
   const fetchPage = async (nextOffset: number, append: boolean) => {
+    const requestId = ++requestSequenceRef.current;
+
     try {
       if (append) {
         setLoadingMore(true);
@@ -102,12 +137,8 @@ export default function EventsSpecialsPage() {
         url.searchParams.set("type", selectedFilter);
       }
 
-      const res = await fetch(url.toString());
-      if (!res.ok) {
-        throw new Error(`Failed to fetch: ${res.status}`);
-      }
-
-      const data = await res.json();
+      const data = await fetchJsonWithTimeout(url.toString());
+      if (requestId !== requestSequenceRef.current) return;
       const newItems = (data.items || []) as Event[];
       const total = Number(data.count || 0);
 
@@ -121,9 +152,11 @@ export default function EventsSpecialsPage() {
         prefetchNextPage(nextOffset + ITEMS_PER_PAGE);
       }
     } catch (e: any) {
+      if (requestId !== requestSequenceRef.current) return;
       setError(e?.message || "Failed to load");
       if (!append) setItems([]);
     } finally {
+      if (requestId !== requestSequenceRef.current) return;
       setLoading(false);
       setLoadingMore(false);
       setOptimisticSkeletons(0);
