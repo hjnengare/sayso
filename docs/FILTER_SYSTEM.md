@@ -2,25 +2,25 @@
 
 A smart, user-centric filtering system for the sayso home page that leverages onboarding data (interests, subcategories, deal-breakers) to provide personalized filtering.
 
-## 🎯 Features
+🎯 Features
 
-### Primary Filters (Always Visible)
+# Primary Filters (Always Visible)
 - **Location/Distance** - Filter by radius (1, 5, 10, 25 miles)
 - **Rating** - Minimum rating filter (3.0+, 3.5+, 4.0+, 4.5+)
 - **Sort By** - Relevance, Distance, Rating, Reviews, Newest, Trending
 
-### Advanced Filters (Modal)
+# Advanced Filters (Modal)
 - **Price Range** - $, $$, $$$, $$$$
 - **Open Now** - Toggle to show only currently open places
 - **Must Meet Standards** - Auto-filter by user's deal-breakers from onboarding
 
-### Smart Defaults
+# Smart Defaults
 - Automatically uses user's interests from onboarding
 - Defaults to "Near me" with 5-mile radius
 - Minimum 4.0 rating
 - "Meets standards" enabled by default (respects user preferences)
 
-## 📁 File Structure
+📁 File Structure
 
 ```
 src/app/
@@ -38,13 +38,13 @@ src/app/
     └── page.tsx                # Test page (/filter-demo)
 ```
 
-## 🚀 Quick Start
+🚀 Quick Start
 
-### 1. View the Demo
+# 1. View the Demo
 
 Visit `/filter-demo` to see the filter system in action.
 
-### 2. Integrate into Your Home Page
+# 2. Integrate into Your Home Page
 
 ```tsx
 // src/app/home/page.tsx
@@ -92,9 +92,9 @@ export default function HomePage() {
 }
 ```
 
-## 🔧 API Reference
+🔧 API Reference
 
-### `useFilters()` Hook
+# `useFilters()` Hook
 
 ```tsx
 import { useFilters } from '@/app/contexts/FilterContext';
@@ -122,7 +122,7 @@ const {
 } = useFilters();
 ```
 
-### Filter State Structure
+# Filter State Structure
 
 ```typescript
 interface FilterState {
@@ -147,7 +147,7 @@ interface FilterState {
 }
 ```
 
-### Location Filter
+# Location Filter
 
 ```typescript
 interface LocationFilter {
@@ -159,16 +159,16 @@ interface LocationFilter {
 }
 ```
 
-## 🎨 Customization
+🎨 Customization
 
-### Styling
+# Styling
 
 All components use:
 - **Font**: Urbanist (system fallback)
 - **Colors**: Sage (primary), Charcoal (text), Off-white (background)
 - **Border radius**: Rounded-full for buttons, rounded-xl for cards
 
-### Adding New Filters
+# Adding New Filters
 
 1. **Update Types** (`src/app/types/filters.ts`):
 ```typescript
@@ -195,7 +195,7 @@ return { ...other, setMyNewFilter };
 </button>
 ```
 
-## 💾 Persistence
+💾 Persistence
 
 Filters are automatically persisted to `localStorage` under the key `home_filters`.
 
@@ -204,9 +204,9 @@ Filters are automatically persisted to `localStorage` under the key `home_filter
 - Survives page refreshes
 - User-specific (tied to browser)
 
-## 🧪 Testing
+🧪 Testing
 
-### Manual Testing
+# Manual Testing
 
 1. Visit `/filter-demo`
 2. Test each filter:
@@ -217,7 +217,7 @@ Filters are automatically persisted to `localStorage` under the key `home_filter
 3. Verify filter state updates in the debug panel
 4. Refresh page - filters should persist
 
-### Integration Testing
+# Integration Testing
 
 ```typescript
 // Example test
@@ -236,9 +236,9 @@ test('displays filter bar', () => {
 });
 ```
 
-## 📊 Filter Strategy
+📊 Filter Strategy
 
-### Default Behavior
+# Default Behavior
 
 When user lands on home page:
 - Location: Near me, 5 miles
@@ -249,7 +249,7 @@ When user lands on home page:
 - Open Now: Off
 - Meet Standards: **ON** (respects user deal-breakers)
 
-### Active Filters
+# Active Filters
 
 Filters are considered "active" (non-default) when:
 - Distance changed from 5 miles
@@ -262,9 +262,9 @@ Filters are considered "active" (non-default) when:
 - Subcategories specified
 - Features specified
 
-## 🔗 Integration with Backend
+🔗 Integration with Backend
 
-### Example API Query
+# Example API Query
 
 ```typescript
 const queryBusinesses = async (filters: HomeFilters) => {
@@ -310,7 +310,7 @@ const queryBusinesses = async (filters: HomeFilters) => {
 };
 ```
 
-## 🎯 Best Practices
+🎯 Best Practices
 
 1. **Leverage Onboarding Data**
    - Use user interests as default categories
@@ -337,21 +337,21 @@ const queryBusinesses = async (filters: HomeFilters) => {
    - ARIA labels for icons
    - Keyboard navigation support
 
-## 🐛 Troubleshooting
+🐛 Troubleshooting
 
-### Filters not persisting
+# Filters not persisting
 - Check localStorage is enabled
 - Clear localStorage: `localStorage.removeItem('home_filters')`
 
-### Default filters not loading
+# Default filters not loading
 - Verify user onboarding is complete
 - Check `user_interests` table in database
 
-### Modal not opening
+# Modal not opening
 - Ensure `FilterProvider` wraps your components
 - Check `AdvancedFilters` is rendered
 
-## 📝 TODO
+📝 TODO
 
 - [ ] Add category/subcategory multi-select UI
 - [ ] Implement geolocation for "Near me"
@@ -360,7 +360,7 @@ const queryBusinesses = async (filters: HomeFilters) => {
 - [ ] Implement filter analytics
 - [ ] Add A/B testing for default filters
 
-## 🤝 Contributing
+🤝 Contributing
 
 When adding new filters:
 1. Update types in `filters.ts`
