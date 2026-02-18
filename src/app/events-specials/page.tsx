@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import Footer from "../components/Footer/Footer";
 import FilterTabs from "../components/EventsPage/FilterTabs";
 import ResultsCount from "../components/EventsPage/ResultsCount";
 import EventCard from "../components/EventCard/EventCard";
+import EventCardSkeleton from "../components/EventCard/EventCardSkeleton";
 import EventsGridSkeleton from "../components/EventsPage/EventsGridSkeleton";
 import EmptyState from "../components/EventsPage/EmptyState";
 import SearchInput from "../components/SearchInput/SearchInput";
@@ -46,18 +47,53 @@ export default function EventsSpecialsPage() {
   const [items, setItems] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [optimisticSkeletons, setOptimisticSkeletons] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [count, setCount] = useState(0);
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(true);
+  
+  // Prefetch cache to make subsequent "Load More" clicks instant
+  const prefetchCacheRef = useRef<{ offset: number; data: any } | null>(null);
 
   // Debounce search query for smoother real-time filtering (300ms delay)
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
   const fetchPage = async (nextOffset: number, append: boolean) => {
     try {
-      if (append) setLoadingMore(true);
-      else setLoading(true);
+      if (append) {
+        setLoadingMore(true);
+        // Check if we have prefetched data for instant use
+        if (prefetchCacheRef.current?.offset === nextOffset) {
+          const { data } = prefetchCacheRef.current;
+          const newItems = (data.items || []) as Event[];
+          const total = Number(data.count || 0);
+          
+          setCount(total);
+          setHasMore(nextOffset + ITEMS_PER_PAGE < total);
+          setOffset(nextOffset);
+          setItems((prev) => [...prev, ...newItems]);
+          
+          // Clear cache after use
+          prefetchCacheRef.current = null;
+          
+          // Prefetch next page in background
+          const nextNextOffset = nextOffset + ITEMS_PER_PAGE;
+          if (nextNextOffset < total) {
+            prefetchNextPage(nextNextOffset);
+          }
+          
+          setLoadingMore(false);
+          return;
+        }
+        
+        // Optimistic UI: Show skeletons immediately for instant feedback
+        setOptimisticSkeletons(ITEMS_PER_PAGE);
+      } else {
+        setLoading(true);
+        // Clear prefetch cache when starting fresh
+        prefetchCacheRef.current = null;
+      }
       setError(null);
 
       const url = new URL("/api/events-and-specials", window.location.origin);
@@ -80,12 +116,38 @@ export default function EventsSpecialsPage() {
       setHasMore(nextOffset + ITEMS_PER_PAGE < total);
       setOffset(nextOffset);
       setItems((prev) => (append ? [...prev, ...newItems] : newItems));
+      
+      // Prefetch next page in background if more data exists
+      if (append && nextOffset + ITEMS_PER_PAGE < total) {
+        prefetchNextPage(nextOffset + ITEMS_PER_PAGE);
+      }
     } catch (e: any) {
       setError(e?.message || "Failed to load");
       if (!append) setItems([]);
     } finally {
       setLoading(false);
       setLoadingMore(false);
+      setOptimisticSkeletons(0);
+    }
+  };
+
+  // Prefetch the next page in background for instant "Load More" experience
+  const prefetchNextPage = async (prefetchOffset: number) => {
+    try {
+      const url = new URL("/api/events-and-specials", window.location.origin);
+      url.searchParams.set("limit", String(ITEMS_PER_PAGE));
+      url.searchParams.set("offset", String(prefetchOffset));
+      if (selectedFilter !== "all") {
+        url.searchParams.set("type", selectedFilter);
+      }
+
+      const res = await fetch(url.toString());
+      if (!res.ok) return; // Silent fail for prefetch
+      
+      const data = await res.json();
+      prefetchCacheRef.current = { offset: prefetchOffset, data };
+    } catch (e) {
+      // Silent fail - prefetch is optional enhancement
     }
   };
 
@@ -94,6 +156,9 @@ export default function EventsSpecialsPage() {
   // returned (including manually curated ones beyond the current page window).
   useEffect(() => {
     setOffset(0);
+    // Clear prefetch cache when filter or search changes
+    prefetchCacheRef.current = null;
+    
     if (debouncedSearchQuery.trim()) {
       const q = debouncedSearchQuery.trim();
       setLoading(true);
@@ -123,12 +188,9 @@ export default function EventsSpecialsPage() {
   }, [selectedFilter, debouncedSearchQuery]);
 
   // Merge events and specials for unified display
+  // Note: API already sorts by startDate, so no need to re-sort here
   const mergedEvents = useMemo(() => {
-    return (items || []).slice().sort((a, b) => {
-      const aDate = new Date(a.startDateISO || a.startDate).getTime();
-      const bDate = new Date(b.startDateISO || b.startDate).getTime();
-      return aDate - bDate;
-    });
+    return items || [];
   }, [items]);
 
   // Client-side filtering for search query
@@ -225,10 +287,20 @@ export default function EventsSpecialsPage() {
               <EventCard event={event} index={index} />
             </motion.div>
           ))}
+          {/* Optimistic skeleton cards during load more */}
+          {optimisticSkeletons > 0 && Array.from({ length: optimisticSkeletons }).map((_, idx) => (
+            <motion.div
+              key={`skeleton-${idx}`}
+              variants={itemVariants}
+              className="list-none"
+            >
+              <EventCardSkeleton />
+            </motion.div>
+          ))}
         </motion.div>
       ) : (
         <motion.div
-          key={`${title}-${items.length}`}
+          key={title}
           initial={{ opacity: 0, y: 20, scale: 0.98, filter: "blur(8px)" }}
           animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
           exit={{ opacity: 0, y: -20, scale: 0.98, filter: "blur(8px)" }}
@@ -253,6 +325,12 @@ export default function EventsSpecialsPage() {
               >
                 <EventCard event={event} index={index} />
               </motion.div>
+            ))}
+            {/* Optimistic skeleton cards during load more */}
+            {optimisticSkeletons > 0 && Array.from({ length: optimisticSkeletons }).map((_, idx) => (
+              <div key={`skeleton-${idx}`} className="list-none">
+                <EventCardSkeleton />
+              </div>
             ))}
           </div>
         </motion.div>
