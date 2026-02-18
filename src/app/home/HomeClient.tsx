@@ -84,18 +84,19 @@ export default function HomeClient() {
   const [eventsAndSpecials, setEventsAndSpecials] = useState<Event[]>([]);
   const [eventsAndSpecialsLoading, setEventsAndSpecialsLoading] = useState(true);
 
+  // Optimized: Fetch immediately in parallel with other data, with caching
   useEffect(() => {
     let cancelled = false;
-    let idleId: number | null = null;
-    let timeoutId: number | null = null;
 
-    const load = async () => {
+    const fetchEvents = async () => {
       try {
         setEventsAndSpecialsLoading(true);
         const url = new URL("/api/events-and-specials", window.location.origin);
-        url.searchParams.set("limit", "24");
+        // Reduced from 24 to 12 for faster initial load
+        url.searchParams.set("limit", "12");
 
         const res = await fetch(url.toString());
+        
         if (!res.ok) {
           throw new Error(`HTTP ${res.status}`);
         }
@@ -118,40 +119,18 @@ export default function HomeClient() {
       }
     };
 
-    const schedule = () => {
-      const anyWindow = window as Window & {
-        requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number;
-        cancelIdleCallback?: (id: number) => void;
-      };
-      if (typeof anyWindow.requestIdleCallback === "function") {
-        idleId = anyWindow.requestIdleCallback(() => {
-          void load();
-        }, { timeout: 1800 });
-      } else {
-        timeoutId = window.setTimeout(() => {
-          void load();
-        }, 1200);
-      }
-    };
-
-    schedule();
+    // Start fetch immediately instead of using idle callback
+    void fetchEvents();
+    
     return () => {
       cancelled = true;
-      const anyWindow = window as Window & {
-        cancelIdleCallback?: (id: number) => void;
-      };
-      if (idleId != null && typeof anyWindow.cancelIdleCallback === "function") {
-        anyWindow.cancelIdleCallback(idleId);
-      }
-      if (timeoutId != null) {
-        window.clearTimeout(timeoutId);
-      }
     };
   }, []);
 
   usePredefinedPageTitle('home');
   const isIOS = useMemo(() => isIOSBrowser(), []);
-  const [heroReady, setHeroReady] = useState(false);
+  // Hero loads immediately on non-iOS, deferred on iOS for stability
+  const [heroReady, setHeroReady] = useState(!isIOSBrowser());
 
   const searchParams = useSearchParams();
   const searchQueryParam = searchParams.get('search') || "";
@@ -508,17 +487,18 @@ export default function HomeClient() {
     const scheduleIdle = () => {
       const anyWindow = window as any;
       if (typeof anyWindow.requestIdleCallback === 'function') {
-        idleId = anyWindow.requestIdleCallback(() => markReady(), { timeout: 1200 });
+        // Reduced timeout from 1200ms to 300ms for faster perceived load
+        idleId = anyWindow.requestIdleCallback(() => markReady(), { timeout: 300 });
         cleanupFns.push(() => anyWindow.cancelIdleCallback?.(idleId));
       } else {
-        delayId = window.setTimeout(() => markReady(), 1200);
+        // Reduced delay from 1200ms to 300ms
+        delayId = window.setTimeout(() => markReady(), 300);
         cleanupFns.push(() => delayId != null && clearTimeout(delayId));
       }
     };
 
-    // Small delay so the first paint happens before we schedule heavier work.
-    delayId = window.setTimeout(() => scheduleIdle(), 100);
-    cleanupFns.push(() => delayId != null && clearTimeout(delayId));
+    // Start immediately instead of waiting 100ms
+    scheduleIdle();
 
     return () => {
       cleanupFns.forEach((fn) => fn());
