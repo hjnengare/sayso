@@ -635,7 +635,7 @@ export default function OwnerBusinessDashboard() {
                   {/* Stats Cards Header with Live Indicator */}
                   {isLive && (
                     <div className="flex items-center justify-end mb-2">
-                      <LiveIndicator />
+                      <LiveIndicator isLive={isLive} />
                     </div>
                   )}
 

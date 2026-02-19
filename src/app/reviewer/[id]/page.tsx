@@ -378,7 +378,7 @@ export default function ReviewerProfilePage() {
                                                                     letterSpacing: '-0.02em',
                                                                 }}>
                                                                     {reviewer.name}
-                                                                {isRealtimeConnected && <LiveIndicator />}
+                                                                {isRealtimeConnected && <LiveIndicator isLive={isRealtimeConnected} />}
                                                                 </h2>
                                                                 {reviewer.trophyBadge && (
                                                                     <div className={`px-2 py-1 rounded-full text-xs font-600 flex items-center gap-1 ${

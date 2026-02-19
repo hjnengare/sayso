@@ -25,7 +25,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { getBrowserSupabase } from "@/app/lib/supabase/client";
-import { LiveIndicator } from "@/app/components/Realtime/RealtimeIndicators";
+import { LiveIndicator } from "../components/Realtime/RealtimeIndicators";
 
 // Import components directly for faster loading
 import Footer from "@/app/components/Footer/Footer";
@@ -1135,7 +1135,7 @@ function ProfileContent() {
                                       <span className="capitalize">Top Reviewer</span>
                                     </div>
                                   )}
-                                  {isRealtimeConnected && <LiveIndicator />}
+                                  {isRealtimeConnected && <LiveIndicator isLive={isRealtimeConnected} />}
                                 </div>
                                 {/* Bio */}
                                 {enhancedProfile?.bio && (

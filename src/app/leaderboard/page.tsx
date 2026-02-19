@@ -307,7 +307,7 @@ function LeaderboardPage() {
                     >
                       {isRealtimeConnected && activeTab === 'contributors' && (
                         <div className="flex justify-center mb-4">
-                          <LiveIndicator />
+                          <LiveIndicator isLive={isRealtimeConnected} />
                         </div>
                       )}
                       <div className="my-4 relative">

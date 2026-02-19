@@ -420,7 +420,7 @@ export default function NotificationsPage() {
                         >
                           Notifications
                         </h1>
-                        {isRealtimeConnected && <LiveIndicator />}
+                        {isRealtimeConnected && <LiveIndicator isLive={isRealtimeConnected} />}
                       </div>
                       <p
                         className="text-body-sm text-charcoal/60 mt-2"
