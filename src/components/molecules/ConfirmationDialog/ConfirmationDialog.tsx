@@ -145,7 +145,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
             duration: 0.35,
             ease: [0.16, 1, 0.3, 1],
           }}
-          className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[24px] shadow-2xl max-w-md w-full relative pointer-events-auto overflow-hidden"
+          className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[24px] shadow-2xl max-w-md w-full relative pointer-events-auto overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
               {/* Decorative gradient orbs */}

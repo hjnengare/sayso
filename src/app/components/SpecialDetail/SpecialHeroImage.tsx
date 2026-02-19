@@ -25,7 +25,7 @@ export default function SpecialHeroImage({ special, isLiked = false, onLike }: S
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6 }}
-            className="relative w-full aspect-[16/10] sm:aspect-[16/9] bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-none overflow-hidden border border-white/60 backdrop-blur-xl shadow-md"
+            className="relative w-full aspect-[16/10] sm:aspect-[16/9] bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-none overflow-hidden border-none backdrop-blur-xl shadow-md"
         >
             <Image
                 src={imageSrc}
@@ -51,7 +51,7 @@ export default function SpecialHeroImage({ special, isLiked = false, onLike }: S
             {/* Rating Badge */}
             {special.rating && (
                 <div className="absolute top-4 right-4 z-20">
-                    <div className="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-white/90 backdrop-blur-sm border border-white/60">
+                    <div className="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-white/90 backdrop-blur-sm border-none">
                         <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
                         <span className="text-xs font-semibold text-charcoal" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
                             {special.rating.toFixed(1)}

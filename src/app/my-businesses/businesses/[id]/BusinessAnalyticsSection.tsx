@@ -79,7 +79,7 @@ export function BusinessAnalyticsSection({ businessId }: { businessId: string })
   if (loading) {
     return (
       <section
-        className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-lg p-6 sm:p-8 space-y-6"
+        className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-lg p-6 sm:p-8 space-y-6"
         aria-label="Stats & Analytics"
       >
         <div className="flex items-center gap-3">
@@ -104,7 +104,7 @@ export function BusinessAnalyticsSection({ businessId }: { businessId: string })
   if (error) {
     return (
       <section
-        className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-lg p-6 sm:p-8"
+        className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-lg p-6 sm:p-8"
         aria-label="Stats & Analytics"
       >
         <div className="flex items-center gap-3 mb-4">
@@ -136,7 +136,7 @@ export function BusinessAnalyticsSection({ businessId }: { businessId: string })
 
   return (
     <section
-      className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-lg p-6 sm:p-8 space-y-6"
+      className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-lg p-6 sm:p-8 space-y-6"
       aria-label="Stats & Analytics"
     >
       <div className="flex items-center gap-3">

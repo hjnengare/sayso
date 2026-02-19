@@ -52,7 +52,7 @@ export default function IntentBrowser({ onIntentClick }: IntentBrowserProps) {
               key={intent.id}
               href={`/explore/intent/${intent.id}`}
               onClick={(e) => handleClick(intent.id, e)}
-              className="group relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-full overflow-hidden backdrop-blur-md border border-white/60 ring-1 ring-white/30 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 active:scale-95 px-5 py-3 flex items-center gap-2.5"
+              className="group relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-full overflow-hidden backdrop-blur-md border-none shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 active:scale-95 px-5 py-3 flex items-center gap-2.5"
             >
               <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${intent.color} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
                 <IconComponent className="w-4 h-4 text-charcoal" />

@@ -605,7 +605,7 @@ export default function MyBusinessesPage() {
                     transition={{ duration: 0.4, delay: 0.25 }}
                     aria-label="My Events & Specials"
                   >
-                    <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] border border-white/60 shadow-md flex flex-col min-h-0 h-full overflow-hidden">
+                    <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] border-none shadow-md flex flex-col min-h-0 h-full overflow-hidden">
                       {/* Stack 1: Header (title, subtitle, buttons) */}
                       <div className="flex-shrink-0 p-4 pb-3 border-b border-charcoal/10 space-y-3">
                         <div className="space-y-1">
@@ -682,7 +682,7 @@ export default function MyBusinessesPage() {
                             id="business-listing-filter"
                             value={listingsBusinessFilter}
                             onChange={(event) => setListingsBusinessFilter(event.target.value)}
-                            className="w-full bg-white/95 border border-white/60 rounded-lg px-3 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-navbar-bg/30"
+                            className="w-full bg-white/95 border-none rounded-lg px-3 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-navbar-bg/30"
                             style={{ fontFamily: FONT_STACK }}
                           >
                             <option value="all">All businesses</option>

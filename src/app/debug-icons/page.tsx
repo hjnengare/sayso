@@ -47,15 +47,15 @@ export default function DebugIconsPage() {
         <section className="bg-white p-6 rounded-lg shadow">
           <h2 className="text-xl font-semibold mb-4">Manual Icon Test (Filled)</h2>
           <div className="flex gap-4 flex-wrap">
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 shadow-sm border border-white/60 backdrop-blur-sm">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 shadow-sm border-none backdrop-blur-sm">
               <Zap className="w-3.5 h-3.5 text-sage flex-shrink-0" fill="currentColor" />
               <span className="font-urbanist text-sm font-700 text-sage whitespace-nowrap">85%</span>
             </div>
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 shadow-sm border border-white/60 backdrop-blur-sm">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 shadow-sm border-none backdrop-blur-sm">
               <Heart className="w-3.5 h-3.5 text-sage flex-shrink-0" fill="currentColor" />
               <span className="font-urbanist text-sm font-700 text-sage whitespace-nowrap">92%</span>
             </div>
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 shadow-sm border border-white/60 backdrop-blur-sm">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 shadow-sm border-none backdrop-blur-sm">
               <Star className="w-3.5 h-3.5 text-sage flex-shrink-0" fill="currentColor" />
               <span className="font-urbanist text-sm font-700 text-sage whitespace-nowrap">78%</span>
             </div>

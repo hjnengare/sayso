@@ -100,7 +100,7 @@ function BusinessLeaderboardItem({ business, index, rank }: BusinessLeaderboardI
     >
       <div className="flex items-center justify-between p-3 sm:p-4">
         <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
-          <div className={`w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br ${getBadgeStyles()} rounded-full flex items-center justify-center font-urbanist text-caption sm:text-body-sm font-600 shadow-[0_4px_12px_rgba(0,0,0,0.1)] flex-shrink-0 border border-white/40`}>
+          <div className={`w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br ${getBadgeStyles()} rounded-full flex items-center justify-center font-urbanist text-caption sm:text-body-sm font-600 shadow-[0_4px_12px_rgba(0,0,0,0.1)] flex-shrink-0 border-none`}>
             {rank <= 3 ? <Trophy className="w-3 h-3 sm:w-4 sm:h-4" /> : rank}
           </div>
           <div className="w-12 h-12 sm:w-14 sm:h-14 relative rounded-lg overflow-hidden border-2 border-white shadow-[0_4px_20px_rgba(0,0,0,0.15)] ring-2 ring-white/50 flex-shrink-0">
@@ -136,7 +136,7 @@ function BusinessLeaderboardItem({ business, index, rank }: BusinessLeaderboardI
           </div>
         </div>
         <div className="flex flex-col items-end gap-1 flex-shrink-0 ml-2">
-          <div className="bg-gradient-to-br from-off-white via-off-white to-off-white/90 backdrop-blur-xl px-2 sm:px-3 py-1 rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.15)] border border-white/60 ring-1 ring-white/30 flex items-center gap-1">
+          <div className="bg-gradient-to-br from-off-white via-off-white to-off-white/90 backdrop-blur-xl px-2 sm:px-3 py-1 rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.15)] border-none flex items-center gap-1">
             <Star className="w-3 h-3 sm:w-4 sm:h-4 text-coral fill-coral" />
             <span className="font-urbanist text-caption sm:text-body-sm font-600 text-charcoal">{business.reviewCount > 0 ? business.rating : "New"}</span>
           </div>

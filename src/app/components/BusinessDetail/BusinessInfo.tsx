@@ -29,7 +29,7 @@ export default function BusinessInfo({ name, rating, location, category, sharedT
 
       <div className="flex items-center gap-3 mb-4 flex-wrap">
         {/* Rating Badge - matching BusinessCard style */}
-        <div className="inline-flex items-center gap-1 rounded-full bg-off-white/95 backdrop-blur-xl px-3 py-1.5 text-charcoal border border-white/40">
+        <div className="inline-flex items-center gap-1 rounded-full bg-off-white/95 backdrop-blur-xl px-3 py-1.5 text-charcoal border-none">
           <Star className="w-3.5 h-3.5 text-coral fill-coral" aria-hidden />
           <span
             className="text-body-sm font-semibold text-charcoal"

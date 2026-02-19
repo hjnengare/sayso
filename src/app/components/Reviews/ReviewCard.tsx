@@ -387,7 +387,7 @@ function ReviewCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
       whileHover={{ scale: 1.01, x: 5 }}
-      className="bg-gradient-to-br from-off-white via-off-white to-off-white/95 backdrop-blur-sm rounded-lg p-6 border border-white/60 ring-1 ring-white/30 transition-all duration-300 group hover:border-white/80 hover:-translate-y-1"
+      className="bg-gradient-to-br from-off-white via-off-white to-off-white/95 backdrop-blur-sm rounded-lg p-6 border-none transition-all duration-300 group hover:border-white/80 hover:-translate-y-1"
     >
       <div className="flex items-start space-x-4">
         {/* Avatar */}
@@ -878,7 +878,7 @@ function ReviewCard({
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setSelectedImageIndex(null)}
-                className="absolute -top-4 -right-4 w-8 h-8 bg-off-white/95 backdrop-blur-xl text-black rounded-full flex items-center justify-center border border-white/40"
+                className="absolute -top-4 -right-4 w-8 h-8 bg-off-white/95 backdrop-blur-xl text-black rounded-full flex items-center justify-center border-none"
               >
                 <X size={20} />
               </motion.button>

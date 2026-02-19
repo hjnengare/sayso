@@ -35,7 +35,7 @@ export function RegistrationProgress({
         <div className={`flex flex-col items-center gap-2 flex-1 transition-all duration-300 ${usernameValid ? 'scale-100' : 'scale-95 opacity-60'}`}>
           <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${
             usernameValid
-              ? 'bg-gradient-to-br from-white via-white to-white/95 backdrop-blur-xl border border-white/60 ring-1 ring-white/30 shadow-sm'
+              ? 'bg-gradient-to-br from-white via-white to-white/95 backdrop-blur-xl border-none shadow-sm'
               : 'bg-white/10 backdrop-blur-sm border border-white/20'
           }`}>
             {usernameValid ? <CheckCircle className="w-4 h-4 text-navbar-bg/90" /> : <Circle className="w-4 h-4 text-white/40" />}
@@ -48,7 +48,7 @@ export function RegistrationProgress({
         <div className={`flex flex-col items-center gap-2 flex-1 transition-all duration-300 ${emailValid ? 'scale-100' : 'scale-95 opacity-60'}`}>
           <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${
             emailValid
-              ? 'bg-gradient-to-br from-white via-white to-white/95 backdrop-blur-xl border border-white/60 ring-1 ring-white/30 shadow-sm'
+              ? 'bg-gradient-to-br from-white via-white to-white/95 backdrop-blur-xl border-none shadow-sm'
               : 'bg-white/10 backdrop-blur-sm border border-white/20'
           }`}>
             {emailValid ? <CheckCircle className="w-4 h-4 text-navbar-bg/90" /> : <Circle className="w-4 h-4 text-white/40" />}
@@ -61,7 +61,7 @@ export function RegistrationProgress({
         <div className={`flex flex-col items-center gap-2 flex-1 transition-all duration-300 ${passwordStrong ? 'scale-100' : 'scale-95 opacity-60'}`}>
           <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${
             passwordStrong
-              ? 'bg-gradient-to-br from-white via-white to-white/95 backdrop-blur-xl border border-white/60 ring-1 ring-white/30 shadow-sm'
+              ? 'bg-gradient-to-br from-white via-white to-white/95 backdrop-blur-xl border-none shadow-sm'
               : 'bg-white/10 backdrop-blur-sm border border-white/20'
           }`}>
             {passwordStrong ? <CheckCircle className="w-4 h-4 text-navbar-bg/90" /> : <Circle className="w-4 h-4 text-white/40" />}
@@ -74,7 +74,7 @@ export function RegistrationProgress({
         <div className={`flex flex-col items-center gap-2 flex-1 transition-all duration-300 ${consentGiven ? 'scale-100' : 'scale-95 opacity-60'}`}>
           <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${
             consentGiven
-              ? 'bg-gradient-to-br from-white via-white to-white/95 backdrop-blur-xl border border-white/60 ring-1 ring-white/30 shadow-sm'
+              ? 'bg-gradient-to-br from-white via-white to-white/95 backdrop-blur-xl border-none shadow-sm'
               : 'bg-white/10 backdrop-blur-sm border border-white/20'
           }`}>
             {consentGiven ? <CheckCircle className="w-4 h-4 text-navbar-bg/90" /> : <Circle className="w-4 h-4 text-white/40" />}

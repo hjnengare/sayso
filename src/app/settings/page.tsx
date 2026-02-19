@@ -119,7 +119,7 @@ export default function SettingsPage() {
 
         <div className="space-y-5">
           {/* Account Summary */}
-          <section className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[16px] shadow-lg p-5 sm:p-6">
+          <section className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[16px] shadow-lg p-5 sm:p-6">
             <div className="absolute top-0 right-0 w-28 h-28 bg-gradient-to-br from-white/20 to-transparent rounded-full blur-xl pointer-events-none" />
             <div className="relative flex items-start gap-4">
               <div className="w-12 h-12 rounded-full bg-white/90 border border-white/70 flex items-center justify-center text-charcoal font-bold text-base shadow-sm" style={{ fontFamily: FONT_STACK }}>
@@ -144,7 +144,7 @@ export default function SettingsPage() {
           </section>
 
           {/* Session Actions */}
-          <section className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[16px] shadow-lg p-5 sm:p-6">
+          <section className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[16px] shadow-lg p-5 sm:p-6">
             <h2 className="text-base sm:text-lg font-semibold text-charcoal mb-4" style={{ fontFamily: FONT_STACK }}>
               Session
             </h2>

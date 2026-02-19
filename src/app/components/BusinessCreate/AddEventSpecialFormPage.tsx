@@ -111,7 +111,7 @@ const fontStyle = {
 };
 
 const sectionClassName =
-  "relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden border border-white/60 backdrop-blur-xl shadow-md px-4 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10 lg:px-12 lg:py-10 xl:px-16 xl:py-12";
+  "relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden border-none backdrop-blur-xl shadow-md px-4 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10 lg:px-12 lg:py-10 xl:px-16 xl:py-12";
 
 const inputClassName =
   "w-full bg-white/95 backdrop-blur-sm border pl-4 pr-4 py-3 sm:py-4 md:py-5 text-body font-semibold text-charcoal placeholder-charcoal/50 placeholder:font-normal focus:outline-none focus:ring-2 transition-all duration-300 hover:border-sage/50 input-mobile rounded-full border-white/60 focus:ring-navbar-bg/30 focus:border-navbar-bg";
@@ -559,7 +559,7 @@ export default function AddEventSpecialFormPage({ type }: AddEventSpecialFormPag
                           </div>
                           <div>
                             <label className="block text-sm font-semibold text-charcoal mb-2" style={fontStyle}>Listing Type</label>
-                            <div className="rounded-full border border-white/60 bg-white/95 px-4 py-3 sm:py-4 md:py-5 text-sm font-semibold text-charcoal flex items-center gap-2">
+                            <div className="rounded-full border-none bg-white/95 px-4 py-3 sm:py-4 md:py-5 text-sm font-semibold text-charcoal flex items-center gap-2">
                               {type === "event" ? <CalendarDays className="w-4 h-4 text-navbar-bg" /> : <Sparkles className="w-4 h-4 text-navbar-bg" />}
                               <span>{type === "event" ? "Event" : "Special"}</span>
                             </div>
@@ -683,7 +683,7 @@ export default function AddEventSpecialFormPage({ type }: AddEventSpecialFormPag
                             </div>
 
                             {formData.image ? (
-                              <div className="rounded-[12px] overflow-hidden border border-white/60 bg-white/80 p-2">
+                              <div className="rounded-[12px] overflow-hidden border-none bg-white/80 p-2">
                                 <img src={formData.image} alt="Event or special preview" className="w-full h-40 object-cover rounded-[8px]" />
                               </div>
                             ) : null}

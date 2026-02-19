@@ -605,7 +605,6 @@ export default function HomeClient() {
                               cta="See More"
                               href="/for-you"
                               disableAnimations
-                              hideCarouselArrowsOnDesktop
                             />
                           ) : (
                             <div className="mx-auto w-full max-w-[2000px] px-2 py-4">
@@ -641,7 +640,6 @@ export default function HomeClient() {
                           cta="See All"
                           href="/for-you"
                           disableAnimations
-                          hideCarouselArrowsOnDesktop
                         />
                       ) : (
                         <div className="mx-auto w-full max-w-[2000px] px-2 py-4 text-sm text-charcoal/70">
@@ -656,10 +654,10 @@ export default function HomeClient() {
                     <div className="relative z-10 snap-start">
                       {trendingLoading && <BusinessRowSkeleton title="Trending Now" />}
                       {!trendingLoading && hasTrendingBusinesses && (
-                        <MemoizedBusinessRow title="Trending Now" businesses={trendingBusinesses} cta="See More" href="/trending" disableAnimations hideCarouselArrowsOnDesktop />
+                        <MemoizedBusinessRow title="Trending Now" businesses={trendingBusinesses} cta="See More" href="/trending" disableAnimations />
                       )}
                       {!trendingLoading && !hasTrendingBusinesses && !trendingError && (
-                        <MemoizedBusinessRow title="Trending Now" businesses={[]} cta="See More" href="/trending" disableAnimations hideCarouselArrowsOnDesktop />
+                        <MemoizedBusinessRow title="Trending Now" businesses={[]} cta="See More" href="/trending" disableAnimations />
                       )}
                       {trendingError && !trendingLoading && (
                         <div className="mx-auto w-full max-w-[2000px] px-2 py-4 text-sm text-coral space-y-1">
@@ -682,7 +680,6 @@ export default function HomeClient() {
                       ctaFontWeight={400}
                       premiumCtaHover
                       disableAnimations
-                      hideCarouselArrowsOnDesktop
                     />
                   </div>
 
@@ -703,7 +700,6 @@ export default function HomeClient() {
                         businessesOfTheMonth={Array.isArray(featuredByCategory) ? featuredByCategory : []}
                         variant="reviews"
                         disableAnimations
-                        hideCarouselArrowsOnDesktop
                       />
                     )}
                   </div>

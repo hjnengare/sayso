@@ -28,7 +28,7 @@ const BusinessAnalyticsSection = dynamic(
     ssr: false,
     loading: () => (
       <section
-        className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-lg p-6 sm:p-8"
+        className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-lg p-6 sm:p-8"
         aria-label="Stats & Analytics loading"
       >
         <div className="animate-pulse flex items-center gap-3 mb-4">
@@ -500,7 +500,7 @@ export default function OwnerBusinessDashboard() {
                     className="w-full sm:mx-0"
                     aria-labelledby="business-heading"
                   >
-                    <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-lg relative overflow-hidden">
+                    <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-lg relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-sage/10 to-transparent rounded-full blur-lg"></div>
                     <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-coral/10 to-transparent rounded-full blur-lg"></div>
 
@@ -603,7 +603,7 @@ export default function OwnerBusinessDashboard() {
                     className="grid grid-cols-2 sm:grid-cols-4 gap-3"
                     aria-label="Business statistics"
                   >
-                    <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/80 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-lg p-4 min-h-[120px] flex flex-col justify-between hover:shadow-md transition-shadow duration-200">
+                    <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/80 backdrop-blur-xl border-none rounded-[12px] shadow-lg p-4 min-h-[120px] flex flex-col justify-between hover:shadow-md transition-shadow duration-200">
                       <div className="flex items-center gap-2 mb-2">
                         <Star className="w-5 h-5 text-coral" />
                         <span className="text-sm text-charcoal/70">Average Rating</span>
@@ -618,7 +618,7 @@ export default function OwnerBusinessDashboard() {
                       </div>
                     </div>
 
-                    <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/80 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-lg p-4 min-h-[120px] flex flex-col justify-between hover:shadow-md transition-shadow duration-200">
+                    <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/80 backdrop-blur-xl border-none rounded-[12px] shadow-lg p-4 min-h-[120px] flex flex-col justify-between hover:shadow-md transition-shadow duration-200">
                       <div className="flex items-center gap-2 mb-2">
                         <MessageSquare className="w-5 h-5 text-coral" />
                         <span className="text-sm text-charcoal/70">Reviews</span>
@@ -633,7 +633,7 @@ export default function OwnerBusinessDashboard() {
                       </div>
                     </div>
 
-                    <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/80 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-lg p-4 min-h-[120px] flex flex-col justify-between hover:shadow-md transition-shadow duration-200">
+                    <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/80 backdrop-blur-xl border-none rounded-[12px] shadow-lg p-4 min-h-[120px] flex flex-col justify-between hover:shadow-md transition-shadow duration-200">
                       <div className="flex items-center gap-2 mb-2">
                         <Eye className="w-5 h-5 text-coral" />
                         <span className="text-sm text-charcoal/70">Profile Views</span>
@@ -650,7 +650,7 @@ export default function OwnerBusinessDashboard() {
 
                     <Link
                       href={`/dm?businessId=${business?.id || businessId}`}
-                      className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/80 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-lg p-4 min-h-[120px] flex flex-col justify-between hover:shadow-md hover:border-sage/40 transition-all duration-200 block"
+                      className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/80 backdrop-blur-xl border-none rounded-[12px] shadow-lg p-4 min-h-[120px] flex flex-col justify-between hover:shadow-md hover:border-sage/40 transition-all duration-200 block"
                     >
                       <div className="flex items-center gap-2 mb-2">
                         <MessageSquare className="w-5 h-5 text-coral" />
@@ -679,7 +679,7 @@ export default function OwnerBusinessDashboard() {
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
                       <Link
                         href={`/business/${businessId}/edit`}
-                        className="group bg-gradient-to-br from-card-bg via-card-bg to-card-bg/80 backdrop-blur-xl border border-white/60 rounded-[12px] p-4 flex flex-col items-center gap-2 text-center hover:border-sage/40 hover:translate-y-[-2px] transition-all duration-200"
+                        className="group bg-gradient-to-br from-card-bg via-card-bg to-card-bg/80 backdrop-blur-xl border-none rounded-[12px] p-4 flex flex-col items-center gap-2 text-center hover:border-sage/40 hover:translate-y-[-2px] transition-all duration-200"
                       >
                         <span className="grid h-10 w-10 place-items-center rounded-full bg-navbar-bg/15 group-hover:bg-navbar-bg/25 transition-colors">
                           <Edit className="w-5 h-5 text-navbar-bg" />
@@ -688,7 +688,7 @@ export default function OwnerBusinessDashboard() {
                       </Link>
                       <Link
                         href={`/business/${businessId}/edit`}
-                        className="group bg-gradient-to-br from-card-bg via-card-bg to-card-bg/80 backdrop-blur-xl border border-white/60 rounded-[12px] p-4 flex flex-col items-center gap-2 text-center hover:border-sage/40 hover:translate-y-[-2px] transition-all duration-200"
+                        className="group bg-gradient-to-br from-card-bg via-card-bg to-card-bg/80 backdrop-blur-xl border-none rounded-[12px] p-4 flex flex-col items-center gap-2 text-center hover:border-sage/40 hover:translate-y-[-2px] transition-all duration-200"
                       >
                         <span className="grid h-10 w-10 place-items-center rounded-full bg-navbar-bg/15 group-hover:bg-navbar-bg/25 transition-colors">
                           <Upload className="w-5 h-5 text-navbar-bg" />
@@ -697,7 +697,7 @@ export default function OwnerBusinessDashboard() {
                       </Link>
                       <Link
                         href={`/my-businesses/businesses/${businessId}/reviews`}
-                        className="group bg-gradient-to-br from-card-bg via-card-bg to-card-bg/80 backdrop-blur-xl border border-white/60 rounded-[12px] p-4 flex flex-col items-center gap-2 text-center hover:border-sage/40 hover:translate-y-[-2px] transition-all duration-200"
+                        className="group bg-gradient-to-br from-card-bg via-card-bg to-card-bg/80 backdrop-blur-xl border-none rounded-[12px] p-4 flex flex-col items-center gap-2 text-center hover:border-sage/40 hover:translate-y-[-2px] transition-all duration-200"
                       >
                         <span className="grid h-10 w-10 place-items-center rounded-full bg-navbar-bg/15 group-hover:bg-navbar-bg/25 transition-colors">
                           <MessageSquare className="w-5 h-5 text-navbar-bg" />
@@ -706,7 +706,7 @@ export default function OwnerBusinessDashboard() {
                       </Link>
                       <Link
                         href="/add-event"
-                        className="group bg-gradient-to-br from-card-bg via-card-bg to-card-bg/80 backdrop-blur-xl border border-white/60 rounded-[12px] p-4 flex flex-col items-center gap-2 text-center hover:border-sage/40 hover:translate-y-[-2px] transition-all duration-200"
+                        className="group bg-gradient-to-br from-card-bg via-card-bg to-card-bg/80 backdrop-blur-xl border-none rounded-[12px] p-4 flex flex-col items-center gap-2 text-center hover:border-sage/40 hover:translate-y-[-2px] transition-all duration-200"
                       >
                         <span className="grid h-10 w-10 place-items-center rounded-full bg-navbar-bg/15 group-hover:bg-navbar-bg/25 transition-colors">
                           <Calendar className="w-5 h-5 text-navbar-bg" />
@@ -714,7 +714,7 @@ export default function OwnerBusinessDashboard() {
                         <span className="text-sm font-semibold text-charcoal">Add Event / Special</span>
                       </Link>
                       <div
-                        className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/80 backdrop-blur-xl border border-white/60 rounded-[12px] p-4 flex flex-col items-center gap-2 text-center opacity-60 cursor-default"
+                        className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/80 backdrop-blur-xl border-none rounded-[12px] p-4 flex flex-col items-center gap-2 text-center opacity-60 cursor-default"
                       >
                         <span className="grid h-10 w-10 place-items-center rounded-full bg-navbar-bg/15">
                           <TrendingUp className="w-5 h-5 text-navbar-bg" />
@@ -738,7 +738,7 @@ export default function OwnerBusinessDashboard() {
 
                   {/* Growth Suggestions */}
                   <section
-                    className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-lg p-5 sm:p-6 space-y-4"
+                    className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-lg p-5 sm:p-6 space-y-4"
                     aria-label="Growth suggestions"
                   >
                     <div className="flex items-center gap-3">

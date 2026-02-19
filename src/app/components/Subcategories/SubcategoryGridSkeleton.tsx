@@ -20,7 +20,7 @@ export default function SubcategoryGridSkeleton() {
             {Array.from({ length: 6 }).map((_, itemIdx) => (
               <div
                 key={itemIdx}
-                className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[16px] overflow-hidden backdrop-blur-md border border-white/60 ring-1 ring-white/30 shadow-premiumElevated p-4 min-h-[80px] flex items-center justify-center"
+                className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[16px] overflow-hidden backdrop-blur-md border-none shadow-premiumElevated p-4 min-h-[80px] flex items-center justify-center"
               >
                 <Skeleton
                   variant="rectangular"

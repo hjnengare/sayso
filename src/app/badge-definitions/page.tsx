@@ -134,7 +134,7 @@ export default function BadgeDefinitionsPage() {
 
 function BadgeItem({ badge }: { badge: typeof BADGE_MAPPINGS[string] }) {
   return (
-    <div className="flex flex-col items-center text-center p-3 bg-card-bg border border-white/60 rounded-[12px] shadow-sm">
+    <div className="flex flex-col items-center text-center p-3 bg-card-bg border-none rounded-[12px] shadow-sm">
       <div className="w-14 h-14 sm:w-16 sm:h-16 relative mb-2">
         <Image
           src={badge.pngPath}

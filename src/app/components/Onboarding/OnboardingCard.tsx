@@ -12,7 +12,7 @@ export default function OnboardingCard({ children, className = "" }: OnboardingC
     <div
       className={`
         bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] sm:rounded-[12px] px-2 md:px-4 py-4 md:py-6 mb-2 relative overflow-visible
-        border border-white/60 backdrop-blur-xl ring-1 ring-white/30 shadow-premium
+        border-none backdrop-blur-xl  shadow-premium
         transition-all duration-300 hover:border-white/80 hover:-translate-y-1 hover:shadow-premiumHover
         onboarding-card ${className}
       `}

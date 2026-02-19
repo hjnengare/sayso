@@ -23,6 +23,7 @@ import PageTransitionProvider from "./components/Providers/PageTransitionProvide
 import GlobalHeader from "./components/Header/GlobalHeader";
 import SchemaMarkup from "./components/SEO/SchemaMarkup";
 import { generateOrganizationSchema } from "./lib/utils/schemaMarkup";
+import ScrollToTopButton from "./components/Navigation/ScrollToTopButton";
 
 // Lazy load non-critical components for faster initial load
 const WebVitals = dynamicImport(() => import("./components/Performance/WebVitals"));
@@ -215,6 +216,7 @@ export default function RootLayout({
                   <PageTransitionProvider>
                     {children}
                   </PageTransitionProvider>
+                  <ScrollToTopButton threshold={360} />
                 </NotificationsProvider>
               </SavedItemsProvider>
             </OnboardingProvider>

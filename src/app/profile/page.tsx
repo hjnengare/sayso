@@ -49,7 +49,7 @@ import type { EnhancedProfile, UserStats } from '@/app/lib/types/user';
 function ProfileHeaderSkeleton() {
   return (
     <article className="w-full sm:mx-0">
-      <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-md relative overflow-hidden">
+      <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md relative overflow-hidden">
         <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-sage/10 to-transparent rounded-full blur-lg"></div>
         <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-coral/10 to-transparent rounded-full blur-lg"></div>
         <div className="relative z-10 p-6 sm:p-8">
@@ -83,7 +83,7 @@ function StatsGridSkeleton() {
   return (
     <section className="grid grid-cols-2 sm:grid-cols-4 gap-4">
       {[1, 2, 3, 4].map((i) => (
-        <div key={i} className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-md p-4">
+        <div key={i} className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-4">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-5 h-5 bg-card-bg/20 rounded animate-pulse" />
             <div className="h-4 bg-white/20 rounded w-20 animate-pulse" />
@@ -98,14 +98,14 @@ function StatsGridSkeleton() {
 
 function AchievementsSkeleton() {
   return (
-    <section className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-md p-6 sm:p-8">
+    <section className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-6 sm:p-8">
       <div className="flex items-center gap-3 mb-6">
         <div className="w-10 h-10 bg-card-bg/20 rounded-full animate-pulse" />
         <div className="h-5 bg-white/30 rounded w-40 animate-pulse" />
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="flex flex-col items-center p-4 bg-white/50 rounded-[16px] border border-white/60">
+          <div key={i} className="flex flex-col items-center p-4 bg-white/50 rounded-[16px] border-none">
             <div className="w-12 h-12 bg-card-bg/20 rounded-full animate-pulse mb-3" />
             <div className="h-4 bg-white/30 rounded w-20 animate-pulse mb-2" />
             <div className="h-3 bg-white/20 rounded w-24 animate-pulse" />
@@ -118,14 +118,14 @@ function AchievementsSkeleton() {
 
 function ReviewsSkeleton() {
   return (
-    <section className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-md p-6 sm:p-8">
+    <section className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-6 sm:p-8">
       <div className="flex items-center gap-3 mb-6">
         <div className="w-10 h-10 bg-card-bg/20 rounded-full animate-pulse" />
         <div className="h-5 bg-white/30 rounded w-40 animate-pulse" />
       </div>
       <div className="space-y-4">
         {[1, 2].map((i) => (
-          <div key={i} className="p-4 bg-white/50 rounded-[16px] border border-white/60">
+          <div key={i} className="p-4 bg-white/50 rounded-[16px] border-none">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-[12px] bg-card-bg/20 animate-pulse flex-shrink-0" />
               <div className="flex-1 space-y-3">
@@ -1003,7 +1003,7 @@ function ProfileContent() {
                         className="w-full sm:mx-0"
                         aria-labelledby="profile-heading"
                       >
-                        <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-md relative overflow-hidden">
+                        <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md relative overflow-hidden">
                           <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-sage/10 to-transparent rounded-full blur-lg"></div>
                           <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-coral/10 to-transparent rounded-full blur-lg"></div>
 
@@ -1144,7 +1144,7 @@ function ProfileContent() {
                       className="grid grid-cols-2 sm:grid-cols-4 gap-4"
                       aria-label="Profile statistics"
                     >
-                      <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-md p-4">
+                      <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-4">
                         <div className="flex items-center gap-2 mb-2">
                           <ThumbsUp className="w-5 h-5 text-navbar-bg" />
                           <span className="text-sm text-charcoal/70">Helpful votes</span>
@@ -1154,7 +1154,7 @@ function ProfileContent() {
                         </p>
                         <p className="text-xs text-charcoal/60">Received</p>
                       </div>
-                      <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-md p-4">
+                      <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-4">
                         <div className="flex items-center gap-2 mb-2">
                           <StarIcon className="w-5 h-5 text-navbar-bg" />
                           <span className="text-sm text-charcoal/70">Reviews</span>
@@ -1164,7 +1164,7 @@ function ProfileContent() {
                         </p>
                         <p className="text-xs text-charcoal/60">Total written</p>
                       </div>
-                      <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-md p-4">
+                      <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-4">
                         <div className="flex items-center gap-2 mb-2">
                           <Award className="w-5 h-5 text-navbar-bg" />
                           <span className="text-sm text-charcoal/70">Badges</span>
@@ -1172,7 +1172,7 @@ function ProfileContent() {
                         <p className="text-2xl font-bold text-charcoal">{badgesCount}</p>
                         <p className="text-xs text-charcoal/60">Achievements unlocked</p>
                       </div>
-                      <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-md p-4">
+                      <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-4">
                         <div className="flex items-center gap-2 mb-2">
                           <Eye className="w-5 h-5 text-navbar-bg" />
                           <span className="text-sm text-charcoal/70">Interests</span>
@@ -1181,7 +1181,7 @@ function ProfileContent() {
                         <p className="text-xs text-charcoal/60">Communities followed</p>
                       </div>
                       {userStats && (
-                        <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-md p-4 sm:col-span-2">
+                        <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-4 sm:col-span-2">
                           <div className="flex items-center gap-2 mb-2">
                             <Briefcase className="w-5 h-5 text-navbar-bg" />
                             <span className="text-sm text-charcoal/70">Saved</span>
@@ -1208,7 +1208,7 @@ function ProfileContent() {
                       {/* Saved Businesses - Mobile Only */}
                       {savedBusinesses.length > 0 && (
                         <section
-                          className="md:hidden bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-md p-6 space-y-4"
+                          className="md:hidden bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-6 space-y-4"
                           aria-label="Saved businesses"
                         >
                           <SavedBusinessRow
@@ -1223,7 +1223,7 @@ function ProfileContent() {
                         <AchievementsSkeleton />
                       ) : (
                       <section
-                        className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-md p-6 sm:p-8"
+                        className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-6 sm:p-8"
                         aria-label="Your badges and achievements"
                       >
                         <div className="flex items-center justify-between mb-6">
@@ -1315,7 +1315,7 @@ function ProfileContent() {
                         <ReviewsSkeleton />
                       ) : (
                       <section
-                        className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-md p-6 sm:p-8"
+                        className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-6 sm:p-8"
                         aria-label="Your contributions"
                       >
                         {reviewsData.length > 0 ? (
@@ -1337,7 +1337,7 @@ function ProfileContent() {
                       )}
                       {/* Preferences */}
                       <section
-                        className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-md p-6 sm:p-8 space-y-4"
+                        className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-6 sm:p-8 space-y-4"
                         aria-label="Preferences"
                       >
                         <div className="flex items-center gap-3">
@@ -1395,7 +1395,7 @@ function ProfileContent() {
                       </section>
 
                       <section
-                        className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-md p-6 sm:p-8 space-y-4"
+                        className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-6 sm:p-8 space-y-4"
                         aria-label="Account actions"
                       >
                         <div className="flex items-center gap-3">

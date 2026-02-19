@@ -19,7 +19,7 @@ export const StatCard: React.FC<StatCardProps> = ({
 }) => {
   return (
     <div className={`text-center p-4 bg-white/30 rounded-lg hover:bg-white/40 transition-all duration-200 ${className}`}>
-      <div className="w-12 h-12 bg-white/50 rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm border border-white/60">
+      <div className="w-12 h-12 bg-white/50 rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm border-none">
         <Icon
           className={`${iconColor} w-6 h-6`}
           strokeWidth={2.5}

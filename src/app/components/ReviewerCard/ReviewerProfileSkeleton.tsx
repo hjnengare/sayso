@@ -83,7 +83,7 @@ export default function ReviewerProfileSkeleton() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {Array.from({ length: 6 }).map((_, index) => (
-                    <div key={index} className="bg-gradient-to-br from-white/60 to-off-white/80 rounded-[16px] p-6 border border-white/60 shadow-lg">
+                    <div key={index} className="bg-gradient-to-br from-white/60 to-off-white/80 rounded-[16px] p-6 border-none shadow-lg">
                       <div className="flex items-center gap-3 mb-2">
                         <div className="w-8 h-8 bg-charcoal/10 rounded-full animate-pulse" />
                         <div>
@@ -102,7 +102,7 @@ export default function ReviewerProfileSkeleton() {
                 <div className="h-6 w-32 bg-charcoal/10 rounded animate-pulse mb-6" />
                 <div className="space-y-6">
                   {Array.from({ length: 5 }).map((_, index) => (
-                    <div key={index} className="bg-gradient-to-br from-white/60 to-off-white/80 rounded-[16px] p-6 border border-white/60 shadow-lg">
+                    <div key={index} className="bg-gradient-to-br from-white/60 to-off-white/80 rounded-[16px] p-6 border-none shadow-lg">
                       <div className="flex items-start gap-4 mb-4">
                         <div className="w-16 h-16 bg-charcoal/10 rounded-xl animate-pulse flex-shrink-0" />
                         <div className="flex-1">

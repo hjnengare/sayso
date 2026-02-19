@@ -27,7 +27,7 @@ export default function SpecialActionCard({ specialId, hasReviewed = false }: Sp
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.5, duration: 0.6 }}
-            className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-md p-5 sm:p-6 sticky top-24"
+            className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-5 sm:p-6 sticky top-24"
         >
             <h3
                 className="text-lg font-bold text-charcoal mb-4"
@@ -58,7 +58,7 @@ export default function SpecialActionCard({ specialId, hasReviewed = false }: Sp
                 <div className="pt-3 border-t border-charcoal/10">
                     <button
                         onClick={handleShare}
-                        className="w-full flex items-center justify-center gap-2 bg-white/40 backdrop-blur-sm hover:bg-charcoal text-charcoal hover:text-white py-2.5 px-4 rounded-full transition-all duration-200 border border-white/40 text-sm font-medium"
+                        className="w-full flex items-center justify-center gap-2 bg-white/40 backdrop-blur-sm hover:bg-charcoal text-charcoal hover:text-white py-2.5 px-4 rounded-full transition-all duration-200 border-none text-sm font-medium"
                         style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                     >
                         <Share2 className="w-4 h-4" />

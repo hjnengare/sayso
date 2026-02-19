@@ -8,7 +8,7 @@ export default function InterestGridSkeleton() {
       {Array.from({ length: 8 }).map((_, idx) => (
         <div
           key={idx}
-          className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden backdrop-blur-md border border-white/60 ring-1 ring-white/30 shadow-premiumElevated"
+          className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden backdrop-blur-md border-none shadow-premiumElevated"
         >
           <div className="p-6 md:p-8 flex flex-col items-center justify-center min-h-[120px] md:min-h-[140px]">
             <Skeleton

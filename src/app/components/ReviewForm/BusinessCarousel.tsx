@@ -37,7 +37,7 @@ export default function BusinessCarousel({ businessName, businessImages, subcate
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6 }}
-        className="relative w-full h-[50vh] sm:h-auto sm:aspect-[16/9] lg:aspect-[21/9] rounded-none overflow-hidden border border-white/60 ring-1 ring-white/30"
+        className="relative w-full h-[50vh] sm:h-auto sm:aspect-[16/9] lg:aspect-[21/9] rounded-none overflow-hidden border-none"
       >
         <div className="absolute inset-0 bg-card-bg overflow-hidden">
           <Image
@@ -85,7 +85,7 @@ export default function BusinessCarousel({ businessName, businessImages, subcate
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.6 }}
-      className="relative w-full h-[50vh] sm:h-auto sm:aspect-[16/9] lg:aspect-[21/9] rounded-none overflow-hidden border border-white/60 ring-1 ring-white/30"
+      className="relative w-full h-[50vh] sm:h-auto sm:aspect-[16/9] lg:aspect-[21/9] rounded-none overflow-hidden border-none"
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
@@ -165,7 +165,7 @@ export default function BusinessCarousel({ businessName, businessImages, subcate
           {/* Previous Button */}
           <button
             onClick={handlePrevImage}
-            className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 z-30 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-off-white/95 backdrop-blur-xl flex items-center justify-center shadow-lg hover:bg-white transition-all duration-200 hover:scale-110 border border-white/60"
+            className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 z-30 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-off-white/95 backdrop-blur-xl flex items-center justify-center shadow-lg hover:bg-white transition-all duration-200 hover:scale-110 border-none"
             aria-label="Previous image"
           >
             <ChevronLeft className="w-6 h-6 sm:w-7 sm:h-7 text-charcoal" strokeWidth={2.5} />
@@ -174,7 +174,7 @@ export default function BusinessCarousel({ businessName, businessImages, subcate
           {/* Next Button */}
           <button
             onClick={handleNextImage}
-            className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 z-30 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-off-white/95 backdrop-blur-xl flex items-center justify-center shadow-lg hover:bg-white transition-all duration-200 hover:scale-110 border border-white/60"
+            className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 z-30 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-off-white/95 backdrop-blur-xl flex items-center justify-center shadow-lg hover:bg-white transition-all duration-200 hover:scale-110 border-none"
             aria-label="Next image"
           >
             <ChevronRight className="w-6 h-6 sm:w-7 sm:h-7 text-charcoal" strokeWidth={2.5} />

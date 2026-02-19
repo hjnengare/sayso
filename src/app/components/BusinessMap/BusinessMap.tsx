@@ -60,7 +60,7 @@ export default function BusinessMap({
 
   return (
     <div className="w-full">
-      <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden border border-white/60 backdrop-blur-xl shadow-md">
+      <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden border-none backdrop-blur-xl shadow-md">
         {/* Header */}
         <div className="px-4 sm:px-5 py-3 border-b border-white/60 bg-gradient-to-br from-sage/10 via-sage/8 to-sage/10">
           <div className="flex items-center gap-2">

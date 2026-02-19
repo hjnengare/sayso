@@ -192,7 +192,7 @@ export default function SimilarBusinesses({
           <ul className="list-none grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {[...Array(limit)].map((_, i) => (
               <li key={i}>
-              <div className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden w-full flex flex-col border border-white/60 backdrop-blur-xl shadow-md animate-pulse h-full min-h-[416px]">
+              <div className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden w-full flex flex-col border-none backdrop-blur-xl shadow-md animate-pulse h-full min-h-[416px]">
                 {/* Image Section Skeleton */}
                 <div className="relative w-full h-[300px] lg:h-[260px] overflow-hidden rounded-t-[12px] bg-gradient-to-br from-off-white/90 via-off-white/85 to-off-white/90" />
                 {/* Content Section Skeleton */}

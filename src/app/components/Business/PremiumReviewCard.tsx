@@ -469,7 +469,7 @@ export function PremiumReviewCard({
                 <div className="relative shrink-0">
                     {displayProfileImage && !imageError ? (
                         <div
-                            className={`rounded-full overflow-hidden ring-1 ring-white/30 ${
+                            className={`rounded-full overflow-hidden  ${
                                 compact ? 'h-7 w-7 sm:h-8 sm:w-8' : 'h-8 w-8 sm:h-10 sm:w-10'
                             }`}
                         >
@@ -645,7 +645,7 @@ export function PremiumReviewCard({
                                         {showMenu && menuPosition.top > 0 && (
                                             <div 
                                                 ref={menuRef}
-                                                className="fixed w-48 sm:w-52 bg-gradient-to-br from-off-white via-off-white to-off-white/95 border border-white/60 rounded-lg shadow-xl z-[99999] overflow-hidden backdrop-blur-md"
+                                                className="fixed w-48 sm:w-52 bg-gradient-to-br from-off-white via-off-white to-off-white/95 border-none rounded-lg shadow-xl z-[99999] overflow-hidden backdrop-blur-md"
                                                 style={{
                                                     top: `${menuPosition.top}px`,
                                                     right: `${menuPosition.right}px`,

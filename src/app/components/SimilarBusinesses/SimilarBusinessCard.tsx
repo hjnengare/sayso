@@ -172,7 +172,7 @@ function SimilarBusinessCard({
   return (
     <Link
       href={`/business/${businessIdentifier}`}
-      className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden group cursor-pointer w-full h-full flex flex-col border border-white/60 backdrop-blur-xl shadow-md transition-all duration-300 hover:border-white/80 hover:-translate-y-1 hover:shadow-lg"
+      className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden group cursor-pointer w-full h-full flex flex-col border-none backdrop-blur-xl shadow-md transition-all duration-300 hover:border-white/80 hover:-translate-y-1 hover:shadow-lg"
       style={{
         minHeight: "416px",
       } as React.CSSProperties}
@@ -181,7 +181,7 @@ function SimilarBusinessCard({
       <div className="relative w-full h-[300px] lg:h-[260px] overflow-hidden rounded-t-[12px]">
         {/* Rating badge */}
         {typeof rating === "number" && rating > 0 && (
-          <div className="absolute right-3 top-3 z-20 inline-flex items-center gap-1 rounded-full bg-off-white/95 backdrop-blur-xl px-2.5 py-1 text-charcoal shadow-md border border-white/40">
+          <div className="absolute right-3 top-3 z-20 inline-flex items-center gap-1 rounded-full bg-off-white/95 backdrop-blur-xl px-2.5 py-1 text-charcoal shadow-md border-none">
             <Star className="w-4 h-4 text-charcoal fill-charcoal" strokeWidth={2.5} aria-hidden />
             <span
               className="text-xs font-semibold text-charcoal"

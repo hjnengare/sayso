@@ -59,7 +59,7 @@ export default function EventHeroImage({
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.6 }}
-      className="relative w-full aspect-[4/3] sm:aspect-[16/9] lg:aspect-[21/9] rounded-none overflow-hidden border border-white/60 ring-1 ring-white/30"
+      className="relative w-full aspect-[4/3] sm:aspect-[16/9] lg:aspect-[21/9] rounded-none overflow-hidden border-none"
     >
       <Image
         src={imageUrl}
@@ -85,7 +85,7 @@ export default function EventHeroImage({
       </div>
 
       {event.rating != null && (
-        <div className="absolute top-6 right-6 z-20 inline-flex items-center gap-1 rounded-full bg-off-white/95 backdrop-blur-xl px-3 py-1.5 text-charcoal border border-white/40">
+        <div className="absolute top-6 right-6 z-20 inline-flex items-center gap-1 rounded-full bg-off-white/95 backdrop-blur-xl px-3 py-1.5 text-charcoal border-none">
           <Star className="w-3.5 h-3.5 text-coral fill-coral" aria-hidden />
           <span className="text-body-sm font-semibold text-charcoal" style={{ 
             fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', 

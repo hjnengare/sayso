@@ -354,7 +354,7 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
                 />
               </div>
 
-              <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-md p-6 sm:p-8">
+              <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-6 sm:p-8">
                 <ReviewsList
                   reviews={reviews.map((review): any => ({
                     ...review,

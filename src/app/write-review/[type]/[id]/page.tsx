@@ -409,7 +409,7 @@ function WriteReviewContent() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="bg-card-bg border border-white/60 rounded-[12px] p-4 md:p-6 shadow-lg"
+                    className="bg-card-bg border-none rounded-[12px] p-4 md:p-6 shadow-lg"
                   >
                     <div className="flex gap-4">
                       <div className="flex-shrink-0">
@@ -471,7 +471,7 @@ function WriteReviewContent() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
-                    className="bg-card-bg border-0 sm:border border-white/60 rounded-[12px] shadow-none sm:shadow-lg relative overflow-hidden"
+                    className="bg-card-bg border-0 sm:border-none rounded-[12px] shadow-none sm:shadow-lg relative overflow-hidden"
                   >
                     {/* Background Gradient */}
                     <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5" />
@@ -527,7 +527,7 @@ function WriteReviewContent() {
 
                 {/* Sidebar — context card (desktop only) */}
                 <div className="hidden lg:block space-y-6">
-                  <div className="bg-card-bg border border-white/60 rounded-[12px] p-5 shadow-lg sticky top-28">
+                  <div className="bg-card-bg border-none rounded-[12px] p-5 shadow-lg sticky top-28">
                     <h3 className="font-urbanist text-base font-bold text-charcoal mb-3">
                       {isEvent ? "About this Event" : "About this Special"}
                     </h3>

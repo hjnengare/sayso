@@ -411,7 +411,7 @@ export default function ReviewerProfilePage() {
                                                 </h3>
                                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                                                     {reviewer.badges.map((badge) => (
-                                                        <div key={badge.id} className="bg-gradient-to-br from-white/60 to-off-white/80 rounded-[12px] p-6 border border-white/60 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
+                                                        <div key={badge.id} className="bg-gradient-to-br from-white/60 to-off-white/80 rounded-[12px] p-6 border-none shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
                                                             <div className="flex items-center gap-3 mb-2">
                                                                 <div className="relative w-8 h-8 flex-shrink-0">
                                                                     <Image
@@ -452,7 +452,7 @@ export default function ReviewerProfilePage() {
                                             className="bg-card-bg border border-white/70 rounded-[12px] shadow-2xl p-8 sm:p-10 hover:shadow-2xl transition-all duration-500"
                                             aria-label="Reviews written by this reviewer"
                                         >
-                                           <div className="bg-off-white/80 shadow-md px-4 rounded-[12px] py-3 mb-6 border border-white/60">
+                                           <div className="bg-off-white/80 shadow-md px-4 rounded-[12px] py-3 mb-6 border-none">
                                              <ReviewsList
                                                 reviews={reviewer.reviews && reviewer.reviews.length > 0 ? reviewer.reviews.map((review) => ({
                                                     businessName: review.businessName,

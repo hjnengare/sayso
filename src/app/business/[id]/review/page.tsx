@@ -567,7 +567,7 @@ function WriteReviewContent() {
                     
                         {/* Review Form Section - Separated from images */}
                         <article className="w-full sm:mx-0 flex items-center justify-center" aria-labelledby="review-form-heading">
-                          <div className="bg-card-bg border-0 sm:border border-white/60 rounded-[12px] shadow-none sm:shadow-lg relative overflow-hidden mx-auto w-full">
+                          <div className="bg-card-bg border-0 sm:border-none rounded-[12px] shadow-none sm:shadow-lg relative overflow-hidden mx-auto w-full">
                             <div className="relative z-10">
                               {/* Review Form */}
                               <div className="p-4 md:p-6">

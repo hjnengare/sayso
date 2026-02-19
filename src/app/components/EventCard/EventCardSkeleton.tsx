@@ -15,7 +15,7 @@ export default function EventCardSkeleton() {
       }}
     >
       <article
-        className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden w-full flex flex-col border border-white/60 backdrop-blur-xl shadow-md md:w-[340px] animate-pulse"
+        className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden w-full flex flex-col border-none backdrop-blur-xl shadow-md md:w-[340px] animate-pulse"
         style={{ maxWidth: "540px" } as React.CSSProperties}
       >
         {/* MEDIA — aspect-ratio 4/3, p-1, rounded-[12px] */}

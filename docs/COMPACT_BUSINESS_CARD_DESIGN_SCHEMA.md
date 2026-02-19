@@ -158,8 +158,8 @@ className: `${compact ? 'lg:order-2' : ''}`
 **Both Modes:**
 - Card Background: `bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95`
 - Content Background: `bg-card-bg/10` (10% sage tint)
-- Border: `border border-white/60`
-- Ring: `ring-1 ring-white/30`
+- Border: `border-none`
+- Ring: ``
 - Shadow: `shadow-premiumElevated`
 - Hover Shadow: `hover:shadow-premiumElevatedHover`
 - Backdrop: `backdrop-blur-xl`

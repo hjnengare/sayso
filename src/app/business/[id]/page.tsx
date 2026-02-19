@@ -245,7 +245,7 @@ export default function BusinessProfilePage() {
                                         {/* Left Column - Main Content */}
                                         <div className="lg:col-span-2 space-y-4 sm:space-y-6 lg:space-y-8">
                                             {/* Hero Image Skeleton */}
-                                            <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden border border-white/60 backdrop-blur-xl shadow-md animate-pulse">
+                                            <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden border-none backdrop-blur-xl shadow-md animate-pulse">
                                                 {/* Rating badge skeleton */}
                                                 <div className="absolute right-4 top-4 z-20 h-8 w-16 rounded-full bg-off-white/40" />
                                                 {/* Verified badge skeleton */}
@@ -268,7 +268,7 @@ export default function BusinessProfilePage() {
                                             </div>
 
                                             {/* Description Skeleton */}
-                                            <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-md p-6">
+                                            <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-6">
                                                 <div className="space-y-3">
                                                     <div className="h-4 bg-white/30 rounded animate-pulse" />
                                                     <div className="h-4 bg-white/30 rounded animate-pulse" />
@@ -277,7 +277,7 @@ export default function BusinessProfilePage() {
                                             </div>
 
                                             {/* Details Cards Skeleton */}
-                                            <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-md p-6">
+                                            <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-6">
                                                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                                                     {[1, 2, 3].map(i => (
                                                         <div key={i} className="space-y-2">
@@ -289,7 +289,7 @@ export default function BusinessProfilePage() {
                                             </div>
 
                                             {/* Map Skeleton */}
-                                            <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-md overflow-hidden">
+                                            <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md overflow-hidden">
                                                 <div className="h-[200px] sm:h-[300px] bg-card-bg/10 animate-pulse" />
                                                 <div className="p-4 space-y-2">
                                                     <div className="h-5 w-48 bg-white/30 rounded animate-pulse" />
@@ -298,7 +298,7 @@ export default function BusinessProfilePage() {
                                             </div>
 
                                             {/* Contact Info Skeleton - Mobile */}
-                                            <div className="lg:hidden bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-md p-6">
+                                            <div className="lg:hidden bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-6">
                                                 <div className="space-y-4">
                                                     {[1, 2, 3].map(i => (
                                                         <div key={i} className="flex items-center gap-3">
@@ -313,7 +313,7 @@ export default function BusinessProfilePage() {
                                         {/* Right Column - Sidebar */}
                                         <div className="space-y-4 sm:space-y-6">
                                             {/* Action Card Skeleton */}
-                                            <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-md p-6">
+                                            <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-6">
                                                 <div className="space-y-4">
                                                     <div className="h-12 w-full bg-card-bg/40 rounded-full animate-pulse" />
                                                     <div className="h-12 w-full bg-coral/40 rounded-full animate-pulse" />
@@ -325,7 +325,7 @@ export default function BusinessProfilePage() {
                                             </div>
 
                                             {/* Personalization Insights Skeleton */}
-                                            <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-md p-6">
+                                            <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-6">
                                                 <div className="h-6 w-40 bg-white/30 rounded animate-pulse mb-4" />
                                                 <div className="space-y-3">
                                                     {[1, 2, 3].map(i => (
@@ -338,7 +338,7 @@ export default function BusinessProfilePage() {
                                             </div>
 
                                             {/* Contact Info Skeleton - Desktop */}
-                                            <div className="hidden lg:block bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-md p-6">
+                                            <div className="hidden lg:block bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-6">
                                                 <div className="space-y-4">
                                                     {[1, 2, 3].map(i => (
                                                         <div key={i} className="flex items-center gap-3">
@@ -359,7 +359,7 @@ export default function BusinessProfilePage() {
                             <div className="text-center mb-6">
                                 <div className="h-7 w-48 bg-charcoal/10 rounded-lg mx-auto animate-pulse" />
                             </div>
-                            <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-md p-6 sm:p-8">
+                            <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-6 sm:p-8">
                                 <div className="space-y-6">
                                     {[1, 2, 3].map(i => (
                                         <div key={i} className="border-b border-white/20 pb-6 last:border-0 last:pb-0">
@@ -675,7 +675,7 @@ export default function BusinessProfilePage() {
 
                                 {/* Reviews List Section */}
                                 <section
-                                    className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] shadow-md p-6 sm:p-8"
+                                    className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-6 sm:p-8"
                                     aria-label="Business reviews"
                                 >
                                     <ReviewsList

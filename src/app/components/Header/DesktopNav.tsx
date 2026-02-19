@@ -270,7 +270,7 @@ export default function DesktopNav(props: DesktopNavProps) {
 
                   {mounted && (isAddDropdownOpen || isAddDropdownClosing) && (
                     <div
-                      className={`absolute left-0 top-full mt-2 z-[900] bg-off-white rounded-[12px] border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.12),0_4px_16px_rgba(0,0,0,0.08)] overflow-hidden min-w-[250px] backdrop-blur-xl transition-all duration-150 ease-out ${
+                      className={`absolute left-0 top-full mt-2 z-[900] bg-off-white rounded-[12px] border-none shadow-[0_8px_32px_rgba(0,0,0,0.12),0_4px_16px_rgba(0,0,0,0.08)] overflow-hidden min-w-[250px] backdrop-blur-xl transition-all duration-150 ease-out ${
                         isAddDropdownClosing
                           ? "opacity-0 scale-95 -translate-y-1 pointer-events-none"
                           : "opacity-100 scale-100 translate-y-0"
@@ -398,7 +398,7 @@ export default function DesktopNav(props: DesktopNavProps) {
                       createPortal(
                         <div
                           ref={discoverMenuPortalRef}
-                          className={`fixed z-[1000] bg-off-white rounded-[12px] border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.12),0_4px_16px_rgba(0,0,0,0.08)] overflow-hidden min-w-[320px] transition-all duration-300 ease-out backdrop-blur-xl ${
+                          className={`fixed z-[1000] bg-off-white rounded-[12px] border-none shadow-[0_8px_32px_rgba(0,0,0,0.12),0_4px_16px_rgba(0,0,0,0.08)] overflow-hidden min-w-[320px] transition-all duration-300 ease-out backdrop-blur-xl ${
                             isDiscoverDropdownClosing
                               ? "opacity-0 scale-95 translate-y-[-8px]"
                               : "opacity-100 scale-100 translate-y-0"

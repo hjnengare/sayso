@@ -19,7 +19,7 @@ export default function BusinessActionCard({ businessSlug, businessId, isBusines
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 0.5, duration: 0.6 }}
-      className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/60 rounded-[12px] ring-1 ring-white/30 shadow-md p-4 sm:p-6"
+      className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px]  shadow-md p-4 sm:p-6"
     >
         <h3
           className="text-h3 font-semibold text-charcoal mb-3"
@@ -52,7 +52,7 @@ export default function BusinessActionCard({ businessSlug, businessId, isBusines
           {isBusinessOwner && (
             <Link
               href={`/business/${businessSlug}/edit`}
-              className="block w-full bg-gradient-to-br from-white/50 to-white/30 backdrop-blur-sm text-charcoal font-semibold py-3 px-5 rounded-full transition-all duration-300 hover:bg-charcoal hover:text-white border border-white/40 shadow-md text-body-sm text-center"
+              className="block w-full bg-gradient-to-br from-white/50 to-white/30 backdrop-blur-sm text-charcoal font-semibold py-3 px-5 rounded-full transition-all duration-300 hover:bg-charcoal hover:text-white border-none shadow-md text-body-sm text-center"
               style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
             >
               Edit Business

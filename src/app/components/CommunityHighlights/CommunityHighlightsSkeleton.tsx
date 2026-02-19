@@ -105,7 +105,7 @@ function BusinessOfTheMonthCardSkeleton() {
       }}
     >
       <div
-        className="relative px-1 pt-1 pb-2 sm:pb-0 bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-visible w-full flex flex-col border border-white/60 backdrop-blur-xl ring-1 ring-white/30 shadow-md sm:h-auto animate-pulse"
+        className="relative px-1 pt-1 pb-2 sm:pb-0 bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-visible w-full flex flex-col border-none backdrop-blur-xl  shadow-md sm:h-auto animate-pulse"
         style={{ maxWidth: "540px" } as React.CSSProperties}
       >
         {/* MEDIA — same as BusinessOfTheMonthCard */}

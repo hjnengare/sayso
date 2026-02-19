@@ -45,7 +45,7 @@ function SavedBusinessesGrid({ savedBusinesses }: SavedBusinessesGridProps) {
       >
         <BusinessCard business={business} inGrid={true} />
         {/* Saved indicator - more subtle */}
-        <div className="absolute top-3 right-3 w-8 h-8 bg-gradient-to-br from-sage to-sage/80 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/40 z-10 opacity-90 group-hover:opacity-100 transition-all duration-300 group-hover:scale-110">
+        <div className="absolute top-3 right-3 w-8 h-8 bg-gradient-to-br from-sage to-sage/80 backdrop-blur-xl rounded-full flex items-center justify-center border-none z-10 opacity-90 group-hover:opacity-100 transition-all duration-300 group-hover:scale-110">
           <BookmarkCheck className="w-4 h-4 text-white" fill="white" />
         </div>
       </div>
