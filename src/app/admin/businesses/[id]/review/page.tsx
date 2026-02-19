@@ -312,15 +312,23 @@ export default function AdminBusinessReviewPage() {
   if (fetchState.status === "error") {
     return (
       <main className="max-w-4xl mx-auto px-4 py-6" style={{ fontFamily: FONT }}>
-        <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-xl font-bold text-charcoal">Review Business</h1>
-          <Link
-            href="/admin/pending-businesses"
-            className="text-sm font-medium text-charcoal/70 hover:text-charcoal flex items-center gap-1.5"
-          >
-            <ChevronLeft className="w-4 h-4" />
-            Back to Pending
-          </Link>
+        <div className="mb-6">
+          <nav className="pb-1" aria-label="Breadcrumb">
+            <ol className="flex items-center gap-2 text-sm">
+              <li>
+                <Link href="/admin/pending-businesses" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium">
+                  Pending Businesses
+                </Link>
+              </li>
+              <li className="flex items-center">
+                <ChevronRight className="w-4 h-4 text-charcoal/60" />
+              </li>
+              <li>
+                <span className="text-charcoal font-semibold">Review Business</span>
+              </li>
+            </ol>
+          </nav>
+          <h1 className="text-xl font-bold text-charcoal mt-3">Review Business</h1>
         </div>
         <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center">
           <AlertTriangle className="w-8 h-8 text-red-400 mx-auto mb-3" />
@@ -342,15 +350,23 @@ export default function AdminBusinessReviewPage() {
   if (fetchState.status === "not_found") {
     return (
       <main className="max-w-4xl mx-auto px-4 py-6" style={{ fontFamily: FONT }}>
-        <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-xl font-bold text-charcoal">Review Business</h1>
-          <Link
-            href="/admin/pending-businesses"
-            className="text-sm font-medium text-charcoal/70 hover:text-charcoal flex items-center gap-1.5"
-          >
-            <ChevronLeft className="w-4 h-4" />
-            Back to Pending
-          </Link>
+        <div className="mb-6">
+          <nav className="pb-1" aria-label="Breadcrumb">
+            <ol className="flex items-center gap-2 text-sm">
+              <li>
+                <Link href="/admin/pending-businesses" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium">
+                  Pending Businesses
+                </Link>
+              </li>
+              <li className="flex items-center">
+                <ChevronRight className="w-4 h-4 text-charcoal/60" />
+              </li>
+              <li>
+                <span className="text-charcoal font-semibold">Review Business</span>
+              </li>
+            </ol>
+          </nav>
+          <h1 className="text-xl font-bold text-charcoal mt-3">Review Business</h1>
         </div>
         <div className="rounded-lg border border-charcoal/15 bg-off-white/50 p-6 text-center">
           <AlertTriangle className="w-8 h-8 text-charcoal/40 mx-auto mb-3" />
