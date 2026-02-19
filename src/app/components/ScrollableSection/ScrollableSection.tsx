@@ -481,13 +481,13 @@ export default function ScrollableSection({
           <div
             ref={trackRef}
             onClick={handleTrackClick}
-            className="relative w-full max-w-md h-[3px] bg-charcoal/10 rounded-full cursor-pointer hover:bg-charcoal/15 transition-colors"
+            className="relative w-full max-w-md h-[5px] bg-charcoal/10 rounded-full cursor-pointer hover:bg-charcoal/15 transition-colors"
             style={{
               touchAction: 'none',
             }}
           >
             <div
-              className="absolute top-0 h-full bg-charcoal/40 rounded-full transition-all cursor-grab active:cursor-grabbing"
+              className="absolute top-0 h-full bg-sage/70 rounded-full transition-all cursor-grab active:cursor-grabbing hover:bg-sage/80"
               style={{
                 left: `${scrollProgress}%`,
                 width: scrollRef.current
