@@ -111,16 +111,16 @@ export default function ReviewerCard({
       >
         <Link
           href={cardHref}
-          className="block group/card"
+          className="block group/card h-full"
         >
           <div
-            className="relative rounded-2xl overflow-hidden cursor-pointer h-[268px] shadow-sm hover:shadow-xl transition-all duration-500 ease-out bg-card-bg"
+            className="relative rounded-2xl cursor-pointer shadow-sm hover:shadow-xl transition-all duration-500 ease-out bg-card-bg flex flex-col"
           >
 
             {/* Content */}
-            <div className="relative p-4 h-full flex flex-col">
+            <div className="relative p-4 flex flex-col gap-3">
               {/* Header with profile pic, name, location */}
-              <div className="flex items-start gap-3 mb-3">
+              <div className="flex items-start gap-3">
                 {!imgError && reviewerData?.profilePicture && reviewerData.profilePicture.trim() !== '' ? (
                   <div className="relative flex-shrink-0">
                     <div className="relative">
@@ -188,7 +188,7 @@ export default function ReviewerCard({
               </div>
 
               {/* Stats section */}
-              <div className="mb-3">
+              <div>
                 <div className="flex items-center justify-center">
                   <div className="rounded-xl px-5 py-2"
                     style={{
@@ -212,7 +212,7 @@ export default function ReviewerCard({
 
               {/* Latest Review Preview */}
               {latestReview && (
-                <div className="flex-1 min-h-0">
+                <div className="flex-shrink-0">
                   <div className="rounded-xl px-3 py-2.5 relative"
                     style={{
                       background: 'linear-gradient(145deg, rgba(255,255,255,0.65) 0%, rgba(229,224,229,0.4) 100%)',
