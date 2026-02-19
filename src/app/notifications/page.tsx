@@ -12,6 +12,8 @@ import { useNotifications, type ToastNotificationData, type NotificationType } f
 import { useAuth } from "../contexts/AuthContext";
 import { formatTimeAgo } from "../utils/formatTimeAgo";
 import { usePreviousPageBreadcrumb } from "../hooks/usePreviousPageBreadcrumb";
+import { getBrowserSupabase } from "../lib/supabase/client";
+import { LiveIndicator } from "../components/Realtime/RealtimeIndicators";
 
 interface BusinessNotificationApiItem {
   id: string;
@@ -51,6 +53,7 @@ export default function NotificationsPage() {
   const [isBusinessLoading, setIsBusinessLoading] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [filterType, setFilterType] = useState<'All' | 'Unread' | 'Read'>('All');
+  const [isRealtimeConnected, setIsRealtimeConnected] = useState(false);
 
   useEffect(() => {
     if (!isBusinessAccountUser) {
@@ -137,6 +140,73 @@ export default function NotificationsPage() {
 
     return () => {
       isCancelled = true;
+    };
+  }, [isBusinessAccountUser, user?.id]);
+
+  // Realtime subscription for business notifications
+  useEffect(() => {
+    if (!isBusinessAccountUser || !user?.id) {
+      setIsRealtimeConnected(false);
+      return;
+    }
+
+    const supabase = getBrowserSupabase();
+    const channel = supabase
+      .channel(`notifications-business-page-${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          const newItem = payload.new as any;
+          const newNotification: ToastNotificationData = {
+            id: newItem.id,
+            type: newItem.type as NotificationType,
+            message: newItem.message || '',
+            title: newItem.title || '',
+            timeAgo: formatTimeAgo(newItem.created_at),
+            image: '/png/restaurants.png',
+            imageAlt: 'Business notification',
+            link: newItem.link || undefined,
+          };
+          
+          setBusinessNotifications(prev => [newNotification, ...prev]);
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          const updated = payload.new as any;
+          setBusinessNotifications(prev =>
+            prev.map(n => n.id === updated.id ? {
+              ...n,
+              message: updated.message || n.message,
+              title: updated.title || n.title,
+            } : n)
+          );
+          
+          if (updated.read) {
+            setBusinessReadNotifications(prev => new Set(prev).add(updated.id));
+          }
+        }
+      )
+      .subscribe((status) => {
+        setIsRealtimeConnected(status === 'SUBSCRIBED');
+      });
+
+    return () => {
+      supabase.removeChannel(channel);
+      setIsRealtimeConnected(false);
     };
   }, [isBusinessAccountUser, user?.id]);
 
@@ -340,15 +410,18 @@ export default function NotificationsPage() {
                 >
                   <div className="flex items-center justify-between gap-4 flex-wrap">
                     <div>
-                      <h1
-                        className="text-h2 sm:text-h1 font-bold text-charcoal"
-                        style={{
-                          fontFamily:
-                            "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-                        }}
-                      >
-                        Notifications
-                      </h1>
+                      <div className="flex items-center gap-3">
+                        <h1
+                          className="text-h2 sm:text-h1 font-bold text-charcoal"
+                          style={{
+                            fontFamily:
+                              "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                          }}
+                        >
+                          Notifications
+                        </h1>
+                        {isRealtimeConnected && <LiveIndicator />}
+                      </div>
                       <p
                         className="text-body-sm text-charcoal/60 mt-2"
                         style={{

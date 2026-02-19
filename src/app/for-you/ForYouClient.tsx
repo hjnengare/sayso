@@ -198,6 +198,19 @@ export default function ForYouClient({
     }
   }, [hasClientFetchSettled, hasInitialBusinesses, loading]);
 
+  // Visibility-based refresh when tab becomes visible
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && refetch) {
+        refetch();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [refetch]);
+
   const combinedError = error ?? (hasClientFetchSettled ? null : initialError);
   const shouldShowSkeleton = !hasInitialBusinesses && (loading || prefsLoading || simpleSearchLoading);
   const canRenderResults = !simpleSearchLoading && (!prefsLoading || hasInitialBusinesses);

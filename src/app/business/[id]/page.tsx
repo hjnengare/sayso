@@ -755,6 +755,7 @@ export default function BusinessProfilePage() {
                                         error={null}
                                         showBusinessInfo={false}
                                         onUpdate={refetchBusiness}
+                                        businessId={businessId}
                                         emptyMessage="No reviews yet. Be the first to review this business!"
                                         emptyStateAction={{
                                             label: hasReviewed ? 'Already Reviewed' : 'Write First Review',

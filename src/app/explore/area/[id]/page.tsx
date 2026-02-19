@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useMemo } from "react";
+import { Suspense, useMemo, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import Footer from "../../../components/Footer/Footer";
@@ -44,6 +44,19 @@ function AreaDetailContent() {
     feedStrategy: "standard", // No personalization
     searchQuery: area?.name || null, // Search by area name in location
   });
+
+  // Visibility-based refresh when tab becomes visible
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && refetch) {
+        refetch();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [refetch]);
 
   if (!area) {
     return (

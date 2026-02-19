@@ -265,6 +265,20 @@ export default function EventsSpecialsPage() {
     return () => window.removeEventListener("resize", updateIsDesktop);
   }, []);
 
+  // Visibility-based refresh when tab becomes visible
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        // Refresh from the beginning when returning to tab
+        fetchPage(0, false);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [selectedFilter, debouncedSearchQuery]);
+
   const handleFilterChange = (filter: "all" | "event" | "special") => {
     setSelectedFilter(filter);
   };

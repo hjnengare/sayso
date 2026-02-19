@@ -31,7 +31,7 @@ const HERO_COPY = [
     description: "Trusted local gems, rated by real people.",
   },
   {
-    title: "Rate the services you love (or don't love)",
+    title: "Rate the services you love",
     description: "Quick, honest reviews that help your community choose better.",
   },
   {

@@ -116,6 +116,20 @@ export default function TrendingPage() {
   const error = isSearching ? searchError : defaultError;
   const refetch = isSearching ? refetchSearch : refetchDefault;
 
+  // Visibility-based refresh - refetch when returning to tab
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && refetch) {
+        refetch();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [refetch]);
+
   const trendingBusinesses = rawBusinesses;
 
   const totalPages = useMemo(() => Math.ceil(trendingBusinesses.length / ITEMS_PER_PAGE), [trendingBusinesses.length]);

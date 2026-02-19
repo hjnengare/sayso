@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import Footer from "../../../components/Footer/Footer";
@@ -94,6 +94,19 @@ function IntentDetailContent() {
     feedStrategy: "standard",
     searchQuery: intent?.label || null,
   });
+
+  // Visibility-based refresh when tab becomes visible
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && refetch) {
+        refetch();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [refetch]);
 
   const IconComponent = intent?.icon;
 

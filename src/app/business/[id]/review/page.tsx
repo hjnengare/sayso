@@ -645,6 +645,7 @@ function WriteReviewContent() {
                           loading={reviewsLoading}
                           error={null}
                           showBusinessInfo={false}
+                          businessId={businessId}
                           onUpdate={refetchReviews}
                           emptyMessage="Be the first to review this business!"
                         />

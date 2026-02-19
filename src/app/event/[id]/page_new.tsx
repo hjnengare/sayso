@@ -363,6 +363,7 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
                   loading={false}
                   error={null}
                   showBusinessInfo={false}
+                  businessId={event.id}
                   onUpdate={refetchReviews}
                   emptyMessage="No reviews yet. Be the first to review this event!"
                   emptyStateAction={{

@@ -181,6 +181,19 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
     }
   };
 
+  // Visibility-based refresh for reviews when tab becomes visible
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && event) {
+        refetchReviews();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [event, resolvedParams.id]);
+
   // Loading state - show full page loader with transition
   if (isLoading) {
     return (
@@ -429,6 +442,7 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
                   loading={false}
                   error={null}
                   showBusinessInfo={false}
+                  businessId={event.id}
                   onUpdate={refetchReviews}
                   emptyMessage="No reviews yet. Be the first to review this event!"
                   emptyStateAction={{

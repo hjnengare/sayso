@@ -26,6 +26,8 @@ import {
 import Footer from "../../components/Footer/Footer";
 import { ReviewsList } from "@/components/organisms/ReviewsList";
 import ReviewerProfileSkeleton from "../../components/ReviewerCard/ReviewerProfileSkeleton";
+import { getBrowserSupabase } from "../../lib/supabase/client";
+import { LiveIndicator } from "../../components/Realtime/RealtimeIndicators";
 
 // CSS animations
 const animations = `
@@ -114,6 +116,22 @@ export default function ReviewerProfilePage() {
     const [imgError, setImgError] = useState(false);
     const [reviewer, setReviewer] = useState<ReviewerProfile | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isRealtimeConnected, setIsRealtimeConnected] = useState(false);
+    const refreshTriggerRef = useRef(0);
+
+    // Refresh data function
+    const refreshReviewerData = async () => {
+        if (!reviewerId) return;
+        try {
+            const response = await fetch(`/api/reviewers/${reviewerId}`);
+            if (response.ok) {
+                const data = await response.json();
+                setReviewer(data.reviewer);
+            }
+        } catch (error) {
+            console.error('Error refreshing reviewer:', error);
+        }
+    };
 
     // Fetch reviewer data from API
     useEffect(() => {
@@ -140,6 +158,79 @@ export default function ReviewerProfilePage() {
         }
 
         fetchReviewer();
+    }, [reviewerId]);
+
+    // Visibility-based refresh - refetch when returning to tab
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible' && reviewerId) {
+                refreshTriggerRef.current += 1;
+                refreshReviewerData();
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
+    }, [reviewerId]);
+
+    // Realtime subscription for reviewer's reviews and badges
+    useEffect(() => {
+        if (!reviewerId) return;
+
+        const supabase = getBrowserSupabase();
+        const THROTTLE_MS = 5000; // Throttle updates to every 5 seconds
+        let lastRefresh = 0;
+
+        const throttledRefresh = () => {
+            const now = Date.now();
+            if (now - lastRefresh < THROTTLE_MS) return;
+            lastRefresh = now;
+            refreshReviewerData();
+        };
+
+        // Subscribe to reviews for this user
+        const reviewsChannel = supabase
+            .channel(`reviewer-reviews-${reviewerId}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'reviews',
+                    filter: `user_id=eq.${reviewerId}`,
+                },
+                () => {
+                    throttledRefresh();
+                }
+            )
+            .subscribe((status) => {
+                setIsRealtimeConnected(status === 'SUBSCRIBED');
+            });
+
+        // Subscribe to badges for this user
+        const badgesChannel = supabase
+            .channel(`reviewer-badges-${reviewerId}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'user_badges',
+                    filter: `user_id=eq.${reviewerId}`,
+                },
+                () => {
+                    throttledRefresh();
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(reviewsChannel);
+            supabase.removeChannel(badgesChannel);
+            setIsRealtimeConnected(false);
+        };
     }, [reviewerId]);
 
     // Handle scroll to top button visibility
@@ -287,6 +378,7 @@ export default function ReviewerProfilePage() {
                                                                     letterSpacing: '-0.02em',
                                                                 }}>
                                                                     {reviewer.name}
+                                                                {isRealtimeConnected && <LiveIndicator />}
                                                                 </h2>
                                                                 {reviewer.trophyBadge && (
                                                                     <div className={`px-2 py-1 rounded-full text-xs font-600 flex items-center gap-1 ${

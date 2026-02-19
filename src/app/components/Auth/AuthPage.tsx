@@ -467,6 +467,7 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
               loopWave={false}
               triggerOnTypingComplete={true}
               enableScrollTrigger={false}
+              disableWave={true}
               style={{
                 fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                 fontWeight: 700,

@@ -122,6 +122,20 @@ function CategoryDetailContent() {
     skip: shouldSkip, // ✅ Only skip if categoryId is missing
   });
 
+  // Visibility-based refresh - refetch when returning to tab
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && refetch) {
+        refetch();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [refetch]);
+
   // Client-side filter by subcategory (defensive fallback if API filtering doesn't match)
   // This handles ID mismatches (UUID vs slug) and provides fallback filtering
   const filteredBusinesses = useMemo(() => {

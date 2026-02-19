@@ -26,6 +26,8 @@ const BusinessOfMonthLeaderboard = nextDynamic(
 import { useBusinesses } from "../hooks/useBusinesses";
 import { useFeaturedBusinesses } from "../hooks/useFeaturedBusinesses";
 import { useIsDesktop } from "../hooks/useIsDesktop";
+import { getBrowserSupabase } from "../lib/supabase/client";
+import { LiveIndicator } from "../components/Realtime/RealtimeIndicators";
 
 // Note: dynamic and revalidate cannot be exported from client components
 // Client components are automatically dynamic
@@ -57,6 +59,8 @@ function LeaderboardPage() {
   const [topReviewers, setTopReviewers] = useState<LeaderboardUser[]>([]);
   const [isLoadingLeaderboard, setIsLoadingLeaderboard] = useState(true);
   const [leaderboardError, setLeaderboardError] = useState<string | null>(null);
+  const [isRealtimeConnected, setIsRealtimeConnected] = useState(false);
+  const [lastRefetch, setLastRefetch] = useState(Date.now());
 
   // Update active tab when URL param changes
   useEffect(() => {
@@ -98,6 +102,71 @@ function LeaderboardPage() {
       fetchLeaderboard();
     }
   }, [activeTab]);
+
+  // Realtime subscription for leaderboard updates (throttled)
+  useEffect(() => {
+    const supabase = getBrowserSupabase();
+    const THROTTLE_MS = 10000; // Refetch at most once every 10 seconds
+    
+    const throttledRefetch = () => {
+      const now = Date.now();
+      if (now - lastRefetch < THROTTLE_MS) {
+        return; // Skip if recently refetched
+      }
+      
+      setLastRefetch(now);
+      
+      // Refetch leaderboard data
+      fetch('/api/leaderboard?limit=50&sortBy=reviews')
+        .then(res => res.json())
+        .then(data => {
+          setTopReviewers(data.leaderboard || []);
+        })
+        .catch(error => {
+          console.error('Error refreshing leaderboard:', error);
+        });
+    };
+
+    // Subscribe to reviews table (affects review counts)
+    const reviewsChannel = supabase
+      .channel('leaderboard-reviews')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'reviews',
+        },
+        () => {
+          throttledRefetch();
+        }
+      )
+      .subscribe((status) => {
+        setIsRealtimeConnected(status === 'SUBSCRIBED');
+      });
+
+    // Subscribe to user_badges table (affects badges/gamification)
+    const badgesChannel = supabase
+      .channel('leaderboard-badges')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'user_badges',
+        },
+        () => {
+          throttledRefetch();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(reviewsChannel);
+      supabase.removeChannel(badgesChannel);
+      setIsRealtimeConnected(false);
+    };
+  }, [lastRefetch, activeTab]);
 
   // Fetch real businesses only when businesses tab is active or has been viewed
   // Reduced limit from 200 to 50 - we only need one business per interest category (max ~8)
@@ -236,6 +305,11 @@ function LeaderboardPage() {
                       initial={isDesktop ? "hidden" : false}
                       animate={isDesktop ? "visible" : undefined}
                     >
+                      {isRealtimeConnected && activeTab === 'contributors' && (
+                        <div className="flex justify-center mb-4">
+                          <LiveIndicator />
+                        </div>
+                      )}
                       <div className="my-4 relative">
                         <h1 
                           className="text-2xl sm:text-3xl md:text-4xl font-semibold leading-[1.2] tracking-tight text-charcoal mx-auto font-urbanist"

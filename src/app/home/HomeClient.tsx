@@ -189,6 +189,7 @@ export default function HomeClient() {
     businesses: forYouBusinesses,
     loading: forYouLoading,
     error: forYouError,
+    refetch: refetchForYouBusinesses,
   } = useForYouBusinesses(20, undefined, {
     preferences,
     preferencesLoading: prefsLoading,
@@ -200,6 +201,7 @@ export default function HomeClient() {
     loading: trendingLoading,
     error: trendingError,
     statusCode: trendingStatus,
+    refetch: refetchTrendingBusinesses,
   } = useTrendingBusinesses();
 
   // Debug logging for user preferences
@@ -214,11 +216,37 @@ export default function HomeClient() {
   }, [interests, subcategories, dealbreakers, isDev]);
 
   // Fetch featured businesses from API
-  const { featuredBusinesses, loading: featuredLoading, error: featuredError, statusCode: featuredStatus } = useFeaturedBusinesses({
+  const { featuredBusinesses, loading: featuredLoading, error: featuredError, statusCode: featuredStatus, refetch: refetchFeaturedBusinesses } = useFeaturedBusinesses({
     limit: 12,
     region: userLocation ? 'Cape Town' : null, // TODO: Get actual region from user location
     skip: false,
   });
+
+  // Refetch business data when page becomes visible (user returns to tab)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        // Refetch all business data sources
+        if (isFiltered && refetchAllBusinesses) {
+          refetchAllBusinesses();
+        }
+        if (user && refetchForYouBusinesses) {
+          refetchForYouBusinesses();
+        }
+        if (refetchTrendingBusinesses) {
+          refetchTrendingBusinesses();
+        }
+        if (refetchFeaturedBusinesses) {
+          refetchFeaturedBusinesses();
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [isFiltered, user, refetchAllBusinesses, refetchForYouBusinesses, refetchTrendingBusinesses, refetchFeaturedBusinesses]);
 
   // Search is active when there's a query in the URL or live query
   const isSearchActive = searchQueryParam.trim().length > 0 || liveQuery.trim().length > 0;

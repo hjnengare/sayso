@@ -49,6 +49,8 @@ import { useToast } from "../../../contexts/ToastContext";
 import { STORAGE_BUCKETS } from "../../../lib/utils/storageBucketConfig";
 import Image from "next/image";
 import { usePreviousPageBreadcrumb } from "../../../hooks/usePreviousPageBreadcrumb";
+import { useRealtimeBusinessStats, useRealtimeReviews, useRealtimeStatus } from "../../../hooks/useRealtime";
+import { LiveIndicator } from "../../../components/Realtime/RealtimeIndicators";
 
 interface BusinessStats {
   average_rating: number | null;
@@ -78,6 +80,11 @@ export default function OwnerBusinessDashboard() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  // Realtime subscriptions
+  const { stats: realtimeStats } = useRealtimeBusinessStats(business?.id);
+  const { reviews: realtimeReviews, isLive } = useRealtimeReviews(business?.id || '', []);
+  const { isConnected } = useRealtimeStatus();
   const { showToast } = useToast();
 
   const profileCompletion = useMemo(() => {
@@ -263,6 +270,33 @@ export default function OwnerBusinessDashboard() {
       window.removeEventListener('focus', handleFocus);
     };
   }, [business?.id]);
+
+  // Sync realtime stats with local state
+  useEffect(() => {
+    if (realtimeStats) {
+      setStats(prev => ({
+        average_rating: realtimeStats.average_rating ?? prev?.average_rating ?? null,
+        total_reviews: realtimeStats.total_reviews ?? prev?.total_reviews ?? 0,
+      }));
+    }
+  }, [realtimeStats]);
+
+  // Update new reviews count from realtime reviews
+  useEffect(() => {
+    if (realtimeReviews.length > 0 && analytics) {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      
+      const recentReviewsCount = realtimeReviews.filter(review => 
+        new Date(review.created_at) >= thirtyDaysAgo
+      ).length;
+      
+      setAnalytics(prev => prev ? {
+        ...prev,
+        newReviews: recentReviewsCount,
+      } : prev);
+    }
+  }, [realtimeReviews.length]);
 
   const handleDeleteClick = () => {
     setDeleteError(null);
@@ -597,6 +631,13 @@ export default function OwnerBusinessDashboard() {
                     </div>
                     </div>
                   </article>
+
+                  {/* Stats Cards Header with Live Indicator */}
+                  {isLive && (
+                    <div className="flex items-center justify-end mb-2">
+                      <LiveIndicator />
+                    </div>
+                  )}
 
                   {/* Stats Cards */}
                   <section

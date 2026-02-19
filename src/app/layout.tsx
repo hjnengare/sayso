@@ -19,6 +19,7 @@ import { OnboardingProvider } from "./contexts/OnboardingContext";
 import { ToastProvider } from "./contexts/ToastContext";
 import { SavedItemsProvider } from "./contexts/SavedItemsContext";
 import { NotificationsProvider } from "./contexts/NotificationsContext";
+import { RealtimeProvider } from "./contexts/RealtimeContext";
 import PageTransitionProvider from "./components/Providers/PageTransitionProvider";
 import GlobalHeader from "./components/Header/GlobalHeader";
 import SchemaMarkup from "./components/SEO/SchemaMarkup";
@@ -208,18 +209,20 @@ export default function RootLayout({
         />
         <ToastProvider>
           <AuthProvider>
-            <OnboardingProvider>
-              <SavedItemsProvider>
-                <NotificationsProvider>
-                  <BusinessNotifications />
-                  <GlobalHeader />
-                  <PageTransitionProvider>
-                    {children}
-                  </PageTransitionProvider>
-                  <ScrollToTopButton threshold={360} />
-                </NotificationsProvider>
-              </SavedItemsProvider>
-            </OnboardingProvider>
+            <RealtimeProvider>
+              <OnboardingProvider>
+                <SavedItemsProvider>
+                  <NotificationsProvider>
+                    <BusinessNotifications />
+                    <GlobalHeader />
+                    <PageTransitionProvider>
+                      {children}
+                    </PageTransitionProvider>
+                    <ScrollToTopButton threshold={360} />
+                  </NotificationsProvider>
+                </SavedItemsProvider>
+              </OnboardingProvider>
+            </RealtimeProvider>
           </AuthProvider>
         </ToastProvider>
       </body>

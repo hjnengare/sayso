@@ -19,13 +19,15 @@ interface ReviewCardProps {
   onUpdate?: () => void;
   showBusinessInfo?: boolean;
   isOwnerView?: boolean; // If true, show owner-specific actions like "Message Customer"
+  realtimeHelpfulCount?: number; // Real-time helpful count from subscription
 }
 
 function ReviewCard({
   review,
   onUpdate,
   showBusinessInfo = false,
-  isOwnerView = false
+  isOwnerView = false,
+  realtimeHelpfulCount,
 }: ReviewCardProps) {
   const { user } = useAuth();
   const router = useRouter();
@@ -112,6 +114,13 @@ function ReviewCard({
 
     fetchUserBadges();
   }, [review.user_id, review.user?.id]);
+
+  // Sync with realtime helpful count when it updates
+  useEffect(() => {
+    if (realtimeHelpfulCount !== undefined && realtimeHelpfulCount !== helpfulCount) {
+      setHelpfulCount(realtimeHelpfulCount);
+    }
+  }, [realtimeHelpfulCount]);
 
   // Fetch helpful status and count on mount
   useEffect(() => {

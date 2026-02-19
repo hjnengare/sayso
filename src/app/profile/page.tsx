@@ -25,6 +25,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { getBrowserSupabase } from "@/app/lib/supabase/client";
+import { LiveIndicator } from "@/app/components/Realtime/RealtimeIndicators";
 
 // Import components directly for faster loading
 import Footer from "@/app/components/Footer/Footer";
@@ -231,6 +232,7 @@ function ProfileContent() {
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [profileLoading, setProfileLoading] = useState(true);
   const [statsLoading, setStatsLoading] = useState(true);
+  const [isRealtimeConnected, setIsRealtimeConnected] = useState(false);
   const supabase = getBrowserSupabase();
 
   // Fetch user's reviews - MUST be before any early returns
@@ -566,6 +568,87 @@ function ProfileContent() {
 
     fetchAchievements();
   }, [user?.id]);
+
+  // Realtime subscription for user's badges and reviews
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const THROTTLE_MS = 3000; // Throttle updates
+    let lastRefresh = 0;
+
+    const throttledRefresh = () => {
+      const now = Date.now();
+      if (now - lastRefresh < THROTTLE_MS) return;
+      lastRefresh = now;
+
+      // Refetch achievements  
+      setAchievementsLoading(true);
+      fetch('/api/users/badges')
+        .then(res => res.json())
+        .then(result => {
+          if (result.ok && result.badges) {
+            const earnedBadges = result.badges.filter((badge: any) => badge.earned);
+            const transformed = earnedBadges.map((badge: any) => ({
+              achievement_id: badge.id,
+              earned_at: badge.awarded_at || new Date().toISOString(),
+              achievements: {
+                id: badge.id,
+                name: badge.name,
+                description: badge.description,
+                icon: badge.icon_path,
+                category: badge.badge_group || 'general',
+              },
+            }));
+            setAchievements(transformed);
+          }
+        })
+        .catch(console.error)
+        .finally(() => setAchievementsLoading(false));
+    };
+
+    // Subscribe to badges for this user
+    const badgesChannel = supabase
+      .channel(`profile-badges-${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'user_badges',
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          throttledRefresh();
+        }
+      )
+      .subscribe((status) => {
+        setIsRealtimeConnected(status === 'SUBSCRIBED');
+      });
+
+    // Subscribe to reviews for this user
+    const reviewsChannel = supabase
+      .channel(`profile-reviews-${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'reviews',
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          // Trigger reviews refetch
+          setReviewsLoading(true);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(badgesChannel);
+      supabase.removeChannel(reviewsChannel);
+      setIsRealtimeConnected(false);
+    };
+  }, [user?.id, supabase]);
 
   const handleSaveProfile = async (data?: { username: string; displayName: string; avatarFile: File | null }) => {
     if (!user) return;
@@ -1052,6 +1135,7 @@ function ProfileContent() {
                                       <span className="capitalize">Top Reviewer</span>
                                     </div>
                                   )}
+                                  {isRealtimeConnected && <LiveIndicator />}
                                 </div>
                                 {/* Bio */}
                                 {enhancedProfile?.bio && (

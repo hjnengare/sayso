@@ -243,6 +243,7 @@ export default function OwnerReviewsPage() {
                       loading={isLoading}
                       error={error}
                       showBusinessInfo={false}
+                      businessId={businessId}
                       emptyMessage="No reviews yet. Reviews from customers will appear here."
                       isOwnerView={true}
                     />

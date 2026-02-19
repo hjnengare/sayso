@@ -1,12 +1,14 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { AlertCircle, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 import ReviewCard from './ReviewCard';
 import type { ReviewWithUser } from '../../lib/types/database';
 import { useIsDesktop } from '../../hooks/useIsDesktop';
+import { useRealtimeReviews, useRealtimeHelpfulVotes } from '../../hooks/useRealtime';
+import { LiveIndicator } from '../Realtime/RealtimeIndicators';
 
 interface ReviewsListProps {
   reviews: ReviewWithUser[];
@@ -21,10 +23,11 @@ interface ReviewsListProps {
     disabled?: boolean;
   };
   isOwnerView?: boolean; // If true, pass to ReviewCard for owner-specific actions
+  businessId?: string; // For realtime subscriptions
 }
 
 export default function ReviewsList({
-  reviews,
+  reviews: initialReviews,
   loading = false,
   error = null,
   showBusinessInfo = false,
@@ -32,8 +35,24 @@ export default function ReviewsList({
   emptyMessage = "No reviews yet. Be the first to share your experience!",
   emptyStateAction,
   isOwnerView = false,
+  businessId,
 }: ReviewsListProps) {
   const isDesktop = useIsDesktop();
+  
+  // Use realtime reviews if businessId is provided, otherwise use initial reviews
+  const { reviews: realtimeReviews, isLive, setReviews } = useRealtimeReviews(businessId, initialReviews);
+  const reviews = businessId ? realtimeReviews : initialReviews;
+  
+  // Subscribe to helpful votes for all visible reviews
+  const reviewIds = reviews.map(r => r.id);
+  const { helpfulCounts } = useRealtimeHelpfulVotes(businessId, reviewIds);
+
+  // Sync initial reviews when they change (e.g., from refetch)
+  useEffect(() => {
+    if (businessId && initialReviews.length !== reviews.length) {
+      setReviews(initialReviews);
+    }
+  }, [businessId, initialReviews, reviews.length, setReviews]);
 
   if (loading) {
     return (
@@ -143,6 +162,13 @@ export default function ReviewsList({
 
   return (
     <div className="space-y-6">
+      {/* Live Indicator */}
+      {businessId && isLive && (
+        <div className="flex justify-end">
+          <LiveIndicator isLive={isLive} />
+        </div>
+      )}
+      
       {reviews.map((review, index) => (
         <motion.div
           key={review.id}
@@ -155,6 +181,7 @@ export default function ReviewsList({
             onUpdate={onUpdate}
             showBusinessInfo={showBusinessInfo}
             isOwnerView={isOwnerView}
+            realtimeHelpfulCount={helpfulCounts[review.id]}
           />
         </motion.div>
       ))}
