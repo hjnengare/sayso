@@ -1,4 +1,4 @@
-﻿import type { Event } from "../types/Event";
+import type { Event } from "../types/Event";
 
 const EN_DASH = "–";
 
@@ -47,8 +47,8 @@ export type EventsAndSpecialsRow = {
 
 export function mapEventsAndSpecialsRowToEventCard(
   row: EventsAndSpecialsRow,
-  opts?: { occurrencesCount?: number; dateRangeLabel?: string | null; startDates?: string[] }
-): Event & { occurrencesCount?: number; date_range_label?: string | null } {
+  opts?: { occurrencesCount?: number; dateRangeLabel?: string | null; startDates?: string[]; isExternalEvent?: boolean }
+): Event & { occurrencesCount?: number; date_range_label?: string | null; isExternalEvent?: boolean } {
   const startIso = row.start_date;
   const endIso = row.end_date;
 
@@ -103,8 +103,9 @@ export function mapEventsAndSpecialsRowToEventCard(
     ctaSource: row.cta_source ?? null,
     whatsappNumber: row.whatsapp_number ?? undefined,
     whatsappPrefillTemplate: row.whatsapp_prefill_template ?? undefined,
-    businessId: row.business_id ?? undefined,
-    isCommunityEvent: row.type === "event" ? row.business_id == null : false,
+    businessId: opts?.isExternalEvent ? undefined : (row.business_id ?? undefined),
+    isCommunityEvent: row.type === "event" ? (row.business_id == null || opts?.isExternalEvent) : false,
+    isExternalEvent: opts?.isExternalEvent || false,
     venueName,
     city,
     country,

@@ -57,6 +57,8 @@ export async function GET(req: NextRequest) {
            business_stats (average_rating, total_reviews)`
         )
         .eq("status", "active")
+        .or('is_hidden.is.null,is_hidden.eq.false')
+        .or('is_system.is.null,is_system.eq.false')
         .or(
           `name.ilike.%${query}%, description.ilike.%${query}%, primary_subcategory_slug.ilike.%${query}%, primary_subcategory_label.ilike.%${query}%, location.ilike.%${query}%`
         )

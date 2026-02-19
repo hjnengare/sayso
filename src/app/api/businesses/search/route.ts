@@ -118,9 +118,10 @@ export async function GET(req: NextRequest) {
 
       const { data: fallbackData, error: fallbackError } = await supabase
         .from('businesses')
-        .select('id, name, primary_subcategory_slug, primary_subcategory_label, primary_category_slug, location, address, phone, email, website, hours, image_url, verified, lat, lng, slug, is_system')
+        .select('id, name, primary_subcategory_slug, primary_subcategory_label, primary_category_slug, location, address, phone, email, website, hours, image_url, verified, lat, lng, slug, is_system, is_hidden')
         .eq('status', 'active')
-        .neq('is_system', true)
+        .or('is_hidden.is.null,is_hidden.eq.false')
+        .or('is_system.is.null,is_system.eq.false')
         .or(`name.ilike.%${query}%, description.ilike.%${query}%, primary_subcategory_slug.ilike.%${query}%, primary_subcategory_label.ilike.%${query}%`)
         .limit(limit);
 

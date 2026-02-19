@@ -480,7 +480,7 @@ function EventCard({ event, index = 0 }: EventCardProps) {
                 }`}
                 style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
               >
-                Community-hosted event
+                {event.isExternalEvent ? "External event (Quicket)" : "Community-hosted event"}
               </span>
             )}
             {/* Review count - same styling as Business Card */}

@@ -40,6 +40,7 @@ export interface Event {
   businessId?: string;
   businessName?: string;
   isCommunityEvent?: boolean;
+  isExternalEvent?: boolean;
   createdBy?: string;
   createdAt?: string;
   isBusinessOwned?: boolean;

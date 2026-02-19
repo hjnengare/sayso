@@ -1028,7 +1028,9 @@ export async function GET(req: Request) {
       if (typeof (query as any).eq === 'function') {
         query = (query as any).eq('status', 'active');
       }
+      // Exclude hidden and system businesses
       if (typeof (query as any).or === 'function') {
+        query = (query as any).or('is_hidden.is.null,is_hidden.eq.false');
         query = (query as any).or('is_system.is.null,is_system.eq.false');
       }
 

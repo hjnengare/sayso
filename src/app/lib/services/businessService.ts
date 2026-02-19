@@ -16,7 +16,10 @@ export class BusinessService {
           rating_distribution,
           percentiles
         )
-      `);
+      `)
+        .eq('status', 'active')
+        .or('is_hidden.is.null,is_hidden.eq.false')
+        .or('is_system.is.null,is_system.eq.false');
 
       if (filters) {
         if (filters.category) {
@@ -38,7 +41,9 @@ export class BusinessService {
       if (error) throw error;
 
       // Transform the data to match our expected format
-      return (data || []).filter((business: any) => business?.is_system !== true).map(business => ({
+      return (data || []).filter((business: any) => 
+        business?.is_system !== true && business?.is_hidden !== true
+      ).map(business => ({
         ...business,
         stats: business.business_stats?.[0] || undefined
       }));
@@ -81,6 +86,8 @@ export class BusinessService {
           )
         `)
         .eq('id', id)
+        .or('is_hidden.is.null,is_hidden.eq.false')
+        .or('is_system.is.null,is_system.eq.false')
         .single();
 
       if (error) {
@@ -88,6 +95,11 @@ export class BusinessService {
           return null; // Business not found
         }
         throw error;
+      }
+
+      // Return null if business is hidden or system
+      if (data?.is_hidden === true || data?.is_system === true) {
+        return null;
       }
 
       return {
@@ -137,6 +149,8 @@ export class BusinessService {
           )
         `)
         .ilike('name', `%${searchName}%`)
+        .or('is_hidden.is.null,is_hidden.eq.false')
+        .or('is_system.is.null,is_system.eq.false')
         .limit(1)
         .single();
 
@@ -145,6 +159,11 @@ export class BusinessService {
           return null; // Business not found
         }
         throw error;
+      }
+
+      // Return null if business is hidden or system
+      if (data?.is_hidden === true || data?.is_system === true) {
+        return null;
       }
 
       return {
@@ -171,6 +190,9 @@ export class BusinessService {
             percentiles
           )
         `)
+        .eq('status', 'active')
+        .or('is_hidden.is.null,is_hidden.eq.false')
+        .or('is_system.is.null,is_system.eq.false')
         .not('business_stats.average_rating', 'is', null)
         .order('business_stats.average_rating', { ascending: false })
         .order('business_stats.total_reviews', { ascending: false })
@@ -178,7 +200,9 @@ export class BusinessService {
 
       if (error) throw error;
 
-      return (data || []).filter((business: any) => business?.is_system !== true).map(business => ({
+      return (data || []).filter((business: any) => 
+        business?.is_system !== true && business?.is_hidden !== true
+      ).map(business => ({
         ...business,
         stats: business.business_stats?.[0] || undefined
       }));
@@ -203,12 +227,17 @@ export class BusinessService {
             percentiles
           )
         `)
+        .eq('status', 'active')
+        .or('is_hidden.is.null,is_hidden.eq.false')
+        .or('is_system.is.null,is_system.eq.false')
         .order('created_at', { ascending: false })
         .limit(limit);
 
       if (error) throw error;
 
-      return (data || []).filter((business: any) => business?.is_system !== true).map(business => ({
+      return (data || []).filter((business: any) => 
+        business?.is_system !== true && business?.is_hidden !== true
+      ).map(business => ({
         ...business,
         stats: business.business_stats?.[0] || undefined
       }));
@@ -231,6 +260,9 @@ export class BusinessService {
             percentiles
           )
         `)
+        .eq('status', 'active')
+        .or('is_hidden.is.null,is_hidden.eq.false')
+        .or('is_system.is.null,is_system.eq.false')
         .or(`name.ilike.%${query}%, description.ilike.%${query}%, category.ilike.%${query}%`);
 
       if (filters) {
@@ -255,7 +287,9 @@ export class BusinessService {
 
       if (error) throw error;
 
-      return (data || []).filter((business: any) => business?.is_system !== true).map(business => ({
+      return (data || []).filter((business: any) => 
+        business?.is_system !== true && business?.is_hidden !== true
+      ).map(business => ({
         ...business,
         stats: business.business_stats?.[0] || undefined
       }));

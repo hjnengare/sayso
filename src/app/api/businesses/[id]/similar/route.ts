@@ -62,6 +62,7 @@ export async function GET(
       .select('id')
       .eq('slug', businessIdentifier)
       .eq('status', 'active')
+      .or('is_hidden.is.null,is_hidden.eq.false')
       .or('is_system.is.null,is_system.eq.false')
       .maybeSingle();
 
@@ -81,6 +82,7 @@ export async function GET(
           .select('id')
           .eq('id', businessIdentifier)
           .eq('status', 'active')
+          .or('is_hidden.is.null,is_hidden.eq.false')
           .or('is_system.is.null,is_system.eq.false')
           .maybeSingle();
 
@@ -121,6 +123,7 @@ export async function GET(
       .from('businesses')
       .select('lat, lng')
       .eq('id', targetBusinessId)
+      .or('is_hidden.is.null,is_hidden.eq.false')
       .or('is_system.is.null,is_system.eq.false')
       .maybeSingle();
 
@@ -177,7 +180,9 @@ export async function GET(
       );
     }
 
-    const nonSystemBusinesses = (similarBusinesses || []).filter((business: any) => business?.is_system !== true);
+    const nonSystemBusinesses = (similarBusinesses || []).filter((business: any) => 
+      business?.is_system !== true && business?.is_hidden !== true
+    );
 
     if (nonSystemBusinesses.length === 0) {
       return NextResponse.json({ businesses: [] });

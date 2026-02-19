@@ -135,6 +135,7 @@ async function getFeaturedFallback(
       )
     `)
     .eq('status', 'active')
+    .or('is_hidden.is.null,is_hidden.eq.false')
     .or('is_system.is.null,is_system.eq.false')
     .order('created_at', { ascending: false })
     .limit(poolSize);
@@ -165,6 +166,7 @@ async function getFeaturedFallback(
           total_reviews
         )
       `)
+      .or('is_hidden.is.null,is_hidden.eq.false')
       .or('is_system.is.null,is_system.eq.false')
       .order('created_at', { ascending: false })
       .limit(poolSize);

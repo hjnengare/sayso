@@ -51,6 +51,7 @@ export async function fetchBusinessOptimized(
         .from('businesses')
         .select('id, slug')
         .eq('slug', businessIdentifier)
+        .or('is_hidden.is.null,is_hidden.eq.false')
         .or('is_system.is.null,is_system.eq.false')
         .maybeSingle(); // Use maybeSingle to handle 0 or 1 rows gracefully
       return { data, error };
@@ -75,6 +76,7 @@ export async function fetchBusinessOptimized(
             .from('businesses')
             .select('*')
             .eq('id', actualBusinessId)
+            .or('is_hidden.is.null,is_hidden.eq.false')
             .or('is_system.is.null,is_system.eq.false')
             .maybeSingle(); // Use maybeSingle to handle 0 or 1 rows gracefully
           return { data, error };

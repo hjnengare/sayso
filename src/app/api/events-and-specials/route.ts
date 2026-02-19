@@ -139,15 +139,43 @@ export async function GET(req: NextRequest) {
 
     const rawRows = (data || []) as unknown as EventsAndSpecialsRow[];
 
+    // Fetch business visibility status for events with business_id
+    // Events linked to hidden/system businesses should still appear,
+    // but without business attribution
+    const businessIds = [...new Set(rawRows.map(r => r.business_id).filter(Boolean))];
+    const hiddenOrSystemBusinessIds = new Set<string>();
+    
+    if (businessIds.length > 0) {
+      const { data: businessData } = await supabase
+        .from('businesses')
+        .select('id, is_hidden, is_system, name')
+        .in('id', businessIds);
+      
+      for (const biz of businessData || []) {
+        if (biz.is_hidden === true || biz.is_system === true || biz.name === 'Sayso System') {
+          hiddenOrSystemBusinessIds.add(biz.id);
+        }
+      }
+    }
+    
+    // Clear business_id for events linked to hidden/system businesses
+    const processedRows = rawRows.map(row => {
+      if (row.business_id && hiddenOrSystemBusinessIds.has(row.business_id)) {
+        return { ...row, business_id: null, _isExternalEvent: true };
+      }
+      return row;
+    }) as (EventsAndSpecialsRow & { _isExternalEvent?: boolean })[];
+
     // Consolidate into series cards.
     const series = new Map<
       string,
       {
-        representative: EventsAndSpecialsRow;
+        representative: EventsAndSpecialsRow & { _isExternalEvent?: boolean };
         occurrences: number;
         minStart: string;
         maxEnd: string;
         startDates: string[];
+        isExternalEvent: boolean;
         firstNonNull: {
           image: string | null;
           icon: string | null;
@@ -163,7 +191,7 @@ export async function GET(req: NextRequest) {
       }
     >();
 
-    for (const row of rawRows) {
+    for (const row of processedRows) {
       const key = normalizeSeriesKey(row);
       const start = row.start_date;
       const end = row.end_date ?? row.start_date;
@@ -176,6 +204,7 @@ export async function GET(req: NextRequest) {
           minStart: start,
           maxEnd: end,
           startDates: [start],
+          isExternalEvent: !!(row as any)._isExternalEvent,
           firstNonNull: {
             image: row.image ?? null,
             icon: row.icon ?? null,
@@ -245,6 +274,7 @@ export async function GET(req: NextRequest) {
           occurrencesCount: s.occurrences,
           dateRangeLabel,
           startDates: s.startDates.slice().sort(),
+          isExternalEvent: s.isExternalEvent,
         });
       })
       .sort((a, b) => new Date(a.startDateISO || a.startDate).getTime() - new Date(b.startDateISO || b.startDate).getTime());
