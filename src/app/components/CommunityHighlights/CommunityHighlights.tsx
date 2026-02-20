@@ -177,8 +177,8 @@ export default function CommunityHighlights({
         {/* Top Reviewers */}
         {hasReviewers && (
           <div className="mt-1">
-            <div className="pb-4 sm:pb-8 md:pb-10 flex flex-wrap items-center justify-between gap-2">
-                <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-gradient-to-r from-sage/20 to-sage/10 border border-sage/30 mb-4">
+            <div className="pb-1 sm:pb-2 flex flex-wrap items-center justify-between gap-2">
+                <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-gradient-to-r from-sage/20 to-sage/10 border border-sage/30">
                   <span className="text-sm font-semibold text-sage" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
                     <span className="sm:hidden">{contributorsHeadingMobile}</span>
                     <span className="hidden sm:inline">{contributorsHeadingDesktop}</span>
@@ -236,8 +236,8 @@ export default function CommunityHighlights({
         {/* Top Contributors Empty State */}
         {!hasReviewers && (
           <div className="mt-1">
-            <div className="pb-4 sm:pb-8 md:pb-10 flex flex-wrap items-center justify-between gap-2">
-              <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-gradient-to-r from-sage/20 to-sage/10 border border-sage/30 mb-4">
+            <div className="pb-1 sm:pb-2 flex flex-wrap items-center justify-between gap-2">
+              <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-gradient-to-r from-sage/20 to-sage/10 border border-sage/30">
                 <span className="text-sm font-semibold text-sage" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
                   <span className="sm:hidden">{contributorsHeadingMobile}</span>
                   <span className="hidden sm:inline">{contributorsHeadingDesktop}</span>
