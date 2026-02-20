@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
+import useSWR from "swr";
 import { useDebounce } from "./useDebounce";
+import { swrConfig } from "../lib/swrConfig";
 
 export interface LiveSearchFilters {
   distanceKm: number | null;
@@ -37,83 +39,56 @@ interface UseLiveSearchOptions {
   debounceMs?: number;
 }
 
+async function fetchSearchResults(
+  _key: string,
+  q: string,
+  distanceKm: number | null,
+  minRating: number | null
+): Promise<{ results: LiveSearchResult[]; error: string | null }> {
+  const params = new URLSearchParams({ q });
+  if (distanceKm) params.set("distanceKm", distanceKm.toString());
+  if (minRating) params.set("minRating", minRating.toString());
+  const response = await fetch(`/api/search?${params.toString()}`);
+  if (!response.ok) {
+    throw new Error("Live search failed");
+  }
+  const payload = await response.json();
+  return {
+    results: payload.results || [],
+    error: payload.error || null,
+  };
+}
+
 export function useLiveSearch({ initialQuery = "", debounceMs = 300 }: UseLiveSearchOptions = {}) {
   const [query, setQuery] = useState(initialQuery);
   const [distanceKm, setDistanceKm] = useState<number | null>(null);
   const [minRating, setMinRating] = useState<number | null>(null);
   const debouncedQuery = useDebounce(query, debounceMs);
-  const [results, setResults] = useState<LiveSearchResult[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const requestIdRef = useRef(0);
-  const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     setQuery(initialQuery);
   }, [initialQuery]);
 
-  const filters = useMemo<LiveSearchFilters>(() => ({
-    distanceKm,
-    minRating,
-  }), [distanceKm, minRating]);
+  const filters = useMemo<LiveSearchFilters>(
+    () => ({
+      distanceKm,
+      minRating,
+    }),
+    [distanceKm, minRating]
+  );
 
-  useEffect(() => {
-    const trimmedQuery = debouncedQuery.trim();
+  const trimmedQuery = debouncedQuery.trim();
+  const swrKey =
+    trimmedQuery.length > 0
+      ? (["search", trimmedQuery, filters.distanceKm, filters.minRating] as const)
+      : null;
 
-    if (trimmedQuery.length === 0) {
-      abortRef.current?.abort();
-      setLoading(false);
-      setError(null);
-      setResults([]);
-      return;
-    }
-
-    requestIdRef.current += 1;
-    const currentRequestId = requestIdRef.current;
-
-    abortRef.current?.abort();
-    const controller = new AbortController();
-    abortRef.current = controller;
-
-    setLoading(true);
-    setError(null);
-
-    const params = new URLSearchParams({ q: trimmedQuery });
-    if (filters.distanceKm) {
-      params.set("distanceKm", filters.distanceKm.toString());
-    }
-    if (filters.minRating) {
-      params.set("minRating", filters.minRating.toString());
-    }
-
-    fetch(`/api/search?${params.toString()}`, { signal: controller.signal })
-      .then(async (response) => {
-        if (!response.ok) {
-          throw new Error("Live search failed");
-        }
-        const payload = await response.json();
-        if (currentRequestId !== requestIdRef.current) {
-          return;
-        }
-        setResults(payload.results || []);
-        setError(payload.error || null);
-      })
-      .catch((err) => {
-        if (err.name === "AbortError") return;
-        if (currentRequestId !== requestIdRef.current) return;
-        setError(err.message || "Search failed");
-        setResults([]);
-      })
-      .finally(() => {
-        if (currentRequestId === requestIdRef.current) {
-          setLoading(false);
-        }
-      });
-
-    return () => {
-      controller.abort();
-    };
-  }, [debouncedQuery, filters.distanceKm, filters.minRating]);
+  const { data, error, isLoading } = useSWR(
+    swrKey,
+    ([, q, dKm, mRat]: [string, string, number | null, number | null]) =>
+      fetchSearchResults("search", q, dKm, mRat),
+    { ...swrConfig, dedupingInterval: 2000 }
+  );
 
   const resetFilters = () => {
     setDistanceKm(null);
@@ -124,9 +99,9 @@ export function useLiveSearch({ initialQuery = "", debounceMs = 300 }: UseLiveSe
     query,
     setQuery,
     debouncedQuery,
-    loading,
-    error,
-    results,
+    loading: swrKey ? isLoading : false,
+    error: error ? (error as Error).message : data?.error ?? null,
+    results: swrKey ? (data?.results ?? []) : [],
     filters,
     setDistanceKm,
     setMinRating,

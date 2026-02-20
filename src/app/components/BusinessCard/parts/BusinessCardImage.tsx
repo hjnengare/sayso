@@ -1,7 +1,9 @@
+"use client";
+
 import React from "react";
 import Image from "next/image";
 import { ImageIcon } from "lucide-react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { getCategoryPlaceholder } from "../../../utils/categoryToPngMapping";
 
 // Tiny 4x3 SVG matching the card error-state bg (#E5E0E5) — instant visual fill while image loads
@@ -34,7 +36,7 @@ const BusinessCardImage: React.FC<BusinessCardImageProps> = ({
   sharedLayoutId,
 }) => {
   return (
-    <motion.div layoutId={sharedLayoutId} className="relative w-full h-full">
+    <m.div layoutId={sharedLayoutId} className="relative w-full h-full">
       {!imgError && displayImage ? (
         <div className="relative w-full h-full overflow-hidden">
           <Image
@@ -66,7 +68,7 @@ const BusinessCardImage: React.FC<BusinessCardImageProps> = ({
           <ImageIcon className="w-16 h-16 text-charcoal/20" aria-hidden="true" />
         </div>
       )}
-    </motion.div>
+    </m.div>
   );
 };
 

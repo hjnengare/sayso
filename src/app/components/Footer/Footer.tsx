@@ -81,7 +81,6 @@ export default function Footer() {
       title: "Discover",
       links: [
         { name: "Home", href: "/home" },
-        { name: "Explore", href: "/explore" },
         { name: "Trending", href: "/trending" },
         { name: "Events & Specials", href: "/events-specials" },
         { name: "Leaderboard", href: "/leaderboard" },
@@ -90,11 +89,9 @@ export default function Footer() {
     {
       title: "Community",
       links: [
-        { name: "Reviews", href: "/discover/reviews" },
         { name: "Badges", href: "/badges" },
         { name: "For You", href: "/for-you" },
         { name: "Saved", href: "/saved" },
-        { name: "Messages", href: "/dm" },
       ],
     },
     {

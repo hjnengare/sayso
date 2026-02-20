@@ -49,6 +49,7 @@ export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const start = Date.now();
   try {
     const { id: businessIdentifier } = await params;
 
@@ -137,14 +138,14 @@ export async function GET(
     });
 
     // Fetch target coords to compute distance client-side (RPC doesn't currently return distance).
-    const { data: targetCoords } = await withTimeout(
+    const { data: targetCoords } = await withTimeout<{ data: { lat: number | null; lng: number | null } | null; error: unknown }>(
       supabase
         .from('businesses')
         .select('lat, lng')
         .eq('id', targetBusinessId)
         .or('is_hidden.is.null,is_hidden.eq.false')
         .or('is_system.is.null,is_system.eq.false')
-        .maybeSingle(),
+        .maybeSingle() as any,
       FETCH_TIMEOUT_MS,
       'similar:target-coords'
     );
@@ -153,12 +154,12 @@ export async function GET(
     const targetLng = (targetCoords as any)?.lng as number | null | undefined;
 
     // Call the RPC function
-    const { data: similarBusinesses, error: rpcError } = await withTimeout(
+    const { data: similarBusinesses, error: rpcError } = await withTimeout<{ data: any[] | null; error: any }>(
       supabase.rpc('get_similar_businesses', {
         p_target_business_id: targetBusinessId,
         p_limit: validLimit,
         p_radius_km: validRadius,
-      }),
+      }) as any,
       FETCH_TIMEOUT_MS,
       'similar:rpc'
     );

@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import useSWR from 'swr';
+import { swrConfig } from '../lib/swrConfig';
 import type { Event } from '../lib/types/Event';
 
 export interface UseEventsOptions {
@@ -292,185 +294,123 @@ const aggregateEvents = (events: Event[]): Event[] => {
   });
 };
 
+async function fetchEventsData(
+  [, limit, offset, city, segment, search, upcoming]: [string, number, number, string, string, string, boolean]
+): Promise<{ events: Event[]; count: number }> {
+  const params = new URLSearchParams();
+  if (limit) params.set('limit', limit.toString());
+  if (offset) params.set('offset', offset.toString());
+  if (city) params.set('city', city);
+  if (segment) params.set('segment', segment);
+  if (search) params.set('search', search);
+  params.set('upcoming', upcoming.toString());
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15_000);
+
+  let response: Response;
+  try {
+    response = await fetch(`/api/events?${params.toString()}`, { signal: controller.signal });
+  } finally {
+    clearTimeout(timeoutId);
+  }
+
+  if (!response.ok) {
+    if (response.status === 404) {
+      console.warn('[useEvents] Events API not found (404). Showing empty list.');
+      return { events: [], count: 0 };
+    }
+    throw new Error(`Failed to fetch events: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+
+  if (typeof window !== 'undefined') {
+    console.log('[useEvents] API Response:', {
+      eventsCount: data.events?.length || 0,
+      count: data.count,
+      hasEvents: !!(data.events && data.events.length > 0),
+      sampleEvent: data.events?.[0],
+    });
+  }
+
+  const transformedEvents: Event[] = (data.events || []).map((dbEvent: any) => {
+    const startISO = dbEvent.start_date || null;
+    const endISO = dbEvent.end_date || null;
+    const id = dbEvent.ticketmaster_id || dbEvent.id;
+    const source = dbEvent.source || (dbEvent.ticketmaster_id ? 'ticketmaster' : 'internal');
+    const city = dbEvent.city;
+    const bookingUrl = dbEvent.ticket_url || dbEvent.booking_url || dbEvent.url || undefined;
+
+    // Use pre-extracted attraction/venue IDs from the API response
+    // (server extracts these from raw_data to keep payloads small)
+    const attractionId = dbEvent.attraction_id || dbEvent.ticketmaster_attraction_id || null;
+    const venueId = dbEvent.venue_id || dbEvent.venueId || null;
+
+    const eventData = {
+      id,
+      title: dbEvent.title || 'Untitled Event',
+      type: 'event' as const,
+      image: dbEvent.image_url || null,
+      alt: `${dbEvent.title} at ${dbEvent.venue_name || dbEvent.city || 'location'}`,
+      icon: getIcon(dbEvent.segment, dbEvent.genre),
+      location: dbEvent.venue_name || dbEvent.city || 'Location TBD',
+      rating: 4.5,
+      startDate: startISO ? formatDate(startISO) : '',
+      endDate: endISO ? formatDate(endISO) : undefined,
+      startDateISO: startISO || undefined,
+      endDateISO: endISO || undefined,
+      price: formatPrice(dbEvent.price_range),
+      description: dbEvent.description || undefined,
+      href: `/event/${id}`,
+      source,
+      ticketmasterAttractionId: attractionId,
+      venueId: venueId,
+      venueName: dbEvent.venue_name || undefined,
+      city,
+      purchaseUrl: bookingUrl,
+      bookingUrl,
+      occurrences: [{ startDate: startISO, endDate: endISO, bookingUrl }],
+    };
+
+    const canonicalKey = buildCanonicalKey({
+      title: eventData.title,
+      location: eventData.location,
+      venueName: eventData.venueName,
+      city: eventData.city,
+      ticketmasterAttractionId: attractionId,
+      venueId: venueId,
+      source,
+    });
+
+    return { ...eventData, canonicalKey };
+  });
+
+  return { events: aggregateEvents(transformedEvents), count: data.count || 0 };
+}
+
 /**
  * Hook to fetch events from the database
  * Optimized for performance with request timeout and efficient data transformation
  */
 export function useEvents(options: UseEventsOptions = {}): UseEventsResult {
   const { limit = 20, offset = 0, city, segment, search, upcoming = true } = options;
-  const [events, setEvents] = useState<Event[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [count, setCount] = useState(0);
-  const abortControllerRef = useRef<AbortController | null>(null);
 
-  const fetchEvents = useCallback(async () => {
-    // Cancel previous request if still pending
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
+  const swrKey: [string, number, number, string, string, string, boolean] = [
+    '/api/events', limit, offset, city ?? '', segment ?? '', search ?? '', upcoming,
+  ];
 
-    const abortController = new AbortController();
-    abortControllerRef.current = abortController;
-
-    // Use a single controller for both deduplication and timeout
-    const timeoutId = setTimeout(() => abortController.abort(), 15_000);
-
-    try {
-      setLoading(true);
-      setError(null);
-
-      const params = new URLSearchParams();
-      if (limit) params.set('limit', limit.toString());
-      if (offset) params.set('offset', offset.toString());
-      if (city) params.set('city', city);
-      if (segment) params.set('segment', segment);
-      if (search) params.set('search', search);
-      if (upcoming !== undefined) params.set('upcoming', upcoming.toString());
-
-      const response = await fetch(`/api/events?${params.toString()}`, {
-        signal: abortController.signal,
-      });
-
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        const message = `Failed to fetch events: ${response.statusText}`;
-        if (!abortController.signal.aborted) {
-          // 404 usually means events API not available (e.g. route not registered); fail softly
-          if (response.status === 404) {
-            console.warn('[useEvents] Events API not found (404). Showing empty list.');
-            setEvents([]);
-            setCount(0);
-            setError(null);
-            setLoading(false);
-            return;
-          }
-          setError(message);
-          console.error('[useEvents] Error:', message);
-        }
-        setLoading(false);
-        return;
-      }
-
-      const data = await response.json();
-
-      // Debug logging
-      if (typeof window !== 'undefined') {
-        console.log('[useEvents] API Response:', {
-          eventsCount: data.events?.length || 0,
-          count: data.count,
-          hasEvents: !!(data.events && data.events.length > 0),
-          sampleEvent: data.events?.[0]
-        });
-      }
-      
-      // Transform database events to Event type (optimized)
-      const transformedEvents: Event[] = (data.events || []).map((dbEvent: any) => {
-        const startISO = dbEvent.start_date || null;
-        const endISO = dbEvent.end_date || null;
-        const id = dbEvent.ticketmaster_id || dbEvent.id;
-        const source = dbEvent.source || (dbEvent.ticketmaster_id ? 'ticketmaster' : 'internal');
-        const city = dbEvent.city;
-        const bookingUrl = dbEvent.ticket_url || dbEvent.booking_url || dbEvent.url || undefined;
-
-        // Use pre-extracted attraction/venue IDs from the API response
-        // (server extracts these from raw_data to keep payloads small)
-        const attractionId = dbEvent.attraction_id ||
-          dbEvent.ticketmaster_attraction_id ||
-          null;
-        const venueId = dbEvent.venue_id ||
-          dbEvent.venueId ||
-          null;
-
-        const eventData = {
-          id,
-          title: dbEvent.title || 'Untitled Event',
-          type: 'event' as const,
-          image: dbEvent.image_url || null,
-          alt: `${dbEvent.title} at ${dbEvent.venue_name || dbEvent.city || 'location'}`,
-          icon: getIcon(dbEvent.segment, dbEvent.genre),
-          location: dbEvent.venue_name || dbEvent.city || 'Location TBD',
-          rating: 4.5,
-          startDate: startISO ? formatDate(startISO) : '',
-          endDate: endISO ? formatDate(endISO) : undefined,
-          startDateISO: startISO || undefined,
-          endDateISO: endISO || undefined,
-          price: formatPrice(dbEvent.price_range),
-          description: dbEvent.description || undefined,
-          href: `/event/${id}`,
-          source,
-          ticketmasterAttractionId: attractionId,
-          venueId: venueId,
-          venueName: dbEvent.venue_name || undefined,
-          city,
-          purchaseUrl: bookingUrl,
-          bookingUrl,
-          occurrences: [{ startDate: startISO, endDate: endISO, bookingUrl }],
-        };
-
-        // Build canonical key for consolidation
-        const canonicalKey = buildCanonicalKey({
-          title: eventData.title,
-          location: eventData.location,
-          venueName: eventData.venueName,
-          city: eventData.city,
-          ticketmasterAttractionId: attractionId,
-          venueId: venueId,
-          source,
-        });
-
-        return {
-          ...eventData,
-          canonicalKey,
-        };
-      });
-
-      if (!abortController.signal.aborted) {
-        setEvents(aggregateEvents(transformedEvents));
-        setCount(data.count || 0);
-      }
-    } catch (err: any) {
-      clearTimeout(timeoutId);
-      if (err.name === 'AbortError') {
-        // If a newer request replaced us, ignore silently
-        if (abortControllerRef.current !== abortController) {
-          return;
-        }
-        // Otherwise this was a timeout — log it but don't block rendering
-        console.warn('[useEvents] Request timed out after 15s');
-        setLoading(false);
-        return;
-      }
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch events';
-      if (abortControllerRef.current === abortController) {
-        setError(errorMessage);
-        console.error('[useEvents] Error:', err);
-      }
-    } finally {
-      clearTimeout(timeoutId);
-      if (abortControllerRef.current === abortController) {
-        setLoading(false);
-      }
-    }
-  }, [limit, offset, city, segment, search, upcoming]);
-
-  useEffect(() => {
-    fetchEvents();
-    
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
-  }, [fetchEvents]);
+  const { data, error, isLoading, mutate } = useSWR(swrKey, fetchEventsData, {
+    ...swrConfig,
+    dedupingInterval: 30_000,
+  });
 
   return {
-    events,
-    loading,
-    error,
-    count,
-    refetch: fetchEvents,
+    events: data?.events ?? [],
+    loading: isLoading,
+    error: error ? (error as Error).message : null,
+    count: data?.count ?? 0,
+    refetch: async () => { await mutate(); },
   };
 }
 

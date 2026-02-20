@@ -1,11 +1,14 @@
 /**
- * Hook to fetch businesses from the API
+ * Hook to fetch businesses from the API.
+ * Uses SWR for caching and deduplication.
  */
 
-import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useEffect, useMemo, useCallback } from 'react';
+import useSWR from 'swr';
 import { Business } from '../components/BusinessCard/BusinessCard';
 import { type UserPreferences } from './useUserPreferences';
 import { businessUpdateEvents } from '../lib/utils/businessUpdateEvents';
+import { swrConfig } from '../lib/swrConfig';
 
 const isDev = process.env.NODE_ENV === 'development';
 const devLog = (...args: unknown[]) => {
@@ -14,6 +17,87 @@ const devLog = (...args: unknown[]) => {
 const devWarn = (...args: unknown[]) => {
   if (isDev) console.warn(...args);
 };
+
+function buildBusinessesParams(options: UseBusinessesOptions): URLSearchParams {
+  const params = new URLSearchParams();
+  if (options.limit) params.set('limit', options.limit.toString());
+  if (options.category) params.set('category', options.category);
+  if (options.sortBy) params.set('sort_by', options.sortBy);
+  if (options.sortOrder) params.set('sort_order', options.sortOrder);
+  if (options.verified !== undefined) params.set('verified', options.verified.toString());
+  if (options.badge) params.set('badge', options.badge);
+  if (options.location) params.set('location', options.location);
+  if (options.priceRange) params.set('price_range', options.priceRange);
+  if (options.interestIds && options.interestIds.length > 0) {
+    params.set('interest_ids', options.interestIds.join(','));
+  }
+  if (options.subInterestIds && options.subInterestIds.length > 0) {
+    params.set('sub_interest_ids', options.subInterestIds.join(','));
+  }
+  if (options.priceRanges && options.priceRanges.length > 0) {
+    params.set('preferred_price_ranges', options.priceRanges.join(','));
+  }
+  if (options.dealbreakerIds && options.dealbreakerIds.length > 0) {
+    params.set('dealbreakers', options.dealbreakerIds.join(','));
+  }
+  if (options.feedStrategy) params.set('feed_strategy', options.feedStrategy);
+  if (options.minRating !== null && options.minRating !== undefined) {
+    params.set('min_rating', options.minRating.toString());
+  }
+  if (options.searchQuery && options.searchQuery.trim().length > 0) {
+    params.set('q', options.searchQuery.trim());
+  }
+  if (options.sort) params.set('sort', options.sort);
+  const radius = options.radiusKm ?? options.radius;
+  if (radius !== null && radius !== undefined && options.latitude && options.longitude) {
+    params.set('radius_km', radius.toString());
+    params.set('lat', options.latitude.toString());
+    params.set('lng', options.longitude.toString());
+  } else if (options.radius != null && options.latitude && options.longitude) {
+    params.set('radius', options.radius!.toString());
+    params.set('lat', options.latitude.toString());
+    params.set('lng', options.longitude.toString());
+  }
+  return params;
+}
+
+async function fetchBusinessesData(url: string, cache?: RequestCache): Promise<Business[]> {
+  const fetchOptions: RequestInit = {};
+  if (cache) fetchOptions.cache = cache;
+  const response = await fetch(url, fetchOptions);
+  if (!response.ok) {
+    const contentType = response.headers.get('content-type') || '';
+    const rawText = await response.text();
+    let errorData: Record<string, unknown> | null = null;
+    if (contentType.includes('application/json')) {
+      try {
+        errorData = rawText ? (JSON.parse(rawText) as Record<string, unknown>) : null;
+      } catch {
+        errorData = { rawText };
+      }
+    } else {
+      errorData = { rawText };
+    }
+    if (isDev) {
+      console.error('[useBusinesses] API error response:', {
+        status: response.status,
+        statusText: response.statusText,
+        errorData,
+        url,
+      });
+    }
+    const message =
+      errorData?.error || errorData?.details || errorData?.message ||
+      `Failed to fetch businesses: ${response.statusText} (${response.status})`;
+    throw new Error(typeof message === 'string' ? message : String(message));
+  }
+  const data = await response.json();
+  const list = data.businesses || data.data || [];
+  if (isDev && list.length === 0) {
+    devWarn('[useBusinesses] WARNING: Received 0 businesses from API!');
+  }
+  return list;
+}
 
 export interface UseBusinessesOptions {
   limit?: number;
@@ -60,176 +144,7 @@ export interface UseBusinessesResult {
  * Hook to fetch businesses from the API
  */
 export function useBusinesses(options: UseBusinessesOptions = {}): UseBusinessesResult {
-  const [businesses, setBusinesses] = useState<Business[]>([]);
-  const [loading, setLoading] = useState(!options.skip);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchBusinesses = useCallback(async () => {
-    devLog('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    devLog('📤 [useBusinesses] API Request Details');
-    devLog('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    devLog('[useBusinesses] fetchBusinesses called', {
-      skip: options.skip,
-      limit: options.limit,
-      interestIds: options.interestIds,
-      subInterestIds: options.subInterestIds,
-      category: options.category,
-      sortBy: options.sortBy,
-      sortOrder: options.sortOrder,
-      feedStrategy: options.feedStrategy,
-    });
-    
-    if (options.skip) {
-      devLog('[useBusinesses] Skipping fetch (skip=true)');
-      setLoading(false);
-      return;
-    }
-
-    try {
-      setLoading(true);
-      setError(null);
-      devLog('[useBusinesses] Starting fetch...');
-
-      const params = new URLSearchParams();
-      
-      if (options.limit) params.set('limit', options.limit.toString());
-      if (options.category) params.set('category', options.category);
-      if (options.sortBy) params.set('sort_by', options.sortBy);
-      if (options.sortOrder) params.set('sort_order', options.sortOrder);
-      if (options.verified !== undefined) params.set('verified', options.verified.toString());
-      if (options.badge) params.set('badge', options.badge);
-      if (options.location) params.set('location', options.location);
-      if (options.priceRange) params.set('price_range', options.priceRange);
-      if (options.interestIds && options.interestIds.length > 0) {
-        params.set('interest_ids', options.interestIds.join(','));
-        devLog('[useBusinesses] Added interest_ids param:', options.interestIds.join(','));
-      }
-      if (options.subInterestIds && options.subInterestIds.length > 0) {
-        params.set('sub_interest_ids', options.subInterestIds.join(','));
-        devLog('[useBusinesses] Added sub_interest_ids param:', options.subInterestIds.join(','));
-      }
-      if (options.priceRanges && options.priceRanges.length > 0) {
-        params.set('preferred_price_ranges', options.priceRanges.join(','));
-      }
-      if (options.dealbreakerIds && options.dealbreakerIds.length > 0) {
-        params.set('dealbreakers', options.dealbreakerIds.join(','));
-      }
-      if (options.feedStrategy) params.set('feed_strategy', options.feedStrategy);
-      if (options.minRating !== null && options.minRating !== undefined) {
-        params.set('min_rating', options.minRating.toString());
-      }
-      // Enhanced search query parameter
-      if (options.searchQuery && options.searchQuery.trim().length > 0) {
-        params.set('q', options.searchQuery.trim());
-      }
-
-      // Enhanced sorting
-      if (options.sort) {
-        params.set('sort', options.sort);
-      }
-
-      // Distance-based filtering (support both old and new parameter names)
-      const radius = options.radiusKm ?? options.radius;
-      if (radius !== null && radius !== undefined && options.latitude && options.longitude) {
-        params.set('radius_km', radius.toString());
-        params.set('lat', options.latitude.toString());
-        params.set('lng', options.longitude.toString());
-      } else if (options.radius !== null && options.radius !== undefined && options.latitude && options.longitude) {
-        // Legacy support
-        params.set('radius', options.radius.toString());
-        params.set('lat', options.latitude.toString());
-        params.set('lng', options.longitude.toString());
-      }
-
-      const url = `/api/businesses?${params.toString()}`;
-      devLog('[useBusinesses] Fetching businesses from:', url);
-      devLog('[useBusinesses] ⚠️ NOTE: API route logs appear in SERVER TERMINAL, not browser console!');
-      devLog('[useBusinesses] Check your Next.js dev server terminal for detailed API logs.');
-      
-      const fetchOptions: RequestInit = {};
-      if (options.cache) fetchOptions.cache = options.cache;
-      const response = await fetch(url, fetchOptions);
-      
-      if (!response.ok) {
-        const contentType = response.headers.get("content-type") || "";
-        const rawText = await response.text();
-        
-        let errorData: any = null;
-        
-        if (contentType.includes("application/json")) {
-          try {
-            errorData = rawText ? JSON.parse(rawText) : null;
-          } catch (e) {
-            errorData = { parseError: String(e), rawText };
-          }
-        } else {
-          errorData = { rawText };
-        }
-        
-        console.error("[useBusinesses] API error response:", {
-          status: response.status,
-          statusText: response.statusText,
-          contentType,
-          errorData,
-          rawText,
-          url: `/api/businesses?${params.toString()}`,
-        });
-        
-        const message =
-          errorData?.error ||
-          errorData?.details ||
-          errorData?.message ||
-          `Failed to fetch businesses: ${response.statusText} (${response.status})`;
-        
-        throw new Error(message);
-      }
-
-      const data = await response.json();
-      // API returns { businesses: [...], cursorId: ... }
-      const businessesList = data.businesses || data.data || [];
-      
-      // Prominent logging for debugging
-      devLog('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      devLog('🔍 [useBusinesses] API RESPONSE RECEIVED');
-      devLog('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      devLog('[useBusinesses] Response structure:', {
-        hasBusinesses: 'businesses' in data,
-        hasData: 'data' in data,
-        businessesCount: data.businesses?.length || 0,
-        dataCount: data.data?.length || 0,
-        finalCount: businessesList.length,
-      });
-      devLog('[useBusinesses] Businesses received:', {
-        count: businessesList.length,
-        hasBusinesses: businessesList.length > 0,
-        firstBusiness: businessesList[0] ? {
-          id: businessesList[0].id,
-          name: businessesList[0].name,
-          hasImage: !!(businessesList[0].image || businessesList[0].image_url || businessesList[0].uploaded_images),
-          uploadedImagesCount: businessesList[0].uploaded_images?.length || 0,
-        } : 'none',
-        sampleIds: businessesList.slice(0, 3).map(b => b.id),
-      });
-      devLog('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      
-      if (businessesList.length === 0) {
-        devWarn('⚠️ [useBusinesses] WARNING: Received 0 businesses from API!');
-        devWarn('⚠️ Check SERVER TERMINAL for detailed API logs:');
-        devWarn('⚠️ Look for: [BUSINESSES API] Raw active businesses count');
-        devWarn('⚠️ Look for: [BUSINESSES API] Mixed feed buckets');
-        devWarn('⚠️ Look for: [BUSINESSES API] Final transformed businesses');
-      }
-      
-      setBusinesses(businessesList);
-    } catch (err: any) {
-      console.error('[useBusinesses] Error fetching businesses:', err);
-      setError(err.message || 'Failed to fetch businesses');
-      setBusinesses([]); // Fallback to empty array
-    } finally {
-      setLoading(false);
-    }
-  }, [
-    options.skip,
+  const params = useMemo(() => buildBusinessesParams(options), [
     options.limit,
     options.category,
     options.sortBy,
@@ -239,6 +154,7 @@ export function useBusinesses(options: UseBusinessesOptions = {}): UseBusinesses
     options.location,
     options.priceRange,
     options.interestIds?.join(','),
+    options.subInterestIds?.join(','),
     options.priceRanges?.join(','),
     options.dealbreakerIds?.join(','),
     options.feedStrategy,
@@ -249,80 +165,110 @@ export function useBusinesses(options: UseBusinessesOptions = {}): UseBusinesses
     options.longitude,
     options.searchQuery,
     options.sort,
-    options.cache,
   ]);
 
-  useEffect(() => {
-    devLog('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    devLog('🚀 [useBusinesses] useEffect triggered');
-    devLog('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    devLog('[useBusinesses] Options:', {
-      skip: options.skip,
-      willFetch: !options.skip,
-      limit: options.limit,
-      feedStrategy: options.feedStrategy,
-      interestIds: options.interestIds?.length || 0,
-      category: options.category,
-      sortBy: options.sortBy,
-      sortOrder: options.sortOrder,
-    });
-    
-    if (options.skip) {
-      devLog('[useBusinesses] ⏭️ Skipping fetch (skip=true)');
-      setLoading(false);
-      return;
-    }
-    devLog('[useBusinesses] ✅ Calling fetchBusinesses from useEffect');
-    fetchBusinesses();
-  }, [fetchBusinesses, options.skip]);
+  const url = useMemo(() => `/api/businesses?${params.toString()}`, [params]);
+  const swrKey = options.skip ? null : [url, options.cache];
 
-  // Refetch when the page becomes visible again (e.g. user navigated away and came back)
-  // This ensures fresh review counts, ratings, etc. after submitting a review
+  const fetcher = useCallback(
+    ([u, cache]: [string, RequestCache | undefined]) => fetchBusinessesData(u, cache),
+    []
+  );
+
+  const { data, error, isLoading, mutate } = useSWR(
+    swrKey,
+    fetcher,
+    swrConfig
+  );
+
   useEffect(() => {
     if (options.skip) return;
+    devLog('[useBusinesses] Fetching from:', url);
+  }, [options.skip, url]);
 
+  useEffect(() => {
+    if (options.skip) return;
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        fetchBusinesses();
+        mutate();
       }
     };
-
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [options.skip, fetchBusinesses]);
+  }, [options.skip, mutate]);
 
-  // Listen for business update events and refetch
   useEffect(() => {
     if (options.skip) return;
-
-    const unsubscribeUpdate = businessUpdateEvents.onUpdate(() => {
-      // Refetch businesses when any business is updated
-      // This ensures listing pages show updated data
-      fetchBusinesses();
-    });
-
+    const unsubscribeUpdate = businessUpdateEvents.onUpdate(() => mutate());
     const unsubscribeDelete = businessUpdateEvents.onDelete((deletedBusinessId: string) => {
-      // Remove deleted business from state immediately
-      setBusinesses(prev => prev.filter(b => b.id !== deletedBusinessId));
+      mutate(
+        (prev) => (prev ? prev.filter((b) => b.id !== deletedBusinessId) : prev),
+        { revalidate: false }
+      );
     });
-
     return () => {
       unsubscribeUpdate();
       unsubscribeDelete();
     };
-  }, [options.skip, fetchBusinesses]);
+  }, [options.skip, mutate]);
 
   return {
-    businesses,
-    loading,
-    error,
-    refetch: fetchBusinesses,
+    businesses: data ?? [],
+    loading: isLoading,
+    error: error ? (error as Error).message : null,
+    refetch: () => mutate(),
   };
 }
 
 // Trending is now a first-class global feed (not personalized mixed feed).
 // Re-export from the standalone hook for backward compatibility.
 export { useTrendingBusinesses } from './useTrendingBusinesses';
+
+async function fetchForYouData([, requestKey]: [string, string]): Promise<Business[]> {
+  const parsed = JSON.parse(requestKey) as {
+    limit: number;
+    interestIds: string[];
+    subInterestIds: string[];
+    dealbreakerIds: string[];
+    preferredPriceRanges: string[];
+    latitude: number | null;
+    longitude: number | null;
+  };
+  const params = new URLSearchParams();
+  params.set('limit', parsed.limit.toString());
+  params.set('feed_strategy', 'mixed');
+  if (parsed.interestIds.length > 0) params.set('interest_ids', parsed.interestIds.join(','));
+  if (parsed.subInterestIds.length > 0) params.set('sub_interest_ids', parsed.subInterestIds.join(','));
+  if (parsed.dealbreakerIds.length > 0) params.set('dealbreakers', parsed.dealbreakerIds.join(','));
+  if (parsed.preferredPriceRanges.length > 0) params.set('preferred_price_ranges', parsed.preferredPriceRanges.join(','));
+  if (parsed.latitude && parsed.longitude) {
+    params.set('lat', parsed.latitude.toString());
+    params.set('lng', parsed.longitude.toString());
+  }
+  devLog('[useForYouBusinesses] Fetching with V2 recommender:', {
+    interestIds: parsed.interestIds.length,
+    subInterestIds: parsed.subInterestIds.length,
+    dealbreakerIds: parsed.dealbreakerIds.length,
+    preferredPriceRanges: parsed.preferredPriceRanges.length,
+  });
+  const response = await fetch(`/api/businesses?${params.toString()}`);
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const message = data?.error ?? (response.status === 404 ? 'For You feed unavailable' : response.statusText);
+    const err = new Error(`${message} (${response.status})`);
+    throw err;
+  }
+  const list = data.businesses || data.data || [];
+  devLog(`[useForYouBusinesses] Received ${list.length} businesses`);
+  if (list.length === 0) {
+    devWarn('[useForYouBusinesses] Empty For You response diagnostics:', {
+      status: response.status,
+      feedPath: response.headers.get('X-Feed-Path'),
+      meta: data?.meta ?? null,
+    });
+  }
+  return list;
+}
 
 /**
  * Hook to fetch businesses for "For You" section personalized based on user interests
@@ -346,42 +292,27 @@ export function useForYouBusinesses(
   const shouldWaitForPreferences =
     preferencesLoading && overrideInterestIds === undefined && !extraOptions.skip;
 
-  const hasInitialBusinesses = (extraOptions.initialBusinesses?.length ?? 0) > 0;
-  const [businesses, setBusinesses] = useState<Business[]>(extraOptions.initialBusinesses ?? []);
-  const [loading, setLoading] = useState(!extraOptions.skip && !hasInitialBusinesses);
-  const [error, setError] = useState<string | null>(null);
-  const skipInitialFetchRef = useRef(true);
-  const lastRequestKeyRef = useRef<string | null>(null);
-
-  // Use overrideInterestIds if provided, otherwise use user preferences
   const interestIds = useMemo(() => {
     if (overrideInterestIds !== undefined) {
       return overrideInterestIds.length > 0 ? overrideInterestIds : undefined;
     }
-    // Combine both interests and subcategories for broader matching
     const userInterestIds = preferenceInterests.map((i) => i.id);
     return userInterestIds.length > 0 ? userInterestIds : undefined;
   }, [overrideInterestIds, preferenceInterests]);
 
-  // Pass subcategories separately for more precise matching
   const subInterestIds = useMemo(() => {
-    if (overrideInterestIds !== undefined) {
-      return undefined; // Don't use subcategories when override is provided
-    }
+    if (overrideInterestIds !== undefined) return undefined;
     const userSubInterestIds = preferenceSubcategories.map((s) => s.id);
     return userSubInterestIds.length > 0 ? userSubInterestIds : undefined;
   }, [overrideInterestIds, preferenceSubcategories]);
 
-  // Memoize dealbreakerIds to prevent infinite re-renders
   const dealbreakerIds = useMemo(
     () => preferenceDealbreakers.map((d) => d.id),
     [preferenceDealbreakers]
   );
 
   const preferredPriceRanges = useMemo(() => {
-    if (dealbreakerIds.includes('value-for-money')) {
-      return ['$', '$$'];
-    }
+    if (dealbreakerIds.includes('value-for-money')) return ['$', '$$'];
     return undefined;
   }, [dealbreakerIds]);
 
@@ -396,162 +327,28 @@ export function useForYouBusinesses(
         latitude: extraOptions.latitude ?? null,
         longitude: extraOptions.longitude ?? null,
       }),
-    [
-      limit,
-      interestIds,
-      subInterestIds,
-      dealbreakerIds,
-      preferredPriceRanges,
-      extraOptions.latitude,
-      extraOptions.longitude,
-    ]
+    [limit, interestIds, subInterestIds, dealbreakerIds, preferredPriceRanges, extraOptions.latitude, extraOptions.longitude]
   );
 
-  // No longer block on client-side preferences. The server fetches
-  // preferences internally when they are not provided in URL params,
-  // eliminating the client-side waterfall (auth → prefs → feed).
-  const fetchForYou = useCallback(async (force = false) => {
-    if (extraOptions.skip) {
-      setLoading(false);
-      return;
-    }
+  const swrKey = (extraOptions.skip || shouldWaitForPreferences)
+    ? null
+    : (['for-you', requestKey] as [string, string]);
 
-    if (!force && shouldWaitForPreferences) {
-      // Prevent a cold-start fetch with empty preference arrays before preferences have loaded.
-      // Once preferencesLoading flips false, the effect below will trigger a real fetch.
-      setLoading(true);
-      return;
-    }
+  const { data, error, isLoading, mutate } = useSWR(swrKey, fetchForYouData, swrConfig);
 
-    if (!force && lastRequestKeyRef.current === requestKey) {
-      setLoading(false);
-      return;
-    }
-
-    try {
-      setLoading(true);
-      setError(null);
-      lastRequestKeyRef.current = requestKey;
-
-      devLog('[useForYouBusinesses] Fetching with V2 recommender:', {
-        interestIds: interestIds?.length || 0,
-        subInterestIds: subInterestIds?.length || 0,
-        dealbreakerIds: dealbreakerIds.length,
-        preferredPriceRanges: preferredPriceRanges?.length || 0,
-      });
-
-      const params = new URLSearchParams();
-      params.set('limit', limit.toString());
-      params.set('feed_strategy', 'mixed');
-
-      // Pass interests (broad) → API filters by primary_category_slug
-      if (interestIds && interestIds.length > 0) {
-        params.set('interest_ids', interestIds.join(','));
-      }
-      // Pass subcategories (specific) → API filters by primary_subcategory_slug
-      if (subInterestIds && subInterestIds.length > 0) {
-        params.set('sub_interest_ids', subInterestIds.join(','));
-      }
-
-      // Pass dealbreakers
-      if (dealbreakerIds.length > 0) {
-        params.set('dealbreakers', dealbreakerIds.join(','));
-      }
-
-      // Pass price preferences
-      if (preferredPriceRanges && preferredPriceRanges.length > 0) {
-        params.set('preferred_price_ranges', preferredPriceRanges.join(','));
-      }
-
-      // Include location if available in extraOptions
-      if (extraOptions.latitude && extraOptions.longitude) {
-        params.set('lat', extraOptions.latitude.toString());
-        params.set('lng', extraOptions.longitude.toString());
-      }
-
-      const response = await fetch(`/api/businesses?${params.toString()}`);
-
-      const data = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        const message =
-          data?.error ?? (response.status === 404 ? 'For You feed unavailable' : response.statusText);
-        throw new Error(`${message} (${response.status})`);
-      }
-
-      const businessesList = data.businesses || data.data || [];
-
-      devLog(`[useForYouBusinesses] Received ${businessesList.length} businesses`);
-      if (businessesList.length === 0) {
-        devWarn('[useForYouBusinesses] Empty For You response diagnostics:', {
-          status: response.status,
-          feedPath: response.headers.get('X-Feed-Path'),
-          meta: data?.meta ?? null,
-        });
-      }
-      setBusinesses(businessesList);
-
-    } catch (err: any) {
-      console.error('[useForYouBusinesses] Error fetching:', err);
-      setError(err.message || 'Failed to fetch businesses');
-      setBusinesses([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [
-    extraOptions.skip,
-    extraOptions.latitude,
-    extraOptions.longitude,
-    limit,
-    interestIds,
-    subInterestIds,
-    dealbreakerIds,
-    preferredPriceRanges,
-    requestKey,
-    shouldWaitForPreferences,
-  ]);
-
-  // Fire For You request right after first paint to avoid blocking initial render work.
-  useEffect(() => {
-    const shouldSkipInitialFetch =
-      extraOptions.skipInitialFetch && hasInitialBusinesses && skipInitialFetchRef.current;
-
-    if (shouldSkipInitialFetch) {
-      skipInitialFetchRef.current = false;
-      if (!lastRequestKeyRef.current) {
-        lastRequestKeyRef.current = requestKey;
-      }
-      setLoading(false);
-      return;
-    }
-
-    if (shouldWaitForPreferences) {
-      setLoading(true);
-      return;
-    }
-
-    fetchForYou();
-  }, [fetchForYou, extraOptions.skipInitialFetch, hasInitialBusinesses, requestKey, shouldWaitForPreferences]);
-
-  // Refetch when the page becomes visible again (e.g. user navigated away and came back)
-  // This ensures fresh review counts, ratings, etc. after submitting a review
   useEffect(() => {
     if (extraOptions.skip || shouldWaitForPreferences) return;
-
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        fetchForYou(true);
-      }
+      if (document.visibilityState === 'visible') mutate();
     };
-
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [extraOptions.skip, shouldWaitForPreferences, fetchForYou]);
+  }, [extraOptions.skip, shouldWaitForPreferences, mutate]);
 
   return {
-    businesses,
-    loading,
-    error,
-    refetch: () => fetchForYou(true),
+    businesses: data ?? [],
+    loading: isLoading,
+    error: error ? (error as Error).message : null,
+    refetch: () => mutate(),
   };
 }

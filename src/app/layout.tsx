@@ -19,8 +19,9 @@ import { OnboardingProvider } from "./contexts/OnboardingContext";
 import { ToastProvider } from "./contexts/ToastContext";
 import { SavedItemsProvider } from "./contexts/SavedItemsContext";
 import { NotificationsProvider } from "./contexts/NotificationsContext";
+import DeferredProviders from "./components/Providers/DeferredProviders";
+import { LazyMotionProvider } from "./lib/lazy-motion-provider";
 import { RealtimeProvider } from "./contexts/RealtimeContext";
-import PageTransitionProvider from "./components/Providers/PageTransitionProvider";
 import GlobalHeader from "./components/Header/GlobalHeader";
 import SchemaMarkup from "./components/SEO/SchemaMarkup";
 import { generateOrganizationSchema } from "./lib/utils/schemaMarkup";
@@ -182,12 +183,13 @@ export default function RootLayout({
         {/* Preconnect to external domains for faster resource loading */}
         {supabaseUrl ? (
           <>
-            <link rel="preconnect" href={supabaseUrl} />
             <link rel="dns-prefetch" href={supabaseUrl} />
+            <link rel="preconnect" href={supabaseUrl} crossOrigin="anonymous" />
           </>
         ) : null}
-        <link rel="preconnect" href="https://api.mapbox.com" />
         <link rel="dns-prefetch" href="https://api.mapbox.com" />
+        <link rel="preconnect" href="https://api.mapbox.com" />
+        <link rel="dns-prefetch" href="https://images.unsplash.com" />
         
         {/* Canonical tag removed - set per page via metadata */}
       </head>
@@ -209,20 +211,22 @@ export default function RootLayout({
         />
         <ToastProvider>
           <AuthProvider>
-            <RealtimeProvider>
-              <OnboardingProvider>
-                <SavedItemsProvider>
-                  <NotificationsProvider>
-                    <BusinessNotifications />
-                    <GlobalHeader />
-                    <PageTransitionProvider>
-                      {children}
-                    </PageTransitionProvider>
-                    <ScrollToTopButton threshold={360} />
-                  </NotificationsProvider>
-                </SavedItemsProvider>
-              </OnboardingProvider>
-            </RealtimeProvider>
+            <OnboardingProvider>
+              <SavedItemsProvider>
+                <NotificationsProvider>
+                  <BusinessNotifications />
+                  <GlobalHeader />
+                  <RealtimeProvider>
+                    <DeferredProviders>
+                      <LazyMotionProvider>
+                        {children}
+                      </LazyMotionProvider>
+                    </DeferredProviders>
+                  </RealtimeProvider>
+                  <ScrollToTopButton threshold={360} />
+                </NotificationsProvider>
+              </SavedItemsProvider>
+            </OnboardingProvider>
           </AuthProvider>
         </ToastProvider>
       </body>

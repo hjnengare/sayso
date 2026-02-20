@@ -1,8 +1,11 @@
 /**
- * Hook to fetch featured businesses from the API
+ * Hook to fetch featured businesses from the API.
+ * Uses SWR for caching and deduplication.
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useEffect, useState } from 'react';
+import useSWR from 'swr';
+import { swrConfig } from '../lib/swrConfig';
 
 export interface FeaturedBusiness {
   id: string;
@@ -49,6 +52,8 @@ export interface UseFeaturedBusinessesOptions {
   limit?: number;
   region?: string | null;
   skip?: boolean;
+  /** Delay first fetch by ms (e.g. 150) to prioritize above-fold content. Uses requestIdleCallback when available. */
+  deferMs?: number;
 }
 
 export interface UseFeaturedBusinessesResult {
@@ -109,138 +114,127 @@ const mapLegacyBusinessToFeatured = (
   };
 };
 
-/**
- * Hook to fetch featured businesses from the API
- */
-export function useFeaturedBusinesses(options: UseFeaturedBusinessesOptions = {}): UseFeaturedBusinessesResult {
-  const [featuredBusinesses, setFeaturedBusinesses] = useState<FeaturedBusiness[]>([]);
-  const [loading, setLoading] = useState(!options.skip);
-  const [error, setError] = useState<string | null>(null);
-  const [statusCode, setStatusCode] = useState<number | null>(null);
-  const [meta, setMeta] = useState<FeaturedBusinessesMeta | null>(null);
+async function fetchFeaturedData(
+  _key: string,
+  limit: number | undefined,
+  region: string | null | undefined
+): Promise<{ list: FeaturedBusiness[]; meta: FeaturedBusinessesMeta | null }> {
+  const params = new URLSearchParams();
+  if (limit) params.set('limit', limit.toString());
+  if (region) params.set('region', region);
 
-  const fetchFeaturedBusinesses = useCallback(async () => {
-    if (options.skip) return;
+  let response = await fetch(`/api/featured?${params.toString()}`);
+  let usedLegacyFallback = false;
 
-    setLoading(true);
-    setError(null);
-    setStatusCode(null);
-
-    try {
-      const params = new URLSearchParams();
-      if (options.limit) params.set('limit', options.limit.toString());
-      if (options.region) params.set('region', options.region);
-
-      let response = await fetch(`/api/featured?${params.toString()}`);
-      let usedLegacyFallback = false;
-
-      if (response.status === 404) {
-        usedLegacyFallback = true;
-        console.warn('[useFeaturedBusinesses] /api/featured returned 404, falling back to /api/businesses');
-
-        const fallbackParams = new URLSearchParams();
-        if (options.limit) fallbackParams.set('limit', options.limit.toString());
-        if (options.region) fallbackParams.set('location', options.region);
-        fallbackParams.set('feed_strategy', 'standard');
-        fallbackParams.set('sort_by', 'total_rating');
-        fallbackParams.set('sort_order', 'desc');
-
-        response = await fetch(`/api/businesses?${fallbackParams.toString()}`);
-      }
-
-      if (!response.ok) {
-        let message = `Failed to fetch featured businesses: ${response.status}`;
-        try {
-          const body = await response.json();
-          message = body?.error || message;
-        } catch {
-          // keep message
-        }
-
-        // Some environments do not expose these API routes (frontend-only deploys).
-        // In that case, degrade to empty state instead of showing raw 404 banners.
-        if (usedLegacyFallback && response.status === 404) {
-          setStatusCode(null);
-          setError(null);
-          setFeaturedBusinesses([]);
-          setMeta(null);
-          return;
-        }
-
-        setStatusCode(response.status);
-        setError(`${response.status}: ${message}`);
-        setFeaturedBusinesses([]);
-        setMeta(null);
-        return;
-      }
-
-      const data = await response.json();
-
-      if (usedLegacyFallback) {
-        const fallbackList = Array.isArray(data?.businesses)
-          ? data.businesses
-          : Array.isArray(data?.data)
-            ? data.data
-            : [];
-        const normalized = fallbackList
-          .filter((item: any) => item && item.id)
-          .map((item: any, index: number) => mapLegacyBusinessToFeatured(item, index));
-
-        setFeaturedBusinesses(normalized);
-        setMeta({
-          source: 'fallback',
-          count: normalized.length,
-          generated_at: new Date().toISOString(),
-        });
-      } else {
-        const list = Array.isArray(data)
-          ? data
-          : Array.isArray(data?.data)
-            ? data.data
-            : [];
-        setFeaturedBusinesses(list);
-        setMeta(data && !Array.isArray(data) ? data?.meta ?? null : null);
-      }
-    } catch (err) {
-      console.error('Error fetching featured businesses:', err);
-      setStatusCode(null);
-      setError(err instanceof Error ? err.message : 'Unknown error');
-      setFeaturedBusinesses([]);
-      setMeta(null);
-    } finally {
-      setLoading(false);
+  if (response.status === 404) {
+    usedLegacyFallback = true;
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('[useFeaturedBusinesses] /api/featured returned 404, falling back to /api/businesses');
     }
-  }, [options.limit, options.region, options.skip]);
+    const fallbackParams = new URLSearchParams();
+    if (limit) fallbackParams.set('limit', limit.toString());
+    if (region) fallbackParams.set('location', region);
+    fallbackParams.set('feed_strategy', 'standard');
+    fallbackParams.set('sort_by', 'total_rating');
+    fallbackParams.set('sort_order', 'desc');
+    response = await fetch(`/api/businesses?${fallbackParams.toString()}`);
+  }
+
+  if (!response.ok) {
+    let message = `Failed to fetch featured businesses: ${response.status}`;
+    try {
+      const body = await response.json();
+      message = body?.error || message;
+    } catch {
+      // keep message
+    }
+    if (usedLegacyFallback && response.status === 404) {
+      return { list: [], meta: null };
+    }
+    const err = new Error(`${response.status}: ${message}`) as Error & { status?: number };
+    err.status = response.status;
+    throw err;
+  }
+
+  const data = await response.json();
+
+  if (usedLegacyFallback) {
+    const fallbackList = Array.isArray(data?.businesses)
+      ? data.businesses
+      : Array.isArray(data?.data)
+        ? data.data
+        : [];
+    const normalized = fallbackList
+      .filter((item: { id?: unknown }) => item && item.id)
+      .map((item: unknown, index: number) => mapLegacyBusinessToFeatured(item as Record<string, unknown>, index));
+    return {
+      list: normalized,
+      meta: {
+        source: 'fallback',
+        count: normalized.length,
+        generated_at: new Date().toISOString(),
+      },
+    };
+  }
+
+  const list = Array.isArray(data)
+    ? data
+    : Array.isArray(data?.data)
+      ? data.data
+      : [];
+  return {
+    list,
+    meta: data && !Array.isArray(data) ? data?.meta ?? null : null,
+  };
+}
+
+export function useFeaturedBusinesses(options: UseFeaturedBusinessesOptions = {}): UseFeaturedBusinessesResult {
+  const { limit, region, skip = false, deferMs = 0 } = options;
+  const [deferReady, setDeferReady] = useState(deferMs <= 0);
 
   useEffect(() => {
-    fetchFeaturedBusinesses();
-  }, [fetchFeaturedBusinesses]);
+    if (deferMs <= 0 || skip) {
+      setDeferReady(true);
+      return;
+    }
+    const w = typeof window !== 'undefined' ? (window as Window & { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number }) : null;
+    if (w?.requestIdleCallback) {
+      const id = w.requestIdleCallback(() => setDeferReady(true), { timeout: deferMs });
+      return () => w.cancelIdleCallback?.(id);
+    }
+    const id = setTimeout(() => setDeferReady(true), deferMs);
+    return () => clearTimeout(id);
+  }, [deferMs, skip]);
 
-  // Refetch when the page becomes visible again (e.g. user navigated away and came back)
-  // This ensures fresh review counts, ratings, etc. after submitting a review
+  const swrKey = skip || !deferReady ? null : ['featured', limit ?? 12, region ?? null];
+
+  const { data, error, isLoading, mutate } = useSWR(
+    swrKey,
+    ([, l, r]: [string, number, string | null]) => fetchFeaturedData('featured', l, r ?? undefined),
+    {
+      ...swrConfig,
+      dedupingInterval: 60000, // Longer for Featured - same data for everyone
+    }
+  );
+
   useEffect(() => {
-    if (options.skip) return;
-
+    if (skip) return;
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        fetchFeaturedBusinesses();
+        mutate();
       }
     };
-
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [options.skip, fetchFeaturedBusinesses]);
+  }, [skip, mutate]);
 
-  const refetch = useCallback(() => {
-    fetchFeaturedBusinesses();
-  }, [fetchFeaturedBusinesses]);
-
+  const err = error as Error & { status?: number } | undefined;
   return {
-    featuredBusinesses,
-    loading,
-    error,
-    statusCode,
-    refetch,
-    meta,
+    featuredBusinesses: data?.list ?? [],
+    loading: !deferReady || isLoading,
+    error: err ? err.message : null,
+    statusCode: err?.status ?? null,
+    refetch: () => mutate(),
+    meta: data?.meta ?? null,
   };
 }

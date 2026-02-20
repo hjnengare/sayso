@@ -2,8 +2,9 @@
  * Hook to fetch and manage user's interests, subcategories, and deal-breakers
  */
 
-import { useState, useEffect, useRef } from 'react';
+import useSWR, { mutate as globalMutate } from 'swr';
 import { useAuth } from '../contexts/AuthContext';
+import { swrConfig } from '../lib/swrConfig';
 
 export interface UserPreference {
   id: string;
@@ -28,48 +29,28 @@ export interface UseUserPreferencesOptions {
 }
 
 const EMPTY_PREFS: UserPreferences = { interests: [], subcategories: [], dealbreakers: [] };
-const PREFERENCES_CACHE_TTL_MS = 60_000;
 
-const preferencesCache = new Map<string, { data: UserPreferences; fetchedAtMs: number }>();
-const inFlightByUserId = new Map<string, Promise<UserPreferences>>();
-
-function isCacheFresh(entry: { fetchedAtMs: number }) {
-  return Date.now() - entry.fetchedAtMs < PREFERENCES_CACHE_TTL_MS;
+async function fetchPreferences([, userId]: [string, string]): Promise<UserPreferences> {
+  const response = await fetch('/api/user/preferences', {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+  });
+  if (!response.ok) return EMPTY_PREFS;
+  const data = await response.json();
+  return {
+    interests: data.interests || [],
+    subcategories: data.subcategories || [],
+    dealbreakers: data.dealbreakers || [],
+  };
 }
 
-async function fetchPreferencesOnce(userId: string): Promise<UserPreferences> {
-  const cached = preferencesCache.get(userId);
-  if (cached && isCacheFresh(cached)) return cached.data;
-
-  const inFlight = inFlightByUserId.get(userId);
-  if (inFlight) return inFlight;
-
-  const promise = (async () => {
-    const response = await fetch('/api/user/preferences', {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-    });
-
-    if (!response.ok) return EMPTY_PREFS;
-
-    const data = await response.json();
-    const prefs: UserPreferences = {
-      interests: data.interests || [],
-      subcategories: data.subcategories || [],
-      dealbreakers: data.dealbreakers || [],
-    };
-
-    preferencesCache.set(userId, { data: prefs, fetchedAtMs: Date.now() });
-    return prefs;
-  })();
-
-  inFlightByUserId.set(userId, promise);
-  try {
-    return await promise;
-  } finally {
-    inFlightByUserId.delete(userId);
-  }
+/**
+ * Invalidate the SWR cache for a user's preferences.
+ * Call this after saving preferences in onboarding/settings to re-personalize For You.
+ */
+export function invalidateUserPreferences(userId: string) {
+  globalMutate(['/api/user/preferences', userId]);
 }
 
 /**
@@ -77,122 +58,25 @@ async function fetchPreferencesOnce(userId: string): Promise<UserPreferences> {
  */
 export function useUserPreferences(options: UseUserPreferencesOptions = {}): UseUserPreferencesResult {
   const { user, isLoading: authLoading } = useAuth();
-  const [interests, setInterests] = useState<UserPreference[]>(options.initialData?.interests ?? []);
-  const [subcategories, setSubcategories] = useState<UserPreference[]>(options.initialData?.subcategories ?? []);
-  const [dealbreakers, setDealbreakers] = useState<UserPreference[]>(options.initialData?.dealbreakers ?? []);
-  const [loading, setLoading] = useState(!(options.skipInitialFetch && options.initialData));
-  const [error, setError] = useState<string | null>(null);
-  const hasSkippedRef = useRef(false);
-  const lastUserIdRef = useRef<string | null>(null);
-  const initialUserIdRef = useRef<string | null | undefined>(undefined);
 
-  const fetchPreferences = async () => {
-    console.log('[useUserPreferences] fetchPreferences called', {
-      user: user ? 'exists' : 'null',
-      authLoading,
-    });
-    
-    // ✅ CRITICAL: If auth is still loading, do nothing yet (avoid flicker/reset)
-    if (authLoading) {
-      console.log('[useUserPreferences] Auth still loading, keeping loading state');
-      setLoading(true);
-      return;
-    }
-    
-    // ✅ If auth is done and user is null => logged out (now safe to return empty)
-    if (!user) {
-      console.log('[useUserPreferences] Auth finished, no user - returning empty preferences');
-      setInterests([]);
-      setSubcategories([]);
-      setDealbreakers([]);
-      setLoading(false);
-      return;
-    }
+  // Don't fetch until auth has resolved
+  const swrKey = (!authLoading && user?.id) ? (['/api/user/preferences', user.id] as [string, string]) : null;
 
-    try {
-      setLoading(true);
-      setError(null);
-
-      // De-duplicate: share a single in-flight request + short-lived cache per user.
-      const cached = preferencesCache.get(user.id);
-      if (cached && isCacheFresh(cached)) {
-        setInterests(cached.data.interests || []);
-        setSubcategories(cached.data.subcategories || []);
-        setDealbreakers(cached.data.dealbreakers || []);
-        setLoading(false);
-        return;
-      }
-
-      const prefs = await fetchPreferencesOnce(user.id);
-
-      setInterests(prefs.interests || []);
-      setSubcategories(prefs.subcategories || []);
-      setDealbreakers(prefs.dealbreakers || []);
-      
-      console.log('[useUserPreferences] Loaded preferences:', {
-        interests: prefs.interests?.length || 0,
-        subcategories: prefs.subcategories?.length || 0,
-        dealbreakers: prefs.dealbreakers?.length || 0,
-      });
-    } catch (err: any) {
-      console.error('[useUserPreferences] Error fetching user preferences:', err);
-      // Gracefully handle errors - return empty arrays instead of breaking UI
-      setInterests([]);
-      setSubcategories([]);
-      setDealbreakers([]);
-      setError(null); // Don't show error to user
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    const currentUserId = user?.id ?? null;
-    const userChanged = lastUserIdRef.current !== currentUserId;
-    lastUserIdRef.current = currentUserId;
-
-    const hasInitialData = !!options.initialData;
-
-    if (options.skipInitialFetch && hasInitialData) {
-      if (!hasSkippedRef.current) {
-        hasSkippedRef.current = true;
-        // Prime shared cache so other callers (same user) don't refetch immediately.
-        if (!authLoading && user?.id) {
-          preferencesCache.set(user.id, {
-            data: options.initialData ?? EMPTY_PREFS,
-            fetchedAtMs: Date.now(),
-          });
-        }
-        return;
-      }
-
-      if (authLoading) {
-        return;
-      }
-
-      if (initialUserIdRef.current === undefined) {
-        initialUserIdRef.current = currentUserId;
-      }
-
-      if (!userChanged || currentUserId === initialUserIdRef.current) {
-        return;
-      }
-    }
-
-    if (authLoading) {
-      return;
-    }
-
-    fetchPreferences();
-  }, [user?.id, authLoading]); // ✅ Also depend on authLoading to prevent premature fetches
+  const { data, error, isLoading, mutate } = useSWR(swrKey, fetchPreferences, {
+    ...swrConfig,
+    dedupingInterval: 60_000,
+    // Seed from initialData if provided (avoids a cold-start fetch)
+    fallbackData: options.initialData,
+  });
 
   return {
-    interests,
-    subcategories,
-    dealbreakers,
-    loading,
-    error,
-    refetch: fetchPreferences,
+    interests: data?.interests ?? [],
+    subcategories: data?.subcategories ?? [],
+    dealbreakers: data?.dealbreakers ?? [],
+    // Show loading while auth is still resolving or SWR is fetching
+    loading: authLoading || isLoading,
+    error: error ? (error as Error).message : null,
+    refetch: () => mutate(),
   };
 }
 
@@ -203,4 +87,3 @@ export function useUserInterestIds(): string[] {
   const { interests, subcategories } = useUserPreferences();
   return interests.map(i => i.id).concat(subcategories.map(s => s.id));
 }
-

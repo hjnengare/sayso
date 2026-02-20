@@ -1,13 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ChevronRight, ChevronLeft, Trophy, Map, Star, Target, Users } from 'lucide-react';
+import { ChevronLeft, Trophy, Map, Star, Target, Users } from 'lucide-react';
+import useSWR from 'swr';
 import { useAuth } from '../contexts/AuthContext';
 import { Loader } from '../components/Loader';
 import BadgeGrid from '../components/Badges/BadgeGrid';
 import { Badge } from '../components/Badges/BadgeCard';
 import ProtectedRoute from '../components/ProtectedRoute/ProtectedRoute';
+import { swrConfig } from '../lib/swrConfig';
 
 interface BadgeStats {
   total: number;
@@ -22,49 +23,19 @@ interface GroupedBadges {
   community: Badge[];
 }
 
+async function fetchBadgeData(url: string) {
+  const response = await fetch(url, { credentials: 'include' });
+  if (!response.ok) throw new Error('Failed to fetch badges');
+  return response.json();
+}
+
 export default function AchievementsPage() {
   const { user } = useAuth();
-  const [badges, setBadges] = useState<Badge[]>([]);
-  const [grouped, setGrouped] = useState<GroupedBadges | null>(null);
-  const [stats, setStats] = useState<BadgeStats | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const swrKey = user ? `/api/badges/user?user_id=${user.id}` : null;
+  const { data, isLoading, error } = useSWR(swrKey, fetchBadgeData, swrConfig);
 
-  const fetchBadges = useCallback(async () => {
-    if (!user) return;
-    try {
-      setIsLoading(true);
-      setError(null);
-      const response = await fetch(`/api/badges/user?user_id=${user.id}`, { cache: 'no-store', credentials: 'include' });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch badges');
-      }
-
-      const data = await response.json();
-      setBadges(data.badges || []);
-      setGrouped(data.grouped || null);
-      setStats(data.stats || null);
-    } catch (err: any) {
-      console.error('[Achievements] Error fetching badges:', err);
-      setError(err.message);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [user]);
-
-  useEffect(() => {
-    if (!user) return;
-    fetchBadges();
-  }, [user, fetchBadges]);
-
-  // Refetch when user returns to this tab so badges update after review/photo actions
-  useEffect(() => {
-    if (!user) return;
-    const onFocus = () => fetchBadges();
-    window.addEventListener('focus', onFocus);
-    return () => window.removeEventListener('focus', onFocus);
-  }, [user, fetchBadges]);
+  const grouped: GroupedBadges | null = data?.grouped ?? null;
+  const stats: BadgeStats | null = data?.stats ?? null;
 
   if (isLoading) {
     return (
@@ -80,7 +51,7 @@ export default function AchievementsPage() {
     return (
       <ProtectedRoute requiresAuth={true}>
         <div className="min-h-screen bg-page-bg flex items-center justify-center">
-          <p className="text-red-500">Error loading badges: {error}</p>
+          <p className="text-red-500">Error loading badges: {(error as Error).message}</p>
         </div>
       </ProtectedRoute>
     );

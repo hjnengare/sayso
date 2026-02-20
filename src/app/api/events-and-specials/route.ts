@@ -118,7 +118,7 @@ export async function GET(req: NextRequest) {
     let data: any[] | null = null;
     let error: any = null;
 
-    ({ data, error } = await withTimeout(query, FETCH_TIMEOUT_MS, "events-and-specials:primary"));
+    ({ data, error } = await withTimeout(query as any, FETCH_TIMEOUT_MS, "events-and-specials:primary") as any);
 
     const errorMessage = String(error?.message ?? "");
     const isMissingCtaOrBookingColumn =
@@ -146,10 +146,10 @@ export async function GET(req: NextRequest) {
       }
 
       ({ data, error } = await withTimeout(
-        retryQuery,
+        retryQuery as any,
         FETCH_TIMEOUT_MS,
         "events-and-specials:retry-no-cta"
-      ));
+      ) as any);
     }
 
     if (error) {

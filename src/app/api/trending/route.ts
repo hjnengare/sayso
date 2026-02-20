@@ -79,10 +79,10 @@ export async function GET(request: NextRequest) {
       supabase.rpc('get_trending_cold_start_candidates', {
         p_pool_size: TRENDING_POOL_SIZE,
         p_city: city || null,
-      }),
+      }) as any,
       FETCH_TIMEOUT_MS,
       'trending:candidates'
-    );
+    ) as any;
 
     if (candidatesError) {
       console.warn('[TRENDING API] get_trending_cold_start_candidates error:', candidatesError.message);
@@ -150,10 +150,10 @@ export async function GET(request: NextRequest) {
         .select(
           'id, name, description, primary_subcategory_slug, primary_subcategory_label, primary_category_slug, location, address, image_url, verified, price_range, badge, slug, lat, lng, status, is_system',
         )
-        .in('id', selectedIds),
+        .in('id', selectedIds) as any,
       FETCH_TIMEOUT_MS,
       'trending:businesses'
-    );
+    ) as any;
 
     if (businessError) {
       console.warn('[TRENDING API] businesses enrich error:', businessError.message);
@@ -165,10 +165,10 @@ export async function GET(request: NextRequest) {
       supabase
         .from('business_stats')
         .select('business_id, total_reviews, average_rating, percentiles')
-        .in('business_id', selectedIds),
+        .in('business_id', selectedIds) as any,
       FETCH_TIMEOUT_MS,
       'trending:business_stats'
-    );
+    ) as any;
     const statsById = new Map(
       (Array.isArray(statsRows) ? statsRows : []).map((s: { business_id: string }) => [s.business_id, s]),
     );
@@ -206,10 +206,10 @@ export async function GET(request: NextRequest) {
           .select('business_id, url, alt_text, is_primary')
           .in('business_id', selectedIds)
           .order('is_primary', { ascending: false })
-          .order('created_at', { ascending: false }),
+          .order('created_at', { ascending: false }) as any,
         FETCH_TIMEOUT_MS,
         'trending:images'
-      );
+      ) as any;
 
       for (const img of imagesData || []) {
         const bid = (img as { business_id: string }).business_id;

@@ -110,6 +110,11 @@ async function flushQueue() {
   }
 }
 
+export function invalidateBusinessPreview(businessId: string) {
+  previewCache.delete(businessId);
+  notifySubscribers(businessId);
+}
+
 export function useBusinessReviewPreview(businessId?: string | null) {
   const normalizedBusinessId = useMemo(
     () => (typeof businessId === "string" ? businessId.trim() : ""),

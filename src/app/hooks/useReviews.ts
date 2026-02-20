@@ -1,6 +1,8 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useState, useEffect } from 'react';
+import useSWR, { mutate as globalMutate } from 'swr';
+import { invalidateBusinessPreview } from './useBusinessReviewPreview';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { useEmailVerification } from './useEmailVerification';
@@ -8,9 +10,9 @@ import type { ReviewWithUser } from '../lib/types/database';
 import {
   DUMMY_REVIEWS,
   simulateDelay,
-  getReviewsByBusinessId,
   type Review
 } from '../lib/dummyData';
+import { swrConfig } from '../lib/swrConfig';
 interface ReviewFormData {
   business_id: string;
   rating: number;
@@ -60,133 +62,49 @@ function getReviewErrorMessage(result: { message?: string; code?: string; error?
   return "An error occurred. Please try again.";
 }
 
+async function fetchReviews([, businessId]: [string, string]): Promise<ReviewWithUser[]> {
+  const response = await fetch(`/api/reviews?business_id=${businessId}&limit=50`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch reviews');
+  }
+  const result = await response.json();
+  const rawReviews = result.reviews || [];
+  return rawReviews.map((review: any) => {
+    const profile = Array.isArray(review.profile) ? review.profile[0] : (review.profile || {});
+    const displayName = profile?.display_name || profile?.username;
+    return {
+      ...review,
+      user: {
+        id: review.user_id || profile?.user_id || '',
+        name: review.user_id ? (displayName || 'Anonymous') : 'Anonymous',
+        avatar_url: profile?.avatar_url || undefined,
+      },
+      profile,
+    };
+  });
+}
+
 export function useReviews(businessId?: string) {
-  const [reviews, setReviews] = useState<ReviewWithUser[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let mounted = true;
-
-    const fetchReviews = async () => {
-      if (!businessId) {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        setLoading(true);
-        setError(null);
-
-        const response = await fetch(`/api/reviews?business_id=${businessId}&limit=50`);
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch reviews');
-        }
-
-        const result = await response.json();
-        const rawReviews = result.reviews || [];
-        
-        // Transform reviews to match ReviewWithUser type - ensure user name is set
-        const data = rawReviews.map((review: any) => {
-          // Handle profile - it might be an object or array
-          const profile = Array.isArray(review.profile) ? review.profile[0] : (review.profile || {});
-          const displayName = profile?.display_name || profile?.username;
-          
-          return {
-            ...review,
-            user: {
-              id: review.user_id || profile?.user_id || '',
-              name: review.user_id ? (displayName || 'Anonymous') : 'Anonymous',
-              avatar_url: profile?.avatar_url || undefined,
-            },
-            profile: profile, // Keep profile for backward compatibility
-          };
-        });
-
-        if (mounted) {
-          setReviews(data);
-        }
-      } catch (err) {
-        if (mounted) {
-          setError(err instanceof Error ? err.message : 'Failed to fetch reviews');
-          console.error('Error fetching reviews:', err);
-          // Fallback to empty array
-          setReviews([]);
-        }
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    fetchReviews();
-
-    return () => {
-      mounted = false;
-    };
-  }, [businessId]);
+  const swrKey = businessId ? (['/api/reviews', businessId] as [string, string]) : null;
+  const { data, error, isLoading, mutate } = useSWR(swrKey, fetchReviews, swrConfig);
 
   const addOptimisticReview = (review: ReviewWithUser) => {
-    setReviews(prev => [review, ...prev]);
+    mutate(prev => [review, ...(prev ?? [])], { revalidate: false });
   };
 
   const replaceOptimisticReview = (tempId: string, realReview: ReviewWithUser) => {
-    setReviews(prev => prev.map(r => r.id === tempId ? realReview : r));
+    mutate(prev => prev?.map(r => r.id === tempId ? realReview : r) ?? [], { revalidate: false });
   };
 
   const removeReview = (reviewId: string) => {
-    setReviews(prev => prev.filter(r => r.id !== reviewId));
-  };
-
-  const refetch = async () => {
-    if (!businessId) return;
-
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const response = await fetch(`/api/reviews?business_id=${businessId}&limit=50`);
-      
-      if (!response.ok) {
-        throw new Error('Failed to refetch reviews');
-      }
-
-      const result = await response.json();
-      const rawReviews = result.reviews || [];
-      
-      // Transform reviews to match ReviewWithUser type - ensure user name is set
-      const data = rawReviews.map((review: any) => {
-        // Handle profile - it might be an object or array
-        const profile = Array.isArray(review.profile) ? review.profile[0] : (review.profile || {});
-        const displayName = profile?.display_name || profile?.username;
-        
-        return {
-          ...review,
-          user: {
-            id: review.user_id || profile?.user_id || '',
-            name: review.user_id ? (displayName || 'Anonymous') : 'Anonymous',
-            avatar_url: profile?.avatar_url || undefined,
-          },
-          profile: profile, // Keep profile for backward compatibility
-        };
-      });
-      
-      setReviews(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to refetch reviews');
-      console.error('Error refetching reviews:', err);
-    } finally {
-      setLoading(false);
-    }
+    mutate(prev => prev?.filter(r => r.id !== reviewId) ?? [], { revalidate: false });
   };
 
   return {
-    reviews,
-    loading,
-    error,
-    refetch,
+    reviews: data ?? [],
+    loading: isLoading,
+    error: error ? (error as Error).message : null,
+    refetch: () => mutate(),
     addOptimisticReview,
     replaceOptimisticReview,
     removeReview,
@@ -370,6 +288,40 @@ export function useReviewSubmission() {
 
       const createdReview = result.review || null;
 
+      // Instantly prepend the new review to the SWR cache for this business
+      if (createdReview) {
+        const reviewKey: [string, string] = ['/api/reviews', reviewData.business_id];
+        const profile = Array.isArray(createdReview.profile)
+          ? createdReview.profile[0]
+          : (createdReview.profile || {});
+        const displayName = profile?.display_name || profile?.username;
+        const normalised: ReviewWithUser = {
+          ...createdReview,
+          user: {
+            id: createdReview.user_id || profile?.user_id || '',
+            name: createdReview.user_id ? (displayName || 'Anonymous') : 'Anonymous',
+            avatar_url: profile?.avatar_url || undefined,
+          },
+          profile,
+        };
+        await globalMutate(
+          reviewKey,
+          (prev: ReviewWithUser[] | undefined) => [normalised, ...(prev ?? [])],
+          { revalidate: false }
+        );
+        globalMutate(reviewKey);
+      }
+
+      // Revalidate all business feed caches so rating/review count propagates
+      globalMutate(
+        (key: unknown) => Array.isArray(key) && typeof key[0] === 'string' && (key[0] as string).includes('/api/businesses'),
+        undefined,
+        { revalidate: true }
+      );
+
+      // Drop the cached review preview for this business so cards re-fetch
+      invalidateBusinessPreview(reviewData.business_id);
+
       // Success! Trigger badge check so new badges are awarded and UI can show them
       if (currentUser?.id) {
         fetch('/api/badges/check-and-award', { method: 'POST', credentials: 'include' })
@@ -383,6 +335,12 @@ export function useReviewSubmission() {
                   : `You earned ${n} new badges!`,
                 'success',
                 4000
+              );
+              globalMutate(
+                (key: unknown) =>
+                  typeof key === 'string' && key.includes('/api/badges/user'),
+                undefined,
+                { revalidate: true }
               );
             }
           })

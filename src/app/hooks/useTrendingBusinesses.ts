@@ -7,10 +7,14 @@
  *
  * Backed by the `mv_trending_businesses` materialized view which refreshes
  * every 15 minutes via pg_cron.
+ *
+ * Uses SWR for caching and deduplication.
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useEffect } from 'react';
+import useSWR from 'swr';
 import { Business } from '../components/BusinessCard/BusinessCard';
+import { swrConfig } from '../lib/swrConfig';
 
 export interface UseTrendingOptions {
   limit?: number;
@@ -31,156 +35,108 @@ export interface UseTrendingResult {
   refreshedAt: string | null;
 }
 
+async function fetchTrendingData(
+  _key: string,
+  limit: number,
+  category: string | undefined,
+  debug: boolean
+): Promise<{ businesses: Business[]; count: number; refreshedAt: string | null }> {
+  const params = new URLSearchParams();
+  params.set('limit', limit.toString());
+  if (category) params.set('category', category);
+  if (debug) params.set('debug', '1');
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 18_000);
+
+  let response = await fetch(`/api/trending?${params.toString()}`, {
+    signal: controller.signal,
+  });
+  let usedLegacyFallback = false;
+
+  if (response.status === 404) {
+    usedLegacyFallback = true;
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('[useTrendingBusinesses] /api/trending returned 404, falling back to /api/businesses');
+    }
+    const fallbackParams = new URLSearchParams();
+    fallbackParams.set('limit', limit.toString());
+    if (category) fallbackParams.set('category', category);
+    fallbackParams.set('feed_strategy', 'standard');
+    fallbackParams.set('sort_by', 'total_reviews');
+    fallbackParams.set('sort_order', 'desc');
+    response = await fetch(`/api/businesses?${fallbackParams.toString()}`, {
+      signal: controller.signal,
+    });
+  }
+
+  clearTimeout(timeoutId);
+
+  if (!response.ok) {
+    let message = response.statusText;
+    try {
+      const body = await response.json();
+      message = body?.error || body?.details || message;
+    } catch {
+      // keep message as statusText
+    }
+    if (usedLegacyFallback && response.status === 404) {
+      return { businesses: [], count: 0, refreshedAt: null };
+    }
+    const err = new Error(`${response.status}: ${message}`) as Error & { status?: number };
+    err.status = response.status;
+    throw err;
+  }
+
+  const data = await response.json();
+  const list = Array.isArray(data?.businesses)
+    ? data.businesses
+    : Array.isArray(data?.data)
+      ? data.data
+      : [];
+  return {
+    businesses: list,
+    count: data.meta?.count ?? list.length,
+    refreshedAt: data.meta?.refreshedAt || null,
+  };
+}
+
 export function useTrendingBusinesses(
   options: UseTrendingOptions = {},
 ): UseTrendingResult {
   const { limit = 20, category, skip = false, debug = false } = options;
 
-  const [businesses, setBusinesses] = useState<Business[]>([]);
-  const [loading, setLoading] = useState(!skip);
-  const [error, setError] = useState<string | null>(null);
-  const [statusCode, setStatusCode] = useState<number | null>(null);
-  const [count, setCount] = useState(0);
-  const [refreshedAt, setRefreshedAt] = useState<string | null>(null);
-  const abortControllerRef = useRef<AbortController | null>(null);
+  const swrKey = skip ? null : ['trending', limit, category ?? '', debug];
 
-  const fetchTrending = useCallback(async () => {
-    if (skip) {
-      setLoading(false);
-      return;
+  const { data, error, isLoading, mutate } = useSWR(
+    swrKey,
+    ([, l, c, d]: [string, number, string, boolean]) => fetchTrendingData('trending', l, c || undefined, d),
+    {
+      ...swrConfig,
+      dedupingInterval: 60000, // Longer for Trending - same data for everyone
     }
+  );
 
-    // Cancel previous request
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-
-    const abortController = new AbortController();
-    abortControllerRef.current = abortController;
-    const timeoutId = setTimeout(() => abortController.abort(), 18_000);
-
-    try {
-      setLoading(true);
-      setError(null);
-      setStatusCode(null);
-
-      const params = new URLSearchParams();
-      params.set('limit', limit.toString());
-      if (category) params.set('category', category);
-      if (debug) params.set('debug', '1');
-
-      let response = await fetch(`/api/trending?${params.toString()}`, {
-        signal: abortController.signal,
-      });
-      let usedLegacyFallback = false;
-
-      if (response.status === 404) {
-        usedLegacyFallback = true;
-        console.warn('[useTrendingBusinesses] /api/trending returned 404, falling back to /api/businesses');
-
-        const fallbackParams = new URLSearchParams();
-        fallbackParams.set('limit', limit.toString());
-        if (category) fallbackParams.set('category', category);
-        fallbackParams.set('feed_strategy', 'standard');
-        fallbackParams.set('sort_by', 'total_reviews');
-        fallbackParams.set('sort_order', 'desc');
-
-        response = await fetch(`/api/businesses?${fallbackParams.toString()}`, {
-          signal: abortController.signal,
-        });
-      }
-
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        let message = response.statusText;
-        try {
-          const body = await response.json();
-          message = body?.error || body?.details || message;
-        } catch {
-          // keep message as statusText
-        }
-        if (abortControllerRef.current === abortController) {
-          if (usedLegacyFallback && response.status === 404) {
-            setBusinesses([]);
-            setCount(0);
-            setRefreshedAt(null);
-            setStatusCode(null);
-            setError(null);
-            return;
-          }
-          setStatusCode(response.status);
-          setError(`${response.status}: ${message}`);
-        }
-        return;
-      }
-
-      const data = await response.json();
-
-      if (abortControllerRef.current === abortController) {
-        const list = Array.isArray(data?.businesses)
-          ? data.businesses
-          : Array.isArray(data?.data)
-            ? data.data
-            : [];
-        setBusinesses(list);
-        setCount(data.meta?.count ?? list.length);
-        setRefreshedAt(data.meta?.refreshedAt || null);
-      }
-    } catch (err: any) {
-      clearTimeout(timeoutId);
-      if (err.name === 'AbortError') {
-        if (abortControllerRef.current !== abortController) {
-          return; // Superseded by a newer request
-        }
-        console.warn('[useTrendingBusinesses] Request timed out');
-        setLoading(false);
-        return;
-      }
-      if (abortControllerRef.current === abortController) {
-        setStatusCode(null);
-        setError(err instanceof Error ? err.message : 'Failed to fetch trending');
-        console.error('[useTrendingBusinesses] Error:', err);
-      }
-    } finally {
-      clearTimeout(timeoutId);
-      if (abortControllerRef.current === abortController) {
-        setLoading(false);
-      }
-    }
-  }, [limit, category, skip, debug]);
-
-  useEffect(() => {
-    fetchTrending();
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
-  }, [fetchTrending]);
-
-  // Refetch when the page becomes visible again (e.g. user navigated away and came back)
-  // This ensures fresh review counts, ratings, etc. after submitting a review
+  // Refetch when the page becomes visible again
   useEffect(() => {
     if (skip) return;
-
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        fetchTrending();
+        mutate();
       }
     };
-
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [skip, fetchTrending]);
+  }, [skip, mutate]);
 
+  const err = error as Error & { status?: number } | undefined;
   return {
-    businesses,
-    loading,
-    error,
-    statusCode,
-    count,
-    refetch: fetchTrending,
-    refreshedAt,
+    businesses: data?.businesses ?? [],
+    loading: isLoading,
+    error: err ? err.message : null,
+    statusCode: err?.status ?? null,
+    count: data?.count ?? 0,
+    refetch: () => mutate(),
+    refreshedAt: data?.refreshedAt ?? null,
   };
 }
