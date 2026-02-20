@@ -4,6 +4,57 @@ import { RealtimeChannel, RealtimePostgresChangesPayload } from "@supabase/supab
 import { getBrowserSupabase } from "./client";
 
 export type ChannelStatus = 'subscribed' | 'timed_out' | 'closed' | 'channel_error';
+type SupabaseChannelStatus = 'SUBSCRIBED' | 'TIMED_OUT' | 'CLOSED' | 'CHANNEL_ERROR';
+
+// Reuse a single browser client so channels can be tracked/removed reliably.
+const supabaseClient = getBrowserSupabase();
+
+// Registry prevents duplicate channels per name within this module.
+const channelRegistry = new Map<string, RealtimeChannel>();
+
+const statusMap: Record<SupabaseChannelStatus, ChannelStatus> = {
+  SUBSCRIBED: 'subscribed',
+  TIMED_OUT: 'timed_out',
+  CLOSED: 'closed',
+  CHANNEL_ERROR: 'channel_error',
+};
+
+const mapStatus = (status: SupabaseChannelStatus | string): ChannelStatus =>
+  statusMap[status as SupabaseChannelStatus] ?? 'channel_error';
+
+const rememberChannel = (name: string, channel: RealtimeChannel) => {
+  channelRegistry.set(name, channel);
+};
+
+const removeChannelFromRegistry = (channel: RealtimeChannel | null) => {
+  if (!channel) return;
+  const topic = (channel as any)?.topic as string | undefined;
+  if (topic && channelRegistry.get(topic) === channel) {
+    channelRegistry.delete(topic);
+    return;
+  }
+
+  // Fallback: scan registry if topic is missing or doesn't match.
+  for (const [key, value] of channelRegistry.entries()) {
+    if (value === channel) {
+      channelRegistry.delete(key);
+      break;
+    }
+  }
+};
+
+const createChannel = (channelName: string, options?: Parameters<typeof supabaseClient.channel>[1]) => {
+  const existing = channelRegistry.get(channelName);
+  if (existing) {
+    // Prevent duplicate live channels with the same name.
+    void unsubscribeChannel(existing);
+    channelRegistry.delete(channelName);
+  }
+
+  const channel = supabaseClient.channel(channelName, options);
+  rememberChannel(channelName, channel);
+  return channel;
+};
 
 export interface RealtimeChannelConfig {
   channelName: string;
@@ -18,23 +69,22 @@ export function createBusinessChannel(
   businessId: string,
   config?: Omit<RealtimeChannelConfig, 'channelName'>
 ) {
-  const supabase = getBrowserSupabase();
   const channelName = `business-${businessId}`;
-  
-  const channel = supabase.channel(channelName, {
+  const channel = createChannel(channelName, {
     config: {
       broadcast: { self: false },
       presence: { key: '' },
     },
   });
 
-  if (config?.onStatusChange) {
-    channel.on('system', { event: 'channel:*' }, (payload: any) => {
-      if (payload.type === 'channel') {
-        config.onStatusChange?.(payload.status as ChannelStatus);
-      }
-    });
-  }
+  channel.subscribe((status, err) => {
+    const mapped = mapStatus(status);
+    config?.onStatusChange?.(mapped);
+    if (err && config?.onError) config.onError(err);
+    if (status === 'CHANNEL_ERROR' && !err && config?.onError) {
+      config.onError(new Error('Realtime channel error'));
+    }
+  });
 
   return channel;
 }
@@ -46,23 +96,22 @@ export function createUserChannel(
   userId: string,
   config?: Omit<RealtimeChannelConfig, 'channelName'>
 ) {
-  const supabase = getBrowserSupabase();
   const channelName = `user-${userId}`;
-  
-  const channel = supabase.channel(channelName, {
+  const channel = createChannel(channelName, {
     config: {
       broadcast: { self: false },
       presence: { key: '' },
     },
   });
 
-  if (config?.onStatusChange) {
-    channel.on('system', { event: 'channel:*' }, (payload: any) => {
-      if (payload.type === 'channel') {
-        config.onStatusChange?.(payload.status as ChannelStatus);
-      }
-    });
-  }
+  channel.subscribe((status, err) => {
+    const mapped = mapStatus(status);
+    config?.onStatusChange?.(mapped);
+    if (err && config?.onError) config.onError(err);
+    if (status === 'CHANNEL_ERROR' && !err && config?.onError) {
+      config.onError(new Error('Realtime channel error'));
+    }
+  });
 
   return channel;
 }
@@ -76,10 +125,10 @@ export function subscribeToReviews(
   onUpdate: (payload: RealtimePostgresChangesPayload<any>) => void,
   onDelete: (payload: RealtimePostgresChangesPayload<any>) => void
 ): RealtimeChannel {
-  const supabase = getBrowserSupabase();
-  
-  return supabase
-    .channel(`reviews-business-${businessId}`)
+  const channelName = `reviews-business-${businessId}`;
+  const channel = createChannel(channelName);
+
+  channel
     .on(
       'postgres_changes',
       {
@@ -111,30 +160,59 @@ export function subscribeToReviews(
       onDelete
     )
     .subscribe();
+
+  return channel;
 }
 
 /**
  * Subscribe to helpful votes for specific reviews
+ * WARNING: This stream is still unfiltered at the DB level; prefer passing reviewIds to reduce client work.
  */
 export function subscribeToHelpfulVotes(
   businessId: string,
-  onUpdate: (payload: RealtimePostgresChangesPayload<any>) => void
+  onUpdate: (payload: RealtimePostgresChangesPayload<any>) => void,
+  reviewIds?: string[]
 ): RealtimeChannel {
-  const supabase = getBrowserSupabase();
-  
-  return supabase
-    .channel(`helpful-votes-business-${businessId}`)
+  const channelName = `helpful-votes-business-${businessId}`;
+  const channel = createChannel(channelName);
+
+  const shouldHandle = (payload: RealtimePostgresChangesPayload<any>) => {
+    if (!reviewIds || reviewIds.length === 0) return true;
+    const candidateId =
+      (payload.new as any)?.review_id ??
+      (payload.old as any)?.review_id ??
+      null;
+    return candidateId ? reviewIds.includes(candidateId) : false;
+  };
+
+  const filteredHandler = (payload: RealtimePostgresChangesPayload<any>) => {
+    if (!shouldHandle(payload)) return;
+    onUpdate(payload);
+  };
+
+  // Limit to the events that actually change counts to reduce noise.
+  channel
     .on(
       'postgres_changes',
       {
-        event: '*',
+        event: 'INSERT',
         schema: 'public',
         table: 'review_helpful_votes',
-        // Note: We'll need to filter by review IDs client-side or use a view
       },
-      onUpdate
+      filteredHandler
+    )
+    .on(
+      'postgres_changes',
+      {
+        event: 'DELETE',
+        schema: 'public',
+        table: 'review_helpful_votes',
+      },
+      filteredHandler
     )
     .subscribe();
+
+  return channel;
 }
 
 /**
@@ -144,10 +222,10 @@ export function subscribeToUserBadges(
   userId: string,
   onInsert: (payload: RealtimePostgresChangesPayload<any>) => void
 ): RealtimeChannel {
-  const supabase = getBrowserSupabase();
-  
-  return supabase
-    .channel(`user-badges-${userId}`)
+  const channelName = `user-badges-${userId}`;
+  const channel = createChannel(channelName);
+
+  channel
     .on(
       'postgres_changes',
       {
@@ -159,6 +237,8 @@ export function subscribeToUserBadges(
       onInsert
     )
     .subscribe();
+
+  return channel;
 }
 
 /**
@@ -168,10 +248,10 @@ export function subscribeToBusinessStats(
   businessId: string,
   onUpdate: (payload: RealtimePostgresChangesPayload<any>) => void
 ): RealtimeChannel {
-  const supabase = getBrowserSupabase();
-  
-  return supabase
-    .channel(`business-stats-${businessId}`)
+  const channelName = `business-stats-${businessId}`;
+  const channel = createChannel(channelName);
+
+  channel
     .on(
       'postgres_changes',
       {
@@ -183,17 +263,29 @@ export function subscribeToBusinessStats(
       onUpdate
     )
     .subscribe();
+
+  return channel;
 }
 
 /**
  * Utility to safely unsubscribe and remove a channel
  */
 export async function unsubscribeChannel(channel: RealtimeChannel | null) {
-  if (channel) {
+  if (!channel) return;
+
+  try {
     await channel.unsubscribe();
-    const supabase = getBrowserSupabase();
-    supabase.removeChannel(channel);
+  } catch {
+    // Ignore — safe, idempotent teardown.
   }
+
+  try {
+    supabaseClient.removeChannel(channel);
+  } catch {
+    // Ignore remove errors to keep teardown safe.
+  }
+
+  removeChannelFromRegistry(channel);
 }
 
 /**
@@ -203,7 +295,7 @@ export function createDebouncedHandler<T>(
   handler: (data: T) => void,
   delay: number = 300
 ): (data: T) => void {
-  let timeoutId: NodeJS.Timeout | null = null;
+  let timeoutId: ReturnType<typeof setTimeout> | null = null;
   
   return (data: T) => {
     if (timeoutId) {
