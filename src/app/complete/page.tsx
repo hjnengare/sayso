@@ -129,8 +129,7 @@ function CompletePageContent() {
     try {
       setIsNavigating(true);
       console.log('[Complete Page] Direct navigation initiated');
-      // Call the hook's handler (which now uses window.location directly)
-      hookHandleContinue();
+      await hookHandleContinue();
     } catch (error) {
       console.error('[Complete] Error navigating:', error);
       setIsNavigating(false);

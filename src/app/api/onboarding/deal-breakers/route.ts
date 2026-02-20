@@ -6,11 +6,6 @@ import { addNoCacheHeaders } from '../../../lib/utils/responseHeaders';
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-function isSchemaCacheError(error: { message?: string } | null | undefined): boolean {
-  const message = error?.message?.toLowerCase() || '';
-  return message.includes('schema cache') && message.includes('onboarding_completed_at');
-}
-
 /**
  * POST /api/onboarding/deal-breakers
  * Saves dealbreakers and marks onboarding complete
@@ -136,26 +131,16 @@ export async function POST(req: Request) {
       }
     }
 
-    let { error: updateError } = await supabase
+    // Advance step to 'complete' so the proxy allows access to /complete,
+    // but do NOT set onboarding_completed_at here — that happens only when the
+    // user actually reaches /api/onboarding/complete (triggered from the /complete page).
+    const { error: updateError } = await supabase
       .from('profiles')
       .update({
         onboarding_step: 'complete',
-        onboarding_complete: true,
-        onboarding_completed_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       })
       .eq('user_id', user.id);
-
-    if (updateError && isSchemaCacheError(updateError)) {
-      ({ error: updateError } = await supabase
-        .from('profiles')
-        .update({
-          onboarding_step: 'complete',
-          onboarding_complete: true,
-          updated_at: new Date().toISOString()
-        })
-        .eq('user_id', user.id));
-    }
 
     if (updateError) {
       console.error('[Dealbreakers API] Error updating profile:', updateError);
@@ -164,7 +149,7 @@ export async function POST(req: Request) {
 
     const response = NextResponse.json({
       ok: true,
-      onboarding_complete: true
+      onboarding_complete: false
     });
     return addNoCacheHeaders(response);
 

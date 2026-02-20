@@ -3,7 +3,7 @@
  * Encapsulates verification and navigation for the complete page
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useOnboarding } from '../contexts/OnboardingContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -19,7 +19,7 @@ export interface UseCompletePageReturn {
 
 export function useCompletePage(): UseCompletePageReturn {
   const router = useRouter();
-  const { user, isLoading: authLoading } = useAuth();
+  const { user, isLoading: authLoading, refreshUser } = useAuth();
   const {
     selectedInterests,
     selectedSubInterests,
@@ -28,6 +28,7 @@ export function useCompletePage(): UseCompletePageReturn {
   const [isVerifying, setIsVerifying] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hasVerified, setHasVerified] = useState(false);
+  const hasMarkedComplete = useRef(false);
 
   // Get data from localStorage (OnboardingContext)
   const interests: string[] = selectedInterests || [];
@@ -86,26 +87,38 @@ export function useCompletePage(): UseCompletePageReturn {
     };
   }, [user, authLoading, router, hasVerified]);
 
-  // Navigate based on user role
-  const handleContinue = useCallback(() => {
+  // Mark onboarding complete via API then navigate based on user role.
+  // This is the ONLY place that sets onboarding_completed_at in the database.
+  const handleContinue = useCallback(async () => {
+    // Prevent duplicate calls (auto-redirect + manual click racing)
+    if (hasMarkedComplete.current) return;
+    hasMarkedComplete.current = true;
+
     try {
-      // Get user's current role from profile
+      // Call /api/onboarding/complete to set onboarding_completed_at
+      const res = await fetch('/api/onboarding/complete', {
+        method: 'POST',
+        credentials: 'include',
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        console.error('[useCompletePage] Failed to mark onboarding complete:', body);
+        // Don't block navigation — profile may already be complete or prerequisites may be
+        // satisfied. Proceed to home so the user isn't stuck on the celebration page.
+      }
+
+      // Refresh auth context so ProtectedRoute on /home sees the updated onboarding state
+      await refreshUser();
+
       const currentRole = user?.profile?.account_role || 'user';
-      
-      console.log('[useCompletePage] Navigating with role:', currentRole);
-      
-      // Route based on role:
-      // - business_owner → /claim-business (to set up business profile)
-      // - user (personal) → /home (browse and review businesses)
       const destination = currentRole === 'business_owner' ? '/claim-business' : '/home';
-      
       router.replace(destination);
     } catch (error) {
-      console.error('[useCompletePage] Error navigating:', error);
-      // Fallback to /home if something goes wrong
+      console.error('[useCompletePage] Error completing onboarding:', error);
       router.replace('/home');
     }
-  }, [user, router]);
+  }, [user, router, refreshUser]);
 
   return {
     isVerifying,
