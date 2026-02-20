@@ -23,6 +23,15 @@ function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
 export default function AboutPage() {
   return (
     <main className="bg-off-white text-charcoal min-h-screen flex flex-col items-center px-4 sm:px-6 lg:px-0">
+      <div className="pt-10 flex justify-center">
+        <img
+          src="/logos/logo.png"
+          alt="Sayso logo"
+          className="h-12 w-auto drop-shadow-sm"
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
       {/* Hero Section */}
       <section className="w-full max-w-3xl pt-16 pb-10 text-center">
         <Reveal>
@@ -98,7 +107,7 @@ export default function AboutPage() {
           </p>
           <a
             href="/signup"
-            className="inline-block bg-primary text-off-white font-semibold px-6 py-3 rounded-lg shadow-md hover:bg-primary-dark transition-colors duration-200"
+            className="inline-block bg-primary text-charcoal/90 font-semibold px-6 py-3 rounded-lg shadow-md hover:bg-primary-dark transition-colors duration-200"
           >
             Get Started
           </a>
