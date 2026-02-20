@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState } from "react";
+import { useUserBadgesById } from "../../hooks/useUserBadges";
 import { Review, Reviewer } from "../../types/community";
 import { useAuth } from "../../contexts/AuthContext";
 import ProfilePicture from "./ProfilePicture";
@@ -45,59 +46,22 @@ export default function ReviewerCard({
     [reviewerData?.id, userIdForBadges]
   );
   const [imgError, setImgError] = useState(false);
-  const [userBadges, setUserBadges] = useState<BadgePillData[]>([]);
 
   // Use badges from reviewer prop (batch-fetched by /api/reviewers/top) when available.
-  // Falls back to per-card fetch only when prop badges are not provided.
+  // Falls back to SWR per-card fetch only when prop badges are not provided (avoids N+1).
   const MAX_VISIBLE_BADGES = 3;
   const propBadges = reviewerData?.badges;
 
-  useEffect(() => {
-    // If badges were provided via props, use those directly (no N+1)
-    if (propBadges && propBadges.length > 0) {
-      const priorityOrder = ['milestone', 'specialist', 'explorer', 'community'];
-      const sorted = [...propBadges].sort((a, b) => {
-        const aIdx = priorityOrder.indexOf(a.badge_group || '');
-        const bIdx = priorityOrder.indexOf(b.badge_group || '');
-        return aIdx - bIdx;
-      });
-      setUserBadges(sorted);
-      return;
-    }
+  const { badges: fetchedBadges } = useUserBadgesById(
+    propBadges && propBadges.length > 0 ? null : (userIdForBadges ?? null)
+  );
 
-    // Fallback: fetch per-card (for contexts that don't provide prop badges)
-    if (!userIdForBadges) return;
-
-    async function fetchUserBadges() {
-      try {
-        const response = await fetch(`/api/badges/user?user_id=${userIdForBadges}`, { cache: 'no-store' });
-        if (response.ok) {
-          const data = await response.json();
-          const earnedBadges = (data.badges || [])
-            .filter((b: any) => b.earned)
-            .map((b: any) => ({
-              id: b.id,
-              name: b.name,
-              icon_path: b.icon_path,
-              badge_group: b.badge_group,
-            }));
-
-          const priorityOrder = ['milestone', 'specialist', 'explorer', 'community'];
-          const sortedBadges = earnedBadges.sort((a: any, b: any) => {
-            const aIndex = priorityOrder.indexOf(a.badge_group);
-            const bIndex = priorityOrder.indexOf(b.badge_group);
-            return aIndex - bIndex;
-          });
-
-          setUserBadges(sortedBadges);
-        }
-      } catch (err) {
-        console.error('Error fetching user badges:', err);
-      }
-    }
-
-    fetchUserBadges();
-  }, [userIdForBadges, propBadges]);
+  const userBadges: BadgePillData[] = propBadges && propBadges.length > 0
+    ? [...propBadges].sort((a, b) => {
+        const order = ['milestone', 'specialist', 'explorer', 'community'];
+        return order.indexOf(a.badge_group || '') - order.indexOf(b.badge_group || '');
+      })
+    : fetchedBadges;
 
   const visibleBadges = userBadges.slice(0, MAX_VISIBLE_BADGES);
   const overflowCount = Math.max(0, userBadges.length - MAX_VISIBLE_BADGES);

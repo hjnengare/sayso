@@ -1,6 +1,8 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect, use } from "react";
+import { useEventDetail } from "../../hooks/useEventDetail";
+import { useSavedEvent } from "../../hooks/useSavedEvent";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -47,101 +49,32 @@ interface SpecialDetailPageProps {
 }
 
 export default function SpecialDetailPage({ params }: SpecialDetailPageProps) {
-  const [special, setSpecial] = useState<SpecialWithBusiness | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [occurrencesList, setOccurrencesList] = useState<
-    Array<{ id: string; start_date: string; end_date: string | null; booking_url?: string | null; location?: string | null }>
-  >([]);
-  const [occurrencesCount, setOccurrencesCount] = useState(1);
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const [isLiked, setIsLiked] = useState(false);
   const router = useRouter();
   const { showToast } = useToast();
   const { user } = useAuth();
-  const normalizedDescription =
-    normalizeDescriptionText(special?.description) ||
-    "Don't miss out on this amazing special offer! This limited-time deal provides incredible value and a fantastic experience. Perfect for trying something new or treating yourself to something special.";
 
   // Unwrap the params Promise using React.use()
   const resolvedParams = use(params);
 
-  // Fetch special from API
-  useEffect(() => {
-    const fetchSpecial = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+  // SWR-backed data fetching
+  const {
+    event: rawEvent,
+    occurrencesList,
+    occurrencesCount,
+    isExpired,
+    loading,
+    error,
+    errorStatus,
+  } = useEventDetail(resolvedParams.id);
 
-        const response = await fetch(`/api/events-and-specials/${resolvedParams.id}`);
+  const special = rawEvent as SpecialWithBusiness | null;
 
-        if (!response.ok) {
-          if (response.status === 404) {
-            setError('Special not found');
-            setSpecial(null);
-            return;
-          }
-          throw new Error('Failed to fetch special');
-        }
+  const { isSaved: isLiked, toggle: toggleSaved } = useSavedEvent(special?.id ?? null);
 
-        const data = await response.json();
-
-        const incoming = (data?.event ?? data?.special) as SpecialWithBusiness | undefined;
-        const isExpired =
-          Boolean(data?.isExpired) ||
-          (incoming?.type === "special" &&
-            (() => {
-              const now = Date.now();
-              const end = incoming?.endDateISO ? new Date(incoming.endDateISO).getTime() : NaN;
-              const start = incoming?.startDateISO ? new Date(incoming.startDateISO).getTime() : NaN;
-              if (Number.isFinite(end)) return end < now;
-              if (Number.isFinite(start)) return start < now;
-              return false;
-            })());
-
-        // Don't render expired specials
-        if (isExpired) {
-          setError('This special has expired');
-          setSpecial(null);
-          return;
-        }
-
-        setSpecial(incoming ?? null);
-        setOccurrencesList(Array.isArray(data?.occurrences_list) ? data.occurrences_list : []);
-        setOccurrencesCount(
-          Number.isFinite(Number(data?.occurrences)) ? Number(data.occurrences) : Array.isArray(data?.occurrences_list) ? data.occurrences_list.length : 1,
-        );
-      } catch (err) {
-        console.error('Error fetching special:', err);
-        setError('Failed to load special');
-        setSpecial(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSpecial();
-  }, [resolvedParams.id]);
-
-  // Check if special is already saved on mount
-  useEffect(() => {
-    if (!special) return;
-
-    const checkSavedStatus = async () => {
-      try {
-        const response = await fetch(`/api/user/saved-events?event_id=${special.id}`);
-        if (response.ok) {
-          const data = await response.json();
-          setIsLiked(data.isSaved || false);
-        }
-      } catch (error) {
-        // Silently fail - user might not be logged in
-        console.log('Could not check saved status:', error);
-      }
-    };
-
-    checkSavedStatus();
-  }, [special]);
+  const normalizedDescription =
+    normalizeDescriptionText(special?.description) ||
+    "Don't miss out on this amazing special offer! This limited-time deal provides incredible value and a fantastic experience. Perfect for trying something new or treating yourself to something special.";
 
   const handleBookmark = () => {
     setIsBookmarked(!isBookmarked);
@@ -153,75 +86,12 @@ export default function SpecialDetailPage({ params }: SpecialDetailPageProps) {
 
   const handleLike = async () => {
     if (!special) return;
-    
-    // Check if user is authenticated
     if (!user) {
       showToast("Log in to save specials", "sage");
       return;
     }
-    
-    const newLikedState = !isLiked;
-    setIsLiked(newLikedState);
-    
-    try {
-      if (newLikedState) {
-        // Save the event/special
-        const response = await fetch('/api/user/saved-events', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ event_id: special.id }),
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          
-          // Handle specific error cases
-          if (response.status === 401) {
-            showToast("Log in to save specials", "sage");
-            setIsLiked(!newLikedState);
-            return;
-          }
-          
-          if (response.status === 500 && errorData.code === '42P01') {
-            showToast("Service unavailable", "sage");
-            setIsLiked(!newLikedState);
-            return;
-          }
-          
-          throw new Error(errorData.error || errorData.details || 'Failed to save special');
-        }
-
-        showToast("Saved to favourites", "sage", 2000);
-      } else {
-        // Unsave the event/special
-        const response = await fetch(`/api/user/saved-events?event_id=${special.id}`, {
-          method: 'DELETE',
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          
-          // Handle specific error cases
-          if (response.status === 401) {
-            showToast("Log in to manage favourites", "sage");
-            setIsLiked(!newLikedState);
-            return;
-          }
-          
-          throw new Error(errorData.error || errorData.details || 'Failed to unsave special');
-        }
-
-        showToast("Removed from favourites", "sage", 2000);
-      }
-    } catch (error) {
-      // Revert the state on error
-      setIsLiked(!newLikedState);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to update favourites';
-      showToast(errorMessage, "sage");
-      console.error('Error saving/unsaving special:', error);
-    }
+    await toggleSaved();
+    showToast(isLiked ? "Removed from favourites" : "Saved to favourites", "sage", 2000);
   };
 
   const handleShare = () => {
@@ -309,15 +179,16 @@ export default function SpecialDetailPage({ params }: SpecialDetailPageProps) {
     return <PageLoader size="xl" variant="wavy" color="sage" />;
   }
 
-  if (error || !special) {
+  if (error || !special || isExpired) {
+    const isExpiredError = isExpired;
     return (
       <div className="min-h-screen bg-gradient-to-br from-white via-coral/[0.02] to-white flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-charcoal mb-4" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-            {error === 'This special has expired' ? 'Special Expired' : 'Special Not Found'}
+            {isExpiredError ? 'Special Expired' : 'Special Not Found'}
           </h1>
           <p className="text-charcoal/60 mb-4" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-            {error === 'This special has expired'
+            {isExpiredError
               ? 'This special offer is no longer available.'
               : 'The special you\'re looking for doesn\'t exist.'}
           </p>

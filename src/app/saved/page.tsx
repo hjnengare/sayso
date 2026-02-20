@@ -3,6 +3,7 @@
 import nextDynamic from "next/dynamic";
 import Link from "next/link";
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import { useSavedBusinessesFull } from "../hooks/useSavedBusinessesFull";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronRight, ChevronLeft, ChevronUp, Store } from "lucide-react";
 import Pagination from "../components/EventsPage/Pagination";
@@ -26,9 +27,9 @@ export default function SavedPage() {
   usePredefinedPageTitle("saved");
   const { savedItems, isLoading: savedItemsLoading, refetch: refetchBusinesses } = useSavedItems();
 
-  const [savedBusinesses, setSavedBusinesses] = useState<Business[]>([]);
-  const [isLoadingBusinesses, setIsLoadingBusinesses] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // SWR-backed saved businesses list
+  const { businesses: savedBusinesses, loading: isLoadingBusinesses, error } = useSavedBusinessesFull();
+
   const [currentPage, setCurrentPage] = useState(1);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [isPaginationLoading, setIsPaginationLoading] = useState(false);
@@ -72,97 +73,6 @@ export default function SavedPage() {
     setCurrentPage(1);
   }, [selectedCategory]);
 
-  // Fetch saved businesses
-  useEffect(() => {
-    const fetchSavedBusinesses = async () => {
-      if (savedItemsLoading) return;
-
-      try {
-        setIsLoadingBusinesses(true);
-        setError(null);
-
-        const response = await fetch("/api/user/saved");
-
-        if (!response.ok) {
-          if (response.status === 401) {
-            setError(null);
-            setSavedBusinesses([]);
-            setIsLoadingBusinesses(false);
-            return;
-          }
-
-          let errorMessage = "Failed to fetch saved businesses";
-          let errorCode: string | undefined;
-
-          try {
-            const errorData = await response.json();
-            errorMessage = errorData.error || errorData.message || errorMessage;
-            errorCode = errorData.code;
-          } catch {
-            // ignore parse error
-          }
-
-          const isTableError =
-            response.status === 500 &&
-            (errorCode === "42P01" ||
-              errorCode === "42501" ||
-              errorMessage.toLowerCase().includes("relation") ||
-              errorMessage.toLowerCase().includes("does not exist") ||
-              errorMessage.toLowerCase().includes("permission denied"));
-
-          if (isTableError) {
-            console.warn("Saved businesses table not accessible, feature disabled");
-            setError(null);
-            setSavedBusinesses([]);
-            setIsLoadingBusinesses(false);
-            return;
-          }
-
-          if (response.status >= 500) {
-            console.warn("Error fetching saved businesses (non-critical):", errorMessage);
-            setError("Unable to load saved items at the moment. Please try again later.");
-          } else {
-            setError(null);
-          }
-
-          setSavedBusinesses([]);
-          setIsLoadingBusinesses(false);
-          return;
-        }
-
-        const data = await response.json();
-        const businesses: Business[] = data.businesses || [];
-
-        const filtered = businesses.filter((b) => {
-          if (!b || !b.id) return false;
-          if (!b.name || b.name.trim() === "") return false;
-          return true;
-        });
-
-        setSavedBusinesses(filtered);
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : String(err);
-        const isNetworkError =
-          errorMessage.includes("fetch") ||
-          errorMessage.includes("network") ||
-          errorMessage.includes("Failed to fetch");
-
-        if (isNetworkError) {
-          console.warn("Network error fetching saved businesses:", errorMessage);
-          setError("Unable to load saved items. Please check your connection and try again.");
-        } else {
-          console.warn("Error fetching saved businesses:", err);
-          setError("Failed to load saved items. Please try again.");
-        }
-
-        setSavedBusinesses([]);
-      } finally {
-        setIsLoadingBusinesses(false);
-      }
-    };
-
-    fetchSavedBusinesses();
-  }, [savedItemsLoading, savedItems.length]);
 
 
   // Handle pagination with loader and transitions

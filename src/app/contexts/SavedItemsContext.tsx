@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, ReactNode, useCallback, useMemo } from "react";
-import useSWR from "swr";
+import useSWR, { mutate as globalMutate } from "swr";
 import { useAuth } from "./AuthContext";
 import { useToast } from "./ToastContext";
 import { swrConfig } from "../lib/swrConfig";
@@ -91,6 +91,8 @@ export function SavedItemsProvider({ children }: SavedItemsProviderProps) {
 
       showToast('✨ Business saved! Check your saved items to view it.', 'success', 4500);
       mutate(); // background revalidation
+      // Invalidate saved/page.tsx full list
+      if (user?.id) globalMutate(['/api/user/saved', user.id]);
       return true;
     } catch (error) {
       console.error('Error saving business:', error);
@@ -122,6 +124,8 @@ export function SavedItemsProvider({ children }: SavedItemsProviderProps) {
 
       showToast('Business removed from saved', 'success', 3000);
       mutate(); // background revalidation
+      // Invalidate saved/page.tsx full list
+      if (user?.id) globalMutate(['/api/user/saved', user.id]);
       return true;
     } catch (error) {
       console.error('Error unsaving business:', error);

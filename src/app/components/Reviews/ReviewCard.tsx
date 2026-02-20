@@ -1,6 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useRef, memo } from 'react';
+import React, { useState, useRef, memo } from 'react';
+import { useReviewHelpful } from '../../hooks/useReviewHelpful';
+import { useReviewReplies } from '../../hooks/useReviewReplies';
+import { useUserBadgesById } from '../../hooks/useUserBadges';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { formatDistanceToNow } from 'date-fns';
@@ -59,14 +62,9 @@ function ReviewCard({
   };
   const [showAllImages, setShowAllImages] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
-  const [isLiked, setIsLiked] = useState(false);
-  const [helpfulCount, setHelpfulCount] = useState(review.helpful_count);
-  const [loadingHelpful, setLoadingHelpful] = useState(false);
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [replyText, setReplyText] = useState('');
   const [submittingReply, setSubmittingReply] = useState(false);
-  const [replies, setReplies] = useState<any[]>([]);
-  const [loadingReplies, setLoadingReplies] = useState(false);
   const [editingReplyId, setEditingReplyId] = useState<string | null>(null);
   const [editReplyText, setEditReplyText] = useState('');
   const [deletingReplyId, setDeletingReplyId] = useState<string | null>(null);
@@ -74,170 +72,33 @@ function ReviewCard({
   const [showDeleteReplyDialog, setShowDeleteReplyDialog] = useState(false);
   const [replyToDelete, setReplyToDelete] = useState<string | null>(null);
   const replyFormRef = useRef<HTMLDivElement>(null);
-  const [userBadges, setUserBadges] = useState<BadgePillData[]>([]);
 
-  // Fetch review author's badges (top 3) — show for all viewers
-  useEffect(() => {
-    const authorId = review.user_id || review.user?.id;
-    if (!authorId) {
-      setUserBadges([]);
-      return;
-    }
+  // SWR-backed badges for the review author
+  const authorId = review.user_id || review.user?.id;
+  const { badges: fetchedAuthorBadges } = useUserBadgesById(authorId ?? null);
+  const userBadges: BadgePillData[] = fetchedAuthorBadges.slice(0, 3);
 
-    async function fetchUserBadges() {
-      try {
-        const response = await fetch(`/api/badges/user?user_id=${authorId}`, { cache: 'no-store' });
-        if (response.ok) {
-          const data = await response.json();
-          const earnedBadges = (data.badges || [])
-            .filter((b: any) => b.earned)
-            .map((b: any) => ({
-              id: b.id,
-              name: b.name,
-              icon_path: b.icon_path,
-              badge_group: b.badge_group,
-            }));
+  // SWR-backed helpful status and count (with optimistic toggle)
+  const {
+    count: helpfulCount,
+    isHelpful: isLiked,
+    loading: loadingHelpful,
+    toggle: toggleHelpful,
+  } = useReviewHelpful(review.id, typeof review.helpful_count === 'number' ? review.helpful_count : 0);
 
-          const priorityOrder = ['milestone', 'specialist', 'explorer', 'community'];
-          const sortedBadges = earnedBadges.sort((a: any, b: any) => {
-            const aIndex = priorityOrder.indexOf(a.badge_group);
-            const bIndex = priorityOrder.indexOf(b.badge_group);
-            return aIndex - bIndex;
-          });
-
-          setUserBadges(sortedBadges.slice(0, 3));
-        }
-      } catch (err) {
-        console.error('Error fetching user badges:', err);
-      }
-    }
-
-    fetchUserBadges();
-  }, [review.user_id, review.user?.id]);
-
-  // Sync with realtime helpful count when it updates
-  useEffect(() => {
-    if (realtimeHelpfulCount !== undefined && realtimeHelpfulCount !== helpfulCount) {
-      setHelpfulCount(realtimeHelpfulCount);
-    }
-  }, [realtimeHelpfulCount]);
-
-  // Fetch helpful status and count on mount
-  useEffect(() => {
-    if (isOptimisticId(review.id) || !isValidUUID(review.id)) {
-      setIsLiked(false);
-      setHelpfulCount(typeof review.helpful_count === 'number' ? review.helpful_count : 0);
-      return;
-    }
-
-    const fetchHelpfulData = async () => {
-      try {
-        // Fetch count
-        const countRes = await fetch(`/api/reviews/${review.id}/helpful/count`);
-        if (countRes.ok) {
-          const countData = await countRes.json();
-          if (typeof countData.count === 'number') {
-            setHelpfulCount(countData.count);
-          }
-        }
-
-        // Fetch current user status
-        const statusRes = await fetch(`/api/reviews/${review.id}/helpful`);
-        if (statusRes.ok) {
-          const statusData = await statusRes.json();
-          if (typeof statusData.helpful === 'boolean') {
-            setIsLiked(statusData.helpful);
-          }
-        }
-      } catch (err) {
-        console.error('Error fetching helpful data:', err);
-      }
-    };
-
-    if (user) {
-      fetchHelpfulData();
-    }
-  }, [review.id, user]);
-
-  // Fetch replies on mount and after updates
-  useEffect(() => {
-    if (isOptimisticId(review.id) || !isValidUUID(review.id)) {
-      setReplies([]);
-      setLoadingReplies(false);
-      return;
-    }
-
-    const fetchReplies = async () => {
-      try {
-        setLoadingReplies(true);
-        const res = await fetch(`/api/reviews/${review.id}/replies`);
-        if (res.ok) {
-          const data = await res.json();
-          // Ensure user_id is included for ownership checks
-          const repliesWithUserId = (data.replies || []).map((reply: any) => ({
-            ...reply,
-            user_id: reply.user_id || reply.user?.id,
-          }));
-          setReplies(repliesWithUserId);
-        }
-      } catch (err) {
-        console.error('Error fetching replies:', err);
-      } finally {
-        setLoadingReplies(false);
-      }
-    };
-
-    fetchReplies();
-  }, [review.id]);
+  // SWR-backed replies (with optimistic add/update/delete)
+  const {
+    replies,
+    loading: loadingReplies,
+    addReply,
+    updateReply,
+    deleteReply: deleteReplyById,
+  } = useReviewReplies(review.id);
 
 
   const handleLike = async () => {
-    if (loadingHelpful || !user) return;
-    if (isOptimisticId(review.id) || !isValidUUID(review.id)) return;
-    
-    setLoadingHelpful(true);
-    const prevHelpful = isLiked;
-    const prevCount = helpfulCount;
-
-    // Optimistic update
-    if (prevHelpful) {
-      setIsLiked(false);
-      setHelpfulCount((c) => Math.max(0, c - 1));
-    } else {
-      setIsLiked(true);
-      setHelpfulCount((c) => c + 1);
-    }
-
-    try {
-      const method = prevHelpful ? 'DELETE' : 'POST';
-      const res = await fetch(`/api/reviews/${review.id}/helpful`, {
-        method,
-      });
-
-      if (!res.ok) {
-        // Revert if server failed
-        setIsLiked(prevHelpful);
-        setHelpfulCount(prevCount);
-        const errorData = await res.json().catch(() => ({}));
-        console.error('Failed to toggle helpful:', errorData);
-      } else {
-        // Update count from server response if needed
-        const countRes = await fetch(`/api/reviews/${review.id}/helpful/count`);
-        if (countRes.ok) {
-          const countData = await countRes.json();
-          if (typeof countData.count === 'number') {
-            setHelpfulCount(countData.count);
-          }
-        }
-      }
-    } catch (err) {
-      // Revert on network error
-      console.error('Error toggling helpful:', err);
-      setIsLiked(prevHelpful);
-      setHelpfulCount(prevCount);
-    } finally {
-      setLoadingHelpful(false);
-    }
+    if (!user) return;
+    await toggleHelpful();
   };
 
   const handleEdit = () => {
@@ -267,28 +128,14 @@ function ReviewCard({
     if (isOptimisticId(review.id) || !isValidUUID(review.id)) return;
 
     setSubmittingReply(true);
-    try {
-      const res = await fetch(`/api/reviews/${review.id}/replies`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: replyText.trim() }),
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setReplies(prev => [data.reply, ...prev]);
-        setReplyText('');
-        setShowReplyForm(false);
-      } else {
-        const error = await res.json();
-        alert(error.error || 'Failed to submit reply');
-      }
-    } catch (err) {
-      console.error('Error submitting reply:', err);
+    const result = await addReply(replyText.trim());
+    if (result) {
+      setReplyText('');
+      setShowReplyForm(false);
+    } else {
       alert('Failed to submit reply');
-    } finally {
-      setSubmittingReply(false);
     }
+    setSubmittingReply(false);
   };
 
   const handleEditReply = (reply: any) => {
@@ -303,25 +150,11 @@ function ReviewCard({
 
   const handleSaveEdit = async (replyId: string) => {
     if (!editReplyText.trim() || !user) return;
-
-    try {
-      const res = await fetch(`/api/reviews/${review.id}/replies`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ replyId, content: editReplyText.trim() }),
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setReplies(prev => prev.map(r => r.id === replyId ? data.reply : r));
-        setEditingReplyId(null);
-        setEditReplyText('');
-      } else {
-        const error = await res.json();
-        alert(error.error || 'Failed to update reply');
-      }
-    } catch (err) {
-      console.error('Error updating reply:', err);
+    const success = await updateReply(replyId, editReplyText.trim());
+    if (success) {
+      setEditingReplyId(null);
+      setEditReplyText('');
+    } else {
       alert('Failed to update reply');
     }
   };
@@ -337,25 +170,11 @@ function ReviewCard({
     const replyId = replyToDelete;
     setReplyToDelete(null);
     setDeletingReplyId(replyId);
-    try {
-      const res = await fetch(`/api/reviews/${review.id}/replies`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ replyId }),
-      });
-
-      if (res.ok) {
-        setReplies(prev => prev.filter(r => r.id !== replyId));
-      } else {
-        const error = await res.json();
-        alert(error.error || 'Failed to delete reply');
-      }
-    } catch (err) {
-      console.error('Error deleting reply:', err);
+    const success = await deleteReplyById(replyId);
+    if (!success) {
       alert('Failed to delete reply');
-    } finally {
-      setDeletingReplyId(null);
     }
+    setDeletingReplyId(null);
   };
 
   const formatDate = (dateString: string) => {

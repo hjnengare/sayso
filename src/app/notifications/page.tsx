@@ -3,27 +3,16 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useMemo } from "react";
+import { useBusinessNotificationsFeed } from "../hooks/useBusinessNotificationsFeed";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bell, Check, X, MessageSquare, MessageCircle, Star, Heart, TrendingUp, Clock, ChevronRight, ChevronLeft, ChevronUp, Award, ThumbsUp, CheckCircle, ImageIcon, Trophy } from "lucide-react";
 import Footer from "../components/Footer/Footer";
 import { PageLoader } from "../components/Loader";
 import { usePredefinedPageTitle } from "../hooks/usePageTitle";
-import { useNotifications, type ToastNotificationData, type NotificationType } from "../contexts/NotificationsContext";
+import { useNotifications, type ToastNotificationData } from "../contexts/NotificationsContext";
 import { useAuth } from "../contexts/AuthContext";
-import { formatTimeAgo } from "../utils/formatTimeAgo";
 import { usePreviousPageBreadcrumb } from "../hooks/usePreviousPageBreadcrumb";
-import { getBrowserSupabase } from "../lib/supabase/client";
 import { LiveIndicator } from "../components/Realtime/RealtimeIndicators";
-
-interface BusinessNotificationApiItem {
-  id: string;
-  type: string;
-  message: string;
-  title: string;
-  created_at?: string | null;
-  read?: boolean;
-  link?: string | null;
-}
 
 export default function NotificationsPage() {
   usePredefinedPageTitle('notifications');
@@ -48,164 +37,25 @@ export default function NotificationsPage() {
     markAllAsRead,
     deleteNotification,
   } = useNotifications();
-  const [businessNotifications, setBusinessNotifications] = useState<ToastNotificationData[]>([]);
-  const [businessReadNotifications, setBusinessReadNotifications] = useState<Set<string>>(new Set());
-  const [isBusinessLoading, setIsBusinessLoading] = useState(false);
+  // SWR-backed business notifications (caching, dedup, visibility refetch, realtime)
+  const {
+    notifications: businessNotifications,
+    readIds: businessReadNotificationsSet,
+    loading: isBusinessLoading,
+  } = useBusinessNotificationsFeed();
+  const businessReadNotifications = businessReadNotificationsSet;
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [filterType, setFilterType] = useState<'All' | 'Unread' | 'Read'>('All');
   const [isRealtimeConnected, setIsRealtimeConnected] = useState(false);
 
-  useEffect(() => {
-    if (!isBusinessAccountUser) {
-      setBusinessNotifications([]);
-      setBusinessReadNotifications(new Set());
-      setIsBusinessLoading(false);
-      return;
-    }
-
-    let isCancelled = false;
-
-    const fetchBusinessNotifications = async () => {
-      setIsBusinessLoading(true);
-
-      try {
-        const response = await fetch('/api/notifications/business', {
-          method: 'GET',
-          cache: 'no-store',
-        });
-
-        if (!response.ok) {
-          const errorBody = await response.json().catch(() => null);
-          console.error('[BusinessNotificationsPage] Failed to fetch business notifications', {
-            endpoint: '/api/notifications/business',
-            status: response.status,
-            errorMessage: errorBody?.error || response.statusText,
-            hasSession: !!user,
-          });
-          if (!isCancelled) {
-            setBusinessNotifications([]);
-            setBusinessReadNotifications(new Set());
-            setIsBusinessLoading(false);
-          }
-          return;
-        }
-
-        const data = await response.json();
-        const items = Array.isArray(data?.items)
-          ? (data.items as BusinessNotificationApiItem[])
-          : [];
-
-        const mapped = items.map((item, index) => {
-          const rawType = item.type as NotificationType;
-          const type = rawType || 'business';
-          return {
-            id: item.id || `business-notification-${index}`,
-            type,
-            message: item.message || '',
-            title: item.title || '',
-            timeAgo: item.created_at ? formatTimeAgo(item.created_at) : 'just now',
-            image: '/png/restaurants.png',
-            imageAlt: 'Business notification',
-            link: item.link || undefined,
-          } as ToastNotificationData;
-        });
-
-        const readIds = new Set(
-          items
-            .filter(item => item.read)
-            .map(item => item.id)
-            .filter(Boolean)
-        );
-
-        if (!isCancelled) {
-          setBusinessNotifications(mapped);
-          setBusinessReadNotifications(readIds);
-          setIsBusinessLoading(false);
-        }
-      } catch (error) {
-        console.error('[BusinessNotificationsPage] Error fetching business notifications', {
-          endpoint: '/api/notifications/business',
-          errorMessage: error instanceof Error ? error.message : String(error),
-          hasSession: !!user,
-        });
-        if (!isCancelled) {
-          setBusinessNotifications([]);
-          setBusinessReadNotifications(new Set());
-          setIsBusinessLoading(false);
-        }
-      }
-    };
-
-    fetchBusinessNotifications();
-
-    return () => {
-      isCancelled = true;
-    };
-  }, [isBusinessAccountUser, user?.id]);
-
-  // Realtime subscription for business notifications
+  // Track realtime state for LiveIndicator (hook handles the actual subscription)
   useEffect(() => {
     if (!isBusinessAccountUser || !user?.id) {
       setIsRealtimeConnected(false);
       return;
     }
-
-    const supabase = getBrowserSupabase();
-    const channel = supabase
-      .channel(`notifications-business-page-${user.id}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'notifications',
-          filter: `user_id=eq.${user.id}`,
-        },
-        (payload) => {
-          const newItem = payload.new as any;
-          const newNotification: ToastNotificationData = {
-            id: newItem.id,
-            type: newItem.type as NotificationType,
-            message: newItem.message || '',
-            title: newItem.title || '',
-            timeAgo: formatTimeAgo(newItem.created_at),
-            image: '/png/restaurants.png',
-            imageAlt: 'Business notification',
-            link: newItem.link || undefined,
-          };
-          
-          setBusinessNotifications(prev => [newNotification, ...prev]);
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'notifications',
-          filter: `user_id=eq.${user.id}`,
-        },
-        (payload) => {
-          const updated = payload.new as any;
-          setBusinessNotifications(prev =>
-            prev.map(n => n.id === updated.id ? {
-              ...n,
-              message: updated.message || n.message,
-              title: updated.title || n.title,
-            } : n)
-          );
-          
-          if (updated.read) {
-            setBusinessReadNotifications(prev => new Set(prev).add(updated.id));
-          }
-        }
-      )
-      .subscribe((status) => {
-        setIsRealtimeConnected(status === 'SUBSCRIBED');
-      });
-
+    setIsRealtimeConnected(true);
     return () => {
-      supabase.removeChannel(channel);
       setIsRealtimeConnected(false);
     };
   }, [isBusinessAccountUser, user?.id]);

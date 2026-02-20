@@ -33,6 +33,8 @@ import {
 } from "../../components/BusinessDetail";
 import BusinessLocation from "../../components/BusinessDetail/BusinessLocation";
 import BusinessOwnedEventsSection from "../../components/BusinessDetail/BusinessOwnedEventsSection";
+import { useBusinessDetail } from "../../hooks/useBusinessDetail";
+import { notifyBusinessDeleted } from "../../lib/utils/businessUpdateEvents";
 export default function BusinessProfilePage() {
     const params = useParams();
     const router = useRouter();
@@ -98,10 +100,50 @@ export default function BusinessProfilePage() {
         router.push("/events-specials");
     };
 
-    // Fetch business data from API
-    const [business, setBusiness] = useState<any>(null);
-    const [isLoading, setIsLoading] = useState(true);
+    // Fetch business data via SWR hook (caching, dedup, visibility-based refetch)
+    const { business, loading: isLoading, error: swrError, errorStatus, refetch: refetchBusiness } = useBusinessDetail(businessId || null);
     const [error, setError] = useState<string | null>(null);
+
+    // Derive error message from SWR error + status
+    useEffect(() => {
+        if (!swrError && !errorStatus) { setError(null); return; }
+        if (errorStatus === 404) {
+            setError('Business not found or has been deleted');
+            notifyBusinessDeleted(businessId);
+        } else if (errorStatus === 400) {
+            setError('Invalid business ID');
+        } else if (swrError) {
+            setError(swrError);
+        }
+    }, [swrError, errorStatus, businessId]);
+
+    // Record profile view once when business data first loads
+    useEffect(() => {
+        if (business?.id) {
+            fetch(`/api/businesses/${business.id}/views`, { method: 'POST' }).catch(() => {});
+        }
+    }, [business?.id]);
+
+    // SEO: Redirect from ID to slug
+    useEffect(() => {
+        if (!business) return;
+        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(businessId);
+        if (!hasRedirected.current && business.slug && business.slug !== businessId && isUUID) {
+            const slugUrl = `/business/${business.slug}`;
+            if (window.location.pathname !== slugUrl) {
+                hasRedirected.current = true;
+                router.replace(slugUrl);
+            }
+        }
+    }, [business, businessId, router]);
+
+    // Handle deletion events — redirect away
+    useEffect(() => {
+        if (swrError && errorStatus === 404) {
+            showToast('This business has been deleted', 'sage', 3000);
+            setTimeout(() => { router.push('/home'); }, 1000);
+        }
+    }, [swrError, errorStatus, router, showToast]);
 
     // Update page title dynamically - must be called before any conditional returns
     const getDescriptionForTitle = (desc: any): string => {
@@ -111,118 +153,11 @@ export default function BusinessProfilePage() {
         if (typeof desc === 'object' && 'raw' in desc) return desc.raw || "Read reviews and see photos";
         return "Read reviews and see photos";
     };
-    
+
     usePageTitle(
         business?.name || "Loading...",
         getDescriptionForTitle(business?.description)
     );
-
-    const fetchBusiness = async (forceRefresh = false) => {
-        if (!businessId) {
-            setError('Business ID is required');
-            setIsLoading(false);
-            return;
-        }
-
-        try {
-            setIsLoading(true);
-            setError(null);
-
-            // Always fetch fresh data - no caching
-            const response = await fetch(`/api/businesses/${businessId}`, {
-                cache: 'no-store',
-            });
-
-            if (!response.ok) {
-                if (response.status === 404) {
-                    setError('Business not found or has been deleted');
-                    // Business might have been deleted - emit deletion event
-                    import('../../lib/utils/businessUpdateEvents').then(({ notifyBusinessDeleted }) => {
-                        notifyBusinessDeleted(businessId);
-                    }).catch(err => {
-                        console.error('Error emitting deletion event:', err);
-                    });
-                } else if (response.status === 400) {
-                    setError('Invalid business ID');
-                } else if (response.status >= 500) {
-                    // Try to get error details from response
-                    let errorMessage = 'Server error loading business';
-                    try {
-                        const errorData = await response.json();
-                        if (errorData.details) {
-                            errorMessage = `Server error: ${errorData.details}`;
-                        }
-                    } catch {
-                        // Ignore if response is not JSON
-                    }
-                    setError(errorMessage);
-                    console.error('Server error fetching business:', { status: response.status, businessId });
-                } else {
-                    setError('Failed to load business');
-                }
-                setIsLoading(false);
-                return;
-            }
-
-            const data = await response.json();
-            setBusiness(data);
-
-            // Record profile view (fire-and-forget)
-            if (data?.id) {
-              fetch(`/api/businesses/${data.id}/views`, { method: 'POST' }).catch(() => {});
-            }
-
-            // SEO: Redirect from ID to slug if we have a slug and the URL uses an ID
-            const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(businessId);
-            if (!hasRedirected.current && data.slug && data.slug !== businessId && isUUID) {
-                const slugUrl = `/business/${data.slug}`;
-                if (window.location.pathname !== slugUrl) {
-                    hasRedirected.current = true;
-                    router.replace(slugUrl);
-                    return;
-                }
-            }
-        } catch (err: any) {
-            console.error('Error fetching business:', err);
-            setError(`Failed to load business: ${err?.message || 'Unknown error'}`);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchBusiness();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [businessId]);
-
-
-    // Listen for business deletion events
-    useEffect(() => {
-        let unsubscribe: (() => void) | undefined;
-        
-        import('../../lib/utils/businessUpdateEvents').then(({ businessUpdateEvents }) => {
-            unsubscribe = businessUpdateEvents.onDelete((deletedBusinessId: string) => {
-                // If this business was deleted, redirect to home
-                if (deletedBusinessId === businessId) {
-                    showToast('This business has been deleted', 'sage', 3000);
-                    setTimeout(() => {
-                        router.push('/home');
-                    }, 1000);
-                }
-            });
-        }).catch(err => {
-            console.error('Error loading business update events:', err);
-        });
-
-        return () => {
-            if (unsubscribe) unsubscribe();
-        };
-    }, [businessId, router, showToast]);
-
-    // Refetch function for after delete
-    const refetchBusiness = () => {
-        fetchBusiness(true);
-    };
 
     // Loading state - show skeleton components with proper layout matching actual page
     if (isLoading) {

@@ -1,6 +1,8 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect, use, useRef } from "react";
+import { useEventDetail } from "../../hooks/useEventDetail";
+import { useEventReviews } from "../../hooks/useEventReviews";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronRight, ChevronLeft, Calendar } from "lucide-react";
@@ -9,7 +11,6 @@ import nextDynamic from "next/dynamic";
 import { PageLoader } from "../../components/Loader";
 import WavyTypedTitle from "../../../components/Animations/WavyTypedTitle";
 import ReviewsList from "../../components/Reviews/ReviewsList";
-import type { EventReviewWithUser } from "../../lib/types/database";
 import {
   EventHeroImage,
   EventInfo,
@@ -36,163 +37,34 @@ interface EventDetailPageProps {
 }
 
 export default function EventDetailPage({ params }: EventDetailPageProps) {
-  const [event, setEvent] = useState<Event | null>(null);
-  const [reviews, setReviews] = useState<EventReviewWithUser[]>([]);
-  const [occurrencesList, setOccurrencesList] = useState<
-    Array<{ id: string; start_date: string; end_date: string | null; booking_url?: string | null; location?: string | null }>
-  >([]);
-  const [occurrencesCount, setOccurrencesCount] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isNotFound, setIsNotFound] = useState(false);
-  const [loadError, setLoadError] = useState<string | null>(null);
   const hasReviewed = false;
   const mapSectionRef = useRef<HTMLDivElement>(null);
-  const requestVersionRef = useRef(0);
-  const hasDirectCta =
-    Boolean(event?.bookingUrl || event?.purchaseUrl || (event as any)?.ticketmaster_url || (event as any)?.url) ||
-    (((event?.ctaSource ?? "").toLowerCase() === "whatsapp" || Boolean(event?.whatsappNumber)) && Boolean(event));
 
   const scrollToMap = () => {
     mapSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-
   // Unwrap the params Promise using React.use()
   const resolvedParams = use(params);
 
-  useEffect(() => {
-    const controller = new AbortController();
-    const requestVersion = ++requestVersionRef.current;
-    let isCurrent = true;
+  // SWR-backed data fetching (caching, dedup, visibility refetch)
+  const {
+    event,
+    occurrencesList,
+    occurrencesCount,
+    loading: isLoading,
+    error: loadError,
+    errorStatus,
+    refetch: refetchReviews,
+  } = useEventDetail(resolvedParams.id);
 
-    const isStaleRequest = () =>
-      !isCurrent ||
-      controller.signal.aborted ||
-      requestVersion !== requestVersionRef.current;
+  const { reviews, refetch: refetchEventReviews } = useEventReviews(resolvedParams.id);
 
-    const fetchEvent = async () => {
-      setIsLoading(true);
-      setIsNotFound(false);
-      setLoadError(null);
-      setEvent(null);
-      setReviews([]);
-      setOccurrencesList([]);
-      setOccurrencesCount(1);
+  const isNotFound = errorStatus === 404 || (event !== null && event.type !== "event" && event.type !== "special");
 
-      try {
-        const response = await fetch(`/api/events-and-specials/${resolvedParams.id}`, {
-          signal: controller.signal,
-        });
-
-        if (isStaleRequest()) return;
-
-        if (!response.ok) {
-          if (response.status === 404) {
-            setEvent(null);
-            setIsNotFound(true);
-            return;
-          }
-          throw new Error(`Failed to fetch event: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-
-        // Consolidated API: already returns the front-end Event shape
-        if (!data?.event || (data.event.type !== "event" && data.event.type !== "special")) {
-          setEvent(null);
-          setIsNotFound(true);
-          return;
-        }
-
-        if (isStaleRequest()) return;
-
-        setEvent(data.event as Event);
-        setIsNotFound(false);
-        setOccurrencesList(Array.isArray(data?.occurrences_list) ? data.occurrences_list : []);
-        setOccurrencesCount(
-          Number.isFinite(Number(data?.occurrences))
-            ? Number(data.occurrences)
-            : Array.isArray(data?.occurrences_list)
-              ? data.occurrences_list.length
-              : 1,
-        );
-
-        // Fetch reviews, but don't let review failures break the event detail page.
-        try {
-          const reviewsResponse = await fetch(`/api/events/${resolvedParams.id}/reviews`, {
-            signal: controller.signal,
-          });
-
-          if (isStaleRequest()) return;
-
-          if (!reviewsResponse.ok) {
-            setReviews([]);
-            return;
-          }
-
-          const reviewsData = await reviewsResponse.json();
-          if (isStaleRequest()) return;
-          setReviews(Array.isArray(reviewsData?.reviews) ? reviewsData.reviews : []);
-        } catch (reviewError) {
-          if ((reviewError as Error)?.name !== "AbortError") {
-            if (isStaleRequest()) return;
-            setReviews([]);
-          }
-        }
-      } catch (err) {
-        if ((err as Error)?.name !== "AbortError" && !isStaleRequest()) {
-          if (process.env.NODE_ENV !== "production") {
-            console.error("[EventDetailPage] Error fetching event:", err);
-          }
-          setLoadError("We could not load this event right now. Please try again.");
-          setIsNotFound(false);
-          setEvent(null);
-        }
-      } finally {
-        if (!isStaleRequest()) {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    fetchEvent();
-
-    return () => {
-      isCurrent = false;
-      controller.abort();
-    };
-  }, [resolvedParams.id]);
-
-
-  const refetchReviews = async () => {
-    try {
-      const response = await fetch(`/api/events/${resolvedParams.id}/reviews`);
-      if (response.ok) {
-        const data = await response.json();
-        setReviews(Array.isArray(data?.reviews) ? data.reviews : []);
-      } else {
-        setReviews([]);
-      }
-    } catch (error) {
-      if (process.env.NODE_ENV !== "production") {
-        console.error("Error refetching reviews:", error);
-      }
-      setReviews([]);
-    }
-  };
-
-  // Visibility-based refresh for reviews when tab becomes visible
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && event) {
-        refetchReviews();
-      }
-    };
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [event, resolvedParams.id]);
+  const hasDirectCta =
+    Boolean(event?.bookingUrl || event?.purchaseUrl || (event as any)?.ticketmaster_url || (event as any)?.url) ||
+    (((event?.ctaSource ?? "").toLowerCase() === "whatsapp" || Boolean(event?.whatsappNumber)) && Boolean(event));
 
   // Loading state - show full page loader with transition
   if (isLoading) {

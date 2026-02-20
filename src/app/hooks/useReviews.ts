@@ -319,6 +319,23 @@ export function useReviewSubmission() {
         { revalidate: true }
       );
 
+      // Invalidate event reviews if this is an event review
+      if ((reviewData as any).event_id) {
+        globalMutate(['/api/events/reviews', (reviewData as any).event_id]);
+      }
+
+      // Invalidate reviewer profile for the submitting user (stats/review counts change)
+      if (currentUser?.id) {
+        globalMutate(['/api/reviewers', currentUser.id]);
+      }
+
+      // Invalidate recent reviews feed
+      globalMutate(
+        (key: unknown) => Array.isArray(key) && key[0] === '/api/reviews/recent',
+        undefined,
+        { revalidate: true }
+      );
+
       // Drop the cached review preview for this business so cards re-fetch
       invalidateBusinessPreview(reviewData.business_id);
 
@@ -396,6 +413,16 @@ export function useReviewSubmission() {
       globalMutate(
         (key: unknown) =>
           Array.isArray(key) && typeof key[0] === 'string' && (key[0] as string).includes('/api/badges/user'),
+        undefined,
+        { revalidate: true }
+      );
+      // Invalidate reviewer profile (review count changes)
+      if (user?.id) {
+        globalMutate(['/api/reviewers', user.id]);
+      }
+      // Invalidate recent reviews feed
+      globalMutate(
+        (key: unknown) => Array.isArray(key) && key[0] === '/api/reviews/recent',
         undefined,
         { revalidate: true }
       );

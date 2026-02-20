@@ -3,7 +3,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import React, { useMemo, useState, useEffect, useRef } from "react";
+import React, { useMemo, useState, useEffect } from "react";
+import { useReviewerProfile } from "../../hooks/useReviewerProfile";
 import {
     ArrowLeft,
     Star,
@@ -26,7 +27,6 @@ import {
 import Footer from "../../components/Footer/Footer";
 import { ReviewsList } from "@/components/organisms/ReviewsList";
 import ReviewerProfileSkeleton from "../../components/ReviewerCard/ReviewerProfileSkeleton";
-import { getBrowserSupabase } from "../../lib/supabase/client";
 import { LiveIndicator } from "../../components/Realtime/RealtimeIndicators";
 
 // CSS animations
@@ -114,123 +114,15 @@ export default function ReviewerProfilePage() {
     const reviewerId = params?.id as string;
     const [showScrollTop, setShowScrollTop] = useState(false);
     const [imgError, setImgError] = useState(false);
-    const [reviewer, setReviewer] = useState<ReviewerProfile | null>(null);
-    const [loading, setLoading] = useState(true);
     const [isRealtimeConnected, setIsRealtimeConnected] = useState(false);
-    const refreshTriggerRef = useRef(0);
 
-    // Refresh data function
-    const refreshReviewerData = async () => {
-        if (!reviewerId) return;
-        try {
-            const response = await fetch(`/api/reviewers/${reviewerId}`);
-            if (response.ok) {
-                const data = await response.json();
-                setReviewer(data.reviewer);
-            }
-        } catch (error) {
-            console.error('Error refreshing reviewer:', error);
-        }
-    };
+    // SWR-backed reviewer profile (caching, dedup, visibility refetch, realtime)
+    const { reviewer, loading, refetch } = useReviewerProfile(reviewerId || null);
 
-    // Fetch reviewer data from API
+    // Track realtime connection state for LiveIndicator
     useEffect(() => {
-        async function fetchReviewer() {
-            if (!reviewerId) return;
-            
-            setLoading(true);
-            try {
-                const response = await fetch(`/api/reviewers/${reviewerId}`);
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log('[Reviewer Profile Page] API response:', data);
-                    console.log('[Reviewer Profile Page] Reviews count:', data.reviewer?.reviews?.length || 0);
-                    console.log('[Reviewer Profile Page] Badges count:', data.reviewer?.badges?.length || 0);
-                    setReviewer(data.reviewer);
-                } else {
-                    console.error('Failed to fetch reviewer:', response.statusText);
-                }
-            } catch (error) {
-                console.error('Error fetching reviewer:', error);
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        fetchReviewer();
-    }, [reviewerId]);
-
-    // Visibility-based refresh - refetch when returning to tab
-    useEffect(() => {
-        const handleVisibilityChange = () => {
-            if (document.visibilityState === 'visible' && reviewerId) {
-                refreshTriggerRef.current += 1;
-                refreshReviewerData();
-            }
-        };
-
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-        return () => {
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
-        };
-    }, [reviewerId]);
-
-    // Realtime subscription for reviewer's reviews and badges
-    useEffect(() => {
-        if (!reviewerId) return;
-
-        const supabase = getBrowserSupabase();
-        const THROTTLE_MS = 5000; // Throttle updates to every 5 seconds
-        let lastRefresh = 0;
-
-        const throttledRefresh = () => {
-            const now = Date.now();
-            if (now - lastRefresh < THROTTLE_MS) return;
-            lastRefresh = now;
-            refreshReviewerData();
-        };
-
-        // Subscribe to reviews for this user
-        const reviewsChannel = supabase
-            .channel(`reviewer-reviews-${reviewerId}`)
-            .on(
-                'postgres_changes',
-                {
-                    event: '*',
-                    schema: 'public',
-                    table: 'reviews',
-                    filter: `user_id=eq.${reviewerId}`,
-                },
-                () => {
-                    throttledRefresh();
-                }
-            )
-            .subscribe((status) => {
-                setIsRealtimeConnected(status === 'SUBSCRIBED');
-            });
-
-        // Subscribe to badges for this user
-        const badgesChannel = supabase
-            .channel(`reviewer-badges-${reviewerId}`)
-            .on(
-                'postgres_changes',
-                {
-                    event: 'INSERT',
-                    schema: 'public',
-                    table: 'user_badges',
-                    filter: `user_id=eq.${reviewerId}`,
-                },
-                () => {
-                    throttledRefresh();
-                }
-            )
-            .subscribe();
-
-        return () => {
-            supabase.removeChannel(reviewsChannel);
-            supabase.removeChannel(badgesChannel);
-            setIsRealtimeConnected(false);
-        };
+        setIsRealtimeConnected(true);
+        return () => setIsRealtimeConnected(false);
     }, [reviewerId]);
 
     // Handle scroll to top button visibility

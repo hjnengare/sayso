@@ -3,7 +3,9 @@
 
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useReviewersTop } from "../../hooks/useReviewersTop";
+import { useRecentReviews } from "../../hooks/useRecentReviews";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import ReviewerCard from "../ReviewerCard/ReviewerCard";
@@ -104,43 +106,16 @@ export default function CommunityHighlights({
 }: CommunityHighlightsProps) {
   const router = useRouter();
   const isDesktop = useIsDesktop();
-  const [reviews, setReviews] = useState<Review[]>(propReviews || []);
-  const [topReviewers, setTopReviewers] = useState<Reviewer[]>(propTopReviewers || []);
-  const [reviewersMode, setReviewersMode] = useState<'stage1' | 'normal' | null>(null);
-  const [loading, setLoading] = useState(!propReviews && !propTopReviewers);
 
-  // Fetch data from API if not provided via props
-  useEffect(() => {
-    async function fetchData() {
-      if (!propTopReviewers || !propReviews) {
-        setLoading(true);
-        try {
-          // Fetch in parallel
-          const [reviewersRes, reviewsRes] = await Promise.all([
-            propTopReviewers ? Promise.resolve(null) : fetch('/api/reviewers/top?limit=12'),
-            propReviews ? Promise.resolve(null) : fetch('/api/reviews/recent?limit=10')
-          ]);
+  // Fetch from API via SWR only when props are not provided
+  const { reviewers: fetchedReviewers, mode: fetchedMode, loading: reviewersLoading } = useReviewersTop(12);
+  const { reviews: fetchedReviews, loading: reviewsLoading } = useRecentReviews(10);
 
-          if (reviewersRes?.ok) {
-            const data = await reviewersRes.json();
-            setTopReviewers(data.reviewers || []);
-            setReviewersMode(data?.mode === 'normal' ? 'normal' : 'stage1');
-          }
+  const topReviewers: Reviewer[] = propTopReviewers ?? fetchedReviewers;
+  const reviews: Review[] = propReviews ?? fetchedReviews;
+  const reviewersMode: 'stage1' | 'normal' = fetchedMode;
 
-          if (reviewsRes?.ok) {
-            const data = await reviewsRes.json();
-            setReviews(data.reviews || []);
-          }
-        } catch (error) {
-          console.error('[CommunityHighlights] Failed to fetch data:', error);
-        } finally {
-          setLoading(false);
-        }
-      }
-    }
-
-    fetchData();
-  }, [propTopReviewers, propReviews]);
+  const loading = !propTopReviewers && !propReviews && (reviewersLoading || reviewsLoading);
 
   if (loading) {
     return <CommunityHighlightsSkeleton />;

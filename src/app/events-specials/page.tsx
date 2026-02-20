@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState, useRef } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { useEventsSpecials } from "../hooks/useEventsSpecials";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import Footer from "../components/Footer/Footer";
@@ -44,179 +45,22 @@ export default function EventsSpecialsPage() {
   const [selectedFilter, setSelectedFilter] = useState<"all" | "event" | "special">("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [isDesktop, setIsDesktop] = useState(false);
-  const [items, setItems] = useState<Event[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
   const [optimisticSkeletons, setOptimisticSkeletons] = useState(0);
-  const [error, setError] = useState<string | null>(null);
-  const [count, setCount] = useState(0);
-  const [offset, setOffset] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
-  
-  // Prefetch cache to make subsequent "Load More" clicks instant
-  const prefetchCacheRef = useRef<{ offset: number; data: any } | null>(null);
-  const requestSequenceRef = useRef(0);
-
-  const fetchJsonWithTimeout = async (url: string, retryOnTimeout = true) => {
-    const controller = new AbortController();
-    const timeoutId = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-
-    try {
-      const res = await fetch(url, {
-        signal: controller.signal,
-        cache: "no-store",
-      });
-
-      if (!res.ok) {
-        throw new Error(`Failed to fetch: ${res.status}`);
-      }
-
-      return await res.json();
-    } catch (error: any) {
-      const isTimeoutAbort = error?.name === "AbortError";
-      if (isTimeoutAbort && retryOnTimeout) {
-        await new Promise((resolve) => setTimeout(resolve, REQUEST_RETRY_DELAY_MS));
-        return fetchJsonWithTimeout(url, false);
-      }
-      if (isTimeoutAbort) {
-        throw new Error("Request timed out. Please try again.");
-      }
-      throw error;
-    } finally {
-      window.clearTimeout(timeoutId);
-    }
-  };
 
   // Debounce search query for smoother real-time filtering (300ms delay)
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
-  const fetchPage = async (nextOffset: number, append: boolean) => {
-    const requestId = ++requestSequenceRef.current;
+  // SWR-backed events list (caching, dedup, pre-fetch next page)
+  const { items, count, hasMore, loading, loadingMore, error, fetchMore } = useEventsSpecials(
+    selectedFilter,
+    debouncedSearchQuery
+  );
 
-    try {
-      if (append) {
-        setLoadingMore(true);
-        // Check if we have prefetched data for instant use
-        if (prefetchCacheRef.current?.offset === nextOffset) {
-          const { data } = prefetchCacheRef.current;
-          const newItems = (data.items || []) as Event[];
-          const total = Number(data.count || 0);
-          
-          setCount(total);
-          setHasMore(nextOffset + ITEMS_PER_PAGE < total);
-          setOffset(nextOffset);
-          setItems((prev) => [...prev, ...newItems]);
-          
-          // Clear cache after use
-          prefetchCacheRef.current = null;
-          
-          // Prefetch next page in background
-          const nextNextOffset = nextOffset + ITEMS_PER_PAGE;
-          if (nextNextOffset < total) {
-            prefetchNextPage(nextNextOffset);
-          }
-          
-          setLoadingMore(false);
-          return;
-        }
-        
-        // Optimistic UI: Show skeletons immediately for instant feedback
-        setOptimisticSkeletons(ITEMS_PER_PAGE);
-      } else {
-        setLoading(true);
-        // Clear prefetch cache when starting fresh
-        prefetchCacheRef.current = null;
-      }
-      setError(null);
-
-      const url = new URL("/api/events-and-specials", window.location.origin);
-      url.searchParams.set("limit", String(ITEMS_PER_PAGE));
-      url.searchParams.set("offset", String(nextOffset));
-      if (selectedFilter !== "all") {
-        url.searchParams.set("type", selectedFilter);
-      }
-
-      const data = await fetchJsonWithTimeout(url.toString());
-      if (requestId !== requestSequenceRef.current) return;
-      const newItems = (data.items || []) as Event[];
-      const total = Number(data.count || 0);
-
-      setCount(total);
-      setHasMore(nextOffset + ITEMS_PER_PAGE < total);
-      setOffset(nextOffset);
-      setItems((prev) => (append ? [...prev, ...newItems] : newItems));
-      
-      // Prefetch next page in background if more data exists
-      if (append && nextOffset + ITEMS_PER_PAGE < total) {
-        prefetchNextPage(nextOffset + ITEMS_PER_PAGE);
-      }
-    } catch (e: any) {
-      if (requestId !== requestSequenceRef.current) return;
-      setError(e?.message || "Failed to load");
-      if (!append) setItems([]);
-    } finally {
-      if (requestId !== requestSequenceRef.current) return;
-      setLoading(false);
-      setLoadingMore(false);
-      setOptimisticSkeletons(0);
-    }
+  const handleLoadMoreWithSkeletons = async () => {
+    setOptimisticSkeletons(ITEMS_PER_PAGE);
+    await fetchMore();
+    setOptimisticSkeletons(0);
   };
-
-  // Prefetch the next page in background for instant "Load More" experience
-  const prefetchNextPage = async (prefetchOffset: number) => {
-    try {
-      const url = new URL("/api/events-and-specials", window.location.origin);
-      url.searchParams.set("limit", String(ITEMS_PER_PAGE));
-      url.searchParams.set("offset", String(prefetchOffset));
-      if (selectedFilter !== "all") {
-        url.searchParams.set("type", selectedFilter);
-      }
-
-      const res = await fetch(url.toString());
-      if (!res.ok) return; // Silent fail for prefetch
-      
-      const data = await res.json();
-      prefetchCacheRef.current = { offset: prefetchOffset, data };
-    } catch (e) {
-      // Silent fail - prefetch is optional enhancement
-    }
-  };
-
-  // Fetch when filter or search changes.
-  // When a search is active, hit the API with `search` so ALL matching events are
-  // returned (including manually curated ones beyond the current page window).
-  useEffect(() => {
-    setOffset(0);
-    // Clear prefetch cache when filter or search changes
-    prefetchCacheRef.current = null;
-    
-    if (debouncedSearchQuery.trim()) {
-      const q = debouncedSearchQuery.trim();
-      setLoading(true);
-      setError(null);
-      const url = new URL("/api/events-and-specials", window.location.origin);
-      url.searchParams.set("search", q);
-      if (selectedFilter !== "all") url.searchParams.set("type", selectedFilter);
-      fetch(url.toString())
-        .then((res) => {
-          if (!res.ok) throw new Error(`Failed to fetch: ${res.status}`);
-          return res.json();
-        })
-        .then((data) => {
-          setItems((data.items || []) as Event[]);
-          setCount(data.count || 0);
-          setHasMore(false); // all matches returned at once
-        })
-        .catch((e: any) => {
-          setError(e?.message || "Failed to search");
-          setItems([]);
-        })
-        .finally(() => setLoading(false));
-    } else {
-      fetchPage(0, false);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedFilter, debouncedSearchQuery]);
 
   // Merge events and specials for unified display
   // Note: API already sorts by startDate, so no need to re-sort here
@@ -265,20 +109,6 @@ export default function EventsSpecialsPage() {
     return () => window.removeEventListener("resize", updateIsDesktop);
   }, []);
 
-  // Visibility-based refresh when tab becomes visible
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        // Refresh from the beginning when returning to tab
-        fetchPage(0, false);
-      }
-    };
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [selectedFilter, debouncedSearchQuery]);
-
   const handleFilterChange = (filter: "all" | "event" | "special") => {
     setSelectedFilter(filter);
   };
@@ -294,11 +124,13 @@ export default function EventsSpecialsPage() {
   // Handle load more button click
   const handleLoadMore = async () => {
     if (loadingMore || !hasMore) return;
-    await fetchPage(offset + ITEMS_PER_PAGE, true);
+    await handleLoadMoreWithSkeletons();
   };
 
-  const handleRetry = async () => {
-    await fetchPage(0, false);
+  const handleRetry = () => {
+    // Trigger re-fetch by changing filter slightly then back, or use window.location.reload
+    // SWR will re-validate automatically on next render
+    setSelectedFilter(f => f);
   };
 
   const hasAnyData = Array.isArray(items) && items.length > 0;
