@@ -236,8 +236,8 @@ export default function CommunityHighlights({
         {/* Top Contributors Empty State */}
         {!hasReviewers && (
           <div className="mt-1">
-            <div className="pb-1 sm:pb-2 flex flex-wrap items-center justify-between gap-2">
-              <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-gradient-to-r from-sage/20 to-sage/10 border border-sage/30">
+            <div className="pb-4 sm:pb-8 md:pb-10 flex flex-wrap items-center justify-between gap-2">
+              <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-gradient-to-r from-sage/20 to-sage/10 border border-sage/30 mb-4">
                 <span className="text-sm font-semibold text-sage" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
                   <span className="sm:hidden">{contributorsHeadingMobile}</span>
                   <span className="hidden sm:inline">{contributorsHeadingDesktop}</span>
@@ -245,7 +245,7 @@ export default function CommunityHighlights({
               </div>
             </div>
             
-            <div className="w-full bg-off-white border border-sage/20 rounded-3xl px-6 py-16 text-center space-y-3">
+            <div className="w-full bg-off-white border border-sage/20 rounded-3xl px-6 pt-16 text-center space-y-3">
               <h2 className="text-h2 font-semibold text-charcoal" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                 {contributorsEmptyTitle}
               </h2>
