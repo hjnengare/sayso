@@ -287,46 +287,24 @@ export default function OwnerBusinessDashboard() {
 
   if (error || !business) {
     return (
-      <div className="min-h-dvh bg-off-white relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5 pointer-events-none" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)] pointer-events-none" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)] pointer-events-none" />
-
-        <main className="relative">
-          <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5 pointer-events-none" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)] pointer-events-none" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)] pointer-events-none" />
-
-          <div className="mx-auto w-full max-w-[2000px] px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="max-w-4xl mx-auto text-center py-12">
-              <p className="text-charcoal/70">{error || 'Business not found'}</p>
-              <Link
-                href="/my-businesses"
-                className="inline-flex items-center gap-2 mt-4 text-navbar-bg hover:text-navbar-bg/80"
-                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
-              >
-                <ArrowLeft className="w-4 h-4" />
-                Back to Your Businesses
-              </Link>
-            </div>
-          </div>
-        </main>
+      <div className="px-4 sm:px-6 lg:px-8 py-8 max-w-5xl mx-auto">
+        <div className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-red-800 text-sm font-urbanist mb-4">
+          {error || 'Business not found'}
+        </div>
+        <Link
+          href="/my-businesses"
+          className="inline-flex items-center gap-2 text-navbar-bg hover:text-navbar-bg/80 font-urbanist text-sm"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to Your Businesses
+        </Link>
       </div>
     );
   }
 
   return (
-    <div className="min-h-dvh bg-off-white relative">
-      <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5 pointer-events-none" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)] pointer-events-none" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)] pointer-events-none" />
-
-      <main className="pb-8 font-urbanist relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5 pointer-events-none" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)] pointer-events-none" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)] pointer-events-none" />
-
-        <div className="mx-auto w-full max-w-[2000px] px-2 sm:px-4 lg:px-6 2xl:px-8 relative z-10">
+    <div className="font-urbanist">
+      <div className="px-2 sm:px-4 lg:px-6 2xl:px-8 py-6 max-w-5xl mx-auto">
               {/* Breadcrumb Navigation */}
               <nav className="pb-1" aria-label="Breadcrumb">
                 <ol className="flex items-center gap-2 text-sm sm:text-base">
@@ -643,24 +621,22 @@ export default function OwnerBusinessDashboard() {
                 </div>
               </div>
             </div>
-          </main>
-
-          <ConfirmationDialog
-            isOpen={isDeleteDialogOpen}
-            onClose={() => {
-              setIsDeleteDialogOpen(false);
-              setDeleteError(null);
-            }}
-            onConfirm={handleConfirmDelete}
-            title="Delete business?"
-            message="This will permanently delete this business and all related data (reviews, events/specials, claims, stats). This cannot be undone."
-            confirmText="Delete Business"
-            cancelText="Cancel"
-            variant="danger"
-            requireConfirmText="DELETE"
-            isLoading={isDeleting}
-            error={deleteError}
-          />
+      <ConfirmationDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => {
+          setIsDeleteDialogOpen(false);
+          setDeleteError(null);
+        }}
+        onConfirm={handleConfirmDelete}
+        title="Delete business?"
+        message="This will permanently delete this business and all related data (reviews, events/specials, claims, stats). This cannot be undone."
+        confirmText="Delete Business"
+        cancelText="Cancel"
+        variant="danger"
+        requireConfirmText="DELETE"
+        isLoading={isDeleting}
+        error={deleteError}
+      />
     </div>
   );
 }
