@@ -289,19 +289,19 @@ function ClaimBusinessPageContent() {
 
                   {/* Ownership Pricing Disclaimer */}
                   <div
-                    className="mb-8 rounded-[12px] border border-coral/20 bg-gradient-to-r from-coral/10 via-coral/5 to-white/90 p-4 sm:p-5 shadow-sm"
+                    className="mb-8 rounded-[12px] bg-navbar-bg/90 p-4 sm:p-5 shadow-sm"
                     role="note"
                     aria-label="Business ownership pricing notice"
                   >
                     <div className="flex items-start gap-3">
-                      <span className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-coral/15 text-coral">
+                      <span className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/15 text-white">
                         <AlertCircle className="h-4 w-4" />
                       </span>
                       <div>
-                        <p className="font-urbanist text-sm sm:text-base font-semibold text-charcoal" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                        <p className="font-urbanist text-sm sm:text-base font-semibold text-white" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                           Business Ownership Notice
                         </p>
-                        <p className="mt-1 font-urbanist text-sm sm:text-base leading-relaxed text-charcoal/80" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                        <p className="mt-1 font-urbanist text-sm sm:text-base leading-relaxed text-white/85" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                           {ownershipPricingNotice}
                         </p>
                       </div>
