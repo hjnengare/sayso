@@ -176,9 +176,22 @@ export function generateOrganizationSchema(): object {
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
+    '@id': `${SITE_URL}/#organization`,
     name: SITE_NAME,
     url: SITE_URL,
-    logo: `${SITE_URL}/logos/logo.png`,
+    description:
+      'Sayso is a hyper-local reviews and discovery platform for Cape Town. Explore restaurants, salons, gyms, events, and more — with real community ratings.',
+    foundingDate: '2024',
+    logo: {
+      '@type': 'ImageObject',
+      '@id': `${SITE_URL}/#logo`,
+      url: `${SITE_URL}/logos/logo.png`,
+      contentUrl: `${SITE_URL}/logos/logo.png`,
+      width: 512,
+      height: 512,
+      caption: SITE_NAME,
+    },
+    image: `${SITE_URL}/logos/logo.png`,
     areaServed: {
       '@type': 'City',
       name: 'Cape Town',
@@ -358,6 +371,32 @@ export function generateCollectionPageSchema({
       name: SITE_NAME,
       url: SITE_URL,
     },
+  };
+}
+
+/**
+ * Generate SiteNavigationElement schema to hint Google about key sitelinks
+ */
+export function generateSiteNavigationSchema(): object {
+  const navItems = [
+    { name: 'Explore Cape Town', url: `${SITE_URL}/search` },
+    { name: 'Events & Specials', url: `${SITE_URL}/events-specials` },
+    { name: 'Trending Places', url: `${SITE_URL}/trending` },
+    { name: 'Leaderboard', url: `${SITE_URL}/leaderboard` },
+    { name: 'About Sayso', url: `${SITE_URL}/about` },
+    { name: 'Contact', url: `${SITE_URL}/contact` },
+  ];
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Site Navigation',
+    itemListElement: navItems.map((item, index) => ({
+      '@type': 'SiteNavigationElement',
+      position: index + 1,
+      name: item.name,
+      url: item.url,
+    })),
   };
 }
 

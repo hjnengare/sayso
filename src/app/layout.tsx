@@ -25,7 +25,7 @@ import { LazyMotionProvider } from "./lib/lazy-motion-provider";
 import { RealtimeProvider } from "./contexts/RealtimeContext";
 import GlobalHeader from "./components/Header/GlobalHeader";
 import SchemaMarkup from "./components/SEO/SchemaMarkup";
-import { generateOrganizationSchema } from "./lib/utils/schemaMarkup";
+import { generateOrganizationSchema, generateWebSiteSchema, generateSiteNavigationSchema } from "./lib/utils/schemaMarkup";
 import ScrollToTopButton from "./components/Navigation/ScrollToTopButton";
 import SWRProvider from "./components/Providers/SWRProvider";
 
@@ -196,7 +196,11 @@ export default function RootLayout({
         {/* Canonical tag removed - set per page via metadata */}
       </head>
       <body className="no-layout-shift scroll-smooth bg-off-white">
-        <SchemaMarkup schemas={[generateOrganizationSchema()]} />
+        <SchemaMarkup schemas={[
+          generateOrganizationSchema(),
+          generateWebSiteSchema(),
+          generateSiteNavigationSchema(),
+        ]} />
         <WebVitals />
         <ClientLayoutWrapper />
         {/* Service Worker Registration - deferred to not block initial render */}
