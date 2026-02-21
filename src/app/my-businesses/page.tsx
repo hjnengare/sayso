@@ -379,7 +379,7 @@ export default function MyBusinessesPage() {
           
           <div className="mx-auto w-full max-w-[2000px] px-2 relative z-10">
             {(!businesses || businesses.length === 0) && (!ownerListings || ownerListings.length === 0) && (
-              <div className="relative z-10 min-h-[calc(100vh-200px)] flex items-center justify-center">
+              <div className="relative z-10 min-h-dvh flex items-center justify-center">
                 <div className="mx-auto w-full max-w-[2000px] px-2 font-urbanist">
                   <div className="text-center w-full">
                     <div className="w-20 h-20 mx-auto mb-6 bg-charcoal/10 rounded-full flex items-center justify-center">

@@ -75,20 +75,25 @@ export function NotificationsProvider({ children }: NotificationsProviderProps) 
   const [notifications, setNotifications] = useState<ToastNotificationData[]>([]);
   const [readNotifications, setReadNotifications] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const userId = user?.id ?? null;
   const userCurrentRole = user?.profile?.account_role || user?.profile?.role || "user";
-  const isBusinessAccountUser = userCurrentRole === "business_owner";
+  // Treat role as unknown (not personal) while auth is still resolving to avoid
+  // calling the personal endpoint before we know whether this is a business owner.
+  const isBusinessAccountUser = authLoading ? true : userCurrentRole === "business_owner";
   const supabaseRef = useRef(getBrowserSupabase());
   
-  // Ensure clean state on user change (fixes stuck counts when switching accounts)
+  // Ensure clean state on user change (fixes stuck counts when switching accounts).
+  // Don't run while auth is loading — isBusinessAccountUser is pinned to true during
+  // that window and would incorrectly clear state for personal users.
   useEffect(() => {
+    if (authLoading) return;
     if (!user || isBusinessAccountUser) {
       setNotifications([]);
       setReadNotifications(new Set());
       setIsLoading(false);
     }
-  }, [user?.id, isBusinessAccountUser]);
+  }, [authLoading, user?.id, isBusinessAccountUser]);
 
   // Convert database notification to ToastNotificationData format
   const convertToToastNotification = useCallback((dbNotification: DatabaseNotification): ToastNotificationData => {
@@ -105,6 +110,11 @@ export function NotificationsProvider({ children }: NotificationsProviderProps) 
   }, []);
 
   const fetchNotifications = useCallback(async () => {
+    // Wait for auth to fully resolve before making any API calls.
+    // Calling /api/notifications/user before the session cookie is ready → 401.
+    // Calling it before the profile is loaded for a business owner → 403.
+    if (authLoading) return;
+
     if (!userId) {
       setNotifications([]);
       setReadNotifications(new Set());
@@ -173,7 +183,7 @@ export function NotificationsProvider({ children }: NotificationsProviderProps) 
         setIsLoading(false);
       }
     }
-  }, [userId, isBusinessAccountUser, convertToToastNotification]);
+  }, [authLoading, userId, isBusinessAccountUser, convertToToastNotification]);
 
   useEffect(() => {
     fetchNotifications();
@@ -181,7 +191,7 @@ export function NotificationsProvider({ children }: NotificationsProviderProps) 
 
   // Real-time subscription for new notifications
   useEffect(() => {
-    if (!userId || isBusinessAccountUser) return;
+    if (authLoading || !userId || isBusinessAccountUser) return;
 
     const supabase = supabaseRef.current;
     let fallbackPollInterval: ReturnType<typeof setInterval> | null = null;
