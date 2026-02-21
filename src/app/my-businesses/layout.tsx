@@ -22,7 +22,7 @@ const NAV_ITEMS = [
 
 function Sidebar({ pathname, onClose }: { pathname: string; onClose?: () => void }) {
   return (
-    <aside className="flex flex-col h-full bg-[#2d5a27] text-off-white">
+    <aside className="flex flex-col h-full bg-card-bg text-off-white">
       {/* Brand */}
       <div className="flex items-center justify-between px-5 py-5 border-b border-white/10">
         <Link href="/my-businesses" className="flex items-center gap-2.5" onClick={onClose}>
@@ -128,7 +128,7 @@ export default function MyBusinessesLayout({ children }: { children: ReactNode }
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Mobile topbar */}
-        <header className="lg:hidden flex items-center gap-3 px-4 py-3 bg-[#2d5a27] border-b border-white/10 shadow-sm">
+        <header className="lg:hidden flex items-center gap-3 px-4 py-3 bg-card-bg border-b border-white/10 shadow-sm">
           <button
             type="button"
             onClick={() => setMobileOpen(true)}

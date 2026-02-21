@@ -271,12 +271,12 @@ export default function MyBusinessesPage() {
       <div className="flex items-start justify-between mb-8">
         <div>
           <div className="flex items-center gap-2.5 mb-1">
-            <Store className="w-5 h-5 text-[#2d5a27]" />
+            <Store className="w-5 h-5 text-card-bg" />
             <h1 className="font-urbanist text-2xl font-bold text-charcoal tracking-tight">
               My Businesses
             </h1>
             {businesses.length > 0 && (
-              <span className="inline-flex items-center justify-center min-w-[24px] h-6 px-2 rounded-full bg-[#2d5a27]/15 text-[#2d5a27] text-xs font-bold font-urbanist">
+              <span className="inline-flex items-center justify-center min-w-[24px] h-6 px-2 rounded-full bg-card-bg/15 text-card-bg text-xs font-bold font-urbanist">
                 {businesses.length}
               </span>
             )}
@@ -287,7 +287,7 @@ export default function MyBusinessesPage() {
         </div>
         <Link
           href="/add-business"
-          className="inline-flex items-center gap-1.5 rounded-xl bg-[#2d5a27] text-white px-4 py-2 text-sm font-semibold font-urbanist hover:bg-[#2d5a27]/90 transition-colors"
+          className="inline-flex items-center gap-1.5 rounded-xl bg-card-bg text-white px-4 py-2 text-sm font-semibold font-urbanist hover:bg-card-bg/90 transition-colors"
         >
           <Plus className="w-4 h-4" />
           Add Business
@@ -297,8 +297,8 @@ export default function MyBusinessesPage() {
       {/* Empty state */}
       {businesses.length === 0 && ownerListings.length === 0 && (
         <div className="rounded-2xl border border-charcoal/10 bg-white shadow-premium flex flex-col items-center justify-center py-20 gap-3">
-          <div className="w-16 h-16 rounded-2xl bg-[#2d5a27]/10 flex items-center justify-center">
-            <Store className="w-8 h-8 text-[#2d5a27]/60" />
+          <div className="w-16 h-16 rounded-2xl bg-card-bg/10 flex items-center justify-center">
+            <Store className="w-8 h-8 text-card-bg/60" />
           </div>
           <p className="font-urbanist text-base font-semibold text-charcoal/70">
             No businesses or events yet
@@ -309,7 +309,7 @@ export default function MyBusinessesPage() {
           <div className="flex gap-3 mt-2">
             <Link
               href="/add-business"
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#2d5a27] text-white text-sm font-semibold rounded-xl hover:bg-[#2d5a27]/90 transition-colors font-urbanist"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-card-bg text-white text-sm font-semibold rounded-xl hover:bg-card-bg/90 transition-colors font-urbanist"
             >
               Add Business
             </Link>
@@ -405,7 +405,7 @@ export default function MyBusinessesPage() {
                   <select
                     value={listingsBusinessFilter}
                     onChange={(e) => setListingsBusinessFilter(e.target.value)}
-                    className="w-full font-urbanist text-xs text-charcoal bg-white border border-charcoal/15 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2d5a27]/30"
+                    className="w-full font-urbanist text-xs text-charcoal bg-white border border-charcoal/15 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-card-bg/30"
                   >
                     <option value="all">All businesses</option>
                     {businesses.map((b) => (
