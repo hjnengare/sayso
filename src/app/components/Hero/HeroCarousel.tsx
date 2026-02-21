@@ -45,7 +45,6 @@ const FALLBACK_HERO_TEXT = {
 } as const;
 
 const HERO_SEED_STORAGE_KEY = "sayso.hero.seed.v1";
-const HERO_PARALLAX_DESKTOP_MAX_PX = 12;
 
 function getOrCreateSessionSeed(): string {
   if (typeof window === "undefined") return "server";
@@ -285,10 +284,6 @@ export default function HeroCarousel() {
   const slideTimeoutRef = useRef<number | null>(null);
   const containerRef = useRef<HTMLElement>(null);
   const currentIndexRef = useRef(currentIndex);
-  const isHeroInViewRef = useRef(true);
-  const isScrollTickingRef = useRef(false);
-  const parallaxMediaOffsetRef = useRef(0);
-  const parallaxOverlayOffsetRef = useRef(0);
   const isIOS = useMemo(() => {
     if (typeof navigator === "undefined") return false;
     const ua = navigator.userAgent || "";
@@ -403,95 +398,7 @@ export default function HeroCarousel() {
     typeof navigator !== "undefined" &&
     Boolean((navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData);
 
-  // Micro-parallax is applied only to hero media + one decorative overlay.
-  // Foreground text/CTAs remain static for readability and touch stability.
-  const applyParallaxOffsets = useCallback((mediaOffsetPx: number, overlayOffsetPx: number) => {
-    const container = containerRef.current;
-    if (!container) return;
-    const roundedMediaOffset = Math.round(mediaOffsetPx * 100) / 100;
-    const roundedOverlayOffset = Math.round(overlayOffsetPx * 100) / 100;
-    const mediaChanged = Math.abs(parallaxMediaOffsetRef.current - roundedMediaOffset) >= 0.1;
-    const overlayChanged = Math.abs(parallaxOverlayOffsetRef.current - roundedOverlayOffset) >= 0.1;
-    if (!mediaChanged && !overlayChanged) return;
 
-    parallaxMediaOffsetRef.current = roundedMediaOffset;
-    parallaxOverlayOffsetRef.current = roundedOverlayOffset;
-    container.style.setProperty("--hero-media-parallax-y", `${roundedMediaOffset}px`);
-    container.style.setProperty("--hero-overlay-parallax-y", `${roundedOverlayOffset}px`);
-  }, []);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const heroEl = containerRef.current;
-    if (!heroEl) return;
-
-    // Keep mobile hero flush with the sticky header: avoid vertical media offset on mobile.
-    const disableParallax =
-      prefersReduced || prefersDataSaver || isIOSMobile || heroViewport === "mobile" || heroViewport === "tablet";
-    if (disableParallax) {
-      applyParallaxOffsets(0, 0);
-      return;
-    }
-
-    const maxMediaOffset = HERO_PARALLAX_DESKTOP_MAX_PX;
-    const maxOverlayOffset = maxMediaOffset * 0.5;
-    const mediaFactor = 0.1;
-    const overlayFactor = 0.05;
-
-    let rafId: number | null = null;
-
-    const updateParallax = () => {
-      isScrollTickingRef.current = false;
-      if (!isHeroInViewRef.current) return;
-      const currentHero = containerRef.current;
-      if (!currentHero) return;
-      const rect = currentHero.getBoundingClientRect();
-      if (rect.bottom <= 0 || rect.top >= window.innerHeight) return;
-
-      const scrollWithinHero = Math.max(0, -rect.top);
-      const mediaOffset = Math.min(maxMediaOffset, scrollWithinHero * mediaFactor);
-      const overlayOffset = Math.min(maxOverlayOffset, scrollWithinHero * overlayFactor);
-      applyParallaxOffsets(mediaOffset, overlayOffset);
-    };
-
-    const scheduleParallaxUpdate = () => {
-      if (!isHeroInViewRef.current) return;
-      if (isScrollTickingRef.current) return;
-      isScrollTickingRef.current = true;
-      rafId = window.requestAnimationFrame(updateParallax);
-    };
-
-    const visibilityObserver = new IntersectionObserver(
-      ([entry]) => {
-        isHeroInViewRef.current = Boolean(entry?.isIntersecting);
-        if (!isHeroInViewRef.current) {
-          if (rafId !== null) {
-            window.cancelAnimationFrame(rafId);
-            rafId = null;
-          }
-          isScrollTickingRef.current = false;
-          return;
-        }
-        scheduleParallaxUpdate();
-      },
-      { threshold: 0 },
-    );
-
-    visibilityObserver.observe(heroEl);
-    scheduleParallaxUpdate();
-    window.addEventListener("scroll", scheduleParallaxUpdate, { passive: true });
-    window.addEventListener("resize", scheduleParallaxUpdate, { passive: true });
-
-    return () => {
-      visibilityObserver.disconnect();
-      window.removeEventListener("scroll", scheduleParallaxUpdate);
-      window.removeEventListener("resize", scheduleParallaxUpdate);
-      if (rafId !== null) window.cancelAnimationFrame(rafId);
-      isScrollTickingRef.current = false;
-      isHeroInViewRef.current = true;
-      applyParallaxOffsets(0, 0);
-    };
-  }, [applyParallaxOffsets, heroViewport, isIOSMobile, prefersDataSaver, prefersReduced]);
 
   // Prefetch a small set of upcoming hero images once first paint settles.
   useEffect(() => {
@@ -800,7 +707,6 @@ export default function HeroCarousel() {
           {/* Liquid Glass Ambient Lighting */}
       <div
         className="absolute inset-0 z-0 bg-gradient-to-br from-white/20 via-transparent to-sage/10 pointer-events-none rounded-none will-change-transform"
-        style={heroViewport === "desktop" ? { transform: "translate3d(0, var(--hero-overlay-parallax-y, 0px), 0)" } : undefined}
       />
       <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_center,_rgba(255,255,255,0.15)_0%,_transparent_70%)] pointer-events-none rounded-none" />
       <div className="absolute inset-0 z-0 backdrop-blur-[1px] bg-off-white/5 mix-blend-overlay pointer-events-none rounded-none" />
@@ -820,7 +726,6 @@ export default function HeroCarousel() {
         >
            <div
              className="absolute inset-0 rounded-none overflow-hidden transform-gpu [backface-visibility:hidden] will-change-transform"
-             style={heroViewport === "desktop" ? { transform: "translate3d(0, var(--hero-media-parallax-y, 0px), 0)" } : undefined}
            >
               <Image
                 src={src}
