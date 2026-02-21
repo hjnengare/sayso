@@ -1,17 +1,12 @@
 'use client';
 
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState } from 'react';
 import useSWR, { mutate as globalMutate } from 'swr';
 import { invalidateBusinessPreview } from './useBusinessReviewPreview';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { useEmailVerification } from './useEmailVerification';
 import type { ReviewWithUser } from '../lib/types/database';
-import {
-  DUMMY_REVIEWS,
-  simulateDelay,
-  type Review
-} from '../lib/dummyData';
 import { swrConfig } from '../lib/swrConfig';
 interface ReviewFormData {
   business_id: string;
@@ -108,93 +103,6 @@ export function useReviews(businessId?: string) {
     addOptimisticReview,
     replaceOptimisticReview,
     removeReview,
-  };
-}
-
-export function useRecentReviews(limit?: number) {
-  const [reviews, setReviews] = useState<ReviewWithUser[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let mounted = true;
-
-    const fetchRecentReviews = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        await simulateDelay();
-        // Get recent reviews (sorted by date) and transform to ReviewWithUser
-        const data: ReviewWithUser[] = [...DUMMY_REVIEWS]
-          .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-          .slice(0, limit || 10)
-          .map(review => ({
-            ...review,
-            helpful_count: 0, // Add missing properties
-            updated_at: review.created_at,
-            user: {
-              id: review.user_id,
-              name: 'User',
-            },
-            images: review.images?.map((url, index) => ({
-              id: `${review.id}-img-${index}`,
-              review_id: review.id,
-              image_url: url,
-              created_at: review.created_at,
-            })) || [],
-          }));
-
-        if (mounted) {
-          setReviews(data);
-        }
-      } catch (err) {
-        if (mounted) {
-          setError(err instanceof Error ? err.message : 'Failed to fetch recent reviews');
-          console.error('Error fetching recent reviews:', err);
-          // Fallback to empty array
-          setReviews([]);
-        }
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    fetchRecentReviews();
-
-    return () => {
-      mounted = false;
-    };
-  }, [limit]);
-
-  return {
-    reviews,
-    loading,
-    error,
-    refetch: async () => {
-      await simulateDelay();
-      const data: ReviewWithUser[] = [...DUMMY_REVIEWS]
-        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-        .slice(0, limit || 10)
-        .map(review => ({
-          ...review,
-          helpful_count: 0,
-          updated_at: review.created_at,
-          user: {
-            id: review.user_id,
-            name: 'User',
-          },
-          images: review.images?.map((url, index) => ({
-            id: `${review.id}-img-${index}`,
-            review_id: review.id,
-            image_url: url,
-            created_at: review.created_at,
-          })) || [],
-        }));
-      setReviews(data);
-    }
   };
 }
 

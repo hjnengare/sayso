@@ -361,7 +361,7 @@ export async function DELETE(
       .eq('business_id', actualBusinessId);
 
     if (businessImages && businessImages.length > 0) {
-      const { extractStoragePaths } = await import('../../../../lib/utils/storagePathExtraction');
+      const { extractStoragePaths } = await import('../../../lib/utils/storagePathExtraction');
       const imageUrls = businessImages.map(img => img.url).filter(Boolean);
       const storagePaths = extractStoragePaths(imageUrls);
 

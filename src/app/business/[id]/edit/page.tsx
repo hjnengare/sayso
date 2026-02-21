@@ -188,7 +188,7 @@ export default function BusinessEditPage() {
         setUploadingImages(true);
         try {
             // Validate image files
-            const { validateImageFiles, getFirstValidationError } = await import('@/lib/utils/imageValidation');
+            const { validateImageFiles, getFirstValidationError } = await import('@/app/lib/utils/imageValidation');
             const validationResults = validateImageFiles(Array.from(files));
             const invalidFiles = validationResults.filter(r => !r.valid);
             

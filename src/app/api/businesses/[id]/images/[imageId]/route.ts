@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSupabase } from '../../../../../lib/supabase/server';
-import { extractStoragePath } from '../../../../../../lib/utils/storagePathExtraction';
+import { extractStoragePath } from '../../../../../lib/utils/storagePathExtraction';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';

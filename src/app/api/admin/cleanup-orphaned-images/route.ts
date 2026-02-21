@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSupabase } from '../../../lib/supabase/server';
-import { cleanupOrphanedImages } from '../../../../lib/utils/orphanedImagesCleanup';
+import { cleanupOrphanedImages } from '../../../lib/utils/orphanedImagesCleanup';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';

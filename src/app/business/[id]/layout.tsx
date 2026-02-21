@@ -45,7 +45,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     // Fetch business data
     const { data } = await supabase
       .from('businesses')
-      .select('name, description, image_url, uploaded_images, business_images(url, is_primary, sort_order), slug, category, primary_category_slug, primary_category_label')
+      .select('name, description, image_url, uploaded_images, business_images(url, is_primary, sort_order), slug, category, primary_category_slug, primary_category_label, business_stats(average_rating, total_reviews)')
       .eq('id', actualId)
       .eq('status', 'active')
       .or('is_system.is.null,is_system.eq.false')
@@ -70,26 +70,21 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
   const businessSlug = business.slug || id;
   const categoryLabel = business.primary_category_label || business.category || '';
-  const businessImages = Array.isArray(business.business_images) ? business.business_images : [];
-  const orderedBusinessImages = [...businessImages].sort((a: any, b: any) => {
-    if (a?.is_primary && !b?.is_primary) return -1;
-    if (!a?.is_primary && b?.is_primary) return 1;
-    return Number(a?.sort_order || 0) - Number(b?.sort_order || 0);
-  });
-  const image =
-    (Array.isArray(business.uploaded_images) ? business.uploaded_images[0] : undefined) ||
-    orderedBusinessImages[0]?.url ||
-    business.image_url ||
-    undefined;
+  const stats = (business as any).business_stats?.[0] ?? null;
+  const rating: number | null = stats?.average_rating ?? null;
+  const reviewCount: number = stats?.total_reviews ?? 0;
+  const ratingStr = rating !== null
+    ? `${rating.toFixed(1)} ★ · ${reviewCount} review${reviewCount !== 1 ? 's' : ''} · `
+    : '';
   const description =
-    business.description ||
+    `${ratingStr}${categoryLabel ? `${categoryLabel} in Cape Town. ` : ''}${business.description ?? ''}`.trim() ||
     `${business.name} on Sayso. Hyper-local reviews, ratings, and discovery details for Cape Town locals.`;
 
   return generateSEOMetadata({
     title: `${business.name} reviews in Cape Town | Sayso`,
     description,
     keywords: [business.name, 'sayso reviews', 'cape town business reviews', categoryLabel],
-    image,
+    image: `${SITE_URL}/api/og/business/${actualId}`,
     url: `/business/${businessSlug}`,
     type: 'article',
   });
