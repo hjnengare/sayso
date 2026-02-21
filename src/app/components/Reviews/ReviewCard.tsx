@@ -13,7 +13,7 @@ import type { ReviewWithUser } from '../../lib/types/database';
 import { useAuth } from '../../contexts/AuthContext';
 import { useReviewSubmission } from '../../hooks/useReviews';
 import { getDisplayUsername } from '../../utils/generateUsername';
-import { ConfirmationDialog } from '../../../components/molecules/ConfirmationDialog/ConfirmationDialog';
+import { ConfirmationDialog } from '@/app/components/molecules/ConfirmationDialog/ConfirmationDialog';
 import BadgePill, { BadgePillData } from '../Badges/BadgePill';
 import { isOptimisticId, isValidUUID } from '../../lib/utils/validation';
 

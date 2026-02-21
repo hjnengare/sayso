@@ -12,7 +12,7 @@ import {
   OnboardingActionBar 
 } from "../components/Onboarding";
 import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
-import WavyTypedTitle from "../../components/Animations/WavyTypedTitle";
+import WavyTypedTitle from "@/app/components/Animations/WavyTypedTitle";
 import { Loader } from "../components/Loader";
 import { useCompletePage } from "../hooks/useCompletePage";
 

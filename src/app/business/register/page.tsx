@@ -10,7 +10,7 @@ import { useScrollReveal } from "../../hooks/useScrollReveal";
 import { usePredefinedPageTitle } from "../../hooks/usePageTitle";
 import { InlineLoader } from "../../components/Loader/Loader";
 import { getBrowserSupabase } from "../../lib/supabase/client";
-import WavyTypedTitle from "../../../components/Animations/WavyTypedTitle";
+import WavyTypedTitle from "@/app/components/Animations/WavyTypedTitle";
 
 // Import shared components
 import { authStyles } from "../../components/Auth/Shared/authStyles";

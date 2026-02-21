@@ -14,7 +14,7 @@ import LeaderboardList from "../components/Leaderboard/LeaderboardList";
 import LeaderboardTitle from "../components/Leaderboard/LeaderboardTitle";
 import { Tabs } from "@/components/atoms/Tabs";
 import { Loader } from "../components/Loader/Loader";
-import WavyTypedTitle from "../../components/Animations/WavyTypedTitle";
+import WavyTypedTitle from "@/app/components/Animations/WavyTypedTitle";
 
 // Dynamically import BusinessOfMonthLeaderboard to improve initial load time
 const BusinessOfMonthLeaderboard = nextDynamic(

@@ -11,7 +11,7 @@ import { getBrowserSupabase } from "../lib/supabase/client";
 import type { AuthUser } from "../lib/types/database";
 import { Mail, CheckCircle, ExternalLink, ArrowLeft, AlertCircle } from "lucide-react";
 import { Loader as AppLoader } from "../components/Loader";
-import WavyTypedTitle from "../../components/Animations/WavyTypedTitle";
+import WavyTypedTitle from "@/app/components/Animations/WavyTypedTitle";
 
 const urbanist = Urbanist({
   weight: ["400", "600", "700", "800"],

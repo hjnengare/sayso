@@ -8,7 +8,7 @@ import { ArrowLeft } from "lucide-react";
 import { AuthService } from "../lib/auth";
 import { useToast } from "../contexts/ToastContext";
 import { useScrollReveal } from "../hooks/useScrollReveal";
-import WavyTypedTitle from "../../components/Animations/WavyTypedTitle";
+import WavyTypedTitle from "@/app/components/Animations/WavyTypedTitle";
 
 // Import shared components
 import { authStyles } from "../components/Auth/Shared/authStyles";

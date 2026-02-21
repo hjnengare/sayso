@@ -10,7 +10,7 @@ import { useToast } from "../contexts/ToastContext";
 import { getBrowserSupabase } from "../lib/supabase/client";
 import { useScrollReveal } from "../hooks/useScrollReveal";
 import { usePredefinedPageTitle } from "../hooks/usePageTitle";
-import WavyTypedTitle from "../../components/Animations/WavyTypedTitle";
+import WavyTypedTitle from "@/app/components/Animations/WavyTypedTitle";
 
 // Import shared components
 import { authStyles } from "../components/Auth/Shared/authStyles";

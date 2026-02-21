@@ -4,12 +4,12 @@
   /* sayso Color Palette */
   --color-page-bg: #E5E0E5;
   --color-card-bg: #9DAB9B;
-  --color-navbar-bg: #722F37;
+  --color-navbar-bg: #722F37; /* canonical burgundy-red */
 
   /* Primary colors */
   --color-sage: #9DAB9B;
-  --color-coral: #722F37;
-  --color-burgundy: #722F37;
+  --color-coral: #722F37; /* alias of navbar-bg */
+  --color-burgundy: #722F37; /* alias of navbar-bg */
   --color-charcoal: hsl(0, 0%, 25%);
   --color-off-white: #E5E0E5;
 
@@ -139,7 +139,7 @@
   body {
     @apply text-base bg-off-white;
     /* Use token system: 16px with 1.6 line-height */
-    font-family: inherit;
+    font-family: var(--font-urbanist), 'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
     color: hsl(0, 0%, 0%);
     background-image: url('/bg.svg');
     background-size: cover;
@@ -582,66 +582,6 @@
 }
 
 @layer utilities {
-
-  /* ── Diagonal wipe hover effect for primary buttons ─────────────────────── */
-  /*
-   * Usage: add `btn-wipe` alongside your existing button classes.
-   * The ::before overlay uses currentColor at low opacity so it works with any
-   * color token. The overlay is inset slightly wider than the button to prevent
-   * the skew from revealing a gap at the edges.
-   */
-  .btn-wipe {
-    position: relative;
-    overflow: hidden;
-  }
-
-  .btn-wipe::before {
-    content: '';
-    position: absolute;
-    inset: 0 -8px; /* extra horizontal bleed to cover skew gap */
-    background-color: rgba(255, 255, 255, 0.12);
-    transform: skewY(-12deg) scaleY(0);
-    transform-origin: bottom center;
-    transition: transform 320ms cubic-bezier(0.33, 0.85, 0.4, 0.96);
-    z-index: 0;
-    pointer-events: none;
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .btn-wipe:hover::before,
-    .btn-wipe:focus-visible::before {
-      transform: skewY(-12deg) scaleY(1.4);
-    }
-  }
-
-  /* Also trigger on focus for keyboard users on all devices */
-  .btn-wipe:focus-visible::before {
-    transform: skewY(-12deg) scaleY(1.4);
-  }
-
-  /* Ensure button content stays above the overlay */
-  .btn-wipe > * {
-    position: relative;
-    z-index: 1;
-  }
-
-  /* Span/text nodes that aren't wrapped in an element — handled via isolation */
-  .btn-wipe {
-    isolation: isolate;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .btn-wipe::before {
-      transition: none !important;
-      transform: none !important;
-    }
-
-    .btn-wipe:hover::before,
-    .btn-wipe:focus-visible::before {
-      transform: none !important;
-    }
-  }
-  /* ─────────────────────────────────────────────────────────────────────────── */
 
   /* Hide scrollbar while maintaining scroll functionality */
   .scrollbar-hide {

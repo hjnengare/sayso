@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import WavyTypedTitle from "../../../components/Animations/WavyTypedTitle";
+import WavyTypedTitle from "@/app/components/Animations/WavyTypedTitle";
 
 interface InterestHeaderProps {
   isOnline: boolean;

@@ -16,7 +16,6 @@ import { PRIMARY_LINKS, DISCOVER_LINKS, getLogoHref } from "./headerActionsConfi
 import { useLiveSearch, type LiveSearchResult } from "../../hooks/useLiveSearch";
 import { usePrefetchRoutes } from "../../hooks/usePrefetchRoutes";
 
-const NAV_SCROLLED_THRESHOLD = 20;
 const AUTH_HEADER_SKELETON_MAX_MS = 1200;
 
 export default function Header({
@@ -105,10 +104,6 @@ export default function Header({
   const [isDesktopSearchExpanded, setIsDesktopSearchExpanded] = useState(false);
   const [activeSuggestionIndex, setActiveSuggestionIndex] = useState<number>(-1);
   const [desktopSearchExpandedWidth, setDesktopSearchExpandedWidth] = useState(280);
-  const [isNavScrolled, setIsNavScrolled] = useState(false);
-  const latestScrollYRef = useRef(0);
-  const isScrollTickingRef = useRef(false);
-  const isNavScrolledRef = useRef(false);
 
   const {
     query: suggestionQuery,
@@ -167,10 +162,8 @@ export default function Header({
   }, [suggestionResults]);
 
   const headerClassName =
-    "sticky top-0 left-0 right-0 w-full z-50 pt-[var(--safe-area-top)] transition-[background-color,box-shadow,backdrop-filter] duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)]";
-  const headerSurfaceClass = isNavScrolled
-    ? "bg-navbar-bg/95 backdrop-blur-sm shadow-[0_6px_18px_rgba(0,0,0,0.14)]"
-    : "bg-navbar-bg shadow-md";
+    "sticky top-0 left-0 right-0 w-full z-50 pt-[var(--safe-area-top)]";
+  const headerSurfaceClass = "bg-navbar-bg shadow-md";
     
 
   const isPersonalLayout =
@@ -209,48 +202,6 @@ export default function Header({
     return () => window.removeEventListener("resize", setByViewport);
   }, []);
 
-  useEffect(() => {
-    isNavScrolledRef.current = isNavScrolled;
-  }, [isNavScrolled]);
-
-  useEffect(() => {
-    let rafId: number | null = null;
-
-    const updateScrolledState = () => {
-      isScrollTickingRef.current = false;
-      const nextScrolled = latestScrollYRef.current > NAV_SCROLLED_THRESHOLD;
-      if (nextScrolled === isNavScrolledRef.current) return;
-      isNavScrolledRef.current = nextScrolled;
-      setIsNavScrolled(nextScrolled);
-    };
-
-    const handleScroll = () => {
-      latestScrollYRef.current = window.scrollY;
-      if (isScrollTickingRef.current) return;
-      isScrollTickingRef.current = true;
-      rafId = window.requestAnimationFrame(updateScrolledState);
-    };
-
-    latestScrollYRef.current = window.scrollY;
-    const initialScrolled = latestScrollYRef.current > NAV_SCROLLED_THRESHOLD;
-    isNavScrolledRef.current = initialScrolled;
-    setIsNavScrolled(initialScrolled);
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      if (rafId !== null) window.cancelAnimationFrame(rafId);
-      isScrollTickingRef.current = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    const currentY = typeof window !== "undefined" ? window.scrollY : 0;
-    const nextScrolled = currentY > NAV_SCROLLED_THRESHOLD;
-    latestScrollYRef.current = currentY;
-    isNavScrolledRef.current = nextScrolled;
-    setIsNavScrolled(nextScrolled);
-  }, [pathname]);
 
   // Keep home desktop nav links perfectly centered by capping search expansion
   // to the right-side space that remains after center nav + icons.
@@ -831,16 +782,14 @@ export default function Header({
     return <HeaderSkeleton showSearch={showSearch} />;
   }
 
-  const wrapperSizeClass = isNavScrolled
-    ? "pt-2.5 min-h-[60px] lg:min-h-[64px]"
-    : "pt-4 min-h-[72px] lg:min-h-[80px]";
+  const wrapperSizeClass = "pt-4 min-h-[72px] lg:min-h-[80px]";
   const logoScaleClass = "";
 
   return (
     <>
       <header ref={headerRef} className={`${headerClassName} ${headerSurfaceClass}`} style={sf}>
         <div
-          className={`relative z-[1] w-full ${horizontalPaddingClass} flex items-center h-full transition-[min-height,padding] duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] ${wrapperSizeClass}`}
+          className={`relative z-[1] w-full ${horizontalPaddingClass} flex items-center h-full ${wrapperSizeClass}`}
         >
           {effectiveIsAdminUser ? (
             /* Admin Layout */

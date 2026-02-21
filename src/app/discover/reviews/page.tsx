@@ -4,7 +4,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useMemo } from "react";
 import { ArrowLeft, Briefcase, Image as ImageIcon, ThumbsUp, FileText, Star, ChevronRight, ChevronLeft, TrendingUp } from "lucide-react";
-import VerifiedBadge from "../../components/VerifiedBadge/VerifiedBadge";
+import VerifiedBadge from "@/app/components/VerifiedBadge/VerifiedBadge";
 
 // Mock reviews data - in production this would come from API
 const MOCK_REVIEWS = [

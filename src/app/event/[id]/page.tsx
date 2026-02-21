@@ -9,7 +9,7 @@ import { ChevronRight, Calendar } from "lucide-react";
 import type { Event } from "../../lib/types/Event";
 import nextDynamic from "next/dynamic";
 import { PageLoader } from "../../components/Loader";
-import WavyTypedTitle from "../../../components/Animations/WavyTypedTitle";
+import WavyTypedTitle from "@/app/components/Animations/WavyTypedTitle";
 import ReviewsList from "../../components/Reviews/ReviewsList";
 import {
   EventHeroImage,

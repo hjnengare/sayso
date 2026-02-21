@@ -5,23 +5,21 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import BusinessCard from "../components/BusinessCard/BusinessCard";
 import Footer from "../components/Footer/Footer";
-import { ChevronRight, ChevronLeft } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import Pagination from "../components/EventsPage/Pagination";
 import { useBusinesses } from "../hooks/useBusinesses";
 import { useTrendingBusinesses } from "../hooks/useTrendingBusinesses";
 import { useDebounce } from "../hooks/useDebounce";
 import ScrollToTopButton from "../components/ScrollToTopButton/ScrollToTopButton";
-import SearchInput from "../components/SearchInput/SearchInput";
 import { FilterState } from "../components/FilterModal/FilterModal";
-import ActiveFilterBadges from "../components/FilterActiveBadges/ActiveFilterBadges";
-import InlineFilters from "../components/Home/InlineFilters";
 import BusinessesMap, { BusinessMapItem } from "../components/maps/BusinessesMap";
-import { List, Map as MapIcon } from "lucide-react";
 import { Loader } from "../components/Loader/Loader";
 import { usePredefinedPageTitle } from "../hooks/usePageTitle";
 import { useScrollReveal } from "../hooks/useScrollReveal";
 import BusinessGridSkeleton from "../components/Explore/BusinessGridSkeleton";
 import { useIsDesktop } from "../hooks/useIsDesktop";
+import ListMapToggle from "./ListMapToggle";
+import SearchFilterBar from "./SearchFilterBar";
 // Trending = cold-start API (/api/trending): metadata-only score, diversity-first selection, deterministic rotation.
 
 // Animation variants for staggered card appearance - optimized for performance
@@ -324,30 +322,14 @@ export default function TrendingPage() {
             </p>
           </div>
 
-          {/* Search Input */}
-          <div ref={searchWrapRef} className="relative z-10 py-3 sm:py-4 px-4">
-            <SearchInput
-              variant="header"
-              placeholder="Search trending businesses..."
-              mobilePlaceholder="Search trending..."
-              onSearch={handleSearchChange}
-              onSubmitQuery={handleSubmitQuery}
-              showFilter={false}
-              enableSuggestions={true}
-            />
-          </div>
-
-          {/* Inline Filters - Only show when searching */}
-          <InlineFilters
-            show={isSearching}
+          <SearchFilterBar
+            searchWrapRef={searchWrapRef}
+            isSearching={isSearching}
             filters={filters}
+            onSearch={handleSearchChange}
+            onSubmitQuery={handleSubmitQuery}
             onDistanceChange={handleInlineDistanceChange}
             onRatingChange={handleInlineRatingChange}
-          />
-
-          {/* Active Filter Badges - Show when filters are active */}
-          <ActiveFilterBadges
-            filters={filters}
             onRemoveFilter={(filterType) => {
               const newFilters = { ...filters, [filterType]: null };
               setFilters(newFilters);
@@ -417,40 +399,12 @@ export default function TrendingPage() {
                     )}
 
                     {/* List | Map Toggle */}
-                    <div className="mb-4 px-2 flex items-center justify-end">
-                      <div className="flex items-center gap-1 bg-white/80 backdrop-blur-sm rounded-full p-1 border border-white/30 shadow-sm">
-                        <button
-                          onClick={() => {
-                            console.log('[Trending] Switching to List mode');
-                            setIsMapMode(false);
-                          }}
-                          className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                            !isMapMode
-                              ? 'bg-card-bg text-white shadow-sm'
-                              : 'text-charcoal/70 hover:text-charcoal'
-                          }`}
-                          style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
-                        >
-                          <List className="w-3.5 h-3.5" />
-                          List
-                        </button>
-                        <button
-                          onClick={() => {
-                            console.log('[Trending] Switching to Map mode, businesses:', mapBusinesses.length);
-                            setIsMapMode(true);
-                          }}
-                          className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                            isMapMode
-                              ? 'bg-coral text-white shadow-sm'
-                              : 'text-charcoal/70 hover:text-charcoal'
-                          }`}
-                          style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
-                        >
-                          <MapIcon className="w-3.5 h-3.5" />
-                          Map
-                        </button>
-                      </div>
-                    </div>
+                    <ListMapToggle
+                      isMapMode={isMapMode}
+                      onListMode={() => setIsMapMode(false)}
+                      onMapMode={() => setIsMapMode(true)}
+                      mapBusinessCount={mapBusinesses.length}
+                    />
 
                     {/* Paginated Content with Smooth Transition - Map or List */}
                     <AnimatePresence mode="wait" initial={false}>

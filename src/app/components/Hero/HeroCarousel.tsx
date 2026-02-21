@@ -45,8 +45,6 @@ const FALLBACK_HERO_TEXT = {
 } as const;
 
 const HERO_SEED_STORAGE_KEY = "sayso.hero.seed.v1";
-const HERO_PARALLAX_MOBILE_MAX_PX = 8;
-const HERO_PARALLAX_TABLET_MAX_PX = 10;
 const HERO_PARALLAX_DESKTOP_MAX_PX = 12;
 
 function getOrCreateSessionSeed(): string {
@@ -429,19 +427,16 @@ export default function HeroCarousel() {
 
     // Keep mobile hero flush with the sticky header: avoid vertical media offset on mobile.
     const disableParallax =
-      prefersReduced || prefersDataSaver || isIOSMobile || heroViewport === "mobile";
+      prefersReduced || prefersDataSaver || isIOSMobile || heroViewport === "mobile" || heroViewport === "tablet";
     if (disableParallax) {
       applyParallaxOffsets(0, 0);
       return;
     }
 
-    const maxMediaOffset =
-      heroViewport === "tablet"
-        ? HERO_PARALLAX_TABLET_MAX_PX
-        : HERO_PARALLAX_DESKTOP_MAX_PX;
+    const maxMediaOffset = HERO_PARALLAX_DESKTOP_MAX_PX;
     const maxOverlayOffset = maxMediaOffset * 0.5;
-    const mediaFactor = heroViewport === "tablet" ? 0.09 : 0.1;
-    const overlayFactor = heroViewport === "tablet" ? 0.045 : 0.05;
+    const mediaFactor = 0.1;
+    const overlayFactor = 0.05;
 
     let rafId: number | null = null;
 
@@ -805,7 +800,7 @@ export default function HeroCarousel() {
           {/* Liquid Glass Ambient Lighting */}
       <div
         className="absolute inset-0 z-0 bg-gradient-to-br from-white/20 via-transparent to-sage/10 pointer-events-none rounded-none will-change-transform"
-        style={{ transform: "translate3d(0, var(--hero-overlay-parallax-y, 0px), 0)" }}
+        style={heroViewport === "desktop" ? { transform: "translate3d(0, var(--hero-overlay-parallax-y, 0px), 0)" } : undefined}
       />
       <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_center,_rgba(255,255,255,0.15)_0%,_transparent_70%)] pointer-events-none rounded-none" />
       <div className="absolute inset-0 z-0 backdrop-blur-[1px] bg-off-white/5 mix-blend-overlay pointer-events-none rounded-none" />
@@ -825,7 +820,7 @@ export default function HeroCarousel() {
         >
            <div
              className="absolute inset-0 rounded-none overflow-hidden transform-gpu [backface-visibility:hidden] will-change-transform"
-             style={{ transform: "translate3d(0, var(--hero-media-parallax-y, 0px), 0)" }}
+             style={heroViewport === "desktop" ? { transform: "translate3d(0, var(--hero-media-parallax-y, 0px), 0)" } : undefined}
            >
               <Image
                 src={src}
