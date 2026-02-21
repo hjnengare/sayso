@@ -218,7 +218,7 @@ export default function MyBusinessesPage() {
 
     setListingsWarning(null);
 
-    fetchOwnerListings(businesses, userId)
+    fetchOwnerListings(businesses as unknown as Business[], userId)
       .then(({ items, failedCount }) => {
         setOwnerListings(items);
         if (failedCount > 0) {
@@ -464,7 +464,7 @@ export default function MyBusinessesPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.4, delay: 0.2 }}
                     >
-                      <MyBusinessesTable businesses={businesses} />
+                      <MyBusinessesTable businesses={businesses as unknown as Business[]} />
                     </motion.div>
                   )}
 
