@@ -5,7 +5,7 @@
 
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import useSWR, { mutate as globalMutate } from 'swr';
 import { swrConfig } from '../lib/swrConfig';
 import { useAuth } from '../contexts/AuthContext';
@@ -76,6 +76,12 @@ export function useBusinessNotificationsFeed() {
     dedupingInterval: 30_000,
   });
 
+  // Toast queue — only for realtime INSERTs (not persisted in SWR cache)
+  const [toastQueue, setToastQueue] = useState<ToastNotificationData[]>([]);
+  const dismissToast = useCallback((id: string) => {
+    setToastQueue(prev => prev.filter(n => n.id !== id));
+  }, []);
+
   // Visibility-based refetch
   useEffect(() => {
     if (!swrKey) return;
@@ -101,6 +107,7 @@ export function useBusinessNotificationsFeed() {
       }, (payload) => {
         const newItem = payload.new as BusinessNotificationApiItem;
         const newNotification = mapApiItem(newItem, 0);
+        // Optimistically prepend to SWR cache
         mutate(
           (prev) => ({
             notifications: [newNotification, ...(prev?.notifications ?? [])],
@@ -108,6 +115,8 @@ export function useBusinessNotificationsFeed() {
           }),
           { revalidate: false }
         );
+        // Show as toast
+        setToastQueue(prev => [...prev, newNotification]);
       })
       .on('postgres_changes', {
         event: 'UPDATE',
@@ -125,9 +134,14 @@ export function useBusinessNotificationsFeed() {
     };
   }, [user?.id, isBusinessAccountUser, mutate]);
 
+  const unreadCount = (data?.notifications ?? []).filter(n => !(data?.readIds ?? new Set()).has(n.id)).length;
+
   return {
     notifications: data?.notifications ?? [],
     readIds: data?.readIds ?? new Set<string>(),
+    unreadCount,
+    toastQueue,
+    dismissToast,
     loading: authLoading || isLoading,
     error: error ? (error as Error).message : null,
     refetch: () => mutate(),

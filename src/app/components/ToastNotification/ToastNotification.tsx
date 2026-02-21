@@ -6,7 +6,7 @@ import Image from "next/image";
 
 export interface ToastNotificationData {
   id: string;
-  type: "review" | "business" | "user" | "highlyRated";
+  type: "review" | "business" | "user" | "highlyRated" | "badge_earned" | "review_helpful" | "business_approved" | "claim_approved" | "comment_reply" | "gamification" | "milestone_achievement" | "message" | "otp_sent" | "otp_verified" | "claim_status_changed" | "docs_requested" | "docs_received" | "photo_approved";
   message: string;
   title: string;
   timeAgo: string;

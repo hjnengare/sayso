@@ -9,6 +9,7 @@ import { FilterState } from "../FilterModal/FilterModal";
 import { useSavedItems } from "../../contexts/SavedItemsContext";
 import { useNotifications } from "../../contexts/NotificationsContext";
 import { useRequireBusinessOwner } from "../../hooks/useBusinessAccess";
+import { useBusinessNotificationsFeed } from "../../hooks/useBusinessNotificationsFeed";
 import { useAuth } from "../../contexts/AuthContext";
 import {
   DISCOVER_LINKS,
@@ -113,8 +114,6 @@ export const useHeaderState = ({
   const shouldUseBusinessNotifications = isBusinessAccountUser || isBusinessNotificationRoute;
   const hasMultipleRoles = user?.profile?.role === "both";
   const isGuest = !authLoading && !user;
-  const [businessUnreadCount, setBusinessUnreadCount] = useState(0);
-
   // ============================================================================
   // BUSINESS ACCESS CHECK
   // ============================================================================
@@ -126,62 +125,8 @@ export const useHeaderState = ({
   const ownedBusinessesCount = ownedBusinesses?.length ?? 0;
   const hasOwnedBusinesses = ownedBusinessesCount > 0;
 
-  useEffect(() => {
-    if (!user || !shouldUseBusinessNotifications) {
-      setBusinessUnreadCount(0);
-      return;
-    }
-
-    let isCancelled = false;
-
-    const fetchBusinessUnreadCount = async () => {
-      try {
-        const response = await fetch("/api/notifications/business", {
-          method: "GET",
-          cache: "no-store",
-        });
-
-        if (!response.ok) {
-          const errorBody = await response.json().catch(() => null);
-          console.error("[Header] Failed to fetch business notifications", {
-            endpoint: "/api/notifications/business",
-            status: response.status,
-            errorMessage: errorBody?.error || response.statusText,
-            hasSession: !!user,
-          });
-          if (!isCancelled) {
-            setBusinessUnreadCount(0);
-          }
-          return;
-        }
-
-        const data = await response.json();
-        const nextCountRaw = Number(data?.unreadCount);
-        const nextCount = Number.isFinite(nextCountRaw)
-          ? Math.max(0, nextCountRaw)
-          : 0;
-
-        if (!isCancelled) {
-          setBusinessUnreadCount(nextCount);
-        }
-      } catch (error) {
-        console.error("[Header] Error fetching business notifications", {
-          endpoint: "/api/notifications/business",
-          errorMessage: error instanceof Error ? error.message : String(error),
-          hasSession: !!user,
-        });
-        if (!isCancelled) {
-          setBusinessUnreadCount(0);
-        }
-      }
-    };
-
-    fetchBusinessUnreadCount();
-
-    return () => {
-      isCancelled = true;
-    };
-  }, [user?.id, shouldUseBusinessNotifications]);
+  // SWR-backed business unread count — realtime + deduped, no manual fetch needed
+  const { unreadCount: businessUnreadCount } = useBusinessNotificationsFeed();
 
   // ============================================================================
   // NAVIGATION LINKS (COMPUTED)

@@ -1,12 +1,14 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo, useRef } from "react";
+import useSWR, { mutate as globalMutate } from "swr";
 import { useAuth } from "./AuthContext";
 import { formatTimeAgo } from "../utils/formatTimeAgo";
-import { apiClient } from "../lib/api/apiClient";
 import { getBrowserSupabase } from "../lib/supabase/client";
+import { swrConfig } from "../lib/swrConfig";
 
-// Type for notification data displayed in toast/UI
+// ─── Types ────────────────────────────────────────────────────────────────────
+
 export type NotificationType =
   | 'review'
   | 'business'
@@ -38,23 +40,6 @@ export interface ToastNotificationData {
   link?: string;
 }
 
-interface NotificationsContextType {
-  notifications: ToastNotificationData[];
-  unreadCount: number;
-  isLoading: boolean;
-  readNotifications: Set<string>;
-  markAsRead: (id: string) => void;
-  markAllAsRead: () => void;
-  deleteNotification: (id: string) => void;
-  refetch: () => Promise<void>;
-}
-
-const NotificationsContext = createContext<NotificationsContextType | undefined>(undefined);
-
-interface NotificationsProviderProps {
-  children: ReactNode;
-}
-
 interface DatabaseNotification {
   id: string;
   user_id: string;
@@ -69,335 +54,232 @@ interface DatabaseNotification {
   updated_at: string;
 }
 
+interface NotificationsContextType {
+  notifications: ToastNotificationData[];
+  toastQueue: ToastNotificationData[];
+  dismissToast: (id: string) => void;
+  unreadCount: number;
+  isLoading: boolean;
+  readNotifications: Set<string>;
+  markAsRead: (id: string) => void;
+  markAllAsRead: () => void;
+  deleteNotification: (id: string) => void;
+  refetch: () => Promise<void>;
+}
+
+// ─── Fetcher ──────────────────────────────────────────────────────────────────
+
 const USER_NOTIFICATIONS_ENDPOINT = '/api/notifications/user';
 
-export function NotificationsProvider({ children }: NotificationsProviderProps) {
-  const [notifications, setNotifications] = useState<ToastNotificationData[]>([]);
-  const [readNotifications, setReadNotifications] = useState<Set<string>>(new Set());
-  const [isLoading, setIsLoading] = useState(true);
+async function fetchNotificationsFromApi(url: string): Promise<DatabaseNotification[]> {
+  const res = await fetch(url);
+  if (!res.ok) {
+    const err: any = new Error(`HTTP ${res.status}`);
+    err.status = res.status;
+    throw err;
+  }
+  const data = await res.json();
+  return data.notifications ?? [];
+}
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+function toToast(db: DatabaseNotification): ToastNotificationData {
+  return {
+    id: db.id,
+    type: db.type as NotificationType,
+    message: db.message,
+    title: db.title,
+    timeAgo: formatTimeAgo(db.created_at),
+    image: db.image || '/png/restaurants.png',
+    imageAlt: db.image_alt || 'Notification',
+    link: db.link || undefined,
+  };
+}
+
+// ─── Context ──────────────────────────────────────────────────────────────────
+
+const NotificationsContext = createContext<NotificationsContextType | undefined>(undefined);
+
+// ─── Provider ─────────────────────────────────────────────────────────────────
+
+export function NotificationsProvider({ children }: { children: ReactNode }) {
   const { user, isLoading: authLoading } = useAuth();
   const userId = user?.id ?? null;
   const userCurrentRole = user?.profile?.account_role || user?.profile?.role || "user";
-  // Treat role as unknown (not personal) while auth is still resolving to avoid
-  // calling the personal endpoint before we know whether this is a business owner.
+  // Pin to "business" while auth resolves to avoid hitting the personal endpoint too early.
   const isBusinessAccountUser = authLoading ? true : userCurrentRole === "business_owner";
-  const supabaseRef = useRef(getBrowserSupabase());
-  
-  // Ensure clean state on user change (fixes stuck counts when switching accounts).
-  // Don't run while auth is loading — isBusinessAccountUser is pinned to true during
-  // that window and would incorrectly clear state for personal users.
-  useEffect(() => {
-    if (authLoading) return;
-    if (!user || isBusinessAccountUser) {
-      setNotifications([]);
-      setReadNotifications(new Set());
-      setIsLoading(false);
-    }
-  }, [authLoading, user?.id, isBusinessAccountUser]);
 
-  // Convert database notification to ToastNotificationData format
-  const convertToToastNotification = useCallback((dbNotification: DatabaseNotification): ToastNotificationData => {
-    return {
-      id: dbNotification.id,
-      type: dbNotification.type as NotificationType,
-      message: dbNotification.message,
-      title: dbNotification.title,
-      timeAgo: formatTimeAgo(dbNotification.created_at),
-      image: dbNotification.image || '/png/restaurants.png',
-      imageAlt: dbNotification.image_alt || 'Notification',
-      link: dbNotification.link || undefined,
-    };
+  // Only fetch for authenticated personal users
+  const swrKey = !authLoading && userId && !isBusinessAccountUser
+    ? `${USER_NOTIFICATIONS_ENDPOINT}:${userId}`
+    : null;
+
+  // realtime is working → no need for aggressive polling; fall back to 30 s if channel fails
+  const [realtimeFailed, setRealtimeFailed] = useState(false);
+
+  const { data: rawNotifications, isLoading: swrLoading, mutate } = useSWR<DatabaseNotification[]>(
+    swrKey,
+    // key is a composite string — pass the actual URL to the fetcher
+    () => fetchNotificationsFromApi(USER_NOTIFICATIONS_ENDPOINT),
+    {
+      ...swrConfig,
+      dedupingInterval: 10_000,
+      // Only poll when realtime is down
+      refreshInterval: realtimeFailed ? 30_000 : 0,
+      // Suppress 401/403 errors (auth transitions) — treat as empty
+      onError: (err) => {
+        if (err?.status === 401 || err?.status === 403) return;
+        console.error('[Notifications] SWR fetch error:', err);
+      },
+      shouldRetryOnError: (err) => err?.status !== 401 && err?.status !== 403,
+    }
+  );
+
+  // Derive notifications + read set from SWR data
+  const notifications = useMemo<ToastNotificationData[]>(
+    () => (rawNotifications ?? []).map(toToast),
+    [rawNotifications]
+  );
+
+  const readNotifications = useMemo<Set<string>>(
+    () => new Set((rawNotifications ?? []).filter(n => n.read).map(n => n.id)),
+    [rawNotifications]
+  );
+
+  const isLoading = authLoading || (swrKey !== null && swrLoading);
+
+  // ── Toast queue (realtime-only — not persisted in SWR cache) ────────────────
+  const [toastQueue, setToastQueue] = useState<ToastNotificationData[]>([]);
+
+  const dismissToast = useCallback((id: string) => {
+    setToastQueue(prev => prev.filter(n => n.id !== id));
   }, []);
 
-  const fetchNotifications = useCallback(async () => {
-    // Wait for auth to fully resolve before making any API calls.
-    // Calling /api/notifications/user before the session cookie is ready → 401.
-    // Calling it before the profile is loaded for a business owner → 403.
-    if (authLoading) return;
+  // ── Realtime subscription ────────────────────────────────────────────────────
+  const supabaseRef = useRef(getBrowserSupabase());
 
-    if (!userId) {
-      setNotifications([]);
-      setReadNotifications(new Set());
-      setIsLoading(false);
-      return;
-    }
-    if (isBusinessAccountUser) {
-      setNotifications([]);
-      setReadNotifications(new Set());
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      
-      // Use shared API client with deduplication and caching
-      const data = await apiClient.fetch<{ notifications: DatabaseNotification[] }>(
-        USER_NOTIFICATIONS_ENDPOINT,
-        {},
-        {
-          ttl: 10000, // 10 second cache
-          useCache: true,
-          cacheKey: `${USER_NOTIFICATIONS_ENDPOINT}:${userId}`,
-        }
-      );
-      
-      const dbNotifications: DatabaseNotification[] = data.notifications || [];
-      
-      // Convert database notifications to ToastNotificationData format
-      const convertedNotifications = dbNotifications.map(convertToToastNotification);
-      setNotifications(convertedNotifications);
-      
-      // Set read notifications from database
-      const readIds = new Set(
-        dbNotifications
-          .filter(n => n.read)
-          .map(n => n.id)
-      );
-      setReadNotifications(readIds);
-      
-      setIsLoading(false);
-    } catch (error: any) {
-      // Handle errors gracefully
-      const errorMessage = error?.message || '';
-      
-      // 401/403 means user is not authenticated - this is expected during transitions
-      if (errorMessage.includes('401') || errorMessage.includes('403')) {
-        setNotifications([]);
-        setReadNotifications(new Set());
-        setIsLoading(false);
-        return;
-      }
-      
-      // Network errors - handle gracefully
-      if (errorMessage.includes('fetch') || errorMessage.includes('network')) {
-        console.warn('[Notifications] Network error, resetting to empty state');
-        setNotifications([]);
-        setReadNotifications(new Set());
-        setIsLoading(false);
-      } else {
-        console.error('Error fetching notifications:', error);
-        // On error, reset to empty state (prevents stuck counts)
-        setNotifications([]);
-        setReadNotifications(new Set());
-        setIsLoading(false);
-      }
-    }
-  }, [authLoading, userId, isBusinessAccountUser, convertToToastNotification]);
-
-  useEffect(() => {
-    fetchNotifications();
-  }, [fetchNotifications]);
-
-  // Real-time subscription for new notifications
   useEffect(() => {
     if (authLoading || !userId || isBusinessAccountUser) return;
 
     const supabase = supabaseRef.current;
-    let fallbackPollInterval: ReturnType<typeof setInterval> | null = null;
 
-    const startFallbackPolling = () => {
-      if (fallbackPollInterval) return;
-      // Keep notifications fresh when realtime channel cannot be established.
-      fallbackPollInterval = setInterval(() => {
-        void fetchNotifications();
-      }, 30000);
-    };
-
-    const stopFallbackPolling = () => {
-      if (!fallbackPollInterval) return;
-      clearInterval(fallbackPollInterval);
-      fallbackPollInterval = null;
-    };
-    
-    // Subscribe to notifications table for current user
     const channel = supabase
       .channel(`notifications-user-${userId}-${Date.now()}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'notifications',
-          filter: `user_id=eq.${userId}`,
-        },
-        (payload) => {
-          console.log('[Notifications] New notification received:', payload);
-          
-          // Add new notification to state immediately
-          const newNotification = convertToToastNotification(payload.new as DatabaseNotification);
-          setNotifications(prev => [newNotification, ...prev]);
-          
-          // Play notification sound or show toast (optional)
-          // You can add a toast notification here if needed
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'notifications',
-          filter: `user_id=eq.${userId}`,
-        },
-        (payload) => {
-          console.log('[Notifications] Notification updated:', payload);
-          
-          // Update notification in state
-          const updatedNotification = convertToToastNotification(payload.new as DatabaseNotification);
-          setNotifications(prev =>
-            prev.map(n => n.id === updatedNotification.id ? updatedNotification : n)
-          );
-          
-          // Update read status
-          if ((payload.new as DatabaseNotification).read) {
-            setReadNotifications(prev => new Set(prev).add(updatedNotification.id));
-          }
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'DELETE',
-          schema: 'public',
-          table: 'notifications',
-          filter: `user_id=eq.${userId}`,
-        },
-        (payload) => {
-          console.log('[Notifications] Notification deleted:', payload);
-          
-          // Remove notification from state
-          const deletedId = (payload.old as DatabaseNotification).id;
-          setNotifications(prev => prev.filter(n => n.id !== deletedId));
-          setReadNotifications(prev => {
-            const newSet = new Set(prev);
-            newSet.delete(deletedId);
-            return newSet;
-          });
-        }
-      )
-      .subscribe((status, error) => {
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'notifications',
+        filter: `user_id=eq.${userId}`,
+      }, (payload) => {
+        const newRow = payload.new as DatabaseNotification;
+        // Optimistically prepend to SWR cache
+        mutate(prev => [newRow, ...(prev ?? [])], { revalidate: false });
+        // Show as toast
+        setToastQueue(prev => [...prev, toToast(newRow)]);
+      })
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'notifications',
+        filter: `user_id=eq.${userId}`,
+      }, (payload) => {
+        const updated = payload.new as DatabaseNotification;
+        mutate(prev => (prev ?? []).map(n => n.id === updated.id ? updated : n), { revalidate: false });
+      })
+      .on('postgres_changes', {
+        event: 'DELETE',
+        schema: 'public',
+        table: 'notifications',
+        filter: `user_id=eq.${userId}`,
+      }, (payload) => {
+        const deletedId = (payload.old as DatabaseNotification).id;
+        mutate(prev => (prev ?? []).filter(n => n.id !== deletedId), { revalidate: false });
+      })
+      .subscribe((status, err) => {
         if (status === 'SUBSCRIBED') {
-          stopFallbackPolling();
-          console.log('✅ [Notifications] Successfully subscribed to real-time updates');
-        } else if (status === 'CHANNEL_ERROR') {
-          console.warn('[Notifications] Realtime channel error. Falling back to polling.', error);
-          startFallbackPolling();
-          void fetchNotifications();
-        } else if (status === 'TIMED_OUT') {
-          console.warn('[Notifications] Realtime subscription timed out. Falling back to polling.');
-          startFallbackPolling();
-          void fetchNotifications();
+          setRealtimeFailed(false);
+          console.log('✅ [Notifications] Realtime subscribed');
+        } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          console.warn('[Notifications] Realtime failed, falling back to SWR polling', err);
+          setRealtimeFailed(true);
+          void mutate(); // immediate refetch
         } else if (status === 'CLOSED') {
-          console.log('[Notifications] Realtime channel closed');
-          startFallbackPolling();
+          setRealtimeFailed(true);
         }
       });
 
-    // Cleanup subscription on unmount
     return () => {
-      stopFallbackPolling();
-      console.log('[Notifications] Unsubscribing from real-time updates');
       supabase.removeChannel(channel);
     };
-  }, [userId, isBusinessAccountUser, convertToToastNotification, fetchNotifications]);
+  }, [userId, isBusinessAccountUser, authLoading, mutate]);
+
+  // ── Mutations ────────────────────────────────────────────────────────────────
 
   const markAsRead = useCallback(async (id: string) => {
-    // Optimistically update UI
-    setReadNotifications(prev => new Set(prev).add(id));
-    
+    // Optimistic update in SWR cache
+    mutate(prev => (prev ?? []).map(n => n.id === id ? { ...n, read: true } : n), { revalidate: false });
     try {
-      const response = await fetch(`/api/notifications/${id}`, {
-        method: 'PATCH',
-      });
-      
-      if (!response.ok) {
-        // Revert on error
-        setReadNotifications(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(id);
-          return newSet;
-        });
-        throw new Error('Failed to mark notification as read');
+      const res = await fetch(`/api/notifications/${id}`, { method: 'PATCH' });
+      if (!res.ok) {
+        // Revert
+        mutate(prev => (prev ?? []).map(n => n.id === id ? { ...n, read: false } : n), { revalidate: false });
       }
-    } catch (error) {
-      console.error('Error marking notification as read:', error);
+    } catch (err) {
+      console.error('[Notifications] markAsRead error:', err);
     }
-  }, []);
+  }, [mutate]);
 
   const markAllAsRead = useCallback(async () => {
-    // Optimistically update UI
-    const allIds = new Set(notifications.map(n => n.id));
-    setReadNotifications(allIds);
-    
+    const previousCache = rawNotifications ?? [];
+    mutate(prev => (prev ?? []).map(n => ({ ...n, read: true })), { revalidate: false });
     try {
-      const response = await fetch('/api/notifications/read-all', {
-        method: 'PATCH',
-      });
-      
-      if (!response.ok) {
-        // Revert on error - restore previous read state
-        const previousRead = notifications
-          .filter(n => readNotifications.has(n.id))
-          .map(n => n.id);
-        setReadNotifications(new Set(previousRead));
-        throw new Error('Failed to mark all notifications as read');
+      const res = await fetch('/api/notifications/read-all', { method: 'PATCH' });
+      if (!res.ok) {
+        mutate(previousCache, { revalidate: false });
       }
-    } catch (error) {
-      console.error('Error marking all notifications as read:', error);
+    } catch (err) {
+      console.error('[Notifications] markAllAsRead error:', err);
+      mutate(previousCache, { revalidate: false });
     }
-  }, [notifications, readNotifications]);
+  }, [mutate, rawNotifications]);
 
   const deleteNotification = useCallback(async (id: string) => {
-    // Optimistically update UI
-    const notificationToDelete = notifications.find(n => n.id === id);
-    setNotifications(prev => prev.filter(n => n.id !== id));
-    setReadNotifications(prev => {
-      const newSet = new Set(prev);
-      newSet.delete(id);
-      return newSet;
-    });
-    
+    const previousCache = rawNotifications ?? [];
+    mutate(prev => (prev ?? []).filter(n => n.id !== id), { revalidate: false });
     try {
-      const response = await fetch(`/api/notifications/${id}`, {
-        method: 'DELETE',
-      });
-      
-      if (!response.ok) {
-        // Revert on error
-        if (notificationToDelete) {
-          setNotifications(prev => [...prev, notificationToDelete].sort((a, b) => {
-            // Sort by original order (we'd need to track this, but for now just append)
-            return 0;
-          }));
-        }
-        throw new Error('Failed to delete notification');
+      const res = await fetch(`/api/notifications/${id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        mutate(previousCache, { revalidate: false });
       }
-    } catch (error) {
-      console.error('Error deleting notification:', error);
+    } catch (err) {
+      console.error('[Notifications] deleteNotification error:', err);
+      mutate(previousCache, { revalidate: false });
     }
-  }, [notifications]);
+  }, [mutate, rawNotifications]);
 
-  // Calculate unread count with defensive guards (prevent stuck counts)
-  const unreadCount = useMemo(() => {
-    const count = notifications.filter(n => !readNotifications.has(n.id)).length;
-    // Ensure always returns a valid non-negative number
-    return Math.max(0, count || 0);
-  }, [notifications, readNotifications]);
+  const refetch = useCallback(async () => {
+    await mutate();
+  }, [mutate]);
+
+  const unreadCount = useMemo(
+    () => Math.max(0, notifications.filter(n => !readNotifications.has(n.id)).length),
+    [notifications, readNotifications]
+  );
 
   return (
-    <NotificationsContext.Provider
-      value={{
-        notifications,
-        unreadCount,
-        isLoading,
-        readNotifications,
-        markAsRead,
-        markAllAsRead,
-        deleteNotification,
-        refetch: fetchNotifications,
-      }}
-    >
+    <NotificationsContext.Provider value={{
+      notifications,
+      toastQueue,
+      dismissToast,
+      unreadCount,
+      isLoading,
+      readNotifications,
+      markAsRead,
+      markAllAsRead,
+      deleteNotification,
+      refetch,
+    }}>
       {children}
     </NotificationsContext.Provider>
   );
@@ -405,9 +287,6 @@ export function NotificationsProvider({ children }: NotificationsProviderProps) 
 
 export function useNotifications() {
   const context = useContext(NotificationsContext);
-  if (context === undefined) {
-    throw new Error("useNotifications must be used within a NotificationsProvider");
-  }
+  if (!context) throw new Error("useNotifications must be used within a NotificationsProvider");
   return context;
 }
-

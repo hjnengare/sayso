@@ -19,6 +19,7 @@ import { OnboardingProvider } from "./contexts/OnboardingContext";
 import { ToastProvider } from "./contexts/ToastContext";
 import { SavedItemsProvider } from "./contexts/SavedItemsContext";
 import { NotificationsProvider } from "./contexts/NotificationsContext";
+import NotificationToasts from "./components/Notifications/NotificationToasts";
 import DeferredProviders from "./components/Providers/DeferredProviders";
 import { LazyMotionProvider } from "./lib/lazy-motion-provider";
 import { RealtimeProvider } from "./contexts/RealtimeContext";
@@ -215,6 +216,7 @@ export default function RootLayout({
               <SavedItemsProvider>
                 <NotificationsProvider>
                   <BusinessNotifications />
+                  <NotificationToasts />
                   <GlobalHeader />
                   <RealtimeProvider>
                     <DeferredProviders>
