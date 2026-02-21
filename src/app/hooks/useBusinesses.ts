@@ -178,7 +178,7 @@ export function useBusinesses(options: UseBusinessesOptions = {}): UseBusinesses
   const { data, error, isLoading, mutate } = useSWR(
     swrKey,
     fetcher,
-    swrConfig
+    { ...swrConfig, keepPreviousData: true }
   );
 
   useEffect(() => {
@@ -334,7 +334,7 @@ export function useForYouBusinesses(
     ? null
     : (['for-you', requestKey] as [string, string]);
 
-  const { data, error, isLoading, mutate } = useSWR(swrKey, fetchForYouData, swrConfig);
+  const { data, error, isLoading, mutate } = useSWR(swrKey, fetchForYouData, { ...swrConfig, keepPreviousData: true });
 
   useEffect(() => {
     if (extraOptions.skip || shouldWaitForPreferences) return;

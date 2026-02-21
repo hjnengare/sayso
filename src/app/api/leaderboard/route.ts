@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSupabase } from '@/app/lib/supabase/server';
+import { cachedJsonResponse, CachePresets } from '@/app/lib/utils/httpCache';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,11 +41,7 @@ export async function GET(req: NextRequest) {
     }
 
     if (!reviewsData || reviewsData.length === 0) {
-      return NextResponse.json({
-        leaderboard: [],
-        count: 0,
-        sortBy,
-      });
+      return cachedJsonResponse({ leaderboard: [], count: 0, sortBy }, CachePresets.api(300));
     }
 
     // Aggregate review stats by user
@@ -193,11 +190,10 @@ export async function GET(req: NextRequest) {
       };
     });
 
-    return NextResponse.json({
-      leaderboard: formattedLeaderboard,
-      count: formattedLeaderboard.length,
-      sortBy,
-    });
+    return cachedJsonResponse(
+      { leaderboard: formattedLeaderboard, count: formattedLeaderboard.length, sortBy },
+      CachePresets.api(300)
+    );
   } catch (error: any) {
     console.error('[Leaderboard API] Unexpected error:', error);
     return NextResponse.json(

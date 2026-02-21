@@ -22,6 +22,8 @@ export interface UseTrendingOptions {
   skip?: boolean;
   /** When true, appends `debug=1` so the API emits verbose logs (server console). */
   debug?: boolean;
+  /** SSR-seeded data to avoid loading flash on first render. */
+  fallbackData?: Business[];
 }
 
 export interface UseTrendingResult {
@@ -104,9 +106,13 @@ async function fetchTrendingData(
 export function useTrendingBusinesses(
   options: UseTrendingOptions = {},
 ): UseTrendingResult {
-  const { limit = 20, category, skip = false, debug = false } = options;
+  const { limit = 20, category, skip = false, debug = false, fallbackData } = options;
 
   const swrKey = skip ? null : ['trending', limit, category ?? '', debug];
+
+  const fallbackSWRData = fallbackData
+    ? { businesses: fallbackData, count: fallbackData.length, refreshedAt: null }
+    : undefined;
 
   const { data, error, isLoading, mutate } = useSWR(
     swrKey,
@@ -114,6 +120,8 @@ export function useTrendingBusinesses(
     {
       ...swrConfig,
       dedupingInterval: 60000, // Longer for Trending - same data for everyone
+      keepPreviousData: true,
+      fallbackData: fallbackSWRData,
     }
   );
 

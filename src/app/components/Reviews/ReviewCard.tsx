@@ -6,7 +6,9 @@ import { useReviewReplies } from '../../hooks/useReviewReplies';
 import { useUserBadgesById } from '../../hooks/useUserBadges';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import { formatDistanceToNow } from 'date-fns';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+dayjs.extend(relativeTime);
 import { useRouter } from 'next/navigation';
 import { Trash2, Image as ImageIcon, ChevronUp, Heart, X, MessageCircle, Send, Edit } from 'lucide-react';
 import type { ReviewWithUser } from '../../lib/types/database';
@@ -198,8 +200,8 @@ function ReviewCard({
         return 'Recently';
       }
       
-      // Use formatDistanceToNow for relative time
-      return formatDistanceToNow(date, { addSuffix: true });
+      // Use dayjs for relative time
+      return dayjs(date).fromNow();
     } catch (error) {
       console.warn('Error formatting date:', dateString, error);
       return 'Recently';

@@ -42,7 +42,7 @@
     "canvas-confetti": "^1.9.3",
     "clsx": "^2.1.1",
     "critters": "^0.0.23",
-    "date-fns": "^4.1.0",
+    "dayjs": "^1.11.19",
     "dompurify": "^3.3.0",
     "dotenv": "^17.2.3",
     "framer-motion": "^12.23.12",

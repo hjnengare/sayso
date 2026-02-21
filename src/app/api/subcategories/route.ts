@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { cachedJsonResponse, CachePresets } from "@/app/lib/utils/httpCache";
 
 // Fallback subcategories data - matches the interest IDs from interests page
 const FALLBACK_SUBCATEGORIES = [
@@ -80,7 +81,7 @@ export async function GET(req: Request) {
       );
     }
 
-    return NextResponse.json({ subcategories });
+    return cachedJsonResponse({ subcategories }, CachePresets.api(3600));
 
   } catch (error) {
     console.error("Subcategories API error:", error);

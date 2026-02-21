@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getServerSupabase } from "@/app/lib/supabase/server";
+import { cachedJsonResponse, CachePresets } from "@/app/lib/utils/httpCache";
 
 // Fallback interests data - matches the structure expected by OnboardingContext
 const FALLBACK_INTERESTS = [
@@ -58,15 +59,16 @@ export async function GET() {
         (interest) => !fallbackIds.has(interest.id)
       );
 
-      return NextResponse.json({ 
-        interests: [...mergedInterests, ...extraDbInterests]
-      });
+      return cachedJsonResponse(
+        { interests: [...mergedInterests, ...extraDbInterests] },
+        CachePresets.api(3600)
+      );
     }
-    
+
     // Fallback to static data
     console.log('[Interests API] Using fallback data');
-    return NextResponse.json({ interests: FALLBACK_INTERESTS });
-    
+    return cachedJsonResponse({ interests: FALLBACK_INTERESTS }, CachePresets.api(3600));
+
   } catch (error) {
     console.error('[Interests API] Error:', error);
     // Return fallback data even on error

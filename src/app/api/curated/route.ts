@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { cachedJsonResponse, CachePresets } from "@/app/lib/utils/httpCache";
 import { getServerSupabase } from "@/app/lib/supabase/server";
 import { normalizeBusinessImages } from "@/app/lib/utils/businessImages";
 import { getSubcategoryLabel } from "@/app/utils/subcategoryPlaceholders";
@@ -187,7 +188,7 @@ export async function GET(request: NextRequest) {
     const cached = cache.get(cacheKey);
     if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
       console.log('[CURATED API] Returning cached result');
-      return NextResponse.json(cached.data);
+      return cachedJsonResponse(cached.data, CachePresets.api(300));
     }
 
     let curatedData: CuratedBusiness[] = [];
@@ -226,7 +227,7 @@ export async function GET(request: NextRequest) {
         interestId,
         totalCount: 0,
       };
-      return NextResponse.json(emptyResponse);
+      return cachedJsonResponse(emptyResponse, CachePresets.api(300));
     }
 
     // Get business images for all curated businesses
@@ -278,7 +279,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    return NextResponse.json(response);
+    return cachedJsonResponse(response, CachePresets.api(300));
 
   } catch (error) {
     console.error('[CURATED API] Unexpected error:', error);

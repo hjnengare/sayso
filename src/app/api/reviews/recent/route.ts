@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { cachedJsonResponse, CachePresets } from '@/app/lib/utils/httpCache';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -136,11 +137,10 @@ export async function GET(req: Request) {
       };
     });
 
-    return NextResponse.json({
-      ok: true,
-      reviews: transformedReviews,
-      total: transformedReviews.length
-    });
+    return cachedJsonResponse(
+      { ok: true, reviews: transformedReviews, total: transformedReviews.length },
+      CachePresets.reviews()
+    );
 
   } catch (error: any) {
     console.error('[Recent Reviews] Unexpected error:', error);

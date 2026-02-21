@@ -8,7 +8,6 @@ import { useReviewSubmission } from "../../hooks/useReviews";
 import { useToast } from "../../contexts/ToastContext";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { formatDistanceToNow } from "date-fns";
 import { ConfirmationDialog } from "@/app/components/molecules/ConfirmationDialog/ConfirmationDialog";
 import { getDisplayUsername } from "../../utils/generateUsername";
 import { isOptimisticId, isValidUUID } from "../../lib/utils/validation";
