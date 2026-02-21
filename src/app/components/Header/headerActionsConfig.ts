@@ -16,7 +16,7 @@ export const PRIMARY_LINKS: readonly NavLink[] = [
 
 export const BUSINESS_LINKS: readonly NavLink[] = [
   { key: "my-businesses", label: "My Businesses", href: "/my-businesses", requiresAuth: true },
-  { key: "claim-business", label: "Claim a Business", href: "/claim-business", requiresAuth: true },
+  { key: "claim-business", label: "Claim a Business", href: "/claim-business", requiresAuth: false },
   { key: "add-business", label: "Add a new Business", href: "/add-business", requiresAuth: true },
 ] as const;
 
