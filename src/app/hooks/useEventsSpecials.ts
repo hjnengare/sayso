@@ -1,13 +1,12 @@
 /**
  * Hook to fetch events and specials with filter, search, and pagination.
- * Uses SWR for per-page caching and deduplication.
- * Pre-fetches the next page after each load for instant "Load More".
+ * Uses useSWRInfinite for correct multi-page accumulation and revalidation.
  */
 
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
-import useSWR, { mutate as globalMutate } from 'swr';
+import { useCallback, useMemo } from 'react';
+import useSWRInfinite from 'swr/infinite';
 import { swrConfig } from '../lib/swrConfig';
 import type { Event } from '../lib/types/Event';
 
@@ -28,7 +27,7 @@ function buildUrl(filter: string, search: string, offset: number): string {
   return url.toString();
 }
 
-async function fetchEventsPage([, filter, search, offset]: [string, string, string, number]): Promise<EventsPage> {
+async function fetchEventsPage({ filter, search, offset }: { filter: string; search: string; offset: number }): Promise<EventsPage> {
   const url = buildUrl(filter, search, offset);
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
@@ -50,77 +49,48 @@ async function fetchEventsPage([, filter, search, offset]: [string, string, stri
 }
 
 export function useEventsSpecials(filter: string, search: string) {
-  const [items, setItems] = useState<Event[]>([]);
-  const [count, setCount] = useState(0);
-  const [offset, setOffset] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const resetRef = useRef(0);
+  // getKey returns null to stop fetching once all pages are loaded
+  const getKey = useCallback(
+    (pageIndex: number, previousPage: EventsPage | null) => {
+      if (previousPage && previousPage.items.length < ITEMS_PER_PAGE) return null;
+      if (previousPage && pageIndex * ITEMS_PER_PAGE >= previousPage.count) return null;
+      return { filter, search, offset: pageIndex * ITEMS_PER_PAGE };
+    },
+    [filter, search]
+  );
 
-  // SWR key for the current page
-  const swrKey = ['/api/events', filter, search, offset] as [string, string, string, number];
-
-  const { data, error, isLoading } = useSWR(swrKey, fetchEventsPage, {
-    ...swrConfig,
-    dedupingInterval: 30_000,
-    revalidateOnMount: true,
-  });
-
-  // When filter or search changes, reset to page 0
-  useEffect(() => {
-    const id = ++resetRef.current;
-    setOffset(0);
-    setItems([]);
-    setCount(0);
-    setHasMore(true);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter, search]);
-
-  // Sync SWR data into accumulated items
-  useEffect(() => {
-    if (!data) return;
-    if (offset === 0) {
-      // Replace items for fresh load
-      setItems(data.items);
+  const { data: pages, error, isLoading, isValidating, setSize, size } = useSWRInfinite(
+    getKey,
+    fetchEventsPage,
+    {
+      ...swrConfig,
+      dedupingInterval: 30_000,
+      revalidateOnMount: true,
+      revalidateFirstPage: false,
+      persistSize: false,
     }
-    // For append loads, items are set in fetchMore
-    setCount(data.count);
-    setHasMore(offset + ITEMS_PER_PAGE < data.count);
+  );
 
-    // Pre-fetch next page into SWR cache
-    const nextOffset = offset + ITEMS_PER_PAGE;
-    if (nextOffset < data.count) {
-      const nextKey: [string, string, string, number] = ['/api/events', filter, search, nextOffset];
-      globalMutate(nextKey, fetchEventsPage(nextKey), { revalidate: false });
-    }
-  }, [data, offset, filter, search]);
+  const items = useMemo<Event[]>(
+    () => (pages ?? []).flatMap((p) => p.items),
+    [pages]
+  );
 
-  const fetchMore = useCallback(async () => {
+  const count = pages?.[0]?.count ?? 0;
+  const loadedCount = items.length;
+  const hasMore = loadedCount < count;
+  const loadingMore = isValidating && !isLoading && size > (pages?.length ?? 0);
+
+  const fetchMore = useCallback(() => {
     if (loadingMore || !hasMore) return;
-    const nextOffset = offset + ITEMS_PER_PAGE;
-    setLoadingMore(true);
-
-    try {
-      const nextKey: [string, string, string, number] = ['/api/events', filter, search, nextOffset];
-      const pageData = await fetchEventsPage(nextKey);
-      if (pageData?.items?.length) {
-        setItems(prev => [...prev, ...pageData.items]);
-      }
-      setCount(pageData.count);
-      setOffset(nextOffset);
-      setHasMore(nextOffset + ITEMS_PER_PAGE < pageData.count);
-    } catch (e) {
-      // Silent fail — user can retry
-    } finally {
-      setLoadingMore(false);
-    }
-  }, [loadingMore, hasMore, offset, filter, search]);
+    setSize((s) => s + 1);
+  }, [loadingMore, hasMore, setSize]);
 
   return {
     items,
     count,
     hasMore,
-    loading: isLoading && offset === 0 && items.length === 0,
+    loading: isLoading,
     loadingMore,
     error: error ? (error as Error).message : null,
     fetchMore,

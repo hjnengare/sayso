@@ -4,6 +4,7 @@
 import { useState, useEffect, forwardRef, useRef, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Search, Sliders, Map } from "lucide-react";
+import MobileMenuToggleIcon from "../Header/MobileMenuToggleIcon";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useLiveSearch, type LiveSearchResult } from "../../hooks/useLiveSearch";
 
@@ -332,6 +333,18 @@ const SearchInput = forwardRef<HTMLFormElement, SearchInputProps>(
                   <div className="text-xs font-semibold text-charcoal/70">
                     Suggestions
                   </div>
+                  <button
+                    type="button"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      setIsFocused(false);
+                      setActiveIndex(-1);
+                    }}
+                    className="w-8 h-8 flex items-center justify-center text-charcoal/60 hover:text-charcoal transition-colors focus:outline-none focus:ring-0"
+                    aria-label="Close suggestions"
+                  >
+                    <MobileMenuToggleIcon isOpen={true} />
+                  </button>
                 </div>
 
                 <div className="py-2">
