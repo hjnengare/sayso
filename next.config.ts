@@ -19,11 +19,11 @@ if (process.env.NODE_ENV === "production") {
 const nextConfig: NextConfig = {
   // Enhanced Image optimization for maximum performance
   images: {
-    // Modern image formats (WebP, AVIF) for smaller file sizes
-    formats: ['image/avif', 'image/webp'],
-    
+    // WebP first for fast encoding; AVIF second for clients that support it
+    formats: ['image/webp', 'image/avif'],
+
     // Device-specific image sizes for optimal loading
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     
     // Explicit quality values allowed (required in Next.js 16)
@@ -31,7 +31,7 @@ const nextConfig: NextConfig = {
     qualities: [20, 25, 50, 60, 70, 75, 80, 85, 90, 100],
     
     // Minimum quality for AVIF (better compression than WebP)
-    minimumCacheTTL: 86400, // Cache optimized images for 24h to reduce repeat transformations
+    minimumCacheTTL: 604800, // Cache optimized images for 7 days to reduce repeat transformations
     
     // CDN domains
     remotePatterns: [
