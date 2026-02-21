@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import SimilarBusinessCard from "./SimilarBusinessCard";
 import StaggeredContainer from "../Animations/StaggeredContainer";
 import AnimatedElement from "../Animations/AnimatedElement";
-import WavyTypedTitle from "../../../components/Animations/WavyTypedTitle";
+import WavyTypedTitle from "@/app/components/Animations/WavyTypedTitle";
 
 interface SimilarBusinessesProps {
   currentBusinessId: string;

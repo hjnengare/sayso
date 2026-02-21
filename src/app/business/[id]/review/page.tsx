@@ -18,7 +18,7 @@ import BusinessInfoAside from "../../../components/BusinessInfo/BusinessInfoAsid
 import BusinessInfoModal, { BusinessInfo } from "../../../components/BusinessInfo/BusinessInfoModal";
 import ReviewsList from "../../../components/Reviews/ReviewsList";
 import Footer from "../../../components/Footer/Footer";
-import WavyTypedTitle from "../../../../components/Animations/WavyTypedTitle";
+import WavyTypedTitle from "@/app/components/Animations/WavyTypedTitle";
 import { isPlaceholderImage } from "../../../utils/subcategoryPlaceholders";
 import { useDealbreakerQuickTags } from "../../../hooks/useDealbreakerQuickTags";
 import { useBusinessDetail } from "../../../hooks/useBusinessDetail";

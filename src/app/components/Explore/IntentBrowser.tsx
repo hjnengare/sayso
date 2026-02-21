@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Utensils, Coffee, Activity, Heart, PartyPopper, ShoppingBag, Wrench } from "lucide-react";
-import WavyTypedTitle from "../../../components/Animations/WavyTypedTitle";
+import WavyTypedTitle from "@/app/components/Animations/WavyTypedTitle";
 
 const INTENTS = [
   { id: 'eat', label: 'Eat', icon: Utensils, color: 'from-coral/20 to-coral/10' },

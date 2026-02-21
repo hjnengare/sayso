@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { MapPin, ArrowRight } from "lucide-react";
-import WavyTypedTitle from "../../../components/Animations/WavyTypedTitle";
+import WavyTypedTitle from "@/app/components/Animations/WavyTypedTitle";
 
 // Common neighborhoods/areas - can be made dynamic later
 const POPULAR_AREAS = [

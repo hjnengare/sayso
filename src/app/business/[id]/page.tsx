@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { usePageTitle } from "../../hooks/usePageTitle";
 import { PageLoader, Loader } from "../../components/Loader";
-import WavyTypedTitle from "../../../components/Animations/WavyTypedTitle";
+import WavyTypedTitle from "@/app/components/Animations/WavyTypedTitle";
 import {
     MessageSquare,
     X,

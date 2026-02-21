@@ -1,6 +1,6 @@
 "use client";
 
-import { Skeleton } from "../../../components/atoms/Skeleton";
+import { Skeleton } from "@/app/components/atoms/Skeleton";
 
 export default function DealBreakerGridSkeleton() {
   return (

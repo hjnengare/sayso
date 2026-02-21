@@ -1,6 +1,6 @@
 "use client";
 
-import WavyTypedTitle from "../../../components/Animations/WavyTypedTitle";
+import WavyTypedTitle from "@/app/components/Animations/WavyTypedTitle";
 
 export default function DealBreakerHeader() {
   const bodyStyle = {

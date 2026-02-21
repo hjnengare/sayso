@@ -14,7 +14,7 @@ import { useScrollReveal } from "../../hooks/useScrollReveal";
 import { InlineLoader } from "../Loader/Loader";
 import { getBrowserSupabase } from "../../lib/supabase/client";
 
-import WavyTypedTitle from "../../../components/Animations/WavyTypedTitle";
+import WavyTypedTitle from "@/app/components/Animations/WavyTypedTitle";
 
 import { authStyles } from "./Shared/authStyles";
 import { AutoDismissFeedback } from "./Shared/AutoDismissFeedback";

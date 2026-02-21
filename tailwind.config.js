@@ -1,4 +1,8 @@
 /** @type {import('tailwindcss').Config} */
+
+// Canonical brand color — used by navbar-bg, coral, and burgundy
+const BURGUNDY_RED = '#722F37';
+
 module.exports = {
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
@@ -28,7 +32,7 @@ module.exports = {
         // sayso Color Palette
         'page-bg': '#E5E0E5', // Page background
         'card-bg': '#9DAB9B', // Card background
-        'navbar-bg': '#722F37', // Navbar background (burgundy - base color)
+        'navbar-bg': BURGUNDY_RED, // Navbar background (burgundy - base color)
 
         // Semantic colors
         success: {
@@ -65,8 +69,8 @@ module.exports = {
         
         // Brand colors
         sage: '#7D9B76', // Primary brand color
-        coral: '#722F37', // Secondary brand color (coral)
-        burgundy: '#722F37', // Burgundy/wine red
+        coral: BURGUNDY_RED, // alias of navbar-bg
+        burgundy: BURGUNDY_RED, // alias of navbar-bg
         charcoal: '#2D2D2D', // Dark text color
         'off-white': '#E5E0E5', // Light background color
 

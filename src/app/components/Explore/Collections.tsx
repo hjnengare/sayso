@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ArrowRight, Laptop, Heart, DollarSign, Moon } from "lucide-react";
-import WavyTypedTitle from "../../../components/Animations/WavyTypedTitle";
+import WavyTypedTitle from "@/app/components/Animations/WavyTypedTitle";
 
 // Map collection IDs to Lucide React icons
 const COLLECTION_ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
