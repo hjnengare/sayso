@@ -150,16 +150,29 @@ export default function ReviewerCard({
               </div>
 
               {/* ── SOCIAL PROOF ── 3-stat row */}
+              {/* Keyframe: slide up from below → hold → slide out upward */}
+              <style>{`
+                @keyframes stat-tick {
+                  0%   { transform: translateY(14px); opacity: 0; }
+                  18%  { transform: translateY(0);    opacity: 1; }
+                  72%  { transform: translateY(0);    opacity: 1; }
+                  100% { transform: translateY(-14px); opacity: 0; }
+                }
+                .stat-tick {
+                  display: inline-block;
+                  animation: stat-tick 1.6s cubic-bezier(0.4,0,0.2,1) both;
+                }
+              `}</style>
               <div className="grid grid-cols-3 gap-1.5">
                 {/* Reviews */}
-                <div className="flex flex-col items-center px-2 py-2 rounded-xl bg-off-white/60 border border-charcoal/[0.06] shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)]">
+                <div className="flex flex-col items-center px-2 py-2 rounded-xl bg-off-white/60 border border-charcoal/[0.06] shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden">
                   <span
-                    className={`text-[22px] font-black leading-none tracking-tight ${
+                    className={`stat-tick text-[22px] font-black leading-none tracking-tight ${
                       isTopReviewer
                         ? 'text-transparent bg-clip-text bg-gradient-to-br from-amber-500 to-coral'
                         : 'text-charcoal'
                     }`}
-                    style={{ fontFamily: "'Urbanist', system-ui, sans-serif", fontWeight: 900 }}
+                    style={{ fontFamily: "'Urbanist', system-ui, sans-serif", fontWeight: 900, animationDelay: '0ms' }}
                   >
                     {reviewerData?.reviewCount ?? 0}
                   </span>
@@ -172,10 +185,10 @@ export default function ReviewerCard({
                 </div>
 
                 {/* Avg rating */}
-                <div className="flex flex-col items-center px-2 py-2 rounded-xl bg-off-white/60 border border-charcoal/[0.06] shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)]">
+                <div className="flex flex-col items-center px-2 py-2 rounded-xl bg-off-white/60 border border-charcoal/[0.06] shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden">
                   <span
-                    className="text-[22px] font-black leading-none tracking-tight text-charcoal"
-                    style={{ fontFamily: "'Urbanist', system-ui, sans-serif", fontWeight: 900 }}
+                    className="stat-tick text-[22px] font-black leading-none tracking-tight text-charcoal"
+                    style={{ fontFamily: "'Urbanist', system-ui, sans-serif", fontWeight: 900, animationDelay: '120ms' }}
                   >
                     {reviewerData?.avgRatingGiven != null
                       ? reviewerData.avgRatingGiven.toFixed(1)
@@ -190,10 +203,10 @@ export default function ReviewerCard({
                 </div>
 
                 {/* Helpful votes */}
-                <div className="flex flex-col items-center px-2 py-2 rounded-xl bg-off-white/60 border border-charcoal/[0.06] shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)]">
+                <div className="flex flex-col items-center px-2 py-2 rounded-xl bg-off-white/60 border border-charcoal/[0.06] shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden">
                   <span
-                    className="text-[22px] font-black leading-none tracking-tight text-charcoal"
-                    style={{ fontFamily: "'Urbanist', system-ui, sans-serif", fontWeight: 900 }}
+                    className="stat-tick text-[22px] font-black leading-none tracking-tight text-charcoal"
+                    style={{ fontFamily: "'Urbanist', system-ui, sans-serif", fontWeight: 900, animationDelay: '240ms' }}
                   >
                     {reviewerData?.helpfulVotes ?? 0}
                   </span>
