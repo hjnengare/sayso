@@ -8,7 +8,7 @@
 import { memo, useState, useEffect, useMemo, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import nextDynamic from "next/dynamic";
-import { ChevronUp } from "lucide-react";
+import ScrollToTopButton from "../components/ScrollToTopButton/ScrollToTopButton";
 import Link from "next/link";
 import { usePredefinedPageTitle } from "../hooks/usePageTitle";
 import { useIsDesktop } from "../hooks/useIsDesktop";
@@ -172,8 +172,6 @@ export default function HomeClient() {
     }
   }, [searchQueryParam, liveQuery, setQuery]);
 
-  // Scroll to top button state (mobile only)
-  const [showScrollTop, setShowScrollTop] = useState(false);
   const [mounted, setMounted] = useState(false);
   // ✅ ACTIVE FILTERS: User-initiated, ephemeral UI state (starts empty)
   const [selectedInterestIds, setSelectedInterestIds] = useState<string[]>([]);
@@ -255,10 +253,7 @@ export default function HomeClient() {
   // Set mounted state on client side
   useEffect(() => {
     setMounted(true);
-    // Check initial scroll position
-    if (typeof window !== 'undefined') {
-      setShowScrollTop(window.scrollY > 100);
-    }
+
   }, []);
 
   // ✅ Guard: Debug logging to track filter state changes
@@ -274,28 +269,6 @@ export default function HomeClient() {
     }
   }, [hasUserInitiatedFilters, selectedInterestIds, filters, isFiltered]);
 
-  // Handle scroll to top button visibility
-  useEffect(() => {
-    if (!mounted) return;
-
-    const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 100);
-    };
-
-    // Check initial position
-    handleScroll();
-
-    const options: AddEventListenerOptions = { passive: true };
-    window.addEventListener('scroll', handleScroll, options);
-    return () => window.removeEventListener('scroll', handleScroll, options);
-  }, [mounted]);
-
-  // Scroll to top function
-  const scrollToTop = () => {
-    if (typeof window !== 'undefined') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
 
   const handleInlineDistanceChange = (distance: string) => {
     const newFilters = { ...filters, distance };
@@ -728,16 +701,7 @@ export default function HomeClient() {
         <Footer />
       </div>
 
-      {/* Scroll to Top Button - Mobile Only */}
-      {showScrollTop && (
-        <button
-          onClick={scrollToTop}
-          className="md:hidden fixed bottom-6 right-6 z-[100] w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-sage to-sage/90 hover:from-sage/90 hover:to-sage/80 text-white rounded-full shadow-lg hover:shadow-xl flex items-center justify-center border border-sage/30"
-          aria-label="Scroll to top"
-        >
-          <ChevronUp className="w-5 h-5 sm:w-6 sm:h-6" />
-        </button>
-      )}
+      <ScrollToTopButton />
     </>
   );
 }
