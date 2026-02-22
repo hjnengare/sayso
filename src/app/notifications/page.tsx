@@ -5,13 +5,12 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect, useMemo } from "react";
 import { useBusinessNotificationsFeed } from "../hooks/useBusinessNotificationsFeed";
 import { m, AnimatePresence } from "framer-motion";
-import { Bell, Check, X, MessageSquare, MessageCircle, Star, Heart, TrendingUp, Clock, ChevronRight, ChevronUp, Award, ThumbsUp, CheckCircle, ImageIcon, Trophy, UserRound, Building2 } from "lucide-react";
+import { Bell, Check, X, MessageSquare, MessageCircle, Star, Heart, TrendingUp, Clock, ChevronRight, Award, ThumbsUp, CheckCircle, ImageIcon, Trophy, UserRound, Building2 } from "lucide-react";
 import Footer from "../components/Footer/Footer";
 import { PageLoader } from "../components/Loader";
 import { usePredefinedPageTitle } from "../hooks/usePageTitle";
 import { useNotifications } from "../contexts/NotificationsContext";
 import { useAuth } from "../contexts/AuthContext";
-import { usePreviousPageBreadcrumb } from "../hooks/usePreviousPageBreadcrumb";
 import { LiveIndicator } from "../components/Realtime/RealtimeIndicators";
 import PortalLayout from "../components/BusinessPortal/PortalLayout";
 
@@ -226,11 +225,6 @@ export default function NotificationsPage() {
   const userCurrentRole = user?.profile?.account_role || user?.profile?.role || "user";
   const isBusinessAccountUser = userCurrentRole === "business_owner";
 
-  const { previousHref: businessPreviousHref, previousLabel: businessPreviousLabel } = usePreviousPageBreadcrumb({
-    fallbackHref: "/my-businesses",
-    fallbackLabel: "My Businesses",
-  });
-
   const {
     notifications: personalNotifications,
     isLoading: isPersonalLoading,
@@ -246,7 +240,6 @@ export default function NotificationsPage() {
     loading: isBusinessLoading,
   } = useBusinessNotificationsFeed();
 
-  const [showScrollTop, setShowScrollTop] = useState(false);
   const [personalFilter, setPersonalFilter] = useState<FilterType>('All');
   const [businessFilter, setBusinessFilter] = useState<FilterType>('All');
   const [isRealtimeConnected, setIsRealtimeConnected] = useState(false);
@@ -256,12 +249,6 @@ export default function NotificationsPage() {
     setIsRealtimeConnected(true);
     return () => setIsRealtimeConnected(false);
   }, [isBusinessAccountUser, user?.id]);
-
-  useEffect(() => {
-    const handleScroll = () => setShowScrollTop(window.scrollY > 100);
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   const isLoading = isBusinessAccountUser ? isBusinessLoading : isPersonalLoading;
 
@@ -302,10 +289,10 @@ export default function NotificationsPage() {
 
   // ─── Personal account view ───────────────────────────────────────────────────
   return (
-    <div className="min-h-dvh bg-off-white relative font-urbanist" style={{ fontFamily: '"Urbanist", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-      <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)]" />
+    <div className="bg-off-white font-urbanist" style={{ fontFamily: '"Urbanist", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+      <div className="fixed inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5 pointer-events-none" />
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)] pointer-events-none" />
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)] pointer-events-none" />
 
       <div className="relative z-10 pb-12 sm:pb-16 md:pb-20">
         {/* Breadcrumb */}
@@ -360,15 +347,6 @@ export default function NotificationsPage() {
         <Footer />
       </div>
 
-      {showScrollTop && (
-        <button
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="fixed bottom-6 right-6 z-40 w-11 h-11 bg-white hover:bg-charcoal/5 rounded-xl flex items-center justify-center shadow-lg border border-charcoal/10 hover:border-navbar-bg/30 transition-all duration-200"
-          aria-label="Scroll to top"
-        >
-          <ChevronUp className="w-5 h-5 text-navbar-bg" strokeWidth={2} />
-        </button>
-      )}
     </div>
   );
 }
