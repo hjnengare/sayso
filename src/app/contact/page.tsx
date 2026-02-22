@@ -18,17 +18,44 @@ const CONTACT_REASONS = [
 ];
 
 const MESSAGE_MAX = 1000;
+const MESSAGE_MIN = 10;
+const NAME_MIN = 2;
+
+function validateName(v: string) {
+  if (!v.trim()) return "Please enter your name.";
+  if (v.trim().length < NAME_MIN) return "Name must be at least 2 characters.";
+  if (!/^[\p{L}\p{M}'\- ]+$/u.test(v.trim())) return "Name contains invalid characters.";
+  return null;
+}
+
+function validateEmail(v: string) {
+  if (!v.trim()) return "Please enter your email address.";
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())) return "Please enter a valid email address.";
+  return null;
+}
+
+function validateMessage(v: string) {
+  if (!v.trim()) return "Please enter a message.";
+  if (v.trim().length < MESSAGE_MIN) return `Message must be at least ${MESSAGE_MIN} characters.`;
+  return null;
+}
 
 export default function ContactPage() {
   const [form, setForm] = useState({ name: "", email: "", reason: "general", message: "" });
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [touched, setTouched] = useState({ name: false, email: false, message: false });
 
+  const errors = {
+    name: validateName(form.name),
+    email: validateEmail(form.email),
+    message: validateMessage(form.message),
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     if (name === "message" && value.length > MESSAGE_MAX) return;
     setForm((prev) => ({ ...prev, [name]: value }));
-    if (status !== "idle") setStatus("idle");
+    if (status === "error") setStatus("idle");
   };
 
   const handleBlur = (field: keyof typeof touched) => {
@@ -38,7 +65,7 @@ export default function ContactPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setTouched({ name: true, email: true, message: true });
-    if (!form.name.trim() || !form.email.trim() || !form.message.trim()) return;
+    if (errors.name || errors.email || errors.message) return;
 
     setStatus("loading");
 
@@ -63,10 +90,10 @@ export default function ContactPage() {
     }
   };
 
-  const isNameInvalid = touched.name && !form.name.trim();
-  const isEmailInvalid = touched.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email);
-  const isMessageInvalid = touched.message && !form.message.trim();
-  const canSubmit = form.name.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email) && form.message.trim();
+  const isNameInvalid = touched.name && !!errors.name;
+  const isEmailInvalid = touched.email && !!errors.email;
+  const isMessageInvalid = touched.message && !!errors.message;
+  const canSubmit = !errors.name && !errors.email && !errors.message;
 
   return (
     <div className="min-h-dvh bg-navbar-bg" style={{ fontFamily: FONT }}>
@@ -143,12 +170,12 @@ export default function ContactPage() {
                     placeholder="Your name"
                     className={`w-full rounded-full border bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/35 focus:outline-none focus:ring-2 transition ${
                       isNameInvalid
-                        ? "border-white/40 focus:ring-white/20 focus:border-white/60"
+                        ? "border-red-400/60 focus:ring-red-400/20 focus:border-red-400/80"
                         : "border-white/20 focus:ring-white/20 focus:border-white/40"
                     }`}
                   />
                   {isNameInvalid && (
-                    <p className="text-xs text-white/70 font-medium">Please enter your name.</p>
+                    <p className="text-xs text-red-400 font-medium">{errors.name}</p>
                   )}
                 </div>
 
@@ -169,12 +196,12 @@ export default function ContactPage() {
                     placeholder="you@example.com"
                     className={`w-full rounded-full border bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/35 focus:outline-none focus:ring-2 transition ${
                       isEmailInvalid
-                        ? "border-white/40 focus:ring-white/20 focus:border-white/60"
+                        ? "border-red-400/60 focus:ring-red-400/20 focus:border-red-400/80"
                         : "border-white/20 focus:ring-white/20 focus:border-white/40"
                     }`}
                   />
                   {isEmailInvalid && (
-                    <p className="text-xs text-white/70 font-medium">Please enter a valid email address.</p>
+                    <p className="text-xs text-red-400 font-medium">{errors.email}</p>
                   )}
                 </div>
               </div>
@@ -218,12 +245,12 @@ export default function ContactPage() {
                   placeholder="Tell us what's on your mind…"
                   className={`w-full rounded-[10px] border bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/35 focus:outline-none focus:ring-2 transition resize-none ${
                     isMessageInvalid
-                      ? "border-white/40 focus:ring-white/20 focus:border-white/60"
+                      ? "border-red-400/60 focus:ring-red-400/20 focus:border-red-400/80"
                       : "border-white/20 focus:ring-white/20 focus:border-white/40"
                   }`}
                 />
                 {isMessageInvalid && (
-                  <p className="text-xs text-white/70 font-medium">Please enter a message.</p>
+                  <p className="text-xs text-red-400 font-medium">{errors.message}</p>
                 )}
               </div>
 

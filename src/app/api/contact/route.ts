@@ -10,16 +10,59 @@ const CONTACT_REASONS: Record<string, string> = {
   other: "Something else",
 };
 
-export async function POST(req: NextRequest) {
-  const { name, email, reason, message } = await req.json();
+const ALLOWED_REASONS = new Set(Object.keys(CONTACT_REASONS));
+const NAME_MAX = 100;
+const EMAIL_MAX = 254;
+const MESSAGE_MIN = 10;
+const MESSAGE_MAX = 1000;
 
-  if (!name?.trim() || !email?.trim() || !message?.trim()) {
+function escapeHtml(s: string) {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+export async function POST(req: NextRequest) {
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
+  }
+
+  const { name, email, reason, message } = body as Record<string, unknown>;
+
+  if (typeof name !== "string" || typeof email !== "string" || typeof message !== "string") {
     return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
   }
 
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+  const trimName = name.trim();
+  const trimEmail = email.trim();
+  const trimMessage = message.trim();
+
+  if (!trimName || !trimEmail || !trimMessage) {
+    return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
+  }
+
+  if (trimName.length < 2 || trimName.length > NAME_MAX) {
+    return NextResponse.json({ error: "Name must be between 2 and 100 characters." }, { status: 400 });
+  }
+
+  if (trimEmail.length > EMAIL_MAX || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimEmail)) {
     return NextResponse.json({ error: "Invalid email address." }, { status: 400 });
   }
+
+  if (trimMessage.length < MESSAGE_MIN || trimMessage.length > MESSAGE_MAX) {
+    return NextResponse.json(
+      { error: `Message must be between ${MESSAGE_MIN} and ${MESSAGE_MAX} characters.` },
+      { status: 400 }
+    );
+  }
+
+  const resolvedReason = typeof reason === "string" && ALLOWED_REASONS.has(reason) ? reason : "other";
 
   const apiKey = process.env.NEXT_POSTMARK_API_KEY;
   if (!apiKey) {
@@ -27,21 +70,21 @@ export async function POST(req: NextRequest) {
   }
 
   const client = new postmark.ServerClient(apiKey);
-  const reasonLabel = CONTACT_REASONS[reason] ?? reason;
+  const reasonLabel = CONTACT_REASONS[resolvedReason];
 
   try {
     await client.sendEmail({
       From: "info@sayso.com",
       To: "info@sayso.com",
-      ReplyTo: email,
-      Subject: `[${reasonLabel}] – ${name}`,
-      TextBody: `Name: ${name}\nEmail: ${email}\nReason: ${reasonLabel}\n\n${message}`,
+      ReplyTo: trimEmail,
+      Subject: `[${reasonLabel}] – ${trimName}`,
+      TextBody: `Name: ${trimName}\nEmail: ${trimEmail}\nReason: ${reasonLabel}\n\n${trimMessage}`,
       HtmlBody: `
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
-        <p><strong>Reason:</strong> ${reasonLabel}</p>
+        <p><strong>Name:</strong> ${escapeHtml(trimName)}</p>
+        <p><strong>Email:</strong> <a href="mailto:${escapeHtml(trimEmail)}">${escapeHtml(trimEmail)}</a></p>
+        <p><strong>Reason:</strong> ${escapeHtml(reasonLabel)}</p>
         <hr />
-        <p style="white-space:pre-wrap">${message}</p>
+        <p style="white-space:pre-wrap">${escapeHtml(trimMessage)}</p>
       `,
       MessageStream: "outbound",
     });
@@ -49,11 +92,11 @@ export async function POST(req: NextRequest) {
     // Auto-reply to the sender
     await client.sendEmail({
       From: "info@sayso.com",
-      To: email,
+      To: trimEmail,
       Subject: "We received your message – Sayso",
-      TextBody: `Hi ${name},\n\nThanks for reaching out! We received your message and will get back to you within 24–48 hours.\n\nThe Sayso Team`,
+      TextBody: `Hi ${trimName},\n\nThanks for reaching out! We received your message and will get back to you within 24–48 hours.\n\nThe Sayso Team`,
       HtmlBody: `
-        <p>Hi ${name},</p>
+        <p>Hi ${escapeHtml(trimName)},</p>
         <p>Thanks for reaching out! We received your message and will get back to you within 24–48 hours.</p>
         <p>The Sayso Team</p>
       `,

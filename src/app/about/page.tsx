@@ -98,14 +98,14 @@ function StepCard({
   body: string;
 }) {
   return (
-    <div className="relative flex flex-col gap-4 bg-card-bg rounded-[16px] p-6 shadow-md border border-charcoal/6 overflow-hidden h-full">
+    <div className="relative flex flex-col gap-4 bg-white/8 rounded-[16px] p-6 border border-white/10 overflow-hidden h-full">
       <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-sage/10 to-transparent rounded-full blur-2xl pointer-events-none" />
-      <span className="text-xs font-bold text-navbar-bg/40 tracking-widest uppercase">{step}</span>
+      <span className="text-xs font-bold text-white/30 tracking-widest uppercase">{step}</span>
       <div className="grid h-11 w-11 place-items-center rounded-full bg-gradient-to-br from-sage/25 to-coral/15">
-        <Icon className="w-5 h-5 text-navbar-bg" />
+        <Icon className="w-5 h-5 text-white" />
       </div>
-      <h3 className="text-base font-bold text-charcoal">{title}</h3>
-      <p className="text-sm text-charcoal/65 leading-relaxed flex-1">{body}</p>
+      <h3 className="text-base font-bold text-white">{title}</h3>
+      <p className="text-sm text-white/60 leading-relaxed flex-1">{body}</p>
     </div>
   );
 }
@@ -145,9 +145,9 @@ function BadgeChip({
 // ─── Stat pill ────────────────────────────────────────────────────────────────
 function StatPill({ value, label }: { value: string; label: string }) {
   return (
-    <div className="flex flex-col items-center gap-1 px-6 py-5 bg-card-bg rounded-[16px] shadow-md border border-charcoal/6 min-w-[130px] flex-1">
-      <span className="text-3xl font-extrabold text-charcoal tracking-tight">{value}</span>
-      <span className="text-xs font-semibold text-charcoal/55 text-center leading-snug">{label}</span>
+    <div className="flex flex-col items-center gap-1 px-6 py-5 bg-white/8 rounded-[16px] border border-white/10 min-w-[130px] flex-1">
+      <span className="text-3xl font-extrabold text-white tracking-tight">{value}</span>
+      <span className="text-xs font-semibold text-white/50 text-center leading-snug">{label}</span>
     </div>
   );
 }
@@ -156,22 +156,22 @@ function StatPill({ value, label }: { value: string; label: string }) {
 export default function AboutPage() {
   return (
     <main
-      className="bg-off-white text-charcoal min-h-screen"
+      className="bg-navbar-bg text-white min-h-screen"
       style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
     >
 
       {/* ── Hero ── */}
       <section className="relative overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-sage/15 via-off-white to-coral/8" />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.18)_0%,_transparent_55%)]" />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.10)_0%,_transparent_55%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-sage/10 via-transparent to-coral/8" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.12)_0%,_transparent_55%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.12)_0%,_transparent_55%)]" />
 
         <div className="relative mx-auto max-w-5xl px-4 sm:px-6 pt-16 pb-20 text-center">
           <div className="mb-8 flex flex-col items-center gap-2">
             <div className="relative h-14 w-14">
               <Image src="/logos/logo.png" alt="Sayso logo" fill className="object-contain drop-shadow" />
             </div>
-            <span className="text-xl font-bold tracking-tight text-charcoal">sayso</span>
+            <span className="text-xl font-bold tracking-tight text-white">sayso</span>
           </div>
 
           <Reveal>
@@ -179,11 +179,11 @@ export default function AboutPage() {
               <MapPin className="w-3.5 h-3.5 text-coral" />
               <span className="text-xs font-bold text-coral tracking-wide uppercase">Hyper-local discovery</span>
             </div>
-            <h1 className="mt-2 text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-charcoal leading-[1.1]">
+            <h1 className="mt-2 text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white leading-[1.1]">
               Your neighbourhood,<br />
-              <span className="text-navbar-bg">in your own words.</span>
+              <span className="text-white/60">in your own words.</span>
             </h1>
-            <p className="mt-6 text-lg sm:text-xl text-charcoal/65 max-w-2xl mx-auto leading-relaxed">
+            <p className="mt-6 text-lg sm:text-xl text-white/65 max-w-2xl mx-auto leading-relaxed">
               Sayso is where real people talk about the businesses, events, and experiences
               that make their corner of the city worth living in.
             </p>
@@ -196,7 +196,7 @@ export default function AboutPage() {
               </Link>
               <Link
                 href="/trending"
-                className="inline-flex items-center gap-2 rounded-full border border-charcoal/20 bg-card-bg px-6 py-3 text-sm font-bold text-charcoal shadow-sm hover:border-charcoal/40 transition-all hover:scale-[1.02]"
+                className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/8 px-6 py-3 text-sm font-bold text-white hover:border-white/40 transition-all hover:scale-[1.02]"
               >
                 Browse trending
               </Link>
@@ -206,7 +206,7 @@ export default function AboutPage() {
       </section>
 
       {/* ── Stats bar ── */}
-      <section className="border-y border-charcoal/8 bg-card-bg/60 py-8">
+      <section className="border-y border-white/8 bg-white/5 py-8">
         <div className="mx-auto max-w-4xl px-4">
           <Reveal>
             <div className="flex flex-wrap justify-center gap-4">
@@ -222,8 +222,8 @@ export default function AboutPage() {
       {/* ── Why Sayso ── */}
       <section className="mx-auto max-w-5xl px-4 sm:px-6 py-20">
         <Reveal>
-          <p className="mb-2 text-xs font-bold text-navbar-bg/60 tracking-widest uppercase">Why Sayso Exists</p>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-charcoal mb-10 leading-tight">
+          <p className="mb-2 text-xs font-bold text-white/45 tracking-widest uppercase">Why Sayso Exists</p>
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-10 leading-tight">
             Local discovery is broken.<br />We&apos;re fixing it.
           </h2>
         </Reveal>
@@ -234,12 +234,12 @@ export default function AboutPage() {
             { icon: MessageSquare, title: "Voice that matters.",       body: "Your review can be the first, the one that saves someone a bad night out, or the nudge that helps a small business finally thrive. That's real impact.", delay: 0.19 },
           ].map(({ icon: Icon, title, body, delay }) => (
             <Reveal key={title} delay={delay}>
-              <div className="flex flex-col gap-4 bg-card-bg rounded-[16px] p-6 shadow-md border border-charcoal/6 h-full">
+              <div className="flex flex-col gap-4 bg-white/8 rounded-[16px] p-6 border border-white/10 h-full">
                 <div className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-sage/25 to-coral/15">
-                  <Icon className="w-5 h-5 text-navbar-bg" />
+                  <Icon className="w-5 h-5 text-white" />
                 </div>
-                <h3 className="text-base font-bold text-charcoal">{title}</h3>
-                <p className="text-sm text-charcoal/65 leading-relaxed flex-1">{body}</p>
+                <h3 className="text-base font-bold text-white">{title}</h3>
+                <p className="text-sm text-white/60 leading-relaxed flex-1">{body}</p>
               </div>
             </Reveal>
           ))}
@@ -247,22 +247,22 @@ export default function AboutPage() {
       </section>
 
       {/* ── Hyper-local section ── */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-sage/12 via-off-white to-coral/6 border-y border-charcoal/6">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_rgba(157,171,155,0.2)_0%,_transparent_60%)]" />
+      <section className="relative overflow-hidden bg-white/4 border-y border-white/8">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_rgba(157,171,155,0.08)_0%,_transparent_60%)]" />
         <div className="relative mx-auto max-w-5xl px-4 sm:px-6 py-20">
           <div className="grid gap-14 lg:grid-cols-2 items-center">
             <Reveal>
-              <p className="mb-2 text-xs font-bold text-navbar-bg/60 tracking-widest uppercase">Neighbourhood intelligence</p>
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-charcoal mb-5 leading-tight">
+              <p className="mb-2 text-xs font-bold text-white/45 tracking-widest uppercase">Neighbourhood intelligence</p>
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-5 leading-tight">
                 The coffee shop two streets over.<br />
-                <span className="text-navbar-bg">Not the chain five blocks away.</span>
+                <span className="text-white/55">Not the chain five blocks away.</span>
               </h2>
-              <p className="text-base text-charcoal/65 leading-relaxed mb-4">
+              <p className="text-base text-white/65 leading-relaxed mb-4">
                 Most discovery platforms treat your entire city as one undifferentiated blob.
                 Sayso is different. We surface the businesses and experiences that matter
                 to your specific pocket of the city — your suburb, your streets, your vibe.
               </p>
-              <p className="text-base text-charcoal/65 leading-relaxed">
+              <p className="text-base text-white/65 leading-relaxed">
                 Every review is geo-tagged. Every recommendation is distance-aware.
                 If you live in Fitzroy, you won&apos;t be drowning in results from Doncaster.
                 That&apos;s hyper-local done right.
@@ -277,20 +277,20 @@ export default function AboutPage() {
                 ].map((b, i) => (
                   <div
                     key={b.name}
-                    className="flex items-center gap-4 bg-card-bg rounded-[14px] p-4 shadow-md border border-charcoal/6"
+                    className="flex items-center gap-4 bg-white/8 rounded-[14px] p-4 border border-white/10"
                     style={{ transform: `translateX(${i * 10}px)` }}
                   >
                     <div className="grid h-10 w-10 flex-shrink-0 place-items-center rounded-full bg-gradient-to-br from-sage/25 to-coral/15">
                       <MapPin className="w-4 h-4 text-navbar-bg" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-charcoal truncate">{b.name}</p>
-                      <p className="text-xs text-charcoal/50">{b.cat}</p>
+                      <p className="text-sm font-bold text-white truncate">{b.name}</p>
+                      <p className="text-xs text-white/50">{b.cat}</p>
                     </div>
                     <div className="flex items-center gap-1 flex-shrink-0">
                       <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                      <span className="text-xs font-bold text-charcoal">{b.rating}</span>
-                      <span className="text-xs text-charcoal/40 ml-1">{b.reviews}</span>
+                      <span className="text-xs font-bold text-white">{b.rating}</span>
+                      <span className="text-xs text-white/40 ml-1">{b.reviews}</span>
                     </div>
                   </div>
                 ))}
@@ -306,11 +306,11 @@ export default function AboutPage() {
       {/* ── Badges section ── */}
       <section className="mx-auto max-w-5xl px-4 sm:px-6 py-20">
         <Reveal>
-          <p className="mb-2 text-xs font-bold text-navbar-bg/60 tracking-widest uppercase">Recognition System</p>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-charcoal mb-3 leading-tight">
+          <p className="mb-2 text-xs font-bold text-white/45 tracking-widest uppercase">Recognition System</p>
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-3 leading-tight">
             Earn badges. Build your rep.
           </h2>
-          <p className="text-base text-charcoal/65 leading-relaxed max-w-2xl mb-12">
+          <p className="text-base text-white/65 leading-relaxed max-w-2xl mb-12">
             Every review you write, every photo you share, every hidden gem you uncover — it all counts.
             Sayso&apos;s badge system rewards the people who make the community worth coming back to.
             Your badges live on your public profile so locals know exactly who they&apos;re hearing from.
@@ -331,7 +331,7 @@ export default function AboutPage() {
                   <Icon className={`w-5 h-5 ${iconColor}`} />
                   <span className={`text-sm font-bold ${iconColor}`}>{group}</span>
                 </div>
-                <p className="text-sm text-charcoal/70 leading-relaxed">{desc}</p>
+                <p className="text-sm text-white/65 leading-relaxed">{desc}</p>
               </div>
             </Reveal>
           ))}
@@ -339,7 +339,7 @@ export default function AboutPage() {
 
         {/* Badge chips */}
         <Reveal delay={0.1}>
-          <p className="text-xs font-bold text-charcoal/40 uppercase tracking-widest mb-4">A few badges you could earn</p>
+          <p className="text-xs font-bold text-white/35 uppercase tracking-widest mb-4">A few badges you could earn</p>
           <div className="flex flex-wrap gap-2">
             {SHOWCASE_BADGES.map((b) => (
               <BadgeChip key={b.label} icon={b.icon} label={b.label} desc={b.desc} color={b.color} border={b.border} text={b.text} />
@@ -349,11 +349,11 @@ export default function AboutPage() {
       </section>
 
       {/* ── How it works ── */}
-      <section className="border-t border-charcoal/6 bg-gradient-to-br from-off-white via-card-bg/40 to-off-white py-20">
+      <section className="border-t border-white/8 bg-white/4 py-20">
         <div className="mx-auto max-w-5xl px-4 sm:px-6">
           <Reveal>
-            <p className="mb-2 text-xs font-bold text-navbar-bg/60 tracking-widest uppercase">How it works</p>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-charcoal mb-10 leading-tight">
+            <p className="mb-2 text-xs font-bold text-white/45 tracking-widest uppercase">How it works</p>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-10 leading-tight">
               Simple as going out and talking about it.
             </h2>
           </Reveal>
@@ -370,11 +370,11 @@ export default function AboutPage() {
       <section className="mx-auto max-w-5xl px-4 sm:px-6 py-20">
         <div className="grid gap-12 lg:grid-cols-2 items-center">
           <Reveal>
-            <p className="mb-2 text-xs font-bold text-navbar-bg/60 tracking-widest uppercase">For business owners</p>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-charcoal mb-5 leading-tight">
+            <p className="mb-2 text-xs font-bold text-white/45 tracking-widest uppercase">For business owners</p>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-5 leading-tight">
               Grow on trust, not on spend.
             </h2>
-            <p className="text-base text-charcoal/65 leading-relaxed mb-6">
+            <p className="text-base text-white/65 leading-relaxed mb-6">
               Sayso gives local businesses a direct line to the community that matters most —
               the people who live nearby. Claim your profile, add your events and specials,
               and let genuine reviews do the work that no ad budget can replicate.
@@ -386,7 +386,7 @@ export default function AboutPage() {
                 "See exactly how your community perceives you",
                 "Build lasting reputation — not just momentary visibility",
               ].map((item) => (
-                <li key={item} className="flex items-start gap-2.5 text-sm text-charcoal/70">
+                <li key={item} className="flex items-start gap-2.5 text-sm text-white/65">
                   <BadgeCheck className="w-4 h-4 text-navbar-bg flex-shrink-0 mt-0.5" />
                   {item}
                 </li>
@@ -406,13 +406,13 @@ export default function AboutPage() {
                 { icon: Sparkles,      label: "Events & Specials",    body: "Publish your promotions and events directly to people who are already looking for something to do nearby." },
                 { icon: MessageSquare, label: "Live feedback",         body: "See reviews as they come in and understand how your community actually experiences your business." },
               ].map(({ icon: Icon, label, body }) => (
-                <div key={label} className="flex gap-4 bg-card-bg rounded-[14px] p-5 shadow-sm border border-charcoal/6">
+                <div key={label} className="flex gap-4 bg-white/8 rounded-[14px] p-5 border border-white/10">
                   <div className="grid h-10 w-10 flex-shrink-0 place-items-center rounded-full bg-gradient-to-br from-sage/25 to-coral/15">
-                    <Icon className="w-5 h-5 text-navbar-bg" />
+                    <Icon className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-charcoal mb-1">{label}</p>
-                    <p className="text-sm text-charcoal/60 leading-relaxed">{body}</p>
+                    <p className="text-sm font-bold text-white mb-1">{label}</p>
+                    <p className="text-sm text-white/60 leading-relaxed">{body}</p>
                   </div>
                 </div>
               ))}
@@ -422,8 +422,8 @@ export default function AboutPage() {
       </section>
 
       {/* ── CTA ── */}
-      <section className="relative overflow-hidden border-t border-charcoal/6 bg-gradient-to-br from-navbar-bg via-navbar-bg/95 to-navbar-bg/90 py-20">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.08)_0%,_transparent_60%)]" />
+      <section className="relative overflow-hidden border-t border-white/8 bg-white/5 py-20">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.08)_0%,_transparent_60%)]" />
         <div className="relative mx-auto max-w-3xl px-4 sm:px-6 text-center">
           <Reveal>
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5">
