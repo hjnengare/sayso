@@ -1,27 +1,30 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { getServerSupabase } from '@/app/lib/supabase/server';
+import { isAdmin } from '@/app/lib/admin';
 
 export const dynamic = 'force-dynamic';
 
 /**
  * ADMIN ONLY: Fix user profile role data
- * Sets account_role based on what's detected
+ * Dev/admin only — not available in production.
  */
 export async function POST(request: NextRequest) {
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+
   try {
     const supabase = await getServerSupabase();
 
-    // Get current user
     const { data: { user }, error: authError } = await supabase.auth.getUser();
-
     if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get current profile
+    if (!(await isAdmin(user.id))) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('*')
@@ -35,24 +38,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Determine the correct role based on onboarding path and current state
-    // If they're on /claim-business, they should be business_owner
     const { newRole } = await request.json();
-    
+
     if (!['user', 'business_owner'].includes(newRole)) {
-      return NextResponse.json(
-        { error: 'Invalid newRole' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Invalid newRole' }, { status: 400 });
     }
 
-    // Update the profile
     const { error: updateError } = await supabase
       .from('profiles')
       .update({
         account_role: newRole,
-        role: profile.role || newRole, // Ensure role is set
-        email: user.email // Ensure email is populated
+        role: profile.role || newRole,
+        email: user.email
       })
       .eq('user_id', user.id);
 
@@ -80,4 +77,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

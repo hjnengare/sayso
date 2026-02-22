@@ -3,8 +3,8 @@ import { getServerSupabase } from '../../../lib/supabase/server';
 import { performance as nodePerformance } from 'perf_hooks';
 
 /**
- * Performance test endpoint for onboarding flow
- * Tests database query performance and API response times
+ * Performance test endpoint for onboarding flow.
+ * Dev only — not available in production.
  */
 function isSchemaCacheError(error: { message?: string } | null | undefined): boolean {
   const message = error?.message?.toLowerCase() || '';
@@ -12,6 +12,10 @@ function isSchemaCacheError(error: { message?: string } | null | undefined): boo
 }
 
 export async function GET() {
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+
   const startTime = nodePerformance.now();
   const results: Record<string, number> = {};
 
@@ -20,13 +24,13 @@ export async function GET() {
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
-      return NextResponse.json({ 
+      return NextResponse.json({
         error: 'Unauthorized',
         message: 'Please log in to test performance'
       }, { status: 401 });
     }
 
-    // Test 1: Profile query (used in middleware)
+    // Test 1: Profile query
     const profileStart = nodePerformance.now();
     let { data: profile, error: profileError } = await supabase
       .from('profiles')
@@ -55,36 +59,30 @@ export async function GET() {
     const tablesStart = nodePerformance.now();
     const tables = ['user_interests', 'user_subcategories', 'user_dealbreakers'];
     const tableChecks: Record<string, boolean> = {};
-    
+
     for (const table of tables) {
       try {
-        const { error } = await supabase
-          .from(table)
-          .select('*')
-          .limit(1);
+        const { error } = await supabase.from(table).select('*').limit(1);
         tableChecks[table] = !error;
-      } catch (e) {
+      } catch {
         tableChecks[table] = false;
       }
     }
     results.table_checks_ms = nodePerformance.now() - tablesStart;
 
-    // Test 3: Test atomic function exists (if profile exists)
+    // Test 3: Test atomic function exists
     let functionTest = 0;
     if (profile) {
       const functionStart = nodePerformance.now();
       try {
-        // Just check if function exists by calling it with empty arrays
-        const { error } = await supabase.rpc('complete_onboarding_atomic', {
+        await supabase.rpc('complete_onboarding_atomic', {
           p_user_id: user.id,
           p_interest_ids: [],
           p_subcategory_data: [],
           p_dealbreaker_ids: []
         });
-        // We expect an error or success, just checking if function exists
         functionTest = nodePerformance.now() - functionStart;
-      } catch (e) {
-        // Function might not exist or might error - that's ok for test
+      } catch {
         functionTest = nodePerformance.now() - functionStart;
       }
       results.function_check_ms = functionTest;
@@ -93,13 +91,7 @@ export async function GET() {
     const totalTime = nodePerformance.now() - startTime;
     results.total_ms = totalTime;
 
-    // Performance thresholds (target: <2s for full flow)
-    const thresholds = {
-      profile_query: 100, // 100ms max for profile query
-      table_checks: 200, // 200ms max for table checks
-      total: 500 // 500ms max total for API
-    };
-
+    const thresholds = { profile_query: 100, table_checks: 200, total: 500 };
     const perfResults = {
       profile_query: results.profile_query_ms < thresholds.profile_query ? 'PASS' : 'FAIL',
       table_checks: results.table_checks_ms < thresholds.table_checks ? 'PASS' : 'FAIL',
@@ -121,9 +113,9 @@ export async function GET() {
         dealbreakers_count: profile.dealbreakers_count
       } : null,
       tables: tableChecks,
-      message: perfResults.total === 'PASS' 
-        ? '✅ All performance tests passed! Onboarding flow should be <2s'
-        : '⚠️ Some performance tests failed. Check results above.'
+      message: perfResults.total === 'PASS'
+        ? 'All performance tests passed!'
+        : 'Some performance tests failed. Check results above.'
     });
 
   } catch (error: any) {
