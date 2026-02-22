@@ -195,14 +195,14 @@ export default function BusinessInfoModal({
             <div className="flex-1">
               <p className="text-sm font-medium text-charcoal mb-0.5" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>Website</p>
               {businessInfo.website ? (
-                <a 
+                <a
                   href={businessInfo.website.startsWith('http') ? businessInfo.website : `https://${businessInfo.website}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-sage hover:text-coral transition-colors break-all"
-                  style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
+                  className="inline-flex items-center rounded-full bg-navbar-bg px-3 py-1.5 text-sm text-white hover:bg-navbar-bg/90 transition-colors font-urbanist"
+                  aria-label="View business website (opens in a new tab)"
                 >
-                  {businessInfo.website}
+                  View Website
                 </a>
               ) : (
                 <p className="text-sm italic text-charcoal/60" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>

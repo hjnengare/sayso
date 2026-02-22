@@ -100,11 +100,10 @@ export default function BusinessInfoAside({ businessInfo, className = "", stacke
             }
             target="_blank"
             rel="noopener noreferrer"
-            className="break-all hover:text-coral transition-colors"
+            className="inline-flex items-center rounded-full bg-navbar-bg px-3 py-1.5 text-body-sm text-white hover:bg-navbar-bg/90 transition-colors font-urbanist"
+            aria-label="View business website (opens in a new tab)"
           >
-            <Text variant="body-sm" color="primary" className="font-semibold">
-              {businessInfo.website}
-            </Text>
+            View Website
           </a>
         ) : (
           <Text variant="body-sm" color="secondary" className="italic">Website not provided</Text>
