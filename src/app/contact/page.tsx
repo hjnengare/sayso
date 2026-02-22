@@ -63,21 +63,25 @@ export default function ContactPage() {
 
     setStatus("loading");
 
-    const subject = encodeURIComponent(
-      `[${CONTACT_REASONS.find((r) => r.value === form.reason)?.label ?? form.reason}] – ${form.name}`
-    );
-    const body = encodeURIComponent(
-      `Name: ${form.name}\nEmail: ${form.email}\nReason: ${
-        CONTACT_REASONS.find((r) => r.value === form.reason)?.label ?? form.reason
-      }\n\n${form.message}`
-    );
-    window.location.href = `mailto:info@sayso.com?subject=${subject}&body=${body}`;
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
 
-    setTimeout(() => {
+      if (!res.ok) {
+        const { error } = await res.json();
+        throw new Error(error ?? "Unknown error");
+      }
+
       setStatus("success");
       setForm({ name: "", email: "", reason: "general", message: "" });
       setTouched({ name: false, email: false, message: false });
-    }, 400);
+    } catch (err) {
+      console.error(err);
+      setStatus("error");
+    }
   };
 
   const isNameInvalid = touched.name && !form.name.trim();
@@ -174,7 +178,7 @@ export default function ContactPage() {
                   </div>
                   <h3 className="text-xl font-extrabold text-charcoal mb-2">Message sent!</h3>
                   <p className="text-sm text-charcoal/60 max-w-xs mx-auto mb-7 leading-relaxed">
-                    Your email client should have opened with your message pre-filled. We'll get back to you within 24–48 hours.
+                    We've received your message and sent you a confirmation. We'll get back to you within 24–48 hours.
                   </p>
                   <button
                     type="button"
@@ -304,14 +308,16 @@ export default function ContactPage() {
                       className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-navbar-bg text-white text-sm font-semibold hover:bg-navbar-bg/90 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
                     >
                       {status === "loading" ? (
-                        <>Opening email client…</>
+                        <>Sending…</>
                       ) : (
                         <>Send message <Send className="w-4 h-4" /></>
                       )}
                     </button>
-                    <p className="text-xs text-charcoal/40 leading-relaxed">
-                      Clicking send will open your email client with your message pre-filled.
-                    </p>
+                    {status === "error" && (
+                      <p className="text-xs text-coral font-medium">
+                        Something went wrong. Please try again or email us directly at info@sayso.com.
+                      </p>
+                    )}
                   </div>
                 </m.form>
               )}
