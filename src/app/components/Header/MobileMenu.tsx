@@ -8,6 +8,7 @@ import OptimizedLink from "../Navigation/OptimizedLink";
 import { NavLink } from "./DesktopNav";
 import MobileMenuToggleIcon from "./MobileMenuToggleIcon";
 import { getMobileMenuActions, shouldShowLockIndicator } from "./headerActionsConfig";
+import Wordmark from "../Logo/Wordmark";
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -94,10 +95,7 @@ export default function MobileMenu({
       } transition-transform duration-300`}>
         <div className={`flex flex-col h-full overflow-hidden ${mobileModalRevealClass}`}>
           <div className="flex items-center justify-between px-4 py-4 border-b border-charcoal/10 flex-shrink-0 transition-all duration-500 ease-out">
-            <span className="sayso-wordmark text-white text-xl font-normal leading-none select-none">
-              <span className="text-[1.05em] sayso-wordmark">S</span>
-              <span className="text-[0.9em] sayso-wordmark">ayso</span>
-            </span>
+            <Wordmark />
             <button
               onClick={onClose}
               className="w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center text-off-white hover:text-off-white/80 transition-colors focus:outline-none focus:ring-0"
@@ -385,10 +383,7 @@ export default function MobileMenu({
       >
         <div className={`flex flex-col h-full overflow-hidden ${mobileModalRevealClass}`}>
           <div className="flex items-center justify-between px-4 py-4 border-b border-charcoal/10 flex-shrink-0 transition-all duration-500 ease-out">
-            <span className="sayso-wordmark text-white text-xl font-normal leading-none select-none">
-              <span className="text-[1.05em] sayso-wordmark">S</span>
-              <span className="text-[0.9em] sayso-wordmark">ayso</span>
-            </span>
+            <Wordmark />
             <button
               onClick={onClose}
               className="w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center text-off-white hover:text-off-white/80 transition-colors focus:outline-none focus:ring-0"

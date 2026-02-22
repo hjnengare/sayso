@@ -3,6 +3,7 @@
 
 import React from "react";
 import Image from "next/image";
+import Wordmark from "./Wordmark";
 
 interface LogoProps {
   variant?: "default" | "mobile" | "footer" | "onboarding";
@@ -45,12 +46,7 @@ export default function Logo({
       )}
 
       {variant !== "footer" && (
-        <span
-          className={`${wordmarkSpacingClass} inline-flex items-center whitespace-nowrap text-white text-xl sm:text-2xl md:text-3xl font-normal tracking-tight leading-none select-none sayso-wordmark`}
-        >
-          <span className="text-[1.05em] sayso-wordmark">S</span>
-          <span className="text-[0.9em] sayso-wordmark">ayso</span>
-        </span>
+        <Wordmark size="text-xl sm:text-2xl md:text-3xl" className={`tracking-tight ${wordmarkSpacingClass}`} />
       )}
     </div>
   );

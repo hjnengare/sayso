@@ -344,31 +344,31 @@ function LeaderboardPage() {
         </m.div>
 
         {/* Badge Definitions Section - Before Footer */}
-        <section className="relative z-50 py-4 sm:py-8 bg-off-white">
+        <section className="relative z-50 py-4 sm:py-8 bg-gradient-to-br from-navbar-bg via-navbar-bg/95 to-navbar-bg/90">
           <div className="mx-auto w-full max-w-[2000px] px-4 sm:px-6">
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
               <div className="text-center sm:text-left">
-                <h3 
-                  className="text-lg sm:text-xl font-semibold text-charcoal mb-1"
+                <h3
+                  className="text-lg sm:text-xl font-semibold text-white mb-1"
                   style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                 >
                   What Do Your Badges Mean?
                 </h3>
-                <p 
-                  className="text-sm text-charcoal/60"
+                <p
+                  className="text-sm text-white/60"
                   style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                 >
                   Learn about all the badges you can earn
                 </p>
               </div>
-              
+
               <div className="flex items-center gap-2">
                 {/* View Badge Guide button - Opens in new tab */}
                 <a
                   href="/badges"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-full bg-card-bg text-white hover:bg-card-bg/90 transition-all duration-200 text-sm font-semibold shadow-sm hover:shadow-md hover:-translate-y-0.5"
+                  className="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-full bg-white text-navbar-bg hover:bg-white/90 transition-all duration-200 text-sm font-semibold shadow-sm hover:shadow-md hover:-translate-y-0.5"
                   style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                 >
                   <FileText className="w-4 h-4" />

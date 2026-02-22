@@ -74,8 +74,8 @@ export async function POST(req: NextRequest) {
 
   try {
     await client.sendEmail({
-      From: "info@sayso.com",
-      To: "info@sayso.com",
+      From: "info@sayso.co.za",
+      To: "info@sayso.co.za",
       ReplyTo: trimEmail,
       Subject: `[${reasonLabel}] – ${trimName}`,
       TextBody: `Name: ${trimName}\nEmail: ${trimEmail}\nReason: ${reasonLabel}\n\n${trimMessage}`,
@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
 
     // Auto-reply to the sender
     await client.sendEmail({
-      From: "info@sayso.com",
+      From: "info@sayso.co.za",
       To: trimEmail,
       Subject: "We received your message – Sayso",
       TextBody: `Hi ${trimName},\n\nThanks for reaching out! We received your message and will get back to you within 24–48 hours.\n\nThe Sayso Team`,
@@ -105,7 +105,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (err) {
-    console.error("Postmark error:", err);
+    const postmarkErr = err as { message?: string; statusCode?: number; ErrorCode?: number };
+    console.error("Postmark error:", JSON.stringify({ message: postmarkErr?.message, statusCode: postmarkErr?.statusCode, ErrorCode: postmarkErr?.ErrorCode }));
     return NextResponse.json({ error: "Failed to send message. Please try again." }, { status: 500 });
   }
 }

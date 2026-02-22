@@ -22,6 +22,7 @@ import {
   Flame,
   Globe,
 } from "lucide-react";
+import Wordmark from "../components/Logo/Wordmark";
 
 // ─── Intersection Observer reveal ───────────────────────────────────────────
 function useReveal() {
@@ -171,7 +172,7 @@ export default function AboutPage() {
             <div className="relative h-14 w-14">
               <Image src="/logos/logo.png" alt="Sayso logo" fill className="object-contain drop-shadow" />
             </div>
-            <span className="text-xl font-bold tracking-tight text-white">sayso</span>
+            <Wordmark />
           </div>
 
           <Reveal>
