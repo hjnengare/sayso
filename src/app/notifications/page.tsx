@@ -294,7 +294,7 @@ export default function NotificationsPage() {
       <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)] pointer-events-none" />
       <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)] pointer-events-none" />
 
-      <div className="relative z-10 pb-12 sm:pb-16 md:pb-20">
+      <div className="relative z-10 pb-12 sm:pb-16 md:pb-20 min-h-[100dvh]">
         {/* Breadcrumb */}
         <div className="mx-auto w-full max-w-[2000px] px-2 mb-4">
           <nav className="pb-1" aria-label="Breadcrumb">
@@ -319,9 +319,6 @@ export default function NotificationsPage() {
             <m.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
               {/* Section header */}
               <div className="flex items-center gap-2.5 mb-6 px-2">
-                <div className="w-8 h-8 rounded-lg bg-charcoal/8 flex items-center justify-center">
-                  <UserRound className="w-4 h-4 text-charcoal/60" strokeWidth={2} />
-                </div>
                 <div>
                   <h1 className="text-h2 sm:text-h1 font-bold text-charcoal font-urbanist leading-tight">Personal Notifications</h1>
                   <p className="text-xs text-charcoal/50 font-urbanist">Activity from your personal account</p>
