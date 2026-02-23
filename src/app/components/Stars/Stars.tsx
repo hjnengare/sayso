@@ -11,7 +11,7 @@ export default function Stars({ value = 5, color = "amber", size = 15, spacing =
   const numericValue = value !== undefined ? Math.max(0, Math.min(5, value)) : 0;
   const full = Math.floor(numericValue);
   const hasHalf = numericValue % 1 >= 0.5;
-  const gradientId = "starGradient";
+  const gradientId = color === "gold" ? "starGradientGold" : "starGradient";
 
   return (
     <div
@@ -21,17 +21,29 @@ export default function Stars({ value = 5, color = "amber", size = 15, spacing =
     >
       <svg width="0" height="0" style={{ position: "absolute" }}>
         <defs>
-          <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
+          <linearGradient id="starGradient" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" stopColor="#f59e0b" />
             <stop offset="100%" stopColor="#d97706" />
+          </linearGradient>
+          <linearGradient id="starGradientGold" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#F5D547" />
+            <stop offset="100%" stopColor="#E6A547" />
           </linearGradient>
         </defs>
       </svg>
       {Array.from({ length: 5 }).map((_, i) => {
         const isFullStar = i < full;
         const isHalfStar = !isFullStar && i === full && hasHalf;
-        // Use charcoal for all stars when color is "charcoal", otherwise use the original logic
-        const starColor = color === "charcoal" ? "#404040" : color === "navbar-bg" ? "#722F37" : color === "coral/90" ? "#f87171" : "#f59e0b";
+        const starColor =
+          color === "gold"
+            ? `url(#${gradientId})`
+            : color === "charcoal"
+            ? "#404040"
+            : color === "navbar-bg"
+            ? "#722F37"
+            : color === "coral/90"
+            ? "#f87171"
+            : "#f59e0b";
         return (
           <span
             key={i}
@@ -67,7 +79,7 @@ export default function Stars({ value = 5, color = "amber", size = 15, spacing =
                   style={{
                     width: size,
                     height: size,
-                    stroke: "none",
+                    stroke: isFullStar || isHalfStar ? "none" : starColor,
                     fill: starColor,
                     strokeWidth: 2.5
                   }}
