@@ -666,7 +666,7 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
                   <div className="flex items-center justify-center gap-2 text-charcoal transition-all duration-300"
                     aria-label={hasReviews ? `View ${business.reviewCount} reviews for ${business.name}` : `Be the first to review ${business.name}`}
                   >
-                    <Stars value={hasReviews && displayTotal > 0 ? displayTotal : 0} color="gold" size={18} spacing={2.5} />
+                    <Stars value={hasReviews && displayTotal > 0 ? displayTotal : 0} color="charcoal" size={18} spacing={2.5} />
                   </div>
                 </div>
               </div>
