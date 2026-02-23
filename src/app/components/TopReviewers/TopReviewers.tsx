@@ -81,7 +81,7 @@ export default function TopReviewers({
         </div>
 
         <div className="overflow-x-auto -mb-6">
-          <ul className="flex gap-3 pb-4 sm:pb-5 md:pb-6 pt-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          <ul className="flex gap-4 md:gap-5 pb-4 sm:pb-5 md:pb-6 pt-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             {reviewers.map((reviewer, index) => {
               // Get a consistent review text for each reviewer based on their ID
               const reviewIndex = parseInt(reviewer.id) % sampleReviewTexts.length;
