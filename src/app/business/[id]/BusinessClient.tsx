@@ -331,8 +331,8 @@ export default function BusinessProfilePage() {
         return (
             <div className="min-h-dvh bg-off-white flex items-center justify-center">
                 <div className="text-center max-w-md px-4">
-                    <div className="w-16 h-16 bg-coral/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <X className="w-8 h-8 text-coral" />
+                    <div className="w-12 h-12 bg-off-white/70 rounded-full flex items-center justify-center mx-auto mb-4 text-charcoal/85 transition duration-200 ease-out hover:bg-off-white/90 hover:scale-[1.03]">
+                        <X className="w-6 h-6" aria-hidden />
                     </div>
                     <h2 className="text-h1 font-semibold text-charcoal mb-2" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
                         {error || 'Business not found'}
@@ -478,7 +478,9 @@ export default function BusinessProfilePage() {
                                             </Link>
                                         </li>
                                         <li className="flex items-center">
-                                            <ChevronRight className="w-4 h-4 text-charcoal/60" />
+                                            <span className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-off-white/70 text-charcoal/85 transition duration-200 ease-out hover:bg-off-white/90 hover:scale-[1.03] align-middle">
+                                                <ChevronRight className="w-4 h-4" aria-hidden />
+                                            </span>
                                         </li>
                                         <li>
                                             <span className="text-charcoal font-semibold truncate max-w-[200px] sm:max-w-none" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
