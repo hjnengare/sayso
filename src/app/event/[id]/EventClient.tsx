@@ -3,6 +3,7 @@
 import { useState, useEffect, use, useRef } from "react";
 import { useEventDetail } from "../../hooks/useEventDetail";
 import { useEventReviews } from "../../hooks/useEventReviews";
+import { useEventRatings } from "../../hooks/useEventRatings";
 import Link from "next/link";
 import { m, AnimatePresence } from "framer-motion";
 import { ChevronRight, Calendar } from "lucide-react";
@@ -59,6 +60,11 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
   } = useEventDetail(resolvedParams.id);
 
   const { reviews, refetch: refetchEventReviews } = useEventReviews(resolvedParams.id);
+  const { rating: liveRating, totalReviews: liveTotalReviews } = useEventRatings(
+    resolvedParams.id,
+    event?.rating ?? 0,
+    reviews.length
+  );
 
   const isNotFound = errorStatus === 404 || (event !== null && event.type !== "event" && event.type !== "special");
 
@@ -277,7 +283,7 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
                         bookingContact={event.bookingContact}
                         eventData={event}
                       />
-                      <EventPersonalizationInsights event={{ id: event.id, rating: event.rating, totalReviews: reviews.length }} />
+                      <EventPersonalizationInsights event={{ id: event.id, rating: liveRating, totalReviews: liveTotalReviews }} />
 
                       {/* Contact Info - Desktop Only (hide when direct booking is available) */}
                       {!hasDirectCta && (

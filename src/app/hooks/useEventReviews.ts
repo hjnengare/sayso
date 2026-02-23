@@ -10,6 +10,7 @@ import useSWR, { mutate as globalMutate } from 'swr';
 import { swrConfig } from '../lib/swrConfig';
 import type { EventReviewWithUser } from '../lib/types/database';
 import { getBrowserSupabase } from '../lib/supabase/client';
+import { invalidateEventRatings } from './useEventRatings';
 
 async function fetchEventReviews([, eventId]: [string, string]): Promise<EventReviewWithUser[]> {
   const response = await fetch(`/api/events/${eventId}/reviews`);
@@ -65,8 +66,9 @@ export function useEventReviews(eventId: string | null | undefined) {
         table: 'event_reviews',
         filter: `event_id=eq.${eventId}`,
       }, () => {
-        // Refetch to include latest insert/update/delete
+        // Refetch reviews and ratings to include latest insert/update/delete
         mutate();
+        invalidateEventRatings(eventId);
       })
       .subscribe();
 

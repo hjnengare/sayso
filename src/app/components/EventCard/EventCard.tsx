@@ -12,6 +12,7 @@ import EventBadge from "./EventBadge";
 import { useState, memo, useEffect, useMemo } from "react";
 import { useSavedItems } from "../../contexts/SavedItemsContext";
 import { useToast } from "../../contexts/ToastContext";
+import { useEventRatings } from "../../hooks/useEventRatings";
 
 const EVENT_IMAGE_BASE_PATH = "/png";
 
@@ -141,9 +142,15 @@ function EventCard({ event, index = 0 }: EventCardProps) {
   const eventDetailHref = event.type === "event" ? `/event/${event.id}` : `/special/${event.id}`;
   const reviewRoute = event.type === "event" ? `/write-review/event/${event.id}` : `/write-review/special/${event.id}`;
 
-  const hasRating = event.rating != null && Number(event.rating) > 0;
-  const displayRating = hasRating ? Number(event.rating) : undefined;
-  const reviews = (event as any).reviews ?? (event as any).totalReviews ?? 0;
+  const initialReviews = (event as any).reviews ?? (event as any).totalReviews ?? 0;
+  const { rating: liveRating, totalReviews: liveTotalReviews } = useEventRatings(
+    event.id,
+    Number(event.rating ?? 0),
+    initialReviews
+  );
+  const hasRating = liveRating != null && Number(liveRating) > 0;
+  const displayRating = hasRating ? Number(liveRating) : undefined;
+  const reviews = liveTotalReviews ?? 0;
   const hasReviewed = false;
 
   // Smart countdown state
