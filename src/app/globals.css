@@ -1058,7 +1058,8 @@
   .no-layout-shift {
     width: 100%;
     max-width: 100%;
-    overflow-x: hidden;
+    /* clip instead of hidden: doesn't create a scroll container, so position:sticky still works */
+    overflow-x: clip;
     position: relative;
   }
 
