@@ -10,7 +10,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useSavedItems } from '../contexts/SavedItemsContext';
 import { swrConfig } from '../lib/swrConfig';
 
-async function fetchSavedBusinesses([,,]: [string, string, string]): Promise<any[]> {
+async function fetchSavedBusinesses(): Promise<any[]> {
   const response = await fetch('/api/saved/businesses?limit=20&page=1', { credentials: 'include' });
 
   if (response.status === 401) {
@@ -29,11 +29,15 @@ export function useSavedBusinessesPreview() {
   const { user, isLoading: authLoading } = useAuth();
   const { savedItems } = useSavedItems();
 
-  const swrKey = (!authLoading && user?.id && savedItems.length > 0)
-    ? (['/api/saved/businesses', user.id, 'limit20'] as [string, string, string])
+  // Shared key across pages for the same user; keeps cache unified.
+  const swrKey = (!authLoading && user?.id)
+    ? (['/api/saved/businesses', user.id] as [string, string])
     : null;
 
-  const { data, error, isLoading, mutate } = useSWR(swrKey, fetchSavedBusinesses, swrConfig);
+  const { data, error, isLoading, mutate } = useSWR(swrKey, fetchSavedBusinesses, {
+    ...swrConfig,
+    keepPreviousData: true,
+  });
 
   useEffect(() => {
     if (!swrKey) return;
@@ -44,8 +48,10 @@ export function useSavedBusinessesPreview() {
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [swrKey, mutate]);
 
+  const businesses = user?.id ? (data ?? []) : [];
+
   return {
-    businesses: data ?? [],
+    businesses,
     loading: isLoading,
     error: error ? (error as Error).message : null,
     mutate,

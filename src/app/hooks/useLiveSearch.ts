@@ -87,7 +87,11 @@ export function useLiveSearch({ initialQuery = "", debounceMs = 300 }: UseLiveSe
     swrKey,
     ([, q, dKm, mRat]: [string, string, number | null, number | null]) =>
       fetchSearchResults("search", q, dKm, mRat),
-    { ...swrConfig, dedupingInterval: 2000 }
+    {
+      ...swrConfig,
+      dedupingInterval: 600, // short window to dedupe rapid keystrokes
+      keepPreviousData: true, // keep last results visible while revalidating
+    }
   );
 
   const resetFilters = () => {
