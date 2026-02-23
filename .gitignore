@@ -29,6 +29,7 @@ Thumbs.db
 
 # Documentation should reside under docs/
 *.md
+!README.md
 !docs/**/*.md
 
 # Logs
