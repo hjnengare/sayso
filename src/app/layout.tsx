@@ -226,8 +226,8 @@ export default function RootLayout({
                 <NotificationsProvider>
                   <BusinessNotifications />
                   <NotificationToasts />
-                  <GlobalHeader />
                   <LazyMotionProvider>
+                    <GlobalHeader />
                     <RealtimeProvider>
                       <DeferredProviders>
                         {children}

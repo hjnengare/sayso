@@ -6,6 +6,8 @@
 "use client";
 
 import { memo, useState, useEffect, useMemo, useRef } from "react";
+import useSWR from "swr";
+import { swrConfig } from "../lib/swrConfig";
 import { useSearchParams } from "next/navigation";
 import nextDynamic from "next/dynamic";
 import Link from "next/link";
@@ -77,68 +79,28 @@ function isIOSBrowser(): boolean {
 }
 
 
-export default function HomeClient() {
+export default function HomeClient({ initialTrending }: { initialTrending?: import('../components/BusinessCard/BusinessCard').Business[] }) {
   const isDesktop = useIsDesktop();
   const isDev = process.env.NODE_ENV === "development";
-  const [eventsAndSpecials, setEventsAndSpecials] = useState<Event[]>([]);
-  const [eventsAndSpecialsLoading, setEventsAndSpecialsLoading] = useState(true);
 
   // Defer below-fold Events fetch to prioritize above-fold content (For You, Trending)
+  const [eventsReady, setEventsReady] = useState(false);
   useEffect(() => {
-    let cancelled = false;
-
-    const fetchEvents = async () => {
-      try {
-        setEventsAndSpecialsLoading(true);
-        const url = new URL("/api/events-and-specials", window.location.origin);
-        url.searchParams.set("limit", "12");
-
-        const res = await fetch(url.toString());
-
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status}`);
-        }
-
-        const data = await res.json();
-        const items = Array.isArray(data?.items) ? (data.items as Event[]) : [];
-
-        if (!cancelled) {
-          setEventsAndSpecials(items);
-        }
-      } catch (err) {
-        if (process.env.NODE_ENV === "development") {
-          console.warn("[Home] Failed to fetch events-and-specials:", err);
-        }
-        if (!cancelled) {
-          setEventsAndSpecials([]);
-        }
-      } finally {
-        if (!cancelled) {
-          setEventsAndSpecialsLoading(false);
-        }
-      }
-    };
-
-    const scheduleFetch = () => {
-      const w = typeof window !== "undefined" ? (window as Window & { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number }) : null;
-      if (w?.requestIdleCallback) {
-        const id = w.requestIdleCallback(() => {
-          if (!cancelled) void fetchEvents();
-        }, { timeout: 200 });
-        return () => w.cancelIdleCallback?.(id);
-      }
-      const id = setTimeout(() => {
-        if (!cancelled) void fetchEvents();
-      }, 150);
-      return () => clearTimeout(id);
-    };
-
-    const cleanup = scheduleFetch();
-    return () => {
-      cancelled = true;
-      cleanup?.();
-    };
+    const id = setTimeout(() => setEventsReady(true), 200);
+    return () => clearTimeout(id);
   }, []);
+
+  const { data: eventsData, isLoading: eventsAndSpecialsLoading } = useSWR(
+    eventsReady ? '/api/events-and-specials?limit=12' : null,
+    async (url: string) => {
+      const res = await fetch(url);
+      if (!res.ok) return [];
+      const data = await res.json();
+      return Array.isArray(data?.items) ? (data.items as Event[]) : [];
+    },
+    { ...swrConfig, dedupingInterval: 60_000, revalidateOnFocus: false }
+  );
+  const eventsAndSpecials = eventsData ?? [];
 
   usePredefinedPageTitle('home');
   const isIOS = useMemo(() => isIOSBrowser(), []);
@@ -171,7 +133,6 @@ export default function HomeClient() {
     }
   }, [searchQueryParam, liveQuery, setQuery]);
 
-  const [mounted, setMounted] = useState(false);
   // ✅ ACTIVE FILTERS: User-initiated, ephemeral UI state (starts empty)
   const [selectedInterestIds, setSelectedInterestIds] = useState<string[]>([]);
   // ✅ Track if filters were user-initiated (prevents treating preferences as filters)
@@ -211,7 +172,7 @@ export default function HomeClient() {
     loading: trendingLoading,
     error: trendingError,
     statusCode: trendingStatus,
-  } = useTrendingBusinesses();
+  } = useTrendingBusinesses({ fallbackData: initialTrending });
 
   // Debug logging for user preferences
   useEffect(() => {
@@ -249,11 +210,6 @@ export default function HomeClient() {
   // Note: Prioritization of recently reviewed businesses is now handled on the backend
   // The API automatically prioritizes businesses the user has reviewed within the last 24 hours
 
-  // Set mounted state on client side
-  useEffect(() => {
-    setMounted(true);
-
-  }, []);
 
   // ✅ Guard: Debug logging to track filter state changes
   useEffect(() => {

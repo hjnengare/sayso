@@ -7,8 +7,25 @@ const HomeClient = lazy(() => import('./HomeClient').then((m) => ({ default: m.d
 import Link from 'next/link';
 import SchemaMarkup from '../components/SEO/SchemaMarkup';
 import { generateWebSiteSchema } from '../lib/utils/schemaMarkup';
+import type { Business } from '../components/BusinessCard/BusinessCard';
 
-export default function HomePage() {
+async function prefetchTrending(): Promise<Business[]> {
+  try {
+    const host = process.env.VERCEL_URL ?? 'localhost:3000';
+    const protocol = process.env.VERCEL_URL ? 'https' : 'http';
+    const res = await fetch(`${protocol}://${host}/api/trending?limit=20`, {
+      next: { revalidate: 30 },
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data?.businesses) ? data.businesses : [];
+  } catch {
+    return [];
+  }
+}
+
+export default async function HomePage() {
+  const initialTrending = await prefetchTrending();
   return (
     <>
       <SchemaMarkup schemas={[generateWebSiteSchema()]} />
@@ -21,7 +38,7 @@ export default function HomePage() {
         </ul>
       </nav>
       <Suspense fallback={<HomePageSkeleton />}>
-        <HomeClient />
+        <HomeClient initialTrending={initialTrending} />
       </Suspense>
     </>
   );
