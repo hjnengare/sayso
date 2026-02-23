@@ -24,7 +24,7 @@ interface SavedItemsProviderProps {
   children: ReactNode;
 }
 
-async function fetchSavedBusinessIds(url: string): Promise<string[]> {
+async function fetchSavedBusinessIds([url]: [string, string]): Promise<string[]> {
   const response = await fetch(url, { credentials: 'include' });
   if (!response.ok) {
     if (response.status === 401) return [];
@@ -39,7 +39,7 @@ export function SavedItemsProvider({ children }: SavedItemsProviderProps) {
   const { showToast } = useToast();
   const supabaseRef = useRef(getBrowserSupabase());
 
-  const swrKey = user ? ['/api/saved/businesses', user.id] : null;
+  const swrKey = user ? [`/api/saved/businesses?limit=100`, user.id] : null;
   const { data, isLoading, mutate } = useSWR(swrKey, fetchSavedBusinessIds, {
     ...swrConfig,
     onError: (err) => {

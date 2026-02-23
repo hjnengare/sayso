@@ -10,8 +10,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { useSavedItems } from '../contexts/SavedItemsContext';
 import { swrConfig } from '../lib/swrConfig';
 
-async function fetchSavedBusinesses(): Promise<any[]> {
-  const response = await fetch('/api/saved/businesses?limit=20&page=1', { credentials: 'include' });
+async function fetchSavedBusinesses([url]: [string, string]): Promise<any[]> {
+  const response = await fetch(url, { credentials: 'include' });
 
   if (response.status === 401) {
     return [];
@@ -31,7 +31,7 @@ export function useSavedBusinessesPreview() {
 
   // Shared key across pages for the same user; keeps cache unified.
   const swrKey = (!authLoading && user?.id)
-    ? (['/api/saved/businesses', user.id] as [string, string])
+    ? ([`/api/saved/businesses?limit=20&page=1`, user.id] as [string, string])
     : null;
 
   const { data, error, isLoading, mutate } = useSWR(swrKey, fetchSavedBusinesses, {
