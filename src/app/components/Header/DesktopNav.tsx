@@ -12,6 +12,7 @@ import {
 } from "react";
 import { usePathname } from "next/navigation";
 import { createPortal } from "react-dom";
+import { m, useAnimation } from "framer-motion";
 import {
   ChevronDown,
   Lock,
@@ -109,6 +110,11 @@ export default function DesktopNav(props: DesktopNavProps) {
 
   useEffect(() => setMounted(true), []);
 
+  // ── animation state ────────────────────────────────────────────────────────
+  const [hoveredNavKey, setHoveredNavKey] = useState<string | null>(null);
+  const bellControls = useAnimation();
+  const prevUnreadRef = useRef(unreadCount);
+
   const clearAddHoverTimeout = useCallback(() => {
     if (addCloseTimeoutRef.current) {
       clearTimeout(addCloseTimeoutRef.current);
@@ -182,6 +188,17 @@ export default function DesktopNav(props: DesktopNavProps) {
     };
   }, [isAddDropdownOpen, closeAddDropdown]);
 
+  // Bell shake: triggers once when unread count goes 0 → N
+  useEffect(() => {
+    if (unreadCount > 0 && prevUnreadRef.current === 0) {
+      void bellControls.start({
+        rotate: [0, 14, -10, 6, -3, 0],
+        transition: { duration: 0.55, ease: "easeOut" },
+      });
+    }
+    prevUnreadRef.current = unreadCount;
+  }, [unreadCount, bellControls]);
+
   const isSavedActive = pathname === "/saved";
 
   const baseLinkClass =
@@ -198,7 +215,7 @@ export default function DesktopNav(props: DesktopNavProps) {
     : "text-charcoal/70 md:text-charcoal/80 hover:text-charcoal/95";
 
   const iconWrapClass = (isActive: boolean) =>
-    `mi-tap group w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 relative ${
+    `mi-tap group w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-150 active:scale-[0.88] relative ${
       isActive
         ? "text-sage bg-card-bg/5"
         : whiteText
@@ -222,6 +239,12 @@ export default function DesktopNav(props: DesktopNavProps) {
   };
   const isAddGroupActive = addMenuItems.some((item) => isPathActive(item.href));
 
+  // Sliding pill: show on hovered item, fall back to active item when idle
+  const showPill = (key: string, isActive: boolean) =>
+    hoveredNavKey === key || (hoveredNavKey === null && isActive);
+  const pillClass = `absolute inset-0 rounded-lg ${whiteText ? "bg-white/[0.13]" : "bg-charcoal/[0.07]"}`;
+  const pillTransition = { type: "spring" as const, stiffness: 480, damping: 36, mass: 0.5 };
+
   // Keep runtime stable if account type isn't ready yet
   if (typeof isBusinessAccountUser === "undefined") return null;
 
@@ -242,8 +265,8 @@ export default function DesktopNav(props: DesktopNavProps) {
                   key="add-dropdown"
                   ref={addDropdownRef}
                   className="relative"
-                  onMouseEnter={openAddDropdown}
-                  onMouseLeave={scheduleAddDropdownClose}
+                  onMouseEnter={() => { openAddDropdown(); setHoveredNavKey("add"); }}
+                  onMouseLeave={() => { scheduleAddDropdownClose(); setHoveredNavKey(null); }}
                 >
                   <button
                     type="button"
@@ -260,6 +283,9 @@ export default function DesktopNav(props: DesktopNavProps) {
                     aria-haspopup="true"
                     aria-expanded={isAddDropdownOpen}
                   >
+                    {showPill("add", isAddGroupActive) && (
+                      <m.span layoutId="nav-pill" className={pillClass} transition={pillTransition} />
+                    )}
                     <span className={navLabelHoverClass}>Add</span>
                     <ChevronDown
                       className={`w-4 h-4 transition-transform duration-300 relative z-10 ${
@@ -323,11 +349,16 @@ export default function DesktopNav(props: DesktopNavProps) {
                 key={key}
                 href={targetHref}
                 onClick={(e) => handleNavClick(href, e)}
+                onMouseEnter={() => setHoveredNavKey(key)}
+                onMouseLeave={() => setHoveredNavKey(null)}
                 className={`${baseLinkClass} ${
                   isActive ? activeTextClass : businessPalette
                 }`}
                 style={sf}
               >
+                {showPill(key, isActive) && (
+                  <m.span layoutId="nav-pill" className={pillClass} transition={pillTransition} />
+                )}
                 <span className={navLabelHoverClass}>{label}</span>
               </OptimizedLink>
             );
@@ -344,11 +375,16 @@ export default function DesktopNav(props: DesktopNavProps) {
                 <OptimizedLink
                   href={getLinkHref(href, requiresAuth, isGuest)}
                   onClick={(e) => handleNavClick(href, e)}
+                  onMouseEnter={() => setHoveredNavKey(key)}
+                  onMouseLeave={() => setHoveredNavKey(null)}
                   className={`${baseLinkClass} ${
                     isActive ? activeTextClass : idleTextClass
                   }`}
                   style={sf}
                 >
+                  {showPill(key, isActive) && (
+                    <m.span layoutId="nav-pill" className={pillClass} transition={pillTransition} />
+                  )}
                   <span className={navLabelHoverClass}>{label}</span>
                   {showLockIndicator && (
                     <Lock
@@ -362,8 +398,8 @@ export default function DesktopNav(props: DesktopNavProps) {
                   <div
                     ref={discoverDropdownRef}
                     className="relative"
-                    onMouseEnter={openDiscoverDropdown}
-                    onMouseLeave={scheduleDiscoverDropdownClose}
+                    onMouseEnter={() => { openDiscoverDropdown(); setHoveredNavKey("discover"); }}
+                    onMouseLeave={() => { scheduleDiscoverDropdownClose(); setHoveredNavKey(null); }}
                   >
                     <button
                       ref={discoverBtnRef}
@@ -381,6 +417,9 @@ export default function DesktopNav(props: DesktopNavProps) {
                       aria-expanded={isDiscoverDropdownOpen}
                       aria-haspopup="true"
                     >
+                      {showPill("discover", isDiscoverActive) && (
+                        <m.span layoutId="nav-pill" className={pillClass} transition={pillTransition} />
+                      )}
                       <span className={navLabelHoverClass}>
                         Discover
                       </span>
@@ -503,11 +542,13 @@ export default function DesktopNav(props: DesktopNavProps) {
           className={`${iconWrapClass(false)} cursor-pointer pointer-events-auto select-none relative z-[2]`}
           aria-label="Sign in for notifications"
         >
-          <Bell
-            className={`${iconClass(false)} pointer-events-none`}
-            fill="none"
-            style={{ textShadow: "0 2px 4px rgba(0, 0, 0, 0.1)" }}
-          />
+          <m.span className="inline-flex" animate={bellControls}>
+            <Bell
+              className={`${iconClass(false)} pointer-events-none`}
+              fill="none"
+              style={{ textShadow: "0 2px 4px rgba(0, 0, 0, 0.1)" }}
+            />
+          </m.span>
           <span className="pointer-events-none absolute -bottom-0.5 -right-0.5 flex items-center justify-center w-4 h-4 text-coral">
             <Lock className="w-2.5 h-2.5" />
           </span>
@@ -519,11 +560,13 @@ export default function DesktopNav(props: DesktopNavProps) {
           className={`${iconWrapClass(isNotificationsActive)} cursor-pointer pointer-events-auto select-none relative z-[2]`}
           aria-label="Notifications"
         >
-          <Bell
-            className={`${iconClass(isNotificationsActive)} pointer-events-none`}
-            fill={isNotificationsActive ? "currentColor" : "none"}
-            style={{ textShadow: "0 2px 4px rgba(0, 0, 0, 0.1)" }}
-          />
+          <m.span className="inline-flex" animate={bellControls}>
+            <Bell
+              className={`${iconClass(isNotificationsActive)} pointer-events-none`}
+              fill={isNotificationsActive ? "currentColor" : "none"}
+              style={{ textShadow: "0 2px 4px rgba(0, 0, 0, 0.1)" }}
+            />
+          </m.span>
           {unreadCount > 0 && (
             <span className="pointer-events-none absolute -top-1.5 -right-1.5 flex items-center justify-center min-w-[20px] h-[20px] px-1.5 text-[10px] leading-none font-extrabold tracking-tight rounded-full bg-white text-coral border border-coral/30 shadow-[0_6px_14px_rgba(0,0,0,0.2)]">
               {unreadCount > 99 ? "99+" : unreadCount}
