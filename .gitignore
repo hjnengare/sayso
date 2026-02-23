@@ -44,13 +44,18 @@ dev-output.log
 
 # Temporary Claude files
 tmpclaude-*/
+tmpclaude-*-cwd
+.claude/settings.local.json
 
 # Test results and reports
 test-results/
 playwright-report/
+playwright-report/**/*
+playwright/.auth/
 
 # Supabase temp files
 supabase/.temp/
+supabase/.temp/**/*
 
 # Local Claude settings
 .claude/
@@ -128,17 +133,20 @@ dist
 # Temporary folders
 tmp/
 temp/
+.temp/
 
 # Editor swap files
 *.swp
 *.swo
 *~
 
-# Test output and reports
-test-results/
-playwright-report/
-coverage/
-playwright/.auth/
+# Data/seed exports (keep out of repo unless intentionally public)
+businesses.csv
+businesses_mapping_report.txt
+docs/data/
+
+# External verification tokens
+public/google01a88f23a79c8d23.html
 
 # Bundle analyzer
 .next/analyze/
