@@ -198,7 +198,7 @@ function NotificationList({
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ delay: index * 0.05 }}
-                  className={`bg-white rounded-xl p-3.5 sm:p-4 mb-2.5 last:mb-0 transition-all duration-200 ${
+                  className={`bg-transparent text-charcoal rounded-xl p-3.5 sm:p-4 mb-2.5 last:mb-0 transition-all duration-200 ${
                     isRead ? 'opacity-60' : 'border border-charcoal/10'
                   } ${hasLink ? 'cursor-pointer hover:border-navbar-bg/30 hover:shadow-sm' : ''}`}
                   {...(hasLink && {
