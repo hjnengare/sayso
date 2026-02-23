@@ -71,7 +71,7 @@ export default function ReviewerCard({
     return (
       <div
         id={idForSnap}
-        className="snap-start snap-always w-full sm:w-[240px] flex-shrink-0"
+        className="snap-start snap-always w-full sm:w-[240px] flex-shrink-0 h-full"
       >
         <Link href={cardHref} className="block group/card h-full">
           <div className="relative bg-card-bg rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 flex flex-col cursor-pointer group-hover/card:-translate-y-0.5">
@@ -91,7 +91,7 @@ export default function ReviewerCard({
             {/* Hover tint — very subtle, doesn't fight bg-card-bg */}
             <div className="absolute inset-0 bg-gradient-to-br from-transparent to-sage/[0.03] opacity-0 group-hover/card:opacity-100 transition-opacity duration-300 pointer-events-none rounded-2xl" />
 
-            <div className="relative p-4 flex flex-col gap-3.5">
+            <div className="relative p-4 flex flex-col gap-3.5 h-full">
 
               {/* ── IDENTITY ROW ── avatar + name + status */}
               <div className="flex items-center gap-3">
@@ -164,7 +164,7 @@ export default function ReviewerCard({
               `}</style>
               <div className="grid grid-cols-3 gap-1.5">
                 {/* Reviews */}
-                <div className="flex flex-col items-center px-2 py-2 rounded-full bg-off-white/60 border border-charcoal/[0.06] shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden">
+                <div className="flex flex-col items-center px-2 py-2 rounded-full bg-off-white/70 hover:bg-off-white/90 transition-colors border border-charcoal/[0.06] shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden">
                   <span
                     className={`stat-tick text-[22px] font-black leading-none tracking-tight ${
                       isTopReviewer
@@ -184,7 +184,7 @@ export default function ReviewerCard({
                 </div>
 
                 {/* Avg rating */}
-                <div className="flex flex-col items-center px-2 py-2 rounded-full bg-off-white/60 border border-charcoal/[0.06] shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden">
+                <div className="flex flex-col items-center px-2 py-2 rounded-full bg-off-white/70 hover:bg-off-white/90 transition-colors border border-charcoal/[0.06] shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden">
                   <span
                     className="stat-tick text-[22px] font-black leading-none tracking-tight text-charcoal"
                     style={{ fontFamily: "'Urbanist', system-ui, sans-serif", fontWeight: 900, animationDelay: '120ms' }}
@@ -202,7 +202,7 @@ export default function ReviewerCard({
                 </div>
 
                 {/* Helpful votes */}
-                <div className="flex flex-col items-center px-2 py-2 rounded-full bg-off-white/60 border border-charcoal/[0.06] shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden">
+                <div className="flex flex-col items-center px-2 py-2 rounded-full bg-off-white/70 hover:bg-off-white/90 transition-colors border border-charcoal/[0.06] shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden">
                   <span
                     className="stat-tick text-[22px] font-black leading-none tracking-tight text-charcoal"
                     style={{ fontFamily: "'Urbanist', system-ui, sans-serif", fontWeight: 900, animationDelay: '240ms' }}
