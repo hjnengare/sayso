@@ -24,6 +24,7 @@ import {
     ChevronLeft,
     User,
 } from "lucide-react";
+import { GoldBanner } from "@/app/components/GoldBanner";
 import Footer from "../../components/Footer/Footer";
 import { ReviewsList } from "@/components/organisms/ReviewsList";
 import ReviewerProfileSkeleton from "../../components/ReviewerCard/ReviewerProfileSkeleton";
@@ -388,36 +389,43 @@ export default function ReviewerProfilePage() {
                                                 </h3>
                                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                                                     {reviewer.badges.map((badge) => (
-                                                        <div key={badge.id} className="bg-gradient-to-br from-white/60 to-off-white/80 rounded-[12px] p-6 border-none shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
-                                                            <div className="flex items-center gap-3 mb-2">
-                                                                <div className="relative w-8 h-8 flex-shrink-0">
-                                                                    <Image
-                                                                        src={badge.icon}
-                                                                        alt={badge.name}
-                                                                        fill
-                                                                        className="object-contain"
-                                                                        unoptimized
-                                                                    />
-                                                                </div>
-                                                                <div>
-                                                                    <div className="text-sm font-bold text-charcoal" style={{
-                                                                        fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-                                                                        fontWeight: 700,
-                                                                    }}>
-                                                                        {badge.name}
+                                                        <div
+                                                            key={badge.id}
+                                                            className="transition-all duration-300 hover:shadow-xl hover:scale-[1.02]"
+                                                        >
+                                                            <GoldBanner className="rounded-[12px] shadow-lg">
+                                                                <div className="rounded-[12px] p-6 h-full">
+                                                                    <div className="flex items-center gap-3 mb-2">
+                                                                        <div className="relative w-8 h-8 flex-shrink-0">
+                                                                            <Image
+                                                                                src={badge.icon}
+                                                                                alt={badge.name}
+                                                                                fill
+                                                                                className="object-contain"
+                                                                                unoptimized
+                                                                            />
+                                                                        </div>
+                                                                        <div>
+                                                                            <div className="text-sm font-bold text-charcoal" style={{
+                                                                                fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                                                                                fontWeight: 700,
+                                                                            }}>
+                                                                                {badge.name}
+                                                                            </div>
+                                                                            <div className="text-xs text-charcoal/60" style={{
+                                                                                fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                                                                            }}>
+                                                                                Earned {badge.earnedDate}
+                                                                            </div>
+                                                                        </div>
                                                                     </div>
-                                                                    <div className="text-xs text-charcoal/60" style={{
+                                                                    <p className="text-xs text-charcoal/70" style={{
                                                                         fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                                                                     }}>
-                                                                        Earned {badge.earnedDate}
-                                                                    </div>
+                                                                        {badge.description}
+                                                                    </p>
                                                                 </div>
-                                                            </div>
-                                                            <p className="text-xs text-charcoal/70" style={{
-                                                                fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-                                                            }}>
-                                                                {badge.description}
-                                                            </p>
+                                                            </GoldBanner>
                                                         </div>
                                                     ))}
                                                 </div>

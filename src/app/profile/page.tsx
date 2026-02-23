@@ -48,6 +48,7 @@ import { useUserStats } from "@/app/hooks/useUserStats";
 import { useUserReviews, type Review } from "@/app/hooks/useUserReviews";
 import { useUserBadges, type UserAchievement } from "@/app/hooks/useUserBadges";
 import { useSavedBusinessesPreview } from "@/app/hooks/useSavedBusinessesDetails";
+import { GoldBanner } from "@/app/components/GoldBanner";
 
 // Types
 import type { EnhancedProfile, UserStats } from '@/app/lib/types/user';
@@ -915,37 +916,34 @@ function ProfileContent() {
                                   animate={{ opacity: 1, scale: 1 }}
                                   transition={{ delay: idx * 0.04, type: "spring", stiffness: 300, damping: 25 }}
                                   whileHover={{ scale: 1.04, y: -2 }}
-                                  className={`
-                                    flex flex-col items-center text-center p-4 rounded-2xl
-                                    bg-gradient-to-br ${colors.bg}
-                                    ring-1 ${colors.ring}
-                                    border border-white/70 shadow-sm
-                                    cursor-default transition-shadow duration-300
-                                    hover:shadow-md
-                                  `}
+                                  className="cursor-default transition-shadow duration-300 hover:shadow-md"
                                 >
-                                  <div className="relative w-12 h-12 mb-2">
-                                    <Image
-                                      src={correctPngPath}
-                                      alt={achievement.achievements.name}
-                                      width={48}
-                                      height={48}
-                                      className="w-12 h-12 object-contain drop-shadow-sm"
-                                    />
-                                    {/* Subtle shine sweep */}
-                                    <m.div
-                                      className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/40 to-transparent rounded-lg pointer-events-none"
-                                      initial={{ x: "-100%" }}
-                                      animate={{ x: "200%" }}
-                                      transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 4 + idx * 0.5 }}
-                                    />
-                                  </div>
-                                  <h4 className={`text-xs font-bold ${colors.accent} leading-tight mb-0.5`}>
-                                    {achievement.achievements.name}
-                                  </h4>
-                                  <p className="text-[10px] text-charcoal/55 leading-snug line-clamp-2">
-                                    {achievement.achievements.description}
-                                  </p>
+                                  <GoldBanner className="rounded-2xl shadow-sm ring-1 ring-white/60 border border-white/70 h-full">
+                                    <div className="flex flex-col items-center text-center p-4 rounded-2xl h-full">
+                                      <div className="relative w-12 h-12 mb-2">
+                                        <Image
+                                          src={correctPngPath}
+                                          alt={achievement.achievements.name}
+                                          width={48}
+                                          height={48}
+                                          className="w-12 h-12 object-contain drop-shadow-sm"
+                                        />
+                                        {/* Subtle shine sweep */}
+                                        <m.div
+                                          className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/40 to-transparent rounded-lg pointer-events-none"
+                                          initial={{ x: "-100%" }}
+                                          animate={{ x: "200%" }}
+                                          transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 4 + idx * 0.5 }}
+                                        />
+                                      </div>
+                                      <h4 className={`text-xs font-bold ${colors.accent} leading-tight mb-0.5`}>
+                                        {achievement.achievements.name}
+                                      </h4>
+                                      <p className="text-[10px] text-charcoal/55 leading-snug line-clamp-2">
+                                        {achievement.achievements.description}
+                                      </p>
+                                    </div>
+                                  </GoldBanner>
                                 </m.div>
                               );
                             })}

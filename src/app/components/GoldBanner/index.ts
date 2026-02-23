@@ -1,0 +1,1 @@
+export { GoldBanner } from "./GoldBanner";
