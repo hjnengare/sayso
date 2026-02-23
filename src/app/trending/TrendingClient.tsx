@@ -20,6 +20,7 @@ import { useIsDesktop } from "../hooks/useIsDesktop";
 import ListMapToggle from "./ListMapToggle";
 import SearchFilterBar from "./SearchFilterBar";
 import type { Business } from "../components/BusinessCard/BusinessCard";
+import EventAlertBanner from "../components/EventAlertBanner/EventAlertBanner";
 // Trending = cold-start API (/api/trending): metadata-only score, diversity-first selection, deterministic rotation.
 
 // Animation variants for staggered card appearance - optimized for performance
@@ -275,7 +276,8 @@ export default function TrendingClient({ fallbackData }: TrendingClientProps = {
       <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5 pointer-events-none" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)] pointer-events-none" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)] pointer-events-none" />
-      {/* Header */}
+
+      <EventAlertBanner />
 
       <main className="relative">
         

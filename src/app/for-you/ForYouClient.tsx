@@ -26,6 +26,7 @@ import type { BusinessMapItem } from "../components/maps/BusinessesMap";
 import { sortBusinessesByPriority } from "../utils/businessPrioritization";
 import { getCategoryLabelFromBusiness } from "../utils/subcategoryPlaceholders";
 import { useIsDesktop as useIsDesktopHook } from "../hooks/useIsDesktop";
+import EventAlertBanner from "../components/EventAlertBanner/EventAlertBanner";
 
 
 // Note: dynamic and revalidate cannot be exported from client components
@@ -462,6 +463,8 @@ export default function ForYouClient({
       <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5 pointer-events-none" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)] pointer-events-none" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)] pointer-events-none" />
+
+      <EventAlertBanner />
 
       <main className="relative">
         
