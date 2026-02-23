@@ -1,6 +1,6 @@
 "use client";
 
-import { Star } from "lucide-react";
+import GoldStar from "../Icons/GoldStar";
 
 interface BusinessInfoProps {
   businessName: string;
@@ -13,7 +13,7 @@ export default function BusinessInfo({ businessName, businessRating }: BusinessI
       <h2 className="text-sm font-bold text-charcoal mb-2">{businessName}</h2>
       <div className="flex items-center justify-center space-x-2">
         <div className="flex items-center space-x-1 bg-gradient-to-br from-amber-400 to-amber-600 px-3 py-1.5 rounded-full">
-          <Star size={16} className="text-white" style={{ fill: "currentColor" }} />
+          <GoldStar size={16} />
           <span className="text-sm font-600 text-white">
             {businessRating.toFixed(1)}
           </span>

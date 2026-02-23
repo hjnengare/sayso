@@ -2,7 +2,8 @@
 "use client";
 
 import { m } from "framer-motion";
-import { Star, MapPin } from "lucide-react";
+import { MapPin } from "lucide-react";
+import GoldStar from "../Icons/GoldStar";
 import type { Event } from "../../lib/types/Event";
 
 interface EventInfoProps {
@@ -28,7 +29,7 @@ export default function EventInfo({ event, sharedTitleLayoutId }: EventInfoProps
       <div className="flex items-center gap-3 mb-4 flex-wrap">
         {event.rating != null && (
           <div className="inline-flex items-center gap-1 rounded-full bg-off-white/95 backdrop-blur-xl px-3 py-1.5 text-charcoal border-none">
-            <Star className="w-3.5 h-3.5 text-coral fill-coral" aria-hidden />
+            <GoldStar size={14} className="w-3.5 h-3.5" />
             <span
               className="text-body-sm font-semibold text-charcoal"
               style={{ 

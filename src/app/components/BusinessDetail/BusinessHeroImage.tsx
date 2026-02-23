@@ -4,7 +4,8 @@
 import { useState, useMemo } from "react";
 import { m, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { Star, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import GoldStar from "../Icons/GoldStar";
 import { getSubcategoryPlaceholder } from "../../utils/subcategoryPlaceholders";
 import { isPlaceholderImage } from "../../utils/subcategoryPlaceholders";
 
@@ -164,7 +165,7 @@ export default function BusinessHeroImage({
 
       {/* Rating Badge - matching BusinessCard style */}
       <div className="absolute top-6 right-6 z-20 inline-flex items-center gap-1 rounded-full bg-off-white/95 backdrop-blur-xl px-3 py-1.5 text-charcoal border-none">
-        <Star className="w-3.5 h-3.5 text-coral fill-coral" aria-hidden />
+        <GoldStar size={14} className="w-3.5 h-3.5" />
         <span className="text-body-sm font-semibold text-charcoal" style={{
           fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
           fontWeight: 600

@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { Star } from "lucide-react";
+import { useId, useState } from "react";
 import { m, AnimatePresence } from "framer-motion";
 
 interface RatingSelectorProps {
@@ -22,6 +21,7 @@ export default function RatingSelector({ overallRating, onRatingChange }: Rating
   const [hoverRating, setHoverRating] = useState<number | null>(null);
   const displayRating = hoverRating ?? overallRating;
   const currentLabel = displayRating > 0 ? ratingLabels[displayRating] : null;
+  const gradientId = `goldStarRating-${useId().replace(/:/g, "")}`;
 
   return (
     <div className="mb-6">
@@ -68,6 +68,14 @@ export default function RatingSelector({ overallRating, onRatingChange }: Rating
 
       {/* Star Rating - Large touch targets for mobile */}
       <div className="flex items-center justify-center gap-1 sm:gap-2">
+        <svg width="0" height="0" className="absolute">
+          <defs>
+            <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#F5D547" />
+              <stop offset="100%" stopColor="#E6A547" />
+            </linearGradient>
+          </defs>
+        </svg>
         {[1, 2, 3, 4, 5].map((star) => {
           const isActive = star <= displayRating;
           const isSelected = star <= overallRating;
@@ -109,17 +117,22 @@ export default function RatingSelector({ overallRating, onRatingChange }: Rating
                   rotate: { duration: 0.3, delay: 0.1 }
                 }}
               >
-                <Star
-                  size={36}
-                  className={`transition-colors duration-200 drop-shadow-sm ${
-                    isActive ? 'text-coral' : 'text-charcoal/50'
-                  }`}
-                  style={{
-                    fill: isActive ? "currentColor" : "none",
-                    stroke: isActive ? "currentColor" : "currentColor",
-                    strokeWidth: isActive ? 0 : 2,
-                  }}
-                />
+                <svg
+                  width={36}
+                  height={36}
+                  viewBox="0 0 24 24"
+                  className={`transition-colors duration-200 drop-shadow-sm ${isActive ? "" : "opacity-35"}`}
+                  aria-hidden
+                >
+                  <path
+                    d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+                    fill={`url(#${gradientId})`}
+                    stroke={`url(#${gradientId})`}
+                    strokeWidth={isActive ? 0 : 2}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
               </m.div>
             </m.button>
           );
