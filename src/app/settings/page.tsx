@@ -54,7 +54,7 @@ export default function SettingsPage() {
           <section className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[16px] shadow-lg p-5 sm:p-6">
             <div className="absolute top-0 right-0 w-28 h-28 bg-gradient-to-br from-white/20 to-transparent rounded-full blur-xl pointer-events-none" />
             <div className="relative flex items-start gap-4">
-              <div className="w-12 h-12 rounded-full bg-white/90 border border-white/70 flex items-center justify-center text-charcoal font-bold text-base shadow-sm" style={{ fontFamily: FONT_STACK }}>
+              <div className="w-12 h-12 rounded-full bg-white/90   flex items-center justify-center text-charcoal font-bold text-base shadow-sm" style={{ fontFamily: FONT_STACK }}>
                 {username.charAt(0).toUpperCase()}
               </div>
               <div className="min-w-0 flex-1">
@@ -82,7 +82,7 @@ export default function SettingsPage() {
             </h2>
             <button
               onClick={handleLogout}
-              className="w-full flex items-center justify-center gap-2.5 px-6 py-3.5 bg-white/85 hover:bg-white border border-white/70 hover:border-white rounded-[12px] text-charcoal font-semibold transition-all duration-200 text-sm shadow-sm hover:shadow-md"
+              className="w-full flex items-center justify-center gap-2.5 px-6 py-3.5 bg-white/85 hover:bg-white   hover:border-white rounded-[12px] text-charcoal font-semibold transition-all duration-200 text-sm shadow-sm hover:shadow-md"
               style={{ fontFamily: FONT_STACK }}
             >
               <LogOut className="w-4 h-4" />

@@ -187,7 +187,7 @@ export default function BusinessInfoAside({ businessInfo, className = "", stacke
               <div className="absolute inset-0 rounded-[12px] bg-gradient-to-br from-sage/5 to-coral/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               
               <div className="relative z-10 flex gap-4">
-                <div className="w-14 h-14 rounded-[12px] bg-gradient-to-br from-white/60 via-white/40 to-white/30 border border-white/70 shadow-md grid place-items-center flex-shrink-0 backdrop-blur-sm group-hover:scale-110 transition-transform duration-300">
+                <div className="w-14 h-14 rounded-[12px] bg-gradient-to-br from-white/60 via-white/40 to-white/30   shadow-md grid place-items-center flex-shrink-0 backdrop-blur-sm group-hover:scale-110 transition-transform duration-300">
                   {row.icon}
                 </div>
                 <div className="flex-1 min-w-0">

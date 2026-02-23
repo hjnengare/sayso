@@ -918,7 +918,7 @@ function ProfileContent() {
                                   whileHover={{ scale: 1.04, y: -2 }}
                                   className="cursor-default transition-shadow duration-300 hover:shadow-md"
                                 >
-                                  <GoldBanner className="rounded-2xl shadow-sm ring-1 ring-white/60 border border-white/70 h-full">
+                                  <GoldBanner className="rounded-2xl shadow-sm ring-1 ring-white/60   h-full">
                                     <div className="flex flex-col items-center text-center p-4 rounded-2xl h-full">
                                       <div className="relative w-12 h-12 mb-2">
                                         <Image

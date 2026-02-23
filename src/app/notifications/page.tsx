@@ -83,7 +83,7 @@ function BusinessNotificationList({
 
   if (notifications.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-center">
+      <div className="flex flex-col flex-1 items-center justify-center py-8 text-center">
         <div className="w-16 h-16 mb-4 bg-charcoal/8 rounded-full flex items-center justify-center">
           <Bell className="w-8 h-8 text-charcoal/40" strokeWidth={1.5} />
         </div>
@@ -270,7 +270,7 @@ function PersonalNotificationList(props: NotificationListProps) {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.2 }}
-          className={`bg-card-bg text-charcoal rounded-[12px] p-4 sm:p-5 mb-3 last:mb-0 transition-all duration-200 border border-white/70 shadow-md ${
+          className={`bg-card-bg text-charcoal rounded-[12px] p-4 sm:p-5 mb-3 last:mb-0 transition-all duration-200   shadow-md ${
             isRead ? 'opacity-70' : ''
           } ${hasLink ? 'cursor-pointer hover:shadow-lg hover:border-navbar-bg/30' : ''}`}
           {...onClickProps}
@@ -319,7 +319,7 @@ export default function NotificationsPage() {
   if (isBusinessAccountUser) {
     return (
       <PortalLayout>
-        <div className="p-4 sm:p-6 lg:p-8 max-w-2xl font-urbanist">
+        <div className="p-4 sm:p-6 lg:p-8 max-w-2xl font-urbanist min-h-full flex flex-col">
           {/* Section header */}
           <div className="flex items-center gap-2.5 mb-6">
             <div className="w-8 h-8 rounded-lg bg-navbar-bg/10 flex items-center justify-center">
@@ -332,7 +332,7 @@ export default function NotificationsPage() {
           </div>
 
           {isLoading ? (
-            <div className="flex items-center justify-center py-12">
+            <div className="flex-1 flex items-center justify-center">
               <PageLoader size="md" variant="wavy" color="sage" />
             </div>
           ) : (
@@ -353,15 +353,15 @@ export default function NotificationsPage() {
   // --- Personal account view ---------------------------------------------------
   return (
     <div
-      className="min-h-dvh flex flex-col bg-off-white relative font-urbanist"
+      className="min-h-[100dvh] flex flex-col bg-off-white relative font-urbanist"
       style={{ fontFamily: '"Urbanist", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
     >
       <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)]" />
 
-      <main className="flex-1 relative z-10">
-        <div className="pb-12 sm:pb-16 md:pb-20">
+      <main className="flex-1 flex flex-col relative z-10">
+        <div className="flex-1 flex flex-col pb-12 sm:pb-16 md:pb-20">
           <m.div
             className="mx-auto w-full max-w-[2000px] px-2 relative mb-4"
             initial={{ opacity: 0, y: -10 }}
@@ -392,17 +392,17 @@ export default function NotificationsPage() {
           </m.div>
 
           {isLoading ? (
-            <div className="flex items-center justify-center py-12">
+            <div className="flex-1 flex items-center justify-center">
               <PageLoader size="md" variant="wavy" color="sage" />
             </div>
           ) : (
             <m.div
-              className="relative z-10"
+              className="relative z-10 flex flex-col flex-1"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4 }}
             >
-              <div className="mx-auto w-full max-w-[2000px] px-2">
+              <div className="mx-auto w-full max-w-[2000px] px-2 flex flex-col flex-1">
                 {/* Title */}
                 <m.div
                   className="mb-6 sm:mb-8 px-2"
@@ -424,7 +424,7 @@ export default function NotificationsPage() {
                   </p>
                 </m.div>
 
-                <div className="px-2">
+                <div className="px-2 flex flex-col flex-1">
                   <PersonalNotificationList
                     notifications={personalNotifications}
                     readNotifications={personalReadNotifications}

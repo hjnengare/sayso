@@ -65,7 +65,7 @@ export default function ReviewerProfileSkeleton() {
               {/* Stats Grid Skeleton */}
               <section className="grid grid-cols-2 sm:grid-cols-4 gap-6" aria-hidden="true">
                 {Array.from({ length: 4 }).map((_, index) => (
-                  <div key={index} className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/70 rounded-[16px] shadow-xl p-6">
+                  <div key={index} className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl   rounded-[16px] shadow-xl p-6">
                     <div className="flex items-center gap-2 mb-2">
                       <div className="w-5 h-5 bg-coral/20 rounded animate-pulse" />
                       <div className="h-3 w-12 bg-charcoal/5 rounded animate-pulse" />
@@ -76,7 +76,7 @@ export default function ReviewerProfileSkeleton() {
               </section>
 
               {/* Badges Section Skeleton */}
-              <section className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/70 rounded-[20px] shadow-2xl p-8 sm:p-10" aria-hidden="true">
+              <section className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl   rounded-[20px] shadow-2xl p-8 sm:p-10" aria-hidden="true">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="h-6 w-48 bg-charcoal/10 rounded animate-pulse" />
                   <div className="h-5 w-8 bg-charcoal/5 rounded animate-pulse" />
@@ -98,7 +98,7 @@ export default function ReviewerProfileSkeleton() {
               </section>
 
               {/* Reviews Section Skeleton */}
-              <section className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border border-white/70 rounded-[20px] shadow-2xl p-8 sm:p-10" aria-hidden="true">
+              <section className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl   rounded-[20px] shadow-2xl p-8 sm:p-10" aria-hidden="true">
                 <div className="h-6 w-32 bg-charcoal/10 rounded animate-pulse mb-6" />
                 <div className="space-y-6">
                   {Array.from({ length: 5 }).map((_, index) => (

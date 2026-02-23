@@ -488,7 +488,7 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
 
         {/* Role toggle */}
         <div className="flex justify-center px-4">
-          <div className="inline-flex rounded-full bg-white/70 shadow-sm border border-white/70 p-1">
+          <div className="inline-flex rounded-full bg-white/70 shadow-sm   p-1">
             <button
               type="button"
               onClick={() => setAccountType("personal")}

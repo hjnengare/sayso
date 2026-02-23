@@ -267,10 +267,19 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
     await mutate();
   }, [mutate]);
 
-  const unreadCount = useMemo(
-    () => Math.max(0, notifications.filter(n => !readNotifications.has(n.id)).length),
-    [notifications, readNotifications]
-  );
+  // Persist the last known count so the badge doesn't flash to 0 during
+  // route transitions where authLoading briefly becomes true (swrKey → null
+  // → rawNotifications → undefined).
+  const stableUnreadCountRef = useRef(0);
+
+  const unreadCount = useMemo(() => {
+    // rawNotifications is undefined when swrKey is null (auth resolving).
+    // Return the last known count instead of resetting the badge to 0.
+    if (rawNotifications === undefined) return stableUnreadCountRef.current;
+    const count = Math.max(0, notifications.filter(n => !readNotifications.has(n.id)).length);
+    stableUnreadCountRef.current = count;
+    return count;
+  }, [rawNotifications, notifications, readNotifications]);
 
   return (
     <NotificationsContext.Provider value={{

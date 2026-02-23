@@ -320,7 +320,7 @@ export default function ReviewerProfilePage() {
 
                                         {/* Stats Section */}
                                         <section className="grid grid-cols-2 sm:grid-cols-4 gap-6" aria-label="Reviewer statistics">
-                                            <div className="bg-gradient-to-br bg-card-bg backdrop-blur-xl border border-white/70 rounded-[12px] shadow-xl p-6 animate-fade-in-up animate-delay-100 hover:shadow-2xl transition-all duration-300">
+                                            <div className="bg-gradient-to-br bg-card-bg backdrop-blur-xl   rounded-[12px] shadow-xl p-6 animate-fade-in-up animate-delay-100 hover:shadow-2xl transition-all duration-300">
                                                 <div className="flex items-center gap-2 mb-2">
                                                     <ThumbsUp className="w-5 h-5 text-coral" />
                                                     <span className="text-sm text-charcoal/70" style={{
@@ -334,7 +334,7 @@ export default function ReviewerProfilePage() {
                                                     {reviewer.helpfulVotes.toLocaleString('en-US')}
                                                 </div>
                                             </div>
-                                            <div className="bg-gradient-to-br bg-card-bg backdrop-blur-xl border border-white/70 rounded-[12px] shadow-xl p-6 animate-fade-in-up animate-delay-300 hover:shadow-2xl transition-all duration-300">
+                                            <div className="bg-gradient-to-br bg-card-bg backdrop-blur-xl   rounded-[12px] shadow-xl p-6 animate-fade-in-up animate-delay-300 hover:shadow-2xl transition-all duration-300">
                                                 <div className="flex items-center gap-2 mb-2">
                                                     <Award className="w-5 h-5 text-coral" />
                                                     <span className="text-sm text-charcoal/70" style={{
@@ -348,7 +348,7 @@ export default function ReviewerProfilePage() {
                                                     {reviewer.badgesCount.toLocaleString('en-US')}
                                                 </div>
                                             </div>
-                                            <div className="bg-gradient-to-br bg-card-bg backdrop-blur-xl border border-white/70 rounded-[12px] shadow-xl p-6 animate-fade-in-up animate-delay-200 hover:shadow-2xl transition-all duration-300">
+                                            <div className="bg-gradient-to-br bg-card-bg backdrop-blur-xl   rounded-[12px] shadow-xl p-6 animate-fade-in-up animate-delay-200 hover:shadow-2xl transition-all duration-300">
                                                 <div className="flex items-center gap-2 mb-2">
                                                     <TrendingUp className="w-5 h-5 text-coral" />
                                                     <span className="text-sm text-charcoal/70" style={{
@@ -362,7 +362,7 @@ export default function ReviewerProfilePage() {
                                                     {reviewer.impactScore.toLocaleString('en-US')}
                                                 </div>
                                             </div>
-                                            <div className="bg-gradient-to-br bg-card-bg backdrop-blur-xl border border-white/70 rounded-[12px] shadow-xl p-6 animate-fade-in-up animate-delay-300 hover:shadow-2xl transition-all duration-300">
+                                            <div className="bg-gradient-to-br bg-card-bg backdrop-blur-xl   rounded-[12px] shadow-xl p-6 animate-fade-in-up animate-delay-300 hover:shadow-2xl transition-all duration-300">
                                                 <div className="flex items-center gap-2 mb-2">
                                                     <TrendingUp className="w-5 h-5 text-coral" />
                                                     <span className="text-sm text-charcoal/70" style={{
@@ -380,7 +380,7 @@ export default function ReviewerProfilePage() {
 
                                         {/* Badges Section */}
                                         {reviewer.badges && reviewer.badges.length > 0 && (
-                                            <section className="bg-gradient-to-br bg-card-bg backdrop-blur-xl border border-white/70 rounded-[12px] shadow-2xl p-8 sm:p-10 animate-fade-in-up hover:shadow-2xl transition-all duration-500" aria-label="Reviewer badges">
+                                            <section className="bg-gradient-to-br bg-card-bg backdrop-blur-xl   rounded-[12px] shadow-2xl p-8 sm:p-10 animate-fade-in-up hover:shadow-2xl transition-all duration-500" aria-label="Reviewer badges">
                                                 <h3 className="text-lg font-bold text-charcoal mb-4" style={{
                                                     fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                                                     fontWeight: 700,
@@ -434,7 +434,7 @@ export default function ReviewerProfilePage() {
 
                                         {/* Reviews Section */}
                                         <section
-                                            className="bg-card-bg border border-white/70 rounded-[12px] shadow-2xl p-8 sm:p-10 hover:shadow-2xl transition-all duration-500"
+                                            className="bg-card-bg   rounded-[12px] shadow-2xl p-8 sm:p-10 hover:shadow-2xl transition-all duration-500"
                                             aria-label="Reviews written by this reviewer"
                                         >
                                            <div className="bg-off-white/80 shadow-md px-4 rounded-[12px] py-3 mb-6 border-none">
