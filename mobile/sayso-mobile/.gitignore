@@ -1,6 +1,0 @@
-﻿node_modules
-.expo
-dist
-build
-.env
-.env.local
