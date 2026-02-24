@@ -12,6 +12,7 @@ import {
   Tag,
   Settings,
 } from "lucide-react";
+import Wordmark from "../Logo/Wordmark";
 
 export const PORTAL_NAV_ITEMS = [
   { href: "/my-businesses", label: "My Businesses", icon: LayoutDashboard, exact: true },
@@ -36,7 +37,7 @@ export default function PortalSidebar({ pathname, onClose }: PortalSidebarProps)
           <div className="w-7 h-7 rounded-lg bg-white/15 flex items-center justify-center">
             <Store className="w-4 h-4 text-white" />
           </div>
-          <span className="font-urbanist font-bold text-base text-white tracking-tight">My Portal</span>
+          <Wordmark size="text-base" className="tracking-tight" />
         </Link>
         {onClose && (
           <button

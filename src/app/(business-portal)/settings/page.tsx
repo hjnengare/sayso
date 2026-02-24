@@ -51,7 +51,7 @@ export default function SettingsPage() {
   const username = user?.profile?.username || user?.profile?.display_name || user?.email?.split("@")[0] || "User";
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-2xl">
+    <div className="mx-auto w-full max-w-5xl p-4 sm:p-6 lg:p-8">
         <div className="space-y-5">
           {/* Account Summary */}
           <section className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[16px] shadow-lg p-5 sm:p-6">
