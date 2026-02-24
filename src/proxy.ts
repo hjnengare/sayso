@@ -255,6 +255,33 @@ export async function proxy(request: NextRequest) {
 
   let user = null;
   let authError = null;
+  const recoverUserFromSession = async (reason: string): Promise<any | null> => {
+    try {
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) {
+        debugLog('AUTH_RECOVERY_ERROR', {
+          requestId,
+          reason,
+          error: sessionError.message,
+        });
+        return null;
+      }
+
+      if (session?.user) {
+        debugLog('AUTH_RECOVERED', {
+          requestId,
+          reason,
+          userId: session.user.id,
+        });
+        return session.user;
+      }
+
+      return null;
+    } catch (sessionRecoveryError) {
+      console.warn('Middleware: Session recovery failed:', sessionRecoveryError);
+      return null;
+    }
+  };
 
   try {
     // Attempt to get user with timeout protection
@@ -278,87 +305,101 @@ export async function proxy(request: NextRequest) {
 
     // Handle authentication errors with better categorization
     if (error) {
-      authError = error;
-      const errorMessage = error.message?.toLowerCase() || '';
-      const errorCode = error.code?.toLowerCase() || '';
+      // Recover from the request cookie session before redirecting.
+      // This prevents false /login redirects when getUser fails transiently but session cookies are valid.
+      const recoveredUser = await recoverUserFromSession('get_user_error');
+      if (recoveredUser) {
+        user = recoveredUser;
+      } else {
+        authError = error;
+        const errorMessage = error.message?.toLowerCase() || '';
+        const errorCode = error.code?.toLowerCase() || '';
 
-      // Categorize errors
-      const isFatalError = (
-        errorMessage.includes('user from sub claim') ||
-        errorMessage.includes('jwt does not exist') ||
-        errorMessage.includes('user does not exist') ||
-        errorCode === 'user_not_found'
-      );
+        // Categorize errors
+        const isFatalError = (
+          errorMessage.includes('user from sub claim') ||
+          errorMessage.includes('jwt does not exist') ||
+          errorMessage.includes('user does not exist') ||
+          errorCode === 'user_not_found'
+        );
 
-      const isRefreshError = (
-        errorMessage.includes('refresh token') ||
-        errorMessage.includes('invalid refresh token') ||
-        errorCode === 'refresh_token_not_found'
-      );
+        const isRefreshError = (
+          errorMessage.includes('refresh token') ||
+          errorMessage.includes('invalid refresh token') ||
+          errorCode === 'refresh_token_not_found'
+        );
 
-      const isNetworkError = (
-        errorMessage.includes('fetch') ||
-        errorMessage.includes('network') ||
-        errorMessage.includes('connection') ||
-        errorMessage.includes('timeout') ||
-        errorCode === 'network_error'
-      );
+        const isNetworkError = (
+          errorMessage.includes('fetch') ||
+          errorMessage.includes('network') ||
+          errorMessage.includes('connection') ||
+          errorMessage.includes('timeout') ||
+          errorCode === 'network_error'
+        );
 
-      // For fatal errors on protected routes, clear session and redirect
-      if (isFatalError) {
-        console.warn('Middleware: Fatal auth error, clearing session:', error.message);
-        try {
-          response.cookies.delete('sb-access-token');
-          response.cookies.delete('sb-refresh-token');
-        } catch (clearError) {
-          console.warn('Middleware: Error clearing cookies:', clearError);
-        }
-
-        // Only redirect protected routes, allow public routes (/home is public)
-        const protectedRoutesFatal = ['/interests', '/subcategories', '/deal-breakers', '/complete', '/reviews', '/write-review', '/saved', '/dm'];
-        const isProtectedRoute = protectedRoutesFatal.some(route =>
-          request.nextUrl.pathname.startsWith(route)
-        ) || request.nextUrl.pathname === '/profile';
-
-        if (isProtectedRoute) {
-          return redirectWithGuard(request, new URL('/login', request.url));
-        }
-        // For public routes, allow access even with fatal error
-        return response;
-      }
-
-      // For refresh token errors, try to refresh session once
-      if (isRefreshError && !isPublicRoute) {
-        try {
-          const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
-          if (!refreshError && refreshData?.session) {
-            console.log('Middleware: Successfully refreshed session');
-            user = refreshData.session.user;
-            return response; // Continue with refreshed session
+        // For refresh token errors, try to refresh session once
+        if (isRefreshError && !isPublicRoute) {
+          try {
+            const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+            if (!refreshError && refreshData?.session?.user) {
+              console.log('Middleware: Successfully refreshed session');
+              user = refreshData.session.user;
+            }
+          } catch (refreshErr) {
+            console.warn('Middleware: Failed to refresh session:', refreshErr);
           }
-        } catch (refreshErr) {
-          console.warn('Middleware: Failed to refresh session:', refreshErr);
         }
-      }
 
-      // For network errors on public routes, allow access
-      if (isNetworkError && isPublicRoute) {
-        console.warn('Middleware: Network error on public route, allowing access:', error.message);
-        return response;
-      }
+        if (!user && isFatalError) {
+          console.warn('Middleware: Fatal auth error, clearing session:', error.message);
+          try {
+            response.cookies.delete('sb-access-token');
+            response.cookies.delete('sb-refresh-token');
+          } catch (clearError) {
+            console.warn('Middleware: Error clearing cookies:', clearError);
+          }
 
-      // For other non-fatal errors, only log if it's unexpected
-      const isExpectedError = (
-        errorMessage.includes('session missing') ||
-        errorMessage.includes('auth session missing') ||
-        errorCode === 'session_not_found'
-      );
+          // Only redirect protected routes, allow public routes (/home is public)
+          const protectedRoutesFatal = ['/interests', '/subcategories', '/deal-breakers', '/complete', '/reviews', '/write-review', '/saved', '/dm'];
+          const isProtectedRoute = protectedRoutesFatal.some(route =>
+            request.nextUrl.pathname.startsWith(route)
+          ) || request.nextUrl.pathname === '/profile';
 
-      if (!isExpectedError) {
-        console.warn('Middleware: Non-fatal auth error:', error.message);
+          if (isProtectedRoute) {
+            return redirectWithGuard(request, new URL('/login', request.url));
+          }
+          // For public routes, allow access even with fatal error
+          return response;
+        }
+
+        // For network errors on public routes, allow access
+        if (!user && isNetworkError && isPublicRoute) {
+          console.warn('Middleware: Network error on public route, allowing access:', error.message);
+          return response;
+        }
+
+        // For other non-fatal errors, only log if it's unexpected
+        if (!user) {
+          const isExpectedError = (
+            errorMessage.includes('session missing') ||
+            errorMessage.includes('auth session missing') ||
+            errorCode === 'session_not_found'
+          );
+
+          if (!isExpectedError) {
+            console.warn('Middleware: Non-fatal auth error:', error.message);
+          }
+        }
       }
     } else {
       user = authUser;
+
+      if (!user && !isPublicRoute) {
+        const recoveredUser = await recoverUserFromSession('get_user_empty');
+        if (recoveredUser) {
+          user = recoveredUser;
+        }
+      }
     }
   } catch (error) {
     // Handle timeout and unexpected errors
@@ -371,8 +412,13 @@ export async function proxy(request: NextRequest) {
       return response;
     }
 
-    // For protected routes, continue without user (will redirect below if needed)
-    authError = error instanceof Error ? error : new Error(String(error));
+    const recoveredUser = await recoverUserFromSession('get_user_exception');
+    if (recoveredUser) {
+      user = recoveredUser;
+    } else {
+      // For protected routes, continue without user (will redirect below if needed)
+      authError = error instanceof Error ? error : new Error(String(error));
+    }
   }
 
   // Protected routes - require authentication AND email verification
