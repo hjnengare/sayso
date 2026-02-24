@@ -4,6 +4,7 @@ import { ReactNode, useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "../contexts/AuthContext";
+import Wordmark from "../components/Logo/Wordmark";
 import {
   LayoutDashboard,
   Store,
@@ -36,11 +37,9 @@ function Sidebar({
     <aside className="flex flex-col h-full min-h-[100dvh] bg-navbar-bg text-off-white">
       {/* Brand */}
       <div className="flex items-center justify-between px-5 py-5 border-b border-white/10">
-        <Link href="/admin" className="flex items-center gap-2.5" onClick={onClose}>
-          <div className="w-7 h-7 rounded-lg bg-white/15 flex items-center justify-center">
-            <LayoutDashboard className="w-4 h-4 text-white" />
-          </div>
-          <span className="font-urbanist font-bold text-base text-white tracking-tight">Admin</span>
+        <Link href="/admin" className="flex items-center gap-1.5" onClick={onClose}>
+          <Wordmark size="text-base" className="tracking-tight" />
+          <span className="font-urbanist font-semibold text-sm text-white/85 tracking-tight">admin</span>
         </Link>
         {onClose && (
           <button type="button" onClick={onClose} className="p-1 rounded-lg hover:bg-white/10 text-white/70 hover:text-white">
@@ -151,7 +150,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           >
             <Menu className="w-5 h-5" />
           </button>
-          <span className="font-urbanist font-bold text-white text-base tracking-tight">Admin</span>
+          <div className="flex items-center gap-1.5">
+            <Wordmark size="text-base" className="tracking-tight" />
+            <span className="font-urbanist font-semibold text-sm text-white/85 tracking-tight">admin</span>
+          </div>
         </header>
 
         {/* Page content */}
