@@ -16,7 +16,6 @@ import ActiveFilterBadges from "../components/FilterActiveBadges/ActiveFilterBad
 import InlineFilters from "../components/Home/InlineFilters";
 import { List, Map as MapIcon } from "lucide-react";
 import { ChevronRight, ChevronLeft } from "lucide-react";
-import { Loader } from "../components/Loader/Loader";
 import { usePredefinedPageTitle } from "../hooks/usePageTitle";
 import Pagination from "../components/EventsPage/Pagination";
 import BusinessGridSkeleton from "../components/Explore/BusinessGridSkeleton";
@@ -55,6 +54,16 @@ const BusinessesMap = dynamic(() => import("../components/maps/BusinessesMap"), 
 });
 
 const ITEMS_PER_PAGE = 12;
+
+function ForYouGridLoadingOverlay() {
+  return (
+    <div className="fixed inset-0 z-[9998] bg-off-white/95 backdrop-blur-sm overflow-y-auto">
+      <div className="mx-auto w-full max-w-[2000px] px-2 py-6 sm:py-8 md:py-10">
+        <BusinessGridSkeleton />
+      </div>
+    </div>
+  );
+}
 
 type ForYouClientProps = {
   initialBusinesses: Business[];
@@ -622,11 +631,9 @@ export default function ForYouClient({
                     </div>
                   )}
 
-                  {/* Loading Spinner Overlay for Pagination */}
+                  {/* Skeleton Overlay for Pagination */}
                   {isPaginationLoading && (
-                    <div className="fixed inset-0 z-[9998] bg-off-white/95 backdrop-blur-sm flex items-center justify-center min-h-screen">
-                      <Loader size="lg" variant="wavy" color="sage"  />
-                    </div>
+                    <ForYouGridLoadingOverlay />
                   )}
 
                   {/* List | Map Toggle */}

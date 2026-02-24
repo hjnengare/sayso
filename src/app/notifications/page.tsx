@@ -7,7 +7,6 @@ import { useBusinessNotificationsFeed } from "../hooks/useBusinessNotificationsF
 import { m, AnimatePresence } from "framer-motion";
 import { Bell, Check, X, MessageSquare, MessageCircle, Star, Heart, TrendingUp, Clock, ChevronRight, Award, ThumbsUp, CheckCircle, ImageIcon, Trophy, UserRound, Building2 } from "lucide-react";
 import Footer from "../components/Footer/Footer";
-import { PageLoader } from "../components/Loader";
 import { usePredefinedPageTitle } from "../hooks/usePageTitle";
 import { useNotifications } from "../contexts/NotificationsContext";
 import { useAuth } from "../contexts/AuthContext";
@@ -279,6 +278,47 @@ function PersonalNotificationList(props: NotificationListProps) {
   );
 }
 
+function NotificationsPageSkeleton() {
+  return (
+    <div className="relative z-10 flex flex-col flex-1 animate-pulse">
+      <div className="mx-auto w-full max-w-[2000px] px-2 flex flex-col flex-1">
+        <div className="mb-6 sm:mb-8 px-2">
+          <div className="h-9 w-56 rounded-lg bg-charcoal/10" />
+          <div className="mt-3 h-4 w-64 rounded bg-charcoal/10" />
+        </div>
+
+        <div className="px-2 flex flex-col flex-1">
+          <div className="mb-5 flex items-center justify-between gap-4">
+            <div className="h-4 w-40 rounded bg-charcoal/10" />
+            <div className="h-8 w-28 rounded-full bg-charcoal/10" />
+          </div>
+
+          <div className="mb-5 flex items-center gap-2">
+            <div className="h-8 w-16 rounded-full bg-charcoal/10" />
+            <div className="h-8 w-20 rounded-full bg-charcoal/10" />
+            <div className="h-8 w-16 rounded-full bg-charcoal/10" />
+          </div>
+
+          <div className="space-y-3">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="rounded-[12px] border border-charcoal/10 bg-card-bg p-4 sm:p-5">
+                <div className="flex items-start gap-3">
+                  <div className="h-8 w-8 rounded-full bg-charcoal/10" />
+                  <div className="flex-1 min-w-0">
+                    <div className="h-4 w-11/12 rounded bg-charcoal/10" />
+                    <div className="mt-2 h-4 w-8/12 rounded bg-charcoal/10" />
+                    <div className="mt-3 h-3 w-28 rounded bg-charcoal/10" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function NotificationsPage() {
   usePredefinedPageTitle('notifications');
   const { user } = useAuth();
@@ -329,8 +369,8 @@ export default function NotificationsPage() {
           </div>
 
           {isLoading ? (
-            <div className="flex-1 flex items-center justify-center">
-              <PageLoader size="md" variant="wavy" color="sage" />
+            <div className="flex-1">
+              <NotificationsPageSkeleton />
             </div>
           ) : (
             <BusinessNotificationList
@@ -389,9 +429,7 @@ export default function NotificationsPage() {
           </m.div>
 
           {isLoading ? (
-            <div className="flex-1 flex items-center justify-center">
-              <PageLoader size="md" variant="wavy" color="sage" />
-            </div>
+            <NotificationsPageSkeleton />
           ) : (
             <m.div
               className="relative z-10 flex flex-col flex-1"
