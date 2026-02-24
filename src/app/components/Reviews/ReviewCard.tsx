@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, memo } from 'react';
+import React, { useState, useRef, useEffect, memo } from 'react';
 import { useReviewHelpful } from '../../hooks/useReviewHelpful';
 import { useReviewReplies } from '../../hooks/useReviewReplies';
 import { useUserBadgesById } from '../../hooks/useUserBadges';
@@ -10,9 +10,10 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
 import { useRouter } from 'next/navigation';
-import { Trash2, Image as ImageIcon, ChevronUp, Heart, X, MessageCircle, Send, Edit } from 'lucide-react';
+import { Trash2, Image as ImageIcon, ChevronUp, Heart, X, MessageCircle, Send, Edit, Flag, Loader2, AlertCircle } from 'lucide-react';
 import type { ReviewWithUser } from '../../lib/types/database';
 import { useAuth } from '../../contexts/AuthContext';
+import { useToast } from '../../contexts/ToastContext';
 import { useReviewSubmission } from '../../hooks/useReviews';
 import { getDisplayUsername } from '../../utils/generateUsername';
 import { ConfirmationDialog } from '@/app/components/molecules/ConfirmationDialog/ConfirmationDialog';
@@ -27,6 +28,16 @@ interface ReviewCardProps {
   realtimeHelpfulCount?: number; // Real-time helpful count from subscription
 }
 
+const FLAG_REASONS = [
+  { value: 'spam', label: 'Spam', desc: 'Promotional or repetitive content' },
+  { value: 'inappropriate', label: 'Inappropriate', desc: 'Offensive or adult content' },
+  { value: 'harassment', label: 'Harassment', desc: 'Targets or bullies someone' },
+  { value: 'off_topic', label: 'Off-topic', desc: 'Not related to this business' },
+  { value: 'other', label: 'Other', desc: 'Something else' },
+] as const;
+
+type FlagReason = (typeof FLAG_REASONS)[number]['value'];
+
 function ReviewCard({
   review,
   onUpdate,
@@ -35,8 +46,10 @@ function ReviewCard({
   realtimeHelpfulCount,
 }: ReviewCardProps) {
   const { user } = useAuth();
+  const { showToast } = useToast();
   const router = useRouter();
   const { likeReview, deleteReview } = useReviewSubmission();
+  const isTransientReviewId = isOptimisticId(review.id) || !isValidUUID(review.id);
 
   // Helper function to check if current user owns this review with fallback logic
   const isReviewOwner = (): boolean => {
@@ -73,6 +86,10 @@ function ReviewCard({
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showDeleteReplyDialog, setShowDeleteReplyDialog] = useState(false);
   const [replyToDelete, setReplyToDelete] = useState<string | null>(null);
+  const [isFlagged, setIsFlagged] = useState(false);
+  const [flagging, setFlagging] = useState(false);
+  const [checkingFlagStatus, setCheckingFlagStatus] = useState(false);
+  const [showFlagModal, setShowFlagModal] = useState(false);
   const replyFormRef = useRef<HTMLDivElement>(null);
 
   // SWR-backed badges for the review author
@@ -210,6 +227,95 @@ function ReviewCard({
 
   const displayedImages = showAllImages ? review.images : review.images?.slice(0, 3);
   const isAnonymousReview = !review.user_id;
+  const isOwner = isReviewOwner();
+  const reportButtonDisabled =
+    isOwner || flagging || isFlagged || isTransientReviewId || checkingFlagStatus;
+
+  useEffect(() => {
+    let cancelled = false;
+
+    if (!user || isOwner || isTransientReviewId) {
+      setIsFlagged(false);
+      setCheckingFlagStatus(false);
+      return;
+    }
+
+    const checkFlagStatus = async () => {
+      setCheckingFlagStatus(true);
+      try {
+        const res = await fetch(`/api/reviews/${review.id}/flag`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!cancelled) {
+          setIsFlagged(Boolean(data?.flagged));
+        }
+      } catch (error) {
+        console.error('Error checking review flag status:', error);
+      } finally {
+        if (!cancelled) {
+          setCheckingFlagStatus(false);
+        }
+      }
+    };
+
+    void checkFlagStatus();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id, review.id, isOwner, isTransientReviewId]);
+
+  const handleOpenFlagModal = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+
+    if (reportButtonDisabled) return;
+
+    if (!user) {
+      showToast('Please log in to report reviews.', 'error');
+      return;
+    }
+
+    setShowFlagModal(true);
+  };
+
+  const submitFlag = async (reason: FlagReason, details: string) => {
+    if (!user || reportButtonDisabled) return;
+
+    setFlagging(true);
+    try {
+      const res = await fetch(`/api/reviews/${review.id}/flag`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason, details: details.trim() || undefined }),
+      });
+
+      if (res.ok) {
+        setIsFlagged(true);
+        setShowFlagModal(false);
+        showToast('Review reported. Thank you for your feedback.', 'success');
+        return;
+      }
+
+      const err = await res.json().catch(() => ({}));
+      const errorMessage =
+        typeof err?.error === 'string' ? err.error : 'Failed to report review';
+
+      if (
+        res.status === 400 &&
+        errorMessage.toLowerCase().includes('already flagged')
+      ) {
+        setIsFlagged(true);
+        setShowFlagModal(false);
+      }
+
+      showToast(errorMessage, 'error');
+    } catch (error) {
+      console.error('Error reporting review:', error);
+      showToast('Failed to report review', 'error');
+    } finally {
+      setFlagging(false);
+    }
+  };
 
   return (
     <m.div
@@ -217,7 +323,7 @@ function ReviewCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
       whileHover={{ scale: 1.01, x: 5 }}
-      className="bg-gradient-to-br from-off-white via-off-white to-off-white/95 backdrop-blur-sm rounded-lg p-6 border-none transition-all duration-300 group hover:border-white/80 hover:-translate-y-1"
+      className="relative bg-gradient-to-br from-off-white via-off-white to-off-white/95 backdrop-blur-sm rounded-lg p-6 border-none transition-all duration-300 group hover:border-white/80 hover:-translate-y-1"
     >
       <div className="flex items-start space-x-4">
         {/* Avatar */}
@@ -337,7 +443,7 @@ function ReviewCard({
               
               {/* Direct action icons - Mobile-first design */}
               <div className="flex items-center gap-1 sm:gap-1.5">
-                {isReviewOwner() && (
+                {isOwner && (
                   <>
                     <m.button
                       whileHover={{ scale: 1.1 }}
@@ -531,6 +637,32 @@ function ReviewCard({
             )}
           </div>
 
+          {user && !isOwner && (
+            <button
+              type="button"
+              onClick={handleOpenFlagModal}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.stopPropagation();
+                }
+              }}
+              disabled={reportButtonDisabled}
+              aria-label="Report review"
+              title={isFlagged ? 'Review already reported' : 'Report review'}
+              className={`absolute bottom-5 right-5 inline-flex h-9 w-9 items-center justify-center rounded-full transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300/70 focus-visible:ring-offset-2 focus-visible:ring-offset-off-white ${
+                isFlagged
+                  ? 'text-red-500 bg-red-50/70 cursor-not-allowed'
+                  : 'text-charcoal/50 hover:text-red-500 hover:bg-red-50/70'
+              } ${reportButtonDisabled && !isFlagged ? 'opacity-60 cursor-not-allowed' : ''}`}
+            >
+              {flagging ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Flag className="w-4 h-4" />
+              )}
+            </button>
+          )}
+
           {/* Reply Form - Available to all authenticated users */}
           <AnimatePresence>
             {showReplyForm && user && (
@@ -723,6 +855,14 @@ function ReviewCard({
         )}
       </AnimatePresence>
 
+      {showFlagModal && (
+        <ReviewFlagModal
+          onClose={() => setShowFlagModal(false)}
+          onSubmit={submitFlag}
+          submitting={flagging}
+        />
+      )}
+
       {/* Delete Review Confirmation Dialog */}
       <ConfirmationDialog
         isOpen={showDeleteDialog}
@@ -750,6 +890,137 @@ function ReviewCard({
         variant="danger"
       />
     </m.div>
+  );
+}
+
+function ReviewFlagModal({
+  onClose,
+  onSubmit,
+  submitting,
+}: {
+  onClose: () => void;
+  onSubmit: (reason: FlagReason, details: string) => Promise<void>;
+  submitting: boolean;
+}) {
+  const [reason, setReason] = useState<FlagReason | null>(null);
+  const [details, setDetails] = useState('');
+  const [localError, setLocalError] = useState<string | null>(null);
+
+  const handleSubmit = async () => {
+    if (!reason) {
+      setLocalError('Please select a reason.');
+      return;
+    }
+    if (reason === 'other' && !details.trim()) {
+      setLocalError("Please add details for 'Other'.");
+      return;
+    }
+
+    await onSubmit(reason, details);
+  };
+
+  return (
+    <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4">
+      <div className="fixed inset-0 bg-black/50" onClick={onClose} />
+
+      <div className="relative z-10 w-full sm:max-w-md bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90dvh]">
+        <div className="flex justify-center pt-3 pb-1 sm:hidden">
+          <div className="w-10 h-1 rounded-full bg-charcoal/20" />
+        </div>
+
+        <div className="flex-1 overflow-y-auto px-5 pt-2 pb-6 sm:pt-5">
+          <div className="flex items-start justify-between mb-4">
+            <div>
+              <h2 className="font-urbanist text-lg font-bold text-charcoal">Report Review</h2>
+              <p className="font-urbanist text-sm text-charcoal/50">Help us keep sayso trustworthy</p>
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className="p-2 rounded-xl hover:bg-charcoal/8 text-charcoal/40 hover:text-charcoal transition-colors"
+              aria-label="Close report modal"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          <div className="flex flex-col gap-2 mb-4">
+            {FLAG_REASONS.map(({ value, label, desc }) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => {
+                  setReason(value);
+                  setLocalError(null);
+                }}
+                className={`flex items-center gap-3 p-3.5 rounded-2xl border text-left transition-all ${
+                  reason === value
+                    ? 'border-navbar-bg bg-navbar-bg/5'
+                    : 'border-charcoal/10 hover:border-charcoal/20 hover:bg-charcoal/[0.025]'
+                }`}
+              >
+                <div className="flex-1">
+                  <p className="font-urbanist text-sm font-semibold text-charcoal">{label}</p>
+                  <p className="font-urbanist text-xs text-charcoal/50">{desc}</p>
+                </div>
+                {reason === value && (
+                  <div className="w-4 h-4 rounded-full bg-navbar-bg flex items-center justify-center flex-shrink-0">
+                    <svg viewBox="0 0 10 10" className="w-2.5 h-2.5 fill-none stroke-white stroke-[1.5]">
+                      <polyline points="1.5,5 4,7.5 8.5,2.5" />
+                    </svg>
+                  </div>
+                )}
+              </button>
+            ))}
+          </div>
+
+          {reason && (
+            <label className="block mb-4">
+              <span className="font-urbanist text-xs font-semibold text-charcoal/60 uppercase tracking-wider mb-1.5 block">
+                Additional details {reason === 'other' ? '(required)' : '(optional)'}
+              </span>
+              <textarea
+                value={details}
+                onChange={(e) => {
+                  setDetails(e.target.value);
+                  setLocalError(null);
+                }}
+                rows={3}
+                placeholder="Describe the issue..."
+                className="w-full rounded-2xl border border-charcoal/15 bg-charcoal/[0.025] px-4 py-3 font-urbanist text-sm text-charcoal placeholder-charcoal/35 focus:outline-none focus:ring-2 focus:ring-navbar-bg/25 focus:border-navbar-bg/40 resize-none"
+              />
+            </label>
+          )}
+
+          {localError && (
+            <div className="flex items-center gap-2 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-red-700 text-sm font-urbanist mb-4">
+              <AlertCircle className="w-4 h-4 flex-shrink-0" />
+              {localError}
+            </div>
+          )}
+
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={submitting}
+              className="flex-1 py-3 rounded-2xl border border-charcoal/15 font-urbanist text-sm font-semibold text-charcoal/70 hover:bg-charcoal/5 transition-colors disabled:opacity-40"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={!reason || submitting}
+              className="flex-1 py-3 rounded-2xl bg-navbar-bg font-urbanist text-sm font-semibold text-white hover:bg-navbar-bg/90 transition-colors disabled:opacity-40 flex items-center justify-center gap-2"
+            >
+              {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
+              Submit Report
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
