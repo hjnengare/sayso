@@ -98,16 +98,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   // Close mobile nav on route change
   useEffect(() => { setMobileOpen(false); }, [pathname]);
 
-  if (isLoading || !user || !user.email_verified || !isAdmin) {
-    return (
-      <div className="min-h-dvh bg-page-bg flex items-center justify-center">
-        <div className="flex items-center gap-3 text-charcoal/60 font-urbanist">
-          <div className="w-5 h-5 border-2 border-charcoal/15 border-t-charcoal/60 rounded-full animate-spin" />
-          <span className="text-sm font-medium">Checking access…</span>
-        </div>
-      </div>
-    );
-  }
+  const canRenderAdminContent = Boolean(!isLoading && user && user.email_verified && isAdmin);
 
   return (
     <div className="flex h-[100dvh] min-h-[100dvh] bg-page-bg overflow-hidden">
@@ -142,7 +133,16 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
         {/* Page content */}
         <main className="flex-1 overflow-y-auto">
-          {children}
+          {canRenderAdminContent ? (
+            children
+          ) : (
+            <div className="min-h-full bg-page-bg flex items-center justify-center">
+              <div className="flex items-center gap-3 text-charcoal/60 font-urbanist">
+                <div className="w-5 h-5 border-2 border-charcoal/15 border-t-charcoal/60 rounded-full animate-spin" />
+                <span className="text-sm font-medium">Checking access…</span>
+              </div>
+            </div>
+          )}
         </main>
       </div>
     </div>
