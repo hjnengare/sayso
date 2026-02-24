@@ -23,7 +23,15 @@ const NAV_ITEMS = [
   { href: "/admin/seed", label: "Seed Data", icon: Database, exact: false },
 ];
 
-function Sidebar({ pathname, onClose }: { pathname: string; onClose?: () => void }) {
+function Sidebar({
+  pathname,
+  onClose,
+  onBackToSayso,
+}: {
+  pathname: string;
+  onClose?: () => void;
+  onBackToSayso?: () => Promise<void> | void;
+}) {
   return (
     <aside className="flex flex-col h-full min-h-[100dvh] bg-navbar-bg text-off-white">
       {/* Brand */}
@@ -68,7 +76,15 @@ function Sidebar({ pathname, onClose }: { pathname: string; onClose?: () => void
       <div className="px-5 py-4 border-t border-white/10">
         <Link
           href="/home"
-          onClick={onClose}
+          onClick={(e) => {
+            if (onBackToSayso) {
+              e.preventDefault();
+              onClose?.();
+              void onBackToSayso();
+              return;
+            }
+            onClose?.();
+          }}
           className="flex items-center gap-2 text-xs text-white/50 hover:text-white/80 transition-colors font-urbanist"
         >
           <span>← Back to Sayso</span>
@@ -81,7 +97,7 @@ function Sidebar({ pathname, onClose }: { pathname: string; onClose?: () => void
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const role = user?.profile?.account_role || user?.profile?.role || null;
@@ -99,12 +115,15 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   useEffect(() => { setMobileOpen(false); }, [pathname]);
 
   const canRenderAdminContent = Boolean(!isLoading && user && user.email_verified && isAdmin);
+  const handleBackToSayso = async () => {
+    await logout();
+  };
 
   return (
     <div className="flex h-[100dvh] min-h-[100dvh] bg-page-bg overflow-hidden">
       {/* Desktop sidebar — fixed height, never scrolls */}
       <div className="hidden lg:flex lg:flex-col lg:w-56 xl:w-60 lg:min-h-[100dvh] flex-shrink-0 shadow-lg">
-        <Sidebar pathname={pathname} />
+        <Sidebar pathname={pathname} onBackToSayso={handleBackToSayso} />
       </div>
 
       {/* Mobile overlay */}
@@ -112,7 +131,11 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         <div className="lg:hidden fixed inset-0 z-40 flex">
           <div className="fixed inset-0 bg-black/50" onClick={() => setMobileOpen(false)} />
           <div className="relative z-50 flex flex-col w-64 h-full shadow-xl">
-            <Sidebar pathname={pathname} onClose={() => setMobileOpen(false)} />
+            <Sidebar
+              pathname={pathname}
+              onClose={() => setMobileOpen(false)}
+              onBackToSayso={handleBackToSayso}
+            />
           </div>
         </div>
       )}
