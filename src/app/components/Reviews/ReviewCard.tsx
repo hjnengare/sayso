@@ -574,7 +574,11 @@ function ReviewCard({
           )}
 
           {/* Actions */}
-          <div className="flex items-center justify-between pt-3 border-t border-sage/10">
+          <div
+            className={`flex items-center justify-between pt-3 border-t border-sage/10 ${
+              user && !isOwner ? 'pr-12 sm:pr-14' : ''
+            }`}
+          >
             <div className="flex items-center gap-3">
               {!isOwnerView && (
                 <m.button
@@ -649,16 +653,16 @@ function ReviewCard({
               disabled={reportButtonDisabled}
               aria-label="Report review"
               title={isFlagged ? 'Review already reported' : 'Report review'}
-              className={`absolute bottom-5 right-5 inline-flex h-9 w-9 items-center justify-center rounded-full transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300/70 focus-visible:ring-offset-2 focus-visible:ring-offset-off-white ${
+              className={`absolute bottom-4 right-4 sm:bottom-5 sm:right-5 z-10 inline-flex h-10 w-10 sm:h-9 sm:w-9 items-center justify-center rounded-full touch-manipulation transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300/70 focus-visible:ring-offset-2 focus-visible:ring-offset-off-white ${
                 isFlagged
                   ? 'text-red-500 bg-red-50/70 cursor-not-allowed'
                   : 'text-charcoal/50 hover:text-red-500 hover:bg-red-50/70'
               } ${reportButtonDisabled && !isFlagged ? 'opacity-60 cursor-not-allowed' : ''}`}
             >
               {flagging ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-[18px] h-[18px] sm:w-4 sm:h-4 animate-spin" />
               ) : (
-                <Flag className="w-4 h-4" />
+                <Flag className="w-[18px] h-[18px] sm:w-4 sm:h-4" />
               )}
             </button>
           )}

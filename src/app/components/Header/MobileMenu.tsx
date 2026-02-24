@@ -90,7 +90,7 @@ export default function MobileMenu({
   // Always render nav links, but show skeleton/placeholder if loading
   if (typeof isBusinessAccountUser === 'undefined') {
     return (
-      <div className={`fixed top-0 right-0 h-full w-full bg-navbar-bg z-[99999] shadow-[0_-4px_24px_rgba(0,0,0,0.15),0_-2px_8px_rgba(0,0,0,0.1)] transform md:hidden backdrop-blur-xl border-l border-white/20 ${
+      <div className={`fixed top-0 right-0 h-full w-full bg-navbar-bg z-[99999] shadow-[0_-4px_24px_rgba(0,0,0,0.15),0_-2px_8px_rgba(0,0,0,0.1)] transform lg:hidden backdrop-blur-xl border-l border-white/20 ${
         isOpen ? "translate-x-0" : "translate-x-full"
       } transition-transform duration-300`}>
         <div className={`flex flex-col h-full overflow-hidden ${mobileModalRevealClass}`}>
@@ -372,12 +372,12 @@ export default function MobileMenu({
     <>
       {isOpen && (
         <div
-          className="fixed inset-0 bg-charcoal/40 backdrop-blur-xl z-[10000] md:hidden"
+          className="fixed inset-0 bg-charcoal/40 backdrop-blur-xl z-[10000] lg:hidden"
           onClick={onClose}
         />
       )}
       <div
-        className={`fixed top-0 right-0 h-full w-full bg-navbar-bg z-[99999] shadow-[0_-4px_24px_rgba(0,0,0,0.15),0_-2px_8px_rgba(0,0,0,0.1)] transform md:hidden backdrop-blur-xl border-l border-white/20 ${
+        className={`fixed top-0 right-0 h-full w-full bg-navbar-bg z-[99999] shadow-[0_-4px_24px_rgba(0,0,0,0.15),0_-2px_8px_rgba(0,0,0,0.1)] transform lg:hidden backdrop-blur-xl border-l border-white/20 ${
           isOpen ? "translate-x-0" : "translate-x-full"
         } transition-transform duration-300`}
       >
