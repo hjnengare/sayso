@@ -3,7 +3,7 @@
 
 import { useCallback, useEffect, useState, useRef, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Bell, MessageSquare, Settings, Search, X, Shield, FileCheck, Database, LogOut, User } from "lucide-react";
+import { Bell, MessageSquare, Settings, Search, X, Shield, FileCheck, Database, LogOut } from "lucide-react";
 import { m, AnimatePresence } from "framer-motion";
 import Logo from "../Logo/Logo";
 import OptimizedLink from "../Navigation/OptimizedLink";
@@ -15,8 +15,6 @@ import { useHeaderState } from "./useHeaderState";
 import { getLogoHref } from "./headerActionsConfig";
 import { useLiveSearch, type LiveSearchResult } from "../../hooks/useLiveSearch";
 import { usePrefetchRoutes } from "../../hooks/usePrefetchRoutes";
-
-const AUTH_HEADER_SKELETON_MAX_MS = 1200;
 
 export default function Header({
   showSearch = true,
@@ -112,31 +110,10 @@ export default function Header({
     loading: suggestionsLoading,
     results: suggestionResults,
   } = useLiveSearch({ initialQuery: urlSearchQuery, debounceMs: 120 });
-  const [hasAuthSkeletonTimedOut, setHasAuthSkeletonTimedOut] = useState(false);
-
-  useEffect(() => {
-    if (!authLoading) {
-      if (hasAuthSkeletonTimedOut) {
-        setHasAuthSkeletonTimedOut(false);
-      }
-      return;
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      setHasAuthSkeletonTimedOut(true);
-    }, AUTH_HEADER_SKELETON_MAX_MS);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [authLoading, hasAuthSkeletonTimedOut]);
-
-  const isAuthFallbackMode = authLoading && hasAuthSkeletonTimedOut;
-  const effectiveIsGuest = isGuest || isAuthFallbackMode;
-  const effectiveIsAdminUser = !isAuthFallbackMode && isAdminUser;
-  const effectiveIsBusinessAccountUser =
-    !isAuthFallbackMode && isBusinessAccountUser;
-  const effectiveNavLinks = isAuthFallbackMode
-    ? { primaryLinks: [], businessLinks: [], discoverLinks: [] }
-    : navLinks;
+  const effectiveIsGuest = isGuest;
+  const effectiveIsAdminUser = isAdminUser;
+  const effectiveIsBusinessAccountUser = isBusinessAccountUser;
+  const effectiveNavLinks = navLinks;
 
   // Sync local state with URL params
   useEffect(() => {
@@ -835,7 +812,7 @@ export default function Header({
   };
 
   // Show skeleton while auth is resolving to prevent layout shift
-  if (authLoading && !hasAuthSkeletonTimedOut) {
+  if (authLoading) {
     return <HeaderSkeleton showSearch={showSearch} />;
   }
 
@@ -1059,23 +1036,6 @@ export default function Header({
                           {messageUnreadCount > 99 ? "99+" : messageUnreadCount}
                         </span>
                       ) : null}
-                    </OptimizedLink>
-                  )}
-
-                  {/* Profile */}
-                  {!isMobileSearchOpen && (
-                    <OptimizedLink
-                      href={effectiveIsGuest ? "/onboarding" : "/profile"}
-                      className={`relative w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 ${
-                        !effectiveIsGuest && isProfileActive
-                          ? "text-sage bg-card-bg/5"
-                          : whiteText
-                            ? "text-white hover:text-white/80"
-                            : "text-charcoal/80 hover:text-sage"
-                      }`}
-                      aria-label={effectiveIsGuest ? "Sign in for profile" : "Profile"}
-                    >
-                      <User className="w-5 h-5" fill={!effectiveIsGuest && isProfileActive ? "currentColor" : "none"} />
                     </OptimizedLink>
                   )}
 

@@ -113,8 +113,10 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
   const userId = user?.id ?? null;
   const endpoint = PERSONAL_NOTIFICATIONS_ENDPOINT;
 
-  // Fetch for any authenticated user (personal notifications only)
-  const swrKey = !authLoading && userId ? `${endpoint}:${userId}` : null;
+  // Personal notifications endpoint should not be queried by business accounts.
+  const shouldFetchPersonalNotifications =
+    !authLoading && Boolean(userId) && !isBusinessAccountUser;
+  const swrKey = shouldFetchPersonalNotifications ? `${endpoint}:${userId}` : null;
 
   // realtime is working → no need for aggressive polling; fall back to 30 s if channel fails
   const [realtimeFailed, setRealtimeFailed] = useState(false);
@@ -267,6 +269,12 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
   // route transitions where authLoading briefly becomes true (swrKey → null
   // → rawNotifications → undefined).
   const stableUnreadCountRef = useRef(0);
+
+  useEffect(() => {
+    if (!shouldFetchPersonalNotifications) {
+      stableUnreadCountRef.current = 0;
+    }
+  }, [shouldFetchPersonalNotifications]);
 
   const unreadCount = useMemo(() => {
     // rawNotifications is undefined when swrKey is null (auth resolving).

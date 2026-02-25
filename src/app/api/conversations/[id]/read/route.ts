@@ -1,10 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { withUser } from '@/app/api/_lib/withAuth';
-import { getConversationAccessContext } from '@/app/api/conversations/_lib';
+import { getConversationAccessContext, isConversationSchemaDriftError } from '@/app/api/conversations/_lib';
 
 export const dynamic = 'force-dynamic';
 
 type RouteContext = { params: Promise<{ id: string }> };
+
+const MESSAGE_SCHEMA_DRIFT_MARKERS = [
+  'schema cache',
+  'does not exist',
+  'status',
+  'sender_type',
+  'delivered_at',
+  'read_at',
+];
+
+function isMessageSchemaDriftError(error: any): boolean {
+  if (!error) return false;
+  const haystack = [
+    error?.code,
+    error?.message,
+    error?.details,
+    error?.hint,
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+  return MESSAGE_SCHEMA_DRIFT_MARKERS.some((marker) => haystack.includes(marker));
+}
 
 export const POST = withUser(async (_req: NextRequest, { user, supabase, params }) => {
   try {
@@ -20,9 +43,12 @@ export const POST = withUser(async (_req: NextRequest, { user, supabase, params 
     }
 
     const senderTypeToMarkRead = access.role === 'user' ? 'business' : 'user';
+    const senderUserIdToMarkRead = access.role === 'user'
+      ? access.conversation.owner_id
+      : access.conversation.user_id;
     const nowIso = new Date().toISOString();
 
-    const { data: updatedRows, error: updateError } = await supabase
+    const { data: modernUpdatedRows, error: modernUpdateError } = await supabase
       .from('messages')
       .update({
         status: 'read',
@@ -35,16 +61,53 @@ export const POST = withUser(async (_req: NextRequest, { user, supabase, params 
       .neq('status', 'read')
       .select('id');
 
-    if (updateError) {
-      console.error('[Conversation Read API] Update error:', updateError);
-      return NextResponse.json({ error: 'Failed to mark messages as read' }, { status: 500 });
+    let updatedRows = modernUpdatedRows || [];
+    let finalUpdateError = modernUpdateError;
+
+    if (modernUpdateError && isMessageSchemaDriftError(modernUpdateError)) {
+      let legacyUpdateQuery = supabase
+        .from('messages')
+        .update({
+          read: true,
+          updated_at: nowIso,
+        })
+        .eq('conversation_id', conversationId)
+        .eq('read', false);
+
+      if (senderUserIdToMarkRead) {
+        legacyUpdateQuery = legacyUpdateQuery.eq('sender_id', senderUserIdToMarkRead);
+      } else {
+        legacyUpdateQuery = legacyUpdateQuery.neq('sender_id', user.id);
+      }
+
+      const { data: legacyUpdatedRows, error: legacyUpdateError } = await legacyUpdateQuery.select('id');
+      updatedRows = legacyUpdatedRows || [];
+      finalUpdateError = legacyUpdateError;
     }
 
-    const { data: conversation } = await supabase
+    if (finalUpdateError) {
+      console.error('[Conversation Read API] Update error:', finalUpdateError);
+      return NextResponse.json(
+        { error: 'Failed to mark messages as read', details: finalUpdateError?.message || null },
+        { status: 500 }
+      );
+    }
+
+    const { data: modernConversation, error: modernConversationError } = await supabase
       .from('conversations')
       .select('id, user_unread_count, business_unread_count')
       .eq('id', conversationId)
       .maybeSingle();
+
+    let conversation: any = modernConversation;
+    if (modernConversationError && isConversationSchemaDriftError(modernConversationError)) {
+      const { data: legacyConversation } = await supabase
+        .from('conversations')
+        .select('id')
+        .eq('id', conversationId)
+        .maybeSingle();
+      conversation = legacyConversation;
+    }
 
     return NextResponse.json({
       data: {

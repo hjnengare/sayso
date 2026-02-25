@@ -3,21 +3,14 @@ import { withUser } from '@/app/api/_lib/withAuth';
 import {
   formatConversationListItem,
   getOwnedBusinessIds,
+  isConversationSchemaDriftError,
+  normalizeConversationRow,
   parseRole,
 } from './_lib';
 
 export const dynamic = 'force-dynamic';
 
-const CONVERSATION_SELECT = `
-  id,
-  user_id,
-  owner_id,
-  business_id,
-  last_message_at,
-  last_message_preview,
-  user_unread_count,
-  business_unread_count,
-  created_at,
+const BUSINESS_RELATION_SELECT = `
   businesses (
     id,
     name,
@@ -28,6 +21,143 @@ const CONVERSATION_SELECT = `
   )
 `;
 
+const CONVERSATION_SELECT_V2 = `
+  id,
+  user_id,
+  owner_id,
+  business_id,
+  last_message_at,
+  last_message_preview,
+  user_unread_count,
+  business_unread_count,
+  created_at,
+  ${BUSINESS_RELATION_SELECT}
+`;
+
+const CONVERSATION_SELECT_LEGACY = `
+  id,
+  user_id,
+  owner_id,
+  business_id,
+  last_message_at,
+  created_at,
+  ${BUSINESS_RELATION_SELECT}
+`;
+
+const CONVERSATION_SELECT_MINIMAL = `
+  id,
+  user_id,
+  owner_id,
+  business_id,
+  last_message_at,
+  created_at
+`;
+
+interface ConversationSelectResult {
+  data: any[];
+  error: any;
+  usedLegacy: boolean;
+}
+
+async function selectConversationsWithFallback(
+  runSelect: (selectClause: string) => any
+): Promise<ConversationSelectResult> {
+  const modern = await runSelect(CONVERSATION_SELECT_V2);
+  if (!modern.error) {
+    return {
+      data: (modern.data || []).map(normalizeConversationRow),
+      error: null,
+      usedLegacy: false,
+    };
+  }
+
+  if (!isConversationSchemaDriftError(modern.error)) {
+    return { data: [], error: modern.error, usedLegacy: false };
+  }
+
+  const legacy = await runSelect(CONVERSATION_SELECT_LEGACY);
+  if (!legacy.error) {
+    return {
+      data: (legacy.data || []).map(normalizeConversationRow),
+      error: null,
+      usedLegacy: true,
+    };
+  }
+
+  if (!isConversationSchemaDriftError(legacy.error)) {
+    return { data: [], error: legacy.error, usedLegacy: true };
+  }
+
+  const minimal = await runSelect(CONVERSATION_SELECT_MINIMAL);
+  if (minimal.error) {
+    return { data: [], error: minimal.error, usedLegacy: true };
+  }
+
+  return {
+    data: (minimal.data || []).map(normalizeConversationRow),
+    error: null,
+    usedLegacy: true,
+  };
+}
+
+async function insertConversationWithFallback(
+  supabase: any,
+  modernPayload: Record<string, any>,
+  legacyPayload: Record<string, any>
+): Promise<{ data: any | null; error: any; usedLegacy: boolean }> {
+  const modernInsert = await supabase
+    .from('conversations')
+    .insert(modernPayload)
+    .select(CONVERSATION_SELECT_V2)
+    .single();
+
+  if (!modernInsert.error) {
+    return {
+      data: normalizeConversationRow(modernInsert.data),
+      error: null,
+      usedLegacy: false,
+    };
+  }
+
+  if (!isConversationSchemaDriftError(modernInsert.error)) {
+    return { data: null, error: modernInsert.error, usedLegacy: false };
+  }
+
+  const legacyInsert = await supabase
+    .from('conversations')
+    .insert(legacyPayload)
+    .select(CONVERSATION_SELECT_LEGACY)
+    .single();
+
+  if (!legacyInsert.error) {
+    return {
+      data: normalizeConversationRow(legacyInsert.data),
+      error: null,
+      usedLegacy: true,
+    };
+  }
+
+  if (!isConversationSchemaDriftError(legacyInsert.error)) {
+    return { data: null, error: legacyInsert.error, usedLegacy: true };
+  }
+
+  const minimalInsert = await supabase
+    .from('conversations')
+    .insert(legacyPayload)
+    .select(CONVERSATION_SELECT_MINIMAL)
+    .single();
+
+  if (minimalInsert.error) {
+    return { data: null, error: minimalInsert.error, usedLegacy: true };
+  }
+
+  return {
+    data: normalizeConversationRow(minimalInsert.data),
+    error: null,
+    usedLegacy: true,
+  };
+}
+
 export const GET = withUser(async (req: NextRequest, { user, supabase }) => {
   try {
     const { searchParams } = new URL(req.url);
@@ -35,15 +165,20 @@ export const GET = withUser(async (req: NextRequest, { user, supabase }) => {
     const requestedBusinessId = searchParams.get('business_id');
 
     if (role === 'user') {
-      const { data: conversations, error } = await supabase
-        .from('conversations')
-        .select(CONVERSATION_SELECT)
-        .eq('user_id', user.id)
-        .order('last_message_at', { ascending: false });
+      const { data: conversations, error } = await selectConversationsWithFallback((selectClause) =>
+        supabase
+          .from('conversations')
+          .select(selectClause)
+          .eq('user_id', user.id)
+          .order('last_message_at', { ascending: false })
+      );
 
       if (error) {
         console.error('[Conversations API] User list error:', error);
-        return NextResponse.json({ error: 'Failed to fetch conversations' }, { status: 500 });
+        return NextResponse.json(
+          { error: 'Failed to fetch conversations', details: error?.message || null },
+          { status: 500 }
+        );
       }
 
       const items = (conversations || []).map((conversation: any) =>
@@ -77,15 +212,20 @@ export const GET = withUser(async (req: NextRequest, { user, supabase }) => {
       ? [requestedBusinessId]
       : ownedBusinessIds;
 
-    const { data: conversations, error } = await supabase
-      .from('conversations')
-      .select(CONVERSATION_SELECT)
-      .in('business_id', scopedBusinessIds)
-      .order('last_message_at', { ascending: false });
+    const { data: conversations, error } = await selectConversationsWithFallback((selectClause) =>
+      supabase
+        .from('conversations')
+        .select(selectClause)
+        .in('business_id', scopedBusinessIds)
+        .order('last_message_at', { ascending: false })
+    );
 
     if (error) {
       console.error('[Conversations API] Business list error:', error);
-      return NextResponse.json({ error: 'Failed to fetch conversations' }, { status: 500 });
+      return NextResponse.json(
+        { error: 'Failed to fetch conversations', details: error?.message || null },
+        { status: 500 }
+      );
     }
 
     const userIds = Array.from(new Set((conversations || []).map((conversation: any) => conversation.user_id).filter(Boolean)));
@@ -161,13 +301,15 @@ export const POST = withUser(async (req: NextRequest, { user, supabase }) => {
       return NextResponse.json({ error: 'Cannot create a conversation with yourself.' }, { status: 400 });
     }
 
-    const { data: existingConversations, error: existingError } = await supabase
-      .from('conversations')
-      .select(CONVERSATION_SELECT)
-      .eq('user_id', conversationUserId)
-      .eq('business_id', businessId)
-      .order('created_at', { ascending: true })
-      .limit(1);
+    const { data: existingConversations, error: existingError } = await selectConversationsWithFallback((selectClause) =>
+      supabase
+        .from('conversations')
+        .select(selectClause)
+        .eq('user_id', conversationUserId)
+        .eq('business_id', businessId)
+        .order('created_at', { ascending: true })
+        .limit(1)
+    );
 
     if (existingError) {
       console.error('[Conversations API] Existing conversation lookup failed:', existingError);
@@ -188,7 +330,7 @@ export const POST = withUser(async (req: NextRequest, { user, supabase }) => {
       );
     }
 
-    const insertPayload: Record<string, any> = {
+    const modernInsertPayload: Record<string, any> = {
       user_id: conversationUserId,
       business_id: businessId,
       owner_id: business.owner_id || null,
@@ -198,21 +340,29 @@ export const POST = withUser(async (req: NextRequest, { user, supabase }) => {
       business_unread_count: 0,
     };
 
-    const { data: insertedConversation, error: insertError } = await supabase
-      .from('conversations')
-      .insert(insertPayload)
-      .select(CONVERSATION_SELECT)
-      .single();
+    const legacyInsertPayload: Record<string, any> = {
+      user_id: conversationUserId,
+      business_id: businessId,
+      owner_id: business.owner_id || null,
+      last_message_at: new Date().toISOString(),
+    };
+
+    const {
+      data: insertedConversation,
+      error: insertError,
+    } = await insertConversationWithFallback(supabase, modernInsertPayload, legacyInsertPayload);
 
     if (insertError) {
       if (insertError.code === '23505') {
-        const { data: fallbackConversations } = await supabase
-          .from('conversations')
-          .select(CONVERSATION_SELECT)
-          .eq('user_id', conversationUserId)
-          .eq('business_id', businessId)
-          .order('created_at', { ascending: true })
-          .limit(1);
+        const { data: fallbackConversations } = await selectConversationsWithFallback((selectClause) =>
+          supabase
+            .from('conversations')
+            .select(selectClause)
+            .eq('user_id', conversationUserId)
+            .eq('business_id', businessId)
+            .order('created_at', { ascending: true })
+            .limit(1)
+        );
 
         const fallbackConversation = fallbackConversations?.[0];
         if (fallbackConversation) {
@@ -230,7 +380,10 @@ export const POST = withUser(async (req: NextRequest, { user, supabase }) => {
       }
 
       console.error('[Conversations API] Create error:', insertError);
-      return NextResponse.json({ error: 'Failed to create conversation' }, { status: 500 });
+      return NextResponse.json(
+        { error: 'Failed to create conversation', details: insertError?.message || null },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json(

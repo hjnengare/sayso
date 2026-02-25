@@ -33,12 +33,17 @@ interface PortalSidebarProps {
 
 export default function PortalSidebar({ pathname, onClose }: PortalSidebarProps) {
   const { unreadCount } = useMessageUnreadCount({ role: "business", enabled: true });
+  const handleMobileLinkClick = onClose ? () => onClose() : undefined;
 
   return (
     <aside className="flex flex-col h-full bg-navbar-bg text-off-white">
       {/* Brand */}
       <div className="flex items-center justify-between px-5 py-5   ">
-        <Link href="/my-businesses" className="flex items-center gap-2.5" onClick={onClose}>
+        <Link
+          href="/my-businesses"
+          className="flex items-center gap-2.5"
+          onClick={handleMobileLinkClick}
+        >
           <div className="w-7 h-7 rounded-lg bg-white/15 flex items-center justify-center">
             <Store className="w-4 h-4 text-white" />
           </div>
@@ -64,7 +69,7 @@ export default function PortalSidebar({ pathname, onClose }: PortalSidebarProps)
             <Link
               key={href}
               href={href}
-              onClick={onClose}
+              onClick={handleMobileLinkClick}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 group
                 ${active
                   ? "bg-white/15 text-white shadow-sm"
@@ -88,7 +93,7 @@ export default function PortalSidebar({ pathname, onClose }: PortalSidebarProps)
       <div className="px-5 py-4 border-t border-white/10">
         <Link
           href="/home"
-          onClick={onClose}
+          onClick={handleMobileLinkClick}
           className="flex items-center gap-2 text-xs text-white/50 hover:text-white/80 transition-colors font-urbanist"
         >
           <span>← Back to Sayso</span>

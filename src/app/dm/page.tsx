@@ -1,13 +1,14 @@
 'use client';
 
-import { useMemo } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useEffect, useMemo } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import MessagingWorkspace from '@/app/components/Messaging/MessagingWorkspace';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useOwnerBusinessesList } from '@/app/hooks/useOwnerBusinessesList';
 
 export default function DMPage() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const { user, isLoading: authLoading } = useAuth();
 
@@ -27,7 +28,13 @@ export default function DMPage() {
     null;
   const startUserId = searchParams?.get('user_id') || null;
 
-  if (authLoading || (role === 'business' && businessesLoading)) {
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.replace('/login');
+    }
+  }, [authLoading, router, user]);
+
+  if (authLoading || !user || (role === 'business' && businessesLoading)) {
     return (
       <div className="flex min-h-[100dvh] items-center justify-center bg-off-white">
         <div className="inline-flex items-center gap-2 text-sm text-charcoal/60" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>

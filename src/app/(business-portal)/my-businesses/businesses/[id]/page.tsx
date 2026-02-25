@@ -79,6 +79,8 @@ export default function OwnerBusinessDashboard() {
   } = useOwnerBusinessDashboard(authLoading ? null : user?.id, businessId);
 
   const isLoading = authLoading || dashboardLoading;
+  const businessDbId = business?.id || businessId;
+  const businessRouteId = ((business as any)?.slug as string | undefined) || business?.id || businessId;
 
   const [uploadingProfilePicture, setUploadingProfilePicture] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -178,7 +180,7 @@ export default function OwnerBusinessDashboard() {
 
     import('../../../../lib/utils/businessUpdateEvents').then(({ businessUpdateEvents }) => {
       unsubscribe = businessUpdateEvents.onDelete((deletedBusinessId: string) => {
-        if (deletedBusinessId === businessId) {
+        if (deletedBusinessId === businessId || deletedBusinessId === business?.id) {
           router.push('/my-businesses');
         }
       });
@@ -189,11 +191,12 @@ export default function OwnerBusinessDashboard() {
     return () => {
       if (unsubscribe) unsubscribe();
     };
-  }, [businessId, router]);
+  }, [business?.id, businessId, router]);
 
   const handleProfilePictureUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file || !businessId) return;
+    const resolvedBusinessId = business?.id;
+    if (!file || !resolvedBusinessId) return;
 
     const MAX_SIZE = 5 * 1024 * 1024;
     const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
@@ -230,7 +233,7 @@ export default function OwnerBusinessDashboard() {
       const fileExt = file.name.split('.').pop() || 'jpg';
       const timestamp = Date.now();
       const fileName = `profile_${timestamp}.${fileExt}`;
-      const filePath = `${businessId}/${fileName}`;
+      const filePath = `${resolvedBusinessId}/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from(STORAGE_BUCKETS.BUSINESS_IMAGES)
@@ -257,7 +260,7 @@ export default function OwnerBusinessDashboard() {
       const { error: updateError } = await supabase
         .from('businesses')
         .update({ image_url: publicUrl })
-        .eq('id', businessId);
+        .eq('id', resolvedBusinessId);
 
       if (updateError) {
         console.error('[Owner Dashboard] Error updating profile picture:', updateError);
@@ -272,7 +275,7 @@ export default function OwnerBusinessDashboard() {
       showToast('Profile picture updated successfully!', 'success', 3000);
 
       const { notifyBusinessUpdated } = await import('../../../../lib/utils/businessUpdateEvents');
-      notifyBusinessUpdated(businessId);
+      notifyBusinessUpdated(resolvedBusinessId);
     } catch (error: any) {
       console.error('[Owner Dashboard] Error uploading profile picture:', error);
       showToast(error.message || 'Failed to upload profile picture. Please try again.', 'error', 5000);
@@ -507,7 +510,7 @@ export default function OwnerBusinessDashboard() {
                     </div>
 
                     <Link
-                      href={`/my-businesses/messages?business_id=${business?.id || businessId}`}
+                      href={`/my-businesses/messages?business_id=${businessDbId}`}
                       className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/80 backdrop-blur-xl border-none rounded-[12px] shadow-lg p-4 min-h-[120px] flex flex-col justify-between hover:shadow-md hover:border-sage/40 transition-all duration-200 block"
                     >
                       <div className="flex items-center gap-2 mb-2">
@@ -538,7 +541,7 @@ export default function OwnerBusinessDashboard() {
                     </h3>
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
                       <Link
-                        href={`/business/${businessId}/edit`}
+                        href={`/business/${businessRouteId}/edit`}
                         className="group bg-gradient-to-br from-card-bg via-card-bg to-card-bg/80 backdrop-blur-xl border-none rounded-[12px] p-4 flex flex-col items-center gap-2 text-center hover:border-sage/40 hover:translate-y-[-2px] transition-all duration-200"
                       >
                         <span className={`${ICON_CHIP_LARGE_CLASS} group-hover:bg-off-white/90`}>
@@ -547,7 +550,7 @@ export default function OwnerBusinessDashboard() {
                         <span className="text-sm font-semibold text-charcoal">Edit Details</span>
                       </Link>
                       <Link
-                        href={`/business/${businessId}/edit`}
+                        href={`/business/${businessRouteId}/edit`}
                         className="group bg-gradient-to-br from-card-bg via-card-bg to-card-bg/80 backdrop-blur-xl border-none rounded-[12px] p-4 flex flex-col items-center gap-2 text-center hover:border-sage/40 hover:translate-y-[-2px] transition-all duration-200"
                       >
                         <span className={`${ICON_CHIP_LARGE_CLASS} group-hover:bg-off-white/90`}>
@@ -556,7 +559,7 @@ export default function OwnerBusinessDashboard() {
                         <span className="text-sm font-semibold text-charcoal">Upload Photos</span>
                       </Link>
                       <Link
-                        href={`/my-businesses/businesses/${businessId}/reviews`}
+                        href={`/my-businesses/businesses/${businessRouteId}/reviews`}
                         className="group bg-gradient-to-br from-card-bg via-card-bg to-card-bg/80 backdrop-blur-xl border-none rounded-[12px] p-4 flex flex-col items-center gap-2 text-center hover:border-sage/40 hover:translate-y-[-2px] transition-all duration-200"
                       >
                         <span className={`${ICON_CHIP_LARGE_CLASS} group-hover:bg-off-white/90`}>

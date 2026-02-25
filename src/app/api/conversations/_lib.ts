@@ -25,6 +25,20 @@ export interface DecodedCursor {
   id: string;
 }
 
+const CONVERSATION_SCHEMA_DRIFT_MARKERS = [
+  'schema cache',
+  'does not exist',
+  'last_message_preview',
+  'user_unread_count',
+  'business_unread_count',
+  'relationship between',
+];
+
+const CONVERSATION_ACCESS_SELECT_V2 =
+  'id, user_id, owner_id, business_id, last_message_at, last_message_preview, user_unread_count, business_unread_count, created_at';
+const CONVERSATION_ACCESS_SELECT_LEGACY =
+  'id, user_id, owner_id, business_id, last_message_at, created_at';
+
 export function parseRole(value: string | null): MessagingRole {
   return value === 'business' ? 'business' : 'user';
 }
@@ -53,6 +67,33 @@ export function decodeCursor(value: string | null): DecodedCursor | null {
 
 export function isNotFoundError(error: PostgrestError | null | undefined): boolean {
   return error?.code === 'PGRST116';
+}
+
+export function isConversationSchemaDriftError(error: any): boolean {
+  if (!error) return false;
+
+  const haystack = [
+    error?.code,
+    error?.message,
+    error?.details,
+    error?.hint,
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+
+  return CONVERSATION_SCHEMA_DRIFT_MARKERS.some((marker) => haystack.includes(marker));
+}
+
+export function normalizeConversationRow(row: any): ConversationRow {
+  return {
+    ...row,
+    owner_id: row?.owner_id ?? null,
+    business_id: row?.business_id ?? null,
+    last_message_preview: row?.last_message_preview ?? '',
+    user_unread_count: Number(row?.user_unread_count ?? 0),
+    business_unread_count: Number(row?.business_unread_count ?? 0),
+  } as ConversationRow;
 }
 
 export async function getOwnedBusinessIds(supabase: any, userId: string): Promise<string[]> {
@@ -85,19 +126,34 @@ export async function getConversationAccessContext(
   conversationId: string,
   userId: string
 ): Promise<ConversationAccessContext | null> {
-  const { data: conversation, error } = await supabase
+  const { data: modernConversation, error: modernError } = await supabase
     .from('conversations')
-    .select('id, user_id, owner_id, business_id, last_message_at, last_message_preview, user_unread_count, business_unread_count, created_at')
+    .select(CONVERSATION_ACCESS_SELECT_V2)
     .eq('id', conversationId)
     .maybeSingle();
 
-  if (error || !conversation) {
+  let conversation = modernConversation;
+  let accessError = modernError;
+
+  if (accessError && isConversationSchemaDriftError(accessError)) {
+    const { data: legacyConversation, error: legacyError } = await supabase
+      .from('conversations')
+      .select(CONVERSATION_ACCESS_SELECT_LEGACY)
+      .eq('id', conversationId)
+      .maybeSingle();
+    conversation = legacyConversation;
+    accessError = legacyError;
+  }
+
+  if (accessError || !conversation) {
     return null;
   }
 
-  if (conversation.user_id === userId) {
+  const normalizedConversation = normalizeConversationRow(conversation);
+
+  if (normalizedConversation.user_id === userId) {
     return {
-      conversation: conversation as ConversationRow,
+      conversation: normalizedConversation,
       role: 'user',
       ownedBusinessIds: [],
     };
@@ -106,15 +162,15 @@ export async function getConversationAccessContext(
   const ownedBusinessIds = await getOwnedBusinessIds(supabase, userId);
 
   const isBusinessParticipant =
-    (conversation.business_id && ownedBusinessIds.includes(conversation.business_id)) ||
-    conversation.owner_id === userId;
+    (normalizedConversation.business_id && ownedBusinessIds.includes(normalizedConversation.business_id)) ||
+    normalizedConversation.owner_id === userId;
 
   if (!isBusinessParticipant) {
     return null;
   }
 
   return {
-    conversation: conversation as ConversationRow,
+    conversation: normalizedConversation,
     role: 'business',
     ownedBusinessIds,
   };

@@ -571,16 +571,30 @@ export default function SpecialDetailPage({ params }: SpecialDetailPageProps) {
                     </div>
                   )}
                   {/* Link to business profile if available */}
-                  {special.businessSlug && (
-                    <Link
-                      href={`/business/${special.businessSlug}`}
-                      className="inline-flex items-center gap-1 text-sm text-coral hover:text-coral/80 font-medium mt-2 transition-colors"
-                      style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
-                    >
-                      View Business Profile
-                      <ChevronRight className="w-4 h-4" />
-                    </Link>
-                  )}
+                  <div className="flex flex-col gap-2 mt-2">
+                    {/* Message Button */}
+                    {special.businessId && (
+                      <Link
+                        href={`/dm?business_id=${special.businessId}`}
+                        className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-coral text-white font-semibold shadow hover:bg-coral/90 transition-colors text-sm"
+                        style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                      >
+                        <span>Message</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.77 9.77 0 01-4-.8l-4 1 1-3.6A7.963 7.963 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                      </Link>
+                    )}
+                    {/* Link to business profile if available */}
+                    {special.businessSlug && (
+                      <Link
+                        href={`/business/${special.businessSlug}`}
+                        className="inline-flex items-center gap-1 text-sm text-coral hover:text-coral/80 font-medium transition-colors"
+                        style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                      >
+                        View Business Profile
+                        <ChevronRight className="w-4 h-4" />
+                      </Link>
+                    )}
+                  </div>
                 </div>
               </m.div>
             </div>
