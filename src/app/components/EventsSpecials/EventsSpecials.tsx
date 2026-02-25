@@ -41,6 +41,7 @@ export default function EventsSpecials({
   premiumCtaHover = false,
   disableAnimations = false,
   hideCarouselArrowsOnDesktop = false,
+  showHeaderCta = true,
 }: {
   title?: string;
   events: Event[];
@@ -57,6 +58,8 @@ export default function EventsSpecials({
   disableAnimations?: boolean;
   /** Hide carousel arrows on desktop (lg+) breakpoints (default false). */
   hideCarouselArrowsOnDesktop?: boolean;
+  /** Show the top-right CTA link in the section header (default true). */
+  showHeaderCta?: boolean;
 }) {
   const router = useRouter();
   const isDesktop = useIsDesktop();
@@ -83,10 +86,12 @@ export default function EventsSpecials({
         <div className="mx-auto w-full max-w-[2000px] relative z-10 px-2">
           <div className="pb-4 sm:pb-8 md:pb-10 flex flex-wrap items-center justify-between gap-2">
             <div className="h-8 sm:h-10 w-48 sm:w-64 bg-charcoal/10 rounded-lg animate-pulse px-3 sm:px-4 py-1" />
-            <div className="inline-flex items-center gap-1 px-4 py-2 -mx-2">
-              <div className="h-4 w-16 bg-charcoal/10 rounded-full animate-pulse" />
-              <div className="h-4 w-4 bg-charcoal/10 rounded-full animate-pulse" />
-            </div>
+            {showHeaderCta && (
+              <div className="inline-flex items-center gap-1 px-4 py-2 -mx-2">
+                <div className="h-4 w-16 bg-charcoal/10 rounded-full animate-pulse" />
+                <div className="h-4 w-4 bg-charcoal/10 rounded-full animate-pulse" />
+              </div>
+            )}
           </div>
 
           <div className="pt-2">
@@ -143,33 +148,35 @@ export default function EventsSpecials({
             </m.h2>
           )}
 
-          <button
-            onClick={() => router.push(href)}
-            className={
-              premiumCtaHover
-                ? "group inline-flex items-center gap-1 text-body-sm sm:text-caption font-normal text-charcoal transition-colors duration-200 ease-[cubic-bezier(0.25,0.1,0.25,1)] hover:text-sage focus:outline-none px-4 py-2 -mx-2 relative motion-reduce:transition-none"
-                : "group inline-flex items-center gap-1 text-body-sm sm:text-caption font-normal text-charcoal transition-all duration-300 hover:text-sage focus:outline-none px-4 py-2 -mx-2 relative"
-            }
-            aria-label={`${cta}: ${title}`}
-          >
-            <span
+          {showHeaderCta && (
+            <button
+              onClick={() => router.push(href)}
               className={
                 premiumCtaHover
-                  ? "relative z-10 transition-[color] duration-200 ease-[cubic-bezier(0.25,0.1,0.25,1)] text-charcoal group-hover:text-sage after:content-[''] after:absolute after:-bottom-px after:left-0 after:h-px after:w-full after:bg-current after:origin-left after:scale-x-0 after:transition-transform after:duration-200 after:ease-[cubic-bezier(0.25,0.1,0.25,1)] group-hover:after:scale-x-100 motion-reduce:transition-none motion-reduce:after:transition-none"
-                  : "relative z-10 transition-transform duration-300 group-hover:-translate-x-0.5 text-charcoal group-hover:text-sage"
+                  ? "group inline-flex items-center gap-1 text-body-sm sm:text-caption font-normal text-charcoal transition-colors duration-200 ease-[cubic-bezier(0.25,0.1,0.25,1)] hover:text-sage focus:outline-none px-4 py-2 -mx-2 relative motion-reduce:transition-none"
+                  : "group inline-flex items-center gap-1 text-body-sm sm:text-caption font-normal text-charcoal transition-all duration-300 hover:text-sage focus:outline-none px-4 py-2 -mx-2 relative"
               }
-              style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: ctaFontWeight }}
+              aria-label={`${cta}: ${title}`}
             >
-              {cta.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')}
-            </span>
-            <ArrowRight
-              className={
-                premiumCtaHover
-                  ? "relative z-10 w-4 h-4 transition-transform duration-200 ease-[cubic-bezier(0.25,0.1,0.25,1)] group-hover:translate-x-[3px] text-charcoal group-hover:text-sage motion-reduce:transition-none"
-                  : "relative z-10 w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5 text-charcoal group-hover:text-sage"
-              }
-            />
-          </button>
+              <span
+                className={
+                  premiumCtaHover
+                    ? "relative z-10 transition-[color] duration-200 ease-[cubic-bezier(0.25,0.1,0.25,1)] text-charcoal group-hover:text-sage after:content-[''] after:absolute after:-bottom-px after:left-0 after:h-px after:w-full after:bg-current after:origin-left after:scale-x-0 after:transition-transform after:duration-200 after:ease-[cubic-bezier(0.25,0.1,0.25,1)] group-hover:after:scale-x-100 motion-reduce:transition-none motion-reduce:after:transition-none"
+                    : "relative z-10 transition-transform duration-300 group-hover:-translate-x-0.5 text-charcoal group-hover:text-sage"
+                }
+                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: ctaFontWeight }}
+              >
+                {cta.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')}
+              </span>
+              <ArrowRight
+                className={
+                  premiumCtaHover
+                    ? "relative z-10 w-4 h-4 transition-transform duration-200 ease-[cubic-bezier(0.25,0.1,0.25,1)] group-hover:translate-x-[3px] text-charcoal group-hover:text-sage motion-reduce:transition-none"
+                    : "relative z-10 w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5 text-charcoal group-hover:text-sage"
+                }
+              />
+            </button>
+          )}
         </div>
 
         {hasEvents ? (

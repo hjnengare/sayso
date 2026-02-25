@@ -52,7 +52,7 @@ export default function BusinessOwnedEventsSection({
   }
 
   return (
-    <section className="pt-8 border-t border-charcoal/10">
+    <section className="pt-8">
       {/* Partial-error banner mirrors /events-specials handling */}
       {error && hasEvents && (
         <div className="rounded-[16px] border border-charcoal/10 bg-off-white/70 backdrop-blur-md px-4 py-3 flex items-start justify-between gap-3 mb-4">
@@ -71,8 +71,7 @@ export default function BusinessOwnedEventsSection({
       <EventsSpecials
         title={`Events & Specials from ${businessName}`}
         events={normalizedEvents}
-        cta="See More"
-        href="/events-specials"
+        showHeaderCta={false}
         loading={showSkeleton}
         premiumCtaHover
         hideCarouselArrowsOnDesktop
