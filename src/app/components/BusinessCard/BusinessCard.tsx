@@ -253,7 +253,7 @@ function BusinessCard({
   const businessIdentifier = business.slug || business.id;
   const reviewRoute = useMemo(() => `/business/${businessIdentifier}/review`, [businessIdentifier]);
   const businessProfileRoute = useMemo(() => 
-    ownerView ? `/my-businesses/businesses/${businessIdentifier}` : `/business/${businessIdentifier}`, 
+    ownerView ? `/my-businesses/${businessIdentifier}` : `/business/${businessIdentifier}`, 
     [businessIdentifier, ownerView]
   );
 
@@ -714,3 +714,4 @@ function BusinessCard({
 
 export default memo(BusinessCard);
 export type { Business };
+

@@ -128,14 +128,14 @@ export async function POST(
       }
 
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-      const dashboardUrl = `${baseUrl}/my-businesses/businesses/${claimRow.business_id}`;
+      const dashboardUrl = `${baseUrl}/my-businesses/${claimRow.business_id}`;
       await createClaimNotification({
         userId: claimRow.claimant_user_id,
         claimId,
         type: 'claim_status_changed',
         title: 'Claim approved',
         message: `Your claim for ${business?.name ?? 'your business'} has been approved. You can now manage your listing.`,
-        link: `/my-businesses/businesses/${claimRow.business_id}`,
+        link: `/my-businesses/${claimRow.business_id}`,
       });
       updateClaimLastNotified(claimId).catch(() => {});
 
@@ -260,7 +260,7 @@ export async function POST(
 
     if (userEmail && business) {
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-      const dashboardUrl = `${baseUrl}/my-businesses/businesses/${request.business_id}`;
+      const dashboardUrl = `${baseUrl}/my-businesses/${request.business_id}`;
       const businessCategory = (business as { primary_subcategory_label?: string; primary_subcategory_slug?: string }).primary_subcategory_label
         ?? getSubcategoryLabel((business as { primary_subcategory_slug?: string }).primary_subcategory_slug ?? '')
         ?? undefined;
@@ -283,3 +283,4 @@ export async function POST(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+

@@ -324,7 +324,7 @@ export default function ClaimBusinessFormPage() {
           "success",
           5000,
         );
-        router.push(`/my-businesses/businesses/${business.id}`);
+        router.push(`/my-businesses/${business.id}`);
         return;
       }
 
@@ -721,3 +721,4 @@ export default function ClaimBusinessFormPage() {
     </div>
   );
 }
+

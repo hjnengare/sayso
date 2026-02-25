@@ -94,7 +94,7 @@ export async function notifyBusinessApproved(ownerId: string, businessId: string
     title: 'Business Approved!',
     message: `Your business "${businessName}" has been approved and is now live on Sayso!`,
     entityId: businessId,
-    link: `/my-businesses/businesses/${businessId}`,
+    link: `/my-businesses/${businessId}`,
   });
 }
 
@@ -108,7 +108,7 @@ export async function notifyClaimApproved(claimantId: string, businessId: string
     title: 'Claim Approved!',
     message: `Your business claim for "${businessName}" has been approved! You can now manage your business.`,
     entityId: claimId || businessId,
-    link: `/my-businesses/businesses/${businessId}`,
+    link: `/my-businesses/${businessId}`,
   });
 }
 
@@ -170,3 +170,4 @@ export async function notifyMilestone(
     link: '/profile',
   });
 }
+

@@ -102,7 +102,7 @@ export default function MyBusinessesTable({ businesses }: MyBusinessesTableProps
 
       <div className="divide-y divide-charcoal/10">
         {businesses.map((business) => {
-          const profileRoute = `/my-businesses/businesses/${business.slug || business.id}`;
+          const profileRoute = `/my-businesses/${business.slug || business.id}`;
           const { src: imageSrc, isPlaceholder } = getDisplayImage(business);
           const categoryLabel = getCategoryLabelFromBusiness(business);
           const statusInfo = getStatusLabel(business);
@@ -205,3 +205,4 @@ export default function MyBusinessesTable({ businesses }: MyBusinessesTableProps
     </div>
   );
 }
+

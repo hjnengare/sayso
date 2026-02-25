@@ -63,7 +63,7 @@ function ClaimBusinessPageContent() {
       }
 
       if (business.claimed_by_user) {
-        router.push(`/my-businesses/businesses/${business.id}`);
+        router.push(`/my-businesses/${business.id}`);
         return;
       }
 
@@ -348,7 +348,7 @@ function ClaimBusinessPageContent() {
                                   {getClaimStatusBadge(claim.display_status, claim.status)}
                                   {claim.status === 'verified' && claim.business_id && (
                                     <Link
-                                      href={`/my-businesses/businesses/${claim.business_id}`}
+                                      href={`/my-businesses/${claim.business_id}`}
                                       className="font-urbanist text-sm font-semibold text-sage hover:text-sage/80 underline"
                                       style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                                     >
@@ -509,3 +509,4 @@ export default function ClaimBusinessPage() {
     </Suspense>
   );
 }
+

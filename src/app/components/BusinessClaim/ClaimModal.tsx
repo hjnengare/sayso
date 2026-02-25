@@ -157,7 +157,7 @@ export function ClaimModal({ business, onClose, onSuccess }: ClaimModalProps) {
         showToast(result.message || "Business verified. You can now manage your listing.", "success", 5000);
         onSuccess();
         onClose();
-        router.push(`/my-businesses/businesses/${business.id}`);
+        router.push(`/my-businesses/${business.id}`);
         return;
       }
 
@@ -407,3 +407,4 @@ export function ClaimModal({ business, onClose, onSuccess }: ClaimModalProps) {
     </m.div>
   );
 }
+
