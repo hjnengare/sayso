@@ -36,7 +36,7 @@ function Sidebar({
   return (
     <aside className="flex flex-col h-full min-h-[100dvh] bg-navbar-bg text-off-white">
       {/* Brand */}
-      <div className="flex items-center justify-between px-5 py-5   ">
+      <div className="flex items-center justify-between px-5 py-5">
         <Link href="/admin" className="flex items-center gap-1.5" onClick={onClose}>
           <Wordmark size="text-base" className="tracking-tight" />
           <span className="font-urbanist font-semibold text-sm text-white/85 tracking-tight">admin</span>

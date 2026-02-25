@@ -19,6 +19,7 @@ interface BusinessStats {
 interface DashboardAnalytics {
   profileViews: number;
   newReviews: number;
+  newConversations: number;
 }
 
 interface DashboardData {
@@ -41,7 +42,7 @@ async function fetchDashboard([, userId, businessId]: [string, string, string]):
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-  const [statsResult, reviewsResult, viewsResult] = await Promise.allSettled([
+  const [statsResult, reviewsResult, viewsResult, conversationsResult] = await Promise.allSettled([
     supabase
       .from('business_stats')
       .select('average_rating, total_reviews')
@@ -53,6 +54,11 @@ async function fetchDashboard([, userId, businessId]: [string, string, string]):
       .eq('business_id', resolvedId)
       .gte('created_at', thirtyDaysAgo.toISOString()),
     fetch(`/api/businesses/${resolvedId}/views?days=30`).then(r => r.json()),
+    supabase
+      .from('conversations')
+      .select('*', { count: 'exact', head: true })
+      .eq('business_id', resolvedId)
+      .gte('created_at', thirtyDaysAgo.toISOString()),
   ]);
 
   const stats: BusinessStats =
@@ -66,6 +72,8 @@ async function fetchDashboard([, userId, businessId]: [string, string, string]):
   const analytics: DashboardAnalytics = {
     newReviews: reviewsResult.status === 'fulfilled' ? (reviewsResult.value.count ?? 0) : 0,
     profileViews: viewsResult.status === 'fulfilled' ? (viewsResult.value.count ?? 0) : 0,
+    newConversations:
+      conversationsResult.status === 'fulfilled' ? (conversationsResult.value.count ?? 0) : 0,
   };
 
   return { business: businessData, stats, analytics };
