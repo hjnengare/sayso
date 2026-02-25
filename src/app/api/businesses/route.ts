@@ -1754,27 +1754,45 @@ async function handleForYouFeed(options: MixedFeedOptions): Promise<NextResponse
     filteredBusinesses = businesses;
   }
 
-  // The RPC already attaches uploaded_images via business_images lateral,
-  // but patch any remaining gaps just in case.
-  const missingImages = filteredBusinesses.some((b) => !b.uploaded_images || b.uploaded_images.length === 0);
-  if (missingImages) {
-    const businessIds = filteredBusinesses.map((b) => b.id);
+  // Normalize For You images to match Trending behavior:
+  // prefer business_images primary first, then fallback order.
+  const businessIds = filteredBusinesses.map((b) => b.id);
+  if (businessIds.length > 0) {
     const { data: imagesData } = await supabase
       .from('business_images')
       .select('business_id, url, sort_order, is_primary')
       .in('business_id', businessIds)
+      .order('is_primary', { ascending: false })
       .order('sort_order', { ascending: true });
+
     if (imagesData) {
-      const byBusiness = new Map<string, string[]>();
-      for (const img of imagesData) {
+      type ImageRow = {
+        business_id: string;
+        url: string;
+        sort_order: number | null;
+        is_primary: boolean | null;
+      };
+
+      const byBusiness = new Map<string, ImageRow[]>();
+      for (const img of imagesData as ImageRow[]) {
         const list = byBusiness.get(img.business_id) || [];
-        list.push(img.url);
+        list.push(img);
         byBusiness.set(img.business_id, list);
       }
+
       for (const b of filteredBusinesses) {
-        if (!b.uploaded_images?.length) {
-          const urls = byBusiness.get(b.id);
-          if (urls?.length) b.uploaded_images = urls;
+        const rows = byBusiness.get(b.id);
+        if (!rows || rows.length === 0) continue;
+
+        const orderedUrls = rows.map((row) => row.url).filter(Boolean);
+        if (orderedUrls.length > 0) {
+          // Keep BusinessCard deterministic: first uploaded image should be the primary/cover image.
+          b.uploaded_images = orderedUrls;
+        }
+
+        const primaryImage = rows.find((row) => row.is_primary) || rows[0];
+        if (primaryImage?.url) {
+          b.image_url = primaryImage.url;
         }
       }
     }

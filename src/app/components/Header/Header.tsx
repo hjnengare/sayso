@@ -3,18 +3,17 @@
 
 import { useCallback, useEffect, useState, useRef, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Bell, MessageSquare, Settings, Search, X, Shield, FileCheck, Database, LogOut } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { m, AnimatePresence } from "framer-motion";
-import Logo from "../Logo/Logo";
-import OptimizedLink from "../Navigation/OptimizedLink";
-import DesktopNav from "./DesktopNav";
 import MobileMenu from "./MobileMenu";
-import MobileMenuToggleIcon from "./MobileMenuToggleIcon";
 import HeaderSkeleton from "./HeaderSkeleton";
 import { useHeaderState } from "./useHeaderState";
 import { getLogoHref } from "./headerActionsConfig";
 import { useLiveSearch, type LiveSearchResult } from "../../hooks/useLiveSearch";
 import { usePrefetchRoutes } from "../../hooks/usePrefetchRoutes";
+import { AdminHeaderRole } from "./roles/AdminHeaderRole";
+import { PersonalHeaderRole } from "./roles/PersonalHeaderRole";
+import { BusinessHeaderRole } from "./roles/BusinessHeaderRole";
 
 export default function Header({
   showSearch = true,
@@ -22,6 +21,7 @@ export default function Header({
   backgroundClassName,
   searchLayout = "floating",
   forceSearchOpen = false,
+  forcePersonalMode = false,
   topPosition = "top-6",
   reducedPadding = false,
   whiteText = true,
@@ -33,6 +33,7 @@ export default function Header({
   backgroundClassName?: string;
   searchLayout?: "floating" | "stacked";
   forceSearchOpen?: boolean;
+  forcePersonalMode?: boolean;
   topPosition?: string;
   reducedPadding?: boolean;
   whiteText?: boolean;
@@ -76,7 +77,7 @@ export default function Header({
     setShowSearchBar,
     setIsMobileMenuOpen,
     fontStyle: sf,
-  } = useHeaderState({ searchLayout, forceSearchOpen });
+  } = useHeaderState({ searchLayout, forceSearchOpen, forcePersonalMode });
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -183,15 +184,6 @@ export default function Header({
 
   const isPersonalLayout =
     !effectiveIsBusinessAccountUser && !effectiveIsAdminUser;
-
-  // Admin nav items
-  const ADMIN_NAV = [
-    { href: "/admin", label: "Dashboard", icon: Shield, exact: true },
-    { href: "/admin/claims", label: "Claims", icon: FileCheck, exact: false },
-    { href: "/admin/seed", label: "Seed Data", icon: Database, exact: false },
-  ];
-  const isAdminNavActive = (href: string, exact: boolean) =>
-    exact ? pathname === href : pathname?.startsWith(href);
 
   // Role-aware logo href:
   // - Business accounts → /my-businesses
@@ -826,312 +818,53 @@ export default function Header({
           className={`relative z-[1] w-full ${horizontalPaddingClass} flex items-center h-full ${wrapperSizeClass}`}
         >
           {effectiveIsAdminUser ? (
-            /* Admin Layout */
-            <div className="w-full">
-              {/* Desktop: brand left, nav center, sign out right */}
-              <div className="hidden sm:flex items-center justify-between w-full">
-                  <OptimizedLink href="/admin" className="group flex items-center gap-1" aria-label="Admin Dashboard">
-                    <Logo
-                      variant="default"
-                      showMark={false}
-                      className={`transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] ${logoScaleClass}`}
-                    />
-                    <span className="text-sage text-sm font-semibold" style={sf}>admin</span>
-                  </OptimizedLink>
-
-                <div className="flex items-center gap-1">
-                  {ADMIN_NAV.map((item) => {
-                    const active = isAdminNavActive(item.href, item.exact);
-                    return (
-                      <OptimizedLink
-                        key={item.href}
-                        href={item.href}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-[color,transform] duration-200 ease-in-out ${
-                          active
-                            ? "bg-white/15 text-white"
-                            : "text-white/60 hover:text-white sm:hover:scale-105 sm:focus-visible:scale-105"
-                        }`}
-                        style={sf}
-                      >
-                        <item.icon className="w-4 h-4" />
-                        {item.label}
-                      </OptimizedLink>
-                    );
-                  })}
-                </div>
-
-                <button
-                  type="button"
-                  onClick={handleAdminSignOut}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-white/60 hover:text-coral transition-[color,transform] duration-200 ease-in-out sm:hover:scale-105 sm:focus-visible:scale-105"
-                  style={sf}
-                >
-                  <LogOut className="w-4 h-4" />
-                  Sign out
-                </button>
-              </div>
-
-              {/* Mobile: brand + sign out top row, nav links below */}
-              <div className="flex sm:hidden flex-col w-full gap-1">
-                <div className="flex items-center justify-between">
-                  <OptimizedLink href="/admin" className="group flex items-center gap-1" aria-label="Admin Dashboard">
-                    <Logo
-                      variant="mobile"
-                      showMark={false}
-                      className={`transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] ${logoScaleClass}`}
-                    />
-                    <span className="text-sage text-sm font-semibold" style={sf}>admin</span>
-                  </OptimizedLink>
-                  <button
-                    type="button"
-                    onClick={handleAdminSignOut}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-white/60 hover:text-coral transition-colors"
-                    style={sf}
-                  >
-                    <LogOut className="w-4 h-4" />
-                  </button>
-                </div>
-                <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar -mb-2">
-                  {ADMIN_NAV.map((item) => {
-                    const active = isAdminNavActive(item.href, item.exact);
-                    return (
-                      <OptimizedLink
-                        key={item.href}
-                        href={item.href}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
-                          active
-                            ? "bg-white/15 text-white"
-                            : "text-white/60 hover:text-white"
-                        }`}
-                        style={sf}
-                      >
-                        <item.icon className="w-4 h-4" />
-                        {item.label}
-                      </OptimizedLink>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
+            <AdminHeaderRole
+              pathname={pathname}
+              logoScaleClass={logoScaleClass}
+              sf={sf}
+              onSignOut={handleAdminSignOut}
+            />
           ) : isPersonalLayout ? (
-            <div className="w-full">
-              {/* Desktop Layout: Logo left, Nav center, Search+Icons right */}
-              <div
-                ref={homeDesktopRowRef}
-                className={`hidden lg:grid lg:items-center lg:gap-4 ${
-                  isHomePage
-                    ? "lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]"
-                    : "lg:grid-cols-[auto_1fr_auto]"
-                }`}
-              >
-                {/* Left: Logo */}
-                <div className="flex items-center">
-                  <OptimizedLink href={logoHref} className="group flex items-center" aria-label="sayso Home">
-                    <Logo
-                      variant="default"
-                      showMark={false}
-                      className={`transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] ${logoScaleClass}`}
-                    />
-                  </OptimizedLink>
-                </div>
-
-                {/* Center: Navigation */}
-                <div ref={isHomePage ? homeDesktopNavRef : null} className="flex justify-center">
-                  <DesktopNav {...desktopNavProps} mode="navOnly" />
-                </div>
-
-                {/* Right: Search + Icons */}
-                <div className="flex items-center justify-end gap-3 min-w-0">
-                  {showSearch && isHomePage && renderDesktopSearchInput(desktopSearchExpandedWidth)}
-                  <div ref={isHomePage ? homeDesktopIconsRef : null} className="flex items-center justify-end">
-                    <DesktopNav {...desktopNavProps} mode="iconsOnly" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Mobile Layout */}
-              <div className="relative flex lg:hidden items-center gap-2 w-full min-h-[48px]">
-                {/* Logo - always visible when search is closed */}
-                <AnimatePresence mode="wait">
-                  {!isMobileSearchOpen && (
-                    <m.div
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -10 }}
-                      transition={{ duration: 0.2, ease: [0.32, 0.72, 0, 1] }}
-                      className="pl-2"
-                    >
-                      <OptimizedLink href={logoHref} className="group flex items-center flex-shrink-0" aria-label="sayso Home">
-                        <Logo
-                          variant="default"
-                          showMark={false}
-                          className={`transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] ${logoScaleClass}`}
-                        />
-                      </OptimizedLink>
-                    </m.div>
-                  )}
-                </AnimatePresence>
-
-                {/* Mobile Search (expandable, premium open/close animation) */}
-                <AnimatePresence mode="wait">
-                  {isMobileSearchOpen && showSearch && isHomePage && renderMobileSearchInput()}
-                </AnimatePresence>
-
-                {/* Right side icons */}
-                <div className="relative z-[2] flex items-center gap-1 ml-auto">
-                  {/* Search icon trigger (mobile only, when search is closed) */}
-                  {showSearch && isHomePage && !isMobileSearchOpen && (
-                    <button
-                      type="button"
-                      onClick={handleMobileSearchToggle}
-                      className={`w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 ${
-                        whiteText
-                          ? "text-white hover:text-white/80"
-                          : "text-charcoal/80 hover:text-sage"
-                      }`}
-                      aria-label="Open search"
-                    >
-                      <Search className="w-5 h-5" strokeWidth={2} />
-                    </button>
-                  )}
-
-                  {/* Notifications */}
-                  {!isMobileSearchOpen && (
-                    <OptimizedLink
-                      href={effectiveIsGuest ? "/onboarding" : "/notifications"}
-                      className={`relative z-[2] w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 cursor-pointer pointer-events-auto select-none ${
-                        isNotificationsActive
-                          ? "text-sage bg-card-bg/5"
-                          : whiteText
-                            ? "text-white hover:text-white/80"
-                            : "text-charcoal/80 hover:text-sage"
-                      }`}
-                      aria-label={effectiveIsGuest ? "Sign in for notifications" : "Notifications"}
-                    >
-                      <Bell className="w-5 h-5 pointer-events-none" fill={isNotificationsActive ? "currentColor" : "none"} />
-                      {(unreadCount && unreadCount > 0) ? (
-                        <span className="pointer-events-none absolute -top-1.5 -right-1.5 flex items-center justify-center min-w-[20px] h-[20px] px-1.5 text-[10px] leading-none font-extrabold tracking-tight rounded-full bg-white text-coral border border-coral/30 shadow-[0_6px_14px_rgba(0,0,0,0.2)]">
-                          {unreadCount > 99 ? "99+" : unreadCount}
-                        </span>
-                      ) : null}
-                    </OptimizedLink>
-                  )}
-
-                  {/* Messages */}
-                  {!isMobileSearchOpen && (
-                    <OptimizedLink
-                      href={messagesHref}
-                      className={`relative z-[2] w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 cursor-pointer pointer-events-auto select-none ${
-                        isMessagesActive
-                          ? "text-sage bg-card-bg/5"
-                          : whiteText
-                            ? "text-white hover:text-white/80"
-                            : "text-charcoal/80 hover:text-sage"
-                      }`}
-                      aria-label={effectiveIsGuest ? "Sign in for messages" : "Messages"}
-                    >
-                      <MessageSquare className="w-5 h-5 pointer-events-none" fill={isMessagesActive ? "currentColor" : "none"} />
-                      {(messageUnreadCount && messageUnreadCount > 0) ? (
-                        <span className="pointer-events-none absolute -top-1.5 -right-1.5 flex items-center justify-center min-w-[20px] h-[20px] px-1.5 text-[10px] leading-none font-extrabold tracking-tight rounded-full bg-white text-coral border border-coral/30 shadow-[0_6px_14px_rgba(0,0,0,0.2)]">
-                          {messageUnreadCount > 99 ? "99+" : messageUnreadCount}
-                        </span>
-                      ) : null}
-                    </OptimizedLink>
-                  )}
-
-                  {/* Menu button */}
-                  {!isMobileSearchOpen && (
-                    <button
-                      type="button"
-                      onClick={() => setIsMobileMenuOpen(true)}
-                      className={`w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 ${
-                        whiteText
-                          ? "text-white hover:text-white/80"
-                          : "text-charcoal/80 hover:text-sage"
-                      }`}
-                      aria-label="Open menu"
-                      aria-expanded={isMobileMenuOpen}
-                    >
-                      <MobileMenuToggleIcon isOpen={isMobileMenuOpen} />
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
+            <PersonalHeaderRole
+              isHomePage={isHomePage}
+              logoHref={logoHref}
+              logoScaleClass={logoScaleClass}
+              showSearch={showSearch}
+              desktopSearchExpandedWidth={desktopSearchExpandedWidth}
+              renderDesktopSearchInput={renderDesktopSearchInput}
+              isMobileSearchOpen={isMobileSearchOpen}
+              renderMobileSearchInput={renderMobileSearchInput}
+              handleMobileSearchToggle={handleMobileSearchToggle}
+              whiteText={whiteText}
+              isGuest={effectiveIsGuest}
+              isNotificationsActive={isNotificationsActive}
+              unreadCount={unreadCount}
+              messagesHref={messagesHref}
+              isMessagesActive={isMessagesActive}
+              messageUnreadCount={messageUnreadCount}
+              isMobileMenuOpen={isMobileMenuOpen}
+              setIsMobileMenuOpen={setIsMobileMenuOpen}
+              homeDesktopRowRef={homeDesktopRowRef}
+              homeDesktopNavRef={homeDesktopNavRef}
+              homeDesktopIconsRef={homeDesktopIconsRef}
+              desktopNavProps={desktopNavProps}
+            />
           ) : (
-            /* Business Account Layout - unchanged */
-            <div className="flex items-center justify-between gap-3 lg:gap-6 w-full h-full">
-              <OptimizedLink href={logoHref} className="group flex flex-shrink-0 relative items-center pl-4 lg:pl-0" aria-label="sayso Home">
-                <div className="relative">
-                  <Logo
-                    variant="default"
-                    showMark={false}
-                    className={`relative transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] ${logoScaleClass}`}
-                  />
-                </div>
-              </OptimizedLink>
-
-              <div className="hidden lg:flex flex-1 justify-center">
-                <DesktopNav {...desktopNavProps} mode="navOnly" />
-              </div>
-
-              <div className="hidden lg:flex items-center justify-end">
-                <DesktopNav {...desktopNavProps} mode="iconsOnly" />
-              </div>
-
-              <div className="relative z-[2] flex lg:hidden items-center gap-2 ml-auto">
-                {!isMobileSearchOpen && (
-                  <OptimizedLink
-                    href={messagesHref}
-                    className={`relative w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 ${
-                      isMessagesActive
-                        ? "text-sage bg-card-bg/5"
-                        : whiteText
-                          ? "text-white hover:text-white/80"
-                          : "text-charcoal/80 hover:text-sage"
-                    }`}
-                    aria-label={effectiveIsGuest ? "Sign in for messages" : "Messages"}
-                  >
-                    <MessageSquare className="w-5 h-5" fill={isMessagesActive ? "currentColor" : "none"} />
-                    {messageUnreadCount > 0 && (
-                      <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-white text-[10px] font-bold rounded-full bg-gradient-to-br from-coral to-coral/90 border border-white/20">
-                        {messageUnreadCount > 99 ? "99+" : messageUnreadCount}
-                      </span>
-                    )}
-                  </OptimizedLink>
-                )}
-
-                {effectiveIsBusinessAccountUser && (
-                  <OptimizedLink
-                    href="/settings"
-                    className={`relative w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 ${
-                      isSettingsActive
-                        ? "text-sage bg-card-bg/5"
-                        : whiteText
-                          ? "text-white hover:text-white/80"
-                          : "text-charcoal/80 hover:text-sage"
-                    }`}
-                    aria-label="Settings"
-                  >
-                    <Settings className="w-5 h-5" fill={isSettingsActive ? "currentColor" : "none"} />
-                  </OptimizedLink>
-                )}
-
-                <button
-                  type="button"
-                  onClick={() => setIsMobileMenuOpen(true)}
-                  className={`w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 ${
-                    whiteText
-                      ? "text-white hover:text-white/80"
-                      : "text-charcoal/80 hover:text-sage"
-                  }`}
-                  aria-label="Open menu"
-                  aria-expanded={isMobileMenuOpen}
-                >
-                  <MobileMenuToggleIcon isOpen={isMobileMenuOpen} />
-                </button>
-              </div>
-            </div>
+            <BusinessHeaderRole
+              logoHref={logoHref}
+              logoScaleClass={logoScaleClass}
+              desktopNavProps={desktopNavProps}
+              isMobileSearchOpen={isMobileSearchOpen}
+              messagesHref={messagesHref}
+              isMessagesActive={isMessagesActive}
+              whiteText={whiteText}
+              isGuest={effectiveIsGuest}
+              messageUnreadCount={messageUnreadCount}
+              isBusinessAccountUser={effectiveIsBusinessAccountUser}
+              isSettingsActive={isSettingsActive}
+              isMobileMenuOpen={isMobileMenuOpen}
+              setIsMobileMenuOpen={setIsMobileMenuOpen}
+            />
           )}
         </div>
       </header>

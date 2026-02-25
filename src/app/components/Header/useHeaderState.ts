@@ -21,6 +21,7 @@ import {
 interface UseHeaderStateProps {
   searchLayout?: "floating" | "stacked";
   forceSearchOpen?: boolean;
+  forcePersonalMode?: boolean;
 }
 
 export interface HeaderActiveStates {
@@ -64,6 +65,7 @@ export interface HeaderHandlers {
 export const useHeaderState = ({
   searchLayout = "floating",
   forceSearchOpen = false,
+  forcePersonalMode = false,
 }: UseHeaderStateProps = {}) => {
   const router = useRouter();
   const pathname = usePathname();
@@ -103,8 +105,9 @@ export const useHeaderState = ({
 
   const userCurrentRole =
     user?.profile?.account_role || user?.profile?.role || "user";
-  const isAdminUser = userCurrentRole === "admin";
-  const isBusinessAccountUser = !isAdminUser && userCurrentRole === "business_owner";
+  const isAdminUser = !forcePersonalMode && userCurrentRole === "admin";
+  const isBusinessAccountUser =
+    !forcePersonalMode && !isAdminUser && userCurrentRole === "business_owner";
   const shouldUseBusinessNotifications = false;
   const hasMultipleRoles = user?.profile?.role === "both";
   const isGuest = !authLoading && !user;

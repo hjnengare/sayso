@@ -42,6 +42,7 @@ export default function GlobalHeader() {
       showSearch={true}
       variant="white"
       backgroundClassName="bg-navbar-bg"
+      forcePersonalMode={true}
       topPosition="top-0"
       reducedPadding={true}
       whiteText={true}
