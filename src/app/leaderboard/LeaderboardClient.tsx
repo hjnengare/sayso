@@ -156,7 +156,7 @@ function LeaderboardPage() {
     },
   };
 
-  const contentClassName = "bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white";
+  const contentClassName = "min-h-[100dvh] bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white";
 
   return (
     <EmailVerificationGuard>

@@ -206,7 +206,7 @@ export default function SpecialDetailPage({ params }: SpecialDetailPageProps) {
         className="min-h-[100dvh] bg-off-white font-urbanist"
         style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
       >
-        <div className="bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white relative overflow-hidden min-h-[100dvh]">
+        <div className="min-h-[100dvh] bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white relative overflow-hidden min-h-[100dvh]">
           {/* Background Gradient */}
           <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)]" />

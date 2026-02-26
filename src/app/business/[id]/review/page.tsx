@@ -489,7 +489,7 @@ function WriteReviewContent() {
         
         {/* Main Header */}
 
-        <div className="bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white">
+        <div className="min-h-[100dvh] bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white">
             <main className="relative font-sf-pro" id="main-content" role="main" aria-label="Write review content">
               {/* Background Gradient */}
               <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5 pointer-events-none" />

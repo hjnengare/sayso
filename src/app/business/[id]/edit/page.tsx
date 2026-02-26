@@ -686,7 +686,7 @@ export default function BusinessEditPage() {
             >
                 {/* Main Header */}
 
-                <div className="bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white">
+                <div className="min-h-[100dvh] bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white">
                         <section
                             className="relative"
                             style={{

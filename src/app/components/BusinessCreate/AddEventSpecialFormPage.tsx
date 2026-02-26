@@ -474,7 +474,7 @@ export default function AddEventSpecialFormPage({ type }: AddEventSpecialFormPag
       <style dangerouslySetInnerHTML={{ __html: authStyles }} />
       <style dangerouslySetInnerHTML={{ __html: animations }} />
       <div
-        className="min-h-dvh bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white relative overflow-hidden font-urbanist"
+        className="min-h-dvh min-h-[100dvh] bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white relative overflow-hidden font-urbanist"
         style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif' }}
       >
          {/* Background Gradient */}
@@ -482,7 +482,7 @@ export default function AddEventSpecialFormPage({ type }: AddEventSpecialFormPag
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)]" />
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)]" />
             
-        <div className="bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white">
+        <div className="min-h-[100dvh] bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white">
           <section className="relative overflow-hidden">
             {/* Background Gradient */}
             <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5" />

@@ -140,7 +140,7 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
         style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
       >
 
-        <div className="bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white relative overflow-hidden">
+        <div className="min-h-[100dvh] bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white relative overflow-hidden">
           {/* Background Gradient */}
           <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)]" />
