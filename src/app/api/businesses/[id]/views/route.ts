@@ -7,6 +7,9 @@ import {
 
 export const dynamic = 'force-dynamic';
 
+const isMissingGuestViewsTableError = (error: { code?: string } | null) =>
+  Boolean(error && error.code === 'PGRST205');
+
 /**
  * POST /api/businesses/[id]/views
  * Record a profile view (deduplicated per day, skips owner)
@@ -79,6 +82,17 @@ export async function POST(
       });
 
     if (guestInsertError && guestInsertError.code !== '23505') {
+      if (isMissingGuestViewsTableError(guestInsertError)) {
+        console.warn(
+          'Guest profile views table is missing; skipping guest profile view recording.'
+        );
+        const errorResponse = NextResponse.json({ recorded: false }, { status: 200 });
+        if (setCookie) {
+          applyAnonymousCookie(errorResponse, anonymousId);
+        }
+        return errorResponse;
+      }
+
       console.error('Error recording guest profile view:', guestInsertError);
       const errorResponse = NextResponse.json({ recorded: false }, { status: 200 });
       if (setCookie) {
@@ -168,6 +182,13 @@ export async function GET(
     }
 
     if (guestViewsResult.error) {
+      if (isMissingGuestViewsTableError(guestViewsResult.error)) {
+        console.warn(
+          'Guest profile views table is missing; returning authenticated view count only.'
+        );
+        return NextResponse.json({ count: authViewsResult.count || 0 });
+      }
+
       console.error('Error fetching guest view count:', guestViewsResult.error);
       return NextResponse.json({ error: 'Failed to fetch view count' }, { status: 500 });
     }
