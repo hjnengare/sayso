@@ -141,7 +141,7 @@ export default function EventsSpecialsPage() {
   const combinedErrorMessage = error;
 
   const renderGridSection = (items: Event[], title: string) => (
-    <section key={title} className="space-y-4">
+    <section key={title} className="space-y-3">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-charcoal" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>{title}</h2>
       </div>
@@ -151,7 +151,7 @@ export default function EventsSpecialsPage() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-50px" }}
-          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 md:gap-3 lg:gap-4"
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 sm:gap-3 md:gap-3 lg:gap-2 xl:gap-2 2xl:gap-2"
         >
           {items.map((event, index) => (
             <m.div
@@ -160,7 +160,7 @@ export default function EventsSpecialsPage() {
               className="list-none relative desktop-card-shimmer"
             >
               <span aria-hidden className="desktop-shimmer-veil" />
-              <EventCard event={event} index={index} />
+              <EventCard event={event} index={index} fullWidth />
             </m.div>
           ))}
           {/* Optimistic skeleton cards during load more */}
@@ -185,7 +185,7 @@ export default function EventsSpecialsPage() {
             ease: [0.16, 1, 0.3, 1],
           }}
         >
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 md:gap-3 lg:gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 sm:gap-3 md:gap-3 lg:gap-2 xl:gap-2 2xl:gap-2">
             {items.map((event, index) => (
               <m.div
                 key={event.id}
@@ -199,7 +199,7 @@ export default function EventsSpecialsPage() {
                   delay: index * 0.06 + 0.1,
                 }}
               >
-                <EventCard event={event} index={index} />
+                <EventCard event={event} index={index} fullWidth />
               </m.div>
             ))}
             {/* Optimistic skeleton cards during load more */}
@@ -304,12 +304,12 @@ export default function EventsSpecialsPage() {
             )}
           </div>
 
-          <div className="py-4 flex flex-col gap-4">
+          <div className="py-3 sm:py-4 flex flex-col gap-3">
             <FilterTabs selectedFilter={selectedFilter} onFilterChange={handleFilterChange} />
             <ResultsCount count={filteredEvents.length} filterType={selectedFilter} />
           </div>
 
-          <div className="py-4">
+          <div className="py-3 sm:py-4">
             {isLoading ? (
               <EventsGridSkeleton count={ITEMS_PER_PAGE} />
             ) : isBlockingError ? (
@@ -350,7 +350,7 @@ export default function EventsSpecialsPage() {
             ) : filteredEvents.length === 0 ? (
               <EmptyState filterType={selectedFilter} />
             ) : (
-              <div className="space-y-10">
+              <div className="space-y-6 sm:space-y-8">
                 {showPartialErrorBanner && (
                   <div className="rounded-[16px] border border-charcoal/10 bg-off-white/70 backdrop-blur-md px-4 py-3 flex items-start justify-between gap-3">
                     <div className="text-sm text-charcoal/70">

@@ -126,9 +126,15 @@ interface EventCardProps {
   event: Event;
   index?: number;
   dateRibbonPosition?: "corner" | "middle";
+  fullWidth?: boolean;
 }
 
-function EventCard({ event, index = 0, dateRibbonPosition = "corner" }: EventCardProps) {
+function EventCard({
+  event,
+  index = 0,
+  dateRibbonPosition = "corner",
+  fullWidth = false,
+}: EventCardProps) {
   const router = useRouter();
   const { toggleSavedItem, isItemSaved } = useSavedItems();
   const { showToast } = useToast();
@@ -331,7 +337,7 @@ function EventCard({ event, index = 0, dateRibbonPosition = "corner" }: EventCar
 
   return (
     <li
-      className="flex w-[100vw] sm:w-auto sm:w-[260px] md:w-[340px]"
+      className={fullWidth ? "flex w-full" : "flex w-[100vw] sm:w-auto sm:w-[260px] md:w-[340px]"}
       style={{
         fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
         fontWeight: 600,
