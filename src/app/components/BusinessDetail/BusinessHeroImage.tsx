@@ -1,8 +1,8 @@
 // src/components/BusinessDetail/BusinessHeroImage.tsx
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
-import { m } from "framer-motion";
+import { useState, useMemo } from "react";
+import { m, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import GoldStar from "../Icons/GoldStar";
@@ -59,20 +59,9 @@ export default function BusinessHeroImage({
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const hasMultipleImages = allImages.length > 1;
-  const hasImage = allImages.length > 0;
-  const slideWidthPercent = hasImage ? 100 / allImages.length : 100;
-  const translatePercent = currentImageIndex * slideWidthPercent;
+  const currentImage = allImages[currentImageIndex] || image;
+  const hasImage = currentImage && currentImage.trim() !== '';
   const placeholderSrc = getSubcategoryPlaceholder(subcategorySlug ?? undefined);
-
-  useEffect(() => {
-    if (allImages.length === 0) {
-      setCurrentImageIndex(0);
-      return;
-    }
-    if (currentImageIndex > allImages.length - 1) {
-      setCurrentImageIndex(0);
-    }
-  }, [allImages.length, currentImageIndex]);
 
   const handlePrevious = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -91,39 +80,63 @@ export default function BusinessHeroImage({
   return (
     <m.div
       layoutId={sharedLayoutId}
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.6 }}
       className="relative w-full h-[50vh] sm:h-auto sm:aspect-[16/9] lg:aspect-[21/9] rounded-none overflow-hidden border-none"
     >
       {hasImage ? (
         <>
-          <div className="absolute inset-0 overflow-hidden">
-            <div
-              className="flex h-full"
-              style={{
-                width: `${allImages.length * 100}%`,
-                transform: `translate3d(-${translatePercent}%, 0, 0)`,
-                transition: "transform 350ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-                willChange: "transform",
-              }}
+          {/* Blurred background - Instagram style */}
+          <AnimatePresence mode="wait">
+            <m.div
+              key={`bg-${currentImageIndex}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="absolute inset-0"
             >
-              {allImages.map((img, index) => (
-                <div
-                  key={`${img}-${index}`}
-                  className="relative h-full flex-shrink-0"
-                  style={{ width: `${slideWidthPercent}%` }}
-                >
-                  <Image
-                    src={img}
-                    alt={alt}
-                    fill
-                    className="object-cover"
-                    priority={index === 0}
-                    quality={80}
-                    sizes="100vw"
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
+              <Image
+                src={currentImage}
+                alt=""
+                fill
+                className="object-cover"
+                priority={false}
+                loading="lazy"
+                quality={20}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 900px"
+                style={{
+                  filter: 'blur(40px)',
+                  opacity: 0.6,
+                  transform: 'scale(1.2)',
+                }}
+                aria-hidden="true"
+              />
+            </m.div>
+          </AnimatePresence>
+
+          {/* Foreground image - sharp, centered, aspect-ratio preserved */}
+          <AnimatePresence mode="wait">
+            <m.div
+              key={`fg-${currentImageIndex}`}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.05 }}
+              transition={{ duration: 0.4 }}
+              className="absolute inset-0 flex items-center justify-center"
+            >
+              <Image
+                src={currentImage}
+                alt={alt}
+                fill
+                className="object-contain"
+                priority={currentImageIndex === 0}
+                quality={75}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 900px"
+              />
+            </m.div>
+          </AnimatePresence>
 
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
         </>
@@ -136,7 +149,7 @@ export default function BusinessHeroImage({
             className="object-cover"
             priority
             quality={70}
-            sizes="100vw"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 900px"
           />
         </div>
       )}

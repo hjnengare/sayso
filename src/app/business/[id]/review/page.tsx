@@ -519,18 +519,14 @@ function WriteReviewContent() {
                     </li>
                   </ol>
                 </nav>
-              </div>
-
-              <div className="w-full relative z-10">
-                <BusinessCarousel businessName={businessName} businessImages={businessImages} subcategorySlug={business?.sub_interest_id ?? business?.subInterestId} />
-              </div>
-
-              <div className="mx-auto w-full max-w-[2000px] px-2 relative z-10">
-                <div className="pt-3 sm:pt-4 pb-12 sm:pb-16 md:pb-20">
+                <div className="pt-2 pb-12 sm:pb-16 md:pb-20">
                   <div className="space-y-6">
                     <div className="grid gap-6 lg:grid-cols-3 items-start">
                       {/* Main Content Section */}
                       <div className="lg:col-span-2 space-y-6">
+                        {/* Image Gallery Section - Matching Business Profile */}
+                          <BusinessCarousel businessName={businessName} businessImages={businessImages} subcategorySlug={business?.sub_interest_id ?? business?.subInterestId} />
+                    
                         {/* Review Form Section - Separated from images */}
                         <article className="w-full sm:mx-0 flex items-center justify-center" aria-labelledby="review-form-heading">
                           <div className="bg-card-bg border-0 sm:border-none rounded-[12px] shadow-none sm:shadow-lg relative overflow-hidden mx-auto w-full">

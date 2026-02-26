@@ -174,28 +174,25 @@ export default function BusinessProfilePage() {
                                     <div className="h-5 w-32 bg-charcoal/10 rounded animate-pulse" />
                                 </div>
                             </nav>
-                        </div>
 
-                        <div className="w-full relative z-10">
-                            <div className="relative w-full h-[50vh] sm:h-auto sm:aspect-[16/9] lg:aspect-[21/9] bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-none overflow-hidden border-none animate-pulse">
-                                {/* Rating badge skeleton */}
-                                <div className="absolute right-6 top-6 z-20 h-8 w-16 rounded-full bg-off-white/40" />
-                                {/* Verified badge skeleton */}
-                                <div className="absolute left-6 top-6 z-20 h-8 w-24 rounded-full bg-card-bg/30" />
-                                {/* Gallery indicators skeleton */}
-                                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-1.5">
-                                    {[1, 2, 3].map(i => (
-                                        <div key={i} className={`h-1.5 rounded-full bg-white/50 ${i === 1 ? 'w-6' : 'w-1.5'}`} />
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="mx-auto w-full max-w-[2000px] px-2 pt-3 sm:pt-4 relative z-10">
-                            <div>
+                            <div className="pt-2">
                                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-6 lg:gap-8">
                                     {/* Left Column - Main Content */}
                                     <div className="lg:col-span-2 space-y-4 sm:space-y-6 lg:space-y-8">
+                                        {/* Hero Image Skeleton */}
+                                        <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden border-none backdrop-blur-xl shadow-md animate-pulse">
+                                            {/* Rating badge skeleton */}
+                                            <div className="absolute right-4 top-4 z-20 h-8 w-16 rounded-full bg-off-white/40" />
+                                            {/* Verified badge skeleton */}
+                                            <div className="absolute left-4 top-4 z-20 h-8 w-24 rounded-full bg-card-bg/30" />
+                                            {/* Gallery indicators skeleton */}
+                                            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
+                                                {[1, 2, 3].map(i => (
+                                                    <div key={i} className={`h-1.5 rounded-full bg-white/50 ${i === 1 ? 'w-6' : 'w-1.5'}`} />
+                                                ))}
+                                            </div>
+                                        </div>
+
                                         {/* Business Info Skeleton */}
                                         <div className="space-y-3 px-2">
                                             <div className="h-8 sm:h-10 w-3/4 bg-charcoal/10 rounded-lg animate-pulse" />
@@ -490,25 +487,20 @@ export default function BusinessProfilePage() {
                                 </li>
                             </ol>
                         </nav>
-                    </div>
-
-                    <div className="w-full relative z-10">
-                        <BusinessHeroImage
-                            image={businessData.image || businessData.images[0] || ""}
-                            alt={businessData.name}
-                            rating={businessData.rating}
-                            verified={businessData.verified || (businessData as { owner_verified?: boolean }).owner_verified}
-                            images={businessData.images}
-                            uploaded_images={businessData.uploaded_images}
-                            subcategorySlug={business?.primary_subcategory_slug ?? business?.sub_interest_id ?? (business as { subInterestId?: string })?.subInterestId}
-                            sharedLayoutId={businessImageLayoutId}
-                        />
-                    </div>
-
-                    <div className="mx-auto w-full max-w-[2000px] px-2 pt-3 sm:pt-4 relative z-10">
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-6 lg:gap-8">
+                        <div className="pt-2">
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-6 lg:gap-8">
                                 {/* Left Column - Main Content */}
                                 <div className="lg:col-span-2 space-y-4 sm:space-y-6 lg:space-y-8">
+                                    <BusinessHeroImage
+                                        image={businessData.image || businessData.images[0] || ""}
+                                        alt={businessData.name}
+                                        rating={businessData.rating}
+                                        verified={businessData.verified || (businessData as { owner_verified?: boolean }).owner_verified}
+                                        images={businessData.images}
+                                        uploaded_images={businessData.uploaded_images}
+                                        subcategorySlug={business?.primary_subcategory_slug ?? business?.sub_interest_id ?? (business as { subInterestId?: string })?.subInterestId}
+                                        sharedLayoutId={businessImageLayoutId}
+                                    />
                                     <BusinessInfoComponent
                                         name={businessData.name}
                                         rating={businessData.rating}
@@ -588,6 +580,7 @@ export default function BusinessProfilePage() {
                                     </div>
                                 </div>
                             </div>
+                        </div>
                     </div>
                 </section>
 
