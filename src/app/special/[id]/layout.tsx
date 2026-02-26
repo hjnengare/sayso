@@ -1,87 +1,140 @@
-import { Metadata } from 'next';
-import { generateSEOMetadata } from '../../lib/utils/seoMetadata';
-import { createClient } from '@supabase/supabase-js';
+import { Metadata } from "next";
+import Link from "next/link";
+import {
+  DEFAULT_SITE_DESCRIPTION,
+  generateSEOMetadata,
+  SITE_URL,
+} from "../../lib/utils/seoMetadata";
+import { getServerSupabase } from "../../lib/supabase/server";
+import SchemaMarkup from "../../components/SEO/SchemaMarkup";
+import {
+  generateBreadcrumbSchema,
+  generateEventSchema,
+} from "../../lib/utils/schemaMarkup";
 
 interface SpecialLayoutProps {
   children: React.ReactNode;
   params: Promise<{ id: string }>;
 }
 
-/**
- * Fetch special data for metadata generation
- */
-async function getSpecial(id: string) {
-  try {
-    // Use direct Supabase client for server-side metadata generation
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-    if (!supabaseUrl || !supabaseAnonKey) {
-      return null;
-    }
-
-    const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-    const { data: special, error } = await supabase
-      .from('events_and_specials')
-      .select(`
-        id,
-        title,
-        description,
-        image,
-        type,
-        businesses:business_id (
-          name
-        )
-      `)
-      .eq('id', id)
-      .eq('type', 'special')
-      .single();
-
-    if (error || !special) {
-      return null;
-    }
-
-    return special;
-  } catch (error) {
-    console.error('Error fetching special for metadata:', error);
-    return null;
-  }
+interface SpecialSchemaRow {
+  id: string;
+  title: string;
+  description: string | null;
+  image: string | null;
+  location: string | null;
+  start_date: string | null;
+  end_date: string | null;
 }
 
-/**
- * Generate dynamic metadata for special pages
- */
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
-  const { id } = await params;
+function toSlug(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-");
+}
 
-  const special = await getSpecial(id);
+async function getSpecialData(id: string): Promise<SpecialSchemaRow | null> {
+  const supabase = await getServerSupabase();
+
+  const { data: special, error } = await supabase
+    .from("events_and_specials")
+    .select("id,title,description,image,location,start_date,end_date")
+    .eq("id", id)
+    .eq("type", "special")
+    .single();
+
+  if (error || !special) return null;
+  return special as SpecialSchemaRow;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const special = await getSpecialData(id);
 
   if (!special) {
     return generateSEOMetadata({
-      title: 'Special',
-      description: 'View special offer details and information.',
+      title: "Special details | Sayso",
+      description: DEFAULT_SITE_DESCRIPTION,
       url: `/special/${id}`,
+      noindex: true,
+      nofollow: true,
     });
   }
 
-  const businessName = (special.businesses as any)?.name;
-  const description = special.description
-    || `Discover ${special.title}${businessName ? ` at ${businessName}` : ''} - special offer details and information.`;
-
   return generateSEOMetadata({
-    title: special.title,
-    description,
-    keywords: [special.title, 'special', 'offer', 'promotion', businessName].filter(Boolean) as string[],
-    image: special.image,
+    title: `${special.title} in Cape Town | Sayso`,
+    description:
+      special.description ||
+      `Discover ${special.title} on Sayso, Cape Town's hyper-local reviews and discovery app.`,
+    keywords: [special.title, "cape town specials", "sayso specials"],
+    image: special.image || undefined,
     url: `/special/${id}`,
-    type: 'article',
+    type: "article",
   });
 }
 
 export default async function SpecialLayout({
   children,
+  params,
 }: SpecialLayoutProps) {
-  return <>{children}</>;
-}
+  const { id } = await params;
+  const special = await getSpecialData(id);
 
+  let schemas: object[] = [];
+  let relatedLinks: Array<{ href: string; label: string }> = [];
+
+  if (special) {
+    const specialUrl = `${SITE_URL}/special/${id}`;
+    const location = special.location || "";
+    const citySlug = location ? toSlug(String(location).split(",")[0]) : "";
+
+    const specialSchema = generateEventSchema({
+      name: special.title,
+      description: special.description || undefined,
+      image: special.image || undefined,
+      url: specialUrl,
+      location: location || undefined,
+      startDate: special.start_date || undefined,
+      endDate: special.end_date || undefined,
+    });
+
+    const breadcrumbSchema = generateBreadcrumbSchema([
+      { name: "Home", url: `${SITE_URL}/home` },
+      { name: "Events & Specials", url: `${SITE_URL}/events-specials` },
+      { name: special.title, url: specialUrl },
+    ]);
+
+    schemas = [specialSchema, breadcrumbSchema];
+    relatedLinks = [
+      { href: "/events-specials", label: "More events and specials" },
+      ...(citySlug
+        ? [{ href: `/${citySlug}`, label: `More specials in ${location}` }]
+        : []),
+    ];
+  }
+
+  return (
+    <>
+      {schemas.length > 0 && <SchemaMarkup schemas={schemas} />}
+      {relatedLinks.length > 0 && (
+        <nav aria-label="Related links" className="sr-only">
+          <ul>
+            {relatedLinks.map((link) => (
+              <li key={link.href}>
+                <Link href={link.href}>{link.label}</Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )}
+      {children}
+    </>
+  );
+}

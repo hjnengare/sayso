@@ -41,6 +41,8 @@ export default function EventsSpecials({
   premiumCtaHover = false,
   disableAnimations = false,
   hideCarouselArrowsOnDesktop = false,
+  fullBleed = false,
+  enableMobilePeek = false,
   showHeaderCta = true,
 }: {
   title?: string;
@@ -58,11 +60,18 @@ export default function EventsSpecials({
   disableAnimations?: boolean;
   /** Hide carousel arrows on desktop (lg+) breakpoints (default false). */
   hideCarouselArrowsOnDesktop?: boolean;
+  /** Render the rail edge-to-edge without max-width constraints (default false). */
+  fullBleed?: boolean;
+  /** Enable home-like mobile hint indicators for horizontal overflow (default false). */
+  enableMobilePeek?: boolean;
   /** Show the top-right CTA link in the section header (default true). */
   showHeaderCta?: boolean;
 }) {
   const router = useRouter();
   const isDesktop = useIsDesktop();
+  const containerClass = fullBleed
+    ? "w-full relative z-10 px-2 sm:px-3"
+    : "mx-auto w-full max-w-[2000px] relative z-10 px-2";
 
   // Only block on parent loading; the feed is unified server-side.
   const showSkeleton = loading;
@@ -83,7 +92,7 @@ export default function EventsSpecials({
           fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
         }}
       >
-        <div className="mx-auto w-full max-w-[2000px] relative z-10 px-2">
+        <div className={containerClass}>
           <div className="pb-4 sm:pb-8 md:pb-10 flex flex-wrap items-center justify-between gap-2">
             <div className="h-8 sm:h-10 w-48 sm:w-64 bg-charcoal/10 rounded-lg animate-pulse px-3 sm:px-4 py-1" />
             {showHeaderCta && (
@@ -95,7 +104,11 @@ export default function EventsSpecials({
           </div>
 
           <div className="pt-2">
-            <ScrollableSection showArrows={false} className="items-stretch py-2">
+            <ScrollableSection
+              showArrows={false}
+              className="items-stretch py-2"
+              enableMobilePeek={enableMobilePeek}
+            >
               {Array.from({ length: 4 }).map((_, index) => (
                 <div
                   key={index}
@@ -120,7 +133,7 @@ export default function EventsSpecials({
         fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
       }}
     >
-      <div className="mx-auto w-full max-w-[2000px] relative z-10 px-2">
+      <div className={containerClass}>
         <div className="pb-4 sm:pb-8 md:pb-10 flex flex-wrap items-center justify-between gap-2">
           {disableAnimations ? (
             <h2
@@ -181,7 +194,12 @@ export default function EventsSpecials({
 
         {hasEvents ? (
           <div className="pt-2">
-            <ScrollableSection showArrows={true} className="items-stretch py-2" hideArrowsOnDesktop={hideCarouselArrowsOnDesktop}>
+            <ScrollableSection
+              showArrows={true}
+              className="items-stretch py-2"
+              hideArrowsOnDesktop={hideCarouselArrowsOnDesktop}
+              enableMobilePeek={enableMobilePeek}
+            >
               {isDesktop ? (
                 disableAnimations ? (
                   <div className="flex gap-3 items-stretch">

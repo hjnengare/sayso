@@ -27,6 +27,12 @@ export default function ScrollableSection({
   const pathname = usePathname();
   const isHomeRoute = pathname === "/" || pathname.startsWith("/home");
   const shouldEnableMobilePeek = enableMobilePeek || isHomeRoute;
+  const arrowVisibilityClass = [
+    shouldEnableMobilePeek ? "hidden sm:flex" : "flex",
+    hideArrowsOnDesktop ? "lg:hidden" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showRightArrow, setShowRightArrow] = useState(false);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
@@ -274,7 +280,7 @@ export default function ScrollableSection({
         }
       `}</style>
 
-      {isHomeRoute && isMobileViewport && canScrollLeft && (
+      {shouldEnableMobilePeek && isMobileViewport && canScrollLeft && (
         <div className="pointer-events-none absolute left-2.5 top-1/2 z-30 -translate-y-1/2 md:hidden">
           <span className="inline-flex min-h-7 min-w-7 items-center justify-center rounded-full border border-charcoal/10 bg-off-white/85 px-1.5">
             <svg
@@ -295,7 +301,7 @@ export default function ScrollableSection({
         </div>
       )}
 
-      {isHomeRoute && isMobileViewport && canScrollRight && showSwipeHint && (
+      {shouldEnableMobilePeek && isMobileViewport && canScrollRight && showSwipeHint && (
         <div className="pointer-events-none absolute right-2.5 top-1/2 z-30 -translate-y-1/2 md:hidden">
           <span className="inline-flex min-h-7 min-w-7 items-center justify-center rounded-full border border-charcoal/10 bg-off-white/85 px-1.5">
             <svg
@@ -327,7 +333,7 @@ export default function ScrollableSection({
                 w-14 h-14 sm:w-12 sm:h-12
                 bg-navbar-bg
                 rounded-full
-                ${shouldEnableMobilePeek ? "hidden sm:flex lg:flex" : "flex"} items-center justify-center
+                ${arrowVisibilityClass} items-center justify-center
                 transition-all duration-300 ease-out
                 active:scale-95
                 text-white
@@ -367,7 +373,7 @@ export default function ScrollableSection({
                 w-14 h-14 sm:w-12 sm:h-12
                 bg-navbar-bg
                 rounded-full
-                ${shouldEnableMobilePeek ? "hidden sm:flex lg:flex" : "flex"} items-center justify-center
+                ${arrowVisibilityClass} items-center justify-center
                 transition-all duration-300 ease-out
                 active:scale-95
                 text-white

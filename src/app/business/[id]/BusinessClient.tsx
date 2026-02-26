@@ -527,12 +527,6 @@ export default function BusinessProfilePage() {
                                         />
                                     </div>
 
-                                    {/* Business Events & Specials */}
-                                    <BusinessOwnedEventsSection
-                                        businessId={businessData.id}
-                                        businessName={businessData.name}
-                                    />
-
                                     {/* Contact Information - Mobile Only */}
                                     <div className="lg:hidden">
                                         <BusinessContactInfo
@@ -590,7 +584,14 @@ export default function BusinessProfilePage() {
                     </div>
                 </section>
 
-                <section className="mx-auto w-full max-w-[2000px] px-2 pb-2 relative z-10">
+                <section className="w-full relative z-10">
+                    <BusinessOwnedEventsSection
+                        businessId={businessData.id}
+                        businessName={businessData.name}
+                    />
+                </section>
+
+                <section className="mx-auto w-full max-w-[2000px] px-2 pb-4 relative z-10">
                     {/* Reviews Section */}
                     <section className="space-y-6" aria-labelledby="reviews-heading">
                         <div className="text-center justify-center pb-2 px-3 sm:px-4 py-1">
