@@ -9,7 +9,7 @@ import { m } from "framer-motion";
 import { Star, Edit, Bookmark, Share2 } from "lucide-react";
 import { getEventIconPng } from "../../utils/eventIconToPngMapping";
 import EventBadge from "./EventBadge";
-import { useState, memo, useEffect, useMemo } from "react";
+import { useState, memo, useEffect, useMemo, useRef } from "react";
 import { useSavedItems } from "../../contexts/SavedItemsContext";
 import { useToast } from "../../contexts/ToastContext";
 import { useEventRatings } from "../../hooks/useEventRatings";
@@ -141,6 +141,77 @@ function EventCard({ event, index = 0 }: EventCardProps) {
 
   const eventDetailHref = event.type === "event" ? `/event/${event.id}` : `/special/${event.id}`;
   const reviewRoute = event.type === "event" ? `/write-review/event/${event.id}` : `/write-review/special/${event.id}`;
+  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Prefetch destination route on mount for the first visible cards.
+  useEffect(() => {
+    if (index > 1) return;
+    if (typeof window === "undefined") return;
+
+    let idleId: number | null = null;
+    let timeoutId: number | null = null;
+
+    const prefetch = () => {
+      try {
+        router.prefetch(eventDetailHref);
+      } catch {
+        // Ignore prefetch failures.
+      }
+    };
+
+    const idleCallback = (window as any).requestIdleCallback;
+    if (typeof idleCallback === "function") {
+      idleId = idleCallback(prefetch, { timeout: 1200 });
+    } else {
+      timeoutId = window.setTimeout(prefetch, 200);
+    }
+
+    return () => {
+      if (idleId !== null && typeof (window as any).cancelIdleCallback === "function") {
+        (window as any).cancelIdleCallback(idleId);
+      }
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId);
+      }
+    };
+  }, [eventDetailHref, index, router]);
+
+  const handleCardMouseEnter = () => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+
+    hoverTimeoutRef.current = setTimeout(() => {
+      try {
+        router.prefetch(eventDetailHref);
+      } catch {
+        // Ignore hover prefetch failures.
+      }
+    }, 100);
+  };
+
+  const handleCardMouseLeave = () => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
+    }
+  };
+
+  const handleCardTouchStart = () => {
+    try {
+      router.prefetch(eventDetailHref);
+    } catch {
+      // Ignore touch-intent prefetch failures.
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const initialReviews = (event as any).reviews ?? (event as any).totalReviews ?? 0;
   const { rating: liveRating, totalReviews: liveTotalReviews } = useEventRatings(
@@ -283,7 +354,14 @@ function EventCard({ event, index = 0 }: EventCardProps) {
         </defs>
       </svg>
       
-      <Link href={eventDetailHref} className="block w-full">
+      <Link
+        href={eventDetailHref}
+        prefetch={false}
+        className="block w-full"
+        onMouseEnter={handleCardMouseEnter}
+        onMouseLeave={handleCardMouseLeave}
+        onTouchStart={handleCardTouchStart}
+      >
       <article
         className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden group cursor-pointer w-full flex flex-col backdrop-blur-xl shadow-md pb-4"
       >

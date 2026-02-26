@@ -1,9 +1,8 @@
 // src/components/BusinessOfTheMonthCard/BusinessOfTheMonthCard.tsx
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Image as ImageIcon, Star, Edit, Bookmark, Share2 } from "lucide-react";
 import { Scissors, Coffee, UtensilsCrossed, Wine, Dumbbell, Activity, Heart, Book, ShoppingBag, Home, Briefcase, MapPin, Music, Film, Camera, Car, GraduationCap, CreditCard, Tag } from "lucide-react";
@@ -68,11 +67,17 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
   const [isMediaHovered, setIsMediaHovered] = useState(false);
   const [showDistanceOnCycle, setShowDistanceOnCycle] = useState(false);
   const prefersReducedMotion = useReducedMotion();
+  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Get business identifier for routing (slug or ID)
   const businessIdentifier = (business as any).slug || business.id;
+  const normalizeRoute = (href: string) => {
+    if (/^https?:\/\//i.test(href)) return href;
+    return href.startsWith("/") ? href : `/${href}`;
+  };
   const reviewRoute = `/business/${businessIdentifier}/review`;
-  const businessProfileRoute = (business as any).href || `/business/${businessIdentifier}`;
+  const businessProfileRoute = normalizeRoute((business as any).href || `/business/${businessIdentifier}`);
+  const isInternalBusinessRoute = businessProfileRoute.startsWith("/");
   const isSaved = isItemSaved(business.id);
 
   const hasReviews = business.reviewCount > 0;
@@ -298,7 +303,9 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
     e.stopPropagation();
     e.preventDefault();
     try {
-      const shareUrl = `${window.location.origin}${businessProfileRoute}`;
+      const shareUrl = /^https?:\/\//i.test(businessProfileRoute)
+        ? businessProfileRoute
+        : `${window.location.origin}${businessProfileRoute}`;
       const shareText = `Check out ${business.name} on sayso!`;
       
       if (navigator.share) {
@@ -322,8 +329,83 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
 
   // Handle card click - navigate to business page
   const handleCardClick = () => {
+    if (!isInternalBusinessRoute) {
+      window.location.assign(businessProfileRoute);
+      return;
+    }
     router.push(businessProfileRoute);
   };
+
+  useEffect(() => {
+    if (!isInternalBusinessRoute) return;
+    if (index > 1) return;
+    if (typeof window === "undefined") return;
+
+    let idleId: number | null = null;
+    let timeoutId: number | null = null;
+
+    const prefetch = () => {
+      try {
+        router.prefetch(businessProfileRoute);
+      } catch {
+        // Ignore prefetch failures.
+      }
+    };
+
+    const idleCallback = (window as any).requestIdleCallback;
+    if (typeof idleCallback === "function") {
+      idleId = idleCallback(prefetch, { timeout: 1200 });
+    } else {
+      timeoutId = window.setTimeout(prefetch, 200);
+    }
+
+    return () => {
+      if (idleId !== null && typeof (window as any).cancelIdleCallback === "function") {
+        (window as any).cancelIdleCallback(idleId);
+      }
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId);
+      }
+    };
+  }, [businessProfileRoute, index, isInternalBusinessRoute, router]);
+
+  const handleCardMouseEnter = () => {
+    if (!isInternalBusinessRoute) return;
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+    hoverTimeoutRef.current = setTimeout(() => {
+      try {
+        router.prefetch(businessProfileRoute);
+      } catch {
+        // Ignore hover prefetch failures.
+      }
+    }, 100);
+  };
+
+  const handleCardMouseLeave = () => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
+    }
+  };
+
+  const handleCardTouchStart = () => {
+    if (!isInternalBusinessRoute) return;
+    try {
+      router.prefetch(businessProfileRoute);
+    } catch {
+      // Ignore touch-intent prefetch failures.
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <li
@@ -363,6 +445,9 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
         role="link"
         tabIndex={0}
         onClick={handleCardClick}
+        onMouseEnter={handleCardMouseEnter}
+        onMouseLeave={handleCardMouseLeave}
+        onTouchStart={handleCardTouchStart}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();

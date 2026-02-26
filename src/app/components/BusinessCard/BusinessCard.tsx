@@ -257,9 +257,9 @@ function BusinessCard({
     [businessIdentifier, ownerView]
   );
 
-  // Prefetch routes on mount (limit to first few cards to avoid flooding)
+  // Prefetch destination route on mount (limit to first few cards to avoid flooding)
   useEffect(() => {
-    if (index > 2) return;
+    if (index > 1) return;
     if (typeof window === "undefined") return;
 
     let idleId: number | null = null;
@@ -267,7 +267,6 @@ function BusinessCard({
 
     const prefetch = () => {
       try {
-        router.prefetch(reviewRoute);
         router.prefetch(businessProfileRoute);
       } catch {
         // ignore prefetch failures
@@ -289,10 +288,10 @@ function BusinessCard({
         window.clearTimeout(timeoutId);
       }
     };
-  }, [index, router, reviewRoute, businessProfileRoute]);
+  }, [index, router, businessProfileRoute]);
 
   // Prefetch on hover with debouncing
-  const hoverTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleMouseEnter = () => {
     // Clear any existing timeout
@@ -303,7 +302,6 @@ function BusinessCard({
     // Prefetch after a short delay to avoid prefetching on accidental hovers
     hoverTimeoutRef.current = setTimeout(() => {
       router.prefetch(businessProfileRoute);
-      router.prefetch(reviewRoute);
     }, 100);
   };
 
@@ -322,6 +320,14 @@ function BusinessCard({
       }
     };
   }, []);
+
+  const handleTouchStart = () => {
+    try {
+      router.prefetch(businessProfileRoute);
+    } catch {
+      // Ignore prefetch failures on touch intent.
+    }
+  };
 
   const handleCardClick = () => {
     router.push(businessProfileRoute);
@@ -549,12 +555,14 @@ function BusinessCard({
     >
       <Link
         href={businessProfileRoute}
+        prefetch={false}
         className={`rounded-[12px] ${compact ? "lg:min-h-[200px]" : "flex-1"} relative flex-shrink-0 flex flex-col justify-between bg-card-bg z-10 shadow-md group cursor-pointer w-full sm:h-auto overflow-hidden`}
         style={{ maxWidth: compact ? "100%" : "540px" } as React.CSSProperties}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
+        onTouchStart={handleTouchStart}
       >
-        <div className={mediaClass} onClick={handleCardClick}>
+        <div className={mediaClass}>
           <BusinessCardImage
             displayImage={displayImage}
             isImagePng={isImagePng}
