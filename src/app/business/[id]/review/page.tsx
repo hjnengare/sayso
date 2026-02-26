@@ -618,30 +618,6 @@ function WriteReviewContent() {
             </main>
           </div>
 
-        {/* Scroll to Top Button */}
-        <AnimatePresence>
-          {showScrollTop && (
-            <m.button
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={scrollToTop}
-              className="fixed bottom-6 right-6 z-[100] w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-sage to-sage/90 text-white rounded-full shadow-lg flex items-center justify-center border border-sage/30"
-              style={{
-                position: 'fixed',
-                bottom: '1.5rem',
-                right: '1.5rem',
-              }}
-              aria-label="Scroll to top"
-              transition={{ duration: 0.2 }}
-            >
-              <ChevronUp className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={2.5} />
-            </m.button>
-          )}
-        </AnimatePresence>
-
         <Footer />
 
         {/* Business Info Modal - Mobile Only */}

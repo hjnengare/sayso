@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
-import { m, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence, useReducedMotion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { isPlaceholderImage, getSubcategoryPlaceholder } from "../../utils/subcategoryPlaceholders";
 
@@ -16,8 +16,10 @@ interface BusinessCarouselProps {
 export default function BusinessCarousel({ businessName, businessImages, subcategorySlug }: BusinessCarouselProps) {
   const [imageError, setImageError] = useState<Record<number, boolean>>({});
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [direction, setDirection] = useState<1 | -1>(1);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const prefersReducedMotion = useReducedMotion() ?? false;
 
   const minSwipeDistance = 50;
 
@@ -25,10 +27,35 @@ export default function BusinessCarousel({ businessName, businessImages, subcate
   const validImages = businessImages?.filter((img: string) => {
     return img && img.trim() !== '' && !isPlaceholderImage(img);
   }) || [];
-  const hasImages = validImages.length > 0;
-  const hasMultipleImages = validImages.length > 1;
-  const currentImage = validImages[currentImageIndex];
+  const totalImages = validImages.length;
+  const hasImages = totalImages > 0;
+  const hasMultipleImages = totalImages > 1;
+  const activeIndex = hasImages
+    ? Math.min(currentImageIndex, totalImages - 1)
+    : 0;
+  const currentImage = hasImages ? validImages[activeIndex] : "";
   const placeholderSrc = getSubcategoryPlaceholder(subcategorySlug ?? undefined);
+
+  useEffect(() => {
+    if (totalImages === 0) {
+      setCurrentImageIndex(0);
+      return;
+    }
+    if (currentImageIndex > totalImages - 1) {
+      setCurrentImageIndex(0);
+    }
+  }, [currentImageIndex, totalImages]);
+
+  const getShortestDirection = (
+    targetIndex: number,
+    currentIndex: number,
+    length: number
+  ): 1 | -1 => {
+    if (length <= 1) return 1;
+    const forwardDistance = (targetIndex - currentIndex + length) % length;
+    const backwardDistance = (currentIndex - targetIndex + length) % length;
+    return forwardDistance <= backwardDistance ? 1 : -1;
+  };
 
   // If no valid images, show subcategory placeholder (full photo, same layout as BusinessHeroImage)
   if (!hasImages) {
@@ -56,12 +83,16 @@ export default function BusinessCarousel({ businessName, businessImages, subcate
 
   const handlePrevImage = (e?: React.MouseEvent) => {
     e?.stopPropagation();
-    setCurrentImageIndex((prev) => (prev === 0 ? validImages.length - 1 : prev - 1));
+    if (totalImages <= 1) return;
+    setDirection(-1);
+    setCurrentImageIndex((prev) => (prev === 0 ? totalImages - 1 : prev - 1));
   };
 
   const handleNextImage = (e?: React.MouseEvent) => {
     e?.stopPropagation();
-    setCurrentImageIndex((prev) => (prev === validImages.length - 1 ? 0 : prev + 1));
+    if (totalImages <= 1) return;
+    setDirection(1);
+    setCurrentImageIndex((prev) => (prev === totalImages - 1 ? 0 : prev + 1));
   };
 
   const onTouchStart = (e: React.TouchEvent) => {
@@ -80,6 +111,26 @@ export default function BusinessCarousel({ businessName, businessImages, subcate
     if (isRightSwipe) handlePrevImage();
   };
 
+  const slideVariants = {
+    enter: (customDirection: 1 | -1) => ({
+      x: prefersReducedMotion ? 0 : customDirection * 20,
+      opacity: prefersReducedMotion ? 1 : 0.55,
+    }),
+    center: {
+      x: 0,
+      opacity: 1,
+    },
+    exit: (customDirection: 1 | -1) => ({
+      x: prefersReducedMotion ? 0 : customDirection * -20,
+      opacity: prefersReducedMotion ? 1 : 0.55,
+    }),
+  };
+
+  const slideTransition = {
+    duration: prefersReducedMotion ? 0.1 : 0.22,
+    ease: [0.22, 1, 0.36, 1] as const,
+  };
+
   return (
     <m.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -90,55 +141,48 @@ export default function BusinessCarousel({ businessName, businessImages, subcate
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
     >
-      {/* Blurred background - Instagram style */}
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="wait" initial={false} custom={direction}>
         <m.div
-          key={`bg-${currentImageIndex}`}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
+          key={`slide-${activeIndex}-${currentImage}`}
+          custom={direction}
+          variants={slideVariants}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          transition={slideTransition}
           className="absolute inset-0"
         >
-          <Image
-            src={currentImage}
-            alt=""
-            fill
-            className="object-cover"
-            priority={currentImageIndex === 0}
-            quality={20}
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 900px"
-            style={{
-              filter: 'blur(40px)',
-              opacity: 0.6,
-              transform: 'scale(1.2)',
-            }}
-            aria-hidden="true"
-            onError={() => setImageError((prev) => ({ ...prev, [currentImageIndex]: true }))}
-          />
-        </m.div>
-      </AnimatePresence>
+          <div className="absolute inset-0">
+            <Image
+              src={currentImage}
+              alt=""
+              fill
+              className="object-cover"
+              priority={activeIndex === 0}
+              quality={20}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 900px"
+              style={{
+                filter: "blur(40px)",
+                opacity: 0.6,
+                transform: "scale(1.2)",
+              }}
+              aria-hidden="true"
+              onError={() => setImageError((prev) => ({ ...prev, [activeIndex]: true }))}
+            />
+          </div>
 
-      {/* Foreground image - sharp, centered, aspect-ratio preserved */}
-      <AnimatePresence mode="wait">
-        <m.div
-          key={`fg-${currentImageIndex}`}
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 1.05 }}
-          transition={{ duration: 0.4 }}
-          className="absolute inset-0 flex items-center justify-center"
-        >
-          <Image
-            src={currentImage}
-            alt={`${businessName} photo ${currentImageIndex + 1}`}
-            fill
-            className="object-contain"
-            priority={currentImageIndex === 0}
-            quality={75}
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 900px"
-            onError={() => setImageError((prev) => ({ ...prev, [currentImageIndex]: true }))}
-          />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Image
+              src={currentImage}
+              alt={`${businessName} photo ${activeIndex + 1}`}
+              fill
+              className="object-contain"
+              priority={activeIndex === 0}
+              quality={75}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 900px"
+              onError={() => setImageError((prev) => ({ ...prev, [activeIndex]: true }))}
+            />
+          </div>
         </m.div>
       </AnimatePresence>
 
@@ -146,7 +190,7 @@ export default function BusinessCarousel({ businessName, businessImages, subcate
       <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
 
       {/* Error state */}
-      {imageError[currentImageIndex] && (
+      {imageError[activeIndex] && (
         <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-card-bg z-10">
           <div className="flex flex-col items-center gap-3">
             <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-coral/20 to-coral/10 flex items-center justify-center">
@@ -187,10 +231,12 @@ export default function BusinessCarousel({ businessName, businessImages, subcate
                 key={index}
                 onClick={(e) => {
                   e.stopPropagation();
+                  if (index === activeIndex) return;
+                  setDirection(getShortestDirection(index, activeIndex, totalImages));
                   setCurrentImageIndex(index);
                 }}
                 className={`h-2 rounded-full transition-all duration-300 ${
-                  index === currentImageIndex
+                  index === activeIndex
                     ? 'w-8 bg-white shadow-md'
                     : 'w-2 bg-white/60 hover:bg-white/80'
                 }`}
@@ -202,7 +248,7 @@ export default function BusinessCarousel({ businessName, businessImages, subcate
           {/* Image Counter */}
           <div className="absolute bottom-6 right-6 z-30 px-3 py-1.5 rounded-full bg-charcoal/80 backdrop-blur-xl">
             <span className="text-xs font-semibold text-white" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-              {currentImageIndex + 1} / {validImages.length}
+              {activeIndex + 1} / {validImages.length}
             </span>
           </div>
         </>

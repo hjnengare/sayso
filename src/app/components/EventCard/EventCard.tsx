@@ -141,6 +141,9 @@ function EventCard({ event, index = 0 }: EventCardProps) {
 
   const eventDetailHref = event.type === "event" ? `/event/${event.id}` : `/special/${event.id}`;
   const reviewRoute = event.type === "event" ? `/write-review/event/${event.id}` : `/write-review/special/${event.id}`;
+  const detailTypeLabel = event.type === "special" ? "Special" : "Event";
+  const detailCtaLabel = `View ${detailTypeLabel}`;
+  const detailAriaLabel = `View ${event.type} details`;
   const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Prefetch destination route on mount for the first visible cards.
@@ -611,29 +614,29 @@ function EventCard({ event, index = 0 }: EventCardProps) {
               </div>
             </div>
             
-            {/* Desktop "View Event" Button */}
+            {/* Desktop details button */}
             <div className="hidden md:flex items-center justify-center pt-2 pb-0.5 px-1">
               <button
                 type="button"
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); router.push(eventDetailHref); }}
                 className="w-full flex items-center justify-center px-4 py-2.5 rounded-full text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-sage/40 border transition-all duration-200 shadow-md bg-gradient-to-br from-navbar-bg to-navbar-bg/90 text-white border-sage/50 hover:scale-[1.02] active:scale-95 active:translate-y-[1px] transform-gpu touch-manipulation select-none"
                 style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
-                aria-label="View event details"
+                aria-label={detailAriaLabel}
               >
-                View Event
+                {detailCtaLabel}
               </button>
             </div>
             
-            {/* Mobile "View Details" Button */}
+            {/* Mobile details button */}
             <div className="md:hidden flex items-center justify-center pt-1.5 pb-1 px-1">
               <button
                 type="button"
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); router.push(eventDetailHref); }}
                 className="w-full flex items-center justify-center px-4 py-3 rounded-full text-caption sm:text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-sage/40 border transition-all duration-200 min-h-[48px] shadow-md bg-gradient-to-br from-navbar-bg to-navbar-bg/90 text-white border-sage/50 active:scale-95 active:translate-y-[1px] transform-gpu touch-manipulation select-none"
                 style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
-                aria-label="View event details"
+                aria-label={detailAriaLabel}
               >
-                View Details
+                {detailCtaLabel}
               </button>
             </div>
           </div>
