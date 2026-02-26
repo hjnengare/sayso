@@ -444,7 +444,7 @@ function ReviewCard({
                       transition={isDesktop ? undefined : { delay: i * 0.05, duration: 0.3 }}
                     >
                       <svg
-                        className="w-3.5 h-3.5 sm:w-4 sm:h-4"
+                        className="w-4 h-4 sm:w-5 sm:h-5"
                         viewBox="0 0 24 24"
                         aria-hidden
                       >

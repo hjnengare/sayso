@@ -120,7 +120,7 @@ export default function BusinessProfilePage() {
     // Record profile view once when business data first loads
     useEffect(() => {
         if (business?.id) {
-            fetch(`/api/businesses/${business.id}/views`, { method: 'POST' }).catch(() => {});
+            fetch(`/api/businesses/${business.id}/views`, { method: 'POST' }).catch(() => { });
         }
     }, [business?.id]);
 
@@ -164,165 +164,165 @@ export default function BusinessProfilePage() {
         return (
             <div className="min-h-dvh bg-off-white">
                 <div className="bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white">
-                        <section className="relative" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                            <div className="mx-auto w-full max-w-[2000px] px-2 relative z-10">
-                                {/* Breadcrumb Skeleton */}
-                                <nav className="pt-2 px-2">
-                                    <div className="flex items-center gap-2">
-                                        <div className="h-5 w-12 bg-charcoal/10 rounded animate-pulse" />
-                                        <div className="h-4 w-4 bg-charcoal/5 rounded animate-pulse" />
-                                        <div className="h-5 w-32 bg-charcoal/10 rounded animate-pulse" />
-                                    </div>
-                                </nav>
-
-                                <div className="pt-2">
-                                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-6 lg:gap-8">
-                                        {/* Left Column - Main Content */}
-                                        <div className="lg:col-span-2 space-y-4 sm:space-y-6 lg:space-y-8">
-                                            {/* Hero Image Skeleton */}
-                                            <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden border-none backdrop-blur-xl shadow-md animate-pulse">
-                                                {/* Rating badge skeleton */}
-                                                <div className="absolute right-4 top-4 z-20 h-8 w-16 rounded-full bg-off-white/40" />
-                                                {/* Verified badge skeleton */}
-                                                <div className="absolute left-4 top-4 z-20 h-8 w-24 rounded-full bg-card-bg/30" />
-                                                {/* Gallery indicators skeleton */}
-                                                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
-                                                    {[1, 2, 3].map(i => (
-                                                        <div key={i} className={`h-1.5 rounded-full bg-white/50 ${i === 1 ? 'w-6' : 'w-1.5'}`} />
-                                                    ))}
-                                                </div>
-                                            </div>
-
-                                            {/* Business Info Skeleton */}
-                                            <div className="space-y-3 px-2">
-                                                <div className="h-8 sm:h-10 w-3/4 bg-charcoal/10 rounded-lg animate-pulse" />
-                                                <div className="flex items-center gap-3">
-                                                    <div className="h-5 w-20 bg-charcoal/5 rounded animate-pulse" />
-                                                    <div className="h-5 w-32 bg-charcoal/5 rounded animate-pulse" />
-                                                </div>
-                                            </div>
-
-                                            {/* Description Skeleton */}
-                                            <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-6">
-                                                <div className="space-y-3">
-                                                    <div className="h-4 bg-white/30 rounded animate-pulse" />
-                                                    <div className="h-4 bg-white/30 rounded animate-pulse" />
-                                                    <div className="h-4 bg-white/30 rounded w-3/4 animate-pulse" />
-                                                </div>
-                                            </div>
-
-                                            {/* Details Cards Skeleton */}
-                                            <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-6">
-                                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                                                    {[1, 2, 3].map(i => (
-                                                        <div key={i} className="space-y-2">
-                                                            <div className="h-4 w-16 bg-white/20 rounded animate-pulse" />
-                                                            <div className="h-6 w-24 bg-white/30 rounded animate-pulse" />
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-
-                                            {/* Map Skeleton */}
-                                            <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md overflow-hidden">
-                                                <div className="h-[200px] sm:h-[300px] bg-card-bg/10 animate-pulse" />
-                                                <div className="p-4 space-y-2">
-                                                    <div className="h-5 w-48 bg-white/30 rounded animate-pulse" />
-                                                    <div className="h-4 w-32 bg-white/20 rounded animate-pulse" />
-                                                </div>
-                                            </div>
-
-                                            {/* Contact Info Skeleton - Mobile */}
-                                            <div className="lg:hidden bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-6">
-                                                <div className="space-y-4">
-                                                    {[1, 2, 3].map(i => (
-                                                        <div key={i} className="flex items-center gap-3">
-                                                            <div className="w-10 h-10 rounded-full bg-white/20 animate-pulse" />
-                                                            <div className="h-5 w-32 bg-white/30 rounded animate-pulse" />
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Right Column - Sidebar */}
-                                        <div className="space-y-4 sm:space-y-6">
-                                            {/* Action Card Skeleton */}
-                                            <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-6">
-                                                <div className="space-y-4">
-                                                    <div className="h-12 w-full bg-card-bg/40 rounded-full animate-pulse" />
-                                                    <div className="h-12 w-full bg-coral/40 rounded-full animate-pulse" />
-                                                    <div className="flex gap-3">
-                                                        <div className="h-10 flex-1 bg-white/30 rounded-full animate-pulse" />
-                                                        <div className="h-10 flex-1 bg-white/30 rounded-full animate-pulse" />
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {/* Personalization Insights Skeleton */}
-                                            <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-6">
-                                                <div className="h-6 w-40 bg-white/30 rounded animate-pulse mb-4" />
-                                                <div className="space-y-3">
-                                                    {[1, 2, 3].map(i => (
-                                                        <div key={i} className="flex items-center gap-2">
-                                                            <div className="w-6 h-6 rounded-full bg-white/20 animate-pulse" />
-                                                            <div className="h-4 flex-1 bg-white/20 rounded animate-pulse" />
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-
-                                            {/* Contact Info Skeleton - Desktop */}
-                                            <div className="hidden lg:block bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-6">
-                                                <div className="space-y-4">
-                                                    {[1, 2, 3].map(i => (
-                                                        <div key={i} className="flex items-center gap-3">
-                                                            <div className="w-10 h-10 rounded-full bg-white/20 animate-pulse" />
-                                                            <div className="h-5 w-32 bg-white/30 rounded animate-pulse" />
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                    <section className="relative" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                        <div className="mx-auto w-full max-w-[2000px] px-2 relative z-10">
+                            {/* Breadcrumb Skeleton */}
+                            <nav className="pt-2 px-2">
+                                <div className="flex items-center gap-2">
+                                    <div className="h-5 w-12 bg-charcoal/10 rounded animate-pulse" />
+                                    <div className="h-4 w-4 bg-charcoal/5 rounded animate-pulse" />
+                                    <div className="h-5 w-32 bg-charcoal/10 rounded animate-pulse" />
                                 </div>
-                            </div>
-                        </section>
+                            </nav>
 
-                        {/* Reviews Section Skeleton */}
-                        <section className="mx-auto w-full max-w-[2000px] px-2 relative z-10 mt-8">
-                            <div className="text-center mb-6">
-                                <div className="h-7 w-48 bg-charcoal/10 rounded-lg mx-auto animate-pulse" />
-                            </div>
-                            <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-6 sm:p-8">
-                                <div className="space-y-6">
-                                    {[1, 2, 3].map(i => (
-                                        <div key={i} className="border-b border-white/20 pb-6 last:border-0 last:pb-0">
-                                            <div className="flex items-start gap-4">
-                                                <div className="w-12 h-12 rounded-full bg-white/20 animate-pulse flex-shrink-0" />
-                                                <div className="flex-1 space-y-3">
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="h-5 w-24 bg-white/30 rounded animate-pulse" />
+                            <div className="pt-2">
+                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-6 lg:gap-8">
+                                    {/* Left Column - Main Content */}
+                                    <div className="lg:col-span-2 space-y-4 sm:space-y-6 lg:space-y-8">
+                                        {/* Hero Image Skeleton */}
+                                        <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden border-none backdrop-blur-xl shadow-md animate-pulse">
+                                            {/* Rating badge skeleton */}
+                                            <div className="absolute right-4 top-4 z-20 h-8 w-16 rounded-full bg-off-white/40" />
+                                            {/* Verified badge skeleton */}
+                                            <div className="absolute left-4 top-4 z-20 h-8 w-24 rounded-full bg-card-bg/30" />
+                                            {/* Gallery indicators skeleton */}
+                                            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
+                                                {[1, 2, 3].map(i => (
+                                                    <div key={i} className={`h-1.5 rounded-full bg-white/50 ${i === 1 ? 'w-6' : 'w-1.5'}`} />
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {/* Business Info Skeleton */}
+                                        <div className="space-y-3 px-2">
+                                            <div className="h-8 sm:h-10 w-3/4 bg-charcoal/10 rounded-lg animate-pulse" />
+                                            <div className="flex items-center gap-3">
+                                                <div className="h-5 w-20 bg-charcoal/5 rounded animate-pulse" />
+                                                <div className="h-5 w-32 bg-charcoal/5 rounded animate-pulse" />
+                                            </div>
+                                        </div>
+
+                                        {/* Description Skeleton */}
+                                        <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-6">
+                                            <div className="space-y-3">
+                                                <div className="h-4 bg-white/30 rounded animate-pulse" />
+                                                <div className="h-4 bg-white/30 rounded animate-pulse" />
+                                                <div className="h-4 bg-white/30 rounded w-3/4 animate-pulse" />
+                                            </div>
+                                        </div>
+
+                                        {/* Details Cards Skeleton */}
+                                        <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-6">
+                                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                                {[1, 2, 3].map(i => (
+                                                    <div key={i} className="space-y-2">
                                                         <div className="h-4 w-16 bg-white/20 rounded animate-pulse" />
+                                                        <div className="h-6 w-24 bg-white/30 rounded animate-pulse" />
                                                     </div>
-                                                    <div className="flex gap-1">
-                                                        {[1, 2, 3, 4, 5].map(s => (
-                                                            <div key={s} className="w-4 h-4 bg-white/20 rounded animate-pulse" />
-                                                        ))}
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {/* Map Skeleton */}
+                                        <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md overflow-hidden">
+                                            <div className="h-[200px] sm:h-[300px] bg-card-bg/10 animate-pulse" />
+                                            <div className="p-4 space-y-2">
+                                                <div className="h-5 w-48 bg-white/30 rounded animate-pulse" />
+                                                <div className="h-4 w-32 bg-white/20 rounded animate-pulse" />
+                                            </div>
+                                        </div>
+
+                                        {/* Contact Info Skeleton - Mobile */}
+                                        <div className="lg:hidden bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-6">
+                                            <div className="space-y-4">
+                                                {[1, 2, 3].map(i => (
+                                                    <div key={i} className="flex items-center gap-3">
+                                                        <div className="w-10 h-10 rounded-full bg-white/20 animate-pulse" />
+                                                        <div className="h-5 w-32 bg-white/30 rounded animate-pulse" />
                                                     </div>
-                                                    <div className="space-y-2">
-                                                        <div className="h-4 bg-white/20 rounded animate-pulse" />
-                                                        <div className="h-4 bg-white/20 rounded w-3/4 animate-pulse" />
-                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Right Column - Sidebar */}
+                                    <div className="space-y-4 sm:space-y-6">
+                                        {/* Action Card Skeleton */}
+                                        <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-6">
+                                            <div className="space-y-4">
+                                                <div className="h-12 w-full bg-card-bg/40 rounded-full animate-pulse" />
+                                                <div className="h-12 w-full bg-coral/40 rounded-full animate-pulse" />
+                                                <div className="flex gap-3">
+                                                    <div className="h-10 flex-1 bg-white/30 rounded-full animate-pulse" />
+                                                    <div className="h-10 flex-1 bg-white/30 rounded-full animate-pulse" />
                                                 </div>
                                             </div>
                                         </div>
-                                    ))}
+
+                                        {/* Personalization Insights Skeleton */}
+                                        <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-6">
+                                            <div className="h-6 w-40 bg-white/30 rounded animate-pulse mb-4" />
+                                            <div className="space-y-3">
+                                                {[1, 2, 3].map(i => (
+                                                    <div key={i} className="flex items-center gap-2">
+                                                        <div className="w-6 h-6 rounded-full bg-white/20 animate-pulse" />
+                                                        <div className="h-4 flex-1 bg-white/20 rounded animate-pulse" />
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {/* Contact Info Skeleton - Desktop */}
+                                        <div className="hidden lg:block bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-6">
+                                            <div className="space-y-4">
+                                                {[1, 2, 3].map(i => (
+                                                    <div key={i} className="flex items-center gap-3">
+                                                        <div className="w-10 h-10 rounded-full bg-white/20 animate-pulse" />
+                                                        <div className="h-5 w-32 bg-white/30 rounded animate-pulse" />
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </section>
-                    </div>
+                        </div>
+                    </section>
+
+                    {/* Reviews Section Skeleton */}
+                    <section className="mx-auto w-full max-w-[2000px] px-2 relative z-10 mt-8">
+                        <div className="text-center mb-6">
+                            <div className="h-7 w-48 bg-charcoal/10 rounded-lg mx-auto animate-pulse" />
+                        </div>
+                        <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-6 sm:p-8">
+                            <div className="space-y-6">
+                                {[1, 2, 3].map(i => (
+                                    <div key={i} className="border-b border-white/20 pb-6 last:border-0 last:pb-0">
+                                        <div className="flex items-start gap-4">
+                                            <div className="w-12 h-12 rounded-full bg-white/20 animate-pulse flex-shrink-0" />
+                                            <div className="flex-1 space-y-3">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="h-5 w-24 bg-white/30 rounded animate-pulse" />
+                                                    <div className="h-4 w-16 bg-white/20 rounded animate-pulse" />
+                                                </div>
+                                                <div className="flex gap-1">
+                                                    {[1, 2, 3, 4, 5].map(s => (
+                                                        <div key={s} className="w-4 h-4 bg-white/20 rounded animate-pulse" />
+                                                    ))}
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <div className="h-4 bg-white/20 rounded animate-pulse" />
+                                                    <div className="h-4 bg-white/20 rounded w-3/4 animate-pulse" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </section>
                 </div>
+            </div>
         );
     }
 
@@ -358,7 +358,7 @@ export default function BusinessProfilePage() {
     // Prepare image data - prioritize uploaded_images array, fallback to legacy fields
     let allImages: string[] = [];
     let primaryImage = '';
-    
+
     // Use uploaded_images array (new structure)
     // First image in array is the primary/cover image
     if (business.uploaded_images && Array.isArray(business.uploaded_images) && business.uploaded_images.length > 0) {
@@ -366,12 +366,12 @@ export default function BusinessProfilePage() {
             .filter((url: string) => url && typeof url === 'string' && url.trim() !== '' && !isPlaceholderImage(url));
         primaryImage = allImages[0] || '';
     }
-    
+
     // Add image_url if not already included
     if (business.image_url && typeof business.image_url === 'string' && business.image_url.trim() !== '' && !isPlaceholderImage(business.image_url) && !allImages.includes(business.image_url)) {
         allImages.push(business.image_url);
     }
-    
+
     // Add images from images array if provided
     if (Array.isArray(business.images)) {
         business.images.forEach((img: string) => {
@@ -380,12 +380,12 @@ export default function BusinessProfilePage() {
             }
         });
     }
-    
+
     // Add business.image as last fallback
     if (business.image && typeof business.image === 'string' && business.image.trim() !== '' && !isPlaceholderImage(business.image) && !allImages.includes(business.image)) {
         allImages.push(business.image);
     }
-    
+
     primaryImage = allImages[0] || '';
 
     const galleryImages = allImages;
@@ -453,267 +453,267 @@ export default function BusinessProfilePage() {
                     '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif',
             }}
         >
-                {/* Main Header */}
+            {/* Main Header */}
 
-                <div className="bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white relative overflow-hidden">
-                        {/* Background Gradient */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5" />
-                        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)]" />
-                        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)]" />
+            <div className="bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white relative overflow-hidden">
+                {/* Background Gradient */}
+                <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5" />
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)]" />
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)]" />
 
-                        {/* Main Content Section */}
-                        <section
-                            className="relative"
-                            style={{
-                                fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
-                            }}
-                        >
-                            <div className="mx-auto w-full max-w-[2000px] px-2 relative z-10">
-                                {/* Breadcrumb Navigation */}
-                                <nav className="pb-1" aria-label="Breadcrumb">
-                                    <ol className="flex items-center gap-2 text-sm sm:text-base">
-                                        <li>
-                                            <Link href="/home" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                                                Home
-                                            </Link>
-                                        </li>
-                                        <li className="flex items-center">
-                                            <ChevronRight className="w-4 h-4 text-charcoal/60" aria-hidden />
-                                        </li>
-                                        <li>
-                                            <span className="text-charcoal font-semibold truncate max-w-[200px] sm:max-w-none" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                                                {businessData.name || 'Business'}
-                                            </span>
-                                        </li>
-                                    </ol>
-                                </nav>
-                                <div className="pt-2">
-                                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-6 lg:gap-8">
-                                        {/* Left Column - Main Content */}
-                                        <div className="lg:col-span-2 space-y-4 sm:space-y-6 lg:space-y-8">
-                                            <BusinessHeroImage
-                                                image={businessData.image || businessData.images[0] || ""}
-                                                alt={businessData.name}
-                                                rating={businessData.rating}
-                                                verified={businessData.verified || (businessData as { owner_verified?: boolean }).owner_verified}
-                                                images={businessData.images}
-                                                uploaded_images={businessData.uploaded_images}
-                                                subcategorySlug={business?.primary_subcategory_slug ?? business?.sub_interest_id ?? (business as { subInterestId?: string })?.subInterestId}
-                                                sharedLayoutId={businessImageLayoutId}
-                                            />
-                                            <BusinessInfoComponent
-                                                name={businessData.name}
-                                                rating={businessData.rating}
-                                                location={businessData.location}
-                                                category={businessData.category}
-                                                sharedTitleLayoutId={businessTitleLayoutId}
-                                            />
-                                            <BusinessDescription description={businessData.description} />
-                                            <BusinessDetailsCard
-                                                priceRange={businessData.price_range}
-                                                verified={businessData.verified || (businessData as { owner_verified?: boolean }).owner_verified}
-                                                hours={business.hours || business.opening_hours || business.openingHours || undefined}
-                                            />
+                {/* Main Content Section */}
+                <section
+                    className="relative"
+                    style={{
+                        fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                    }}
+                >
+                    <div className="mx-auto w-full max-w-[2000px] px-2 relative z-10">
+                        {/* Breadcrumb Navigation */}
+                        <nav className="pb-1" aria-label="Breadcrumb">
+                            <ol className="flex items-center gap-2 text-sm sm:text-base">
+                                <li>
+                                    <Link href="/home" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                        Home
+                                    </Link>
+                                </li>
+                                <li className="flex items-center">
+                                    <ChevronRight className="w-4 h-4 text-charcoal/60" aria-hidden />
+                                </li>
+                                <li>
+                                    <span className="text-charcoal font-semibold truncate max-w-[200px] sm:max-w-none" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                        {businessData.name || 'Business'}
+                                    </span>
+                                </li>
+                            </ol>
+                        </nav>
+                        <div className="pt-2">
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-6 lg:gap-8">
+                                {/* Left Column - Main Content */}
+                                <div className="lg:col-span-2 space-y-4 sm:space-y-6 lg:space-y-8">
+                                    <BusinessHeroImage
+                                        image={businessData.image || businessData.images[0] || ""}
+                                        alt={businessData.name}
+                                        rating={businessData.rating}
+                                        verified={businessData.verified || (businessData as { owner_verified?: boolean }).owner_verified}
+                                        images={businessData.images}
+                                        uploaded_images={businessData.uploaded_images}
+                                        subcategorySlug={business?.primary_subcategory_slug ?? business?.sub_interest_id ?? (business as { subInterestId?: string })?.subInterestId}
+                                        sharedLayoutId={businessImageLayoutId}
+                                    />
+                                    <BusinessInfoComponent
+                                        name={businessData.name}
+                                        rating={businessData.rating}
+                                        location={businessData.location}
+                                        category={businessData.category}
+                                        sharedTitleLayoutId={businessTitleLayoutId}
+                                    />
+                                    <BusinessDescription description={businessData.description} />
+                                    <BusinessDetailsCard
+                                        priceRange={businessData.price_range}
+                                        verified={businessData.verified || (businessData as { owner_verified?: boolean }).owner_verified}
+                                        hours={business.hours || business.opening_hours || business.openingHours || undefined}
+                                    />
 
-                                            {/* Location Map */}
-                                            <div ref={mapSectionRef}>
-                                                <BusinessLocation
-                                                    name={businessData.name}
-                                                    address={businessData.address}
-                                                    location={businessData.location}
-                                                    latitude={businessData.latitude}
-                                                    longitude={businessData.longitude}
-                                                    isUserUploaded={!!business.owner_id}
-                                                />
-                                            </div>
+                                    {/* Location Map */}
+                                    <div ref={mapSectionRef}>
+                                        <BusinessLocation
+                                            name={businessData.name}
+                                            address={businessData.address}
+                                            location={businessData.location}
+                                            latitude={businessData.latitude}
+                                            longitude={businessData.longitude}
+                                            isUserUploaded={!!business.owner_id}
+                                        />
+                                    </div>
 
-                                            {/* Business Events & Specials */}
-                                            <BusinessOwnedEventsSection
-                                                businessId={businessData.id}
-                                                businessName={businessData.name}
-                                            />
+                                    {/* Business Events & Specials */}
+                                    <BusinessOwnedEventsSection
+                                        businessId={businessData.id}
+                                        businessName={businessData.name}
+                                    />
 
-                                            {/* Contact Information - Mobile Only */}
-                                            <div className="lg:hidden">
-                                                <BusinessContactInfo
-                                                    phone={businessData.phone}
-                                                    website={businessData.website}
-                                                    address={businessData.address}
-                                                    email={businessData.email}
-                                                    location={businessData.location}
-                                                    onViewMap={scrollToMap}
-                                                    showMapLink={!!(businessData.address || businessData.location || businessData.latitude)}
-                                                />
-                                            </div>
-                                        </div>
+                                    {/* Contact Information - Mobile Only */}
+                                    <div className="lg:hidden">
+                                        <BusinessContactInfo
+                                            phone={businessData.phone}
+                                            website={businessData.website}
+                                            address={businessData.address}
+                                            email={businessData.email}
+                                            location={businessData.location}
+                                            onViewMap={scrollToMap}
+                                            showMapLink={!!(businessData.address || businessData.location || businessData.latitude)}
+                                        />
+                                    </div>
+                                </div>
 
-                                        {/* Right Column - Sidebar */}
-                                        <div className="space-y-4 sm:space-y-6">
-                                            <BusinessActionCard
-                                                businessSlug={businessSlug}
-                                                businessId={businessId}
-                                                isBusinessOwner={isBusinessOwner}
-                                                hasReviewed={hasReviewed}
-                                            />
-                                            
-                                            {/* Personalization Insights */}
-                                            <PersonalizationInsights
-                                                business={{
-                                                    id: businessData.id,
-                                                    interestId: business.interest_id ?? business.interestId ?? business.primary_category_slug,
-                                                    subInterestId: business.sub_interest_id ?? business.subInterestId ?? business.primary_subcategory_slug,
-                                                    category: businessData.category,
-                                                    priceRange: businessData.price_range,
-                                                    averageRating: businessData.rating,
-                                                    totalReviews: business.reviews?.length || 0,
-                                                    distanceKm: null, // Could add geolocation later
-                                                    percentiles: business.stats?.percentiles || null,
-                                                    verified: businessData.verified,
-                                                }}
-                                            />
-                                            
-                                            {/* Contact Information - Desktop Only */}
-                                            <div className="hidden lg:block">
-                                                <BusinessContactInfo
-                                                    phone={businessData.phone}
-                                                    website={businessData.website}
-                                                    address={businessData.address}
-                                                    email={businessData.email}
-                                                    location={businessData.location}
-                                                    onViewMap={scrollToMap}
-                                                    showMapLink={!!(businessData.address || businessData.location || businessData.latitude)}
-                                                />
-                                            </div>
-                                        </div>
+                                {/* Right Column - Sidebar */}
+                                <div className="space-y-4 sm:space-y-6">
+                                    <BusinessActionCard
+                                        businessSlug={businessSlug}
+                                        businessId={businessId}
+                                        isBusinessOwner={isBusinessOwner}
+                                        hasReviewed={hasReviewed}
+                                    />
+
+                                    {/* Personalization Insights */}
+                                    <PersonalizationInsights
+                                        business={{
+                                            id: businessData.id,
+                                            interestId: business.interest_id ?? business.interestId ?? business.primary_category_slug,
+                                            subInterestId: business.sub_interest_id ?? business.subInterestId ?? business.primary_subcategory_slug,
+                                            category: businessData.category,
+                                            priceRange: businessData.price_range,
+                                            averageRating: businessData.rating,
+                                            totalReviews: business.reviews?.length || 0,
+                                            distanceKm: null, // Could add geolocation later
+                                            percentiles: business.stats?.percentiles || null,
+                                            verified: businessData.verified,
+                                        }}
+                                    />
+
+                                    {/* Contact Information - Desktop Only */}
+                                    <div className="hidden lg:block">
+                                        <BusinessContactInfo
+                                            phone={businessData.phone}
+                                            website={businessData.website}
+                                            address={businessData.address}
+                                            email={businessData.email}
+                                            location={businessData.location}
+                                            onViewMap={scrollToMap}
+                                            showMapLink={!!(businessData.address || businessData.location || businessData.latitude)}
+                                        />
                                     </div>
                                 </div>
                             </div>
-                        </section>
-                        
-                        <section className="mx-auto w-full max-w-[2000px] px-2 relative z-10">
-                            {/* Reviews Section */}
-                            <section className="space-y-6" aria-labelledby="reviews-heading">
-                                <div className="text-center justify-center pb-2 px-3 sm:px-4 py-1">
-                                    <h1 id="reviews-heading" className="sr-only">Community Reviews</h1>
-                                    <WavyTypedTitle
-                                        text="Community Reviews"
-                                        as="h1"
-                                        className="font-urbanist text-2xl sm:text-3xl md:text-4xl font-bold text-charcoal rounded-lg cursor-default"
-                                        typingSpeedMs={40}
-                                        startDelayMs={300}
-                                        disableWave={true}
-                                        style={{
-                                            fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-                                        }}
-                                    />
-                                </div>
+                        </div>
+                    </div>
+                </section>
 
-                                {/* Reviews List Section */}
-                                <section
-                                    className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-6 sm:p-8"
-                                    aria-label="Business reviews"
-                                >
-                                    <ReviewsList
-                                        reviews={businessData.reviews.map((review: any): ReviewWithUser => {
-                                            // Ensure we use ISO date format, not formatted date strings
-                                            const getValidDate = (dateValue: any): string => {
-                                                if (!dateValue) return new Date().toISOString();
-                                                // If it's already an ISO string, use it
-                                                if (typeof dateValue === 'string' && dateValue.includes('T') && dateValue.includes('Z')) {
-                                                    return dateValue;
-                                                }
-                                                // Try to parse as date
-                                                const parsed = new Date(dateValue);
-                                                if (!isNaN(parsed.getTime())) {
-                                                    return parsed.toISOString();
-                                                }
-                                                // Fallback to current date
-                                                return new Date().toISOString();
-                                            };
-                                            
-                                            // Extract images from review.images (array of objects) or review.reviewImages (legacy string array)
-                                            const reviewImages = review.images || review.reviewImages || [];
-                                            const normalizedImages = Array.isArray(reviewImages) && reviewImages.length > 0
-                                                ? reviewImages.map((img: any, idx: number) => {
-                                                    // If it's already an object with image_url, use it
-                                                    if (typeof img === 'object' && img.image_url) {
-                                                        return {
-                                                            id: img.id || `img-${idx}`,
-                                                            review_id: img.review_id || review.id || '',
-                                                            image_url: img.image_url,
-                                                            alt_text: img.alt_text || null,
-                                                            created_at: img.created_at || new Date().toISOString(),
-                                                        };
-                                                    }
-                                                    // If it's a string URL, convert to object
-                                                    if (typeof img === 'string') {
-                                                        return {
-                                                            id: `img-${idx}`,
-                                                            review_id: review.id || '',
-                                                            image_url: img,
-                                                            alt_text: null,
-                                                            created_at: new Date().toISOString(),
-                                                        };
-                                                    }
-                                                    return null;
-                                                }).filter(Boolean)
-                                                : [];
+                <section className="mx-auto w-full max-w-[2000px] px-2 pb-2 relative z-10">
+                    {/* Reviews Section */}
+                    <section className="space-y-6" aria-labelledby="reviews-heading">
+                        <div className="text-center justify-center pb-2 px-3 sm:px-4 py-1">
+                            <h1 id="reviews-heading" className="sr-only">Community Reviews</h1>
+                            <WavyTypedTitle
+                                text="Community Reviews"
+                                as="h1"
+                                className="font-urbanist text-2xl sm:text-3xl md:text-4xl font-bold text-charcoal rounded-lg cursor-default"
+                                typingSpeedMs={40}
+                                startDelayMs={300}
+                                disableWave={true}
+                                style={{
+                                    fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                                }}
+                            />
+                        </div>
 
-                                            // Generate display name using the same logic as API
-                                            const profile = review.profile || {};
-                                            const userId = review.userId || review.user_id || profile.user_id || '';
-                                            const displayName = profile.display_name || profile.username || review.author || review.user?.display_name || 'User';
-                                            
-                                            return {
-                                                id: review.id || '',
-                                                business_id: businessId,
-                                                user_id: userId,
-                                                rating: review.rating || 0,
-                                                title: review.title,
-                                                content: review.text || review.content || '',
-                                                tags: review.tags || [],
-                                                helpful_count: review.helpful_count || 0,
-                                                created_at: getValidDate(review.created_at || review.date),
-                                                updated_at: getValidDate(review.updated_at || review.created_at || review.date),
-                                                user: {
-                                                    id: userId,
-                                                    name: displayName, // Use name field for consistency
-                                                    display_name: displayName,
-                                                    avatar_url: profile.avatar_url || review.profileImage || review.user?.avatar_url,
-                                                    username: profile.username || review.user?.username,
-                                                    email: review.user?.email || null,
-                                                },
-                                                images: normalizedImages,
-                                            };
-                                        })}
-                                        loading={false}
-                                        error={null}
-                                        showBusinessInfo={false}
-                                        onUpdate={refetchBusiness}
-                                        businessId={businessId}
-                                        emptyMessage="No reviews yet. Be the first to review this business!"
-                                        emptyStateAction={{
-                                            label: hasReviewed ? 'Already Reviewed' : 'Write First Review',
-                                            href: `/business/${businessSlug}/review`,
-                                            disabled: hasReviewed,
-                                        }}
-                                    />
-                                </section>
-                            </section>
+                        {/* Reviews List Section */}
+                        <section
+                            className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-6 sm:p-8"
+                            aria-label="Business reviews"
+                        >
+                            <ReviewsList
+                                reviews={businessData.reviews.map((review: any): ReviewWithUser => {
+                                    // Ensure we use ISO date format, not formatted date strings
+                                    const getValidDate = (dateValue: any): string => {
+                                        if (!dateValue) return new Date().toISOString();
+                                        // If it's already an ISO string, use it
+                                        if (typeof dateValue === 'string' && dateValue.includes('T') && dateValue.includes('Z')) {
+                                            return dateValue;
+                                        }
+                                        // Try to parse as date
+                                        const parsed = new Date(dateValue);
+                                        if (!isNaN(parsed.getTime())) {
+                                            return parsed.toISOString();
+                                        }
+                                        // Fallback to current date
+                                        return new Date().toISOString();
+                                    };
 
-                            {/* Similar Businesses Section */}
-                            <SimilarBusinesses
-                                currentBusinessId={businessSlug || businessId}
-                                category={businessData.category}
-                                location={businessData.location}
-                                interestId={business?.interest_id ?? business?.interestId ?? business?.primary_category_slug}
-                                subInterestId={business?.sub_interest_id ?? business?.subInterestId ?? business?.primary_subcategory_slug}
-                                limit={3}
+                                    // Extract images from review.images (array of objects) or review.reviewImages (legacy string array)
+                                    const reviewImages = review.images || review.reviewImages || [];
+                                    const normalizedImages = Array.isArray(reviewImages) && reviewImages.length > 0
+                                        ? reviewImages.map((img: any, idx: number) => {
+                                            // If it's already an object with image_url, use it
+                                            if (typeof img === 'object' && img.image_url) {
+                                                return {
+                                                    id: img.id || `img-${idx}`,
+                                                    review_id: img.review_id || review.id || '',
+                                                    image_url: img.image_url,
+                                                    alt_text: img.alt_text || null,
+                                                    created_at: img.created_at || new Date().toISOString(),
+                                                };
+                                            }
+                                            // If it's a string URL, convert to object
+                                            if (typeof img === 'string') {
+                                                return {
+                                                    id: `img-${idx}`,
+                                                    review_id: review.id || '',
+                                                    image_url: img,
+                                                    alt_text: null,
+                                                    created_at: new Date().toISOString(),
+                                                };
+                                            }
+                                            return null;
+                                        }).filter(Boolean)
+                                        : [];
+
+                                    // Generate display name using the same logic as API
+                                    const profile = review.profile || {};
+                                    const userId = review.userId || review.user_id || profile.user_id || '';
+                                    const displayName = profile.display_name || profile.username || review.author || review.user?.display_name || 'User';
+
+                                    return {
+                                        id: review.id || '',
+                                        business_id: businessId,
+                                        user_id: userId,
+                                        rating: review.rating || 0,
+                                        title: review.title,
+                                        content: review.text || review.content || '',
+                                        tags: review.tags || [],
+                                        helpful_count: review.helpful_count || 0,
+                                        created_at: getValidDate(review.created_at || review.date),
+                                        updated_at: getValidDate(review.updated_at || review.created_at || review.date),
+                                        user: {
+                                            id: userId,
+                                            name: displayName, // Use name field for consistency
+                                            display_name: displayName,
+                                            avatar_url: profile.avatar_url || review.profileImage || review.user?.avatar_url,
+                                            username: profile.username || review.user?.username,
+                                            email: review.user?.email || null,
+                                        },
+                                        images: normalizedImages,
+                                    };
+                                })}
+                                loading={false}
+                                error={null}
+                                showBusinessInfo={false}
+                                onUpdate={refetchBusiness}
+                                businessId={businessId}
+                                emptyMessage="No reviews yet. Be the first to review this business!"
+                                emptyStateAction={{
+                                    label: hasReviewed ? 'Already Reviewed' : 'Write First Review',
+                                    href: `/business/${businessSlug}/review`,
+                                    disabled: hasReviewed,
+                                }}
                             />
                         </section>
+                    </section>
 
-                        <Footer />
-                    </div>
-                </div>
+                    {/* Similar Businesses Section */}
+                    <SimilarBusinesses
+                        currentBusinessId={businessSlug || businessId}
+                        category={businessData.category}
+                        location={businessData.location}
+                        interestId={business?.interest_id ?? business?.interestId ?? business?.primary_category_slug}
+                        subInterestId={business?.sub_interest_id ?? business?.subInterestId ?? business?.primary_subcategory_slug}
+                        limit={3}
+                    />
+                </section>
+
+                <Footer />
+            </div>
+        </div>
     );
 }
