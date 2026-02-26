@@ -2,6 +2,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Facebook, Instagram, Linkedin, Twitter, Youtube } from "lucide-react";
 import { useState, useEffect } from "react";
 import confetti from "canvas-confetti";
@@ -133,6 +134,23 @@ export default function Footer() {
     [linkSections[4]],
   ];
 
+  const appDownloadBadges = [
+    {
+      id: "ios",
+      src: "/footer/footer-1.png",
+      alt: "Download on the App Store",
+      href: null as string | null,
+      comingSoonLabel: "App Store download coming soon",
+    },
+    {
+      id: "android",
+      src: "/footer/footer-2.png",
+      alt: "Get it on Google Play",
+      href: null as string | null,
+      comingSoonLabel: "Google Play download coming soon",
+    },
+  ];
+
   return (
     <footer className="relative overflow-hidden border-t border-charcoal/6 bg-navbar-bg text-off-white">
 
@@ -140,7 +158,7 @@ export default function Footer() {
         <div className="border-t border-white/10 py-10 sm:py-12">
 
           <div
-            className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr_1fr_1fr] gap-10 lg:gap-12 items-start"
+            className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr_1fr_1fr_auto] gap-10 lg:gap-12 items-start"
           >
             {/* Brand */}
             <div className="flex flex-col items-start gap-4 text-left">
@@ -180,6 +198,59 @@ export default function Footer() {
                 ))}
               </nav>
             ))}
+
+            {/* Download App CTA */}
+            <div className="flex flex-col gap-3">
+              <p className="font-urbanist text-sm text-off-white font-700">
+                Get the app
+              </p>
+              <div className="flex flex-row flex-wrap lg:flex-col gap-3" role="group" aria-label="App download badges">
+                {appDownloadBadges.map((badge) => {
+                  if (badge.href) {
+                    return (
+                      <a
+                        key={badge.id}
+                        href={badge.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex"
+                      >
+                        <Image
+                          src={badge.src}
+                          alt={badge.alt}
+                          width={133}
+                          height={40}
+                          sizes="133px"
+                          className="h-10 w-auto"
+                        />
+                      </a>
+                    );
+                  }
+
+                  return (
+                    <div
+                      key={badge.id}
+                      aria-disabled="true"
+                      aria-label={badge.comingSoonLabel}
+                      title={badge.comingSoonLabel}
+                      className="inline-flex items-center rounded-[10px] bg-white/5 ring-1 ring-white/10 px-1 py-1 opacity-85 grayscale"
+                    >
+                      <Image
+                        src={badge.src}
+                        alt={badge.alt}
+                        width={133}
+                        height={40}
+                        sizes="133px"
+                        className="h-10 w-auto"
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="font-urbanist text-[11px] sm:text-xs text-off-white/70">
+                Coming soon
+              </p>
+            </div>
           </div>
 
           <div className="mt-12 border-t border-white/10 pt-6">
