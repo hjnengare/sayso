@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect, memo } from 'react';
 import { useReviewHelpful } from '../../hooks/useReviewHelpful';
 import { useReviewReplies } from '../../hooks/useReviewReplies';
 import { useUserBadgesById } from '../../hooks/useUserBadges';
-import { m, AnimatePresence, useReducedMotion } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -52,7 +52,6 @@ function ReviewCard({
   const router = useRouter();
   const { likeReview, deleteReview } = useReviewSubmission();
   const isDesktop = useIsDesktop();
-  const prefersReducedMotion = useReducedMotion();
   const isTransientReviewId = isOptimisticId(review.id) || !isValidUUID(review.id);
 
   // Helper function to check if current user owns this review with fallback logic
@@ -234,11 +233,6 @@ function ReviewCard({
   const isOwner = isReviewOwner();
   const reportButtonDisabled =
     isOwner || flagging || isFlagged || isTransientReviewId || checkingFlagStatus;
-  const rootInitial = prefersReducedMotion ? { opacity: 0, y: 0 } : { opacity: 0, y: 10 };
-  const rootAnimate = { opacity: 1, y: 0 };
-  const rootTransition = prefersReducedMotion
-    ? { duration: 0.01 }
-    : { duration: 0.2, ease: 'easeOut' as const };
 
   useEffect(() => {
     let cancelled = false;
@@ -328,9 +322,6 @@ function ReviewCard({
 
   return (
     <m.div
-      initial={rootInitial}
-      animate={rootAnimate}
-      transition={rootTransition}
       whileHover={isDesktop ? undefined : { scale: 1.01, x: 5 }}
       className={`relative bg-gradient-to-br from-off-white via-off-white to-off-white/95 backdrop-blur-sm rounded-lg p-6 border-none ${
         isDesktop ? '' : 'transition-all duration-300 group hover:border-white/80 hover:-translate-y-1'
@@ -443,12 +434,7 @@ function ReviewCard({
                     </defs>
                   </svg>
                   {[...Array(5)].map((_, i) => (
-                    <m.div
-                      key={i}
-                      initial={isDesktop ? false : { scale: 0 }}
-                      animate={isDesktop ? undefined : { scale: 1 }}
-                      transition={isDesktop ? undefined : { delay: i * 0.05, duration: 0.3 }}
-                    >
+                    <m.div key={i}>
                       <svg
                         className="w-4 h-4 sm:w-5 sm:h-5"
                         viewBox="0 0 24 24"
@@ -548,9 +534,6 @@ function ReviewCard({
               {review.tags.map((tag, index) => (
                 <m.span
                   key={tag}
-                  initial={isDesktop ? false : { opacity: 0, scale: 0.8 }}
-                  animate={isDesktop ? undefined : { opacity: 1, scale: 1 }}
-                  transition={isDesktop ? undefined : { delay: index * 0.05, duration: 0.3 }}
                   whileHover={isDesktop ? undefined : { scale: 1.05 }}
                   className={`inline-flex items-center px-3 py-1 bg-card-bg/10 text-sage text-sm font-500 rounded-full border border-sage/20 ${
                     isDesktop ? '' : 'hover:bg-card-bg/20 transition-colors duration-300'
@@ -569,9 +552,6 @@ function ReviewCard({
                 {displayedImages?.map((image, index) => (
                   <m.div
                     key={image.id}
-                    initial={isDesktop ? false : { opacity: 0, scale: 0.8 }}
-                    animate={isDesktop ? undefined : { opacity: 1, scale: 1 }}
-                    transition={isDesktop ? undefined : { delay: index * 0.1, duration: 0.3 }}
                     whileHover={isDesktop ? undefined : { scale: 1.05 }}
                     className="aspect-square rounded-lg overflow-hidden cursor-pointer group/image"
                     onClick={() => setSelectedImageIndex(index)}
@@ -733,9 +713,6 @@ function ReviewCard({
           <AnimatePresence>
             {showReplyForm && user && (
                 <m.div
-                  initial={isDesktop ? false : { opacity: 0, height: 0 }}
-                  animate={isDesktop ? undefined : { opacity: 1, height: 'auto' }}
-                  exit={isDesktop ? undefined : { opacity: 0, height: 0 }}
                   className="mt-4 pt-4 border-t border-sage/10"
                   ref={replyFormRef}
                 >
@@ -827,8 +804,6 @@ function ReviewCard({
                 return (
                   <m.div
                     key={reply.id}
-                    initial={isDesktop ? false : { opacity: 0, y: 10 }}
-                    animate={isDesktop ? undefined : { opacity: 1, y: 0 }}
                     className="pl-4 border-l-2 border-sage/20 bg-off-white/30 rounded-r-lg p-3 relative flex flex-col w-full min-w-0"
                   >
                     {/* Row 1: username + time (mobile: stacked/inline); desktop: same row as buttons */}
@@ -900,16 +875,10 @@ function ReviewCard({
       <AnimatePresence>
         {selectedImageIndex !== null && review.images && (
           <m.div
-            initial={isDesktop ? false : { opacity: 0 }}
-            animate={isDesktop ? undefined : { opacity: 1 }}
-            exit={isDesktop ? undefined : { opacity: 0 }}
             className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
             onClick={() => setSelectedImageIndex(null)}
           >
             <m.div
-              initial={isDesktop ? false : { scale: 0.8 }}
-              animate={isDesktop ? undefined : { scale: 1 }}
-              exit={isDesktop ? undefined : { scale: 0.8 }}
               className="relative max-w-4xl max-h-full"
               onClick={(e) => e.stopPropagation()}
             >

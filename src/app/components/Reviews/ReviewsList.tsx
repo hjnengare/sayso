@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { m, useReducedMotion } from 'framer-motion';
 import { AlertCircle, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 import ReviewCard from './ReviewCard';
@@ -36,13 +35,6 @@ export default function ReviewsList({
   isOwnerView = false,
   businessId,
 }: ReviewsListProps) {
-  const prefersReducedMotion = useReducedMotion();
-  const entryInitial = prefersReducedMotion ? { opacity: 0, y: 0 } : { opacity: 0, y: 10 };
-  const entryAnimate = { opacity: 1, y: 0 };
-  const entryTransition = prefersReducedMotion
-    ? { duration: 0.01 }
-    : { duration: 0.2, ease: 'easeOut' as const };
-  
   // Use realtime reviews if businessId is provided, otherwise use initial reviews
   const { reviews: realtimeReviews, isLive } = useRealtimeReviews(businessId, initialReviews);
   const reviews = businessId ? realtimeReviews : initialReviews;
@@ -86,12 +78,7 @@ export default function ReviewsList({
   if (error) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <m.div
-          initial={entryInitial}
-          animate={entryAnimate}
-          transition={entryTransition}
-          className="bg-red-50 border border-red-200 rounded-lg p-6 text-center"
-        >
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
           <div className="flex items-center justify-center mb-3">
             <AlertCircle size={24} className="text-red-500" />
           </div>
@@ -101,7 +88,7 @@ export default function ReviewsList({
           <p className="font-urbanist text-sm text-red-600">
             {error}
           </p>
-        </m.div>
+        </div>
       </div>
     );
   }
@@ -167,13 +154,8 @@ export default function ReviewsList({
         </div>
       )}
       
-      {reviews.map((review, index) => (
-        <m.div
-          key={review.id}
-          initial={entryInitial}
-          animate={entryAnimate}
-          transition={entryTransition}
-        >
+      {reviews.map((review) => (
+        <div key={review.id}>
           <ReviewCard
             review={review}
             onUpdate={onUpdate}
@@ -181,20 +163,15 @@ export default function ReviewsList({
             isOwnerView={isOwnerView}
             realtimeHelpfulCount={helpfulCounts[review.id]}
           />
-        </m.div>
+        </div>
       ))}
 
       {reviews.length > 0 && (
-        <m.div
-          initial={entryInitial}
-          animate={entryAnimate}
-          transition={entryTransition}
-          className="text-center pt-4"
-        >
+        <div className="text-center pt-4">
           <p className="font-urbanist text-sm text-charcoal/60">
             Showing {reviews.length} review{reviews.length !== 1 ? 's' : ''}
           </p>
-        </m.div>
+        </div>
       )}
     </div>
   );

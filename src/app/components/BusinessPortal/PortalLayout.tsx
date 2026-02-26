@@ -90,7 +90,7 @@ export default function PortalLayout({ children }: PortalLayoutProps) {
   return (
     <div className="flex h-dvh bg-page-bg">
       {/* Desktop sidebar */}
-      <div className="hidden lg:flex lg:flex-col lg:w-56 xl:w-60 flex-shrink-0 shadow-lg h-full">
+      <div className="hidden lg:flex lg:flex-col lg:w-56 xl:w-60 flex-shrink-0 shadow-lg h-full relative z-30 pointer-events-auto">
         {hasPortalAccess ? <PortalSidebar pathname={pathname} /> : <PortalSidebarShell />}
       </div>
 
@@ -109,7 +109,7 @@ export default function PortalLayout({ children }: PortalLayoutProps) {
       )}
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative z-0">
         {/* Mobile topbar */}
         <header className="lg:hidden flex items-center gap-3 px-4 py-3 bg-navbar-bg    shadow-sm flex-shrink-0">
           <button

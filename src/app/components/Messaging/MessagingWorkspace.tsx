@@ -142,18 +142,26 @@ function formatThreadTimestamp(value: string): string {
   });
 }
 
-function getConversationTitle(conversation: ConversationListItem, role: MessagingRole): string {
+function getConversationTitle(
+  conversation: ConversationListItem,
+  role: MessagingRole,
+  fallbackBusinessName?: string
+): string {
   if (role === 'business') {
     return conversation.participant?.display_name || 'Customer';
   }
-  return conversation.business?.name || 'Business';
+  return conversation.business?.name || fallbackBusinessName || 'Conversation';
 }
 
-function getConversationSubtitle(conversation: ConversationListItem, role: MessagingRole): string {
+function getConversationSubtitle(
+  conversation: ConversationListItem,
+  role: MessagingRole,
+  fallbackBusinessName?: string
+): string {
   if (role === 'business') {
-    return conversation.business?.name || 'Business';
+    return conversation.business?.name || fallbackBusinessName || 'Conversation';
   }
-  return conversation.business?.category || 'Business';
+  return conversation.business?.category || conversation.business?.name || fallbackBusinessName || 'Conversation';
 }
 
 function getConversationAvatar(conversation: ConversationListItem, role: MessagingRole): string | null {
@@ -476,6 +484,19 @@ export default function MessagingWorkspace({
 
   const listPaneVisibleClass = mobileThreadOpen ? 'hidden lg:flex' : 'flex';
   const threadPaneVisibleClass = mobileThreadOpen ? 'flex' : 'hidden lg:flex';
+  const businessNameById = useMemo(
+    () => new Map((businessOptions || []).map((business) => [business.id, business.name])),
+    [businessOptions]
+  );
+  const getFallbackBusinessName = useCallback(
+    (conversation: ConversationListItem | null | undefined): string | undefined => {
+      if (!conversation) return undefined;
+      const businessId = conversation.business?.id || conversation.business_id || null;
+      if (!businessId) return undefined;
+      return businessNameById.get(businessId);
+    },
+    [businessNameById]
+  );
   const selectedBusinessOption = useMemo(() => {
     if (!businessOptions || businessOptions.length === 0) return null;
 
@@ -495,14 +516,20 @@ export default function MessagingWorkspace({
 
   const businessIdentity = useMemo<MessageVisualIdentity>(
     () => ({
-      name: selectedConversation?.business?.name || selectedBusinessOption?.name || 'Business',
+      name:
+        selectedConversation?.business?.name ||
+        selectedBusinessOption?.name ||
+        getFallbackBusinessName(selectedConversation) ||
+        'Conversation',
       avatarUrl: selectedConversation?.business?.image_url || selectedBusinessOption?.image_url || null,
     }),
     [
+      getFallbackBusinessName,
       selectedBusinessOption?.image_url,
       selectedBusinessOption?.name,
       selectedConversation?.business?.image_url,
       selectedConversation?.business?.name,
+      selectedConversation,
     ]
   );
 
@@ -577,7 +604,7 @@ export default function MessagingWorkspace({
                     setSelectedConversationId(null);
                     setMobileThreadOpen(false);
                   }}
-                  className="w-full rounded-xl border border-charcoal/15 bg-white px-3 py-2 text-sm text-charcoal focus:border-navbar-bg/40 focus:outline-none focus:ring-2 focus:ring-navbar-bg/20"
+                  className="w-full rounded-2xl border border-charcoal/12 bg-white/95 px-3 py-2 text-sm text-charcoal shadow-sm focus:border-navbar-bg/40 focus:outline-none focus:ring-2 focus:ring-navbar-bg/20"
                   style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
                 >
                   <option value="__all__">All businesses</option>
@@ -596,7 +623,7 @@ export default function MessagingWorkspace({
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
                 placeholder="Search conversations"
-                className="w-full rounded-full border border-charcoal/15 bg-white py-2 pl-9 pr-3 text-sm text-charcoal placeholder:text-charcoal/45 focus:border-navbar-bg/40 focus:outline-none focus:ring-2 focus:ring-navbar-bg/20"
+                className="w-full rounded-2xl border border-charcoal/12 bg-white/95 py-2 pl-9 pr-3 text-sm text-charcoal shadow-sm placeholder:text-charcoal/45 focus:border-navbar-bg/40 focus:outline-none focus:ring-2 focus:ring-navbar-bg/20"
                 style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
               />
             </div>
@@ -631,20 +658,23 @@ export default function MessagingWorkspace({
             )}
 
             {!conversationsLoading && filteredConversations.length > 0 && (
-              <ul className="divide-y divide-charcoal/8">
+              <ul className="space-y-2 p-2 sm:space-y-2.5 sm:p-3">
                 {filteredConversations.map((conversation) => {
                   const isSelected = selectedConversationId === conversation.id;
+                  const fallbackBusinessName = getFallbackBusinessName(conversation);
                   const avatar = getConversationAvatar(conversation, role);
-                  const name = getConversationTitle(conversation, role);
-                  const subtitleValue = getConversationSubtitle(conversation, role);
+                  const name = getConversationTitle(conversation, role, fallbackBusinessName);
+                  const subtitleValue = getConversationSubtitle(conversation, role, fallbackBusinessName);
 
                   return (
                     <li key={conversation.id}>
                       <button
                         type="button"
                         onClick={() => handleSelectConversation(conversation.id)}
-                        className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors sm:px-5 ${
-                          isSelected ? 'bg-card-bg/10' : 'hover:bg-charcoal/[0.03]'
+                        className={`flex w-full items-center gap-3 rounded-2xl border px-3.5 py-3 text-left shadow-sm transition-[background-color,border-color,box-shadow] duration-150 sm:px-4 ${
+                          isSelected
+                            ? 'border-navbar-bg/20 bg-card-bg/10'
+                            : 'border-charcoal/10 bg-white/95 hover:border-charcoal/20 hover:bg-white'
                         }`}
                       >
                         <div className="relative h-11 w-11 flex-shrink-0 overflow-hidden rounded-xl bg-charcoal/10">
@@ -706,6 +736,22 @@ export default function MessagingWorkspace({
             <>
               <header className="sticky top-0 z-10 border-b border-charcoal/10 bg-off-white/95 px-4 py-3 backdrop-blur sm:px-5">
                 <div className="flex items-center gap-3">
+                  {(() => {
+                    const fallbackBusinessName = getFallbackBusinessName(selectedConversation);
+                    const selectedConversationTitle = getConversationTitle(
+                      selectedConversation,
+                      role,
+                      fallbackBusinessName
+                    );
+                    const selectedConversationSubtitle = getConversationSubtitle(
+                      selectedConversation,
+                      role,
+                      fallbackBusinessName
+                    );
+                    const selectedAvatar = getConversationAvatar(selectedConversation, role);
+
+                    return (
+                      <>
                   <button
                     type="button"
                     onClick={() => setMobileThreadOpen(false)}
@@ -716,10 +762,10 @@ export default function MessagingWorkspace({
                   </button>
 
                   <div className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-xl bg-charcoal/10">
-                    {getConversationAvatar(selectedConversation, role) ? (
+                    {selectedAvatar ? (
                       <Image
-                        src={getConversationAvatar(selectedConversation, role) || ''}
-                        alt={getConversationTitle(selectedConversation, role)}
+                        src={selectedAvatar || ''}
+                        alt={selectedConversationTitle}
                         fill
                         sizes="40px"
                         className="object-cover"
@@ -733,12 +779,15 @@ export default function MessagingWorkspace({
 
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-charcoal" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
-                      {getConversationTitle(selectedConversation, role)}
+                      {selectedConversationTitle}
                     </p>
                     <p className="truncate text-xs text-charcoal/50" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
-                      {getConversationSubtitle(selectedConversation, role)}
+                      {selectedConversationSubtitle}
                     </p>
                   </div>
+                      </>
+                    );
+                  })()}
                 </div>
               </header>
 
@@ -795,10 +844,10 @@ export default function MessagingWorkspace({
                               <div className={`flex items-end gap-2 ${ownMessage ? 'flex-row-reverse' : 'flex-row'}`}>
                                 <MessageBubbleAvatar name={senderIdentity.name} avatarUrl={senderIdentity.avatarUrl} />
                                 <div
-                                  className={`max-w-[82%] rounded-2xl px-3.5 py-2.5 sm:max-w-[75%] ${
+                                  className={`max-w-[82%] rounded-[18px] border px-3.5 py-2.5 sm:max-w-[75%] ${
                                     ownMessage
-                                      ? 'rounded-br-md bg-navbar-bg text-white shadow-sm'
-                                      : 'rounded-bl-md border border-charcoal/10 bg-white text-charcoal shadow-sm'
+                                      ? 'rounded-br-lg border-white/25 bg-navbar-bg text-white shadow-sm'
+                                      : 'rounded-bl-lg border-charcoal/12 bg-white text-charcoal shadow-sm'
                                   }`}
                                 >
                                   <p
@@ -846,14 +895,14 @@ export default function MessagingWorkspace({
                     disabled={isSending}
                     placeholder="Type a message..."
                     rows={1}
-                    className="min-h-[42px] max-h-[140px] flex-1 resize-y rounded-2xl border border-charcoal/15 bg-white px-3 py-2 text-sm text-charcoal placeholder:text-charcoal/45 focus:border-navbar-bg/35 focus:outline-none focus:ring-2 focus:ring-navbar-bg/20 disabled:opacity-70"
+                    className="min-h-[42px] max-h-[140px] flex-1 resize-y rounded-2xl border border-charcoal/12 bg-white/95 px-3 py-2 text-sm text-charcoal shadow-sm placeholder:text-charcoal/45 focus:border-navbar-bg/35 focus:outline-none focus:ring-2 focus:ring-navbar-bg/20 disabled:opacity-70"
                     style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
                   />
                   <button
                     type="button"
                     onClick={() => void handleSend()}
                     disabled={isSending || !composerValue.trim()}
-                    className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-navbar-bg text-white shadow-[0_8px_20px_rgba(114,47,55,0.24)] transition-colors hover:bg-navbar-bg/90 disabled:cursor-not-allowed disabled:bg-charcoal/30"
+                    className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-navbar-bg/40 bg-navbar-bg text-white shadow-sm transition-[background-color,box-shadow] hover:bg-navbar-bg/90 hover:shadow disabled:cursor-not-allowed disabled:border-charcoal/20 disabled:bg-charcoal/30"
                     aria-label="Send message"
                   >
                     {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
@@ -869,7 +918,7 @@ export default function MessagingWorkspace({
         @keyframes messageBubbleEnter {
           from {
             opacity: 0;
-            transform: translateY(10px);
+            transform: translateY(8px);
           }
           to {
             opacity: 1;
@@ -887,11 +936,11 @@ export default function MessagingWorkspace({
         }
 
         .message-bubble-enter {
-          animation: messageBubbleEnter 190ms cubic-bezier(0.22, 1, 0.36, 1) both;
+          animation: messageBubbleEnter 180ms cubic-bezier(0.22, 1, 0.36, 1) both;
         }
 
         .message-bubble-enter-reduced {
-          animation: messageBubbleFade 110ms ease-out both;
+          animation: messageBubbleFade 90ms ease-out both;
         }
       `}</style>
     </>
