@@ -10,6 +10,7 @@ import ScrollableSection from "../ScrollableSection/ScrollableSection";
 import { m } from "framer-motion";
 import { useMemo } from "react";
 import { useIsDesktop } from "../../hooks/useIsDesktop";
+import WavyTypedTitle from "../Animations/WavyTypedTitle";
 
 // Animation variants for staggered card appearance (matching badge page)
 const containerVariants = {
@@ -44,6 +45,7 @@ export default function EventsSpecials({
   fullBleed = false,
   enableMobilePeek = false,
   showHeaderCta = true,
+  useTypedTitle = false,
 }: {
   title?: string;
   events: Event[];
@@ -66,6 +68,8 @@ export default function EventsSpecials({
   enableMobilePeek?: boolean;
   /** Show the top-right CTA link in the section header (default true). */
   showHeaderCta?: boolean;
+  /** Render title with one-time typed effect (no entrance motion on heading). */
+  useTypedTitle?: boolean;
 }) {
   const router = useRouter();
   const isDesktop = useIsDesktop();
@@ -82,6 +86,12 @@ export default function EventsSpecials({
   }, [events]);
 
   const hasEvents = displayEvents.length > 0;
+  const headingClass =
+    "font-urbanist text-2xl sm:text-3xl md:text-2xl font-bold text-charcoal hover:text-sage transition-all duration-300 px-3 sm:px-4 py-1 hover:bg-card-bg/5 rounded-lg cursor-default";
+  const headingStyle = {
+    fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+    fontWeight: titleFontWeight,
+  } as const;
 
   if (showSkeleton) {
     return (
@@ -135,13 +145,20 @@ export default function EventsSpecials({
     >
       <div className={containerClass}>
         <div className="pb-4 sm:pb-8 md:pb-10 flex flex-wrap items-center justify-between gap-2">
-          {disableAnimations ? (
+          {useTypedTitle ? (
+            <WavyTypedTitle
+              text={title}
+              as="h2"
+              className={headingClass}
+              typingSpeedMs={40}
+              startDelayMs={0}
+              disableWave={true}
+              style={headingStyle}
+            />
+          ) : disableAnimations ? (
             <h2
-              className="font-urbanist text-2xl sm:text-3xl md:text-2xl font-bold text-charcoal hover:text-sage transition-all duration-300 px-3 sm:px-4 py-1 hover:bg-card-bg/5 rounded-lg cursor-default"
-              style={{
-                fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-                fontWeight: titleFontWeight,
-              }}
+              className={headingClass}
+              style={headingStyle}
             >
               {title}
             </h2>
@@ -151,11 +168,8 @@ export default function EventsSpecials({
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              className="font-urbanist text-2xl sm:text-3xl md:text-2xl font-bold text-charcoal hover:text-sage transition-all duration-300 px-3 sm:px-4 py-1 hover:bg-card-bg/5 rounded-lg cursor-default"
-              style={{
-                fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-                fontWeight: titleFontWeight,
-              }}
+              className={headingClass}
+              style={headingStyle}
             >
               {title}
             </m.h2>

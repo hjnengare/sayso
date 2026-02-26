@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
-import { m, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { isPlaceholderImage, getSubcategoryPlaceholder } from "../../utils/subcategoryPlaceholders";
 
@@ -27,18 +26,24 @@ export default function BusinessCarousel({ businessName, businessImages, subcate
   }) || [];
   const hasImages = validImages.length > 0;
   const hasMultipleImages = validImages.length > 1;
-  const currentImage = validImages[currentImageIndex];
+  const slideWidthPercent = hasImages ? 100 / validImages.length : 100;
+  const translatePercent = currentImageIndex * slideWidthPercent;
   const placeholderSrc = getSubcategoryPlaceholder(subcategorySlug ?? undefined);
+
+  useEffect(() => {
+    if (validImages.length === 0) {
+      setCurrentImageIndex(0);
+      return;
+    }
+    if (currentImageIndex > validImages.length - 1) {
+      setCurrentImageIndex(0);
+    }
+  }, [validImages.length, currentImageIndex]);
 
   // If no valid images, show subcategory placeholder (full photo, same layout as BusinessHeroImage)
   if (!hasImages) {
     return (
-      <m.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.6 }}
-        className="relative w-full h-[50vh] sm:h-auto sm:aspect-[16/9] lg:aspect-[21/9] rounded-none overflow-hidden border-none"
-      >
+      <div className="relative w-full h-[50vh] sm:h-auto sm:aspect-[16/9] lg:aspect-[21/9] rounded-none overflow-hidden border-none">
         <div className="absolute inset-0 bg-card-bg overflow-hidden">
           <Image
             src={placeholderSrc}
@@ -47,10 +52,10 @@ export default function BusinessCarousel({ businessName, businessImages, subcate
             className="object-cover"
             priority
             quality={70}
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 900px"
+            sizes="100vw"
           />
         </div>
-      </m.div>
+      </div>
     );
   }
 
@@ -81,66 +86,42 @@ export default function BusinessCarousel({ businessName, businessImages, subcate
   };
 
   return (
-    <m.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.6 }}
+    <div
       className="relative w-full h-[50vh] sm:h-auto sm:aspect-[16/9] lg:aspect-[21/9] rounded-none overflow-hidden border-none"
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
     >
-      {/* Blurred background - Instagram style */}
-      <AnimatePresence mode="wait">
-        <m.div
-          key={`bg-${currentImageIndex}`}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
-          className="absolute inset-0"
+      <div className="absolute inset-0 overflow-hidden">
+        <div
+          className="flex h-full"
+          style={{
+            width: `${validImages.length * 100}%`,
+            transform: `translate3d(-${translatePercent}%, 0, 0)`,
+            transition: "transform 350ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+            willChange: "transform",
+          }}
         >
-          <Image
-            src={currentImage}
-            alt=""
-            fill
-            className="object-cover"
-            priority={currentImageIndex === 0}
-            quality={20}
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 900px"
-            style={{
-              filter: 'blur(40px)',
-              opacity: 0.6,
-              transform: 'scale(1.2)',
-            }}
-            aria-hidden="true"
-            onError={() => setImageError((prev) => ({ ...prev, [currentImageIndex]: true }))}
-          />
-        </m.div>
-      </AnimatePresence>
-
-      {/* Foreground image - sharp, centered, aspect-ratio preserved */}
-      <AnimatePresence mode="wait">
-        <m.div
-          key={`fg-${currentImageIndex}`}
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 1.05 }}
-          transition={{ duration: 0.4 }}
-          className="absolute inset-0 flex items-center justify-center"
-        >
-          <Image
-            src={currentImage}
-            alt={`${businessName} photo ${currentImageIndex + 1}`}
-            fill
-            className="object-contain"
-            priority={currentImageIndex === 0}
-            quality={75}
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 900px"
-            onError={() => setImageError((prev) => ({ ...prev, [currentImageIndex]: true }))}
-          />
-        </m.div>
-      </AnimatePresence>
+          {validImages.map((img, index) => (
+            <div
+              key={`${img}-${index}`}
+              className="relative h-full flex-shrink-0"
+              style={{ width: `${slideWidthPercent}%` }}
+            >
+              <Image
+                src={img}
+                alt={`${businessName} photo ${index + 1}`}
+                fill
+                className="object-cover"
+                priority={index === 0}
+                quality={80}
+                sizes="100vw"
+                onError={() => setImageError((prev) => ({ ...prev, [index]: true }))}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* Gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
@@ -207,6 +188,6 @@ export default function BusinessCarousel({ businessName, businessImages, subcate
           </div>
         </>
       )}
-    </m.div>
+    </div>
   );
 }

@@ -76,6 +76,7 @@ export default function BusinessOwnedEventsSection({
         premiumCtaHover
         fullBleed
         enableMobilePeek
+        useTypedTitle
       />
     </section>
   );

@@ -165,7 +165,7 @@ export default function SpecialDetailPage({ params }: SpecialDetailPageProps) {
   if (error || !special || isExpired) {
     const isExpiredError = isExpired;
     return (
-      <div className="min-h-dvh bg-off-white flex items-center justify-center">
+      <div className="min-h-[100dvh] bg-off-white flex items-center justify-center">
         <div className="text-center p-6">
           <div className="w-16 h-16 bg-gradient-to-br from-white/40 to-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-4 border-none">
             <Calendar className="w-7 h-7 text-charcoal" />
@@ -203,16 +203,16 @@ export default function SpecialDetailPage({ params }: SpecialDetailPageProps) {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -10 }}
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="min-h-dvh bg-off-white font-urbanist"
+        className="min-h-[100dvh] bg-off-white font-urbanist"
         style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
       >
-        <div className="bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white relative overflow-hidden">
+        <div className="bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white relative overflow-hidden min-h-[100dvh]">
           {/* Background Gradient */}
           <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)]" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(114,47,55,0.08)_0%,_transparent_50%)]" />
 
-          <section className="relative" style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
+          <section className="relative min-h-[100dvh]" style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
             <div className="mx-auto w-full max-w-[2000px] px-2 relative z-10 pt-20 sm:pt-24 py-4 sm:py-6 md:py-8 pb-12 sm:pb-16">
           {/* Breadcrumb Navigation */}
           <nav className="pb-1" aria-label="Breadcrumb">
