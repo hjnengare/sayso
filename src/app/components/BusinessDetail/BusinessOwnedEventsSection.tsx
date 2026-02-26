@@ -72,6 +72,7 @@ export default function BusinessOwnedEventsSection({
         title={`Events & Specials from ${businessName}`}
         events={normalizedEvents}
         showHeaderCta={false}
+        showTypeFilters
         loading={showSkeleton}
         premiumCtaHover
         fullBleed

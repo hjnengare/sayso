@@ -8,7 +8,7 @@ import EventCardSkeleton from "../EventCard/EventCardSkeleton";
 import type { Event } from "../../lib/types/Event";
 import ScrollableSection from "../ScrollableSection/ScrollableSection";
 import { m } from "framer-motion";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useIsDesktop } from "../../hooks/useIsDesktop";
 import WavyTypedTitle from "../Animations/WavyTypedTitle";
 
@@ -31,6 +31,8 @@ const itemVariants = {
   },
 };
 
+type ListingTypeFilter = "event" | "special" | null;
+
 export default function EventsSpecials({
   title = "Events & Specials",
   events,
@@ -46,6 +48,7 @@ export default function EventsSpecials({
   enableMobilePeek = false,
   showHeaderCta = true,
   useTypedTitle = false,
+  showTypeFilters = false,
 }: {
   title?: string;
   events: Event[];
@@ -70,9 +73,12 @@ export default function EventsSpecials({
   showHeaderCta?: boolean;
   /** Render title with one-time typed effect (no entrance motion on heading). */
   useTypedTitle?: boolean;
+  /** Show Events/Specials pills (notifications styling) for local filtering. */
+  showTypeFilters?: boolean;
 }) {
   const router = useRouter();
   const isDesktop = useIsDesktop();
+  const [activeTypeFilter, setActiveTypeFilter] = useState<ListingTypeFilter>(null);
   const containerClass = fullBleed
     ? "w-full relative z-10 px-2 sm:px-3"
     : "mx-auto w-full max-w-[2000px] relative z-10 px-2";
@@ -85,7 +91,19 @@ export default function EventsSpecials({
     return (events || []).slice(0, 12);
   }, [events]);
 
+  const typeCounts = useMemo(() => {
+    const eventCount = displayEvents.filter((event) => event.type === "event").length;
+    const specialCount = displayEvents.filter((event) => event.type === "special").length;
+    return { eventCount, specialCount };
+  }, [displayEvents]);
+
+  const filteredEvents = useMemo(() => {
+    if (!activeTypeFilter) return displayEvents;
+    return displayEvents.filter((event) => event.type === activeTypeFilter);
+  }, [displayEvents, activeTypeFilter]);
+
   const hasEvents = displayEvents.length > 0;
+  const hasFilteredEvents = filteredEvents.length > 0;
   const headingClass =
     "font-urbanist text-2xl sm:text-3xl md:text-2xl font-bold text-charcoal hover:text-sage transition-all duration-300 px-3 sm:px-4 py-1 hover:bg-card-bg/5 rounded-lg cursor-default";
   const headingStyle = {
@@ -206,18 +224,80 @@ export default function EventsSpecials({
           )}
         </div>
 
+        {showTypeFilters && hasEvents && (
+          <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide mb-5" style={{ WebkitOverflowScrolling: "touch" }}>
+            {[
+              { label: "Events", type: "event" as const, count: typeCounts.eventCount },
+              { label: "Specials", type: "special" as const, count: typeCounts.specialCount },
+            ].map((filter) => {
+              const isSelected = !activeTypeFilter || activeTypeFilter === filter.type;
+              const baseClasses =
+                "px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-urbanist font-500 text-xs sm:text-sm transition-all duration-200 active:scale-95 flex-shrink-0 whitespace-nowrap border";
+              const selectedClasses = "bg-card-bg text-white border-card-bg";
+              const unselectedClasses = "bg-white/50 text-charcoal/70 hover:bg-card-bg/10 hover:text-charcoal border-charcoal/10";
+
+              return (
+                <button
+                  key={filter.type}
+                  type="button"
+                  onClick={() =>
+                    setActiveTypeFilter((current) => (current === filter.type ? null : filter.type))
+                  }
+                  className={`${baseClasses} ${isSelected ? selectedClasses : unselectedClasses}`}
+                >
+                  {filter.label}
+                  <span className={`ml-1.5 text-xs ${isSelected ? "opacity-80" : "opacity-60"}`}>
+                    ({filter.count})
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
         {hasEvents ? (
-          <div className="pt-2">
-            <ScrollableSection
-              showArrows={true}
-              className="items-stretch py-2"
-              hideArrowsOnDesktop={hideCarouselArrowsOnDesktop}
-              enableMobilePeek={enableMobilePeek}
-            >
-              {isDesktop ? (
-                disableAnimations ? (
-                  <div className="flex gap-3 items-stretch">
-                    {displayEvents.map((event, index) => (
+          hasFilteredEvents ? (
+            <div className="pt-2">
+              <ScrollableSection
+                showArrows={true}
+                className="items-stretch py-2"
+                hideArrowsOnDesktop={hideCarouselArrowsOnDesktop}
+                enableMobilePeek={enableMobilePeek}
+              >
+                {isDesktop ? (
+                  disableAnimations ? (
+                    <div className="flex gap-3 items-stretch">
+                      {filteredEvents.map((event, index) => (
+                        <div
+                          key={event.id ?? `event-${index}`}
+                          className="snap-start snap-always flex-shrink-0 w-[100vw] sm:w-auto min-w-[clamp(220px,18vw,320px)] list-none flex justify-center"
+                        >
+                          <EventCard event={event} index={index} />
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <m.div
+                      variants={containerVariants}
+                      initial="hidden"
+                      whileInView="visible"
+                      viewport={{ once: true, margin: "-50px" }}
+                      className="flex gap-3 items-stretch"
+                    >
+                      {filteredEvents.map((event, index) => (
+                        <m.div
+                          key={event.id ?? `event-${index}`}
+                          variants={itemVariants}
+                          className="snap-start snap-always flex-shrink-0 w-[100vw] sm:w-auto min-w-[clamp(220px,18vw,320px)] list-none flex justify-center"
+                        >
+                          <EventCard event={event} index={index} />
+                        </m.div>
+                      ))}
+                    </m.div>
+                  )
+                ) : (
+                  <>
+                    {filteredEvents.map((event, index) => (
                       <div
                         key={event.id ?? `event-${index}`}
                         className="snap-start snap-always flex-shrink-0 w-[100vw] sm:w-auto min-w-[clamp(220px,18vw,320px)] list-none flex justify-center"
@@ -225,40 +305,22 @@ export default function EventsSpecials({
                         <EventCard event={event} index={index} />
                       </div>
                     ))}
-                  </div>
-                ) : (
-                  <m.div
-                    variants={containerVariants}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true, margin: "-50px" }}
-                    className="flex gap-3 items-stretch"
-                  >
-                    {displayEvents.map((event, index) => (
-                      <m.div
-                        key={event.id ?? `event-${index}`}
-                        variants={itemVariants}
-                        className="snap-start snap-always flex-shrink-0 w-[100vw] sm:w-auto min-w-[clamp(220px,18vw,320px)] list-none flex justify-center"
-                      >
-                        <EventCard event={event} index={index} />
-                      </m.div>
-                    ))}
-                  </m.div>
-                )
-              ) : (
-                <>
-                  {displayEvents.map((event, index) => (
-                    <div
-                      key={event.id ?? `event-${index}`}
-                      className="snap-start snap-always flex-shrink-0 w-[100vw] sm:w-auto min-w-[clamp(220px,18vw,320px)] list-none flex justify-center"
-                    >
-                      <EventCard event={event} index={index} />
-                    </div>
-                  ))}
-                </>
-              )}
-            </ScrollableSection>
-          </div>
+                  </>
+                )}
+              </ScrollableSection>
+            </div>
+          ) : (
+            <div className="py-4">
+              <div className="bg-off-white border border-charcoal/10 rounded-lg p-6 text-center">
+                <p className="text-body text-charcoal/70 mb-2">
+                  No {activeTypeFilter === "special" ? "specials" : "events"} available right now
+                </p>
+                <p className="text-body-sm text-charcoal/70">
+                  Switch filters to view the other listings.
+                </p>
+              </div>
+            </div>
+          )
         ) : (
           <div className="py-4">
             <div className="bg-off-white border border-charcoal/10 rounded-lg p-6 text-center">
