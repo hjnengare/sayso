@@ -4,14 +4,18 @@ import { useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ChevronRight, Loader2 } from 'lucide-react';
+import { m, useReducedMotion } from 'framer-motion';
 import MessagingWorkspace from '@/app/components/Messaging/MessagingWorkspace';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useOwnerBusinessesList } from '@/app/hooks/useOwnerBusinessesList';
+import { getChoreoItemMotion } from '@/app/lib/motion/choreography';
 
 export default function DMPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, isLoading: authLoading } = useAuth();
+  const prefersReducedMotion = useReducedMotion() ?? false;
+  const choreoEnabled = !prefersReducedMotion;
 
   const role = useMemo(() => {
     const profileRole = user?.profile?.account_role || user?.profile?.role;
@@ -56,7 +60,10 @@ export default function DMPage() {
 
   return (
     <div className="min-h-[100dvh] bg-white">
-      <div className="mx-auto w-full max-w-[2000px] px-2 relative pb-1">
+      <m.div
+        className="mx-auto w-full max-w-[2000px] px-2 relative pb-1"
+        {...getChoreoItemMotion({ order: 0, intent: 'inline', enabled: choreoEnabled })}
+      >
         <nav className="pb-1" aria-label="Breadcrumb">
           <ol
             className="flex items-center gap-2 text-sm sm:text-base"
@@ -80,22 +87,26 @@ export default function DMPage() {
             </li>
           </ol>
         </nav>
-      </div>
-      <MessagingWorkspace
-        role={role}
-        title={role === 'business' ? 'Inbox' : 'Messages'}
-        subtitle={
-          role === 'business'
-            ? 'Manage customer conversations'
-            : 'Message businesses directly'
-        }
-        viewportClassName="h-[calc(100dvh-6rem)] sm:h-[calc(100dvh-7rem)]"
-        businessOptions={businessOptions}
-        initialBusinessId={startBusinessId}
-        initialConversationId={initialConversationId}
-        startBusinessId={startBusinessId}
-        startUserId={startUserId}
-      />
+      </m.div>
+      <m.div
+        {...getChoreoItemMotion({ order: 1, intent: 'section', enabled: choreoEnabled })}
+      >
+        <MessagingWorkspace
+          role={role}
+          title={role === 'business' ? 'Inbox' : 'Messages'}
+          subtitle={
+            role === 'business'
+              ? 'Manage customer conversations'
+              : 'Message businesses directly'
+          }
+          viewportClassName="h-[calc(100dvh-6rem)] sm:h-[calc(100dvh-7rem)]"
+          businessOptions={businessOptions}
+          initialBusinessId={startBusinessId}
+          initialConversationId={initialConversationId}
+          startBusinessId={startBusinessId}
+          startUserId={startUserId}
+        />
+      </m.div>
     </div>
   );
 }
