@@ -5,6 +5,7 @@ import type { LiveSearchFilters, LiveSearchResult } from "@/app/hooks/useLiveSea
 import { useMemo } from "react";
 import LocationPromptBanner from "../Location/LocationPromptBanner";
 import { m, useReducedMotion } from "framer-motion";
+import FilterPillGroup from "../Filters/FilterPillGroup";
 
 const DISTANCE_FILTERS: { label: string; value: number }[] = [
   { label: "1 km", value: 1 },
@@ -54,34 +55,6 @@ export default function SearchResultsPanel({
     [results]
   );
 
-  const renderFilterLink = (
-    label: string,
-    active: boolean,
-    onClick: () => void,
-    index: number
-  ) => (
-    <m.button
-      type="button"
-      onClick={onClick}
-      aria-pressed={active}
-      initial={prefersReducedMotion ? false : { opacity: 0, y: 4 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={
-        prefersReducedMotion
-          ? { duration: 0 }
-          : { duration: 0.24, ease: filterEase, delay: index * 0.04 }
-      }
-      whileHover={prefersReducedMotion ? undefined : { y: -1 }}
-      whileTap={prefersReducedMotion ? undefined : { y: 0, scale: 0.99 }}
-      className={`text-sm transition-colors duration-200 ${
-        active
-          ? "text-sage underline underline-offset-4 decoration-1 font-600"
-          : "text-charcoal/80 hover:text-sage font-500"
-      }`}
-    >
-      {label}
-    </m.button>
-  );
 
   return (
     <div
@@ -122,22 +95,14 @@ export default function SearchResultsPanel({
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-charcoal/60">
               Distance
             </p>
-            <div className="mt-2 flex items-center overflow-x-auto whitespace-nowrap scrollbar-hide">
-              {DISTANCE_FILTERS.map((filter, index) => (
-                <div key={`distance-${filter.value}-${filter.label}`} className="inline-flex items-center shrink-0">
-                  {index > 0 && (
-                    <span aria-hidden className="mx-2 text-charcoal/55">
-                      |
-                    </span>
-                  )}
-                  {renderFilterLink(
-                    filter.label,
-                    filters.distanceKm === filter.value,
-                    () => onDistanceChange(filters.distanceKm === filter.value ? null : filter.value),
-                    index
-                  )}
-                </div>
-              ))}
+            <div className="mt-2">
+              <FilterPillGroup
+                options={DISTANCE_FILTERS}
+                value={filters.distanceKm}
+                onChange={onDistanceChange}
+                ariaLabel="Distance filter"
+                size="sm"
+              />
             </div>
           </div>
 
@@ -145,22 +110,14 @@ export default function SearchResultsPanel({
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-charcoal/60">
               Rating
             </p>
-            <div className="mt-2 flex items-center overflow-x-auto whitespace-nowrap scrollbar-hide">
-              {RATING_FILTERS.map((filter, index) => (
-                <div key={`rating-${filter.value}-${filter.label}`} className="inline-flex items-center shrink-0">
-                  {index > 0 && (
-                    <span aria-hidden className="mx-2 text-charcoal/55">
-                      |
-                    </span>
-                  )}
-                  {renderFilterLink(
-                    filter.label,
-                    filters.minRating === filter.value,
-                    () => onRatingChange(filters.minRating === filter.value ? null : filter.value),
-                    index
-                  )}
-                </div>
-              ))}
+            <div className="mt-2">
+              <FilterPillGroup
+                options={RATING_FILTERS}
+                value={filters.minRating}
+                onChange={onRatingChange}
+                ariaLabel="Rating filter"
+                size="sm"
+              />
             </div>
           </div>
         </div>

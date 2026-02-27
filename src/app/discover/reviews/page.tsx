@@ -5,6 +5,7 @@ import { m, AnimatePresence } from "framer-motion";
 import { useState, useMemo } from "react";
 import { ArrowLeft, Briefcase, Image as ImageIcon, ThumbsUp, FileText, Star, ChevronRight, ChevronLeft, TrendingUp } from "lucide-react";
 import VerifiedBadge from "@/app/components/VerifiedBadge/VerifiedBadge";
+import FilterPillGroup from "@/app/components/Filters/FilterPillGroup";
 
 // Mock reviews data - in production this would come from API
 const MOCK_REVIEWS = [
@@ -126,10 +127,10 @@ const MOCK_REVIEWS = [
 ];
 
 const FILTER_OPTIONS = [
-  { id: "all", label: "All Reviews", icon: "list-outline" },
-  { id: "5", label: "5 Stars", icon: "star" },
-  { id: "4", label: "4 Stars", icon: "star-half" },
-  { id: "photos", label: "With Photos", icon: "images-outline" }
+  { id: "all", label: "All Reviews", icon: <FileText className="w-4 h-4" /> },
+  { id: "5", label: "5 Stars", icon: <Star className="w-4 h-4" /> },
+  { id: "4", label: "4 Stars", icon: <Star className="w-4 h-4" /> },
+  { id: "photos", label: "With Photos", icon: <ImageIcon className="w-4 h-4" /> }
 ];
 
 const SORT_OPTIONS = [
@@ -283,47 +284,38 @@ export default function GeneralReviewsPage() {
         >
           <div className="flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between">
             {/* Filters */}
-            <div className="flex flex-wrap gap-2">
-              {FILTER_OPTIONS.map((filter) => (
-                <m.button
-                  key={filter.id}
-                  onClick={() => setSelectedFilter(filter.id)}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className={`
-                    inline-flex items-center gap-2 px-4 py-2 rounded-full font-urbanist text-sm font-600
-                    transition-all duration-premium ease-premium tracking-[-0.015em]
-                    ${selectedFilter === filter.id
-                      ? 'bg-card-bg text-white shadow-premium-md'
-                      : 'bg-charcoal/5 text-charcoal/70 hover:bg-charcoal/10 shadow-premium-sm hover:shadow-premium-md'
-                    }
-                  `}
-                >
-                  {filter.id === "all" && <FileText className="w-4 h-4" />}
-                  {filter.id === "5" && <Star className="w-4 h-4" />}
-                  {filter.id === "4" && <Star className="w-4 h-4" />}
-                  {filter.id === "photos" && <ImageIcon className="w-4 h-4" />}
-                  <span>{filter.label}</span>
-                </m.button>
-              ))}
+            <div className="max-w-full">
+              <FilterPillGroup
+                options={FILTER_OPTIONS.map((filter) => ({
+                  value: filter.id,
+                  label: filter.label,
+                  icon: filter.icon,
+                }))}
+                value={selectedFilter}
+                onChange={(v) => setSelectedFilter((v ?? "all") as string)}
+                ariaLabel="Review filters"
+                size="md"
+                wrap
+                scrollable={false}
+              />
             </div>
 
-            {/* Sort Dropdown */}
-            <div className="flex items-center gap-3">
+            {/* Sort Pills */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
               <span className="font-urbanist text-sm font-500 text-charcoal/70 tracking-[-0.015em]">
                 Sort by:
               </span>
-              <select
+              <FilterPillGroup
+                options={SORT_OPTIONS.map((option) => ({
+                  value: option.id,
+                  label: option.label,
+                }))}
                 value={selectedSort}
-                onChange={(e) => setSelectedSort(e.target.value)}
-                className="bg-charcoal/5 border border-charcoal/10 rounded-full px-4 py-2 font-urbanist text-sm font-600 text-charcoal focus:outline-none focus:ring-2 focus:ring-sage/30 focus:border-sage/50 transition-all duration-premium shadow-premium-sm hover:shadow-premium-md tracking-[-0.015em]"
-              >
-                {SORT_OPTIONS.map((option) => (
-                  <option key={option.id} value={option.id}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+                onChange={(v) => setSelectedSort((v ?? "recent") as string)}
+                ariaLabel="Review sort options"
+                size="sm"
+                scrollable
+              />
             </div>
           </div>
         </m.div>

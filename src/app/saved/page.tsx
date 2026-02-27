@@ -4,8 +4,10 @@ import nextDynamic from "next/dynamic";
 import Link from "next/link";
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useSavedBusinesses } from "../hooks/useSavedBusinessesFull";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, m, useReducedMotion } from "framer-motion";
+import { getChoreoItemMotion } from "../lib/motion/choreography";
 import { ChevronRight, Store } from "lucide-react";
+import FilterPillGroup from "../components/Filters/FilterPillGroup";
 import Pagination from "../components/EventsPage/Pagination";
 import EmailVerificationGuard from "../components/Auth/EmailVerificationGuard";
 import { useSavedItems } from "../contexts/SavedItemsContext";
@@ -51,6 +53,8 @@ function SavedPageSkeleton({ showHeader = true }: { showHeader?: boolean }) {
 
 export default function SavedPage() {
   usePredefinedPageTitle("saved");
+  const prefersReducedMotion = useReducedMotion() ?? false;
+  const choreoEnabled = !prefersReducedMotion;
   const { savedItems, isLoading: savedItemsLoading, refetch: refetchBusinesses } = useSavedItems();
 
   // SWR-backed saved businesses list
@@ -143,7 +147,10 @@ export default function SavedPage() {
 
         <main className="min-h-[100dvh] flex-1 relative z-10">
           <div className="min-h-[100dvh] pb-12 sm:pb-16 md:pb-20">
-            <div className="mx-auto w-full max-w-[2000px] px-2 relative saved-load-item saved-load-delay-0">
+            <m.div
+              className="mx-auto w-full max-w-[2000px] px-2 relative"
+              {...getChoreoItemMotion({ order: 0, intent: "inline", enabled: choreoEnabled })}
+            >
               {/* Breadcrumb Navigation */}
               <nav className="pb-1" aria-label="Breadcrumb">
                 <ol className="flex items-center gap-2 text-sm sm:text-base">
@@ -172,12 +179,15 @@ export default function SavedPage() {
                   </li>
                 </ol>
               </nav>
-            </div>
+            </m.div>
 
             {isLoading ? (
               <SavedPageSkeleton />
             ) : error ? (
-              <div className="min-h-[100dvh] pt-4 relative z-10 flex items-center justify-center saved-load-item saved-load-delay-1">
+              <m.div
+                className="min-h-[100dvh] pt-4 relative z-10 flex items-center justify-center"
+                {...getChoreoItemMotion({ order: 1, intent: "section", enabled: choreoEnabled })}
+              >
                 <div className="text-center max-w-md mx-auto px-4">
                   <p
                     className="text-body text-charcoal/70 mb-4"
@@ -193,12 +203,18 @@ export default function SavedPage() {
                     Try Again
                   </button>
                 </div>
-              </div>
+              </m.div>
             ) : hasAnyContent ? (
-              <div className="relative z-10 min-h-[100dvh] saved-load-item saved-load-delay-1">
+              <m.div
+                className="relative z-10 min-h-[100dvh]"
+                {...getChoreoItemMotion({ order: 1, intent: "section", enabled: choreoEnabled })}
+              >
                 <div className="mx-auto w-full max-w-[2000px] px-2">
                   {/* Title */}
-                  <div className="mb-6 sm:mb-8 px-2 saved-load-item saved-load-delay-2">
+                  <m.div
+                    className="mb-6 sm:mb-8 px-2"
+                    {...getChoreoItemMotion({ order: 2, intent: "heading", enabled: choreoEnabled })}
+                  >
                     <h1
                       className="text-2xl sm:text-3xl md:text-4xl font-bold text-charcoal"
                       style={{
@@ -216,46 +232,29 @@ export default function SavedPage() {
                     >
                       {totalSavedCount} {totalSavedCount === 1 ? "item" : "items"} saved
                     </p>
-                  </div>
+                  </m.div>
 
                   {/* Category Filters */}
                   {categories.length > 1 && (
-                    <div className="mb-6 px-2 saved-load-item saved-load-delay-3">
-                      <div
-                        className="flex items-center gap-2 overflow-x-auto scrollbar-hide -mx-2 px-2"
-                        style={{
-                          WebkitOverflowScrolling: 'touch',
-                          scrollBehavior: 'smooth',
-                        }}
-                      >
-                        {categories.map((category) => {
-                          const isSelected = selectedCategory === category || (!selectedCategory && category === 'All');
-                          const count = category === 'All'
+                    <m.div
+                      className="mb-6 px-2"
+                      {...getChoreoItemMotion({ order: 3, intent: "section", enabled: choreoEnabled })}
+                    >
+                      <FilterPillGroup
+                        options={categories.map((cat) => ({
+                          value: cat === 'All' ? null : cat,
+                          label: cat,
+                          count: cat === 'All'
                             ? savedBusinesses.length
-                            : savedBusinesses.filter(b => b.category === category).length;
-
-                          return (
-                            <button
-                              key={category}
-                              onClick={() => setSelectedCategory(category === 'All' ? null : category)}
-                              className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-urbanist font-500 text-xs sm:text-sm transition-all duration-200 active:scale-95 flex-shrink-0 whitespace-nowrap ${
-                                isSelected
-                                  ? "bg-card-bg text-white"
-                                  : "bg-white/50 text-charcoal/60 hover:bg-card-bg/10 hover:text-charcoal border border-charcoal/10"
-                              }`}
-                              style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
-                            >
-                              {category}
-                              {count > 0 && (
-                                <span className="ml-1 opacity-80">
-                                  ({count})
-                                </span>
-                              )}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
+                            : savedBusinesses.filter(b => b.category === cat).length,
+                        }))}
+                        value={selectedCategory}
+                        onChange={(value) => setSelectedCategory((value as string | null) ?? null)}
+                        ariaLabel="Filter by category"
+                        size="md"
+                        showCounts
+                      />
+                    </m.div>
                   )}
 
                   {/* Loading Spinner Overlay for Pagination */}
@@ -270,16 +269,17 @@ export default function SavedPage() {
                   {/* Content Grid */}
                   <AnimatePresence mode="wait" initial={false}>
                     {filteredBusinesses.length > 0 ? (
-                      <div
+                      <m.div
                         key={`businesses-${currentPage}`}
-                        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-3 saved-load-item saved-load-delay-4"
+                        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-3"
+                        {...getChoreoItemMotion({ order: 4, intent: "section", enabled: choreoEnabled })}
                       >
                         {(paginatedItems as Business[]).map((business) => (
                           <div key={business.id} className="list-none">
                             <BusinessCard business={business} compact inGrid={true} />
                           </div>
                         ))}
-                      </div>
+                      </m.div>
                     ) : (
                       <div className="text-center py-12">
                         <span className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-off-white/70 text-charcoal/85 transition duration-200 ease-out hover:bg-off-white/90 hover:scale-[1.03]">
@@ -300,60 +300,29 @@ export default function SavedPage() {
 
                   {/* Pagination */}
                   {currentItems.length > ITEMS_PER_PAGE && (
-                    <div className="saved-load-item saved-load-delay-5">
+                    <m.div
+                      {...getChoreoItemMotion({ order: 5, intent: "section", enabled: choreoEnabled })}
+                    >
                       <Pagination
                         currentPage={currentPage}
                         totalPages={totalPages}
                         onPageChange={handlePageChange}
                         disabled={isPaginationLoading}
                       />
-                    </div>
+                    </m.div>
                   )}
                 </div>
-              </div>
+              </m.div>
             ) : (
-              <div className="relative z-10 min-h-[100dvh] flex items-center justify-center saved-load-item saved-load-delay-1">
+              <m.div
+                className="relative z-10 min-h-[100dvh] flex items-center justify-center"
+                {...getChoreoItemMotion({ order: 1, intent: "section", enabled: choreoEnabled })}
+              >
                 <EmptySavedState />
-              </div>
+              </m.div>
             )}
           </div>
         </main>
-
-        <style jsx>{`
-          .saved-load-item {
-            opacity: 0;
-            transform: translate3d(0, 12px, 0);
-            filter: blur(2px);
-            animation: savedSectionLoadIn 560ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            will-change: transform, opacity, filter;
-          }
-          .saved-load-delay-0 { animation-delay: 40ms; }
-          .saved-load-delay-1 { animation-delay: 90ms; }
-          .saved-load-delay-2 { animation-delay: 140ms; }
-          .saved-load-delay-3 { animation-delay: 180ms; }
-          .saved-load-delay-4 { animation-delay: 220ms; }
-          .saved-load-delay-5 { animation-delay: 260ms; }
-          @keyframes savedSectionLoadIn {
-            0% {
-              opacity: 0;
-              transform: translate3d(0, 12px, 0);
-              filter: blur(2px);
-            }
-            100% {
-              opacity: 1;
-              transform: translate3d(0, 0, 0);
-              filter: blur(0);
-            }
-          }
-          @media (prefers-reduced-motion: reduce) {
-            .saved-load-item {
-              opacity: 1;
-              transform: none;
-              filter: none;
-              animation: none;
-            }
-          }
-        `}</style>
 
         <Footer />
       </div>

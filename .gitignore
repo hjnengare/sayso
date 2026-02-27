@@ -32,6 +32,9 @@ Thumbs.db
 !README.md
 !docs/**/*.md
 
+# Generated prompt/plan working files
+prompt-plans/
+
 # Logs
 *.log
 npm-debug.log*

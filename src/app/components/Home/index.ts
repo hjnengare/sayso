@@ -1,3 +1,1 @@
-export { FilterBar } from './FilterBar';
-export { AdvancedFilters } from './AdvancedFilters';
-export { FilterDemo } from './FilterDemo';
+// Dead filter components removed. See src/app/components/Filters/ for shared pill system.
