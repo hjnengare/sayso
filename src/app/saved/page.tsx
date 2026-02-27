@@ -4,16 +4,16 @@ import nextDynamic from "next/dynamic";
 import Link from "next/link";
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useSavedBusinesses } from "../hooks/useSavedBusinessesFull";
-import { AnimatePresence, m } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { ChevronRight, Store } from "lucide-react";
 import Pagination from "../components/EventsPage/Pagination";
 import EmailVerificationGuard from "../components/Auth/EmailVerificationGuard";
 import { useSavedItems } from "../contexts/SavedItemsContext";
 import BusinessCard from "../components/BusinessCard/BusinessCard";
 import EmptySavedState from "../components/Saved/EmptySavedState";
-import { PageLoader, Loader } from "../components/Loader";
 import { usePredefinedPageTitle } from "../hooks/usePageTitle";
 import { Business } from "../components/BusinessCard/BusinessCard";
+import BusinessGridSkeleton from "../components/Explore/BusinessGridSkeleton";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -21,6 +21,32 @@ const Footer = nextDynamic(() => import("../components/Footer/Footer"), {
   loading: () => null,
   ssr: false,
 });
+
+function SavedPageSkeleton({ showHeader = true }: { showHeader?: boolean }) {
+  return (
+    <div className="relative z-10">
+      <div className="mx-auto w-full max-w-[2000px] px-2">
+        {showHeader && (
+          <div className="mb-6 sm:mb-8 px-2 animate-pulse">
+            <div className="h-9 w-56 rounded-lg bg-charcoal/10" />
+            <div className="mt-3 h-4 w-40 rounded bg-charcoal/10" />
+          </div>
+        )}
+
+        <div className="mb-6 px-2 animate-pulse">
+          <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
+            <div className="h-8 w-16 rounded-full bg-charcoal/10 shrink-0" />
+            <div className="h-8 w-20 rounded-full bg-charcoal/10 shrink-0" />
+            <div className="h-8 w-24 rounded-full bg-charcoal/10 shrink-0" />
+            <div className="h-8 w-20 rounded-full bg-charcoal/10 shrink-0" />
+          </div>
+        </div>
+
+        <BusinessGridSkeleton />
+      </div>
+    </div>
+  );
+}
 
 
 export default function SavedPage() {
@@ -117,12 +143,7 @@ export default function SavedPage() {
 
         <main className="min-h-[100dvh] flex-1 relative z-10">
           <div className="min-h-[100dvh] pb-12 sm:pb-16 md:pb-20">
-            <m.div
-              className="mx-auto w-full max-w-[2000px] px-2 relative"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
+            <div className="mx-auto w-full max-w-[2000px] px-2 relative saved-load-item saved-load-delay-0">
               {/* Breadcrumb Navigation */}
               <nav className="pb-1" aria-label="Breadcrumb">
                 <ol className="flex items-center gap-2 text-sm sm:text-base">
@@ -151,14 +172,12 @@ export default function SavedPage() {
                   </li>
                 </ol>
               </nav>
-            </m.div>
+            </div>
 
             {isLoading ? (
-              <div className="min-h-[100dvh] flex items-center justify-center py-12">
-                <PageLoader size="md" variant="wavy" color="sage" />
-              </div>
+              <SavedPageSkeleton />
             ) : error ? (
-              <div className="min-h-[100dvh] pt-4 relative z-10 flex items-center justify-center">
+              <div className="min-h-[100dvh] pt-4 relative z-10 flex items-center justify-center saved-load-item saved-load-delay-1">
                 <div className="text-center max-w-md mx-auto px-4">
                   <p
                     className="text-body text-charcoal/70 mb-4"
@@ -176,20 +195,10 @@ export default function SavedPage() {
                 </div>
               </div>
             ) : hasAnyContent ? (
-              <m.div
-                className="relative z-10 min-h-[100dvh]"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4 }}
-              >
+              <div className="relative z-10 min-h-[100dvh] saved-load-item saved-load-delay-1">
                 <div className="mx-auto w-full max-w-[2000px] px-2">
                   {/* Title */}
-                  <m.div
-                    className="mb-6 sm:mb-8 px-2"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: 0.1 }}
-                  >
+                  <div className="mb-6 sm:mb-8 px-2 saved-load-item saved-load-delay-2">
                     <h1
                       className="text-2xl sm:text-3xl md:text-4xl font-bold text-charcoal"
                       style={{
@@ -207,11 +216,11 @@ export default function SavedPage() {
                     >
                       {totalSavedCount} {totalSavedCount === 1 ? "item" : "items"} saved
                     </p>
-                  </m.div>
+                  </div>
 
                   {/* Category Filters */}
                   {categories.length > 1 && (
-                    <div className="mb-6 px-2">
+                    <div className="mb-6 px-2 saved-load-item saved-load-delay-3">
                       <div
                         className="flex items-center gap-2 overflow-x-auto scrollbar-hide -mx-2 px-2"
                         style={{
@@ -251,8 +260,10 @@ export default function SavedPage() {
 
                   {/* Loading Spinner Overlay for Pagination */}
                   {isPaginationLoading && (
-                    <div className="fixed inset-0 z-[9998] bg-off-white/95 backdrop-blur-sm flex items-center justify-center min-h-[100dvh]">
-                      <Loader size="lg" variant="wavy" color="sage" />
+                    <div className="fixed inset-0 z-[9998] bg-off-white/92 backdrop-blur-sm overflow-y-auto">
+                      <div className="pt-24 pb-10">
+                        <SavedPageSkeleton showHeader={false} />
+                      </div>
                     </div>
                   )}
 
@@ -261,7 +272,7 @@ export default function SavedPage() {
                     {filteredBusinesses.length > 0 ? (
                       <div
                         key={`businesses-${currentPage}`}
-                        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-3"
+                        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-3 saved-load-item saved-load-delay-4"
                       >
                         {(paginatedItems as Business[]).map((business) => (
                           <div key={business.id} className="list-none">
@@ -289,22 +300,60 @@ export default function SavedPage() {
 
                   {/* Pagination */}
                   {currentItems.length > ITEMS_PER_PAGE && (
-                    <Pagination
-                      currentPage={currentPage}
-                      totalPages={totalPages}
-                      onPageChange={handlePageChange}
-                      disabled={isPaginationLoading}
-                    />
+                    <div className="saved-load-item saved-load-delay-5">
+                      <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={handlePageChange}
+                        disabled={isPaginationLoading}
+                      />
+                    </div>
                   )}
                 </div>
-              </m.div>
+              </div>
             ) : (
-              <div className="relative z-10 min-h-[100dvh] flex items-center justify-center">
+              <div className="relative z-10 min-h-[100dvh] flex items-center justify-center saved-load-item saved-load-delay-1">
                 <EmptySavedState />
               </div>
             )}
           </div>
         </main>
+
+        <style jsx>{`
+          .saved-load-item {
+            opacity: 0;
+            transform: translate3d(0, 12px, 0);
+            filter: blur(2px);
+            animation: savedSectionLoadIn 560ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            will-change: transform, opacity, filter;
+          }
+          .saved-load-delay-0 { animation-delay: 40ms; }
+          .saved-load-delay-1 { animation-delay: 90ms; }
+          .saved-load-delay-2 { animation-delay: 140ms; }
+          .saved-load-delay-3 { animation-delay: 180ms; }
+          .saved-load-delay-4 { animation-delay: 220ms; }
+          .saved-load-delay-5 { animation-delay: 260ms; }
+          @keyframes savedSectionLoadIn {
+            0% {
+              opacity: 0;
+              transform: translate3d(0, 12px, 0);
+              filter: blur(2px);
+            }
+            100% {
+              opacity: 1;
+              transform: translate3d(0, 0, 0);
+              filter: blur(0);
+            }
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .saved-load-item {
+              opacity: 1;
+              transform: none;
+              filter: none;
+              animation: none;
+            }
+          }
+        `}</style>
 
         <Footer />
       </div>

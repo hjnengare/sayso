@@ -480,7 +480,7 @@ export default function HomeClient({ initialTrending }: { initialTrending?: impo
           <div suppressHydrationWarning ref={contentRef} className="relative mx-auto w-full max-w-[2000px]">
             {isSearchActive ? (
               /* Search Results Mode */
-              <div className="px-4 sm:px-6 lg:px-8">
+              <div className="px-4 sm:px-6 lg:px-8 home-load-item home-load-delay-0">
                 <SearchResultsPanel
                   query={liveQuery.trim() || searchQueryParam.trim()}
                   loading={liveLoading}
@@ -498,7 +498,7 @@ export default function HomeClient({ initialTrending }: { initialTrending?: impo
                   {/* For You Section - Only show when NOT filtered */}
                   {!isFiltered && (
                     (() => {
-                      const className = "relative z-10 snap-start";
+                      const className = "relative z-10 snap-start home-load-item home-load-delay-0";
                       const children = (
                         <>
                       {!user ? (
@@ -577,7 +577,7 @@ export default function HomeClient({ initialTrending }: { initialTrending?: impo
 
                   {/* Filtered Results Section - Show when filters are active */}
                   {isFiltered && (
-                    <div className="relative z-10 snap-start">
+                    <div className="relative z-10 snap-start home-load-item home-load-delay-1">
                       {allBusinessesLoading ? (
                         <BusinessRowSkeleton title="Filtered Results" />
                       ) : allBusinesses.length > 0 ? (
@@ -598,7 +598,7 @@ export default function HomeClient({ initialTrending }: { initialTrending?: impo
 
                   {/* Trending Section - Only show when not filtered */}
                   {!isFiltered && (
-                    <div className="relative z-10 snap-start">
+                    <div className="relative z-10 snap-start home-load-item home-load-delay-1">
                       {trendingLoading && <BusinessRowSkeleton title="Trending Now" />}
                       {!trendingLoading && hasTrendingBusinesses && (
                         <MemoizedBusinessRow title="Trending Now" businesses={trendingBusinesses} cta="See More" href="/trending" disableAnimations />
@@ -619,7 +619,7 @@ export default function HomeClient({ initialTrending }: { initialTrending?: impo
                   )}
 
                   {/* Events & Specials */}
-                  <div className="relative z-10 snap-start">
+                  <div className="relative z-10 snap-start home-load-item home-load-delay-2">
                     <EventsSpecials
                       events={eventsAndSpecials}
                       loading={eventsAndSpecialsLoading}
@@ -631,7 +631,7 @@ export default function HomeClient({ initialTrending }: { initialTrending?: impo
                   </div>
 
                   {/* Community Highlights (Featured by Category) */}
-                  <div className="relative z-10 snap-start">
+                  <div className="relative z-10 snap-start home-load-item home-load-delay-3">
                     {featuredError && !featuredLoading ? (
                       <div className="mx-auto w-full max-w-[2000px] px-2 py-4 text-sm text-coral space-y-1">
                         <p className="font-medium">Featured</p>
@@ -654,6 +654,39 @@ export default function HomeClient({ initialTrending }: { initialTrending?: impo
               )}
           </div>
         </main>
+        <style jsx>{`
+          .home-load-item {
+            opacity: 0;
+            transform: translate3d(0, 12px, 0);
+            filter: blur(2px);
+            animation: homeSectionLoadIn 560ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            will-change: transform, opacity, filter;
+          }
+          .home-load-delay-0 { animation-delay: 50ms; }
+          .home-load-delay-1 { animation-delay: 120ms; }
+          .home-load-delay-2 { animation-delay: 190ms; }
+          .home-load-delay-3 { animation-delay: 260ms; }
+          @keyframes homeSectionLoadIn {
+            0% {
+              opacity: 0;
+              transform: translate3d(0, 12px, 0);
+              filter: blur(2px);
+            }
+            100% {
+              opacity: 1;
+              transform: translate3d(0, 0, 0);
+              filter: blur(0);
+            }
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .home-load-item {
+              opacity: 1;
+              transform: none;
+              filter: none;
+              animation: none;
+            }
+          }
+        `}</style>
         <Footer />
       </div>
 

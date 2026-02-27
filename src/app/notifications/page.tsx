@@ -365,12 +365,7 @@ export default function NotificationsPage() {
 
       <main className="min-h-[100dvh] flex-1 flex flex-col relative z-10">
         <div className="flex-1 flex flex-col pb-12 sm:pb-16 md:pb-20">
-          <m.div
-            className="mx-auto w-full max-w-[2000px] px-2 relative mb-4"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
+          <div className="mx-auto w-full max-w-[2000px] px-2 relative mb-4 notifications-load-item notifications-load-delay-0">
             {/* Breadcrumb */}
             <nav className="pb-1" aria-label="Breadcrumb">
               <ol className="flex items-center gap-2 text-sm sm:text-base">
@@ -392,25 +387,15 @@ export default function NotificationsPage() {
                 </li>
               </ol>
             </nav>
-          </m.div>
+          </div>
 
           {isLoading ? (
             <NotificationsPageSkeleton />
           ) : (
-            <m.div
-              className="relative z-10 flex flex-col flex-1"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4 }}
-            >
+            <div className="relative z-10 flex flex-col flex-1 notifications-load-item notifications-load-delay-1">
               <div className="mx-auto w-full max-w-[2000px] px-2 flex flex-col flex-1">
                 {/* Title */}
-                <m.div
-                  className="mb-6 sm:mb-8 px-2"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.1 }}
-                >
+                <div className="mb-6 sm:mb-8 px-2 notifications-load-item notifications-load-delay-2">
                   <h1
                     className="text-2xl sm:text-3xl md:text-4xl font-bold text-charcoal"
                     style={{ fontFamily: '"Urbanist", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 800 }}
@@ -423,9 +408,9 @@ export default function NotificationsPage() {
                   >
                     Activity from your personal account
                   </p>
-                </m.div>
+                </div>
 
-                <div className="px-2 flex flex-col flex-1">
+                <div className="px-2 flex flex-col flex-1 notifications-load-item notifications-load-delay-3">
                   <PersonalNotificationList
                     notifications={personalNotifications}
                     readNotifications={personalReadNotifications}
@@ -438,10 +423,44 @@ export default function NotificationsPage() {
                   />
                 </div>
               </div>
-            </m.div>
+            </div>
           )}
         </div>
       </main>
+
+      <style jsx>{`
+        .notifications-load-item {
+          opacity: 0;
+          transform: translate3d(0, 12px, 0);
+          filter: blur(2px);
+          animation: notificationsSectionLoadIn 560ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          will-change: transform, opacity, filter;
+        }
+        .notifications-load-delay-0 { animation-delay: 40ms; }
+        .notifications-load-delay-1 { animation-delay: 90ms; }
+        .notifications-load-delay-2 { animation-delay: 140ms; }
+        .notifications-load-delay-3 { animation-delay: 190ms; }
+        @keyframes notificationsSectionLoadIn {
+          0% {
+            opacity: 0;
+            transform: translate3d(0, 12px, 0);
+            filter: blur(2px);
+          }
+          100% {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+            filter: blur(0);
+          }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .notifications-load-item {
+            opacity: 1;
+            transform: none;
+            filter: none;
+            animation: none;
+          }
+        }
+      `}</style>
 
       <Footer />
     </div>
