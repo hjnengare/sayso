@@ -11,6 +11,7 @@ import { usePredefinedPageTitle } from "../hooks/usePageTitle";
 import { useNotifications } from "../contexts/NotificationsContext";
 import { useAuth } from "../contexts/AuthContext";
 import { LiveIndicator } from "../components/Realtime/RealtimeIndicators";
+import FilterPillGroup from "../components/Filters/FilterPillGroup";
 
 function getNotificationIcon(type: string) {
   switch (type) {
@@ -108,37 +109,19 @@ function BusinessNotificationList({
       </div>
 
       {/* Filter pills */}
-      <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide mb-5" style={{ WebkitOverflowScrolling: 'touch' }}>
-        {(['All', 'Unread', 'Read'] as const).map((filter) => {
-          const isSelected = filterType === filter;
-          const count =
-            filter === 'All' ? notifications.length
-            : filter === 'Unread' ? unreadCount
-            : notifications.length - unreadCount;
-          const baseClasses = isPersonal
-            ? 'px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-urbanist font-500 text-xs sm:text-sm transition-all duration-200 active:scale-95 flex-shrink-0 whitespace-nowrap border'
-            : 'px-4 py-2 rounded-lg font-urbanist text-body-sm transition-all duration-200 flex-shrink-0 whitespace-nowrap';
-          const selectedClasses = isPersonal
-            ? 'bg-card-bg text-white border-card-bg'
-            : 'bg-navbar-bg text-white';
-          const unselectedClasses = isPersonal
-            ? 'bg-white/50 text-charcoal/70 hover:bg-card-bg/10 hover:text-charcoal border-charcoal/10'
-            : 'bg-charcoal/5 text-charcoal/70 hover:bg-charcoal/10 hover:text-charcoal border-transparent';
-          return (
-            <button
-              key={filter}
-              onClick={() => setFilterType(filter)}
-              className={`${baseClasses} ${isSelected ? selectedClasses : unselectedClasses}`}
-            >
-              {filter}
-              {count > 0 && (
-                <span className={`ml-1.5 text-xs ${isSelected ? 'opacity-80' : 'opacity-60'}`}>
-                  ({count})
-                </span>
-              )}
-            </button>
-          );
-        })}
+      <div className="mb-5">
+        <FilterPillGroup
+          options={[
+            { value: "All" as const, label: "All", count: notifications.length },
+            { value: "Unread" as const, label: "Unread", count: unreadCount },
+            { value: "Read" as const, label: "Read", count: notifications.length - unreadCount },
+          ]}
+          value={filterType}
+          onChange={(v) => setFilterType((v ?? "All") as FilterType)}
+          ariaLabel="Notification filter"
+          size="md"
+          showCounts
+        />
       </div>
 
       {/* Cards */}

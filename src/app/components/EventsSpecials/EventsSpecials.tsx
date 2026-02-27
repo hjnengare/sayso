@@ -8,6 +8,7 @@ import EventCardSkeleton from "../EventCard/EventCardSkeleton";
 import type { Event } from "../../lib/types/Event";
 import ScrollableSection from "../ScrollableSection/ScrollableSection";
 import { m, useReducedMotion } from "framer-motion";
+import FilterPillGroup from "../Filters/FilterPillGroup";
 import { useMemo, useState } from "react";
 import { useIsDesktop } from "../../hooks/useIsDesktop";
 import WavyTypedTitle from "../Animations/WavyTypedTitle";
@@ -89,7 +90,6 @@ export default function EventsSpecials({
   const isDesktop = useIsDesktop();
   const prefersReducedMotion = useReducedMotion();
   const [activeTypeFilter, setActiveTypeFilter] = useState<ListingTypeFilter>(null);
-  const filterEase = [0.22, 1, 0.36, 1] as const;
   const containerClass = fullBleed
     ? "w-full relative z-10 px-2 sm:px-3"
     : "mx-auto w-full max-w-[2000px] relative z-10 px-2";
@@ -237,58 +237,21 @@ export default function EventsSpecials({
         </div>
 
         {showTypeFilters && hasEvents && (
-          <div
-            className="flex items-center overflow-x-auto whitespace-nowrap scrollbar-hide mb-3"
-            style={{ WebkitOverflowScrolling: "touch" }}
-          >
-            {[
-              ...(showAllTypeFilter
-                ? [{ label: "All", type: null as ListingTypeFilter, count: displayEvents.length }]
-                : []),
-              { label: "Events", type: "event" as const, count: typeCounts.eventCount },
-              { label: "Specials", type: "special" as const, count: typeCounts.specialCount },
-            ].map((filter, index) => {
-              const isSelected = filter.type === null
-                ? activeTypeFilter === null
-                : activeTypeFilter === filter.type;
-
-              return (
-                <m.div
-                  key={filter.type ?? "all"}
-                  initial={disableAnimations || prefersReducedMotion ? false : { opacity: 0, y: 4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={
-                    disableAnimations || prefersReducedMotion
-                      ? { duration: 0 }
-                      : { duration: 0.25, ease: filterEase, delay: index * 0.04 }
-                  }
-                  className="inline-flex items-center shrink-0"
-                >
-                  {index > 0 && (
-                    <span aria-hidden className="mx-2 text-charcoal/55">
-                      |
-                    </span>
-                  )}
-                  <m.button
-                    type="button"
-                    onClick={() => setActiveTypeFilter(filter.type)}
-                    aria-pressed={isSelected}
-                    whileHover={disableAnimations || prefersReducedMotion ? undefined : { y: -1 }}
-                    whileTap={disableAnimations || prefersReducedMotion ? undefined : { y: 1 }}
-                    className={`font-urbanist text-xs sm:text-sm transition-colors duration-200 ${
-                      isSelected
-                        ? "text-card-bg underline underline-offset-4 decoration-1 font-600"
-                        : "text-charcoal/70 hover:text-card-bg font-500"
-                    }`}
-                  >
-                    {filter.label}
-                    <span className={`ml-1 text-xs ${isSelected ? "opacity-95" : "opacity-70"}`}>
-                      ({filter.count})
-                    </span>
-                  </m.button>
-                </m.div>
-              );
-            })}
+          <div className="mb-3">
+            <FilterPillGroup
+              options={[
+                ...(showAllTypeFilter
+                  ? [{ value: null as ListingTypeFilter, label: "All", count: displayEvents.length }]
+                  : []),
+                { value: "event" as ListingTypeFilter, label: "Events", count: typeCounts.eventCount },
+                { value: "special" as ListingTypeFilter, label: "Specials", count: typeCounts.specialCount },
+              ]}
+              value={activeTypeFilter}
+              onChange={(value) => setActiveTypeFilter((value as ListingTypeFilter) ?? null)}
+              ariaLabel="Event type filter"
+              size="sm"
+              showCounts
+            />
           </div>
         )}
 

@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { X, Star, MapPin, ChevronDown } from "lucide-react";
 import { FilterState } from "../FilterModal/FilterModal";
 import { m, AnimatePresence, useReducedMotion } from "framer-motion";
+import { pillBase, pillSize, pillActive } from "../Filters/filterPillTokens";
 
 interface ActiveFilterBadgesProps {
   filters: FilterState;
@@ -86,7 +87,7 @@ export default function ActiveFilterBadges({
             aria-pressed={openDropdown === 'rating'}
             whileHover={prefersReducedMotion ? undefined : { y: -1 }}
             whileTap={prefersReducedMotion ? undefined : { y: 0, scale: 0.99 }}
-            className="inline-flex items-center gap-1.5 text-sm text-sage underline underline-offset-4 decoration-1 font-600 hover:text-sage/80 transition-colors duration-200"
+            className={`${pillBase} ${pillSize.sm} ${pillActive} gap-1.5`}
             style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
             aria-label="Edit rating filter"
           >
@@ -176,7 +177,7 @@ export default function ActiveFilterBadges({
             aria-pressed={openDropdown === 'distance'}
             whileHover={prefersReducedMotion ? undefined : { y: -1 }}
             whileTap={prefersReducedMotion ? undefined : { y: 0, scale: 0.99 }}
-            className="inline-flex items-center gap-1.5 text-sm text-coral underline underline-offset-4 decoration-1 font-600 hover:text-coral/80 transition-colors duration-200"
+            className={`${pillBase} ${pillSize.sm} ${pillActive} gap-1.5`}
             style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
             aria-label="Edit distance filter"
           >

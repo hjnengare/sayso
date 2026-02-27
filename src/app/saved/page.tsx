@@ -7,6 +7,7 @@ import { useSavedBusinesses } from "../hooks/useSavedBusinessesFull";
 import { AnimatePresence, m, useReducedMotion } from "framer-motion";
 import { getChoreoItemMotion } from "../lib/motion/choreography";
 import { ChevronRight, Store } from "lucide-react";
+import FilterPillGroup from "../components/Filters/FilterPillGroup";
 import Pagination from "../components/EventsPage/Pagination";
 import EmailVerificationGuard from "../components/Auth/EmailVerificationGuard";
 import { useSavedItems } from "../contexts/SavedItemsContext";
@@ -239,40 +240,20 @@ export default function SavedPage() {
                       className="mb-6 px-2"
                       {...getChoreoItemMotion({ order: 3, intent: "section", enabled: choreoEnabled })}
                     >
-                      <div
-                        className="flex items-center gap-2 overflow-x-auto scrollbar-hide -mx-2 px-2"
-                        style={{
-                          WebkitOverflowScrolling: 'touch',
-                          scrollBehavior: 'smooth',
-                        }}
-                      >
-                        {categories.map((category) => {
-                          const isSelected = selectedCategory === category || (!selectedCategory && category === 'All');
-                          const count = category === 'All'
+                      <FilterPillGroup
+                        options={categories.map((cat) => ({
+                          value: cat === 'All' ? null : cat,
+                          label: cat,
+                          count: cat === 'All'
                             ? savedBusinesses.length
-                            : savedBusinesses.filter(b => b.category === category).length;
-
-                          return (
-                            <button
-                              key={category}
-                              onClick={() => setSelectedCategory(category === 'All' ? null : category)}
-                              className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-urbanist font-500 text-xs sm:text-sm transition-all duration-200 active:scale-95 flex-shrink-0 whitespace-nowrap ${
-                                isSelected
-                                  ? "bg-card-bg text-white"
-                                  : "bg-white/50 text-charcoal/60 hover:bg-card-bg/10 hover:text-charcoal border border-charcoal/10"
-                              }`}
-                              style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
-                            >
-                              {category}
-                              {count > 0 && (
-                                <span className="ml-1 opacity-80">
-                                  ({count})
-                                </span>
-                              )}
-                            </button>
-                          );
-                        })}
-                      </div>
+                            : savedBusinesses.filter(b => b.category === cat).length,
+                        }))}
+                        value={selectedCategory}
+                        onChange={(value) => setSelectedCategory((value as string | null) ?? null)}
+                        ariaLabel="Filter by category"
+                        size="md"
+                        showCounts
+                      />
                     </m.div>
                   )}
 
