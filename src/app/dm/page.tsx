@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useMemo } from 'react';
+import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
+import { ChevronRight, Loader2 } from 'lucide-react';
 import MessagingWorkspace from '@/app/components/Messaging/MessagingWorkspace';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useOwnerBusinessesList } from '@/app/hooks/useOwnerBusinessesList';
@@ -55,6 +56,31 @@ export default function DMPage() {
 
   return (
     <div className="min-h-[100dvh]">
+      <div className="mx-auto w-full max-w-7xl px-4 sm:px-5 pt-2">
+        <nav aria-label="Breadcrumb">
+          <ol
+            className="flex items-center gap-2 text-sm sm:text-base"
+            style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
+          >
+            <li>
+              <Link
+                href="/home"
+                className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium"
+              >
+                Home
+              </Link>
+            </li>
+            <li className="flex items-center">
+              <ChevronRight className="w-4 h-4 text-charcoal/60" aria-hidden />
+            </li>
+            <li>
+              <span className="text-charcoal font-semibold" aria-current="page">
+                Messages
+              </span>
+            </li>
+          </ol>
+        </nav>
+      </div>
       <MessagingWorkspace
         role={role}
         title={role === 'business' ? 'Inbox' : 'Messages'}
@@ -63,7 +89,7 @@ export default function DMPage() {
             ? 'Manage customer conversations'
             : 'Message businesses directly'
         }
-        viewportClassName="h-[calc(100dvh-4rem)] sm:h-[calc(100dvh-5rem)]"
+        viewportClassName="h-[calc(100dvh-6rem)] sm:h-[calc(100dvh-7rem)]"
         businessOptions={businessOptions}
         initialBusinessId={startBusinessId}
         initialConversationId={initialConversationId}
