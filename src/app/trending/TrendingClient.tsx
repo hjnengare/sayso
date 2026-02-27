@@ -281,7 +281,7 @@ export default function TrendingClient({ fallbackData }: TrendingClientProps = {
         
         <div className="relative mx-auto w-full max-w-[2000px] px-2">
           {/* Breadcrumb */}
-          <nav className="relative z-10 pb-1" aria-label="Breadcrumb">
+          <nav className="relative z-10 pb-1 trending-load-item trending-load-delay-0" aria-label="Breadcrumb">
             <ol className="flex items-center gap-2 text-sm sm:text-base">
               <li>
                 <Link href="/home" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
@@ -300,7 +300,7 @@ export default function TrendingClient({ fallbackData }: TrendingClientProps = {
           </nav>
 
           {/* Title and Description Block */}
-          <div className="relative z-10 mb-6 sm:mb-8 px-4 sm:px-6 text-center pt-4">
+          <div className="relative z-10 mb-6 sm:mb-8 px-4 sm:px-6 text-center pt-4 trending-load-item trending-load-delay-1">
             <div className="my-4">
               <h1
                 className="font-urbanist text-2xl sm:text-3xl md:text-4xl font-bold leading-[1.2] tracking-tight text-charcoal mx-auto"
@@ -327,24 +327,26 @@ export default function TrendingClient({ fallbackData }: TrendingClientProps = {
             </p>
           </div>
 
-          <SearchFilterBar
-            searchWrapRef={searchWrapRef}
-            isSearching={isSearching}
-            filters={filters}
-            onSearch={handleSearchChange}
-            onSubmitQuery={handleSubmitQuery}
-            onDistanceChange={handleInlineDistanceChange}
-            onRatingChange={handleInlineRatingChange}
-            onRemoveFilter={(filterType) => {
-              const newFilters = { ...filters, [filterType]: null };
-              setFilters(newFilters);
-              refetch();
-            }}
-            onUpdateFilter={handleUpdateFilter}
-            onClearAll={handleClearFilters}
-          />
+          <div className="trending-load-item trending-load-delay-2">
+            <SearchFilterBar
+              searchWrapRef={searchWrapRef}
+              isSearching={isSearching}
+              filters={filters}
+              onSearch={handleSearchChange}
+              onSubmitQuery={handleSubmitQuery}
+              onDistanceChange={handleInlineDistanceChange}
+              onRatingChange={handleInlineRatingChange}
+              onRemoveFilter={(filterType) => {
+                const newFilters = { ...filters, [filterType]: null };
+                setFilters(newFilters);
+                refetch();
+              }}
+              onUpdateFilter={handleUpdateFilter}
+              onClearAll={handleClearFilters}
+            />
+          </div>
 
-          <div className="py-3 sm:py-4">
+          <div className="py-3 sm:py-4 trending-load-item trending-load-delay-3">
             <div className="pt-4 sm:pt-6 md:pt-10">
             {/* Show skeleton loader while businesses are loading */}
             {loading && (
@@ -508,6 +510,40 @@ export default function TrendingClient({ fallbackData }: TrendingClientProps = {
           </div>
         </div>
       </main>
+
+      <style jsx>{`
+        .trending-load-item {
+          opacity: 0;
+          transform: translate3d(0, 12px, 0);
+          filter: blur(2px);
+          animation: trendingSectionLoadIn 560ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          will-change: transform, opacity, filter;
+        }
+        .trending-load-delay-0 { animation-delay: 40ms; }
+        .trending-load-delay-1 { animation-delay: 90ms; }
+        .trending-load-delay-2 { animation-delay: 140ms; }
+        .trending-load-delay-3 { animation-delay: 190ms; }
+        @keyframes trendingSectionLoadIn {
+          0% {
+            opacity: 0;
+            transform: translate3d(0, 12px, 0);
+            filter: blur(2px);
+          }
+          100% {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+            filter: blur(0);
+          }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .trending-load-item {
+            opacity: 1;
+            transform: none;
+            filter: none;
+            animation: none;
+          }
+        }
+      `}</style>
 
       {isDesktop && (
         <style jsx>{`
