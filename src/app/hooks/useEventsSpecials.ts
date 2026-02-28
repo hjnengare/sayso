@@ -81,9 +81,9 @@ export function useEventsSpecials(filter: string, search: string) {
   const hasMore = loadedCount < count;
   const loadingMore = isValidating && !isLoading && size > (pages?.length ?? 0);
 
-  const fetchMore = useCallback(() => {
+  const fetchMore = useCallback(async () => {
     if (loadingMore || !hasMore) return;
-    setSize((s) => s + 1);
+    return setSize((s) => s + 1);
   }, [loadingMore, hasMore, setSize]);
 
   return {
