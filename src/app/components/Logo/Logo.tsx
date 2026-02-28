@@ -10,6 +10,7 @@ interface LogoProps {
   className?: string;
   showMark?: boolean;
   wordmarkClassName?: string;
+  hoverLabel?: string;
 }
 
 export default function Logo({
@@ -17,6 +18,7 @@ export default function Logo({
   className = "",
   showMark = true,
   wordmarkClassName = "",
+  hoverLabel,
 }: LogoProps) {
   const containerClasses = {
     default: "h-18",
@@ -50,6 +52,7 @@ export default function Logo({
       {variant !== "footer" && (
         <Wordmark
           size="text-xl sm:text-2xl md:text-3xl"
+          hoverLabel={hoverLabel}
           className={`tracking-tight ${wordmarkSpacingClass} ${wordmarkClassName}`}
         />
       )}

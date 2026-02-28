@@ -1010,6 +1010,46 @@
     -webkit-font-smoothing: antialiased;
   }
 
+  .sayso-wordmark[data-home-swap="true"] [data-wordmark-primary],
+  .sayso-wordmark[data-home-swap="true"] [data-wordmark-hover] {
+    transition:
+      transform 420ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 320ms ease,
+      filter 420ms cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform, opacity, filter;
+  }
+
+  .sayso-wordmark[data-home-swap="true"] [data-wordmark-hover] {
+    opacity: 0;
+    transform: translateY(115%) scale(0.92);
+    filter: blur(6px);
+  }
+
+  @media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+    .group:hover .sayso-wordmark[data-home-swap="true"] [data-wordmark-primary],
+    .group:focus-visible .sayso-wordmark[data-home-swap="true"] [data-wordmark-primary] {
+      opacity: 0;
+      transform: translateY(-115%) scale(0.94);
+      filter: blur(6px);
+    }
+
+    .group:hover .sayso-wordmark[data-home-swap="true"] [data-wordmark-hover],
+    .group:focus-visible .sayso-wordmark[data-home-swap="true"] [data-wordmark-hover] {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      filter: blur(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sayso-wordmark[data-home-swap="true"] [data-wordmark-primary],
+    .sayso-wordmark[data-home-swap="true"] [data-wordmark-hover] {
+      transition: opacity 150ms linear;
+      transform: none;
+      filter: none;
+    }
+  }
+
   /* Prevent horizontal layout shifts during modal transitions */
   .no-layout-shift {
     width: 100%;

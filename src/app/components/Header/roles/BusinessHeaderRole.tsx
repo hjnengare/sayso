@@ -49,6 +49,7 @@ export function BusinessHeaderRole({
           <Logo
             variant="default"
             showMark={false}
+            hoverLabel="Home"
             wordmarkClassName="md:px-2"
             className={`relative transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] ${logoScaleClass}`}
           />
