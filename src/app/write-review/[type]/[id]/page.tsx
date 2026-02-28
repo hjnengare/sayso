@@ -15,6 +15,8 @@ import { useReviewForm } from "../../../hooks/useReviewForm";
 import { useDealbreakerQuickTags } from "../../../hooks/useDealbreakerQuickTags";
 import { useReviewTarget } from "../../../hooks/useReviewTarget";
 import { fireBadgeCelebration } from "../../../lib/celebration/badgeCelebration";
+import { invalidateEventRatings } from "../../../hooks/useEventRatings";
+import { invalidateEventDetail } from "../../../hooks/useEventDetail";
 
 function IconStar({ className = "" }: { className?: string }) {
   return (
@@ -264,6 +266,9 @@ function WriteReviewContent() {
       }
       showToast("Review submitted successfully!", "success");
       resetForm();
+      // Bust SWR caches so the detail page shows fresh ratings immediately on navigate-back
+      invalidateEventRatings(id);
+      invalidateEventDetail(id);
       router.push(type === "event" ? `/event/${id}` : `/special/${id}`);
     } catch (error) {
       console.error("Error submitting review:", error);
