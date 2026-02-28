@@ -1,16 +1,16 @@
 'use client';
 
-import React, { useState, useRef, useEffect, memo } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { useReviewHelpful } from '../../hooks/useReviewHelpful';
 import { useReviewReplies } from '../../hooks/useReviewReplies';
 import { useUserBadgesById } from '../../hooks/useUserBadges';
-import { m, AnimatePresence } from 'framer-motion';
+import { m } from 'framer-motion';
 import Image from 'next/image';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
 import { useRouter } from 'next/navigation';
-import { Trash2, Image as ImageIcon, ChevronUp, Heart, X, MessageCircle, Send, Edit, Flag, Loader2, AlertCircle } from 'lucide-react';
+import { Trash2, Heart, MessageCircle, Edit, Flag, Loader2 } from 'lucide-react';
 import type { ReviewWithUser } from '../../lib/types/database';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
@@ -21,6 +21,9 @@ import { ConfirmationDialog } from '@/app/components/molecules/ConfirmationDialo
 import BadgePill, { BadgePillData } from '../Badges/BadgePill';
 import VerifiedBadge from '../VerifiedBadge/VerifiedBadge';
 import { isOptimisticId, isValidUUID } from '../../lib/utils/validation';
+import { ReviewFlagModal, type FlagReason } from './ReviewFlagModal';
+import { ReviewGallery } from './ReviewGallery';
+import { ReviewReplies } from './ReviewReplies';
 
 interface ReviewCardProps {
   review: ReviewWithUser;
@@ -29,16 +32,6 @@ interface ReviewCardProps {
   isOwnerView?: boolean; // If true, show owner-specific actions like "Message Customer"
   realtimeHelpfulCount?: number; // Real-time helpful count from subscription
 }
-
-const FLAG_REASONS = [
-  { value: 'spam', label: 'Spam', desc: 'Promotional or repetitive content' },
-  { value: 'inappropriate', label: 'Inappropriate', desc: 'Offensive or adult content' },
-  { value: 'harassment', label: 'Harassment', desc: 'Targets or bullies someone' },
-  { value: 'off_topic', label: 'Off-topic', desc: 'Not related to this business' },
-  { value: 'other', label: 'Other', desc: 'Something else' },
-] as const;
-
-type FlagReason = (typeof FLAG_REASONS)[number]['value'];
 
 function ReviewCard({
   review,
@@ -60,16 +53,16 @@ function ReviewCard({
 
     // Primary check: user ID matches review user_id
     if (user.id === review.user_id) return true;
-    
+
     // Fallback 1: user ID matches review.user.id
     if (user.id === review.user?.id) return true;
-    
+
     // Fallback 2: email match (if both exist)
     if (user.email && review.user?.email && user.email === review.user.email) return true;
-    
+
     // Fallback 3: email + display_name combination (if both exist)
-    const userIdentifier = user.email && user.profile?.display_name 
-      ? `${user.email}:${user.profile.display_name}` 
+    const userIdentifier = user.email && user.profile?.display_name
+      ? `${user.email}:${user.profile.display_name}`
       : null;
     const reviewIdentifier = review.user?.email && review.user?.display_name
       ? `${review.user.email}:${review.user.display_name}`
@@ -78,22 +71,13 @@ function ReviewCard({
 
     return false;
   };
-  const [showAllImages, setShowAllImages] = useState(false);
-  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+
   const [showReplyForm, setShowReplyForm] = useState(false);
-  const [replyText, setReplyText] = useState('');
-  const [submittingReply, setSubmittingReply] = useState(false);
-  const [editingReplyId, setEditingReplyId] = useState<string | null>(null);
-  const [editReplyText, setEditReplyText] = useState('');
-  const [deletingReplyId, setDeletingReplyId] = useState<string | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [showDeleteReplyDialog, setShowDeleteReplyDialog] = useState(false);
-  const [replyToDelete, setReplyToDelete] = useState<string | null>(null);
   const [isFlagged, setIsFlagged] = useState(false);
   const [flagging, setFlagging] = useState(false);
   const [checkingFlagStatus, setCheckingFlagStatus] = useState(false);
   const [showFlagModal, setShowFlagModal] = useState(false);
-  const replyFormRef = useRef<HTMLDivElement>(null);
 
   // SWR-backed badges for the review author
   const authorId = review.user_id || review.user?.id;
@@ -108,15 +92,8 @@ function ReviewCard({
     toggle: toggleHelpful,
   } = useReviewHelpful(review.id, typeof review.helpful_count === 'number' ? review.helpful_count : 0);
 
-  // SWR-backed replies (with optimistic add/update/delete)
-  const {
-    replies,
-    loading: loadingReplies,
-    addReply,
-    updateReply,
-    deleteReply: deleteReplyById,
-  } = useReviewReplies(review.id);
-
+  // SWR-backed replies (only need count for the Reply button label)
+  const { replies } = useReviewReplies(review.id);
 
   const handleLike = async () => {
     if (!user) return;
@@ -125,11 +102,8 @@ function ReviewCard({
 
   const handleEdit = () => {
     if (!review.id) return;
-    // Get the current business ID from the URL or review
     const pathParts = window.location.pathname.split('/');
     const businessSlugOrId = pathParts[pathParts.indexOf('business') + 1] || review.business_id;
-    
-    // Navigate to write review page with edit mode (query param)
     router.push(`/business/${businessSlugOrId}/review?edit=${review.id}`);
   };
 
@@ -145,82 +119,23 @@ function ReviewCard({
     }
   };
 
-  const handleSubmitReply = async () => {
-    if (!replyText.trim() || !user || submittingReply) return;
-    if (isOptimisticId(review.id) || !isValidUUID(review.id)) return;
-
-    setSubmittingReply(true);
-    const result = await addReply(replyText.trim());
-    if (result) {
-      setReplyText('');
-      setShowReplyForm(false);
-    } else {
-      alert('Failed to submit reply');
-    }
-    setSubmittingReply(false);
-  };
-
-  const handleEditReply = (reply: any) => {
-    setEditingReplyId(reply.id);
-    setEditReplyText(reply.content);
-  };
-
-  const handleCancelEdit = () => {
-    setEditingReplyId(null);
-    setEditReplyText('');
-  };
-
-  const handleSaveEdit = async (replyId: string) => {
-    if (!editReplyText.trim() || !user) return;
-    const success = await updateReply(replyId, editReplyText.trim());
-    if (success) {
-      setEditingReplyId(null);
-      setEditReplyText('');
-    } else {
-      alert('Failed to update reply');
-    }
-  };
-
-  const handleDeleteReply = (replyId: string) => {
-    setReplyToDelete(replyId);
-    setShowDeleteReplyDialog(true);
-  };
-
-  const confirmDeleteReply = async () => {
-    if (!replyToDelete || !user) return;
-    setShowDeleteReplyDialog(false);
-    const replyId = replyToDelete;
-    setReplyToDelete(null);
-    setDeletingReplyId(replyId);
-    const success = await deleteReplyById(replyId);
-    if (!success) {
-      alert('Failed to delete reply');
-    }
-    setDeletingReplyId(null);
-  };
-
   const formatDate = (dateString: string) => {
     if (!dateString) return 'Recently';
-    
+
     try {
-      // Ensure we have a valid date string
       let date: Date;
-      
-      // If it's already an ISO string, parse it directly
+
       if (typeof dateString === 'string' && (dateString.includes('T') || dateString.includes('Z'))) {
         date = new Date(dateString);
       } else {
-        // Try to parse as date
         date = new Date(dateString);
       }
-      
-      // Check if date is valid
+
       if (isNaN(date.getTime())) {
         console.warn('Invalid date string:', dateString);
         return 'Recently';
       }
-      
-      // Use dayjs for relative time
+
       return dayjs(date).fromNow();
     } catch (error) {
       console.warn('Error formatting date:', dateString, error);
@@ -228,7 +143,6 @@ function ReviewCard({
     }
   };
 
-  const displayedImages = showAllImages ? review.images : review.images?.slice(0, 3);
   const isAnonymousReview = !review.user_id;
   const isOwner = isReviewOwner();
   const reportButtonDisabled =
@@ -456,7 +370,7 @@ function ReviewCard({
                   {formatDate(review.created_at)}
                 </span>
               </div>
-               
+
               {/* Direct action icons - Mobile-first design */}
               <div className="flex items-center gap-1 sm:gap-1.5">
                 {isOwner && (
@@ -487,18 +401,6 @@ function ReviewCard({
                     </m.button>
                   </>
                 )}
-                {/* Reply functionality commented out */}
-                {/* <m.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => setShowReplyForm(!showReplyForm)}
-                  className="w-7 h-7 bg-navbar-bg rounded-full flex items-center justify-center hover:bg-navbar-bg/90 transition-colors"
-                  aria-label="Reply to review"
-                  title="Reply"
-                  disabled={!user}
-                >
-                  <MessageCircle className="w-[18px] h-[18px] text-white" />
-                </m.button> */}
               </div>
             </div>
           </div>
@@ -546,58 +448,7 @@ function ReviewCard({
           )}
 
           {/* Images */}
-          {review.images && review.images.length > 0 && (
-            <div className="mb-4">
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-2">
-                {displayedImages?.map((image, index) => (
-                  <m.div
-                    key={image.id}
-                    whileHover={isDesktop ? undefined : { scale: 1.05 }}
-                    className="aspect-square rounded-lg overflow-hidden cursor-pointer group/image"
-                    onClick={() => setSelectedImageIndex(index)}
-                  >
-                    <Image
-                      src={image.image_url}
-                      alt={image.alt_text || `Review image ${index + 1}`}
-                      width={200}
-                      height={200}
-                      className={`w-full h-full object-cover ${
-                        isDesktop ? '' : 'transition-transform duration-300 group-hover/image:scale-110'
-                      }`}
-                    />
-                  </m.div>
-                ))}
-              </div>
-
-              {!showAllImages && review.images.length > 3 && (
-                <m.button
-                  whileHover={isDesktop ? undefined : { scale: 1.05 }}
-                  whileTap={isDesktop ? undefined : { scale: 0.95 }}
-                  onClick={() => setShowAllImages(true)}
-                  className={`text-sage font-urbanist text-sm font-500 flex items-center space-x-1 ${
-                    isDesktop ? '' : 'hover:text-sage/80'
-                  }`}
-                >
-                  <ImageIcon size={16} />
-                  <span>Show {review.images.length - 3} more images</span>
-                </m.button>
-              )}
-
-              {showAllImages && review.images.length > 3 && (
-                <m.button
-                  whileHover={isDesktop ? undefined : { scale: 1.05 }}
-                  whileTap={isDesktop ? undefined : { scale: 0.95 }}
-                  onClick={() => setShowAllImages(false)}
-                  className={`text-charcoal/60 font-urbanist text-sm font-500 flex items-center space-x-1 ${
-                    isDesktop ? '' : 'hover:text-charcoal'
-                  }`}
-                >
-                  <ChevronUp size={16} />
-                  <span>Show less</span>
-                </m.button>
-              )}
-            </div>
-          )}
+          <ReviewGallery images={review.images || []} isDesktop={isDesktop} />
 
           {/* Actions */}
           <div
@@ -679,6 +530,7 @@ function ReviewCard({
             )}
           </div>
 
+          {/* Flag button */}
           {user && !isOwner && (
             <button
               type="button"
@@ -709,198 +561,18 @@ function ReviewCard({
             </button>
           )}
 
-          {/* Reply Form - Available to all authenticated users */}
-          <AnimatePresence>
-            {showReplyForm && user && (
-                <m.div
-                  className="mt-4 pt-4 border-t border-sage/10"
-                  ref={replyFormRef}
-                >
-                  <div className="space-y-3">
-                    <textarea
-                      value={replyText}
-                      onChange={(e) => setReplyText(e.target.value)}
-                      placeholder="Write a public reply to this review..."
-                      className="w-full px-4 py-3 rounded-lg border border-sage/20 bg-off-white/50 focus:outline-none focus:ring-2 focus:ring-sage/30 focus:border-sage/40 resize-none font-urbanist text-sm"
-                      rows={3}
-                      disabled={submittingReply}
-                    />
-                    <div className="flex items-center justify-end gap-2">
-                      <m.button
-                        whileHover={isDesktop ? undefined : { scale: 1.05 }}
-                        whileTap={isDesktop ? undefined : { scale: 0.95 }}
-                        onClick={() => {
-                          setShowReplyForm(false);
-                          setReplyText('');
-                        }}
-                        className={`px-4 py-2 text-sm font-semibold bg-charcoal/10 text-charcoal rounded-lg disabled:opacity-50 disabled:cursor-not-allowed ${
-                          isDesktop ? '' : 'hover:bg-charcoal/20 transition-colors'
-                        }`}
-                        disabled={submittingReply}
-                        style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
-                      >
-                        Cancel
-                      </m.button>
-                      <m.button
-                        whileHover={isDesktop ? undefined : { scale: 1.05 }}
-                        whileTap={isDesktop ? undefined : { scale: 0.95 }}
-                        onClick={handleSubmitReply}
-                        disabled={!replyText.trim() || submittingReply}
-                        className={`px-4 py-2 text-sm font-semibold bg-card-bg text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 ${
-                          isDesktop ? '' : 'hover:bg-card-bg/90 transition-colors'
-                        }`}
-                        style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
-                      >
-                        <Send size={16} />
-                        <span>{submittingReply ? 'Sending...' : 'Save Reply'}</span>
-                      </m.button>
-                    </div>
-                  </div>
-                </m.div>
-              )}
-          </AnimatePresence>
-
-          {/* Replies List - Visible to everyone */}
-          {replies.length > 0 && (
-            <div className="mt-4 pt-4 border-t border-sage/10 space-y-3">
-              <h5 className="font-urbanist text-sm font-semibold text-charcoal/70 mb-3" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                {replies.length === 1 ? '1 Reply' : `${replies.length} Replies`}
-              </h5>
-              {replies.map((reply) => {
-                const isEditing = editingReplyId === reply.id;
-                const isDeleting = deletingReplyId === reply.id;
-
-                const replyDisplayName = reply.user?.name || 'Anonymous';
-                const replyActionButtons = !isEditing && (isOwnerView || reply.user_id === user?.id) ? (
-                  <div className="flex items-center gap-1 flex-shrink-0">
-                    <m.button
-                      whileHover={isDesktop ? undefined : { scale: 1.1 }}
-                      whileTap={isDesktop ? undefined : { scale: 0.9 }}
-                      onClick={() => handleEditReply(reply)}
-                      className={`w-7 h-7 bg-card-bg rounded-full flex items-center justify-center ${
-                        isDesktop ? '' : 'hover:bg-card-bg/90 transition-colors'
-                      }`}
-                      aria-label="Edit reply"
-                      title="Edit reply"
-                    >
-                      <Edit className="w-[18px] h-[18px] text-white" />
-                    </m.button>
-                    <m.button
-                      whileHover={isDesktop ? undefined : { scale: 1.1 }}
-                      whileTap={isDesktop ? undefined : { scale: 0.9 }}
-                      onClick={() => handleDeleteReply(reply.id)}
-                      disabled={isDeleting}
-                      className={`w-7 h-7 bg-coral rounded-full flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed ${
-                        isDesktop ? '' : 'hover:bg-coral/90 transition-colors'
-                      }`}
-                      aria-label="Delete reply"
-                      title="Delete reply"
-                    >
-                      <Trash2 className="w-[18px] h-[18px] text-white" />
-                    </m.button>
-                  </div>
-                ) : null;
-
-                return (
-                  <m.div
-                    key={reply.id}
-                    className="pl-4 border-l-2 border-sage/20 bg-off-white/30 rounded-r-lg p-3 relative flex flex-col w-full min-w-0"
-                  >
-                    {/* Row 1: username + time (mobile: stacked/inline); desktop: same row as buttons */}
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2 mb-1">
-                      <div className="flex items-center gap-2 min-w-0 flex-1 sm:flex-initial">
-                        <span className="font-urbanist text-sm font-semibold text-charcoal-700 truncate min-w-0" title={replyDisplayName}>
-                          {replyDisplayName}
-                        </span>
-                        <span className="font-urbanist text-xs font-semibold text-charcoal/70 flex-shrink-0">
-                          {formatDate(reply.created_at)}
-                        </span>
-                      </div>
-                      {replyActionButtons ? <div className="hidden sm:flex">{replyActionButtons}</div> : null}
-                    </div>
-                    {/* Row 2: reply content or edit form */}
-                    {isEditing ? (
-                      <div className="space-y-2 mt-2">
-                        <textarea
-                          value={editReplyText}
-                          onChange={(e) => setEditReplyText(e.target.value)}
-                          className="w-full px-3 py-2 rounded-lg border border-sage/20 bg-off-white/50 focus:outline-none focus:ring-2 focus:ring-sage/30 focus:border-sage/40 resize-none font-urbanist text-sm min-w-0"
-                          rows={2}
-                          autoFocus
-                        />
-                        <div className="flex items-center justify-end gap-2">
-                          <m.button
-                            whileHover={isDesktop ? undefined : { scale: 1.05 }}
-                            whileTap={isDesktop ? undefined : { scale: 0.95 }}
-                            onClick={handleCancelEdit}
-                            className={`px-3 py-1.5 text-xs font-medium text-charcoal/70 ${
-                              isDesktop ? '' : 'hover:text-charcoal transition-colors'
-                            }`}
-                          >
-                            Cancel
-                          </m.button>
-                          <m.button
-                            whileHover={isDesktop ? undefined : { scale: 1.05 }}
-                            whileTap={isDesktop ? undefined : { scale: 0.95 }}
-                            onClick={() => handleSaveEdit(reply.id)}
-                            disabled={!editReplyText.trim()}
-                            className={`px-3 py-1.5 text-xs font-medium bg-navbar-bg text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed ${
-                              isDesktop ? '' : 'hover:bg-navbar-bg/90 transition-colors'
-                            }`}
-                          >
-                            Save
-                          </m.button>
-                        </div>
-                      </div>
-                    ) : (
-                      <p className="font-urbanist text-sm font-bold text-charcoal/80 min-w-0 break-words">
-                        {reply.content}
-                      </p>
-                    )}
-                    {/* Row 3: action buttons on mobile only, right-aligned */}
-                    {replyActionButtons ? (
-                      <div className="flex sm:hidden items-center justify-end gap-1 mt-2 w-full">
-                        {replyActionButtons}
-                      </div>
-                    ) : null}
-                  </m.div>
-                );
-              })}
-            </div>
-          )}
+          {/* Reply Form + Replies List */}
+          <ReviewReplies
+            reviewId={review.id}
+            user={user}
+            isOwnerView={isOwnerView}
+            isDesktop={isDesktop}
+            formatDate={formatDate}
+            showReplyForm={showReplyForm}
+            onCloseReplyForm={() => setShowReplyForm(false)}
+          />
         </div>
       </div>
-
-      {/* Image Lightbox */}
-      <AnimatePresence>
-        {selectedImageIndex !== null && review.images && (
-          <m.div
-            className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
-            onClick={() => setSelectedImageIndex(null)}
-          >
-            <m.div
-              className="relative max-w-4xl max-h-full"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Image
-                src={review.images[selectedImageIndex].image_url}
-                alt={review.images[selectedImageIndex].alt_text || 'Review image'}
-                width={800}
-                height={600}
-                className="max-w-full max-h-full object-contain rounded-lg"
-              />
-              <m.button
-                whileHover={isDesktop ? undefined : { scale: 1.1 }}
-                whileTap={isDesktop ? undefined : { scale: 0.9 }}
-                onClick={() => setSelectedImageIndex(null)}
-                className="absolute -top-4 -right-4 w-8 h-8 bg-off-white/95 backdrop-blur-xl text-black rounded-full flex items-center justify-center border-none"
-              >
-                <X size={20} />
-              </m.button>
-            </m.div>
-          </m.div>
-        )}
-      </AnimatePresence>
 
       {showFlagModal && (
         <ReviewFlagModal
@@ -921,156 +593,9 @@ function ReviewCard({
         cancelText="Cancel"
         variant="danger"
       />
-
-      {/* Delete Reply Confirmation Dialog */}
-      <ConfirmationDialog
-        isOpen={showDeleteReplyDialog}
-        onClose={() => {
-          setShowDeleteReplyDialog(false);
-          setReplyToDelete(null);
-        }}
-        onConfirm={confirmDeleteReply}
-        title="Delete Reply"
-        message="Are you sure you want to delete this reply? This action cannot be undone."
-        confirmText="Delete"
-        cancelText="Cancel"
-        variant="danger"
-      />
     </m.div>
-  );
-}
-
-function ReviewFlagModal({
-  onClose,
-  onSubmit,
-  submitting,
-}: {
-  onClose: () => void;
-  onSubmit: (reason: FlagReason, details: string) => Promise<void>;
-  submitting: boolean;
-}) {
-  const [reason, setReason] = useState<FlagReason | null>(null);
-  const [details, setDetails] = useState('');
-  const [localError, setLocalError] = useState<string | null>(null);
-
-  const handleSubmit = async () => {
-    if (!reason) {
-      setLocalError('Please select a reason.');
-      return;
-    }
-    if (reason === 'other' && !details.trim()) {
-      setLocalError("Please add details for 'Other'.");
-      return;
-    }
-
-    await onSubmit(reason, details);
-  };
-
-  return (
-    <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <div className="fixed inset-0 bg-black/50" onClick={onClose} />
-
-      <div className="relative z-10 w-full sm:max-w-md bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90dvh]">
-        <div className="flex justify-center pt-3 pb-1 sm:hidden">
-          <div className="w-10 h-1 rounded-full bg-charcoal/20" />
-        </div>
-
-        <div className="flex-1 overflow-y-auto px-5 pt-2 pb-6 sm:pt-5">
-          <div className="flex items-start justify-between mb-4">
-            <div>
-              <h2 className="font-urbanist text-lg font-bold text-charcoal">Report Review</h2>
-              <p className="font-urbanist text-sm text-charcoal/50">Help us keep sayso trustworthy</p>
-            </div>
-            <button
-              type="button"
-              onClick={onClose}
-              className="p-2 rounded-xl hover:bg-charcoal/8 text-charcoal/40 hover:text-charcoal transition-colors"
-              aria-label="Close report modal"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-
-          <div className="flex flex-col gap-2 mb-4">
-            {FLAG_REASONS.map(({ value, label, desc }) => (
-              <button
-                key={value}
-                type="button"
-                onClick={() => {
-                  setReason(value);
-                  setLocalError(null);
-                }}
-                className={`flex items-center gap-3 p-3.5 rounded-2xl border text-left transition-all ${
-                  reason === value
-                    ? 'border-navbar-bg bg-navbar-bg/5'
-                    : 'border-charcoal/10 hover:border-charcoal/20 hover:bg-charcoal/[0.025]'
-                }`}
-              >
-                <div className="flex-1">
-                  <p className="font-urbanist text-sm font-semibold text-charcoal">{label}</p>
-                  <p className="font-urbanist text-xs text-charcoal/50">{desc}</p>
-                </div>
-                {reason === value && (
-                  <div className="w-4 h-4 rounded-full bg-navbar-bg flex items-center justify-center flex-shrink-0">
-                    <svg viewBox="0 0 10 10" className="w-2.5 h-2.5 fill-none stroke-white stroke-[1.5]">
-                      <polyline points="1.5,5 4,7.5 8.5,2.5" />
-                    </svg>
-                  </div>
-                )}
-              </button>
-            ))}
-          </div>
-
-          {reason && (
-            <label className="block mb-4">
-              <span className="font-urbanist text-xs font-semibold text-charcoal/60 uppercase tracking-wider mb-1.5 block">
-                Additional details {reason === 'other' ? '(required)' : '(optional)'}
-              </span>
-              <textarea
-                value={details}
-                onChange={(e) => {
-                  setDetails(e.target.value);
-                  setLocalError(null);
-                }}
-                rows={3}
-                placeholder="Describe the issue..."
-                className="w-full rounded-2xl border border-charcoal/15 bg-charcoal/[0.025] px-4 py-3 font-urbanist text-sm text-charcoal placeholder-charcoal/35 focus:outline-none focus:ring-2 focus:ring-navbar-bg/25 focus:border-navbar-bg/40 resize-none"
-              />
-            </label>
-          )}
-
-          {localError && (
-            <div className="flex items-center gap-2 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-red-700 text-sm font-urbanist mb-4">
-              <AlertCircle className="w-4 h-4 flex-shrink-0" />
-              {localError}
-            </div>
-          )}
-
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={submitting}
-              className="flex-1 py-3 rounded-2xl border border-charcoal/15 font-urbanist text-sm font-semibold text-charcoal/70 hover:bg-charcoal/5 transition-colors disabled:opacity-40"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={!reason || submitting}
-              className="flex-1 py-3 rounded-2xl bg-navbar-bg font-urbanist text-sm font-semibold text-white hover:bg-navbar-bg/90 transition-colors disabled:opacity-40 flex items-center justify-center gap-2"
-            >
-              {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
-              Submit Report
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
   );
 }
 
 // Memoize to prevent re-renders when parent updates
 export default memo(ReviewCard);
-

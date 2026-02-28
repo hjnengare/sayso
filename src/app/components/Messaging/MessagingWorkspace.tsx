@@ -3,17 +3,19 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ChevronLeft, Loader2, MessageCircle, Search, Send } from 'lucide-react';
+import { ChevronLeft, MessageCircle } from 'lucide-react';
 import { useReducedMotion } from 'framer-motion';
 import { useAuth } from '@/app/contexts/AuthContext';
 import {
   useConversationMessages,
   useConversations,
   type ConversationListItem,
-  type ConversationMessage,
   type MessagingRole,
 } from '@/app/hooks/messaging';
 import { useUserReviews } from '@/app/hooks/useUserReviews';
+import { ConversationListPane } from './ConversationListPane';
+import { MessageThread } from './MessageThread';
+import { MessageComposer } from './MessageComposer';
 
 interface BusinessOption {
   id: string;
@@ -37,111 +39,6 @@ interface MessagingWorkspaceProps {
 interface MessageVisualIdentity {
   name: string;
   avatarUrl: string | null;
-}
-
-interface MessageBubbleAvatarProps {
-  name: string;
-  avatarUrl?: string | null;
-}
-
-function buildInitials(value: string): string {
-  const trimmed = value.trim();
-  if (!trimmed) return 'U';
-
-  const segments = trimmed.split(/\s+/).filter(Boolean);
-  if (segments.length === 1) {
-    return segments[0].slice(0, 2).toUpperCase();
-  }
-
-  return `${segments[0][0] || ''}${segments[1][0] || ''}`.toUpperCase();
-}
-
-function MessageBubbleAvatar({ name, avatarUrl }: MessageBubbleAvatarProps) {
-  const normalizedAvatarUrl = typeof avatarUrl === 'string' ? avatarUrl.trim() : '';
-  const [hasImageError, setHasImageError] = useState(false);
-  const [isImageLoaded, setIsImageLoaded] = useState(false);
-
-  useEffect(() => {
-    setHasImageError(false);
-    setIsImageLoaded(false);
-  }, [normalizedAvatarUrl]);
-
-  const shouldRenderImage = normalizedAvatarUrl.length > 0 && !hasImageError;
-  const initials = useMemo(() => buildInitials(name), [name]);
-
-  return (
-    <div className="relative h-8 w-8 flex-shrink-0 overflow-hidden rounded-full border border-charcoal/15 bg-charcoal/10 sm:h-9 sm:w-9">
-      {shouldRenderImage ? (
-        <>
-          {!isImageLoaded && (
-            <div className="absolute inset-0 animate-pulse bg-charcoal/10" aria-hidden />
-          )}
-          <Image
-            src={normalizedAvatarUrl}
-            alt={`${name} avatar`}
-            fill
-            sizes="(max-width: 640px) 32px, 36px"
-            className={`object-cover transition-opacity duration-150 ${
-              isImageLoaded ? 'opacity-100' : 'opacity-0'
-            }`}
-            unoptimized={normalizedAvatarUrl.includes('supabase.co')}
-            onLoad={() => setIsImageLoaded(true)}
-            onError={() => {
-              setHasImageError(true);
-              setIsImageLoaded(false);
-            }}
-          />
-        </>
-      ) : (
-        <div className="flex h-full w-full items-center justify-center text-[11px] font-semibold text-charcoal/70 sm:text-xs">
-          {initials}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function formatListTimestamp(value: string): string {
-  if (!value) return '';
-
-  const date = new Date(value);
-  const now = new Date();
-
-  const sameDay =
-    date.getFullYear() === now.getFullYear() &&
-    date.getMonth() === now.getMonth() &&
-    date.getDate() === now.getDate();
-
-  if (sameDay) {
-    return date.toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-    });
-  }
-
-  const yesterday = new Date(now);
-  yesterday.setDate(now.getDate() - 1);
-  const isYesterday =
-    date.getFullYear() === yesterday.getFullYear() &&
-    date.getMonth() === yesterday.getMonth() &&
-    date.getDate() === yesterday.getDate();
-
-  if (isYesterday) {
-    return 'Yesterday';
-  }
-
-  return date.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-  });
-}
-
-function formatThreadTimestamp(value: string): string {
-  if (!value) return '';
-  return new Date(value).toLocaleTimeString('en-US', {
-    hour: 'numeric',
-    minute: '2-digit',
-  });
 }
 
 function getConversationTitle(
@@ -171,14 +68,6 @@ function getConversationAvatar(conversation: ConversationListItem, role: Messagi
     return conversation.participant?.avatar_url || null;
   }
   return conversation.business?.image_url || null;
-}
-
-function getStatusLabel(message: ConversationMessage): string {
-  if (message.client_state === 'sending') return 'Sending';
-  if (message.client_state === 'failed') return 'Failed';
-  if (message.status === 'read') return 'Read';
-  if (message.status === 'delivered') return 'Delivered';
-  return 'Sent';
 }
 
 export default function MessagingWorkspace({
@@ -434,13 +323,6 @@ export default function MessagingWorkspace({
     setIsSending(false);
   }, [composerValue, isSending, selectedConversationId, sendMessage]);
 
-  const handleComposerKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault();
-      void handleSend();
-    }
-  };
-
   const threadScrollRef = useRef<HTMLDivElement | null>(null);
   const nearBottomRef = useRef(true);
 
@@ -611,218 +493,29 @@ export default function MessagingWorkspace({
         <div className={`mx-auto flex w-full max-w-7xl overflow-hidden sm:rounded-xl sm:border sm:border-charcoal/8 sm:shadow-sm ${viewportClassName}`}>
 
           {/* ── Sidebar ──────────────────────────────────────────── */}
-          <aside className={`${listPaneVisibleClass} w-full lg:w-[360px] xl:w-[400px] flex-col border-r border-charcoal/8 bg-white`}>
-
-            {/* Header */}
-            <div className="px-5 pb-3 pt-5">
-              <div className="flex items-center justify-between">
-                <h1 className="text-lg font-bold text-charcoal" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
-                  {title}
-                </h1>
-                {unreadTotal > 0 && (
-                  <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-navbar-bg px-1.5 text-[11px] font-bold text-white">
-                    {unreadTotal > 99 ? '99+' : unreadTotal}
-                  </span>
-                )}
-              </div>
-
-              {role === 'business' && businessOptions && businessOptions.length > 0 && (
-                <div className="mt-3">
-                  <label className="sr-only" htmlFor="business-filter">Business filter</label>
-                  <select
-                    id="business-filter"
-                    value={activeBusinessId || '__all__'}
-                    onChange={(event) => {
-                      const value = event.target.value;
-                      setActiveBusinessId(value === '__all__' ? null : value);
-                      setSelectedConversationId(null);
-                      setMobileThreadOpen(false);
-                    }}
-                    className="w-full rounded-xl border-0 bg-charcoal/[0.06] px-3 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-sage/25"
-                    style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
-                  >
-                    <option value="__all__">All businesses</option>
-                    {businessOptions.map((business) => (
-                      <option key={business.id} value={business.id}>
-                        {business.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
-              {/* Search — borderless, filled like Instagram */}
-              <div className="relative mt-3">
-                <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-charcoal/40" />
-                <input
-                  value={searchQuery}
-                  onChange={(event) => setSearchQuery(event.target.value)}
-                  placeholder="Search"
-                  className="w-full rounded-full border-0 bg-charcoal/[0.06] py-2 pl-10 pr-4 text-sm text-charcoal placeholder:text-charcoal/40 focus:bg-charcoal/[0.09] focus:outline-none"
-                  style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
-                />
-              </div>
-            </div>
-
-            {/* Conversation list */}
-            <div className="min-h-0 flex-1 overflow-y-auto">
-              {(conversationsLoading || isResolvingStartConversation) && (
-                <div className="flex h-full items-center justify-center">
-                  <div className="inline-flex items-center gap-2 text-sm text-charcoal/50" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Loading...
-                  </div>
-                </div>
-              )}
-
-              {!conversationsLoading && !isResolvingStartConversation && filteredConversations.length === 0 && (
-                <>
-                  {searchQuery.trim() ? (
-                    <div className="flex h-full flex-col items-center justify-center px-6 text-center">
-                      <Search className="mb-2 h-7 w-7 text-charcoal/20" />
-                      <p className="text-sm font-semibold text-charcoal/60" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
-                        No results for &ldquo;{searchQuery}&rdquo;
-                      </p>
-                    </div>
-                  ) : role === 'user' ? (
-                    <div className="flex h-full flex-col items-center justify-center px-5 py-8 text-center">
-                      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-sage/15">
-                        <MessageCircle className="h-6 w-6 text-sage" />
-                      </div>
-                      <p className="text-base font-bold text-charcoal" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
-                        No conversations yet
-                      </p>
-                      {reviewedBusinessSuggestions.length > 0 ? (
-                        <>
-                          <p className="mt-1.5 text-sm text-charcoal/50" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
-                            Message businesses you&apos;ve reviewed
-                          </p>
-                          <ul className="mt-5 w-full max-w-[280px] space-y-2.5">
-                            {reviewedBusinessSuggestions.map((suggestion) => (
-                              <li key={suggestion.business_id}>
-                                <Link
-                                  href={`/dm?business_id=${suggestion.business_id}`}
-                                  className="flex items-center gap-3 rounded-2xl px-3.5 py-2.5 text-left transition-colors hover:bg-charcoal/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navbar-bg/40"
-                                >
-                                  <div className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-full bg-sage/15">
-                                    {suggestion.business_image_url ? (
-                                      <Image src={suggestion.business_image_url} alt={suggestion.business_name} fill sizes="40px" className="object-cover" />
-                                    ) : (
-                                      <div className="flex h-full w-full items-center justify-center text-[11px] font-bold text-sage">
-                                        {buildInitials(suggestion.business_name)}
-                                      </div>
-                                    )}
-                                  </div>
-                                  <span className="flex-1 truncate text-sm font-semibold text-charcoal" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
-                                    {suggestion.business_name}
-                                  </span>
-                                  <span className="inline-flex flex-shrink-0 items-center rounded-full bg-navbar-bg px-3 py-1 text-[11px] font-bold text-white">
-                                    Message
-                                  </span>
-                                </Link>
-                              </li>
-                            ))}
-                          </ul>
-                        </>
-                      ) : (
-                        <>
-                          <p className="mt-1.5 text-sm text-charcoal/50" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
-                            Discover and review local businesses to start a conversation
-                          </p>
-                          <Link
-                            href="/home"
-                            className="mt-5 inline-flex items-center gap-2 rounded-full bg-navbar-bg px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-navbar-bg/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navbar-bg/40"
-                            style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
-                          >
-                            Discover businesses
-                          </Link>
-                        </>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="flex h-full flex-col items-center justify-center px-6 text-center">
-                      <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-sage/15">
-                        <MessageCircle className="h-5 w-5 text-sage" />
-                      </div>
-                      <p className="text-sm font-semibold text-charcoal/60" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
-                        No customer messages yet
-                      </p>
-                      <p className="mt-1 text-xs text-charcoal/40" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
-                        Customer conversations will appear here.
-                      </p>
-                    </div>
-                  )}
-                </>
-              )}
-
-              {startConversationError && (
-                <div className="mx-4 mt-4 rounded-xl border border-coral/25 bg-coral/10 px-3 py-2 text-xs text-coral">
-                  {startConversationError}
-                </div>
-              )}
-
-              {!conversationsLoading && filteredConversations.length > 0 && (
-                <ul className="py-2">
-                  {filteredConversations.map((conversation) => {
-                    const isSelected = selectedConversationId === conversation.id;
-                    const fallbackBusinessName = getFallbackBusinessName(conversation);
-                    const avatar = getConversationAvatar(conversation, role);
-                    const name = getConversationTitle(conversation, role, fallbackBusinessName);
-                    const subtitleValue = getConversationSubtitle(conversation, role, fallbackBusinessName);
-                    const hasUnread = conversation.unread_count > 0;
-
-                    return (
-                      <li key={conversation.id}>
-                        <button
-                          type="button"
-                          onClick={() => handleSelectConversation(conversation.id)}
-                          className={`flex w-full items-center gap-3.5 px-4 py-3 text-left transition-colors duration-100 ${
-                            isSelected ? 'bg-sage/[0.08]' : 'hover:bg-charcoal/[0.04]'
-                          }`}
-                        >
-                          {/* Avatar — larger (56 px) with unread ring */}
-                          <div className="relative flex-shrink-0">
-                            <div className="relative h-14 w-14 overflow-hidden rounded-full bg-sage/15">
-                              {avatar ? (
-                                <Image src={avatar} alt={name} fill sizes="56px" className="object-cover" />
-                              ) : (
-                                <div className="flex h-full w-full items-center justify-center text-base font-bold text-sage">
-                                  {buildInitials(name)}
-                                </div>
-                              )}
-                            </div>
-                            {hasUnread && (
-                              <span className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-white bg-navbar-bg" aria-hidden />
-                            )}
-                          </div>
-
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-baseline justify-between gap-2">
-                              <p
-                                className={`truncate text-sm ${hasUnread ? 'font-bold text-charcoal' : 'font-semibold text-charcoal/85'}`}
-                                style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
-                              >
-                                {name}
-                              </p>
-                              <span className="flex-shrink-0 text-[11px] text-charcoal/35" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
-                                {formatListTimestamp(conversation.last_message_at)}
-                              </span>
-                            </div>
-                            <p
-                              className={`mt-0.5 truncate text-xs ${hasUnread ? 'font-semibold text-charcoal/70' : 'text-charcoal/45'}`}
-                              style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
-                            >
-                              {conversation.last_message_preview || subtitleValue}
-                            </p>
-                          </div>
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </div>
-          </aside>
+          <ConversationListPane
+            title={title}
+            unreadTotal={unreadTotal}
+            role={role}
+            businessOptions={businessOptions}
+            activeBusinessId={activeBusinessId}
+            onActiveBusinessChange={(id) => {
+              setActiveBusinessId(id);
+              setSelectedConversationId(null);
+              setMobileThreadOpen(false);
+            }}
+            searchQuery={searchQuery}
+            onSearchQueryChange={setSearchQuery}
+            conversationsLoading={conversationsLoading}
+            isResolvingStartConversation={isResolvingStartConversation}
+            filteredConversations={filteredConversations}
+            selectedConversationId={selectedConversationId}
+            onSelectConversation={handleSelectConversation}
+            startConversationError={startConversationError}
+            reviewedBusinessSuggestions={reviewedBusinessSuggestions}
+            getFallbackBusinessName={getFallbackBusinessName}
+            listPaneVisibleClass={listPaneVisibleClass}
+          />
 
           {/* ── Thread pane ──────────────────────────────────────── */}
           <section className={`${threadPaneVisibleClass} min-w-0 flex-1 flex-col bg-white`}>
@@ -888,164 +581,27 @@ export default function MessagingWorkspace({
                 </header>
 
                 {/* Messages */}
-                <div ref={threadScrollRef} className="min-h-0 flex-1 overflow-y-auto bg-white px-4 py-5 sm:px-6">
-                  {messagesLoading && (
-                    <div className="flex h-full items-center justify-center">
-                      <Loader2 className="h-5 w-5 animate-spin text-charcoal/35" />
-                    </div>
-                  )}
+                <MessageThread
+                  messages={messages}
+                  messagesLoading={messagesLoading}
+                  hasMore={hasMore}
+                  isLoadingOlder={isLoadingOlder}
+                  onLoadOlder={loadOlder}
+                  role={role}
+                  animatedMessageIds={animatedMessageIds}
+                  prefersReducedMotion={prefersReducedMotion}
+                  resolveMessageIdentity={resolveMessageIdentity}
+                  onRetryMessage={retryMessage}
+                  scrollRef={threadScrollRef}
+                />
 
-                  {!messagesLoading && (
-                    <>
-                      {hasMore && (
-                        <div className="mb-5 flex justify-center">
-                          <button
-                            type="button"
-                            onClick={loadOlder}
-                            disabled={isLoadingOlder}
-                            className="inline-flex items-center gap-1.5 rounded-full bg-charcoal/[0.06] px-4 py-1.5 text-xs font-semibold text-charcoal/55 transition-colors hover:bg-charcoal/[0.09] disabled:opacity-60"
-                            style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
-                          >
-                            {isLoadingOlder ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
-                            Load earlier messages
-                          </button>
-                        </div>
-                      )}
-
-                      {messages.length === 0 && (
-                        <div className="flex h-full items-center justify-center">
-                          <p className="text-sm text-charcoal/45" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
-                            Start the conversation.
-                          </p>
-                        </div>
-                      )}
-
-                      {messages.length > 0 && (
-                        <div className="space-y-[2px]">
-                          {messages.map((message, index) => {
-                            const ownMessage = message.sender_type === role;
-                            const prevMessage = index > 0 ? messages[index - 1] : null;
-                            const nextMessage = index < messages.length - 1 ? messages[index + 1] : null;
-                            const isFirstInGroup = !prevMessage || prevMessage.sender_type !== message.sender_type;
-                            const isLastInGroup = !nextMessage || nextMessage.sender_type !== message.sender_type;
-                            const statusLabel = getStatusLabel(message);
-                            const senderIdentity = resolveMessageIdentity(ownMessage);
-                            const shouldAnimateMessage = animatedMessageIds.has(message.id);
-                            const animationClassName = shouldAnimateMessage
-                              ? prefersReducedMotion
-                                ? 'message-bubble-enter-reduced'
-                                : 'message-bubble-enter'
-                              : '';
-
-                            // Instagram-style corner radii: full round except the corner touching the avatar side
-                            const ownBubbleRadius = isFirstInGroup && isLastInGroup
-                              ? 'rounded-[20px]'
-                              : isFirstInGroup
-                                ? 'rounded-[20px] rounded-br-[6px]'
-                                : isLastInGroup
-                                  ? 'rounded-[20px] rounded-tr-[6px]'
-                                  : 'rounded-[20px] rounded-r-[6px]';
-                            const otherBubbleRadius = isFirstInGroup && isLastInGroup
-                              ? 'rounded-[20px]'
-                              : isFirstInGroup
-                                ? 'rounded-[20px] rounded-bl-[6px]'
-                                : isLastInGroup
-                                  ? 'rounded-[20px] rounded-tl-[6px]'
-                                  : 'rounded-[20px] rounded-l-[6px]';
-
-                            return (
-                              <div
-                                key={message.id}
-                                className={`flex ${ownMessage ? 'justify-end' : 'justify-start'} ${isFirstInGroup ? 'mt-4' : 'mt-[3px]'} ${animationClassName}`}
-                              >
-                                <div className={`flex items-end gap-2 max-w-[82%] sm:max-w-[65%] ${ownMessage ? 'flex-row-reverse' : 'flex-row'}`}>
-                                  {/* Avatar — only on last message of group, recipient side only */}
-                                  {!ownMessage ? (
-                                    isLastInGroup ? (
-                                      <MessageBubbleAvatar name={senderIdentity.name} avatarUrl={senderIdentity.avatarUrl} />
-                                    ) : (
-                                      <div className="h-8 w-8 flex-shrink-0 sm:h-9 sm:w-9" aria-hidden />
-                                    )
-                                  ) : null}
-
-                                  <div className="flex flex-col gap-[2px]">
-                                    {/* Bubble */}
-                                    <div
-                                      className={`px-4 py-2.5 ${
-                                        ownMessage
-                                          ? `bg-navbar-bg text-white ${ownBubbleRadius}`
-                                          : `bg-charcoal/[0.08] text-charcoal ${otherBubbleRadius}`
-                                      }`}
-                                    >
-                                      <p
-                                        className="whitespace-pre-wrap break-words text-sm leading-relaxed"
-                                        style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
-                                      >
-                                        {message.body}
-                                      </p>
-                                    </div>
-
-                                    {/* Timestamp + status — only on last message of group */}
-                                    {isLastInGroup && (
-                                      <div className={`flex items-center gap-1 px-1 text-[11px] text-charcoal/40 ${ownMessage ? 'justify-end' : 'justify-start'}`}>
-                                        <span>{formatThreadTimestamp(message.created_at)}</span>
-                                        {ownMessage && (
-                                          <>
-                                            <span aria-hidden>·</span>
-                                            <span>{statusLabel}</span>
-                                            {message.client_state === 'failed' && (
-                                              <button
-                                                type="button"
-                                                onClick={() => { void retryMessage(message); }}
-                                                className="ml-1 rounded-full bg-coral/10 px-2 py-0.5 text-[10px] font-semibold text-coral transition-colors hover:bg-coral/20"
-                                              >
-                                                Retry
-                                              </button>
-                                            )}
-                                          </>
-                                        )}
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
-
-                {/* Composer — Instagram pill style */}
-                <div
-                  className="border-t border-charcoal/8 bg-white px-4 py-3 sm:px-5"
-                  style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
-                >
-                  <div className="flex items-end gap-3">
-                    <div className="flex flex-1 items-end rounded-[24px] border border-charcoal/15 bg-white px-4 py-2.5 focus-within:border-charcoal/25 transition-colors">
-                      <textarea
-                        value={composerValue}
-                        onChange={(event) => setComposerValue(event.target.value)}
-                        onKeyDown={handleComposerKeyDown}
-                        disabled={isSending}
-                        placeholder="Message..."
-                        rows={1}
-                        className="max-h-[120px] min-h-[22px] flex-1 resize-none bg-transparent text-sm text-charcoal placeholder:text-charcoal/40 focus:outline-none disabled:opacity-70"
-                        style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
-                      />
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => void handleSend()}
-                      disabled={isSending || !composerValue.trim()}
-                      className="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-navbar-bg text-white transition-[background-color,opacity] hover:bg-navbar-bg/90 disabled:cursor-not-allowed disabled:opacity-30"
-                      aria-label="Send message"
-                    >
-                      {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                    </button>
-                  </div>
-                </div>
+                {/* Composer */}
+                <MessageComposer
+                  value={composerValue}
+                  onChange={setComposerValue}
+                  onSend={() => void handleSend()}
+                  isSending={isSending}
+                />
               </>
             )}
           </section>

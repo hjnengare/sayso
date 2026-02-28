@@ -1,45 +1,28 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { m } from "framer-motion";
 import { useAuth } from "@/app/contexts/AuthContext";
 import { usePredefinedPageTitle } from "@/app/hooks/usePageTitle";
 import {
-  Award,
-  Calendar,
   Check,
-  MapPin,
-  MessageSquare,
-  ThumbsUp,
-  User,
-  Eye,
-  Star as StarIcon,
-  Briefcase,
   AlertTriangle,
-  X,
   ChevronRight,
-  ChevronLeft,
   Navigation,
   Loader2,
 } from "lucide-react";
 import { getBrowserSupabase } from "@/app/lib/supabase/client";
-import { LiveIndicator } from "../components/Realtime/RealtimeIndicators";
 
 // Import components directly for faster loading
 import Footer from "@/app/components/Footer/Footer";
 import { ReviewsList } from "@/components/organisms/ReviewsList";
 import { DangerAction } from "@/components/molecules/DangerAction";
 import { ConfirmationDialog } from "@/components/molecules/ConfirmationDialog";
-import SavedBusinessRow from "@/app/components/Saved/SavedBusinessRow";
 import { useSavedItems } from "@/app/contexts/SavedItemsContext";
 import { useBusinessDistanceLocation } from "@/app/hooks/useBusinessDistanceLocation";
 import { EditProfileModal } from "@/app/components/EditProfile/EditProfileModal";
-import { useMemo } from "react";
 import { useReviewSubmission } from "@/app/hooks/useReviews";
 import { useRouter } from "next/navigation";
-import { getBadgePngPath } from "@/app/lib/badgeMappings";
 
 // SWR hooks
 import { useUserProfile } from "@/app/hooks/useUserProfile";
@@ -47,7 +30,10 @@ import { useUserStats } from "@/app/hooks/useUserStats";
 import { useUserReviews } from "@/app/hooks/useUserReviews";
 import { useUserBadges } from "@/app/hooks/useUserBadges";
 import { useSavedBusinessesPreview } from "@/app/hooks/useSavedBusinessesDetails";
-import { ProfileBadgeRibbon } from "@/app/components/Badges/ProfileBadgeRibbon";
+import { ProfileHeader } from "@/app/components/Profile/ProfileHeader";
+import { ProfileStats } from "@/app/components/Profile/ProfileStats";
+import { ProfileAchievements } from "@/app/components/Profile/ProfileAchievements";
+import { ProfileSavedItems } from "@/app/components/Profile/ProfileSavedItems";
 
 // Types
 
@@ -657,316 +643,52 @@ function ProfileContent() {
                   </nav>
                   <div className="pt-2 pb-12 sm:pb-16 md:pb-20">
                     <div className="space-y-6">
-                      <article
-                        className="w-full sm:mx-0 profile-load-item profile-load-delay-1"
-                        aria-labelledby="profile-heading"
-                      >
-                        <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md relative overflow-hidden">
-                          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-sage/10 to-transparent rounded-full blur-lg pointer-events-none"></div>
-                          <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-coral/10 to-transparent rounded-full blur-lg pointer-events-none"></div>
-
-                          <div className="relative z-10 p-6 sm:p-8">
-                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-                              <m.div layoutId="profile-avatar" className="relative flex-shrink-0">
-                                {!imgError && profile.avatar_url && profile.avatar_url.trim() !== "" ? (
-                                  <div className="relative">
-                                    <Image
-                                      key={`${profile.avatar_url || "avatar"}-${avatarKey}`}
-                                      src={profile.avatar_url}
-                                      alt={displayLabel}
-                                      width={120}
-                                      height={120}
-                                      className="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded-full shadow-xl"
-                                      priority
-                                      onError={() => setImgError(true)}
-                                    />
-                                    {profile.is_top_reviewer && (
-                                      <div className="absolute -bottom-1 -right-1 z-20">
-                                        <div className="w-8 h-8 bg-card-bg rounded-full flex items-center justify-center ring-4 ring-white">
-                                          <Check className="text-white" size={14} strokeWidth={3} />
-                                        </div>
-                                      </div>
-                                    )}
-                                  </div>
-                                ) : (
-                                  <div className="w-24 h-24 sm:w-32 sm:h-32 flex items-center justify-center bg-off-white/80 rounded-full shadow-xl">
-                                    <User className="text-charcoal/80" size={44} strokeWidth={2.5} />
-                                  </div>
-                                )}
-                              </m.div>
-
-                              <div className="flex-1 min-w-0 w-full">
-                                <div className="flex items-center gap-2 mb-2 flex-wrap">
-                                  <h2
-                                    id="profile-heading"
-                                    className="text-h1 sm:text-hero font-semibold text-charcoal"
-                                    style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
-                                  >
-                                    {displayLabel}
-                                  </h2>
-                                  {profile.is_top_reviewer && (
-                                    <div className="px-2 py-1 rounded-full text-caption font-semibold flex items-center gap-1 bg-card-bg/20 text-sage">
-                                      <Award size={12} />
-                                      <span className="capitalize">Top Reviewer</span>
-                                    </div>
-                                  )}
-                                  {isRealtimeConnected && <LiveIndicator isLive={isRealtimeConnected} />}
-                                </div>
-                                {/* Bio */}
-                                {enhancedProfile?.bio && (
-                                  <p className="text-body-sm text-charcoal/80 mb-4 leading-relaxed">
-                                    {enhancedProfile.bio}
-                                  </p>
-                                )}
-
-                                <div className="flex items-center gap-3 mb-4 text-body-sm text-charcoal/70 flex-wrap">
-                                  {profileLocation && profileLocation !== "Location not set" && (
-                                    <div className="flex items-center gap-1.5">
-                                      <span className="grid h-6 w-6 flex-shrink-0 place-items-center rounded-full bg-off-white/70 hover:bg-off-white/90 transition-colors">
-                                        <MapPin className="w-3 h-3 text-charcoal/85" />
-                                      </span>
-                                      <span>{profileLocation}</span>
-                                    </div>
-                                  )}
-                                  <div className="flex items-center gap-1.5">
-                                    <span className="grid h-6 w-6 flex-shrink-0 place-items-center rounded-full bg-off-white/70 hover:bg-off-white/90 transition-colors">
-                                      <Calendar className="w-3 h-3 text-charcoal/85" />
-                                    </span>
-                                    <span>Member since {memberSinceLabel}</span>
-                                  </div>
-                                  {enhancedProfile?.website_url && (
-                                    <a
-                                      href={enhancedProfile.website_url}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="flex items-center gap-1.5 hover:text-coral transition-colors"
-                                    >
-                                      <span className="grid h-6 w-6 flex-shrink-0 place-items-center rounded-full bg-off-white/70 hover:bg-off-white/90 transition-colors">
-                                        <Briefcase className="w-3 h-3 text-charcoal/85" />
-                                      </span>
-                                      <span>Website</span>
-                                    </a>
-                                  )}
-                                </div>
-
-                                {/* Social Links */}
-                                {enhancedProfile?.social_links && Object.keys(enhancedProfile.social_links).length > 0 && (
-                                  <div className="flex items-center gap-3 mb-4">
-                                    {Object.entries(enhancedProfile.social_links).map(([platform, url]) => {
-                                      if (!url) return null;
-                                      const platformIcons: Record<string, any> = {
-                                        instagram: '📷',
-                                        x: '𝕏',
-                                        twitter: '🐦',
-                                        tiktok: '🎵',
-                                        facebook: '👤',
-                                        linkedin: '💼',
-                                        youtube: '▶️',
-                                      };
-                                      return (
-                                        <a
-                                          key={platform}
-                                          href={url}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          className="text-charcoal/70 hover:text-coral transition-colors"
-                                          aria-label={platform}
-                                        >
-                                          {platformIcons[platform.toLowerCase()] || '🔗'}
-                                        </a>
-                                      );
-                                    })}
-                                  </div>
-                                )}
-                                <div className="flex items-center gap-6 mb-4 flex-wrap">
-                                  <div className="text-sm text-charcoal/70">
-                                    {reviewsCount} reviews
-                                  </div>
-                                </div>
-
-                                <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-                                  <button
-                                    type="button"
-                                    onClick={() => setIsEditOpen(true)}
-                                    className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-coral/90 hover:bg-charcoal/90 hover:border-white/30 text-white rounded-full text-caption sm:text-body-sm font-semibold transition-all duration-300 hover:scale-105 active:scale-95 shadow-md shadow-sage/20 border border-sage/20 whitespace-nowrap"
-                                    aria-label="Edit profile"
-                                  >
-                                    <MessageSquare size={14} strokeWidth={2.5} className="sm:w-4 sm:h-4" />
-                                    <span>Edit Profile</span>
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </article>
-
-                  {/* End of profile card */}
+                      {profileLoading ? (
+                        <ProfileHeaderSkeleton />
+                      ) : (
+                        <ProfileHeader
+                          profile={profile}
+                          user={user}
+                          enhancedProfile={enhancedProfile}
+                          displayLabel={displayLabel}
+                          profileLocation={profileLocation}
+                          memberSinceLabel={memberSinceLabel}
+                          reviewsCount={reviewsCount}
+                          avatarKey={avatarKey}
+                          imgError={imgError}
+                          isRealtimeConnected={isRealtimeConnected}
+                          onEditClick={() => setIsEditOpen(true)}
+                          onImgError={() => setImgError(true)}
+                        />
+                      )}
 
                   <div className="profile-load-item profile-load-delay-2">
                     {statsLoading ? (
                       <StatsGridSkeleton />
                     ) : (
-                      <section
-                        className="grid grid-cols-2 sm:grid-cols-4 gap-4"
-                        aria-label="Profile statistics"
-                      >
-                      <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-4">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-full bg-off-white/70 hover:bg-off-white/90 transition-colors">
-                            <ThumbsUp className="w-4 h-4 text-charcoal/85" />
-                          </span>
-                          <span className="text-sm text-charcoal/70">Helpful votes</span>
-                        </div>
-                        <p className="text-2xl font-bold text-charcoal">
-                          {helpfulVotesCount}
-                        </p>
-                        <p className="text-xs text-charcoal/60">Received</p>
-                      </div>
-                      <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-4">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-full bg-off-white/70 hover:bg-off-white/90 transition-colors">
-                            <StarIcon className="w-4 h-4 text-charcoal/85" />
-                          </span>
-                          <span className="text-sm text-charcoal/70">Reviews</span>
-                        </div>
-                        <p className="text-2xl font-bold text-charcoal">
-                          {reviewsCount}
-                        </p>
-                        <p className="text-xs text-charcoal/60">Total written</p>
-                      </div>
-                      <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-4">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-full bg-off-white/70 hover:bg-off-white/90 transition-colors">
-                            <Award className="w-4 h-4 text-charcoal/85" />
-                          </span>
-                          <span className="text-sm text-charcoal/70">Badges</span>
-                        </div>
-                        <p className="text-2xl font-bold text-charcoal">{badgesCount}</p>
-                        <p className="text-xs text-charcoal/60">Achievements unlocked</p>
-                      </div>
-                      <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-4">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-full bg-off-white/70 hover:bg-off-white/90 transition-colors">
-                            <Eye className="w-4 h-4 text-charcoal/85" />
-                          </span>
-                          <span className="text-sm text-charcoal/70">Interests</span>
-                        </div>
-                        <p className="text-2xl font-bold text-charcoal">{interestsCount}</p>
-                        <p className="text-xs text-charcoal/60">Communities followed</p>
-                      </div>
-                      {userStats && (
-                        <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-4 sm:col-span-2">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-full bg-off-white/70 hover:bg-off-white/90 transition-colors">
-                              <Briefcase className="w-4 h-4 text-charcoal/85" />
-                            </span>
-                            <span className="text-sm text-charcoal/70">Saved</span>
-                          </div>
-                          <p className="text-2xl font-bold text-charcoal">
-                            {totalSavedCount}
-                          </p>
-                          <p className="text-xs text-charcoal/60">
-                            {savedBusinessesCount > 0 ? `${savedBusinessesCount} businesses` : 'Your saved gems'}
-                          </p>
-                          <Link
-                            href="/saved"
-                            className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-navbar-bg hover:text-charcoal transition-colors"
-                            aria-label="View all saved items"
-                          >
-                            <span>View saved</span>
-                            <ChevronRight className="w-4 h-4" />
-                          </Link>
-                        </div>
-                      )}
-                      </section>
+                      <ProfileStats
+                        userStats={userStats}
+                        helpfulVotesCount={helpfulVotesCount}
+                        reviewsCount={reviewsCount}
+                        badgesCount={badgesCount}
+                        interestsCount={interestsCount}
+                        totalSavedCount={totalSavedCount}
+                        savedBusinessesCount={savedBusinessesCount}
+                      />
                     )}
                   </div>
 
+                      {savedBusinesses.length > 0 && (
+                        <div className="profile-load-item profile-load-delay-3">
+                          <ProfileSavedItems savedBusinesses={savedBusinesses} />
+                        </div>
+                      )}
 
                       <div className="profile-load-item profile-load-delay-4">
                         {achievementsLoading ? (
                           <AchievementsSkeleton />
                         ) : (
-                        <section
-                          className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-6 sm:p-8"
-                          aria-label="Your badges and achievements"
-                        >
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-                          <div className="flex items-center gap-3">
-                            <span className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-full bg-off-white/70 hover:bg-off-white/90 transition-colors">
-                              <Award className="w-4 h-4 text-charcoal/85" />
-                            </span>
-                            <h3 className="text-base font-semibold text-charcoal">
-                              Badges
-                            </h3>
-                          </div>
-                          {achievements.length > 0 && (
-                            <Link
-                              href="/achievements"
-                              className="inline-flex items-center gap-1 text-sm font-semibold text-coral hover:text-charcoal transition-colors"
-                            >
-                              <span>View all</span>
-                              <ChevronRight className="w-4 h-4" />
-                            </Link>
-                          )}
-                        </div>
-                        {achievements.length === 0 ? (
-                          <div className="text-center py-8">
-                            <p className="text-charcoal/60 text-sm">
-                              No badges earned yet. Start reviewing businesses to unlock badges!
-                            </p>
-                          </div>
-                        ) : (
-                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                            {achievements.map((achievement, idx) => {
-                              const normalizedAchievementId =
-                                achievement?.achievement_id ||
-                                (achievement as any)?.id ||
-                                `badge-${idx}`;
-                              const normalizedAchievementMeta =
-                                achievement?.achievements && typeof achievement.achievements === "object"
-                                  ? achievement.achievements
-                                  : ({
-                                      name: (achievement as any)?.name || "Badge",
-                                      description: (achievement as any)?.description || "Earned badge",
-                                    } as { name: string; description: string | null });
-                              const correctPngPath = getBadgePngPath(normalizedAchievementId);
-                              return (
-                                <m.div
-                                  key={normalizedAchievementId}
-                                  initial={{ opacity: 0, scale: 0.9 }}
-                                  animate={{ opacity: 1, scale: 1 }}
-                                  transition={{ delay: idx * 0.04, type: "spring", stiffness: 300, damping: 25 }}
-                                  whileHover={{ scale: 1.05, y: -3 }}
-                                  className="cursor-default transition-all duration-300 bg-off-white/70 rounded-xl ring-1 ring-black/5 shadow-sm hover:shadow-lg p-2"
-                                >
-                                  <ProfileBadgeRibbon>
-                                    <div className="flex h-full w-full flex-col items-center justify-center text-center px-1.5 py-1 sm:px-2">
-                                      <div className="relative mb-1 h-7 w-7 sm:h-8 sm:w-8">
-                                        <Image
-                                          src={correctPngPath}
-                                          alt={normalizedAchievementMeta.name}
-                                          width={32}
-                                          height={32}
-                                          sizes="(max-width: 640px) 28px, 32px"
-                                          className="h-7 w-7 object-contain drop-shadow-sm sm:h-8 sm:w-8"
-                                        />
-                                      </div>
-                                      <h4 className="line-clamp-1 text-[10px] font-bold leading-tight text-charcoal/95 sm:text-[11px]">
-                                        {normalizedAchievementMeta.name}
-                                      </h4>
-                                      <p className="line-clamp-1 text-[9px] leading-tight text-charcoal/75 sm:line-clamp-2 sm:text-[10px]">
-                                        {normalizedAchievementMeta.description}
-                                      </p>
-                                    </div>
-                                  </ProfileBadgeRibbon>
-                                </m.div>
-                              );
-                            })}
-                          </div>
-                        )}
-                        </section>
+                          <ProfileAchievements achievements={achievements} />
                         )}
                       </div>
 
