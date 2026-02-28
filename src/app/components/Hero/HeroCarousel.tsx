@@ -98,16 +98,28 @@ function seededShuffle(images: string[], seed: string): string[] {
 }
 
 function selectStableSubset(images: string[], cap: number, seed: string): string[] {
-  if (cap >= images.length) return images;
-  // Shuffle once deterministically, then take the first N.
-  return seededShuffle(images, seed).slice(0, cap);
+  const ordered = orderHeroImages(images, seed);
+  if (cap >= ordered.length) return ordered;
+  return ordered.slice(0, cap);
 }
 
 const FONT_STACK = "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif";
 
-const buildSlides = (images: string[], seed: string): HeroSlide[] => {
-  const randomized = seededShuffle(images, seed);
-  return randomized.map((image, index) => {
+const DEFAULT_HERO_IMAGE = "/hero/devon-janse-van-rensburg-CeI5GZF0MrQ-unsplash.jpg";
+
+function orderHeroImages(images: string[], seed: string): string[] {
+  const uniqueImages = [...new Set(images)];
+  const remainingImages = uniqueImages.filter((image) => image !== DEFAULT_HERO_IMAGE);
+
+  if (!uniqueImages.includes(DEFAULT_HERO_IMAGE)) {
+    return seededShuffle(uniqueImages, seed);
+  }
+
+  return [DEFAULT_HERO_IMAGE, ...seededShuffle(remainingImages, seed)];
+}
+
+const buildSlides = (images: string[]): HeroSlide[] => {
+  return images.map((image, index) => {
     const copy = HERO_COPY[index % HERO_COPY.length];
     return {
       id: `${index + 1}`,
@@ -171,10 +183,10 @@ export default function HeroCarousel() {
     // Keep iOS mobile extremely light: fewer slides + fewer image elements prevents Safari tab crashes.
     const cap = isIOSMobile ? 4 : heroViewport === "mobile" ? 5 : heroViewport === "tablet" ? 14 : null;
     const base = Array.isArray(heroImages) ? heroImages : HERO_IMAGES;
-    if (!cap) return base;
+    if (!cap) return orderHeroImages(base, heroSeed);
     return selectStableSubset(base, cap, heroSeed);
   }, [heroImages, heroViewport, heroSeed, isIOSMobile]);
-  const slides = useMemo(() => buildSlides(cappedHeroImages, heroSeed), [cappedHeroImages, heroSeed]);
+  const slides = useMemo(() => buildSlides(cappedHeroImages), [cappedHeroImages]);
   const slidesRef = useRef<HeroSlide[]>(slides);
   const preloadedImagesRef = useRef<Set<string>>(new Set());
 
