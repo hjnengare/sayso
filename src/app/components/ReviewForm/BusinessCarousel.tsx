@@ -171,12 +171,12 @@ export default function BusinessCarousel({ businessName, businessImages, subcate
             />
           </div>
 
-          <div className="absolute inset-0 flex items-center justify-center">
+          <div className="absolute inset-0">
             <Image
               src={currentImage}
               alt={`${businessName} photo ${activeIndex + 1}`}
               fill
-              className="object-contain"
+              className="object-cover"
               priority={activeIndex === 0}
               quality={75}
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 900px"
