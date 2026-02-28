@@ -710,6 +710,51 @@ export default function VerifyEmailPage() {
     };
   }, [checkVerificationStatus, hasCodeInUrl, searchParams]);
 
+  // Cross-tab verification: listen for Supabase auth events so the original
+  // /verify-email tab auto-redirects when verification completes in another tab/browser.
+  useEffect(() => {
+    const supabase = getBrowserSupabase();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event) => {
+      debugLog("auth event received", { event });
+      if (event !== "SIGNED_IN" && event !== "USER_UPDATED") return;
+      if (redirectingRef.current) {
+        debugLog("auth event ignored: already redirecting", { event });
+        return;
+      }
+      if (checkingRef.current) {
+        debugLog("auth event ignored: already checking", { event });
+        return;
+      }
+      if (verificationSuccess) {
+        debugLog("auth event ignored: already verified", { event });
+        return;
+      }
+      debugLog("auth event triggering verification check", { event });
+      setVerificationLinkError(null);
+      await checkVerificationStatus({
+        manual: false,
+        showSuccessToast: true,
+        successToastMessage: "Email verified. Account secured.",
+        successToastOnceKey: "email-verified-auth-event",
+      });
+    });
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [checkVerificationStatus, debugLog, verificationSuccess]);
+
+  // Already-verified guard: redirect off /verify-email if session is already confirmed.
+  // Covers arriving with a live verified session and AuthContext catching up after auth events.
+  useEffect(() => {
+    if (isLoading) return;
+    if (!user?.email_verified) return;
+    if (redirectingRef.current) return;
+    redirectingRef.current = true;
+    const destination = getPostVerifyRedirect(user);
+    debugLog("already verified, redirecting", { destination });
+    router.replace(destination);
+  }, [user?.id, user?.email_verified, isLoading, getPostVerifyRedirect, router, debugLog]);
+
   // Shared, consistent page shell for ALL branches (prevents hydration/layout mismatch)
   const PageShell: React.FC<{ children: React.ReactNode }> = ({ children }) => (
     <div
