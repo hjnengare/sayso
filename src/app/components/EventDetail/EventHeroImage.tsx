@@ -66,11 +66,11 @@ export default function EventHeroImage({
         src={imageUrl}
         alt={event.alt || event.title}
         fill
-        className="object-contain"
+        className="object-cover"
         priority
         quality={80}
         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 1080px"
-        style={{ objectFit: 'contain' }}
+        style={{ objectFit: 'cover' }}
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
 
