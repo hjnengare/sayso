@@ -62,7 +62,7 @@ export default function DMPage() {
   return (
     <div className="min-h-[100dvh] bg-white">
       <m.div
-        className="mx-auto w-full max-w-[2000px] px-2 relative pb-1"
+        className="mx-auto w-full max-w-[2000px] px-2 relative pb-1 hidden sm:block"
         {...getChoreoItemMotion({ order: 0, intent: 'inline', enabled: choreoEnabled })}
       >
         <nav className="pb-1" aria-label="Breadcrumb">
@@ -100,7 +100,7 @@ export default function DMPage() {
               ? 'Manage customer conversations'
               : 'Message businesses directly'
           }
-          viewportClassName="h-[calc(100dvh-6rem)] sm:h-[calc(100dvh-7rem)]"
+          viewportClassName="h-[calc(100dvh-4.5rem)] sm:h-[calc(100dvh-6.5rem)]"
           businessOptions={businessOptions}
           initialBusinessId={startBusinessId}
           initialConversationId={initialConversationId}
@@ -108,7 +108,7 @@ export default function DMPage() {
           startUserId={startUserId}
         />
       </m.div>
-      <Footer />
+      <div className="hidden sm:block"><Footer /></div>
     </div>
   );
 }

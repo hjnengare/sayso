@@ -608,7 +608,7 @@ export default function MessagingWorkspace({
   return (
     <>
       <div className={`bg-white ${topPaddingClassName}`}>
-        <div className={`mx-auto flex w-full max-w-7xl overflow-hidden rounded-xl border border-charcoal/8 shadow-sm ${viewportClassName}`}>
+        <div className={`mx-auto flex w-full max-w-7xl overflow-hidden sm:rounded-xl sm:border sm:border-charcoal/8 sm:shadow-sm ${viewportClassName}`}>
 
           {/* ── Sidebar ──────────────────────────────────────────── */}
           <aside className={`${listPaneVisibleClass} w-full lg:w-[360px] xl:w-[400px] flex-col border-r border-charcoal/8 bg-white`}>
@@ -958,7 +958,7 @@ export default function MessagingWorkspace({
                                 key={message.id}
                                 className={`flex ${ownMessage ? 'justify-end' : 'justify-start'} ${isFirstInGroup ? 'mt-4' : 'mt-[3px]'} ${animationClassName}`}
                               >
-                                <div className={`flex items-end gap-2 max-w-[75%] sm:max-w-[65%] ${ownMessage ? 'flex-row-reverse' : 'flex-row'}`}>
+                                <div className={`flex items-end gap-2 max-w-[82%] sm:max-w-[65%] ${ownMessage ? 'flex-row-reverse' : 'flex-row'}`}>
                                   {/* Avatar — only on last message of group, recipient side only */}
                                   {!ownMessage ? (
                                     isLastInGroup ? (
@@ -1018,7 +1018,10 @@ export default function MessagingWorkspace({
                 </div>
 
                 {/* Composer — Instagram pill style */}
-                <div className="border-t border-charcoal/8 bg-white px-4 py-3 sm:px-5">
+                <div
+                  className="border-t border-charcoal/8 bg-white px-4 py-3 sm:px-5"
+                  style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
+                >
                   <div className="flex items-end gap-3">
                     <div className="flex flex-1 items-end rounded-[24px] border border-charcoal/15 bg-white px-4 py-2.5 focus-within:border-charcoal/25 transition-colors">
                       <textarea

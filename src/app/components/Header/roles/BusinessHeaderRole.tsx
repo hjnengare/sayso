@@ -69,7 +69,7 @@ export function BusinessHeaderRole({
             href={messagesHref}
             className={`relative w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 ${
               isMessagesActive
-                ? "text-sage bg-card-bg/5"
+                ? "text-sage"
                 : whiteText
                   ? "text-white hover:text-white/80"
                   : "text-charcoal/80 hover:text-sage"
@@ -90,7 +90,7 @@ export function BusinessHeaderRole({
             href="/settings"
             className={`relative w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 ${
               isSettingsActive
-                ? "text-sage bg-card-bg/5"
+                ? "text-sage"
                 : whiteText
                   ? "text-white hover:text-white/80"
                   : "text-charcoal/80 hover:text-sage"

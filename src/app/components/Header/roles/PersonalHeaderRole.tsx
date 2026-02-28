@@ -140,7 +140,7 @@ export function PersonalHeaderRole({
                 href={isGuest ? "/onboarding" : "/notifications"}
                 className={`z-[2] w-10 h-10 flex items-center justify-center rounded-full transition-all duration-200 cursor-pointer pointer-events-auto select-none ${
                   isNotificationsActive
-                    ? "text-sage bg-card-bg/5"
+                    ? "text-sage"
                     : whiteText
                       ? "text-white hover:text-white/80"
                       : "text-charcoal/80 hover:text-sage"
@@ -163,7 +163,7 @@ export function PersonalHeaderRole({
                 href={messagesHref}
                 className={`z-[2] w-10 h-10 flex items-center justify-center rounded-full transition-all duration-200 cursor-pointer pointer-events-auto select-none ${
                   isMessagesActive
-                    ? "text-sage bg-card-bg/5"
+                    ? "text-sage"
                     : whiteText
                       ? "text-white hover:text-white/80"
                       : "text-charcoal/80 hover:text-sage"

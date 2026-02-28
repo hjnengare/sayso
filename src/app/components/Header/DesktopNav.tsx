@@ -226,7 +226,7 @@ export default function DesktopNav(props: DesktopNavProps) {
   const iconWrapClass = (isActive: boolean) =>
     `mi-tap group w-10 h-10 flex items-center justify-center rounded-full transition-[color,transform] duration-150 ease-in-out active:scale-[0.88] lg:hover:scale-105 lg:focus-visible:scale-105 relative ${
       isActive
-        ? "text-sage bg-card-bg/5"
+        ? "text-sage"
         : whiteText
           ? "text-white hover:text-white/80"
           : "text-charcoal/80 hover:text-sage"
@@ -581,7 +581,7 @@ export default function DesktopNav(props: DesktopNavProps) {
                   href="/saved"
                   className={`group flex w-10 h-10 items-center justify-center rounded-full transition-[color,transform] duration-200 ease-in-out lg:hover:scale-105 lg:focus-visible:scale-105 ${
                     isSavedActive
-                      ? "text-sage bg-card-bg/5"
+                      ? "text-sage"
                       : whiteText
                         ? "text-white hover:text-white/85"
                         : "text-charcoal/80 hover:text-sage"
