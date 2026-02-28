@@ -56,7 +56,10 @@ function generateOtp(): string {
 }
 
 function hashOtp(code: string): string {
-  const pepper = process.env.OTP_PEPPER || 'dev-pepper-do-not-use-in-production';
+  const pepper = process.env.OTP_PEPPER;
+  if (!pepper) {
+    throw new Error('OTP_PEPPER environment variable is not set');
+  }
   return crypto.createHash('sha256').update(pepper + code).digest('hex');
 }
 

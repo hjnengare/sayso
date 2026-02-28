@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
-import { getServerSupabase } from '../../../lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { withAdmin } from '../../_lib/withAuth';
 import { fetchCapeTownBusinesses } from '../../../lib/services/overpassService';
 import { mapOSMToBusiness, generateInitialStats } from '../../../lib/utils/osmToBusinessMapper';
 import { getSubcategorySlugForOsmCategory } from '../../../lib/utils/osmCategoryToSlug';
@@ -11,20 +11,10 @@ export const maxDuration = 180; // Overpass API can be slow (3 minutes)
 
 /**
  * POST /api/businesses/seed
- * Seeds businesses from Overpass API into the database
+ * Seeds businesses from Overpass API into the database (admin only)
  */
-export async function POST(req: Request) {
+export const POST = withAdmin(async (req: NextRequest, { service: supabase }) => {
   try {
-    const supabase = await getServerSupabase();
-    
-    // Check if user is authenticated (optional - remove if you want public seeding)
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    // Optional: restrict to admin users only
-    // if (!user) {
-    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    // }
-    
     const body = await req.json().catch(() => ({}));
     const MAX_TOTAL_BUSINESSES = 100000;
     const requestedLimit = Number.isFinite(body.limit) ? Math.floor(body.limit) : undefined;
@@ -305,7 +295,7 @@ export async function POST(req: Request) {
 
       const { data: batchData, error: batchError } = await supabase
         .from('businesses')
-        .insert(batch)
+        .insert(batch as any[])
         .select();
       
       if (batchError) {
@@ -409,13 +399,13 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
-}
+});
 
 /**
  * GET /api/businesses/seed
- * Preview businesses that would be seeded (dry run)
+ * Preview businesses that would be seeded (dry run, admin only)
  */
-export async function GET(req: Request) {
+export const GET = withAdmin(async (req: NextRequest) => {
   try {
     const { searchParams } = new URL(req.url);
     const MAX_TOTAL_BUSINESSES = 100000;
@@ -518,5 +508,5 @@ export async function GET(req: Request) {
       { status: 500 }
     );
   }
-}
+});
 

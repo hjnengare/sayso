@@ -67,7 +67,6 @@ function mapReviewRow(row: Record<string, unknown>) {
         ? "Anonymous"
         : (profile?.display_name as string) || null,
       username: isGuest ? null : (profile?.username as string) || null,
-      email: isGuest ? null : (profile?.email as string) || null,
       avatar_url: isGuest ? null : (profile?.avatar_url as string) || null,
     },
     images: [],
@@ -83,7 +82,7 @@ async function getProfilesByUserId(
   const supabase = await getServerSupabase(req);
   const { data, error } = await supabase
     .from("profiles")
-    .select("user_id, display_name, username, email, avatar_url")
+    .select("user_id, display_name, username, avatar_url")
     .in("user_id", userIds);
 
   if (error) {

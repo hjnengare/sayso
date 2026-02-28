@@ -1,15 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import { LEGACY_TRAVEL_SUBCATEGORY_MAP } from '@/app/lib/onboarding/subcategoryMapping';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-
-if (!supabaseUrl || !supabaseServiceKey) {
-  throw new Error('Missing Supabase environment variables');
-}
-
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
+import { withAdmin } from '@/app/api/_lib/withAuth';
 
 /**
  * Maps category to subcategory (matches categoryToImageMapper.ts logic)
@@ -239,10 +230,10 @@ function getCategoryImageUrl(category: string, businessName?: string): string {
   return `/png/${pngFile}`;
 }
 
-export async function POST(req: NextRequest) {
+export const POST = withAdmin(async (req: NextRequest, { service: supabase }) => {
   try {
     console.log('[UPDATE-IMAGES] Starting image URL update for all businesses...');
-    
+
     // Fetch all businesses (use primary_* taxonomy columns after 20260210)
     const { data: businesses, error: fetchError } = await supabase
       .from('businesses')
@@ -329,5 +320,5 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+});
 

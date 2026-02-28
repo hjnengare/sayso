@@ -1,6 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import * as postmark from "postmark";
 
+// Simple in-process rate limiter: max 3 submissions per IP per 10 minutes
+const RATE_WINDOW_MS = 10 * 60 * 1000;
+const RATE_LIMIT_MAX = 3;
+const ipTimestamps = new Map<string, number[]>();
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const windowStart = now - RATE_WINDOW_MS;
+  const hits = (ipTimestamps.get(ip) ?? []).filter((t) => t > windowStart);
+  if (hits.length >= RATE_LIMIT_MAX) return true;
+  hits.push(now);
+  ipTimestamps.set(ip, hits);
+  return false;
+}
+
 const CONTACT_REASONS: Record<string, string> = {
   general: "General enquiry",
   business: "Business listing / claim",
@@ -26,6 +41,18 @@ function escapeHtml(s: string) {
 }
 
 export async function POST(req: NextRequest) {
+  const ip =
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    req.headers.get("x-real-ip") ||
+    "unknown";
+
+  if (isRateLimited(ip)) {
+    return NextResponse.json(
+      { error: "Too many requests. Please try again later." },
+      { status: 429 }
+    );
+  }
+
   let body: unknown;
   try {
     body = await req.json();
