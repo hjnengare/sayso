@@ -9,6 +9,7 @@ import MessagingWorkspace from '@/app/components/Messaging/MessagingWorkspace';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useOwnerBusinessesList } from '@/app/hooks/useOwnerBusinessesList';
 import { getChoreoItemMotion } from '@/app/lib/motion/choreography';
+import Footer from '@/app/components/Footer/Footer';
 
 export default function DMPage() {
   const router = useRouter();
@@ -107,6 +108,7 @@ export default function DMPage() {
           startUserId={startUserId}
         />
       </m.div>
+      <Footer />
     </div>
   );
 }
