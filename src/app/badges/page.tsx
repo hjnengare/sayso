@@ -433,7 +433,7 @@ function BadgeCard({ badge, index }: { badge: BadgeMapping; index: number }) {
         {/* Badge Name */}
         <h3 
           className="text-lg font-semibold text-charcoal text-center mb-2"
-          style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+          style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
         >
           {badge.name}
         </h3>
@@ -441,7 +441,7 @@ function BadgeCard({ badge, index }: { badge: BadgeMapping; index: number }) {
         {/* Description */}
         <p 
           className="text-sm text-charcoal/70 text-center mb-4 leading-relaxed min-h-[3rem]"
-          style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+          style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
         >
           {details?.description || "A special badge recognizing your contributions."}
         </p>
@@ -450,13 +450,13 @@ function BadgeCard({ badge, index }: { badge: BadgeMapping; index: number }) {
         <div className="bg-card-bg/5 rounded-xl px-4 py-3 border border-sage/10">
           <p 
             className="text-xs font-medium text-sage uppercase tracking-wide mb-1"
-            style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
           >
             How to earn
           </p>
           <p 
             className="text-sm text-charcoal/80"
-            style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
           >
             {details?.howToEarn || "Keep exploring and contributing!"}
           </p>
@@ -509,20 +509,20 @@ function BadgeSection({
           <IconComponent className={`w-5 h-5 ${meta.accentColor}`} />
           <span 
             className={`text-sm font-semibold ${meta.accentColor}`}
-            style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
           >
             {meta.subtitle}
           </span>
         </div>
         <h2 
           className="text-2xl sm:text-3xl md:text-4xl font-bold text-charcoal mb-3"
-          style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+          style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
         >
           {meta.title}
         </h2>
         <p 
           className="text-base sm:text-lg text-charcoal/70 max-w-2xl"
-          style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+          style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
         >
           {meta.description}
         </p>
@@ -533,20 +533,20 @@ function BadgeSection({
           <IconComponent className={`w-5 h-5 ${meta.accentColor}`} />
           <span 
             className={`text-sm font-semibold ${meta.accentColor}`}
-            style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
           >
             {meta.subtitle}
           </span>
         </div>
         <h2 
           className="text-2xl sm:text-3xl md:text-4xl font-bold text-charcoal mb-3"
-          style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+          style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
         >
           {meta.title}
         </h2>
         <p 
           className="text-base sm:text-lg text-charcoal/70 max-w-2xl"
-          style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+          style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
         >
           {meta.description}
         </p>
@@ -573,7 +573,7 @@ function BadgeSection({
                     <span className="text-2xl">{categoryMeta.emoji}</span>
                     <h3 
                       className="text-xl font-semibold text-charcoal"
-                      style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                      style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                     >
                       {categoryMeta.title}
                     </h3>
@@ -584,7 +584,7 @@ function BadgeSection({
                     <span className="text-2xl">{categoryMeta.emoji}</span>
                     <h3 
                       className="text-xl font-semibold text-charcoal"
-                      style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                      style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                     >
                       {categoryMeta.title}
                     </h3>
@@ -705,7 +705,7 @@ export default function BadgesPage() {
                 }
               }}
               className="inline-flex items-center gap-2 text-charcoal/70 hover:text-charcoal transition-colors mb-8 group"
-              style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+              style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
             >
               <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
               <span className="text-sm font-medium">Back to previous page</span>
@@ -723,7 +723,7 @@ export default function BadgesPage() {
               <Sparkles className="w-4 h-4 text-sage" />
               <span 
                 className="text-sm font-medium text-charcoal"
-                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
               >
                 {Object.keys(BADGE_MAPPINGS).length} Badges to Collect
               </span>
@@ -734,7 +734,7 @@ export default function BadgesPage() {
               animate={isDesktop ? { opacity: 1, y: 0 } : undefined}
               transition={isDesktop ? { duration: 0.6, delay: 0.2 } : undefined}
               className="text-4xl sm:text-5xl md:text-6xl font-bold text-charcoal mb-6 leading-tight"
-              style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+              style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
             >
               Earn Badges.<br />
               <span className="text-sage">Show Your Expertise.</span>
@@ -745,7 +745,7 @@ export default function BadgesPage() {
               animate={isDesktop ? { opacity: 1, y: 0 } : undefined}
               transition={isDesktop ? { duration: 0.6, delay: 0.3 } : undefined}
               className="text-lg sm:text-xl text-charcoal/70 mb-8 leading-relaxed"
-              style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+              style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
             >
               Every review, photo, and helpful action earns you recognition. Collect badges that showcase your unique journey and expertise across Cape Town's best local businesses.
             </m.p>
@@ -764,7 +764,7 @@ export default function BadgesPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-12 pr-10 py-3.5 rounded-full bg-white border border-charcoal/10 shadow-sm focus:outline-none focus:ring-2 focus:ring-sage/30 focus:border-sage/50 transition-all text-charcoal placeholder:text-charcoal/40"
-                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
               />
               {searchQuery && (
                 <button
@@ -824,14 +824,14 @@ export default function BadgesPage() {
             <div className="flex items-center justify-between mb-8">
               <h2 
                 className="text-xl sm:text-2xl font-semibold text-charcoal"
-                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
               >
                 {filteredBadges.length} {filteredBadges.length === 1 ? 'badge' : 'badges'} found
               </h2>
               <button
                 onClick={() => setSearchQuery("")}
                 className="text-sm text-sage hover:text-sage/80 font-medium transition-colors"
-                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
               >
                 Clear search
               </button>
@@ -857,7 +857,7 @@ export default function BadgesPage() {
               )
             ) : (
               <div className="text-center py-16">
-                <p className="text-charcoal/60" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                <p className="text-charcoal/60" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                   No badges match your search. Try a different term.
                 </p>
               </div>
@@ -891,20 +891,20 @@ export default function BadgesPage() {
             <Star className="w-12 h-12 text-white/80 mx-auto mb-6" />
             <h2 
               className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4"
-              style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+              style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
             >
               Ready to Start Collecting?
             </h2>
             <p 
               className="text-lg text-white/80 mb-8 max-w-xl mx-auto"
-              style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+              style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
             >
               Every badge tells a story. Begin your journey by sharing your experiences at local businesses.
             </p>
             <Link
               href={discoverBusinessesHref}
               className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-white text-sage font-semibold hover:bg-white/90 transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
-              style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+              style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
             >
               <span>Discover Businesses</span>
               <Sparkles className="w-5 h-5" />
@@ -917,8 +917,3 @@ export default function BadgesPage() {
     </div>
   );
 }
-
-
-
-
-

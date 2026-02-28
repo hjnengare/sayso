@@ -24,7 +24,7 @@ export default function EventDetailsCard({ event }: EventDetailsCardProps) {
       <div className="relative z-10">
         <h2
           className="text-h3 font-semibold text-charcoal mb-4"
-          style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+          style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
         >
           Event Details
         </h2>
@@ -37,20 +37,20 @@ export default function EventDetailsCard({ event }: EventDetailsCardProps) {
           <div>
             <p
               className="text-caption text-charcoal/60"
-              style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+              style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
             >
               Date
             </p>
             <p
               className="text-body-sm font-semibold text-charcoal"
-              style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+              style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
             >
               {event.startDate || "Date TBA"}
             </p>
             {event.endDate && (
               <p
                 className="text-caption text-charcoal/60"
-                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
               >
                 to {event.endDate}
               </p>
@@ -66,13 +66,13 @@ export default function EventDetailsCard({ event }: EventDetailsCardProps) {
             <div>
               <p
                 className="text-caption text-charcoal/60"
-                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
               >
                 Category
               </p>
               <p
                 className="text-body-sm font-semibold text-charcoal"
-                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
               >
                 {[event.segment, event.genre].filter(Boolean).join(" · ")}
               </p>
@@ -88,13 +88,13 @@ export default function EventDetailsCard({ event }: EventDetailsCardProps) {
             <div>
               <p
                 className="text-caption text-charcoal/60"
-                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
               >
                 Venue
               </p>
               <p
                 className="text-body-sm font-semibold text-charcoal"
-                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
               >
                 {[event.venueName, event.venueAddress].filter(Boolean).join(", ")}
               </p>
@@ -110,13 +110,13 @@ export default function EventDetailsCard({ event }: EventDetailsCardProps) {
             <div>
               <p
                 className="text-caption text-charcoal/60"
-                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
               >
                 Price
               </p>
               <p
                 className="text-body-sm font-semibold text-charcoal"
-                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
               >
                 {event.price}
               </p>
@@ -128,8 +128,3 @@ export default function EventDetailsCard({ event }: EventDetailsCardProps) {
     </m.div>
   );
 }
-
-
-
-
-

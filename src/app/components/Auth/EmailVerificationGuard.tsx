@@ -66,7 +66,7 @@ export default function EmailVerificationGuard({
         <div className="absolute inset-0 bg-off-white/80 backdrop-blur-sm z-50 flex items-center justify-center min-h-[200px]">
           <div className="text-center">
             <div className="w-10 h-10 border-3 border-sage/20 border-t-sage rounded-full animate-spin mx-auto mb-3"></div>
-            <p className="font-google-sans text-sm text-charcoal/70">Loading...</p>
+            <p className="font-urbanist text-sm text-charcoal/70">Loading...</p>
           </div>
         </div>
         <div className="opacity-0 pointer-events-none">
@@ -141,19 +141,19 @@ export default function EmailVerificationGuard({
           </div>
 
           {/* Title */}
-          <h2 className="font-google-sans text-xl font-700 text-charcoal mb-3">
+          <h2 className="font-urbanist text-xl font-700 text-charcoal mb-3">
             Verify Your Email
           </h2>
 
           {/* Description */}
-          <p className="font-google-sans text-sm text-charcoal/70 mb-6 leading-relaxed">
+          <p className="font-urbanist text-sm text-charcoal/70 mb-6 leading-relaxed">
             We've sent a verification link to <span className="font-600 text-charcoal">{userEmail}</span>. 
             Please check your email and click the link to verify your account.
           </p>
 
           {/* Benefits */}
           <div className="bg-card-bg/5 rounded-lg p-4 mb-6 text-left">
-            <h3 className="font-google-sans text-sm font-600 text-charcoal mb-3 flex items-center gap-2">
+            <h3 className="font-urbanist text-sm font-600 text-charcoal mb-3 flex items-center gap-2">
               <CheckCircle className="w-4 h-4 text-sage" />
               What you'll unlock:
             </h3>
@@ -182,7 +182,7 @@ export default function EmailVerificationGuard({
             {/* Open Gmail Button */}
             <button
               onClick={() => window.open('https://mail.google.com', '_blank')}
-              className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white font-google-sans text-sm font-600 py-3 px-4 rounded-[12px] hover:from-red-600 hover:to-red-700 transition-all duration-300 flex items-center justify-center gap-2"
+              className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white font-urbanist text-sm font-600 py-3 px-4 rounded-[12px] hover:from-red-600 hover:to-red-700 transition-all duration-300 flex items-center justify-center gap-2"
             >
               <Mail className="w-4 h-4" />
               Open Gmail
@@ -193,7 +193,7 @@ export default function EmailVerificationGuard({
             <button
               onClick={handleResendVerification}
               disabled={isResending}
-              className="w-full bg-card-bg text-white font-google-sans text-sm font-600 py-3 px-4 rounded-[12px] hover:bg-card-bg/90 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full bg-card-bg text-white font-urbanist text-sm font-600 py-3 px-4 rounded-[12px] hover:bg-card-bg/90 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isResending ? (
                 <>
@@ -211,14 +211,14 @@ export default function EmailVerificationGuard({
             {/* Go to Verify Email Page */}
             <Link
               href="/verify-email"
-              className="block w-full bg-off-white border border-charcoal/20 text-charcoal font-google-sans text-sm font-600 py-3 px-4 rounded-[12px] hover:bg-charcoal/5 transition-all duration-300 text-center"
+              className="block w-full bg-off-white border border-charcoal/20 text-charcoal font-urbanist text-sm font-600 py-3 px-4 rounded-[12px] hover:bg-charcoal/5 transition-all duration-300 text-center"
             >
               Go to Email Verification Page
             </Link>
           </div>
 
           {/* Help Text */}
-          <p className="font-google-sans text-sm sm:text-xs text-charcoal/70 mt-4">
+          <p className="font-urbanist text-sm sm:text-xs text-charcoal/70 mt-4">
             Didn't receive the email? Check your spam folder or try resending.
           </p>
         </div>
@@ -226,6 +226,5 @@ export default function EmailVerificationGuard({
     </div>
   );
 }
-
 
 

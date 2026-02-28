@@ -155,7 +155,7 @@ export default function AdminClaimDetailPage() {
   return (
     <>
       <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">
-        <h1 className="text-xl font-bold text-charcoal" style={{ fontFamily: '"Google Sans", sans-serif' }}>
+        <h1 className="text-xl font-bold text-charcoal" style={{ fontFamily: "'Urbanist', sans-serif" }}>
           Claim: {claim.business_name ?? claim.id}
         </h1>
         {error && (
@@ -309,7 +309,3 @@ export default function AdminClaimDetailPage() {
     </>
   );
 }
-
-
-
-

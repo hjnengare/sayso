@@ -47,8 +47,8 @@ function LeaderboardPodium({ topReviewers }: LeaderboardPodiumProps) {
             <span className="text-[10px] sm:text-body-sm md:text-body font-bold text-charcoal">2</span>
           </div>
         </div>
-        <div className="font-google-sans text-xs sm:text-body-sm md:text-body font-700 text-charcoal mb-1 truncate px-1 sm:px-2 max-w-full overflow-hidden min-h-[1.25rem] sm:min-h-[1.5rem] md:min-h-[1.75rem]">@{topReviewers[1].username}</div>
-        <div className="font-google-sans text-[10px] sm:text-caption md:text-body-sm text-charcoal/60 mb-1.5 sm:mb-2 flex items-center justify-center gap-1">
+        <div className="font-urbanist text-xs sm:text-body-sm md:text-body font-700 text-charcoal mb-1 truncate px-1 sm:px-2 max-w-full overflow-hidden min-h-[1.25rem] sm:min-h-[1.5rem] md:min-h-[1.75rem]">@{topReviewers[1].username}</div>
+        <div className="font-urbanist text-[10px] sm:text-caption md:text-body-sm text-charcoal/60 mb-1.5 sm:mb-2 flex items-center justify-center gap-1">
           <span className="font-700 text-charcoal">{topReviewers[1].reviews}</span> reviews
         </div>
         {/* Professional Podium Block */}
@@ -79,8 +79,8 @@ function LeaderboardPodium({ topReviewers }: LeaderboardPodiumProps) {
             <Trophy className="w-3.5 h-3.5 sm:w-5 sm:h-5 md:w-6 md:h-6 text-white" />
           </div>
         </div>
-        <div className="font-google-sans text-sm sm:text-body md:text-h3 font-700 text-charcoal mb-1 truncate px-1 sm:px-2 max-w-full overflow-hidden min-h-[1.5rem] sm:min-h-[1.75rem] md:min-h-[2rem]">@{topReviewers[0].username}</div>
-        <div className="font-google-sans text-[10px] sm:text-caption md:text-body-sm text-charcoal/60 mb-1.5 sm:mb-2 flex items-center justify-center gap-1">
+        <div className="font-urbanist text-sm sm:text-body md:text-h3 font-700 text-charcoal mb-1 truncate px-1 sm:px-2 max-w-full overflow-hidden min-h-[1.5rem] sm:min-h-[1.75rem] md:min-h-[2rem]">@{topReviewers[0].username}</div>
+        <div className="font-urbanist text-[10px] sm:text-caption md:text-body-sm text-charcoal/60 mb-1.5 sm:mb-2 flex items-center justify-center gap-1">
           <span className="font-700 text-charcoal">{topReviewers[0].reviews}</span> reviews
         </div>
         {/* Professional Podium Block */}
@@ -111,8 +111,8 @@ function LeaderboardPodium({ topReviewers }: LeaderboardPodiumProps) {
             <span className="text-[10px] sm:text-body-sm md:text-body font-bold text-white">3</span>
           </div>
         </div>
-        <div className="font-google-sans text-xs sm:text-body-sm md:text-body font-700 text-charcoal mb-1 truncate px-1 sm:px-2 max-w-full overflow-hidden min-h-[1.25rem] sm:min-h-[1.5rem] md:min-h-[1.75rem]">@{topReviewers[2].username}</div>
-        <div className="font-google-sans text-[10px] sm:text-caption md:text-body-sm text-charcoal/60 mb-1.5 sm:mb-2 flex items-center justify-center gap-1">
+        <div className="font-urbanist text-xs sm:text-body-sm md:text-body font-700 text-charcoal mb-1 truncate px-1 sm:px-2 max-w-full overflow-hidden min-h-[1.25rem] sm:min-h-[1.5rem] md:min-h-[1.75rem]">@{topReviewers[2].username}</div>
+        <div className="font-urbanist text-[10px] sm:text-caption md:text-body-sm text-charcoal/60 mb-1.5 sm:mb-2 flex items-center justify-center gap-1">
           <span className="font-700 text-charcoal">{topReviewers[2].reviews}</span> reviews
         </div>
         {/* Professional Podium Block */}
@@ -125,4 +125,3 @@ function LeaderboardPodium({ topReviewers }: LeaderboardPodiumProps) {
 }
 
 export default memo(LeaderboardPodium);
-

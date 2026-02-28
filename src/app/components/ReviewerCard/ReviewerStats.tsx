@@ -12,7 +12,7 @@ export default function ReviewerStats({
   return (
     <div className="text-sm sm:text-xs text-charcoal/70 space-y-0.5">
       <div className="flex items-center gap-2">
-        <span className="font-google-sans font-semibold" style={{ fontWeight: 600 }}>{reviewCount} reviews</span>
+        <span className="font-urbanist font-semibold" style={{ fontWeight: 600 }}>{reviewCount} reviews</span>
       </div>
 
       <div className="flex items-center gap-1.5">
@@ -22,9 +22,8 @@ export default function ReviewerStats({
           strokeWidth={2.5}
           aria-hidden="true"
         />
-        <span className="font-google-sans font-semibold" style={{ fontWeight: 600 }}>{location}</span>
+        <span className="font-urbanist font-semibold" style={{ fontWeight: 600 }}>{location}</span>
       </div>
     </div>
   );
 }
-

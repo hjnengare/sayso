@@ -41,10 +41,10 @@ const offlineBadgeVariants = {
 
 export default function InterestHeader({ isOnline }: InterestHeaderProps) {
   const titleStyle = {
-    fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+    fontFamily: '"Urbanist", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
   } as React.CSSProperties;
   const bodyStyle = {
-    fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+    fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
     fontWeight: 400,
   } as React.CSSProperties;
 
@@ -59,7 +59,7 @@ export default function InterestHeader({ isOnline }: InterestHeaderProps) {
         >
           <div
             className="bg-gradient-to-br from-orange-50/95 to-orange-50/90 border border-orange-200/60 rounded-full px-3 py-1 flex items-center gap-2 ring-1 ring-orange-200/30 md:backdrop-blur-sm"
-            style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
+            style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 600 }}
           >
             <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
             <span className="text-sm sm:text-xs font-semibold text-orange-700">Offline</span>
@@ -77,7 +77,7 @@ export default function InterestHeader({ isOnline }: InterestHeaderProps) {
           <WavyTypedTitle
             text="What interests you?"
             as="h2"
-            className="font-google-sans text-2xl md:text-3xl lg:text-4xl font-700 mb-2 text-center leading-snug px-6 sm:px-4 md:px-2 tracking-tight text-charcoal"
+            className="font-urbanist text-2xl md:text-3xl lg:text-4xl font-700 mb-2 text-center leading-snug px-6 sm:px-4 md:px-2 tracking-tight text-charcoal"
             typingSpeedMs={40}
             startDelayMs={300}
             waveVariant="subtle"
@@ -85,7 +85,7 @@ export default function InterestHeader({ isOnline }: InterestHeaderProps) {
             triggerOnTypingComplete={true}
             enableScrollTrigger={false}
             style={{ 
-              fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+              fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
               fontWeight: 700,
             }}
           />
@@ -100,8 +100,3 @@ export default function InterestHeader({ isOnline }: InterestHeaderProps) {
     </>
   );
 }
-
-
-
-
-

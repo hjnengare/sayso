@@ -121,7 +121,7 @@ const createPopupHTML = (name: string): string => {
     return `
         <div style="
             padding: 14px 18px;
-            font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Urbanist', -apple-system, BlinkMacSystemFont, sans-serif;
             background: white;
         ">
             <div style="
@@ -332,13 +332,13 @@ export default function MapboxMap({
                     </div>
                     <p
                         className="text-sm font-semibold text-charcoal mb-1"
-                        style={{ fontFamily: '"Google Sans", sans-serif' }}
+                        style={{ fontFamily: 'Urbanist, sans-serif' }}
                     >
                         Map unavailable
                     </p>
                     <p
                         className="text-sm text-charcoal/60"
-                        style={{ fontFamily: '"Google Sans", sans-serif' }}
+                        style={{ fontFamily: 'Urbanist, sans-serif' }}
                     >
                         Unable to load the map
                     </p>
@@ -436,7 +436,7 @@ export default function MapboxMap({
                     <MapPin className="w-4 h-4 text-coral" />
                     <span
                         className="text-sm font-semibold text-charcoal"
-                        style={{ fontFamily: '"Google Sans", sans-serif' }}
+                        style={{ fontFamily: 'Urbanist, sans-serif' }}
                     >
                         Center
                     </span>
@@ -462,9 +462,3 @@ export default function MapboxMap({
         </div>
     );
 }
-
-
-
-
-
-

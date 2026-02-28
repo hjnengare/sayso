@@ -2,8 +2,14 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import WavyTypedTitle from "./WavyTypedTitle";
+import { Urbanist } from "next/font/google";
 
-const GOOGLE_SANS_FONT_FAMILY = '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif';
+const urbanist = Urbanist({
+  weight: ["400", "600", "700", "800"],
+  subsets: ["latin"],
+  display: "swap",
+});
+
 export interface WavyScrollTitleProps {
   /** Text to display */
   text: string;
@@ -106,7 +112,7 @@ export const WavyScrollTitle: React.FC<WavyScrollTitleProps> = ({
         className={className}
         style={{
           ...style,
-          fontFamily: GOOGLE_SANS_FONT_FAMILY,
+          fontFamily: urbanist.style.fontFamily,
         }}
       >
         {text}
@@ -116,10 +122,5 @@ export const WavyScrollTitle: React.FC<WavyScrollTitleProps> = ({
 };
 
 export default WavyScrollTitle;
-
-
-
-
-
 
 

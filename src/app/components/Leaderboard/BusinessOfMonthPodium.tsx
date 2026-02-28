@@ -141,12 +141,12 @@ function BusinessOfMonthPodium({ topBusinesses }: BusinessOfMonthPodiumProps) {
             </div> 
               </div>
 
-              <div className="font-google-sans text-xs sm:text-body-sm md:text-body font-700 text-charcoal mb-1 line-clamp-2 px-1 sm:px-2 max-w-full min-h-[2rem] sm:min-h-[2.5rem] md:min-h-[3rem] break-words flex items-start justify-center gap-1">
+              <div className="font-urbanist text-xs sm:text-body-sm md:text-body font-700 text-charcoal mb-1 line-clamp-2 px-1 sm:px-2 max-w-full min-h-[2rem] sm:min-h-[2.5rem] md:min-h-[3rem] break-words flex items-start justify-center gap-1">
                 
                 <span className="line-clamp-2">{businesses[1].name}</span>
               </div>
 
-              <div className="font-google-sans text-caption sm:text-body-sm text-charcoal/60 mb-2 flex items-center justify-center gap-1">
+              <div className="font-urbanist text-caption sm:text-body-sm text-charcoal/60 mb-2 flex items-center justify-center gap-1">
                 <Star className="w-3 h-3 sm:w-4 sm:h-4 text-coral fill-coral" />
                 <span className="font-700 text-charcoal">{businesses[1].totalRating?.toFixed(1) || "0.0"}</span>
                 <span className="text-charcoal/70">({businesses[1].reviews || 0})</span>
@@ -168,12 +168,12 @@ function BusinessOfMonthPodium({ topBusinesses }: BusinessOfMonthPodiumProps) {
                 </div>
               </div>
 
-              <div className="font-google-sans text-xs sm:text-body-sm md:text-body font-700 text-charcoal mb-1 line-clamp-2 px-1 sm:px-2 max-w-full min-h-[2rem] sm:min-h-[2.5rem] md:min-h-[3rem] break-words flex items-start justify-center gap-1">
+              <div className="font-urbanist text-xs sm:text-body-sm md:text-body font-700 text-charcoal mb-1 line-clamp-2 px-1 sm:px-2 max-w-full min-h-[2rem] sm:min-h-[2.5rem] md:min-h-[3rem] break-words flex items-start justify-center gap-1">
                 <span className="shrink-0 font-800 text-charcoal">2</span>
                 <span className="line-clamp-2">{businesses[1].name}</span>
               </div>
 
-              <div className="font-google-sans text-caption sm:text-body-sm text-charcoal/60 mb-2 flex items-center justify-center gap-1">
+              <div className="font-urbanist text-caption sm:text-body-sm text-charcoal/60 mb-2 flex items-center justify-center gap-1">
                 <Star className="w-3 h-3 sm:w-4 sm:h-4 text-coral fill-coral" />
                 <span className="font-700 text-charcoal">{businesses[1].totalRating?.toFixed(1) || "0.0"}</span>
                 <span className="text-charcoal/70">({businesses[1].reviews || 0})</span>
@@ -207,14 +207,14 @@ function BusinessOfMonthPodium({ topBusinesses }: BusinessOfMonthPodiumProps) {
                 </div>
               </div>
 
-              <div className="font-google-sans text-sm sm:text-body md:text-h3 font-700 text-charcoal mb-1 line-clamp-2 px-1 sm:px-2 max-w-full min-h-[2rem] sm:min-h-[2.5rem] md:min-h-[3rem] break-words flex items-start justify-center gap-1">
+              <div className="font-urbanist text-sm sm:text-body md:text-h3 font-700 text-charcoal mb-1 line-clamp-2 px-1 sm:px-2 max-w-full min-h-[2rem] sm:min-h-[2.5rem] md:min-h-[3rem] break-words flex items-start justify-center gap-1">
                 <span className="shrink-0 inline-flex items-center gap-1 font-800 text-charcoal">
                 
                 </span>
                 <span className="line-clamp-2">{businesses[0].name}</span>
               </div>
 
-              <div className="font-google-sans text-caption sm:text-body-sm text-charcoal/60 mb-2 flex items-center justify-center gap-1">
+              <div className="font-urbanist text-caption sm:text-body-sm text-charcoal/60 mb-2 flex items-center justify-center gap-1">
                 <Star className="w-3 h-3 sm:w-4 sm:h-4 text-coral fill-coral" />
                 <span className="font-700 text-charcoal">{businesses[0].totalRating?.toFixed(1) || "0.0"}</span>
                 <span className="text-charcoal/70">({businesses[0].reviews || 0})</span>
@@ -236,7 +236,7 @@ function BusinessOfMonthPodium({ topBusinesses }: BusinessOfMonthPodiumProps) {
                 </div>
               </div>
 
-              <div className="font-google-sans text-sm sm:text-body md:text-h3 font-700 text-charcoal mb-1 line-clamp-2 px-1 sm:px-2 max-w-full min-h-[2rem] sm:min-h-[2.5rem] md:min-h-[3rem] break-words flex items-start justify-center gap-1">
+              <div className="font-urbanist text-sm sm:text-body md:text-h3 font-700 text-charcoal mb-1 line-clamp-2 px-1 sm:px-2 max-w-full min-h-[2rem] sm:min-h-[2.5rem] md:min-h-[3rem] break-words flex items-start justify-center gap-1">
                 <span className="shrink-0 inline-flex items-center gap-1 font-800 text-charcoal">
                   <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500 fill-amber-500" />
                   <span>1</span>
@@ -244,7 +244,7 @@ function BusinessOfMonthPodium({ topBusinesses }: BusinessOfMonthPodiumProps) {
                 <span className="line-clamp-2">{businesses[0].name}</span>
               </div>
 
-              <div className="font-google-sans text-caption sm:text-body-sm text-charcoal/60 mb-2 flex items-center justify-center gap-1">
+              <div className="font-urbanist text-caption sm:text-body-sm text-charcoal/60 mb-2 flex items-center justify-center gap-1">
                 <Star className="w-3 h-3 sm:w-4 sm:h-4 text-coral fill-coral" />
                 <span className="font-700 text-charcoal">{businesses[0].totalRating?.toFixed(1) || "0.0"}</span>
                 <span className="text-charcoal/70">({businesses[0].reviews || 0})</span>
@@ -278,12 +278,12 @@ function BusinessOfMonthPodium({ topBusinesses }: BusinessOfMonthPodiumProps) {
                 </div>
               </div>
 
-              <div className="font-google-sans text-body-sm sm:text-body font-700 text-charcoal mb-1 truncate px-2 max-w-full overflow-hidden min-h-[1.5rem] sm:min-h-[1.75rem] flex items-center justify-center gap-1">
+              <div className="font-urbanist text-body-sm sm:text-body font-700 text-charcoal mb-1 truncate px-2 max-w-full overflow-hidden min-h-[1.5rem] sm:min-h-[1.75rem] flex items-center justify-center gap-1">
               
                 <span className="truncate">{businesses[2].name}</span>
               </div>
 
-              <div className="font-google-sans text-caption sm:text-body-sm text-charcoal/60 mb-2 flex items-center justify-center gap-1">
+              <div className="font-urbanist text-caption sm:text-body-sm text-charcoal/60 mb-2 flex items-center justify-center gap-1">
                 <Star className="w-3 h-3 sm:w-4 sm:h-4 text-coral fill-coral" />
                 <span className="font-700 text-charcoal">{businesses[2].totalRating?.toFixed(1) || "0.0"}</span>
                 <span className="text-charcoal/70">({businesses[2].reviews || 0})</span>
@@ -305,12 +305,12 @@ function BusinessOfMonthPodium({ topBusinesses }: BusinessOfMonthPodiumProps) {
                 </div>
               </div>
 
-              <div className="font-google-sans text-body-sm sm:text-body font-700 text-charcoal mb-1 truncate px-2 max-w-full overflow-hidden min-h-[1.5rem] sm:min-h-[1.75rem] flex items-center justify-center gap-1">
+              <div className="font-urbanist text-body-sm sm:text-body font-700 text-charcoal mb-1 truncate px-2 max-w-full overflow-hidden min-h-[1.5rem] sm:min-h-[1.75rem] flex items-center justify-center gap-1">
                 <span className="shrink-0 font-800 text-charcoal">3</span>
                 <span className="truncate">{businesses[2].name}</span>
               </div>
 
-              <div className="font-google-sans text-caption sm:text-body-sm text-charcoal/60 mb-2 flex items-center justify-center gap-1">
+              <div className="font-urbanist text-caption sm:text-body-sm text-charcoal/60 mb-2 flex items-center justify-center gap-1">
                 <Star className="w-3 h-3 sm:w-4 sm:h-4 text-coral fill-coral" />
                 <span className="font-700 text-charcoal">{businesses[2].totalRating?.toFixed(1) || "0.0"}</span>
                 <span className="text-charcoal/70">({businesses[2].reviews || 0})</span>
@@ -329,5 +329,4 @@ function BusinessOfMonthPodium({ topBusinesses }: BusinessOfMonthPodiumProps) {
 }
 
 export default memo(BusinessOfMonthPodium);
-
 

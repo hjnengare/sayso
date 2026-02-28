@@ -110,7 +110,7 @@ function createHoverPopupHTML(name: string, category: string): string {
   return `
     <div style="
       padding: 12px 16px;
-      font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: 'Urbanist', -apple-system, BlinkMacSystemFont, sans-serif;
       background: white;
     ">
       <div style="
@@ -404,10 +404,10 @@ export default function BusinessesMap({ businesses, className = '' }: Businesses
       {businesses.length === 0 && (
         <div className="absolute inset-0 flex items-center justify-center bg-off-white/90 rounded-lg">
           <div className="text-center px-4">
-            <p className="font-google-sans text-base font-600 text-charcoal mb-2">
+            <p className="font-urbanist text-base font-600 text-charcoal mb-2">
               No businesses with location yet
             </p>
-            <p className="font-google-sans text-sm text-charcoal/60">
+            <p className="font-urbanist text-sm text-charcoal/60">
               Businesses will appear here once they add their location
             </p>
           </div>
@@ -433,8 +433,3 @@ export default function BusinessesMap({ businesses, className = '' }: Businesses
     </div>
   );
 }
-
-
-
-
-

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, m } from "framer-motion";
 import { AlertCircle, Clock3, Loader2, ShieldCheck, X } from "lucide-react";
 
-const FONT = '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif';
+const FONT = "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif";
 
 const VERIFY_ERROR_MESSAGES: Record<string, string> = {
   OTP_CODE_INVALID_FORMAT: "Enter a valid 6-digit code.",
@@ -524,7 +524,3 @@ export default function PhoneOtpModal({
     </AnimatePresence>
   );
 }
-
-
-
-

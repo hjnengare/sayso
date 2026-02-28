@@ -17,7 +17,7 @@ export default function BusinessMessagesPage() {
   if (authLoading || businessesLoading) {
     return (
       <div className="flex h-full min-h-[60dvh] items-center justify-center bg-page-bg">
-        <div className="inline-flex items-center gap-2 text-sm text-charcoal/60" style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}>
+        <div className="inline-flex items-center gap-2 text-sm text-charcoal/60" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
           <Loader2 className="h-4 w-4 animate-spin" />
           Loading inbox...
         </div>
@@ -49,8 +49,3 @@ export default function BusinessMessagesPage() {
     />
   );
 }
-
-
-
-
-

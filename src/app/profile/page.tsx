@@ -576,8 +576,8 @@ function ProfileContent() {
   return (
     <>
       <style jsx global>{`
-        .font-google-sans {
-          font-family: "Google Sans", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, system-ui,
+        .font-urbanist {
+          font-family: "Urbanist", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, system-ui,
             sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
@@ -618,10 +618,10 @@ function ProfileContent() {
         }
       `}</style>
         <div
-          className="min-h-dvh bg-off-white relative overflow-hidden font-google-sans"
+          className="min-h-dvh bg-off-white relative overflow-hidden font-urbanist"
           style={{
             fontFamily:
-              '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+              "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
           }}
         >
           {/* Background Gradient */}
@@ -631,7 +631,7 @@ function ProfileContent() {
 
           <div className="min-h-[100dvh] bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white relative z-10">
               <main
-                className="relative font-google-sans"
+                className="relative font-urbanist"
                 id="main-content"
                 role="main"
                 aria-label="User profile content"
@@ -641,7 +641,7 @@ function ProfileContent() {
                   <nav className="pb-1 profile-load-item profile-load-delay-0" aria-label="Breadcrumb">
                     <ol className="flex items-center gap-2 text-sm sm:text-base">
                       <li>
-                        <Link href="/home" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                        <Link href="/home" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                           Home
                         </Link>
                       </li>
@@ -649,7 +649,7 @@ function ProfileContent() {
                         <ChevronRight className="w-4 h-4 text-charcoal/60" />
                       </li>
                       <li>
-                        <span className="text-charcoal font-semibold" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                        <span className="text-charcoal font-semibold" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                           Profile
                         </span>
                       </li>
@@ -700,7 +700,7 @@ function ProfileContent() {
                                   <h2
                                     id="profile-heading"
                                     className="text-h1 sm:text-hero font-semibold text-charcoal"
-                                    style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}
+                                    style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
                                   >
                                     {displayLabel}
                                   </h2>
@@ -1150,8 +1150,3 @@ export default function ProfilePage() {
   usePredefinedPageTitle('profile');
   return <ProfileContent />;
 }
-
-
-
-
-

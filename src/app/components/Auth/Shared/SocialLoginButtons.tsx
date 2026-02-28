@@ -66,7 +66,7 @@ export function SocialLoginButtons({ accountType = 'user' }: SocialLoginButtonsP
               <div className="w-full border-t border-white/20"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 text-white/80 font-medium" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>or continue with</span>
+              <span className="px-4 bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 text-white/80 font-medium" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 600 }}>or continue with</span>
             </div>
           </div>
 
@@ -77,7 +77,7 @@ export function SocialLoginButtons({ accountType = 'user' }: SocialLoginButtonsP
               onClick={handleGoogleSignIn}
               disabled={isGoogleLoading}
               className="flex items-center justify-center bg-white/95 backdrop-blur-sm border-none rounded-full px-4 sm:px-6 md:px-8 py-3 sm:py-4 md:py-5 text-sm font-semibold text-charcoal hover:bg-white hover:border-white/80 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/30 group btn-target btn-press disabled:opacity-50 disabled:cursor-not-allowed shadow-sm w-full max-w-xs"
-              style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
+              style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 600 }}
             >
               {isGoogleLoading ? (
                 <div className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3 border-2 border-charcoal/30 border-t-charcoal rounded-full animate-spin"></div>
@@ -99,7 +99,3 @@ export function SocialLoginButtons({ accountType = 'user' }: SocialLoginButtonsP
     </AnimatePresence>
   );
 }
-
-
-
-

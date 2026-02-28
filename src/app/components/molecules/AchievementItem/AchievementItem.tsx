@@ -41,12 +41,12 @@ export const AchievementItem: React.FC<AchievementItemProps> = ({
         )}
       </div>
       <div className="flex-1 min-w-0">
-        <span className="text-base font-600 text-charcoal" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>{name}</span>
+        <span className="text-base font-600 text-charcoal" style={{ fontFamily: '"Urbanist", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>{name}</span>
         {description && (
-          <p className="text-sm text-charcoal/60 mt-0.5" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>{description}</p>
+          <p className="text-sm text-charcoal/60 mt-0.5" style={{ fontFamily: '"Urbanist", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>{description}</p>
         )}
         {earnedAt && (
-          <p className="text-xs text-sage mt-0.5" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
+          <p className="text-xs text-sage mt-0.5" style={{ fontFamily: '"Urbanist", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
             Earned {new Date(earnedAt).toLocaleDateString()}
           </p>
         )}
@@ -55,8 +55,3 @@ export const AchievementItem: React.FC<AchievementItemProps> = ({
     </div>
   );
 };
-
-
-
-
-

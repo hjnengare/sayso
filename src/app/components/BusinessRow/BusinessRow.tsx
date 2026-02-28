@@ -105,7 +105,7 @@ export default function BusinessRow({
       className="relative m-0 px-2 w-full"
       aria-label={title}
       style={{
-        fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+        fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
       }}
     >
       <LocationPromptBanner hasCoordinateBusinesses={hasCoordinateBusinesses} />
@@ -113,9 +113,9 @@ export default function BusinessRow({
         <div className="pb-4 sm:pb-8 md:pb-10 flex flex-wrap items-center justify-between gap-2">
           {disableAnimations ? (
             <h2
-              className="font-google-sans text-2xl sm:text-3xl md:text-2xl font-bold text-charcoal hover:text-sage transition-all duration-300 px-3 sm:px-4 py-1 hover:bg-card-bg/5 rounded-lg cursor-default"
+              className="font-urbanist text-2xl sm:text-3xl md:text-2xl font-bold text-charcoal hover:text-sage transition-all duration-300 px-3 sm:px-4 py-1 hover:bg-card-bg/5 rounded-lg cursor-default"
               style={{ 
-                fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                 fontWeight: 800,
               }}
             >
@@ -127,9 +127,9 @@ export default function BusinessRow({
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              className="font-google-sans text-2xl sm:text-3xl md:text-2xl font-bold text-charcoal hover:text-sage transition-all duration-300 px-3 sm:px-4 py-1 hover:bg-card-bg/5 rounded-lg cursor-default"
+              className="font-urbanist text-2xl sm:text-3xl md:text-2xl font-bold text-charcoal hover:text-sage transition-all duration-300 px-3 sm:px-4 py-1 hover:bg-card-bg/5 rounded-lg cursor-default"
               style={{ 
-                fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                 fontWeight: 800,
               }}
             >
@@ -144,7 +144,7 @@ export default function BusinessRow({
           >
             <span
               className="relative z-10 transition-[color] duration-200 ease-[cubic-bezier(0.25,0.1,0.25,1)] text-charcoal group-hover:text-sage motion-reduce:transition-none"
-              style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 400 }}
+              style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 400 }}
             >
               {cta.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')}
             </span>
@@ -210,8 +210,3 @@ export default function BusinessRow({
     </section>
   );
 }
-
-
-
-
-

@@ -32,9 +32,9 @@ export default function EmptyState({ filterType }: EmptyStateProps) {
 
   return (
     <div
-      className="mx-auto w-full max-w-[2000px] px-2 font-google-sans w-full"
+      className="mx-auto w-full max-w-[2000px] px-2 font-urbanist w-full"
       style={{
-        fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+        fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
       }}
     >
       <div className="text-center w-full">
@@ -44,7 +44,7 @@ export default function EmptyState({ filterType }: EmptyStateProps) {
         <h3 
           className="text-h2 font-semibold text-charcoal mb-2"
           style={{
-            fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+            fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
           }}
         >
           {title}
@@ -52,7 +52,7 @@ export default function EmptyState({ filterType }: EmptyStateProps) {
         <p 
           className="text-body-sm text-charcoal/60 mb-6 max-w-md mx-auto"
           style={{
-            fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+            fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
             fontWeight: 500,
           }}
         >
@@ -62,8 +62,3 @@ export default function EmptyState({ filterType }: EmptyStateProps) {
     </div>
   );
 }
-
-
-
-
-

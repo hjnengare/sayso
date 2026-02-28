@@ -65,13 +65,13 @@ export default function TopReviewers({
 
       <div className="container mx-auto max-w-[1300px] px-4 relative z-10">
         <div className="mb-12 flex flex-wrap items-center justify-between gap-[18px]">
-          <h2 className="font-google-sans text-lg font-800 text-charcoal relative">
+          <h2 className="font-urbanist text-lg font-800 text-charcoal relative">
             {title}
 
           </h2>
           <button
             onClick={handleSeeMore}
-            className="group font-google-sans font-700 text-charcoal/70 transition-all duration-300 hover:text-sage text-base flex items-center gap-1"
+            className="group font-urbanist font-700 text-charcoal/70 transition-all duration-300 hover:text-sage text-base flex items-center gap-1"
           >
             <span className="transition-transform duration-300 group-hover:translate-x-[-2px]">
               {cta}
@@ -111,4 +111,3 @@ export default function TopReviewers({
     </section>
   );
 }
-

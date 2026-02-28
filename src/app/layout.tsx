@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { BRAND_POSITIONING, DEFAULT_SITE_DESCRIPTION, generateSEOMetadata, SITE_NAME } from "./lib/utils/seoMetadata";
 import { 
+  Urbanist, 
   Dancing_Script, 
   Permanent_Marker, 
   Changa_One, 
@@ -31,6 +32,16 @@ import SWRProvider from "./components/Providers/SWRProvider";
 // Lazy load non-critical components for faster initial load
 const WebVitals = dynamicImport(() => import("./components/Performance/WebVitals"));
 const ClientLayoutWrapper = dynamicImport(() => import("./components/Performance/ClientLayoutWrapper"));
+
+// Primary font - Urbanist (preloaded, critical)
+const urbanist = Urbanist({
+  subsets: ["latin"],
+  // Only include weights that are actually used across the app.
+  weight: ["400", "500", "600", "700", "800", "900"],
+  display: "swap",
+  fallback: ["system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
+  variable: "--font-urbanist",
+});
 
 // Wordmark font - MonarchParadox (preloaded, critical for header logo)
 const monarchParadox = localFont({
@@ -139,7 +150,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${monarchParadox.variable} ${dancingScript.variable} ${permanentMarker.variable} ${changaOne.variable} ${cormorant.variable} ${livvic.variable} ${playfairDisplay.variable} ${barrio.variable} scroll-smooth bg-off-white`}
+      className={`${urbanist.variable} ${monarchParadox.variable} ${dancingScript.variable} ${permanentMarker.variable} ${changaOne.variable} ${cormorant.variable} ${livvic.variable} ${playfairDisplay.variable} ${barrio.variable} scroll-smooth bg-off-white`}
     >
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, viewport-fit=cover, user-scalable=no, shrink-to-fit=no" />

@@ -71,7 +71,7 @@ export function VerificationForm({ business, onClose, onSuccess }: VerificationF
         {/* Header */}
         <div className="sticky top-0 bg-off-white border-b border-charcoal/10 px-6 py-4 flex items-center justify-between">
           <h2 className="text-xl font-bold text-charcoal" style={{
-            fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif'
+            fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif"
           }}>
             Verify Ownership
           </h2>
@@ -89,7 +89,7 @@ export function VerificationForm({ business, onClose, onSuccess }: VerificationF
           {/* Business Info */}
           <div className="bg-white/50 rounded-[12px] p-4 border border-charcoal/10">
             <h3 className="text-sm font-semibold text-charcoal mb-2" style={{
-              fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif'
+              fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif"
             }}>
               {business.name}
             </h3>
@@ -99,7 +99,7 @@ export function VerificationForm({ business, onClose, onSuccess }: VerificationF
           {/* Verification Methods */}
           <div className="space-y-3">
             <label className="text-sm font-semibold text-charcoal block" style={{
-              fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif'
+              fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif"
             }}>
               Choose Verification Method
             </label>
@@ -249,7 +249,7 @@ export function VerificationForm({ business, onClose, onSuccess }: VerificationF
               onClick={onClose}
               className="flex-1 px-4 py-3 rounded-full text-sm font-semibold text-charcoal bg-white/50 hover:bg-charcoal/10 transition-colors"
               style={{
-                fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif'
+                fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif"
               }}
             >
               Cancel
@@ -259,7 +259,7 @@ export function VerificationForm({ business, onClose, onSuccess }: VerificationF
               disabled={!selectedMethod || isSubmitting || (selectedMethod === 'document')}
               className="flex-1 px-4 py-3 rounded-full text-sm font-semibold text-white bg-coral hover:bg-coral/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
               style={{
-                fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif'
+                fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif"
               }}
             >
               {isSubmitting ? (
@@ -277,8 +277,4 @@ export function VerificationForm({ business, onClose, onSuccess }: VerificationF
     </div>
   );
 }
-
-
-
-
 

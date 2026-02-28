@@ -73,7 +73,7 @@ export default function AddressPill({
       `}
       title={displayAddress || 'Copy address'}
       aria-label="Copy address"
-      style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+      style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
     >
       {/* Address Text */}
       <span className="truncate max-w-[300px]">
@@ -93,8 +93,3 @@ export default function AddressPill({
     </button>
   );
 }
-
-
-
-
-

@@ -164,7 +164,7 @@ export default function BusinessProfilePage() {
         return (
             <div className="min-h-dvh bg-off-white">
                 <div className="min-h-[100dvh] bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white">
-                    <section className="relative" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                    <section className="relative" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                         <div className="mx-auto w-full max-w-[2000px] px-2 relative z-10">
                             {/* Breadcrumb Skeleton */}
                             <nav className="pt-2 px-2">
@@ -334,16 +334,16 @@ export default function BusinessProfilePage() {
                     <div className="w-12 h-12 bg-off-white/70 rounded-full flex items-center justify-center mx-auto mb-4 text-charcoal/85 transition duration-200 ease-out hover:bg-off-white/90 hover:scale-[1.03]">
                         <X className="w-6 h-6" aria-hidden />
                     </div>
-                    <h2 className="text-h1 font-semibold text-charcoal mb-2" style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}>
+                    <h2 className="text-h1 font-semibold text-charcoal mb-2" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
                         {error || 'Business not found'}
                     </h2>
-                    <p className="text-body text-charcoal/70 mb-6 max-w-[70ch]" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                    <p className="text-body text-charcoal/70 mb-6 max-w-[70ch]" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                         The business you're looking for doesn't exist or has been removed.
                     </p>
                     <Link
                         href="/home"
                         className="inline-block px-6 py-3 bg-coral text-white rounded-full text-body font-semibold hover:bg-coral/90 transition-colors"
-                        style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                        style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                     >
                         Go to Home
                     </Link>
@@ -447,7 +447,7 @@ export default function BusinessProfilePage() {
 
     return (
         <div
-            className="min-h-dvh bg-off-white font-google-sans"
+            className="min-h-dvh bg-off-white font-urbanist"
             style={{
                 fontFamily:
                     '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif',
@@ -465,7 +465,7 @@ export default function BusinessProfilePage() {
                 <section
                     className="relative"
                     style={{
-                        fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                        fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                     }}
                 >
                     <div className="mx-auto w-full max-w-[2000px] px-2 relative z-10">
@@ -473,7 +473,7 @@ export default function BusinessProfilePage() {
                         <nav className="pb-1" aria-label="Breadcrumb">
                             <ol className="flex items-center gap-2 text-sm sm:text-base">
                                 <li>
-                                    <Link href="/home" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                    <Link href="/home" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                                         Home
                                     </Link>
                                 </li>
@@ -481,7 +481,7 @@ export default function BusinessProfilePage() {
                                     <ChevronRight className="w-4 h-4 text-charcoal/60" aria-hidden />
                                 </li>
                                 <li>
-                                    <span className="text-charcoal font-semibold truncate max-w-[200px] sm:max-w-none" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                    <span className="text-charcoal font-semibold truncate max-w-[200px] sm:max-w-none" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                                         {businessData.name || 'Business'}
                                     </span>
                                 </li>
@@ -599,12 +599,12 @@ export default function BusinessProfilePage() {
                             <WavyTypedTitle
                                 text="Community Reviews"
                                 as="h2"
-                                className="font-google-sans text-2xl sm:text-3xl md:text-4xl font-bold text-charcoal rounded-lg cursor-default"
+                                className="font-urbanist text-2xl sm:text-3xl md:text-4xl font-bold text-charcoal rounded-lg cursor-default"
                                 typingSpeedMs={40}
                                 startDelayMs={300}
                                 disableWave={true}
                                 style={{
-                                    fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                                    fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                                 }}
                             />
                         </div>
@@ -718,8 +718,3 @@ export default function BusinessProfilePage() {
         </div>
     );
 }
-
-
-
-
-

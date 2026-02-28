@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 const sf = {
-  fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+  fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
 } as const;
 
 export default function LeaderboardHeader() {
@@ -33,7 +33,3 @@ export default function LeaderboardHeader() {
     </m.header>
   );
 }
-
-
-
-

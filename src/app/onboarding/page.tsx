@@ -160,7 +160,7 @@ export default function OnboardingPage() {
 
             {/* Title — slide-up + scale */}
             <div data-anim="heading" className="title-no-break">
-              <h2 className="font-google-sans text-2xl sm:text-3xl md:text-5xl font-700 leading-[1.2] tracking-tight text-charcoal no-hyphens">
+              <h2 className="font-urbanist text-2xl sm:text-3xl md:text-5xl font-700 leading-[1.2] tracking-tight text-charcoal no-hyphens">
                 <div className="block whitespace-nowrap">
                   <span className="inline-block">Discover gems near you!</span>
                 </div>
@@ -205,7 +205,7 @@ export default function OnboardingPage() {
             {/* Tagline — blur dissolve fade */}
             <p
               data-anim="tagline"
-              className="font-google-sans text-sm text-charcoal/80 font-medium italic no-hyphens"
+              className="font-urbanist text-sm text-charcoal/80 font-medium italic no-hyphens"
             >
               Less guessing, more confessing
             </p>
@@ -216,4 +216,3 @@ export default function OnboardingPage() {
     </>
   );
 }
-

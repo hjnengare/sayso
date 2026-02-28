@@ -66,7 +66,7 @@ export default function EventDescription({ event }: EventDescriptionProps) {
       <div className="relative z-10">
         <h2
           className="text-h3 font-semibold text-charcoal mb-3"
-          style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+          style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
         >
           About This Event
         </h2>
@@ -80,7 +80,7 @@ export default function EventDescription({ event }: EventDescriptionProps) {
           <p
             ref={contentRef}
             className="text-body text-charcoal/70 leading-7 whitespace-pre-wrap break-words [overflow-wrap:anywhere]"
-            style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
           >
             {normalizedDescription}
           </p>
@@ -95,7 +95,7 @@ export default function EventDescription({ event }: EventDescriptionProps) {
             type="button"
             onClick={() => setIsExpanded((prev) => !prev)}
             className="mt-3 text-sm font-semibold text-coral hover:text-coral/80 transition-colors duration-200"
-            style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
           >
             {isExpanded ? "Read less" : "Read more"}
           </button>
@@ -104,8 +104,3 @@ export default function EventDescription({ event }: EventDescriptionProps) {
     </m.div>
   );
 }
-
-
-
-
-

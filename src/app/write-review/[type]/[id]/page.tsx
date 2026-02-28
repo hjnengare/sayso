@@ -320,8 +320,8 @@ function WriteReviewContent() {
 
   return (
     <div
-      className="min-h-dvh bg-off-white relative overflow-x-hidden font-google-sans"
-      style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif' }}
+      className="min-h-dvh bg-off-white relative overflow-x-hidden font-urbanist"
+      style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif' }}
     >
       {/* Background Gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5 pointer-events-none" />
@@ -398,7 +398,7 @@ function WriteReviewContent() {
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <h1 className="font-google-sans text-lg sm:text-xl font-bold text-charcoal mb-1 line-clamp-2">{displayTitle}</h1>
+                        <h1 className="font-urbanist text-lg sm:text-xl font-bold text-charcoal mb-1 line-clamp-2">{displayTitle}</h1>
 
                         {businessName && (
                           <p className="text-charcoal/70 text-sm mb-2">by {businessName}</p>
@@ -497,7 +497,7 @@ function WriteReviewContent() {
                 {/* Sidebar — context card (desktop only) */}
                 <div className="hidden lg:block space-y-6">
                   <div className="bg-card-bg border-none rounded-[12px] p-5 shadow-lg sticky top-28">
-                    <h3 className="font-google-sans text-base font-bold text-charcoal mb-3">
+                    <h3 className="font-urbanist text-base font-bold text-charcoal mb-3">
                       {isEvent ? "About this Event" : "About this Special"}
                     </h3>
                     {displayImage && (
@@ -532,8 +532,3 @@ export default function WriteReviewPage() {
     </Suspense>
   );
 }
-
-
-
-
-

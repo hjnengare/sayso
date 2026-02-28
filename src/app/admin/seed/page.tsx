@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { CANONICAL_SUBCATEGORY_SLUGS, SUBCATEGORY_SLUG_TO_LABEL } from "../../utils/subcategoryPlaceholders";
 
-const FONT = '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif';
+const FONT = "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif";
 
 // Primary category slugs (from INTEREST_LABELS)
 const PRIMARY_CATEGORY_OPTIONS = [
@@ -475,7 +475,7 @@ export default function SeedPage() {
     <div className="px-4 sm:px-6 lg:px-8 py-8 max-w-7xl mx-auto">
       {toast && (
         <div
-          className={`fixed top-4 right-4 z-50 rounded-2xl px-5 py-3.5 shadow-premiumElevated border font-google-sans text-sm font-medium ${
+          className={`fixed top-4 right-4 z-50 rounded-2xl px-5 py-3.5 shadow-premiumElevated border font-urbanist text-sm font-medium ${
             toast.type === "success"
               ? "bg-white border-sage/30 text-sage"
               : toast.type === "error"
@@ -491,18 +491,18 @@ export default function SeedPage() {
         <div>
           <div className="flex items-center gap-2.5 mb-1">
             <Database className="w-5 h-5 text-charcoal/60" />
-            <h1 className="font-google-sans text-2xl font-bold text-charcoal tracking-tight">
+            <h1 className="font-urbanist text-2xl font-bold text-charcoal tracking-tight">
               Seed Data
             </h1>
           </div>
-          <p className="font-google-sans text-sm text-charcoal/55 ml-7">
+          <p className="font-urbanist text-sm text-charcoal/55 ml-7">
             Upload CSV / Excel, validate, then batch-insert businesses safely.
           </p>
         </div>
 
         <Link
           href="/api/admin/seed/template"
-          className="inline-flex items-center gap-1.5 rounded-xl bg-white border border-charcoal/15 shadow-premium px-4 py-2.5 text-sm font-semibold font-google-sans text-charcoal hover:bg-charcoal/[0.03] transition-colors"
+          className="inline-flex items-center gap-1.5 rounded-xl bg-white border border-charcoal/15 shadow-premium px-4 py-2.5 text-sm font-semibold font-urbanist text-charcoal hover:bg-charcoal/[0.03] transition-colors"
         >
           <Download className="w-4 h-4" />
           Download Template
@@ -539,43 +539,43 @@ export default function SeedPage() {
       {activeTab === "upload" && (
         <section className="rounded-2xl border border-charcoal/10 bg-white shadow-premium p-4 mb-4">
           <div className="flex flex-wrap items-center gap-2">
-            <label className="inline-flex items-center gap-1.5 rounded-xl bg-navbar-bg text-white px-4 py-2.5 text-sm font-semibold font-google-sans cursor-pointer hover:bg-navbar-bg/90 transition-colors">
+            <label className="inline-flex items-center gap-1.5 rounded-xl bg-navbar-bg text-white px-4 py-2.5 text-sm font-semibold font-urbanist cursor-pointer hover:bg-navbar-bg/90 transition-colors">
               <Upload className="w-4 h-4" />
               {isParsing ? "Parsing…" : "Upload .xlsx / .csv"}
               <input type="file" accept=".xlsx,.csv" className="hidden" disabled={isParsing} onChange={handleFileChange} />
             </label>
 
-            <label className="inline-flex items-center gap-2 text-sm text-charcoal/70 font-google-sans px-2 cursor-pointer select-none">
+            <label className="inline-flex items-center gap-2 text-sm text-charcoal/70 font-urbanist px-2 cursor-pointer select-none">
               <input type="checkbox" checked={allowDuplicates} onChange={(event) => setAllowDuplicates(event.target.checked)} className="rounded border-charcoal/30" />
               Allow duplicates
             </label>
 
             <div className="w-px h-6 bg-charcoal/10 mx-1" />
 
-            <button type="button" onClick={handleValidate} disabled={isValidating || isInserting || isGeocoding || seedRows.length === 0} className="inline-flex items-center gap-1.5 rounded-xl border border-charcoal/15 bg-white px-4 py-2.5 text-sm font-semibold font-google-sans text-charcoal hover:bg-charcoal/[0.03] disabled:opacity-40 transition-colors shadow-premium">
+            <button type="button" onClick={handleValidate} disabled={isValidating || isInserting || isGeocoding || seedRows.length === 0} className="inline-flex items-center gap-1.5 rounded-xl border border-charcoal/15 bg-white px-4 py-2.5 text-sm font-semibold font-urbanist text-charcoal hover:bg-charcoal/[0.03] disabled:opacity-40 transition-colors shadow-premium">
               {isValidating ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
               Validate
             </button>
 
-            <button type="button" onClick={() => handleInsert("all")} disabled={isValidating || isInserting || isGeocoding || seedRows.length === 0} className="inline-flex items-center gap-1.5 rounded-xl bg-sage text-white px-4 py-2.5 text-sm font-semibold font-google-sans hover:bg-sage/90 disabled:opacity-40 transition-colors">
+            <button type="button" onClick={() => handleInsert("all")} disabled={isValidating || isInserting || isGeocoding || seedRows.length === 0} className="inline-flex items-center gap-1.5 rounded-xl bg-sage text-white px-4 py-2.5 text-sm font-semibold font-urbanist hover:bg-sage/90 disabled:opacity-40 transition-colors">
               {isInserting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Database className="w-4 h-4" />} Insert All
             </button>
 
-            <button type="button" onClick={() => handleInsert("valid_only")} disabled={isValidating || isInserting || isGeocoding || seedRows.length === 0} className="inline-flex items-center gap-1.5 rounded-xl border border-sage/30 bg-sage/8 px-4 py-2.5 text-sm font-semibold font-google-sans text-sage hover:bg-sage/15 disabled:opacity-40 transition-colors">
+            <button type="button" onClick={() => handleInsert("valid_only")} disabled={isValidating || isInserting || isGeocoding || seedRows.length === 0} className="inline-flex items-center gap-1.5 rounded-xl border border-sage/30 bg-sage/8 px-4 py-2.5 text-sm font-semibold font-urbanist text-sage hover:bg-sage/15 disabled:opacity-40 transition-colors">
               {isInserting ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />} Insert Valid Only
             </button>
 
-            <button type="button" onClick={handleGenerateCoordinates} disabled={isValidating || isInserting || isGeocoding || seedRows.length === 0} className="inline-flex items-center gap-1.5 rounded-xl border border-charcoal/15 bg-white px-4 py-2.5 text-sm font-semibold font-google-sans text-charcoal hover:bg-charcoal/[0.03] disabled:opacity-40 transition-colors shadow-premium">
+            <button type="button" onClick={handleGenerateCoordinates} disabled={isValidating || isInserting || isGeocoding || seedRows.length === 0} className="inline-flex items-center gap-1.5 rounded-xl border border-charcoal/15 bg-white px-4 py-2.5 text-sm font-semibold font-urbanist text-charcoal hover:bg-charcoal/[0.03] disabled:opacity-40 transition-colors shadow-premium">
               {isGeocoding ? <Loader2 className="w-4 h-4 animate-spin" /> : <MapPinned className="w-4 h-4" />} Geocode
             </button>
 
-            <button type="button" onClick={handleDownloadErrorReport} disabled={!validation} className="inline-flex items-center gap-1.5 rounded-xl border border-charcoal/15 bg-white px-4 py-2.5 text-sm font-semibold font-google-sans text-charcoal hover:bg-charcoal/[0.03] disabled:opacity-40 transition-colors shadow-premium">
+            <button type="button" onClick={handleDownloadErrorReport} disabled={!validation} className="inline-flex items-center gap-1.5 rounded-xl border border-charcoal/15 bg-white px-4 py-2.5 text-sm font-semibold font-urbanist text-charcoal hover:bg-charcoal/[0.03] disabled:opacity-40 transition-colors shadow-premium">
               <Download className="w-4 h-4" /> Error Report
             </button>
           </div>
 
           {isGeocoding && (
-            <p className="text-sm text-charcoal/60 mt-3 font-google-sans">
+            <p className="text-sm text-charcoal/60 mt-3 font-urbanist">
               Geocoding: {geocodeProgress.current}/{geocodeProgress.total}
             </p>
           )}
@@ -585,7 +585,7 @@ export default function SeedPage() {
       {activeTab === "manual" && (
         <section className="space-y-4 mb-4">
           <div className="rounded-2xl border border-charcoal/10 bg-white shadow-premium p-5">
-            <h2 className="font-google-sans text-base font-semibold text-charcoal mb-4">Single Add</h2>
+            <h2 className="font-urbanist text-base font-semibold text-charcoal mb-4">Single Add</h2>
             <div className="grid gap-3 sm:grid-cols-3">
               <input value={singleRow.name} onChange={(event) => setSingleRow((prev) => ({ ...prev, name: event.target.value }))} placeholder="Name *" className="rounded-lg border border-charcoal/20 px-3 py-2 text-sm" style={{ fontFamily: FONT }} />
               <input value={singleRow.location} onChange={(event) => setSingleRow((prev) => ({ ...prev, location: event.target.value }))} placeholder="Location *" className="rounded-lg border border-charcoal/20 px-3 py-2 text-sm" style={{ fontFamily: FONT }} />
@@ -645,10 +645,10 @@ export default function SeedPage() {
 
           <div className="rounded-2xl border border-charcoal/10 bg-white shadow-premium p-5">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-google-sans text-base font-semibold text-charcoal">Multi-row Queue</h2>
+              <h2 className="font-urbanist text-base font-semibold text-charcoal">Multi-row Queue</h2>
               <div className="flex gap-2">
-                <button type="button" onClick={handleAddBlankManualRow} className="inline-flex items-center gap-1 rounded-xl border border-charcoal/15 px-3 py-1.5 text-xs font-semibold font-google-sans text-charcoal hover:bg-charcoal/[0.03] shadow-premium"><Plus className="w-3.5 h-3.5" /> Add Row</button>
-                <button type="button" onClick={handleLoadManualRows} className="inline-flex items-center gap-1 rounded-xl bg-navbar-bg text-white px-3 py-1.5 text-xs font-semibold font-google-sans hover:bg-navbar-bg/90">Use Manual Rows</button>
+                <button type="button" onClick={handleAddBlankManualRow} className="inline-flex items-center gap-1 rounded-xl border border-charcoal/15 px-3 py-1.5 text-xs font-semibold font-urbanist text-charcoal hover:bg-charcoal/[0.03] shadow-premium"><Plus className="w-3.5 h-3.5" /> Add Row</button>
+                <button type="button" onClick={handleLoadManualRows} className="inline-flex items-center gap-1 rounded-xl bg-navbar-bg text-white px-3 py-1.5 text-xs font-semibold font-urbanist hover:bg-navbar-bg/90">Use Manual Rows</button>
               </div>
             </div>
             <div className="overflow-x-auto">
@@ -719,18 +719,18 @@ export default function SeedPage() {
 
       <section className="rounded-2xl border border-charcoal/10 bg-white shadow-premium overflow-hidden">
         <div className="flex flex-wrap items-center gap-2 px-5 py-4 border-b border-charcoal/8">
-          <span className="inline-flex items-center rounded-xl bg-charcoal/8 px-3 py-1 text-xs font-semibold font-google-sans text-charcoal/70">
+          <span className="inline-flex items-center rounded-xl bg-charcoal/8 px-3 py-1 text-xs font-semibold font-urbanist text-charcoal/70">
             {seedRows.length} row{seedRows.length !== 1 ? "s" : ""} loaded
           </span>
           {validation && (
             <>
-              <span className="inline-flex items-center rounded-xl bg-sage/10 px-3 py-1 text-xs font-semibold font-google-sans text-sage">✓ {validation.summary.validRows} valid</span>
-              {validation.summary.invalidRows > 0 && <span className="inline-flex items-center rounded-xl bg-red-50 px-3 py-1 text-xs font-semibold font-google-sans text-red-700">✕ {validation.summary.invalidRows} invalid</span>}
-              {validation.summary.duplicateRows > 0 && <span className="inline-flex items-center rounded-xl bg-amber-50 px-3 py-1 text-xs font-semibold font-google-sans text-amber-700">⚠ {validation.summary.duplicateRows} duplicates</span>}
+              <span className="inline-flex items-center rounded-xl bg-sage/10 px-3 py-1 text-xs font-semibold font-urbanist text-sage">✓ {validation.summary.validRows} valid</span>
+              {validation.summary.invalidRows > 0 && <span className="inline-flex items-center rounded-xl bg-red-50 px-3 py-1 text-xs font-semibold font-urbanist text-red-700">✕ {validation.summary.invalidRows} invalid</span>}
+              {validation.summary.duplicateRows > 0 && <span className="inline-flex items-center rounded-xl bg-amber-50 px-3 py-1 text-xs font-semibold font-urbanist text-amber-700">⚠ {validation.summary.duplicateRows} duplicates</span>}
             </>
           )}
           {insertResult && (
-            <span className="inline-flex items-center rounded-xl bg-sage/10 px-3 py-1 text-xs font-semibold font-google-sans text-sage">
+            <span className="inline-flex items-center rounded-xl bg-sage/10 px-3 py-1 text-xs font-semibold font-urbanist text-sage">
               ↑ {insertResult.summary.insertedCount} inserted
             </span>
           )}
@@ -740,21 +740,21 @@ export default function SeedPage() {
           <table className="min-w-full text-sm">
             <thead>
               <tr className="border-b border-charcoal/8 bg-charcoal/[0.025] text-left">
-                <th className="px-4 py-3 font-google-sans font-semibold text-charcoal/60 text-xs uppercase tracking-wider">Row</th>
-                <th className="px-4 py-3 font-google-sans font-semibold text-charcoal/60 text-xs uppercase tracking-wider">Name</th>
-                <th className="px-4 py-3 font-google-sans font-semibold text-charcoal/60 text-xs uppercase tracking-wider">Location</th>
-                <th className="px-4 py-3 font-google-sans font-semibold text-charcoal/60 text-xs uppercase tracking-wider">Subcategory</th>
-                <th className="px-4 py-3 font-google-sans font-semibold text-charcoal/60 text-xs uppercase tracking-wider">Price</th>
-                <th className="px-4 py-3 font-google-sans font-semibold text-charcoal/60 text-xs uppercase tracking-wider">Status</th>
-                <th className="px-4 py-3 font-google-sans font-semibold text-charcoal/60 text-xs uppercase tracking-wider">Source</th>
-                <th className="px-4 py-3 font-google-sans font-semibold text-charcoal/60 text-xs uppercase tracking-wider">Coords</th>
-                <th className="px-4 py-3 font-google-sans font-semibold text-charcoal/60 text-xs uppercase tracking-wider">Validation</th>
+                <th className="px-4 py-3 font-urbanist font-semibold text-charcoal/60 text-xs uppercase tracking-wider">Row</th>
+                <th className="px-4 py-3 font-urbanist font-semibold text-charcoal/60 text-xs uppercase tracking-wider">Name</th>
+                <th className="px-4 py-3 font-urbanist font-semibold text-charcoal/60 text-xs uppercase tracking-wider">Location</th>
+                <th className="px-4 py-3 font-urbanist font-semibold text-charcoal/60 text-xs uppercase tracking-wider">Subcategory</th>
+                <th className="px-4 py-3 font-urbanist font-semibold text-charcoal/60 text-xs uppercase tracking-wider">Price</th>
+                <th className="px-4 py-3 font-urbanist font-semibold text-charcoal/60 text-xs uppercase tracking-wider">Status</th>
+                <th className="px-4 py-3 font-urbanist font-semibold text-charcoal/60 text-xs uppercase tracking-wider">Source</th>
+                <th className="px-4 py-3 font-urbanist font-semibold text-charcoal/60 text-xs uppercase tracking-wider">Coords</th>
+                <th className="px-4 py-3 font-urbanist font-semibold text-charcoal/60 text-xs uppercase tracking-wider">Validation</th>
               </tr>
             </thead>
             <tbody>
               {previewRows.length === 0 && (
                 <tr>
-                  <td colSpan={9} className="px-4 py-16 text-center font-google-sans text-sm text-charcoal/35">
+                  <td colSpan={9} className="px-4 py-16 text-center font-urbanist text-sm text-charcoal/35">
                     No rows loaded — upload a file or use Manual Entry above.
                   </td>
                 </tr>
@@ -779,34 +779,34 @@ export default function SeedPage() {
 
                 return (
                   <tr key={`preview-row-${rowNumber}`} className={`border-b border-charcoal/5 transition-colors ${hasErrors ? "bg-red-50/60" : hasWarnings ? "bg-amber-50/50" : "hover:bg-charcoal/[0.015]"}`}>
-                    <td className="px-4 py-3 font-google-sans text-xs text-charcoal/40 tabular-nums">{rowNumber}</td>
-                    <td className="px-4 py-3 font-google-sans font-medium text-charcoal">{name || <span className="text-charcoal/25">—</span>}</td>
-                    <td className="px-4 py-3 font-google-sans text-sm text-charcoal/70">{location || <span className="text-charcoal/25">—</span>}</td>
-                    <td className="px-4 py-3 font-google-sans text-sm text-charcoal/70">{subcategory || <span className="text-charcoal/25">—</span>}</td>
-                    <td className="px-4 py-3 font-google-sans text-sm text-charcoal/60">{price || "—"}</td>
+                    <td className="px-4 py-3 font-urbanist text-xs text-charcoal/40 tabular-nums">{rowNumber}</td>
+                    <td className="px-4 py-3 font-urbanist font-medium text-charcoal">{name || <span className="text-charcoal/25">—</span>}</td>
+                    <td className="px-4 py-3 font-urbanist text-sm text-charcoal/70">{location || <span className="text-charcoal/25">—</span>}</td>
+                    <td className="px-4 py-3 font-urbanist text-sm text-charcoal/70">{subcategory || <span className="text-charcoal/25">—</span>}</td>
+                    <td className="px-4 py-3 font-urbanist text-sm text-charcoal/60">{price || "—"}</td>
                     <td className="px-4 py-3">
-                      <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium font-google-sans ${status === "active" ? "bg-sage/10 text-sage" : "bg-charcoal/8 text-charcoal/60"}`}>
+                      <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium font-urbanist ${status === "active" ? "bg-sage/10 text-sage" : "bg-charcoal/8 text-charcoal/60"}`}>
                         {status || "—"}
                       </span>
                     </td>
-                    <td className="px-4 py-3 font-google-sans text-xs text-charcoal/50">{source && sourceId ? `${source}:${sourceId}` : <span className="text-charcoal/25">—</span>}</td>
-                    <td className="px-4 py-3 font-google-sans text-xs text-charcoal/50">{coords}</td>
+                    <td className="px-4 py-3 font-urbanist text-xs text-charcoal/50">{source && sourceId ? `${source}:${sourceId}` : <span className="text-charcoal/25">—</span>}</td>
+                    <td className="px-4 py-3 font-urbanist text-xs text-charcoal/50">{coords}</td>
                     <td className="px-4 py-3">
-                      {!validated && <span className="font-google-sans text-xs text-charcoal/30">—</span>}
+                      {!validated && <span className="font-urbanist text-xs text-charcoal/30">—</span>}
                       {validated && hasErrors && (
-                        <div className="font-google-sans text-xs text-red-700">
+                        <div className="font-urbanist text-xs text-red-700">
                           <div className="inline-flex items-center gap-1 font-semibold mb-0.5"><AlertTriangle className="w-3 h-3" /> Invalid</div>
                           <p className="text-red-600/80">{validated.errors.join("; ")}</p>
                         </div>
                       )}
                       {validated && !hasErrors && hasWarnings && (
-                        <div className="font-google-sans text-xs text-amber-700">
+                        <div className="font-urbanist text-xs text-amber-700">
                           <p className="font-semibold mb-0.5">Warning</p>
                           <p className="text-amber-600/80">{validated.warnings.join("; ")}</p>
                         </div>
                       )}
                       {validated && !hasErrors && !hasWarnings && (
-                        <span className="inline-flex items-center gap-1 font-google-sans text-xs font-semibold text-sage">
+                        <span className="inline-flex items-center gap-1 font-urbanist text-xs font-semibold text-sage">
                           <CheckCircle2 className="w-3 h-3" /> Ready
                         </span>
                       )}
@@ -819,7 +819,7 @@ export default function SeedPage() {
         </div>
 
         {seedRows.length > previewRows.length && (
-          <p className="font-google-sans text-xs text-charcoal/45 px-5 py-3 border-t border-charcoal/8">
+          <p className="font-urbanist text-xs text-charcoal/45 px-5 py-3 border-t border-charcoal/8">
             Showing first {previewRows.length} of {seedRows.length} rows.
           </p>
         )}
@@ -827,7 +827,3 @@ export default function SeedPage() {
     </div>
   );
 }
-
-
-
-

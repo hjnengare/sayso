@@ -44,7 +44,7 @@ export const SettingsMenuItem: React.FC<SettingsMenuItemProps> = ({
     >
       <div className="flex items-center space-x-3">
         <Icon className={`${styles.icon} w-5 h-5`} />
-        <span className={`font-google-sans text-base font-500 ${styles.text} transition-colors duration-200`}>
+        <span className={`font-urbanist text-base font-500 ${styles.text} transition-colors duration-200`}>
           {label}
         </span>
       </div>
@@ -57,4 +57,3 @@ export const SettingsMenuItem: React.FC<SettingsMenuItemProps> = ({
     </button>
   );
 };
-

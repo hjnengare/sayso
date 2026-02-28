@@ -10,7 +10,7 @@ interface SubcategorySelectionProps {
 
 export default function SubcategorySelection({ selectedCount, maxSelections = 10, children }: SubcategorySelectionProps) {
   const sfPro = {
-    fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+    fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
     fontWeight: 600,
   };
 
@@ -35,7 +35,3 @@ export default function SubcategorySelection({ selectedCount, maxSelections = 10
     </div>
   );
 }
-
-
-
-

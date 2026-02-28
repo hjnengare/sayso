@@ -147,10 +147,10 @@ export default function ErrorPage({
 
   return (
     <div
-      className="min-h-dvh bg-off-white relative overflow-hidden font-google-sans"
+      className="min-h-dvh bg-off-white relative overflow-hidden font-urbanist"
       style={{
         fontFamily:
-          '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+          "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
       }}
     >
       {/* Subtle background gradient accent */}
@@ -175,14 +175,14 @@ export default function ErrorPage({
 
           {/* Title */}
           <FadeInUp delay={0.2}>
-            <h1 className="font-google-sans text-2xl md:text-4xl font-700 text-charcoal mb-4">
+            <h1 className="font-urbanist text-2xl md:text-4xl font-700 text-charcoal mb-4">
               {finalTitle}
             </h1>
           </FadeInUp>
 
           {/* Description */}
           <FadeInUp delay={0.3}>
-            <p className="font-google-sans text-base md:text-lg font-500 text-charcoal/70 mb-8 max-w-lg mx-auto leading-relaxed">
+            <p className="font-urbanist text-base md:text-lg font-500 text-charcoal/70 mb-8 max-w-lg mx-auto leading-relaxed">
               {finalDescription}
             </p>
           </FadeInUp>
@@ -194,7 +194,7 @@ export default function ErrorPage({
               <PremiumHover scale={1.02}>
                 <Link
                   href={finalPrimaryAction.href}
-                  className="inline-flex items-center justify-center gap-2 w-full sm:w-auto py-4 px-8 bg-card-bg hover:bg-card-bg/90 text-white font-google-sans font-600 text-base rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl hover:shadow-sage/20 group"
+                  className="inline-flex items-center justify-center gap-2 w-full sm:w-auto py-4 px-8 bg-card-bg hover:bg-card-bg/90 text-white font-urbanist font-600 text-base rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl hover:shadow-sage/20 group"
                 >
                   {finalPrimaryAction.icon}
                   <span>{finalPrimaryAction.label}</span>
@@ -206,7 +206,7 @@ export default function ErrorPage({
                 <PremiumHover scale={1.02}>
                   <button
                     onClick={secondaryAction.onClick}
-                    className="inline-flex items-center justify-center gap-2 w-full sm:w-auto py-4 px-8 bg-off-white/80 backdrop-blur-sm text-charcoal font-google-sans font-600 text-base rounded-lg border border-sage/20 shadow-sm transition-all duration-300 hover:shadow-md hover:bg-white/90 group"
+                    className="inline-flex items-center justify-center gap-2 w-full sm:w-auto py-4 px-8 bg-off-white/80 backdrop-blur-sm text-charcoal font-urbanist font-600 text-base rounded-lg border border-sage/20 shadow-sm transition-all duration-300 hover:shadow-md hover:bg-white/90 group"
                   >
                     {secondaryAction.icon}
                     <span>{secondaryAction.label}</span>
@@ -220,7 +220,7 @@ export default function ErrorPage({
           {showContactSupport && (
             <FadeInUp delay={0.5}>
               <div className="pt-8 border-t border-sage/10">
-                <p className="font-google-sans text-sm font-500 text-charcoal/70">
+                <p className="font-urbanist text-sm font-500 text-charcoal/70">
                   Need help?{" "}
                   <a
                     href={`mailto:${supportEmail}`}
@@ -237,7 +237,3 @@ export default function ErrorPage({
     </div>
   );
 }
-
-
-
-

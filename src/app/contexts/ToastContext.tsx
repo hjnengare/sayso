@@ -155,7 +155,7 @@ export function ToastProvider({ children }: ToastProviderProps) {
                   {getToastIcon(toast.type)}
                 </m.div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-google-sans text-xs sm:text-sm font-600 leading-tight break-words">
+                  <p className="font-urbanist text-xs sm:text-sm font-600 leading-tight break-words">
                     {toast.message}
                   </p>
                 </div>
@@ -184,4 +184,3 @@ export function useToast() {
   }
   return context;
 }
-

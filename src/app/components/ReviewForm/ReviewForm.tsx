@@ -75,13 +75,13 @@ export default function ReviewForm({
         <div>
           <h2
             className="text-xl font-bold text-charcoal"
-            style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}
+            style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
           >
             Write a Review
           </h2>
           <p
             className="text-sm text-charcoal/70"
-            style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}
+            style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
           >
             Share your experience with {businessName}
           </p>
@@ -146,7 +146,7 @@ export default function ReviewForm({
             <Camera className="w-4 h-4 text-charcoal/60" />
             <h3
               className="text-base font-semibold text-charcoal"
-              style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}
+              style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
             >
               Photos
               <span className="ml-1 text-sm font-normal text-charcoal/40">(optional)</span>
@@ -154,7 +154,7 @@ export default function ReviewForm({
             {hasImages && (
               <span
                 className="ml-auto text-sm text-charcoal/70"
-                style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}
+                style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
               >
                 {existingImages.length + selectedImages.length}/2
               </span>
@@ -187,8 +187,3 @@ export default function ReviewForm({
     </m.div>
   );
 }
-
-
-
-
-

@@ -248,7 +248,7 @@ function CompletePageContent() {
             <WavyTypedTitle
               text="You're all set!"
               as="h1"
-              className="font-google-sans text-lg md:text-4xl lg:text-5xl font-700 tracking-tight leading-snug text-charcoal"
+              className="font-urbanist text-lg md:text-4xl lg:text-5xl font-700 tracking-tight leading-snug text-charcoal"
               typingSpeedMs={40}
               startDelayMs={300}
               waveVariant="subtle"
@@ -256,14 +256,14 @@ function CompletePageContent() {
               triggerOnTypingComplete={true}
               enableScrollTrigger={false}
               style={{ 
-                fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                 fontWeight: 700,
               }}
             />
           </div>
 
           {/* Subheading */}
-          <p className="text-base md:text-lg font-normal text-charcoal/70 mb-4 leading-relaxed" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+          <p className="text-base md:text-lg font-normal text-charcoal/70 mb-4 leading-relaxed" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
             Time to discover what&apos;s out there.
           </p>
 
@@ -297,7 +297,7 @@ function CompletePageContent() {
               data-testid="onboarding-complete-cta"
               aria-label="Go to Home"
               className="relative block w-[200px] mx-auto rounded-full py-4 px-4 text-body font-semibold text-white text-center flex items-center justify-center bg-gradient-to-r from-coral to-coral/80 hover:from-sage hover:to-sage border border-white/30 ring-1 ring-coral/20 hover:ring-sage/20 backdrop-blur-sm transition-all duration-300 btn-target btn-press focus:outline-none focus-visible:ring-4 focus-visible:ring-sage/30 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
+              style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
             >
               {isNavigating ? 'Going to Home...' : 'Continue to Home'}
               {!isNavigating && <ArrowRight className="w-5 h-5 ml-2 inline-block" />}
@@ -336,7 +336,3 @@ export default function CompletePage() {
     </ProtectedRoute>
   );
 }
-
-
-
-

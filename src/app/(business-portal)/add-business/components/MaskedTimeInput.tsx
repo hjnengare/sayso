@@ -94,7 +94,7 @@ const MaskedTimeInput: React.FC<MaskedTimeInputProps> = ({
                 onBlur={handleBlur}
                 placeholder={placeholder}
                 maxLength={5}
-                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
+                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
                 className={`w-full rounded-full bg-white border px-4 py-2.5 text-sm font-semibold text-charcoal placeholder-charcoal/40 focus:outline-none focus:ring-2 transition-all duration-200 text-center ${
                     !isValid
                         ? 'border-coral focus:ring-coral/30 focus:border-coral'
@@ -115,8 +115,3 @@ const MaskedTimeInput: React.FC<MaskedTimeInputProps> = ({
 };
 
 export default MaskedTimeInput;
-
-
-
-
-

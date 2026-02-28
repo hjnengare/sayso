@@ -103,7 +103,7 @@ function selectStableSubset(images: string[], cap: number, seed: string): string
   return seededShuffle(images, seed).slice(0, cap);
 }
 
-const FONT_STACK = '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif';
+const FONT_STACK = "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif";
 
 const buildSlides = (images: string[], seed: string): HeroSlide[] => {
   const randomized = seededShuffle(images, seed);
@@ -630,7 +630,7 @@ export default function HeroCarousel() {
           >
             <m.h2
               className="text-[2rem] sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-off-white drop-shadow-lg mb-3 sm:mb-4 leading-[1.1] tracking-[-0.02em] whitespace-pre-line [word-break:normal] [overflow-wrap:normal] [hyphens:none]"
-              style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', textShadow: '0 2px 24px rgba(0,0,0,0.4)' }}
+              style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', textShadow: '0 2px 24px rgba(0,0,0,0.4)' }}
               variants={heroTitleEntranceVariants}
             >
               <span className="inline-grid items-center justify-items-center whitespace-pre-line [word-break:normal] [overflow-wrap:normal] [hyphens:none]">
@@ -653,7 +653,7 @@ export default function HeroCarousel() {
             </m.h2>
             <m.p
               className="text-base sm:text-lg lg:text-xl text-off-white/90 drop-shadow-md max-w-xl mb-5 sm:mb-6 leading-relaxed whitespace-pre-line [word-break:normal] [overflow-wrap:normal] [hyphens:none]"
-              style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 500 }}
+              style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 500 }}
               variants={heroSubtitleEntranceVariants}
             >
               <span className="grid whitespace-pre-line [word-break:normal] [overflow-wrap:normal] [hyphens:none]">
@@ -685,7 +685,7 @@ export default function HeroCarousel() {
                   href="/login"
                   className="mi-tap group relative inline-flex items-center justify-center rounded-full min-h-[48px] py-3 px-10 sm:px-12 text-base font-semibold text-white text-center bg-gradient-to-r from-coral to-coral/80 hover:from-sage hover:to-sage transition-all duration-300 shadow-lg hover:shadow-xl focus:outline-none focus-visible:ring-4 focus-visible:ring-sage/30 focus-visible:ring-offset-2 w-full max-w-[320px] sm:w-auto sm:min-w-[180px]"
                   style={{
-                    fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                    fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                     fontWeight: 600,
                   }}
                 >
@@ -696,7 +696,7 @@ export default function HeroCarousel() {
                   href="/trending"
                   className="mi-tap group relative inline-flex items-center justify-center rounded-full min-h-[48px] py-3 px-10 sm:px-12 text-base font-semibold text-white text-center bg-gradient-to-r from-coral to-coral/80 hover:from-sage hover:to-sage transition-all duration-300 shadow-lg hover:shadow-xl focus:outline-none focus-visible:ring-4 focus-visible:ring-sage/30 focus-visible:ring-offset-2 w-full max-w-[320px] sm:w-auto sm:min-w-[180px]"
                   style={{
-                    fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                    fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                     fontWeight: 600,
                   }}
                 >
@@ -730,9 +730,4 @@ export default function HeroCarousel() {
     </>
   );
 }
-
-
-
-
-
 

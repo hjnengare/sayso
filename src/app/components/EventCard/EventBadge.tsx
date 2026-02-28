@@ -1,4 +1,4 @@
-// Generate a unique color for each event based on its ID
+﻿// Generate a unique color for each event based on its ID
 // This ensures every event badge has a different color
 const getUniqueEventColor = (eventId: string): string => {
   // Create a simple hash from the event ID
@@ -86,7 +86,7 @@ interface EventBadgeProps {
   position?: "corner" | "middle";
 }
 
-const EN_DASH = '�';
+const EN_DASH = '–';
 
 const formatCompact = (start: Date, end?: Date): string => {
   const dayFormatter = new Intl.DateTimeFormat('en-US', { day: 'numeric' });
@@ -169,7 +169,7 @@ export default function EventBadge({
           style={{
             minWidth: "160px",
             textAlign: "center",
-            fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+            fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
             fontWeight: 700,
             fontSize: "0.75rem",
             letterSpacing: "0.015em",
@@ -193,7 +193,7 @@ export default function EventBadge({
           top: '22px',
           width: '250px',
           textAlign: 'center',
-          fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+          fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
           fontWeight: 600,
           fontSize: '0.75rem',
           letterSpacing: '0.025em',
@@ -204,7 +204,3 @@ export default function EventBadge({
     </div>
   );
 }
-
-
-
-

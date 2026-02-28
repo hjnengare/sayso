@@ -41,7 +41,7 @@ export default function IconButton({
   return (
     <button
       className={`
-        inline-flex items-center justify-center rounded-6 font-google-sans font-500 
+        inline-flex items-center justify-center rounded-6 font-urbanist font-500 
         transition-all duration-1 ease-cubic-out focus:outline-none focus:ring-2 
         focus:ring-hoockers-green focus:ring-offset-2 shadow-md
         ${variantClasses[variant]} ${sizeClasses[size]} ${className}
@@ -54,4 +54,3 @@ export default function IconButton({
     </button>
   );
 }
-

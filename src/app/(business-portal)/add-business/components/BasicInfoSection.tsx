@@ -125,7 +125,7 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-sage/10 to-transparent rounded-full blur-lg pointer-events-none"></div>
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-coral/10 to-transparent rounded-full blur-lg pointer-events-none"></div>
             <div className="relative z-10">
-                <h3 className="font-google-sans text-base font-semibold text-charcoal mb-6 flex items-center gap-3" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
+                <h3 className="font-urbanist text-base font-semibold text-charcoal mb-6 flex items-center gap-3" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
                     <span className={ICON_CHIP_CLASS}>
                         <Store className="w-5 h-5" />
                     </span>
@@ -135,7 +135,7 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
                 <div className="space-y-6">
                     {/* Business Name */}
                     <div>
-                        <label className="block text-sm font-semibold text-charcoal mb-2" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
+                        <label className="block text-sm font-semibold text-charcoal mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
                             Business Name <span className="text-coral">*</span>
                         </label>
                         <input
@@ -148,7 +148,7 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
                             aria-invalid={touched.name && errors.name ? "true" : "false"}
                             aria-describedby={touched.name && errors.name ? "name-error" : undefined}
                             aria-required="true"
-                            style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
+                            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
                             className={`w-full bg-white/95 backdrop-blur-sm border pl-4 pr-4 py-3 sm:py-4 md:py-5 text-body font-semibold text-charcoal placeholder-charcoal/50 placeholder:font-normal focus:outline-none focus:ring-2 transition-all duration-300 hover:border-sage/50 input-mobile rounded-full ${
                                 errors.name
                                     ? 'border-navbar-bg focus:border-navbar-bg focus:ring-navbar-bg/20'
@@ -160,7 +160,7 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
                             <p
                                 className="mt-2 text-sm text-charcoal/60 font-medium flex items-center gap-1.5"
                                 aria-live="polite"
-                                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                             >
                                 <Loader2 className="w-4 h-4 animate-spin" />
                                 Checking availability...
@@ -170,14 +170,14 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
                             <div id="name-error" role="alert" aria-live="polite" className="mt-2 space-y-1">
                                 <p
                                     className="text-sm text-coral font-medium"
-                                    style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                                    style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                                 >
                                     {errors.name}
                                 </p>
                                 {errors.name === DUPLICATE_NAME_ERROR && (
                                     <p
                                         className="text-sm text-charcoal/70"
-                                        style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                                        style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                                     >
                                         This business may already be listed.{" "}
                                         <Link
@@ -194,13 +194,13 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
 
                     {/* Main Category */}
                     <div>
-                        <label className="block text-sm font-semibold text-charcoal mb-2" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
+                        <label className="block text-sm font-semibold text-charcoal mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
                             Main Category <span className="text-coral">*</span>
                         </label>
                         {loadingCategories ? (
                             <div className="w-full bg-white/95 backdrop-blur-sm border-none pl-4 pr-4 py-3 sm:py-4 md:py-5 rounded-full flex items-center gap-2">
                                 <Loader2 className="w-4 h-4 animate-spin text-charcoal/60" />
-                                <span className="text-body text-charcoal/60 font-semibold" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>Loading categories...</span>
+                                <span className="text-body text-charcoal/60 font-semibold" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>Loading categories...</span>
                             </div>
                         ) : (
                             <>
@@ -217,17 +217,17 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
                                     noOptionsText="No categories found"
                                 />
                                 {selectedMainCategoryLabel && (
-                                    <p className="mt-2 text-xs text-charcoal/70" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                    <p className="mt-2 text-xs text-charcoal/70" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                                         Selected: {selectedMainCategoryLabel}
                                     </p>
                                 )}
                                 {formData.mainCategory === 'miscellaneous' && (
-                                    <p className="mt-2 text-xs text-charcoal/80" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                    <p className="mt-2 text-xs text-charcoal/80" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                                         We&apos;ll list this under Miscellaneous.
                                     </p>
                                 )}
                                 {touched.mainCategory && errors.mainCategory && (
-                                    <p id="mainCategory-error" className="mt-2 text-sm text-navbar-bg font-medium" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                    <p id="mainCategory-error" className="mt-2 text-sm text-navbar-bg font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                                         {errors.mainCategory}
                                     </p>
                                 )}
@@ -237,7 +237,7 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
 
                     {/* Subcategory */}
                     <div>
-                        <label className="block text-sm font-semibold text-charcoal mb-2" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
+                        <label className="block text-sm font-semibold text-charcoal mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
                             Subcategory <span className="text-coral">*</span>
                         </label>
                         <CustomDropdown
@@ -254,22 +254,22 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
                             noOptionsText={formData.mainCategory ? 'No subcategories available' : 'Select a main category first'}
                         />
                         {!formData.mainCategory && (
-                            <p className="mt-2 text-xs text-charcoal/70" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                            <p className="mt-2 text-xs text-charcoal/70" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                                 Choose a main category before selecting a subcategory.
                             </p>
                         )}
                         {selectedSubcategoryLabel && (
-                            <p className="mt-2 text-xs text-charcoal/70" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                            <p className="mt-2 text-xs text-charcoal/70" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                                 Selected: {selectedSubcategoryLabel}
                             </p>
                         )}
                         {formData.category === 'other' && formData.mainCategory && (
-                            <p className="mt-2 text-xs text-charcoal/80" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                            <p className="mt-2 text-xs text-charcoal/80" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                                 We&apos;ll keep this business discoverable under the selected main category.
                             </p>
                         )}
                         {touched.category && errors.category && (
-                            <p id="category-error" className="mt-2 text-sm text-navbar-bg font-medium" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                            <p id="category-error" className="mt-2 text-sm text-navbar-bg font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                                 {errors.category}
                             </p>
                         )}
@@ -279,7 +279,7 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
                     {formData.category && (
                         <div className="space-y-4 pt-4 border-t border-charcoal/10">
                             <div>
-                                <label className="block text-sm font-semibold text-charcoal mb-3" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
+                                <label className="block text-sm font-semibold text-charcoal mb-3" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
                                     What kind of business is this?
                                 </label>
                                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -336,7 +336,7 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
                                             className="w-5 h-5 rounded border-charcoal/20 bg-white text-coral focus:ring-coral/30 focus:ring-offset-0"
                                         />
                                         <LinkIcon className="w-5 h-5 text-charcoal/60" />
-                                        <span className="text-sm font-semibold text-charcoal" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
+                                        <span className="text-sm font-semibold text-charcoal" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
                                             Part of a chain
                                         </span>
                                     </label>
@@ -347,14 +347,14 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
 
                     {/* Description */}
                     <div>
-                        <label className="block text-sm font-semibold text-charcoal mb-2" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
+                        <label className="block text-sm font-semibold text-charcoal mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
                             Description
                         </label>
                         <textarea
                             value={formData.description}
                             onChange={(e) => onInputChange('description', e.target.value)}
                             rows={4}
-                            style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
+                            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
                             className="w-full bg-white/95 backdrop-blur-sm border pl-4 pr-4 py-3 sm:py-4 md:py-5 text-body font-semibold text-charcoal placeholder-charcoal/50 placeholder:font-normal focus:outline-none focus:ring-2 transition-all duration-300 hover:border-sage/50 input-mobile rounded-[12px] resize-none border-charcoal/15 focus:ring-navbar-bg/30 focus:border-navbar-bg"
                             placeholder="Describe your business..."
                         />
@@ -366,8 +366,3 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
 };
 
 export default BasicInfoSection;
-
-
-
-
-

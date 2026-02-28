@@ -238,7 +238,7 @@ export default function MyBusinessesPage() {
       <div className="px-4 sm:px-6 lg:px-8 py-8 max-w-5xl mx-auto">
         <div className="flex items-center gap-2.5 mb-6">
           <div className="w-5 h-5 border-2 border-charcoal/15 border-t-charcoal/60 rounded-full animate-spin" />
-          <span className="font-google-sans text-sm text-charcoal/50">Loading…</span>
+          <span className="font-urbanist text-sm text-charcoal/50">Loading…</span>
         </div>
         <SkeletonList count={3} />
       </div>
@@ -253,13 +253,13 @@ export default function MyBusinessesPage() {
   if (businessesError) {
     return (
       <div className="px-4 sm:px-6 lg:px-8 py-8 max-w-5xl mx-auto">
-        <div className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-red-800 text-sm font-google-sans mb-6">
+        <div className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-red-800 text-sm font-urbanist mb-6">
           {businessesError}
         </div>
         <button
           type="button"
           onClick={() => refetchBusinesses()}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-navbar-bg text-white text-sm font-semibold rounded-xl hover:bg-navbar-bg/90 transition-colors font-google-sans"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-navbar-bg text-white text-sm font-semibold rounded-xl hover:bg-navbar-bg/90 transition-colors font-urbanist"
         >
           Retry
         </button>
@@ -276,22 +276,22 @@ export default function MyBusinessesPage() {
             <span className={`w-8 h-8 ${ICON_CHIP_BASE_CLASS}`}>
               <Store className="w-4 h-4" />
             </span>
-            <h1 className="font-google-sans text-2xl font-bold text-charcoal tracking-tight">
+            <h1 className="font-urbanist text-2xl font-bold text-charcoal tracking-tight">
               My Businesses
             </h1>
             {businesses.length > 0 && (
-              <span className="inline-flex items-center justify-center min-w-[24px] h-6 px-2 rounded-full bg-card-bg/15 text-card-bg text-xs font-bold font-google-sans">
+              <span className="inline-flex items-center justify-center min-w-[24px] h-6 px-2 rounded-full bg-card-bg/15 text-card-bg text-xs font-bold font-urbanist">
                 {businesses.length}
               </span>
             )}
           </div>
-          <p className="font-google-sans text-sm text-charcoal/55 ml-7">
+          <p className="font-urbanist text-sm text-charcoal/55 ml-7">
             Manage your business listings and events
           </p>
         </div>
         <Link
           href="/add-business"
-          className="inline-flex items-center gap-1.5 rounded-xl bg-card-bg text-white px-4 py-2 text-sm font-semibold font-google-sans hover:bg-card-bg/90 transition-colors"
+          className="inline-flex items-center gap-1.5 rounded-xl bg-card-bg text-white px-4 py-2 text-sm font-semibold font-urbanist hover:bg-card-bg/90 transition-colors"
         >
           <span className="w-6 h-6 rounded-full bg-off-white/90 text-charcoal flex items-center justify-center">
             <Plus className="w-3.5 h-3.5" />
@@ -306,22 +306,22 @@ export default function MyBusinessesPage() {
           <div className={`w-16 h-16 ${ICON_CHIP_BASE_CLASS}`}>
             <Store className="w-8 h-8" />
           </div>
-          <p className="font-google-sans text-base font-semibold text-charcoal/70">
+          <p className="font-urbanist text-base font-semibold text-charcoal/70">
             No businesses or events yet
           </p>
-          <p className="font-google-sans text-sm text-charcoal/40">
+          <p className="font-urbanist text-sm text-charcoal/40">
             Add your business or create an event to get started
           </p>
           <div className="flex gap-3 mt-2">
             <Link
               href="/add-business"
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-card-bg text-white text-sm font-semibold rounded-xl hover:bg-card-bg/90 transition-colors font-google-sans"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-card-bg text-white text-sm font-semibold rounded-xl hover:bg-card-bg/90 transition-colors font-urbanist"
             >
               Add Business
             </Link>
             <Link
               href="/add-event"
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-navbar-bg text-white text-sm font-semibold rounded-xl hover:bg-navbar-bg/90 transition-colors font-google-sans"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-navbar-bg text-white text-sm font-semibold rounded-xl hover:bg-navbar-bg/90 transition-colors font-urbanist"
             >
               Create Event
             </Link>
@@ -352,10 +352,10 @@ export default function MyBusinessesPage() {
               {/* Header */}
               <div className="flex-shrink-0 px-5 py-4 border-b border-charcoal/8 space-y-3">
                 <div>
-                  <h2 className="font-google-sans text-base font-semibold text-charcoal">
+                  <h2 className="font-urbanist text-base font-semibold text-charcoal">
                     Events & Specials
                   </h2>
-                  <p className="font-google-sans text-xs text-charcoal/50 mt-0.5">
+                  <p className="font-urbanist text-xs text-charcoal/50 mt-0.5">
                     {filteredOwnerListings.length} shown
                     {listingsBusinessFilter !== "all" ? ` for ${selectedBusinessName}` : ""}
                   </p>
@@ -363,7 +363,7 @@ export default function MyBusinessesPage() {
                 <div className="flex gap-2">
                   <Link
                     href="/add-event"
-                    className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-navbar-bg text-white text-xs font-semibold hover:bg-navbar-bg/90 transition-colors flex-1 font-google-sans"
+                    className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-navbar-bg text-white text-xs font-semibold hover:bg-navbar-bg/90 transition-colors flex-1 font-urbanist"
                   >
                     <span className="w-5 h-5 rounded-full bg-off-white/90 text-charcoal flex items-center justify-center">
                       <Plus className="w-3 h-3" />
@@ -372,7 +372,7 @@ export default function MyBusinessesPage() {
                   </Link>
                   <Link
                     href="/add-special"
-                    className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-coral text-white text-xs font-semibold hover:bg-coral/90 transition-colors flex-1 font-google-sans"
+                    className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-coral text-white text-xs font-semibold hover:bg-coral/90 transition-colors flex-1 font-urbanist"
                   >
                     <span className="w-5 h-5 rounded-full bg-off-white/90 text-charcoal flex items-center justify-center">
                       <Plus className="w-3 h-3" />
@@ -398,7 +398,7 @@ export default function MyBusinessesPage() {
                         role="tab"
                         aria-selected={active}
                         onClick={() => setListingsTypeFilter(filter.key)}
-                        className={`px-2 py-1.5 rounded-lg text-xs font-semibold transition-colors font-google-sans ${
+                        className={`px-2 py-1.5 rounded-lg text-xs font-semibold transition-colors font-urbanist ${
                           active ? "bg-navbar-bg text-white shadow-sm" : "text-charcoal/60 hover:text-charcoal"
                         }`}
                       >
@@ -415,7 +415,7 @@ export default function MyBusinessesPage() {
                   <select
                     value={listingsBusinessFilter}
                     onChange={(e) => setListingsBusinessFilter(e.target.value)}
-                    className="w-full font-google-sans text-xs text-charcoal bg-white border border-charcoal/15 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-card-bg/30"
+                    className="w-full font-urbanist text-xs text-charcoal bg-white border border-charcoal/15 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-card-bg/30"
                   >
                     <option value="all">All businesses</option>
                     {businesses.map((b) => (
@@ -427,7 +427,7 @@ export default function MyBusinessesPage() {
 
               {listingsWarning && (
                 <div className="flex-shrink-0 px-4 pt-3">
-                  <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 font-google-sans">
+                  <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 font-urbanist">
                     {listingsWarning}
                   </div>
                 </div>
@@ -437,44 +437,44 @@ export default function MyBusinessesPage() {
               <div className="flex-1 min-h-0 overflow-y-auto p-4 pt-3">
                 {ownerListings.length === 0 ? (
                   <div className="rounded-xl border border-charcoal/8 bg-charcoal/[0.025] px-4 py-8 text-center">
-                    <p className="font-google-sans text-sm font-semibold text-charcoal/60">No events or specials yet.</p>
-                    <p className="font-google-sans text-xs text-charcoal/40 mt-1">Create one and it will appear here.</p>
+                    <p className="font-urbanist text-sm font-semibold text-charcoal/60">No events or specials yet.</p>
+                    <p className="font-urbanist text-xs text-charcoal/40 mt-1">Create one and it will appear here.</p>
                   </div>
                 ) : filteredOwnerListings.length === 0 ? (
                   <div className="rounded-xl border border-charcoal/8 bg-charcoal/[0.025] px-4 py-8 text-center">
-                    <p className="font-google-sans text-sm font-semibold text-charcoal/60">No listings match your filters.</p>
+                    <p className="font-urbanist text-sm font-semibold text-charcoal/60">No listings match your filters.</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
                     {filteredOwnerListings.map((listing) => (
                       <article key={listing.id} className="rounded-xl border border-charcoal/8 bg-white p-3 flex flex-col gap-2">
                         <div className="flex items-center justify-between gap-2">
-                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold font-google-sans ${
+                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold font-urbanist ${
                             listing.type === "event" ? "bg-navbar-bg/10 text-navbar-bg" : "bg-coral/10 text-coral"
                           }`}>
                             {listing.type === "event" ? <CalendarDays className="w-3 h-3" /> : <Sparkles className="w-3 h-3" />}
                             {listing.type === "event" ? "Event" : "Special"}
                           </span>
-                          <span className="text-xs text-charcoal/50 truncate max-w-[50%] font-google-sans">
+                          <span className="text-xs text-charcoal/50 truncate max-w-[50%] font-urbanist">
                             {listing.businessName}
                           </span>
                         </div>
-                        <h3 className="font-google-sans text-sm font-semibold text-charcoal line-clamp-1">
+                        <h3 className="font-urbanist text-sm font-semibold text-charcoal line-clamp-1">
                           {listing.title}
                         </h3>
                         {listing.description && (
-                          <p className="font-google-sans text-xs text-charcoal/60 line-clamp-2">
+                          <p className="font-urbanist text-xs text-charcoal/60 line-clamp-2">
                             {listing.description}
                           </p>
                         )}
                         <div className="space-y-1">
-                          <div className="flex items-center gap-1.5 text-xs text-charcoal/60 font-google-sans">
+                          <div className="flex items-center gap-1.5 text-xs text-charcoal/60 font-urbanist">
                             <span className="w-6 h-6 rounded-full bg-off-white/70 text-charcoal/85 flex items-center justify-center flex-shrink-0">
                               <Clock3 className="w-3.5 h-3.5" />
                             </span>
                             <span className="truncate">{formatDateRange(listing.startDate, listing.endDate)}</span>
                           </div>
-                          <div className="flex items-center gap-1.5 text-xs text-charcoal/60 font-google-sans">
+                          <div className="flex items-center gap-1.5 text-xs text-charcoal/60 font-urbanist">
                             <span className="w-6 h-6 rounded-full bg-off-white/70 text-charcoal/85 flex items-center justify-center flex-shrink-0">
                               <MapPin className="w-3.5 h-3.5" />
                             </span>
@@ -483,7 +483,7 @@ export default function MyBusinessesPage() {
                         </div>
                         <Link
                           href={getListingDetailHref(listing)}
-                          className="inline-flex items-center justify-center w-full px-3 py-1.5 rounded-xl bg-charcoal text-white text-xs font-semibold hover:bg-charcoal/90 transition-colors mt-1 font-google-sans"
+                          className="inline-flex items-center justify-center w-full px-3 py-1.5 rounded-xl bg-charcoal text-white text-xs font-semibold hover:bg-charcoal/90 transition-colors mt-1 font-urbanist"
                         >
                           View details
                         </Link>
@@ -499,4 +499,3 @@ export default function MyBusinessesPage() {
     </div>
   );
 }
-

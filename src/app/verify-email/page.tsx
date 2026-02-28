@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { Urbanist } from "next/font/google";
 import { useAuth } from "../contexts/AuthContext";
 import { useToast } from "../contexts/ToastContext";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
@@ -12,7 +13,12 @@ import { Mail, CheckCircle, ExternalLink, ArrowLeft, AlertCircle } from "lucide-
 import { Loader as AppLoader } from "../components/Loader";
 import WavyTypedTitle from "@/app/components/Animations/WavyTypedTitle";
 
-const GOOGLE_SANS_FONT_FAMILY = '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif';
+const urbanist = Urbanist({
+  weight: ["400", "600", "700", "800"],
+  subsets: ["latin"],
+  display: "swap",
+});
+
 const styles = `
   /* Mobile-first typography scale - Body text = 16px */
   .text-body { font-size: 1rem; line-height: 1.5; }
@@ -779,13 +785,13 @@ export default function VerifyEmailPage() {
               </div>
               <h2 
                 className="text-2xl font-bold text-charcoal mb-3"
-                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
               >
                 Email Verified!
               </h2>
               <p 
                 className="text-base text-charcoal/70 mb-6"
-                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
               >
                 {user 
                   ? "Redirecting you to continue setup..." 
@@ -813,13 +819,13 @@ export default function VerifyEmailPage() {
               </div>
               <h2
                 className="text-2xl font-bold text-charcoal mb-3"
-                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
               >
                 Verification Link Expired
               </h2>
               <p
                 className="text-base text-charcoal/70 mb-6 leading-relaxed"
-                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
               >
                 {expiredEmail
                   ? <>The verification link for <strong className="text-charcoal">{expiredEmail}</strong> has expired. Request a new one below.</>
@@ -861,7 +867,7 @@ export default function VerifyEmailPage() {
                   <div className="rounded-lg border border-sage/20 bg-card-bg/5 px-4 py-3">
                     <p
                       className="text-sm text-charcoal/80"
-                      style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                      style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
                     >
                       {resendRateLimitMessage || resendCooldownMessage}
                     </p>
@@ -981,18 +987,18 @@ export default function VerifyEmailPage() {
               <WavyTypedTitle
                 text="Check Your Email"
                 as="h2"
-                className={`font-google-sans text-3xl md:text-4xl font-semibold mb-2 text-center leading-[1.2] px-2 tracking-tight text-charcoal`}
+                className={`${urbanist.className} text-3xl md:text-4xl font-semibold mb-2 text-center leading-[1.2] px-2 tracking-tight text-charcoal`}
                 typingSpeedMs={40}
                 startDelayMs={300}
                 waveVariant="subtle"
                 loopWave={false}
-                style={{ fontFamily: GOOGLE_SANS_FONT_FAMILY }}
+                style={{ fontFamily: urbanist.style.fontFamily }}
               />
             </div>
             <p
               className="text-body font-normal text-charcoal/70 mb-4 leading-[1.55] px-2 max-w-[70ch] mx-auto animate-fade-in-up animate-delay-700"
               style={{
-                fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                 fontWeight: 400,
               }}
             >
@@ -1013,7 +1019,7 @@ export default function VerifyEmailPage() {
               >
                 <p
                   className="text-lg font-600 text-white group-hover:text-white transition-colors duration-300 flex items-center justify-center gap-2"
-                  style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                  style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
                 >
                   {displayEmail}
                   <ExternalLink className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -1024,7 +1030,7 @@ export default function VerifyEmailPage() {
             <div className="text-center mb-8">
               <p
                 className="text-sm text-charcoal/70 mb-6 leading-relaxed"
-                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
               >
                 Please check your email and click the verification link to activate your account. The link will
                 automatically redirect you back to the app once verified.
@@ -1033,14 +1039,14 @@ export default function VerifyEmailPage() {
               <div className="bg-gradient-to-r from-sage/5 to-coral/5 rounded-lg p-6 mb-6 text-left border border-sage/10">
                 <h3
                   className="text-base font-600 text-charcoal mb-4 flex items-center gap-2"
-                  style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                  style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
                 >
                   <CheckCircle className="w-5 h-5 text-sage" />
                   Why verify your email?
                 </h3>
                 <ul
                   className="text-sm text-charcoal/80 space-y-2 list-disc pl-5"
-                  style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                  style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
                 >
                   <li>Unlock full app features (posting, saving, leaderboards)</li>
                   <li>Secure account recovery and password resets</li>
@@ -1079,7 +1085,7 @@ export default function VerifyEmailPage() {
                 <div className="rounded-lg border border-sage/20 bg-card-bg/5 px-4 py-3">
                   <p
                     className="text-sm text-charcoal/80"
-                    style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                    style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
                   >
                     {resendRateLimitMessage || resendCooldownMessage}
                   </p>
@@ -1107,7 +1113,7 @@ export default function VerifyEmailPage() {
               <div className="mb-5 rounded-lg border border-coral/20 bg-coral/5 px-4 py-3">
                 <p
                   className="text-sm text-charcoal/80"
-                  style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                  style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
                 >
                   {verificationStatusMessage}
                 </p>
@@ -1131,10 +1137,4 @@ export default function VerifyEmailPage() {
     </>
   );
 }
-
-
-
-
-
-
 

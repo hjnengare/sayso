@@ -45,7 +45,7 @@ interface ClaimModalProps {
   onSuccess: () => void;
 }
 
-const MODAL_FONT = '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif';
+const MODAL_FONT = "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif";
 
 export function ClaimModal({ business, onClose, onSuccess }: ClaimModalProps) {
   const router = useRouter();
@@ -407,8 +407,4 @@ export function ClaimModal({ business, onClose, onSuccess }: ClaimModalProps) {
     </m.div>
   );
 }
-
-
-
-
 

@@ -191,7 +191,7 @@ function MapPickerInner({ lat, lng, onLocationSelect, disabled, className = "" }
         <span className={`${ICON_CHIP_CLASS} mx-auto mb-2 h-10 w-10`}>
           <AlertCircle className="h-5 w-5" />
         </span>
-        <p className="text-sm text-charcoal/70" style={{ fontFamily: '"Google Sans", sans-serif' }}>
+        <p className="text-sm text-charcoal/70" style={{ fontFamily: "Urbanist, sans-serif" }}>
           Map unavailable. Use the search above or enter an address.
         </p>
       </div>
@@ -212,7 +212,7 @@ function MapPickerInner({ lat, lng, onLocationSelect, disabled, className = "" }
           placeholder="Search for an address..."
           disabled={disabled}
           className="flex-1 bg-white border border-charcoal/15 rounded-full px-4 py-2.5 text-sm font-medium text-charcoal placeholder-charcoal/50 focus:outline-none focus:ring-2 focus:ring-sage/30 focus:border-sage"
-          style={{ fontFamily: '"Google Sans", sans-serif' }}
+          style={{ fontFamily: "Urbanist, sans-serif" }}
         />
         <button
           type="button"
@@ -221,13 +221,13 @@ function MapPickerInner({ lat, lng, onLocationSelect, disabled, className = "" }
           className="shrink-0 px-4 py-2.5 rounded-full bg-sage/90 hover:bg-sage text-white transition-colors disabled:opacity-50 flex items-center gap-2"
         >
           {isSearching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
-          <span className="text-sm font-semibold" style={{ fontFamily: '"Google Sans", sans-serif' }}>
+          <span className="text-sm font-semibold" style={{ fontFamily: "Urbanist, sans-serif" }}>
             Search
           </span>
         </button>
       </div>
       {searchError && (
-        <p className="text-xs text-coral font-medium" style={{ fontFamily: '"Google Sans", sans-serif' }}>
+        <p className="text-xs text-coral font-medium" style={{ fontFamily: "Urbanist, sans-serif" }}>
           {searchError}
         </p>
       )}
@@ -239,7 +239,7 @@ function MapPickerInner({ lat, lng, onLocationSelect, disabled, className = "" }
           <div className="absolute inset-0 z-10 bg-off-white/90 flex items-center justify-center">
             <div className="flex flex-col items-center gap-2">
               <Loader2 className="w-8 h-8 text-sage animate-spin" />
-              <span className="text-sm text-charcoal/70" style={{ fontFamily: '"Google Sans", sans-serif' }}>
+              <span className="text-sm text-charcoal/70" style={{ fontFamily: "Urbanist, sans-serif" }}>
                 Loading map...
               </span>
             </div>
@@ -252,7 +252,7 @@ function MapPickerInner({ lat, lng, onLocationSelect, disabled, className = "" }
         />
         <div
           className="absolute bottom-3 left-3 right-3 text-center pointer-events-none"
-          style={{ fontFamily: '"Google Sans", sans-serif' }}
+          style={{ fontFamily: "Urbanist, sans-serif" }}
         >
           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-off-white/85 text-charcoal/85 text-xs font-medium shadow-sm">
             <MapPin className="w-3.5 h-3.5" />
@@ -274,8 +274,3 @@ const MapPicker = dynamic(() => Promise.resolve(MapPickerInner), {
 });
 
 export default MapPicker;
-
-
-
-
-

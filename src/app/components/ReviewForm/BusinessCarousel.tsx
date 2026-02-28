@@ -196,7 +196,7 @@ export default function BusinessCarousel({ businessName, businessImages, subcate
             <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-coral/20 to-coral/10 flex items-center justify-center">
               <Star className="w-10 h-10 sm:w-12 sm:h-12 text-charcoal" strokeWidth={1.5} />
             </div>
-            <p className="text-body-sm text-charcoal/70 font-medium uppercase tracking-wide" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+            <p className="text-body-sm text-charcoal/70 font-medium uppercase tracking-wide" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
               IMAGE UNAVAILABLE
             </p>
           </div>
@@ -247,7 +247,7 @@ export default function BusinessCarousel({ businessName, businessImages, subcate
 
           {/* Image Counter */}
           <div className="absolute bottom-6 right-6 z-30 px-3 py-1.5 rounded-full bg-charcoal/80 backdrop-blur-xl">
-            <span className="text-xs font-semibold text-white" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+            <span className="text-xs font-semibold text-white" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
               {activeIndex + 1} / {validImages.length}
             </span>
           </div>
@@ -256,8 +256,3 @@ export default function BusinessCarousel({ businessName, businessImages, subcate
     </m.div>
   );
 }
-
-
-
-
-

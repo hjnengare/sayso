@@ -88,10 +88,10 @@ export default function WelcomeModal() {
                     <MapPin className="w-8 h-8 text-white" />
                   </div>
                 </div>
-                <h2 className="font-google-sans text-lg sm:text-lg font-700 text-charcoal text-center mb-2">
+                <h2 className="font-urbanist text-lg sm:text-lg font-700 text-charcoal text-center mb-2">
                   Welcome to sayso
                 </h2>
-                <p className="font-google-sans text-sm sm:text-base font-600 text-charcoal/70 text-center">
+                <p className="font-urbanist text-sm sm:text-base font-600 text-charcoal/70 text-center">
                   Discover places real locals love
                 </p>
               </div>
@@ -99,17 +99,17 @@ export default function WelcomeModal() {
               {/* Content */}
               <div className="p-6 sm:p-8 pt-6 space-y-6">
                 <div>
-                  <h3 className="font-google-sans text-lg font-600 text-charcoal mb-4">
+                  <h3 className="font-urbanist text-lg font-600 text-charcoal mb-4">
                     What is sayso?
                   </h3>
-                  <p className="font-google-sans text-sm text-charcoal/70 leading-relaxed">
+                  <p className="font-urbanist text-sm text-charcoal/70 leading-relaxed">
                     sayso is a community-driven platform where locals share their favorite spots—from hidden cafes to trending restaurants. No ads, no sponsored content—just authentic recommendations from real people.
                   </p>
                 </div>
 
                 {/* Features */}
                 <div className="space-y-4">
-                  <h3 className="font-google-sans text-lg font-600 text-charcoal">
+                  <h3 className="font-urbanist text-lg font-600 text-charcoal">
                     How you can contribute:
                   </h3>
 
@@ -118,10 +118,10 @@ export default function WelcomeModal() {
                       <Star className="w-5 h-5 text-sage" />
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-google-sans text-sm font-600 text-charcoal mb-1">
+                      <h4 className="font-urbanist text-sm font-600 text-charcoal mb-1">
                         Leave Reviews
                       </h4>
-                      <p className="font-google-sans text-sm sm:text-xs text-charcoal/60 leading-relaxed">
+                      <p className="font-urbanist text-sm sm:text-xs text-charcoal/60 leading-relaxed">
                         Share your experiences and help others discover great places
                       </p>
                     </div>
@@ -132,10 +132,10 @@ export default function WelcomeModal() {
                       <Heart className="w-5 h-5 text-coral" />
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-google-sans text-sm font-600 text-charcoal mb-1">
+                      <h4 className="font-urbanist text-sm font-600 text-charcoal mb-1">
                         Save Favourites
                       </h4>
-                      <p className="font-google-sans text-sm sm:text-xs text-charcoal/60 leading-relaxed">
+                      <p className="font-urbanist text-sm sm:text-xs text-charcoal/60 leading-relaxed">
                         Create lists of your favourite spots to revisit anytime
                       </p>
                     </div>
@@ -146,10 +146,10 @@ export default function WelcomeModal() {
                       <MessageCircle className="w-5 h-5 text-charcoal" />
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-google-sans text-sm font-600 text-charcoal mb-1">
+                      <h4 className="font-urbanist text-sm font-600 text-charcoal mb-1">
                         Join the Community
                       </h4>
-                      <p className="font-google-sans text-sm sm:text-xs text-charcoal/60 leading-relaxed">
+                      <p className="font-urbanist text-sm sm:text-xs text-charcoal/60 leading-relaxed">
                         Connect with fellow locals and share recommendations
                       </p>
                     </div>
@@ -159,12 +159,12 @@ export default function WelcomeModal() {
                 {/* CTA Button */}
                 <button
                   onClick={handleClose}
-                  className="w-full bg-gradient-to-r from-sage to-sage/90 hover:from-coral hover:to-coral/90 text-white font-google-sans text-base font-600 py-3.5 rounded-full shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02] focus:outline-none focus:ring-4 focus:ring-sage/20"
+                  className="w-full bg-gradient-to-r from-sage to-sage/90 hover:from-coral hover:to-coral/90 text-white font-urbanist text-base font-600 py-3.5 rounded-full shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02] focus:outline-none focus:ring-4 focus:ring-sage/20"
                 >
                   Start Exploring
                 </button>
 
-                <p className="text-center font-google-sans text-sm sm:text-xs text-charcoal/70">
+                <p className="text-center font-urbanist text-sm sm:text-xs text-charcoal/70">
                   You can always find this info in Settings
                 </p>
               </div>
@@ -175,4 +175,3 @@ export default function WelcomeModal() {
     </AnimatePresence>
   );
 }
-

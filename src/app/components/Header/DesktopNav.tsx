@@ -312,7 +312,7 @@ export default function DesktopNav(props: DesktopNavProps) {
                       }`}
                       style={{
                         fontFamily:
-                          '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                          "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                         transformOrigin: "top left",
                       }}
                       onMouseEnter={openAddDropdown}
@@ -449,7 +449,7 @@ export default function DesktopNav(props: DesktopNavProps) {
                             left: discoverMenuPos.left,
                             top: discoverMenuPos.top,
                             fontFamily:
-                              '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                              "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                             transformOrigin: "top center",
                           }}
                           onClick={(e) => e.stopPropagation()}
@@ -717,8 +717,3 @@ export default function DesktopNav(props: DesktopNavProps) {
     </nav>
   );
 }
-
-
-
-
-

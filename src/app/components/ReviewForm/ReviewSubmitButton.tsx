@@ -86,7 +86,7 @@ export default function ReviewSubmitButton({
             tabIndex={-1}
             className="flex items-start gap-3 p-4 rounded-[12px] bg-coral/10 border border-coral/30 text-charcoal"
             style={{
-              fontFamily: '"Google Sans", system-ui, sans-serif',
+              fontFamily: 'Urbanist, system-ui, sans-serif',
             }}
           >
             <AlertCircle className="w-5 h-5 text-coral flex-shrink-0 mt-0.5" />
@@ -115,7 +115,7 @@ export default function ReviewSubmitButton({
         style={{
           touchAction: 'manipulation',
           WebkitTapHighlightColor: 'transparent',
-          fontFamily: '"Google Sans", system-ui, sans-serif',
+          fontFamily: 'Urbanist, system-ui, sans-serif',
         }}
         aria-disabled={!isFormValid || isSubmitting}
       >
@@ -177,7 +177,7 @@ export default function ReviewSubmitButton({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             className="mt-3 text-center text-sm text-charcoal/60"
-            style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}
+            style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
           >
             Add a rating and at least 10 characters to submit
           </m.p>
@@ -186,8 +186,3 @@ export default function ReviewSubmitButton({
     </div>
   );
 }
-
-
-
-
-

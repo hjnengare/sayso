@@ -13,7 +13,7 @@ import {
   isPlaceholderImage,
 } from "../../utils/subcategoryPlaceholders";
 
-const FONT_STACK = '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif';
+const FONT_STACK = "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif";
 
 function getDisplayImage(business: Business): { src: string; isPlaceholder: boolean } {
   const raw = business as any;
@@ -205,9 +205,4 @@ export default function MyBusinessesTable({ businesses }: MyBusinessesTableProps
     </div>
   );
 }
-
-
-
-
-
 

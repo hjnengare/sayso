@@ -297,12 +297,12 @@ export default function OwnerBusinessDashboard() {
   if (error || !business) {
     return (
       <div className="px-4 sm:px-6 lg:px-8 py-8 max-w-5xl mx-auto">
-        <div className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-red-800 text-sm font-google-sans mb-4">
+        <div className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-red-800 text-sm font-urbanist mb-4">
           {error || 'Business not found'}
         </div>
         <Link
           href="/my-businesses"
-          className="inline-flex items-center gap-2 text-navbar-bg hover:text-navbar-bg/80 font-google-sans text-sm"
+          className="inline-flex items-center gap-2 text-navbar-bg hover:text-navbar-bg/80 font-urbanist text-sm"
         >
           <span className={ICON_CHIP_SMALL_CLASS}>
             <ArrowLeft className="w-3.5 h-3.5" />
@@ -314,13 +314,13 @@ export default function OwnerBusinessDashboard() {
   }
 
   return (
-    <div className="font-google-sans">
+    <div className="font-urbanist">
       <div className="px-2 sm:px-4 lg:px-6 2xl:px-8 py-6 max-w-5xl mx-auto">
               {/* Breadcrumb Navigation */}
               <nav className="pb-1" aria-label="Breadcrumb">
                 <ol className="flex items-center gap-2 text-sm sm:text-base">
                   <li>
-                    <Link href={previousHref} className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                    <Link href={previousHref} className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                       {previousLabel}
                     </Link>
                   </li>
@@ -328,7 +328,7 @@ export default function OwnerBusinessDashboard() {
                     <ChevronRight className="w-4 h-4 text-charcoal/60" />
                   </li>
                   <li>
-                    <span className="text-charcoal font-semibold" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                    <span className="text-charcoal font-semibold" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                       {business.name}
                     </span>
                   </li>
@@ -393,7 +393,7 @@ export default function OwnerBusinessDashboard() {
                             <h1
                               id="business-heading"
                               className="text-h1 sm:text-hero font-semibold text-charcoal"
-                              style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}
+                              style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
                             >
                               {business.name}
                             </h1>
@@ -665,11 +665,6 @@ export default function OwnerBusinessDashboard() {
     </div>
   );
 }
-
-
-
-
-
 
 
 

@@ -166,7 +166,7 @@ export default function Footer() {
               <Link href="/" className="flex-shrink-0 flex items-center hover:opacity-80 transition-opacity">
                 <Logo variant="footer" />
               </Link>
-              <p className="font-google-sans text-xs sm:text-sm text-off-white/80 font-normal text-left max-w-[46ch]">
+              <p className="font-urbanist text-xs sm:text-sm text-off-white/80 font-normal text-left max-w-[46ch]">
                 Discover trusted local businesses, events, and community favourites.
               </p>
             </div>
@@ -180,7 +180,7 @@ export default function Footer() {
               >
                 {column.map((section) => (
                     <div key={section.title} className="flex flex-col gap-2">
-                    <p className="font-google-sans text-sm text-off-white font-700">
+                    <p className="font-urbanist text-sm text-off-white font-700">
                       {section.title}
                     </p>
                     <ul className="flex flex-col gap-2">
@@ -188,7 +188,7 @@ export default function Footer() {
                         <li key={link.name}>
                           <Link
                             href={link.href}
-                            className="font-google-sans text-xs sm:text-sm text-off-white/80 hover:text-off-white transition-colors font-normal"
+                            className="font-urbanist text-xs sm:text-sm text-off-white/80 hover:text-off-white transition-colors font-normal"
                           >
                             {link.name}
                           </Link>
@@ -202,7 +202,7 @@ export default function Footer() {
 
             {/* Download App CTA */}
             <div className="flex flex-col gap-2">
-              <p className="font-google-sans text-sm text-off-white font-700">
+              <p className="font-urbanist text-sm text-off-white font-700">
                 Get The App
               </p>
               <div className="flex flex-row flex-wrap lg:flex-col gap-3" role="group" aria-label="App download badges">
@@ -248,7 +248,7 @@ export default function Footer() {
                   );
                 })}
               </div>
-              <p className="font-google-sans text-[11px] sm:text-xs text-off-white/70">
+              <p className="font-urbanist text-[11px] sm:text-xs text-off-white/70">
                 Coming soon
               </p>
             </div>
@@ -269,7 +269,7 @@ export default function Footer() {
                 ))}
               </div>
               <div />
-              <p className="font-google-sans text-[11px] sm:text-xs text-off-white/80 text-center sm:text-right">
+              <p className="font-urbanist text-[11px] sm:text-xs text-off-white/80 text-center sm:text-right">
                 &copy; {mounted ? currentYear : 2026} Sayso Reviews (Pty) Ltd 
               </p>
             </div>
@@ -280,4 +280,3 @@ export default function Footer() {
     </footer>
   );
 }
-

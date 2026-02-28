@@ -121,7 +121,7 @@ export default function PortalLayout({ children }: PortalLayoutProps) {
           >
             <MobileMenuToggleIcon isOpen={mobileOpen} />
           </button>
-          <span className="font-google-sans font-bold text-white text-base tracking-tight">My Portal</span>
+          <span className="font-urbanist font-bold text-white text-base tracking-tight">My Portal</span>
         </header>
 
         {/* Page content */}
@@ -132,4 +132,3 @@ export default function PortalLayout({ children }: PortalLayoutProps) {
     </div>
   );
 }
-

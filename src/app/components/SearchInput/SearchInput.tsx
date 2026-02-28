@@ -273,7 +273,7 @@ const SearchInput = forwardRef<HTMLFormElement, SearchInputProps>(
                 {activeFilterCount > 0 && (
                   <span
                     className="absolute -top-1 -right-1 w-4 h-4 bg-card-bg text-white text-[10px] font-bold rounded-full flex items-center justify-center"
-                    style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                    style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                   >
                     {activeFilterCount}
                   </span>
@@ -324,7 +324,7 @@ const SearchInput = forwardRef<HTMLFormElement, SearchInputProps>(
               py-3 px-0
             `}
             style={{
-              fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+              fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
             }}
             aria-label="Search"
           />
@@ -449,8 +449,3 @@ const SearchInput = forwardRef<HTMLFormElement, SearchInputProps>(
 
 SearchInput.displayName = "SearchInput";
 export default SearchInput;
-
-
-
-
-

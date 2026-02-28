@@ -19,7 +19,7 @@ export function RegistrationProgress({
   const progress = (completedSteps / 4) * 100;
 
   return (
-    <div className="space-y-4 pt-6" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
+    <div className="space-y-4 pt-6" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 600 }}>
       {/* Progress bar */}
       <div className="relative h-1.5 bg-white/20 rounded-full overflow-hidden backdrop-blur-sm">
         <div
@@ -40,7 +40,7 @@ export function RegistrationProgress({
           }`}>
             {usernameValid ? <CheckCircle className="w-4 h-4 text-navbar-bg/90" /> : <Circle className="w-4 h-4 text-white/40" />}
           </div>
-          <span className={`text-sm sm:text-xs font-medium transition-colors duration-300 ${usernameValid ? 'text-white' : 'text-white/50'}`} style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
+          <span className={`text-sm sm:text-xs font-medium transition-colors duration-300 ${usernameValid ? 'text-white' : 'text-white/50'}`} style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 600 }}>
             Username
           </span>
         </div>
@@ -53,7 +53,7 @@ export function RegistrationProgress({
           }`}>
             {emailValid ? <CheckCircle className="w-4 h-4 text-navbar-bg/90" /> : <Circle className="w-4 h-4 text-white/40" />}
           </div>
-          <span className={`text-sm sm:text-xs font-medium transition-colors duration-300 ${emailValid ? 'text-white' : 'text-white/50'}`} style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
+          <span className={`text-sm sm:text-xs font-medium transition-colors duration-300 ${emailValid ? 'text-white' : 'text-white/50'}`} style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 600 }}>
             Email
           </span>
         </div>
@@ -66,7 +66,7 @@ export function RegistrationProgress({
           }`}>
             {passwordStrong ? <CheckCircle className="w-4 h-4 text-navbar-bg/90" /> : <Circle className="w-4 h-4 text-white/40" />}
           </div>
-          <span className={`text-sm sm:text-xs font-medium transition-colors duration-300 ${passwordStrong ? 'text-white' : 'text-white/50'}`} style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
+          <span className={`text-sm sm:text-xs font-medium transition-colors duration-300 ${passwordStrong ? 'text-white' : 'text-white/50'}`} style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 600 }}>
             Password
           </span>
         </div>
@@ -79,7 +79,7 @@ export function RegistrationProgress({
           }`}>
             {consentGiven ? <CheckCircle className="w-4 h-4 text-navbar-bg/90" /> : <Circle className="w-4 h-4 text-white/40" />}
           </div>
-          <span className={`text-sm sm:text-xs font-medium transition-colors duration-300 ${consentGiven ? 'text-white' : 'text-white/50'}`} style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
+          <span className={`text-sm sm:text-xs font-medium transition-colors duration-300 ${consentGiven ? 'text-white' : 'text-white/50'}`} style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 600 }}>
             Terms
           </span>
         </div>
@@ -87,7 +87,3 @@ export function RegistrationProgress({
     </div>
   );
 }
-
-
-
-

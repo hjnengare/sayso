@@ -167,7 +167,7 @@ export default function ReviewerCard({
                     className={`text-[15px] font-bold truncate leading-tight tracking-[-0.02em] ${
                       isTopReviewer ? 'text-amber-100' : 'text-charcoal'
                     }`}
-                    style={{ fontFamily: '"Google Sans", system-ui, sans-serif', fontWeight: 700 }}
+                    style={{ fontFamily: "'Urbanist', system-ui, sans-serif", fontWeight: 700 }}
                   >
                     {reviewerData?.name}
                   </h3>
@@ -175,7 +175,7 @@ export default function ReviewerCard({
                   {isTopReviewer ? (
                     <span
                       className="inline-flex items-center gap-0.5 text-[10px] font-bold uppercase tracking-[0.1em] text-amber-400/80 mt-0.5"
-                      style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}
+                      style={{ fontFamily: "'Urbanist', system-ui, sans-serif" }}
                     >
                       <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
                       Top Reviewer
@@ -183,7 +183,7 @@ export default function ReviewerCard({
                   ) : reviewerData?.location ? (
                     <p
                       className="flex items-center gap-0.5 text-[12px] text-charcoal/45 font-medium mt-0.5 truncate"
-                      style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}
+                      style={{ fontFamily: "'Urbanist', system-ui, sans-serif" }}
                     >
                       <MapPin className="w-2.5 h-2.5 flex-shrink-0" />
                       {reviewerData.location}
@@ -227,7 +227,7 @@ export default function ReviewerCard({
                       className={`stat-tick text-[22px] font-black leading-none tracking-tight ${
                         isTopReviewer ? 'text-amber-300' : 'text-charcoal'
                       }`}
-                      style={{ fontFamily: '"Google Sans", system-ui, sans-serif', fontWeight: 900, animationDelay: delay }}
+                      style={{ fontFamily: "'Urbanist', system-ui, sans-serif", fontWeight: 900, animationDelay: delay }}
                     >
                       {value}
                     </span>
@@ -235,7 +235,7 @@ export default function ReviewerCard({
                       className={`text-[9px] font-semibold uppercase tracking-[0.08em] mt-0.5 ${
                         isTopReviewer ? 'text-amber-400/45' : 'text-charcoal/40'
                       }`}
-                      style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}
+                      style={{ fontFamily: "'Urbanist', system-ui, sans-serif" }}
                     >
                       {label}
                     </span>
@@ -256,7 +256,7 @@ export default function ReviewerCard({
                           ? 'text-amber-400/60 bg-amber-950/40 border-amber-400/[0.12]'
                           : 'text-charcoal/60 bg-off-white/80 border-charcoal/[0.13]'
                       }`}
-                      style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}
+                      style={{ fontFamily: "'Urbanist', system-ui, sans-serif" }}
                       whileHover={{ scale: 1.03, y: -1 }}
                       transition={{ type: "spring", stiffness: 300, damping: 20 }}
                     >
@@ -283,7 +283,7 @@ export default function ReviewerCard({
                       className={`text-[9px] font-semibold uppercase tracking-[0.08em] ${
                         isTopReviewer ? 'text-amber-400/35' : 'text-charcoal/35'
                       }`}
-                      style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}
+                      style={{ fontFamily: "'Urbanist', system-ui, sans-serif" }}
                     >
                       Latest
                     </span>
@@ -292,7 +292,7 @@ export default function ReviewerCard({
                     className={`text-[12px] leading-snug line-clamp-2 font-medium ${
                       isTopReviewer ? 'text-amber-100/45' : 'text-charcoal/60'
                     }`}
-                    style={{ fontFamily: '"Google Sans", system-ui, sans-serif', fontStyle: 'italic', letterSpacing: '-0.005em' }}
+                    style={{ fontFamily: "'Urbanist', system-ui, sans-serif", fontStyle: 'italic', letterSpacing: '-0.005em' }}
                   >
                     {latestReview.reviewText}
                   </p>
@@ -305,7 +305,7 @@ export default function ReviewerCard({
                   className={`text-[10px] font-semibold flex items-center gap-0.5 ${
                     isTopReviewer ? 'text-amber-400/55' : 'text-sage/65'
                   }`}
-                  style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}
+                  style={{ fontFamily: "'Urbanist', system-ui, sans-serif" }}
                 >
                   View profile
                   <ChevronRight className="w-3 h-3" />
@@ -345,7 +345,7 @@ export default function ReviewerCard({
                 {renderStars(reviewRating)}
                 <span
                   className="text-[10px] text-charcoal/35 font-bold tabular-nums"
-                  style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}
+                  style={{ fontFamily: "'Urbanist', system-ui, sans-serif" }}
                 >
                   {Number(reviewRating).toFixed(1)}
                 </span>
@@ -371,13 +371,13 @@ export default function ReviewerCard({
               <div className="flex-1 min-w-0">
                 <h3
                   className="text-[13px] font-bold text-charcoal truncate leading-tight tracking-[-0.01em]"
-                  style={{ fontFamily: '"Google Sans", system-ui, sans-serif', fontWeight: 700 }}
+                  style={{ fontFamily: "'Urbanist', system-ui, sans-serif", fontWeight: 700 }}
                 >
                   {review?.reviewer.name}
                 </h3>
                 <span
                   className="text-[10px] text-charcoal/38 font-medium"
-                  style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}
+                  style={{ fontFamily: "'Urbanist', system-ui, sans-serif" }}
                 >
                   {review?.reviewer.reviewCount || 0} reviews
                 </span>
@@ -393,7 +393,7 @@ export default function ReviewerCard({
                 {overflowCount > 0 && (
                   <span
                     className="inline-flex items-center px-1.5 py-[3px] rounded-full text-[10px] font-semibold text-charcoal/55 bg-off-white/80 border border-charcoal/[0.12] flex-shrink-0"
-                    style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}
+                    style={{ fontFamily: "'Urbanist', system-ui, sans-serif" }}
                   >
                     +{overflowCount}
                   </span>
@@ -409,7 +409,7 @@ export default function ReviewerCard({
                     <MapPin className="w-2.5 h-2.5 text-charcoal/28 flex-shrink-0" />
                     <p
                       className="text-[10px] font-semibold text-charcoal/42 truncate"
-                      style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}
+                      style={{ fontFamily: "'Urbanist', system-ui, sans-serif" }}
                     >
                       {review.businessName}
                     </p>
@@ -417,7 +417,7 @@ export default function ReviewerCard({
                 )}
                 <p
                   className="text-[11px] text-charcoal/68 leading-snug line-clamp-2 font-medium"
-                  style={{ fontFamily: '"Google Sans", system-ui, sans-serif', fontStyle: 'italic' }}
+                  style={{ fontFamily: "'Urbanist', system-ui, sans-serif", fontStyle: 'italic' }}
                 >
                   {review?.reviewText ? `"${review.reviewText}"` : ""}
                 </p>
@@ -427,7 +427,7 @@ export default function ReviewerCard({
               <div className="flex items-center justify-between">
                 <span
                   className="text-[10px] text-charcoal/28 font-medium"
-                  style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}
+                  style={{ fontFamily: "'Urbanist', system-ui, sans-serif" }}
                 >
                   {review?.date || ""}
                 </span>
@@ -437,7 +437,7 @@ export default function ReviewerCard({
                       <Heart className="w-3 h-3 fill-coral/65 text-coral/65" />
                       <span
                         className="text-[10px] font-semibold text-charcoal/38"
-                        style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}
+                        style={{ fontFamily: "'Urbanist', system-ui, sans-serif" }}
                       >
                         {review?.likes}
                       </span>
@@ -455,7 +455,3 @@ export default function ReviewerCard({
     </li>
   );
 }
-
-
-
-

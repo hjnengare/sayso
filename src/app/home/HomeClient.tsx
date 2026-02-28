@@ -499,7 +499,7 @@ export default function HomeClient({ initialTrending }: { initialTrending?: impo
         <main
           suppressHydrationWarning
           className={`relative min-h-dvh ${isSearchActive ? 'pt-2' : 'pt-8 sm:pt-10 md:pt-12'}`} 
-          style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+          style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
         >
           {/* Background Gradient Overlays */}
           <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5" />
@@ -538,13 +538,13 @@ export default function HomeClient({ initialTrending }: { initialTrending?: impo
                           <div className="relative border border-charcoal/10 bg-off-white rounded-[14px] p-6 sm:p-8 md:p-10 text-center space-y-4 shadow-[0_1px_0_rgba(0,0,0,0.02)]">
                             <h3
                               className="text-lg sm:text-xl font-extrabold text-charcoal"
-                              style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                              style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                             >
                               For You
                             </h3>
                             <p
                               className="text-body sm:text-base text-charcoal/60 max-w-[60ch] mx-auto"
-                              style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                              style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                             >
                               Create an account to unlock personalised recommendations.
                             </p>
@@ -553,14 +553,14 @@ export default function HomeClient({ initialTrending }: { initialTrending?: impo
                               <Link
                                 href="/register"
                                 className="mi-tap inline-flex items-center justify-center rounded-full min-h-[48px] px-6 py-3 text-body font-semibold text-white bg-gradient-to-r from-coral to-coral/85 hover:opacity-95 shadow-md w-full sm:w-auto sm:min-w-[180px]"
-                                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                               >
                                 Create Account
                               </Link>
                               <Link
                                 href="/onboarding"
                                 className="mi-tap inline-flex items-center justify-center rounded-full min-h-[48px] px-6 py-3 text-body font-semibold text-charcoal border border-charcoal/15 bg-white hover:bg-off-white shadow-sm w-full sm:w-auto sm:min-w-[180px]"
-                                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                               >
                                 Sign In
                               </Link>
@@ -698,8 +698,3 @@ export default function HomeClient({ initialTrending }: { initialTrending?: impo
     </>
   );
 }
-
-
-
-
-

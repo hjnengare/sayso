@@ -141,7 +141,7 @@ export default function CommunityHighlights({
       className="relative m-0 w-full pb-8 sm:pb-10 md:pb-12"
       aria-label={title}
       style={{
-        fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+        fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
       }}
     >
 
@@ -150,9 +150,9 @@ export default function CommunityHighlights({
         <div className="pb-4 sm:pb-8 md:pb-10 flex flex-wrap items-center justify-between gap-2">
           {disableAnimations ? (
             <h2
-              className="font-google-sans text-2xl sm:text-3xl md:text-2xl font-bold text-charcoal hover:text-sage transition-all duration-300 px-3 sm:px-4 py-1 hover:bg-card-bg/5 rounded-lg cursor-default"
+              className="font-urbanist text-2xl sm:text-3xl md:text-2xl font-bold text-charcoal hover:text-sage transition-all duration-300 px-3 sm:px-4 py-1 hover:bg-card-bg/5 rounded-lg cursor-default"
               style={{ 
-                fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                 fontWeight: 800,
               }}
             >
@@ -164,9 +164,9 @@ export default function CommunityHighlights({
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              className="font-google-sans text-2xl sm:text-3xl md:text-2xl font-bold text-charcoal hover:text-sage transition-all duration-300 px-3 sm:px-4 py-1 hover:bg-card-bg/5 rounded-lg cursor-default"
+              className="font-urbanist text-2xl sm:text-3xl md:text-2xl font-bold text-charcoal hover:text-sage transition-all duration-300 px-3 sm:px-4 py-1 hover:bg-card-bg/5 rounded-lg cursor-default"
               style={{ 
-                fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                 fontWeight: 800,
               }}
             >
@@ -180,7 +180,7 @@ export default function CommunityHighlights({
           <div className="mt-1" aria-busy={recentReviewsLoading}>
             <div className="pb-1 sm:pb-2 flex flex-wrap items-center justify-between gap-2">
                 <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-gradient-to-r from-sage/20 to-sage/10 border border-sage/30">
-                  <span className="text-sm font-semibold text-sage" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                  <span className="text-sm font-semibold text-sage" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
                     <span className="sm:hidden">{contributorsHeadingMobile}</span>
                     <span className="hidden sm:inline">{contributorsHeadingDesktop}</span>
                   </span>
@@ -189,7 +189,7 @@ export default function CommunityHighlights({
                   onClick={() => router.push('/leaderboard?tab=contributors')}
                   className="group inline-flex items-center gap-1 text-body-sm sm:text-caption font-normal text-charcoal transition-colors duration-200 ease-[cubic-bezier(0.25,0.1,0.25,1)] hover:text-sage focus:outline-none px-4 py-2 -mx-2 relative motion-reduce:transition-none"
                   aria-label="See More: Top Contributors"
-                  style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 400 }}
+                  style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 400 }}
                 >
                   <span className="relative z-10 transition-[color] duration-200 ease-[cubic-bezier(0.25,0.1,0.25,1)] text-charcoal group-hover:text-sage after:content-[''] after:absolute after:-bottom-px after:left-0 after:h-px after:w-full after:bg-current after:origin-left after:scale-x-0 after:transition-transform after:duration-200 after:ease-[cubic-bezier(0.25,0.1,0.25,1)] group-hover:after:scale-x-100 motion-reduce:transition-none motion-reduce:after:transition-none" style={{ fontWeight: 400 }}>
                     See More
@@ -239,7 +239,7 @@ export default function CommunityHighlights({
           <div className="mt-1" aria-busy="true">
             <div className="pb-2 flex flex-wrap items-center justify-between gap-2">
               <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-gradient-to-r from-sage/20 to-sage/10 border border-sage/30 mb-4">
-                <span className="text-sm font-semibold text-sage" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                <span className="text-sm font-semibold text-sage" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
                   <span className="sm:hidden">{contributorsHeadingMobile}</span>
                   <span className="hidden sm:inline">{contributorsHeadingDesktop}</span>
                 </span>
@@ -266,7 +266,7 @@ export default function CommunityHighlights({
             <div className="pb-2 flex flex-wrap items-center justify-between gap-2">
 
               <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-gradient-to-r from-sage/20 to-sage/10 border border-sage/30 mb-4">
-                <span className="text-sm font-semibold text-sage" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                <span className="text-sm font-semibold text-sage" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
                   <span className="sm:hidden">{contributorsHeadingMobile}</span>
                   <span className="hidden sm:inline">{contributorsHeadingDesktop}</span>
                 </span>
@@ -274,10 +274,10 @@ export default function CommunityHighlights({
             </div>
             
             <div className="w-full bg-off-white border border-sage/20 rounded-3xl pt-16 pb-6 text-center space-y-3">
-              <h2 className="text-h2 font-semibold text-charcoal" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+              <h2 className="text-h2 font-semibold text-charcoal" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                 {contributorsEmptyTitle}
               </h2>
-              <p className="text-body-sm text-charcoal/60 max-w-[70ch] mx-auto" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 500 }}>
+              <p className="text-body-sm text-charcoal/60 max-w-[70ch] mx-auto" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 500 }}>
                 {contributorsEmptyBody}
               </p>
               <div className="pt-2 flex items-center justify-center">
@@ -400,14 +400,14 @@ export default function CommunityHighlights({
             className="relative m-0 pt-2 w-full mt-3 list-none"
             aria-label="Featured Businesses of the Month by Category"
             style={{
-              fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+              fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
             }}
           >
             <LocationPromptBanner hasCoordinateBusinesses={hasCoordinateBusinesses} />
             <div className="mx-auto w-full max-w-[2000px] relative z-10">
               <div className="pb-2 flex flex-wrap items-center justify-between gap-2">
                 <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-gradient-to-r from-sage/20 to-sage/10 border border-sage/30 mb-4">
-                  <span className="text-sm font-semibold text-sage" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                  <span className="text-sm font-semibold text-sage" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
                     <span className="sm:hidden">Featured Businesses</span>
                     <span className="hidden sm:inline">Featured Businesses of the Month by Category</span>
                   </span>
@@ -416,7 +416,7 @@ export default function CommunityHighlights({
                   onClick={() => router.push('/leaderboard?tab=businesses')}
                   className="group inline-flex items-center gap-1 text-body-sm sm:text-caption font-normal text-charcoal transition-colors duration-200 ease-[cubic-bezier(0.25,0.1,0.25,1)] hover:text-sage focus:outline-none px-4 py-2 -mx-2 relative motion-reduce:transition-none"
                   aria-label="See More: Featured Businesses"
-                  style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 400 }}
+                  style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 400 }}
                 >
                   <span className="relative z-10 transition-[color] duration-200 ease-[cubic-bezier(0.25,0.1,0.25,1)] text-charcoal group-hover:text-sage after:content-[''] after:absolute after:-bottom-px after:left-0 after:h-px after:w-full after:bg-current after:origin-left after:scale-x-0 after:transition-transform after:duration-200 after:ease-[cubic-bezier(0.25,0.1,0.25,1)] group-hover:after:scale-x-100 motion-reduce:transition-none motion-reduce:after:transition-none" style={{ fontWeight: 400 }}>
                     See More
@@ -495,13 +495,13 @@ export default function CommunityHighlights({
             className="relative m-0 p-0 w-full mt-3 list-none"
             aria-label="Featured Businesses"
             style={{
-              fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+              fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
             }}
           >
             <div className="mx-auto w-full max-w-[2000px] relative z-10">
               <div className="pb-4 sm:pb-8 md:pb-10 flex flex-wrap items-center justify-between gap-2">
                 <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-gradient-to-r from-sage/20 to-sage/10 border border-sage/30 mb-4">
-                  <span className="text-sm font-semibold text-sage" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                  <span className="text-sm font-semibold text-sage" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
                     <span className="sm:hidden">Featured</span>
                     <span className="hidden sm:inline">Featured Businesses</span>
                   </span>
@@ -509,10 +509,10 @@ export default function CommunityHighlights({
               </div>
 
               <div className="w-full bg-off-white border border-sage/20 rounded-3xl px-6 py-16 text-center space-y-3">
-                <h2 className="text-h2 font-semibold text-charcoal" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                <h2 className="text-h2 font-semibold text-charcoal" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                   Curated by trust and completeness.
                 </h2>
-                <p className="text-body-sm text-charcoal/60 max-w-[70ch] mx-auto" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 500 }}>
+                <p className="text-body-sm text-charcoal/60 max-w-[70ch] mx-auto" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 500 }}>
                   As the community grows, this will highlight rising businesses. For now, we’ll feature verified, well-profiled places worth exploring.
                 </p>
               </div>
@@ -523,8 +523,3 @@ export default function CommunityHighlights({
     </section>
   );
 }
-
-
-
-
-

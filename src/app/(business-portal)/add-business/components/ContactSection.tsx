@@ -39,7 +39,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-sage/10 to-transparent rounded-full blur-lg pointer-events-none"></div>
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-coral/10 to-transparent rounded-full blur-lg pointer-events-none"></div>
             <div className="relative z-10">
-                <h3 className="font-google-sans text-base font-semibold text-charcoal mb-6 flex items-center gap-3" style={{ fontFamily: '"Google Sans", sans-serif', fontWeight: 600 }}>
+                <h3 className="font-urbanist text-base font-semibold text-charcoal mb-6 flex items-center gap-3" style={{ fontFamily: 'Urbanist, sans-serif', fontWeight: 600 }}>
                     <span className={ICON_CHIP_CLASS}>
                         <Phone className="w-5 h-5" />
                     </span>
@@ -50,7 +50,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {/* Phone */}
                         <div>
-                            <label className="block text-sm font-semibold text-charcoal mb-2" style={{ fontFamily: '"Google Sans", sans-serif', fontWeight: 600 }}>
+                            <label className="block text-sm font-semibold text-charcoal mb-2" style={{ fontFamily: 'Urbanist, sans-serif', fontWeight: 600 }}>
                                 Phone Number
                             </label>
                             <input
@@ -58,7 +58,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({
                                 value={formData.phone}
                                 onChange={(e) => onInputChange('phone', e.target.value)}
                                 onBlur={() => onBlur('phone')}
-                                style={{ fontFamily: '"Google Sans", sans-serif', fontWeight: 600 }}
+                                style={{ fontFamily: 'Urbanist, sans-serif', fontWeight: 600 }}
                                 className={`w-full bg-white/95 backdrop-blur-sm border pl-4 pr-4 py-3 sm:py-4 text-sm font-semibold text-charcoal placeholder-charcoal/50 placeholder:font-normal focus:outline-none focus:ring-2 transition-all duration-300 hover:border-sage/50 rounded-full ${
                                     errors.phone
                                         ? 'border-coral focus:border-coral focus:ring-coral/20'
@@ -67,13 +67,13 @@ const ContactSection: React.FC<ContactSectionProps> = ({
                                 placeholder="+27 21 123 4567"
                             />
                             {touched.phone && errors.phone && (
-                                <p className="mt-2 text-sm text-coral font-medium" style={{ fontFamily: '"Google Sans", sans-serif' }}>{errors.phone}</p>
+                                <p className="mt-2 text-sm text-coral font-medium" style={{ fontFamily: 'Urbanist, sans-serif' }}>{errors.phone}</p>
                             )}
                         </div>
 
                         {/* Email */}
                         <div>
-                            <label className="block text-sm font-semibold text-charcoal mb-2" style={{ fontFamily: '"Google Sans", sans-serif', fontWeight: 600 }}>
+                            <label className="block text-sm font-semibold text-charcoal mb-2" style={{ fontFamily: 'Urbanist, sans-serif', fontWeight: 600 }}>
                                 Email Address
                             </label>
                             <input
@@ -81,7 +81,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({
                                 value={formData.email}
                                 onChange={(e) => onInputChange('email', e.target.value)}
                                 onBlur={() => onBlur('email')}
-                                style={{ fontFamily: '"Google Sans", sans-serif', fontWeight: 600 }}
+                                style={{ fontFamily: 'Urbanist, sans-serif', fontWeight: 600 }}
                                 className={`w-full bg-white/95 backdrop-blur-sm border pl-4 pr-4 py-3 sm:py-4 text-sm font-semibold text-charcoal placeholder-charcoal/50 placeholder:font-normal focus:outline-none focus:ring-2 transition-all duration-300 hover:border-sage/50 rounded-full ${
                                     errors.email
                                         ? 'border-coral focus:border-coral focus:ring-coral/20'
@@ -90,14 +90,14 @@ const ContactSection: React.FC<ContactSectionProps> = ({
                                 placeholder="business@example.com"
                             />
                             {touched.email && errors.email && (
-                                <p className="mt-2 text-sm text-coral font-medium" style={{ fontFamily: '"Google Sans", sans-serif' }}>{errors.email}</p>
+                                <p className="mt-2 text-sm text-coral font-medium" style={{ fontFamily: 'Urbanist, sans-serif' }}>{errors.email}</p>
                             )}
                         </div>
                     </div>
 
                     {/* Website */}
                     <div>
-                        <label className="block text-sm font-semibold text-charcoal mb-2" style={{ fontFamily: '"Google Sans", sans-serif', fontWeight: 600 }}>
+                        <label className="block text-sm font-semibold text-charcoal mb-2" style={{ fontFamily: 'Urbanist, sans-serif', fontWeight: 600 }}>
                             Website
                         </label>
                         <input
@@ -105,7 +105,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({
                             value={formData.website}
                             onChange={(e) => onInputChange('website', e.target.value)}
                             onBlur={() => onBlur('website')}
-                            style={{ fontFamily: '"Google Sans", sans-serif', fontWeight: 600 }}
+                            style={{ fontFamily: 'Urbanist, sans-serif', fontWeight: 600 }}
                             className={`w-full bg-white/95 backdrop-blur-sm border pl-4 pr-4 py-3 sm:py-4 text-sm font-semibold text-charcoal placeholder-charcoal/50 placeholder:font-normal focus:outline-none focus:ring-2 transition-all duration-300 hover:border-sage/50 rounded-full ${
                                 errors.website
                                     ? 'border-coral focus:border-coral focus:ring-coral/20'
@@ -114,14 +114,14 @@ const ContactSection: React.FC<ContactSectionProps> = ({
                             placeholder="https://www.example.com"
                         />
                         {touched.website && errors.website && (
-                            <p className="mt-2 text-sm text-coral font-medium" style={{ fontFamily: '"Google Sans", sans-serif' }}>{errors.website}</p>
+                            <p className="mt-2 text-sm text-coral font-medium" style={{ fontFamily: 'Urbanist, sans-serif' }}>{errors.website}</p>
                         )}
                     </div>
 
                     {/* Price Range - Premium Toggle Selection */}
                     <div>
                         <div className="flex items-center justify-between mb-3">
-                            <label className="flex items-center gap-2 text-sm font-semibold text-charcoal" style={{ fontFamily: '"Google Sans", sans-serif', fontWeight: 600 }}>
+                            <label className="flex items-center gap-2 text-sm font-semibold text-charcoal" style={{ fontFamily: 'Urbanist, sans-serif', fontWeight: 600 }}>
                                 <span className={SMALL_ICON_CHIP_CLASS}>
                                     <Coins className="w-3.5 h-3.5" />
                                 </span>
@@ -132,7 +132,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({
                                     initial={{ opacity: 0, scale: 0.8 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     className="text-xs text-charcoal/60 bg-charcoal/5 px-3 py-1 rounded-full"
-                                    style={{ fontFamily: '"Google Sans", sans-serif' }}
+                                    style={{ fontFamily: 'Urbanist, sans-serif' }}
                                 >
                                     {priceRangeOptions.find(p => p.value === formData.priceRange)?.description}
                                 </m.span>
@@ -160,10 +160,10 @@ const ContactSection: React.FC<ContactSectionProps> = ({
                                         }`}
                                     >
                                         <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${isSelected ? 'text-coral' : 'text-charcoal/60'}`} />
-                                        <span className={`text-sm sm:text-base font-bold ${isSelected ? 'text-charcoal' : 'text-charcoal/70'}`} style={{ fontFamily: '"Google Sans", sans-serif' }}>
+                                        <span className={`text-sm sm:text-base font-bold ${isSelected ? 'text-charcoal' : 'text-charcoal/70'}`} style={{ fontFamily: 'Urbanist, sans-serif' }}>
                                             {option.label}
                                         </span>
-                                        <span className="text-[10px] sm:text-xs text-charcoal/50 hidden sm:block" style={{ fontFamily: '"Google Sans", sans-serif' }}>
+                                        <span className="text-[10px] sm:text-xs text-charcoal/50 hidden sm:block" style={{ fontFamily: 'Urbanist, sans-serif' }}>
                                             {option.description}
                                         </span>
                                         {isSelected && (
@@ -187,8 +187,3 @@ const ContactSection: React.FC<ContactSectionProps> = ({
 };
 
 export default ContactSection;
-
-
-
-
-

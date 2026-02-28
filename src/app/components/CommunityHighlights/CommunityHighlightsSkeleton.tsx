@@ -22,7 +22,7 @@ export default function CommunityHighlightsSkeleton({
       aria-label="Community Highlights loading"
       aria-busy="true"
       style={{
-        fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+        fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
       }}
     >
       <div className="mx-auto w-full max-w-[2000px] relative z-10 px-2">
@@ -101,7 +101,7 @@ function BusinessOfTheMonthCardSkeleton() {
     <li
       className="snap-start snap-always flex-shrink-0 w-[100vw] sm:w-auto sm:w-[260px] md:w-[340px] list-none"
       style={{
-        fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+        fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
       }}
     >
       <div
@@ -130,8 +130,3 @@ function BusinessOfTheMonthCardSkeleton() {
     </li>
   );
 }
-
-
-
-
-

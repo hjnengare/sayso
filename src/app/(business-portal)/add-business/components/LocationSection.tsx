@@ -52,10 +52,10 @@ const LocationSection: React.FC<LocationSectionProps> = ({
 
       <div className="relative z-10">
         <h3
-          className="font-google-sans text-base font-semibold text-charcoal mb-6 flex items-center gap-3"
+          className="font-urbanist text-base font-semibold text-charcoal mb-6 flex items-center gap-3"
           style={{
             fontFamily:
-              '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+              "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
             fontWeight: 600,
           }}
         >
@@ -72,7 +72,7 @@ const LocationSection: React.FC<LocationSectionProps> = ({
               className="block text-sm font-semibold text-charcoal mb-2"
               style={{
                 fontFamily:
-                  '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                  "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                 fontWeight: 600,
               }}
             >
@@ -95,7 +95,7 @@ const LocationSection: React.FC<LocationSectionProps> = ({
               aria-required={!isOnlineOnly}
               style={{
                 fontFamily:
-                  '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                  "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                 fontWeight: 600,
               }}
               className={`w-full bg-white/95 backdrop-blur-sm border pl-4 pr-4 py-3 sm:py-4 md:py-5 text-body font-semibold text-charcoal placeholder-charcoal/50 placeholder:font-normal focus:outline-none focus:ring-2 transition-all duration-300 hover:border-sage/50 input-mobile rounded-full ${
@@ -118,7 +118,7 @@ const LocationSection: React.FC<LocationSectionProps> = ({
                 aria-live="polite"
                 style={{
                   fontFamily:
-                    '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                    "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                 }}
               >
                 {errors.location}
@@ -130,7 +130,7 @@ const LocationSection: React.FC<LocationSectionProps> = ({
                 className="mt-2 text-xs text-charcoal/70 font-medium"
                 style={{
                   fontFamily:
-                    '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                    "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                 }}
               >
                 Finding location...
@@ -142,7 +142,7 @@ const LocationSection: React.FC<LocationSectionProps> = ({
                 className="mt-2 text-xs text-sage font-medium"
                 style={{
                   fontFamily:
-                    '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                    "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                 }}
               >
                 Location found ✓
@@ -155,7 +155,7 @@ const LocationSection: React.FC<LocationSectionProps> = ({
                   className="mt-2 text-xs text-charcoal/70 font-medium"
                   style={{
                     fontFamily:
-                      '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                      "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                   }}
                 >
                   We couldn&apos;t pinpoint this address yet. You can still continue without coordinates.
@@ -172,7 +172,7 @@ const LocationSection: React.FC<LocationSectionProps> = ({
                 className="mt-2 text-xs text-charcoal/70 font-medium"
                 style={{
                   fontFamily:
-                    '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                    "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                 }}
               >
                 This business operates online only. Location is optional.
@@ -187,7 +187,7 @@ const LocationSection: React.FC<LocationSectionProps> = ({
                 className="block text-sm font-semibold text-charcoal mb-2"
                 style={{
                   fontFamily:
-                    '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                    "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                   fontWeight: 600,
                 }}
               >
@@ -218,14 +218,14 @@ const LocationSection: React.FC<LocationSectionProps> = ({
                   <div className="min-w-0">
                     <p
                       className="text-xs text-charcoal/70 mb-1"
-                      style={{ fontFamily: '"Google Sans", sans-serif' }}
+                      style={{ fontFamily: "Urbanist, sans-serif" }}
                     >
                       Selected Coordinates:
                     </p>
 
                     <p
                       className="text-sm font-semibold text-charcoal break-words"
-                      style={{ fontFamily: '"Google Sans", sans-serif' }}
+                      style={{ fontFamily: "Urbanist, sans-serif" }}
                     >
                       {formData.lat && formData.lng
                         ? `${parseFloat(formData.lat).toFixed(6)}, ${parseFloat(
@@ -257,8 +257,3 @@ const LocationSection: React.FC<LocationSectionProps> = ({
 };
 
 export default LocationSection;
-
-
-
-
-

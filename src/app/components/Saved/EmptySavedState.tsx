@@ -5,9 +5,9 @@ import { Bookmark } from "lucide-react";
 export default function EmptySavedState() {
   return (
     <div
-      className="mx-auto w-full max-w-[2000px] px-2 font-google-sans flex flex-1 items-center justify-center"
+      className="mx-auto w-full max-w-[2000px] px-2 font-urbanist flex flex-1 items-center justify-center"
       style={{
-        fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+        fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
       }}
     >
       <div className="text-center w-full">
@@ -26,8 +26,3 @@ export default function EmptySavedState() {
     </div>
   );
 }
-
-
-
-
-

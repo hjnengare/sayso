@@ -238,7 +238,7 @@ export default function GeneralReviewsPage() {
             </div>
             <m.h1
               className="text-base sm:text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-sage via-sage/90 to-charcoal transition-all duration-premium ease-premium group-hover:from-sage/90 group-hover:to-sage relative tracking-[-0.02em]"
-              style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}
+              style={{ fontFamily: '"Urbanist", system-ui, sans-serif' }}
             >
               Community Reviews
             </m.h1>
@@ -260,7 +260,7 @@ export default function GeneralReviewsPage() {
         <nav className="pb-1" aria-label="Breadcrumb">
           <ol className="flex items-center gap-2 text-sm sm:text-base">
             <li>
-              <Link href="/home" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+              <Link href="/home" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                 Home
               </Link>
             </li>
@@ -268,7 +268,7 @@ export default function GeneralReviewsPage() {
               <ChevronRight className="w-4 h-4 text-charcoal/60" />
             </li>
             <li>
-              <span className="text-charcoal font-semibold" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+              <span className="text-charcoal font-semibold" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                 Reviews
               </span>
             </li>
@@ -302,7 +302,7 @@ export default function GeneralReviewsPage() {
 
             {/* Sort Pills */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-              <span className="font-google-sans text-sm font-500 text-charcoal/70 tracking-[-0.015em]">
+              <span className="font-urbanist text-sm font-500 text-charcoal/70 tracking-[-0.015em]">
                 Sort by:
               </span>
               <FilterPillGroup
@@ -341,8 +341,8 @@ export default function GeneralReviewsPage() {
                 ? "bg-white/10 border border-white/25 text-white"
                 : "bg-card-bg/10 border border-sage/20 text-sage";
               const buttonClasses = isNavy
-                ? "inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/15 rounded-full font-google-sans text-sm font-600 text-white transition-all duration-premium shadow-premium-sm hover:shadow-premium-md tracking-[-0.015em]"
-                : "inline-flex items-center gap-2 px-4 py-2 bg-charcoal/5 hover:bg-charcoal/10 rounded-full font-google-sans text-sm font-600 text-charcoal/70 transition-all duration-premium shadow-premium-sm hover:shadow-premium-md tracking-[-0.015em]";
+                ? "inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/15 rounded-full font-urbanist text-sm font-600 text-white transition-all duration-premium shadow-premium-sm hover:shadow-premium-md tracking-[-0.015em]"
+                : "inline-flex items-center gap-2 px-4 py-2 bg-charcoal/5 hover:bg-charcoal/10 rounded-full font-urbanist text-sm font-600 text-charcoal/70 transition-all duration-premium shadow-premium-sm hover:shadow-premium-md tracking-[-0.015em]";
 
               return (
                 <m.div
@@ -386,7 +386,7 @@ export default function GeneralReviewsPage() {
                         }`}
                       >
                         <Briefcase className={`w-4 h-4 ${isNavy ? "text-white" : "text-sage"}`} />
-                        <span className={`font-google-sans text-sm font-600 tracking-[-0.015em] ${isNavy ? "text-white" : "text-sage"}`}>
+                        <span className={`font-urbanist text-sm font-600 tracking-[-0.015em] ${isNavy ? "text-white" : "text-sage"}`}>
                           {review.businessName}
                         </span>
                       </Link>
@@ -395,7 +395,7 @@ export default function GeneralReviewsPage() {
                       {review.images.length > 1 && (
                         <div className="absolute top-4 right-4 inline-flex items-center gap-1.5 px-3 py-1.5 bg-charcoal/80 backdrop-blur-md rounded-lg z-20">
                           <ImageIcon className="w-4 h-4 text-white" />
-                          <span className="font-google-sans text-sm font-600 text-white tracking-[-0.015em]">
+                          <span className="font-urbanist text-sm font-600 text-white tracking-[-0.015em]">
                             {review.images.length}
                           </span>
                         </div>
@@ -435,7 +435,7 @@ export default function GeneralReviewsPage() {
                         className="inline-flex items-center gap-2 mb-4 px-3 py-1.5 bg-card-bg/10 hover:bg-card-bg/20 rounded-full transition-all duration-premium"
                       >
                         <Briefcase className="w-4 h-4 text-sage" />
-                        <span className="font-google-sans text-sm font-600 text-sage tracking-[-0.015em]">
+                        <span className="font-urbanist text-sm font-600 text-sage tracking-[-0.015em]">
                           {review.businessName}
                         </span>
                       </Link>
@@ -459,7 +459,7 @@ export default function GeneralReviewsPage() {
                             />
                           ) : (
                             <div className="w-full h-full bg-gradient-to-br from-sage/20 to-sage/10 flex items-center justify-center">
-                              <span className="font-google-sans text-lg sm:text-xl font-700 text-sage tracking-[-0.02em]">
+                              <span className="font-urbanist text-lg sm:text-xl font-700 text-sage tracking-[-0.02em]">
                                 {review.avatar}
                               </span>
                             </div>
@@ -475,10 +475,10 @@ export default function GeneralReviewsPage() {
 
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
-                          <h3 className={`font-google-sans text-lg sm:text-xl font-600 tracking-[-0.02em] ${titleText}`}>
+                          <h3 className={`font-urbanist text-lg sm:text-xl font-600 tracking-[-0.02em] ${titleText}`}>
                             {review.author}
                           </h3>
-                          <span className={`font-google-sans text-sm font-600 tracking-[-0.015em] ${subtleText}`}>
+                          <span className={`font-urbanist text-sm font-600 tracking-[-0.015em] ${subtleText}`}>
                             {review.date}
                           </span>
                         </div>
@@ -498,7 +498,7 @@ export default function GeneralReviewsPage() {
                     </div>
 
                     {/* Review Text */}
-                    <p className={`font-google-sans text-base font-600 leading-[1.65] mb-4 tracking-[-0.015em] ${bodyText}`}>
+                    <p className={`font-urbanist text-base font-600 leading-[1.65] mb-4 tracking-[-0.015em] ${bodyText}`}>
                       {displayText}
                     </p>
 
@@ -506,7 +506,7 @@ export default function GeneralReviewsPage() {
                     {shouldTruncate && (
                       <button
                         onClick={() => toggleExpanded(review.id)}
-                        className="font-google-sans text-sm font-600 text-sage hover:text-sage/80 transition-colors duration-premium mb-4 tracking-[-0.015em]"
+                        className="font-urbanist text-sm font-600 text-sage hover:text-sage/80 transition-colors duration-premium mb-4 tracking-[-0.015em]"
                       >
                         {isExpanded ? "Read less" : "Read more"}
                       </button>
@@ -518,7 +518,7 @@ export default function GeneralReviewsPage() {
                         {review.tags.map((tag, tagIdx) => (
                           <span
                             key={tagIdx}
-                            className={`inline-flex items-center px-3 py-1 text-sm font-500 rounded-full font-google-sans tracking-[-0.015em] ${chipClasses}`}
+                            className={`inline-flex items-center px-3 py-1 text-sm font-500 rounded-full font-urbanist tracking-[-0.015em] ${chipClasses}`}
                           >
                             <span className="mr-1">@</span>
                             {tag}
@@ -557,10 +557,10 @@ export default function GeneralReviewsPage() {
             <div className="w-20 h-20 bg-gradient-to-br from-charcoal/10 to-charcoal/5 rounded-full flex items-center justify-center mx-auto mb-4">
               <FileText className="w-10 h-10 text-charcoal/60" />
             </div>
-            <h3 className="font-google-sans text-xl font-600 text-charcoal mb-2 tracking-[-0.02em]">
+            <h3 className="font-urbanist text-xl font-600 text-charcoal mb-2 tracking-[-0.02em]">
               No reviews found
             </h3>
-            <p className="font-google-sans text-base font-600 text-charcoal/70 tracking-[-0.015em]">
+            <p className="font-urbanist text-base font-600 text-charcoal/70 tracking-[-0.015em]">
               Try adjusting your filters
             </p>
           </m.div>
@@ -569,8 +569,3 @@ export default function GeneralReviewsPage() {
     </div>
   );
 }
-
-
-
-
-

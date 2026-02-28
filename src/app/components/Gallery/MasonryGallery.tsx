@@ -73,7 +73,7 @@ export default function MasonryGallery({ images, businessName }: MasonryGalleryP
               />
               {/* Hover overlay */}
               <div className="absolute inset-0 bg-charcoal/0 group-hover:bg-charcoal/30 transition-colors duration-300 flex items-center justify-center">
-                <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-white text-sm sm:text-xs font-google-sans font-600">
+                <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-white text-sm sm:text-xs font-urbanist font-600">
                   View
                 </div>
               </div>
@@ -102,7 +102,7 @@ export default function MasonryGallery({ images, businessName }: MasonryGalleryP
 
           {/* Image Counter */}
           <div className="absolute top-4 left-4 bg-off-white  /10 backdrop-blur-sm px-4 py-2 rounded-full z-10">
-            <span className="text-white font-google-sans text-sm font-600">
+            <span className="text-white font-urbanist text-sm font-600">
               {selectedImage + 1} / {images.length}
             </span>
           </div>
@@ -156,4 +156,3 @@ export default function MasonryGallery({ images, businessName }: MasonryGalleryP
     </>
   );
 }
-

@@ -23,7 +23,7 @@ export default function OnboardingButton({
   text,
 }: OnboardingButtonProps) {
   const sfPro = {
-    fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+    fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
     fontWeight: 600,
   };
 
@@ -115,8 +115,4 @@ export default function OnboardingButton({
     </m.button>
   );
 }
-
-
-
-
 

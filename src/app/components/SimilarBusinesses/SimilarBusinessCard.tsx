@@ -185,7 +185,7 @@ function SimilarBusinessCard({
             <Star className="w-4 h-4 text-charcoal fill-charcoal" strokeWidth={2.5} aria-hidden />
             <span
               className="text-xs font-semibold text-charcoal"
-              style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
+              style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 600 }}
             >
               {Number(rating).toFixed(1)}
             </span>
@@ -254,7 +254,7 @@ function SimilarBusinessCard({
         <h3
           className="text-base sm:text-lg font-bold text-charcoal leading-tight line-clamp-1 transition-colors duration-300 group-hover:text-navbar-bg/90"
           style={{
-            fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+            fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
             fontWeight: 700,
             WebkitFontSmoothing: 'antialiased',
             MozOsxFontSmoothing: 'grayscale',
@@ -287,7 +287,7 @@ function SimilarBusinessCard({
           <p
             className="text-sm text-charcoal/70 line-clamp-2 leading-snug"
             style={{
-              fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+              fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
               fontWeight: 400,
             }}
           >
@@ -324,7 +324,7 @@ function SimilarBusinessCard({
           }}
           className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-br from-navbar-bg to-navbar-bg/90 text-white rounded-full text-sm font-semibold hover:from-navbar-bg/90 hover:to-navbar-bg/80 active:scale-95 transition-all duration-200 shadow-md border border-sage/50 focus:outline-none focus:ring-2 focus:ring-sage/40"
           style={{
-            fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+            fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
             fontWeight: 600,
           }}
         >
@@ -338,8 +338,3 @@ function SimilarBusinessCard({
 
 // Memoize to prevent re-renders when parent list updates
 export default memo(SimilarBusinessCard);
-
-
-
-
-

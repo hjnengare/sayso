@@ -84,8 +84,8 @@ function ProgressRing({ percentage, size = 180 }: { percentage: number; size?: n
         </defs>
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="font-google-sans font-800 text-4xl text-white leading-none">{displayPct}%</span>
-        <span className="font-google-sans text-xs text-white/60 mt-1">complete</span>
+        <span className="font-urbanist font-800 text-4xl text-white leading-none">{displayPct}%</span>
+        <span className="font-urbanist text-xs text-white/60 mt-1">complete</span>
       </div>
     </div>
   );
@@ -257,7 +257,7 @@ function BadgeTile({ badge, onClick }: { badge: Badge; onClick: () => void }) {
         )}
       </div>
 
-      <p className={`font-google-sans font-700 text-xs text-center leading-tight
+      <p className={`font-urbanist font-700 text-xs text-center leading-tight
         ${isLocked ? 'text-white/40' : 'text-white'}`}>
         {badge.name}
       </p>
@@ -303,8 +303,8 @@ function BadgeSection({
             <Icon className="w-5 h-5" style={{ color: meta.accent }} />
           </div>
           <div>
-            <h2 className="font-google-sans font-800 text-lg text-white leading-none">{meta.label}</h2>
-            <p className="font-google-sans text-xs text-white/50 mt-0.5">
+            <h2 className="font-urbanist font-800 text-lg text-white leading-none">{meta.label}</h2>
+            <p className="font-urbanist text-xs text-white/50 mt-0.5">
               {earned} of {total} unlocked
             </p>
           </div>
@@ -321,7 +321,7 @@ function BadgeSection({
               transition={{ duration: 1, delay: 0.3, ease: 'easeOut' }}
             />
           </div>
-          <span className="font-google-sans font-700 text-xs">{pct}%</span>
+          <span className="font-urbanist font-700 text-xs">{pct}%</span>
         </div>
       </div>
 
@@ -368,7 +368,7 @@ export default function AchievementsPage() {
     return (
       <ProtectedRoute requiresAuth={true}>
         <div className="min-h-[100dvh] bg-navbar-bg flex items-center justify-center">
-          <p className="text-red-400 font-google-sans">Error loading badges: {(error as Error).message}</p>
+          <p className="text-red-400 font-urbanist">Error loading badges: {(error as Error).message}</p>
         </div>
       </ProtectedRoute>
     );
@@ -395,7 +395,7 @@ export default function AchievementsPage() {
         <div className="relative z-10 max-w-6xl mx-auto px-4 pt-6">
           <Link
             href="/profile"
-            className="inline-flex items-center gap-1.5 font-google-sans text-sm text-white/60 hover:text-white transition-colors"
+            className="inline-flex items-center gap-1.5 font-urbanist text-sm text-white/60 hover:text-white transition-colors"
           >
             <ChevronLeft className="w-4 h-4" />
             Back to Profile
@@ -419,10 +419,10 @@ export default function AchievementsPage() {
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-400/15 border border-amber-400/30 mb-6"
               >
                 <Zap className="w-4 h-4 text-amber-400" />
-                <span className="font-google-sans font-600 text-sm text-amber-400">Hall of Achievements</span>
+                <span className="font-urbanist font-600 text-sm text-amber-400">Hall of Achievements</span>
               </m.div>
 
-              <h1 className="font-google-sans font-800 text-5xl sm:text-6xl text-white leading-tight mb-4">
+              <h1 className="font-urbanist font-800 text-5xl sm:text-6xl text-white leading-tight mb-4">
                 Collect.{' '}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-400">
                   Conquer.
@@ -433,7 +433,7 @@ export default function AchievementsPage() {
                 </span>
               </h1>
 
-              <p className="font-google-sans text-lg text-white/60 max-w-md mb-8">
+              <p className="font-urbanist text-lg text-white/60 max-w-md mb-8">
                 Every review you write, every business you discover — earns you a badge.
                 Build your legacy on Sayso.
               </p>
@@ -441,15 +441,15 @@ export default function AchievementsPage() {
               {stats && (
                 <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
                   <div className="bg-white/10 border border-white/15 rounded-2xl px-5 py-4 backdrop-blur-sm">
-                    <p className="font-google-sans text-xs text-white/50 mb-1">Badges Earned</p>
-                    <p className="font-google-sans font-800 text-3xl text-white">
+                    <p className="font-urbanist text-xs text-white/50 mb-1">Badges Earned</p>
+                    <p className="font-urbanist font-800 text-3xl text-white">
                       {stats.earned}
                       <span className="text-lg text-white/40 ml-1">/ {stats.total}</span>
                     </p>
                   </div>
                   <div className="bg-white/10 border border-white/15 rounded-2xl px-5 py-4 backdrop-blur-sm">
-                    <p className="font-google-sans text-xs text-white/50 mb-1">Still to Unlock</p>
-                    <p className="font-google-sans font-800 text-3xl text-amber-400">
+                    <p className="font-urbanist text-xs text-white/50 mb-1">Still to Unlock</p>
+                    <p className="font-urbanist font-800 text-3xl text-amber-400">
                       {stats.total - stats.earned}
                     </p>
                   </div>
@@ -477,7 +477,7 @@ export default function AchievementsPage() {
                 </div>
                 <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-amber-400/10 border border-amber-400/20">
                   <Trophy className="w-4 h-4 text-amber-400" />
-                  <span className="font-google-sans font-700 text-sm text-amber-300">
+                  <span className="font-urbanist font-700 text-sm text-amber-300">
                     {stats.percentage < 25
                       ? 'Just getting started!'
                       : stats.percentage < 50
@@ -513,8 +513,8 @@ export default function AchievementsPage() {
                   <Zap className="w-4 h-4 text-amber-400" />
                 </div>
                 <div>
-                  <h2 className="font-google-sans font-800 text-base text-white">Up Next</h2>
-                  <p className="font-google-sans text-xs text-white/50">Your next badges to chase</p>
+                  <h2 className="font-urbanist font-800 text-base text-white">Up Next</h2>
+                  <p className="font-urbanist text-xs text-white/50">Your next badges to chase</p>
                 </div>
               </div>
 
@@ -534,8 +534,8 @@ export default function AchievementsPage() {
                         <Image src={pngPath} alt={badge.name} fill className="object-contain grayscale opacity-50" unoptimized />
                       </div>
                       <div className="text-left">
-                        <p className="font-google-sans font-700 text-sm text-white/80">{badge.name}</p>
-                        <p className="font-google-sans text-xs text-white/40 line-clamp-1">{badge.description}</p>
+                        <p className="font-urbanist font-700 text-sm text-white/80">{badge.name}</p>
+                        <p className="font-urbanist text-xs text-white/40 line-clamp-1">{badge.description}</p>
                       </div>
                       <ArrowRight className="w-4 h-4 text-white/30 ml-2 flex-shrink-0" />
                     </m.button>
@@ -573,23 +573,23 @@ export default function AchievementsPage() {
             <div className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center mx-auto mb-4">
               <Trophy className="w-8 h-8 text-amber-400" />
             </div>
-            <h3 className="font-google-sans font-800 text-2xl text-white mb-2">
+            <h3 className="font-urbanist font-800 text-2xl text-white mb-2">
               Ready to level up?
             </h3>
-            <p className="font-google-sans text-white/50 text-sm mb-6 max-w-sm mx-auto">
+            <p className="font-urbanist text-white/50 text-sm mb-6 max-w-sm mx-auto">
               Write reviews, explore new categories and watch your badge collection grow.
             </p>
             <div className="flex gap-3 justify-center flex-wrap">
               <Link
                 href="/explore"
-                className="inline-flex items-center gap-2 bg-white text-navbar-bg font-google-sans font-700 text-sm px-6 py-3 rounded-xl hover:bg-off-white transition-colors"
+                className="inline-flex items-center gap-2 bg-white text-navbar-bg font-urbanist font-700 text-sm px-6 py-3 rounded-xl hover:bg-off-white transition-colors"
               >
                 Explore Businesses
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
                 href="/badges"
-                className="inline-flex items-center gap-2 border border-white/20 text-white font-google-sans font-600 text-sm px-6 py-3 rounded-xl hover:bg-white/10 transition-colors"
+                className="inline-flex items-center gap-2 border border-white/20 text-white font-urbanist font-600 text-sm px-6 py-3 rounded-xl hover:bg-white/10 transition-colors"
               >
                 Badge Library
               </Link>
@@ -603,4 +603,3 @@ export default function AchievementsPage() {
     </ProtectedRoute>
   );
 }
-

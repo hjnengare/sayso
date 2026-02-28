@@ -35,14 +35,14 @@ export default function EventLocation({
                     <div className="flex-1 min-w-0">
                         <h3
                             className="text-sm font-semibold text-charcoal/70 mb-1.5"
-                            style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                         >
                             Event Location
                         </h3>
                         {displayLocation && (
                             <p
                                 className="text-base font-medium text-charcoal break-words"
-                                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                             >
                                 {displayLocation}
                             </p>
@@ -53,8 +53,3 @@ export default function EventLocation({
         </div>
     );
 }
-
-
-
-
-

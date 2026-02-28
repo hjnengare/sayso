@@ -16,7 +16,7 @@ export default function BadgeGrid({ title, badges, emptyMessage = "No badges in 
   if (!badges || badges.length === 0) {
     return (
       <div className="mb-8">
-        <h2 className="font-google-sans font-800 text-xl text-charcoal mb-4">
+        <h2 className="font-urbanist font-800 text-xl text-charcoal mb-4">
           {title}
         </h2>
         <p className="text-charcoal/70 text-center py-8">{emptyMessage}</p>
@@ -27,7 +27,7 @@ export default function BadgeGrid({ title, badges, emptyMessage = "No badges in 
   return (
     <>
       <div className="mb-8">
-        <h2 className="font-google-sans font-800 text-xl text-charcoal mb-4">
+        <h2 className="font-urbanist font-800 text-xl text-charcoal mb-4">
           {title}
         </h2>
 
@@ -50,4 +50,3 @@ export default function BadgeGrid({ title, badges, emptyMessage = "No badges in 
     </>
   );
 }
-

@@ -103,7 +103,7 @@ function LeaderboardList({
       <div className="text-center mt-6 sm:mt-8">
         <button
           onClick={onToggleFullLeaderboard}
-          className="font-google-sans text-body-sm sm:text-body font-700 text-white transition-all duration-300 px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 bg-gradient-to-br from-sage to-sage/90 rounded-full flex items-center gap-1.5 sm:gap-2 mx-auto shadow-[0_8px_30px_rgba(0,0,0,0.2)] border border-sage  hover:shadow-[0_10px_40px_rgba(0,0,0,0.25)] hover:scale-[1.02] active:scale-[0.98]"
+          className="font-urbanist text-body-sm sm:text-body font-700 text-white transition-all duration-300 px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 bg-gradient-to-br from-sage to-sage/90 rounded-full flex items-center gap-1.5 sm:gap-2 mx-auto shadow-[0_8px_30px_rgba(0,0,0,0.2)] border border-sage  hover:shadow-[0_10px_40px_rgba(0,0,0,0.25)] hover:scale-[1.02] active:scale-[0.98]"
         >
           {showFullLeaderboard ? (
             <>
@@ -123,4 +123,3 @@ function LeaderboardList({
 }
 
 export default memo(LeaderboardList);
-

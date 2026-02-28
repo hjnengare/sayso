@@ -308,7 +308,7 @@ export default function LoginPage() {
             {/* Error Message */}
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-[12px] p-4 text-center">
-                <p className="font-google-sans text-[14px] font-600 text-red-600">{error}</p>
+                <p className="font-urbanist text-[14px] font-600 text-red-600">{error}</p>
               </div>
             )}
 
@@ -332,7 +332,7 @@ export default function LoginPage() {
                   if (!emailTouched) setEmailTouched(true);
                 }}
                 onBlur={() => setEmailTouched(true)}
-                className={`w-full bg-cultured-1/50 border pl-12 sm:pl-14 pr-4 py-3 sm:py-4 md:py-5 font-google-sans text-body font-600 text-charcoal placeholder-charcoal/50 focus:outline-none focus:ring-2 transition-all duration-300 hover:border-sage/50 input-mobile ${
+                className={`w-full bg-cultured-1/50 border pl-12 sm:pl-14 pr-4 py-3 sm:py-4 md:py-5 font-urbanist text-body font-600 text-charcoal placeholder-charcoal/50 focus:outline-none focus:ring-2 transition-all duration-300 hover:border-sage/50 input-mobile ${
                   getEmailError() ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20' :
                   email && !getEmailError() ? 'border-sage/40 focus:border-sage focus:ring-sage/20' :
                   'border-light-gray/50 focus:ring-sage/30 focus:border-sage focus:bg-off-white  '
@@ -375,7 +375,7 @@ export default function LoginPage() {
                   if (!passwordTouched) setPasswordTouched(true);
                 }}
                 onBlur={() => setPasswordTouched(true)}
-                className={`w-full bg-cultured-1/50 border pl-12 sm:pl-14 pr-12 sm:pr-16 py-3 sm:py-4 md:py-5 font-google-sans text-body font-600 text-charcoal placeholder-charcoal/50 focus:outline-none focus:ring-2 transition-all duration-300 hover:border-sage/50 input-mobile ${
+                className={`w-full bg-cultured-1/50 border pl-12 sm:pl-14 pr-12 sm:pr-16 py-3 sm:py-4 md:py-5 font-urbanist text-body font-600 text-charcoal placeholder-charcoal/50 focus:outline-none focus:ring-2 transition-all duration-300 hover:border-sage/50 input-mobile ${
                   getPasswordError() ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20' :
                   password && !getPasswordError() ? 'border-sage/40 focus:border-sage focus:ring-sage/20' :
                   'border-light-gray/50 focus:ring-sage/30 focus:border-sage focus:bg-off-white  '
@@ -410,7 +410,7 @@ export default function LoginPage() {
             <div className="text-right">
               <Link
                 href="#"
-                className="font-google-sans text-base font-500 text-coral hover:text-coral/80 transition-colors duration-300"
+                className="font-urbanist text-base font-500 text-coral hover:text-coral/80 transition-colors duration-300"
               >
                 Forgot password?
               </Link>
@@ -480,7 +480,7 @@ export default function LoginPage() {
 
           {/* Enhanced footer */}
           <div className="text-center mt-4 pt-4 border-t border-light-gray/30">
-            <div className="font-google-sans text-sm sm:text-base font-600 text-charcoal/70">
+            <div className="font-urbanist text-sm sm:text-base font-600 text-charcoal/70">
               {"Don't have an account? "}
               <Link
                 href="/register"
@@ -499,4 +499,3 @@ export default function LoginPage() {
     </>
   );
 }
-

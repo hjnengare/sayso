@@ -105,7 +105,7 @@ Practical guide with:
 - **Subtle accents**: 5-10% opacity sage gradients
 
 ### 📐 Typography
-- **Font**: Google Sans (consistent with site)
+- **Font**: Urbanist (consistent with site)
 - **Headings**: 24-32px, 700 weight
 - **Body**: 16-18px, 500 weight
 - **Support text**: 14px, 500 weight
@@ -253,7 +253,7 @@ export default function CustomError() {
 - Consistent with site background
 
 ### ✅ Typography & Spacing
-- Uses Google Sans font family
+- Uses Urbanist font family
 - Consistent font scale
 - Follows 4px grid system
 - Maintains site design language
@@ -310,4 +310,3 @@ The KLIO platform now has a **unified, premium, minimal error page design system
 **Status**: ✅ Complete
 **Version**: 1.0
 **Last Updated**: January 2026
-

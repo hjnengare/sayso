@@ -58,7 +58,7 @@ export default function Collections({ onCollectionClick }: CollectionsProps) {
         <WavyTypedTitle
           text="Curated Collections"
           as="h2"
-          className="font-google-sans text-h2 sm:text-h1 font-700 text-charcoal px-3 sm:px-4 py-1 rounded-lg cursor-default"
+          className="font-urbanist text-h2 sm:text-h1 font-700 text-charcoal px-3 sm:px-4 py-1 rounded-lg cursor-default"
           typingSpeedMs={40}
           startDelayMs={300}
           waveVariant="subtle"
@@ -66,14 +66,14 @@ export default function Collections({ onCollectionClick }: CollectionsProps) {
           enableScrollTrigger={true}
           disableWave={true}
           style={{ 
-            fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+            fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
             fontWeight: 700,
           }}
         />
         <Link
           href="/explore/collections"
           className="text-body-sm text-sage hover:text-sage/80 font-semibold transition-colors flex items-center gap-1"
-          style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+          style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
         >
           See all
           <ArrowRight className="w-4 h-4" />
@@ -102,18 +102,18 @@ export default function Collections({ onCollectionClick }: CollectionsProps) {
               <div className="flex-1 min-w-0">
                 <h3 
                   className="text-body font-semibold text-charcoal mb-2 group-hover:text-navbar-bg transition-colors duration-300"
-                  style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                  style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                 >
                   {collection.title}
                 </h3>
                 <p 
                   className="text-body-sm text-charcoal/60 mb-3"
-                  style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                  style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                 >
                   {collection.description}
                 </p>
                 <div className="flex items-center gap-2 text-caption text-charcoal/70">
-                  <span style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                  <span style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                     {collection.count} places
                   </span>
                 </div>
@@ -125,9 +125,4 @@ export default function Collections({ onCollectionClick }: CollectionsProps) {
     </div>
   );
 }
-
-
-
-
-
 

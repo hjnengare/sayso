@@ -155,7 +155,7 @@ function createSearchPopupHTML(business: Business): string {
     return `
         <div style="
             padding: 14px 18px;
-            font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Urbanist', -apple-system, BlinkMacSystemFont, sans-serif;
             background: white;
         ">
             <div style="
@@ -411,8 +411,3 @@ export default function SearchResultsMap({
         </div>
     );
 }
-
-
-
-
-

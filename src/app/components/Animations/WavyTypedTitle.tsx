@@ -375,7 +375,7 @@ export const WavyTypedTitle: React.FC<WavyTypedTitleProps> = ({
         aria-label={text}
         style={{
           // CRITICAL: Apply style prop FIRST - fontFamily must be set immediately (before typing)
-          // This ensures Google Sans is applied from the very start
+          // This ensures Urbanist font is applied from the very start
           ...(style || {}),
         }}
       >
@@ -436,8 +436,4 @@ export const WavyTypedTitle: React.FC<WavyTypedTitleProps> = ({
 };
 
 export default WavyTypedTitle;
-
-
-
-
 

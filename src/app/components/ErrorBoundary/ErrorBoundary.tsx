@@ -57,9 +57,9 @@ class ErrorBoundary extends Component<Props, State> {
 
       return (
         <div 
-          className="min-h-dvh flex items-center justify-center bg-off-white px-4 font-google-sans"
+          className="min-h-dvh flex items-center justify-center bg-off-white px-4 font-urbanist"
           style={{
-            fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+            fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
           }}
         >
           {/* Subtle background gradient accent */}
@@ -80,12 +80,12 @@ class ErrorBoundary extends Component<Props, State> {
             </div>
 
             {/* Error Title */}
-            <h1 className="font-google-sans text-xl md:text-2xl font-700 text-charcoal mb-3">
+            <h1 className="font-urbanist text-xl md:text-2xl font-700 text-charcoal mb-3">
               {isRepeatedError ? 'Persistent Error' : 'Something went wrong'}
             </h1>
 
             {/* Error Description */}
-            <p className="font-google-sans text-sm md:text-base text-charcoal/70 mb-8 leading-relaxed">
+            <p className="font-urbanist text-sm md:text-base text-charcoal/70 mb-8 leading-relaxed">
               {isRepeatedError
                 ? 'We\'re experiencing technical difficulties. Please contact support if this continues.'
                 : 'We encountered an unexpected error. Please try again.'
@@ -95,7 +95,7 @@ class ErrorBoundary extends Component<Props, State> {
             {/* Error details in development */}
             {process.env.NODE_ENV === 'development' && this.state.error && (
               <details className="mb-6 text-left bg-card-bg/5 p-4 rounded-lg border border-sage/10">
-                <summary className="font-google-sans text-sm font-600 text-sage cursor-pointer hover:text-sage/80 transition-colors">
+                <summary className="font-urbanist text-sm font-600 text-sage cursor-pointer hover:text-sage/80 transition-colors">
                   Error Details (Dev Only)
                 </summary>
                 <pre className="mt-3 text-xs text-charcoal/60 whitespace-pre-wrap overflow-auto max-h-40 font-mono">
@@ -109,7 +109,7 @@ class ErrorBoundary extends Component<Props, State> {
               <button
                 onClick={this.handleRetry}
                 disabled={isRepeatedError}
-                className={`w-full font-google-sans text-base font-600 py-3 px-6 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 ${
+                className={`w-full font-urbanist text-base font-600 py-3 px-6 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sage/30 ${
                   isRepeatedError
                     ? 'bg-charcoal/10 text-charcoal/50 cursor-not-allowed'
                     : 'bg-card-bg text-white hover:bg-card-bg/90 active:scale-95'
@@ -120,7 +120,7 @@ class ErrorBoundary extends Component<Props, State> {
 
               <button
                 onClick={() => window.location.href = '/'}
-                className="w-full bg-charcoal/10 text-charcoal font-google-sans text-base font-600 py-3 px-6 rounded-lg hover:bg-charcoal/15 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-charcoal/30 active:scale-95 border border-charcoal/10"
+                className="w-full bg-charcoal/10 text-charcoal font-urbanist text-base font-600 py-3 px-6 rounded-lg hover:bg-charcoal/15 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-charcoal/30 active:scale-95 border border-charcoal/10"
               >
                 Go to Home
               </button>
@@ -128,7 +128,7 @@ class ErrorBoundary extends Component<Props, State> {
 
             {/* Support Contact */}
             <div className="mt-8 pt-6 border-t border-sage/10">
-              <p className="font-google-sans text-sm font-500 text-charcoal/70">
+              <p className="font-urbanist text-sm font-500 text-charcoal/70">
                 Need help?{" "}
                 <a
                   href="mailto:support@sayso.com"
@@ -148,7 +148,3 @@ class ErrorBoundary extends Component<Props, State> {
 }
 
 export default ErrorBoundary;
-
-
-
-

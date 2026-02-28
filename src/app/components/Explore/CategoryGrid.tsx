@@ -44,7 +44,7 @@ export default function CategoryGrid({ onCategoryClick }: CategoryGridProps) {
 
   if (interests.length === 0) {
     return (
-      <div className="text-center py-12 text-charcoal/60" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+      <div className="text-center py-12 text-charcoal/60" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
         No categories available
       </div>
     );
@@ -81,7 +81,7 @@ export default function CategoryGrid({ onCategoryClick }: CategoryGridProps) {
             
             <h3 
               className="text-body font-semibold text-charcoal mb-2 group-hover:text-navbar-bg transition-colors duration-300"
-              style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+              style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
             >
               {interest.name}
             </h3>
@@ -89,7 +89,7 @@ export default function CategoryGrid({ onCategoryClick }: CategoryGridProps) {
             {interest.description && (
               <p 
                 className="text-body-sm text-charcoal/60 line-clamp-2"
-                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
               >
                 {interest.description}
               </p>
@@ -100,9 +100,4 @@ export default function CategoryGrid({ onCategoryClick }: CategoryGridProps) {
     </div>
   );
 }
-
-
-
-
-
 

@@ -164,7 +164,7 @@ interface LocationFilter {
 # Styling
 
 All components use:
-- **Font**: Google Sans (system fallback)
+- **Font**: Urbanist (system fallback)
 - **Colors**: Sage (primary), Charcoal (text), Off-white (background)
 - **Border radius**: Rounded-full for buttons, rounded-xl for cards
 
@@ -368,4 +368,3 @@ When adding new filters:
 3. Update UI in `FilterBar.tsx` or `AdvancedFilters.tsx`
 4. Document in this README
 5. Add tests
-

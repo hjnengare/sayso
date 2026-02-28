@@ -30,7 +30,7 @@ export default function EventContactInfo({ event }: EventContactInfoProps) {
       <div className="relative z-10">
         <h3
           className="text-h3 font-semibold text-charcoal mb-3"
-          style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+          style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
         >
           Contact Information
         </h3>
@@ -44,7 +44,7 @@ export default function EventContactInfo({ event }: EventContactInfoProps) {
                 </span>
                 <span
                   className="text-body-sm text-charcoal/70"
-                  style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                  style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                 >
                   {contactText}
                 </span>
@@ -61,7 +61,7 @@ export default function EventContactInfo({ event }: EventContactInfoProps) {
                   target="_blank"
                   rel="noreferrer"
                   className="text-body-sm text-navbar-bg font-600 underline underline-offset-4"
-                  style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                  style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                 >
                   Visit booking page
                 </a>
@@ -75,7 +75,7 @@ export default function EventContactInfo({ event }: EventContactInfoProps) {
                 </span>
                 <span
                   className="text-body-sm text-charcoal/70"
-                  style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                  style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                 >
                   {primaryLocation}
                   {primaryLocation && secondaryLocation ? ", " : ""}
@@ -87,7 +87,7 @@ export default function EventContactInfo({ event }: EventContactInfoProps) {
         ) : (
           <p
             className="text-body-sm text-charcoal/70"
-            style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
           >
             Contact details are not available for this event yet.
           </p>
@@ -96,8 +96,3 @@ export default function EventContactInfo({ event }: EventContactInfoProps) {
     </m.div>
   );
 }
-
-
-
-
-

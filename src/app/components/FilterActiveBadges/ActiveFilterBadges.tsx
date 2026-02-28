@@ -88,7 +88,7 @@ export default function ActiveFilterBadges({
             whileHover={prefersReducedMotion ? undefined : { y: -1 }}
             whileTap={prefersReducedMotion ? undefined : { y: 0, scale: 0.99 }}
             className={`${pillBase} ${pillSize.sm} ${pillActive} gap-1.5`}
-            style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
             aria-label="Edit rating filter"
           >
             <Star className="w-3.5 h-3.5" />
@@ -139,7 +139,7 @@ export default function ActiveFilterBadges({
                           ? 'bg-card-bg text-white'
                           : 'text-charcoal hover:bg-card-bg/10'
                       }`}
-                      style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                      style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                     >
                       <Star className="w-4 h-4" />
                       <span className="font-medium">{rating}+ Stars</span>
@@ -178,7 +178,7 @@ export default function ActiveFilterBadges({
             whileHover={prefersReducedMotion ? undefined : { y: -1 }}
             whileTap={prefersReducedMotion ? undefined : { y: 0, scale: 0.99 }}
             className={`${pillBase} ${pillSize.sm} ${pillActive} gap-1.5`}
-            style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
             aria-label="Edit distance filter"
           >
             <MapPin className="w-3.5 h-3.5" />
@@ -229,7 +229,7 @@ export default function ActiveFilterBadges({
                           ? 'bg-coral text-white'
                           : 'text-charcoal hover:bg-coral/10'
                       }`}
-                      style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                      style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                     >
                       <MapPin className="w-4 h-4" />
                       <span className="font-medium">{distance}</span>
@@ -263,7 +263,7 @@ export default function ActiveFilterBadges({
           whileHover={prefersReducedMotion ? undefined : { y: -1 }}
           whileTap={prefersReducedMotion ? undefined : { y: 0, scale: 0.99 }}
           className="shrink-0 text-sm text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-500"
-          style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+          style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
         >
           Clear all
         </m.button>
@@ -271,8 +271,3 @@ export default function ActiveFilterBadges({
     </m.div>
   );
 }
-
-
-
-
-

@@ -1,5 +1,5 @@
 export const pillBase =
-  "inline-flex items-center gap-1 rounded-full font-google-sans transition-all duration-[200ms] ease-out shrink-0 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-card-bg/50 cursor-pointer";
+  "inline-flex items-center gap-1 rounded-full font-urbanist transition-all duration-[200ms] ease-out shrink-0 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-card-bg/50 cursor-pointer";
 
 export const pillSize = {
   sm: "px-3 py-1 text-xs",
@@ -11,4 +11,3 @@ export const pillInactive =
 
 export const pillActive =
   "bg-card-bg/92 border border-card-bg/50 text-white";
-

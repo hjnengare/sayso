@@ -164,9 +164,9 @@ function ActionModal({
           {/* Header */}
           <div className="flex items-start justify-between mb-4">
             <div>
-              <h2 className="font-google-sans text-lg font-bold text-charcoal">Moderate Flag</h2>
+              <h2 className="font-urbanist text-lg font-bold text-charcoal">Moderate Flag</h2>
               {business && (
-                <p className="font-google-sans text-sm text-charcoal/50">
+                <p className="font-urbanist text-sm text-charcoal/50">
                   {business.name}
                 </p>
               )}
@@ -187,25 +187,25 @@ function ActionModal({
               <div className="flex items-center gap-2 mb-2">
                 <Stars rating={review.rating} />
                 {review.title && (
-                  <span className="font-google-sans text-sm font-semibold text-charcoal">{review.title}</span>
+                  <span className="font-urbanist text-sm font-semibold text-charcoal">{review.title}</span>
                 )}
               </div>
               {review.content && (
-                <p className="font-google-sans text-sm text-charcoal/70 leading-relaxed line-clamp-4">
+                <p className="font-urbanist text-sm text-charcoal/70 leading-relaxed line-clamp-4">
                   {review.content}
                 </p>
               )}
               <div className="flex items-center gap-3 mt-3 flex-wrap">
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold font-google-sans ${REASON_COLORS[flag.reason] ?? "bg-charcoal/8 text-charcoal/60"}`}>
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold font-urbanist ${REASON_COLORS[flag.reason] ?? "bg-charcoal/8 text-charcoal/60"}`}>
                   {REASON_LABELS[flag.reason] ?? flag.reason}
                 </span>
                 {flag.total_flags_on_review > 1 && (
-                  <span className="font-google-sans text-xs text-red-600 font-semibold">
+                  <span className="font-urbanist text-xs text-red-600 font-semibold">
                     {flag.total_flags_on_review} flags on this review
                   </span>
                 )}
                 {flag.details && (
-                  <span className="font-google-sans text-xs text-charcoal/50 italic">
+                  <span className="font-urbanist text-xs text-charcoal/50 italic">
                     &ldquo;{flag.details}&rdquo;
                   </span>
                 )}
@@ -214,7 +214,7 @@ function ActionModal({
           )}
 
           {/* Action picker */}
-          <p className="font-google-sans text-sm font-semibold text-charcoal/60 mb-3 uppercase tracking-wider text-xs">
+          <p className="font-urbanist text-sm font-semibold text-charcoal/60 mb-3 uppercase tracking-wider text-xs">
             Choose action
           </p>
           <div className="flex flex-col gap-2 mb-5">
@@ -258,8 +258,8 @@ function ActionModal({
               >
                 <Icon className={`w-5 h-5 flex-shrink-0 ${color}`} />
                 <div>
-                  <p className="font-google-sans text-sm font-semibold text-charcoal">{label}</p>
-                  <p className="font-google-sans text-xs text-charcoal/50">{desc}</p>
+                  <p className="font-urbanist text-sm font-semibold text-charcoal">{label}</p>
+                  <p className="font-urbanist text-xs text-charcoal/50">{desc}</p>
                 </div>
                 {action === value && (
                   <div className="ml-auto w-4 h-4 rounded-full bg-charcoal flex items-center justify-center flex-shrink-0">
@@ -274,7 +274,7 @@ function ActionModal({
 
           {/* Notes (always visible for context, required for warn) */}
           <label className="block mb-5">
-            <span className="font-google-sans text-xs font-semibold text-charcoal/60 uppercase tracking-wider mb-1.5 block">
+            <span className="font-urbanist text-xs font-semibold text-charcoal/60 uppercase tracking-wider mb-1.5 block">
               Admin notes {action === "warn" ? "(required)" : "(optional)"}
             </span>
             <textarea
@@ -282,12 +282,12 @@ function ActionModal({
               onChange={(e) => setNotes(e.target.value)}
               rows={3}
               placeholder="Internal note visible only to admins…"
-              className="w-full rounded-2xl border border-charcoal/15 bg-charcoal/[0.025] px-4 py-3 font-google-sans text-sm text-charcoal placeholder-charcoal/35 focus:outline-none focus:ring-2 focus:ring-navbar-bg/25 focus:border-navbar-bg/40 resize-none"
+              className="w-full rounded-2xl border border-charcoal/15 bg-charcoal/[0.025] px-4 py-3 font-urbanist text-sm text-charcoal placeholder-charcoal/35 focus:outline-none focus:ring-2 focus:ring-navbar-bg/25 focus:border-navbar-bg/40 resize-none"
             />
           </label>
 
           {error && (
-            <div className="flex items-center gap-2 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-red-700 text-sm font-google-sans mb-4">
+            <div className="flex items-center gap-2 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-red-700 text-sm font-urbanist mb-4">
               <AlertCircle className="w-4 h-4 flex-shrink-0" />
               {error}
             </div>
@@ -299,7 +299,7 @@ function ActionModal({
               type="button"
               onClick={onClose}
               disabled={submitting}
-              className="flex-1 py-3 rounded-2xl border border-charcoal/15 font-google-sans text-sm font-semibold text-charcoal/70 hover:bg-charcoal/5 transition-colors disabled:opacity-40"
+              className="flex-1 py-3 rounded-2xl border border-charcoal/15 font-urbanist text-sm font-semibold text-charcoal/70 hover:bg-charcoal/5 transition-colors disabled:opacity-40"
             >
               Cancel
             </button>
@@ -307,7 +307,7 @@ function ActionModal({
               type="button"
               onClick={handleSubmit}
               disabled={!action || submitting || (action === "warn" && !notes.trim())}
-              className="flex-1 py-3 rounded-2xl bg-navbar-bg font-google-sans text-sm font-semibold text-white hover:bg-navbar-bg/90 transition-colors disabled:opacity-40 flex items-center justify-center gap-2"
+              className="flex-1 py-3 rounded-2xl bg-navbar-bg font-urbanist text-sm font-semibold text-white hover:bg-navbar-bg/90 transition-colors disabled:opacity-40 flex items-center justify-center gap-2"
             >
               {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
               Confirm
@@ -358,16 +358,16 @@ export default function FlaggedReviewsPage() {
         <div>
           <div className="flex items-center gap-2.5 mb-1">
             <Flag className="w-5 h-5 text-red-500" />
-            <h1 className="font-google-sans text-2xl font-bold text-charcoal tracking-tight">
+            <h1 className="font-urbanist text-2xl font-bold text-charcoal tracking-tight">
               Flagged Reviews
             </h1>
             {total > 0 && statusFilter === "pending" && (
-              <span className="inline-flex items-center justify-center min-w-[24px] h-6 px-2 rounded-full bg-red-100 text-red-700 text-xs font-bold font-google-sans">
+              <span className="inline-flex items-center justify-center min-w-[24px] h-6 px-2 rounded-full bg-red-100 text-red-700 text-xs font-bold font-urbanist">
                 {total}
               </span>
             )}
           </div>
-          <p className="font-google-sans text-sm text-charcoal/55 ml-7">
+          <p className="font-urbanist text-sm text-charcoal/55 ml-7">
             Review and moderate flagged content
           </p>
         </div>
@@ -379,7 +379,7 @@ export default function FlaggedReviewsPage() {
           <select
             value={statusFilter}
             onChange={(e) => handleStatusChange(e.target.value)}
-            className="appearance-none font-google-sans text-sm text-charcoal bg-white border border-charcoal/15 rounded-xl pl-4 pr-9 py-2.5 focus:outline-none focus:ring-2 focus:ring-red-300/40 shadow-premium cursor-pointer"
+            className="appearance-none font-urbanist text-sm text-charcoal bg-white border border-charcoal/15 rounded-xl pl-4 pr-9 py-2.5 focus:outline-none focus:ring-2 focus:ring-red-300/40 shadow-premium cursor-pointer"
           >
             <option value="pending">Pending</option>
             <option value="reviewed">Reviewed</option>
@@ -392,13 +392,13 @@ export default function FlaggedReviewsPage() {
       {isLoading && (
         <div className="flex flex-col items-center justify-center py-24 gap-3">
           <Loader2 className="w-8 h-8 animate-spin text-charcoal/30" />
-          <span className="font-google-sans text-sm text-charcoal/50">Loading flags…</span>
+          <span className="font-urbanist text-sm text-charcoal/50">Loading flags…</span>
         </div>
       )}
 
       {/* Error */}
       {error && (
-        <div className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-red-800 text-sm font-google-sans mb-6 flex items-center gap-2">
+        <div className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-red-800 text-sm font-urbanist mb-6 flex items-center gap-2">
           <AlertCircle className="w-4 h-4 flex-shrink-0" />
           Failed to load flags. Please refresh.
         </div>
@@ -410,10 +410,10 @@ export default function FlaggedReviewsPage() {
           <div className="w-16 h-16 rounded-2xl bg-red-50 flex items-center justify-center">
             <Flag className="w-8 h-8 text-red-300" />
           </div>
-          <p className="font-google-sans text-base font-semibold text-charcoal/70">
+          <p className="font-urbanist text-base font-semibold text-charcoal/70">
             No {statusFilter} flags
           </p>
-          <p className="font-google-sans text-sm text-charcoal/40">
+          <p className="font-urbanist text-sm text-charcoal/40">
             {statusFilter === "pending" ? "Nothing needs moderation right now." : "No reviewed flags found."}
           </p>
         </div>
@@ -426,10 +426,10 @@ export default function FlaggedReviewsPage() {
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-charcoal/8 bg-charcoal/[0.025]">
-                  <th className="px-5 py-3.5 font-google-sans font-semibold text-charcoal/60 text-xs uppercase tracking-wider">Review</th>
-                  <th className="px-5 py-3.5 font-google-sans font-semibold text-charcoal/60 text-xs uppercase tracking-wider">Reason</th>
-                  <th className="px-5 py-3.5 font-google-sans font-semibold text-charcoal/60 text-xs uppercase tracking-wider">Flags</th>
-                  <th className="px-5 py-3.5 font-google-sans font-semibold text-charcoal/60 text-xs uppercase tracking-wider">Reported</th>
+                  <th className="px-5 py-3.5 font-urbanist font-semibold text-charcoal/60 text-xs uppercase tracking-wider">Review</th>
+                  <th className="px-5 py-3.5 font-urbanist font-semibold text-charcoal/60 text-xs uppercase tracking-wider">Reason</th>
+                  <th className="px-5 py-3.5 font-urbanist font-semibold text-charcoal/60 text-xs uppercase tracking-wider">Flags</th>
+                  <th className="px-5 py-3.5 font-urbanist font-semibold text-charcoal/60 text-xs uppercase tracking-wider">Reported</th>
                   <th className="px-5 py-3.5 w-24" />
                 </tr>
               </thead>
@@ -446,12 +446,12 @@ export default function FlaggedReviewsPage() {
                           </div>
                           <div className="min-w-0">
                             {business && (
-                              <p className="font-google-sans font-semibold text-charcoal text-sm truncate">
+                              <p className="font-urbanist font-semibold text-charcoal text-sm truncate">
                                 {business.name}
                               </p>
                             )}
                             {review?.content && (
-                              <p className="font-google-sans text-xs text-charcoal/50 truncate max-w-[220px]">
+                              <p className="font-urbanist text-xs text-charcoal/50 truncate max-w-[220px]">
                                 {review.content}
                               </p>
                             )}
@@ -462,24 +462,24 @@ export default function FlaggedReviewsPage() {
                         </div>
                       </td>
                       <td className="px-5 py-4">
-                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold font-google-sans ${REASON_COLORS[f.reason] ?? "bg-charcoal/8 text-charcoal/60"}`}>
+                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold font-urbanist ${REASON_COLORS[f.reason] ?? "bg-charcoal/8 text-charcoal/60"}`}>
                           {REASON_LABELS[f.reason] ?? f.reason}
                         </span>
                         {f.details && (
-                          <p className="font-google-sans text-xs text-charcoal/45 mt-1 max-w-[160px] truncate italic">
+                          <p className="font-urbanist text-xs text-charcoal/45 mt-1 max-w-[160px] truncate italic">
                             {f.details}
                           </p>
                         )}
                       </td>
                       <td className="px-5 py-4">
-                        <span className={`font-google-sans text-sm font-bold tabular-nums ${f.total_flags_on_review >= 3 ? "text-red-600" : "text-charcoal/60"}`}>
+                        <span className={`font-urbanist text-sm font-bold tabular-nums ${f.total_flags_on_review >= 3 ? "text-red-600" : "text-charcoal/60"}`}>
                           {f.total_flags_on_review}
                         </span>
                       </td>
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-1.5 text-charcoal/50">
                           <Clock className="w-3.5 h-3.5 flex-shrink-0" />
-                          <span className="font-google-sans text-sm">{timeAgo(f.created_at)}</span>
+                          <span className="font-urbanist text-sm">{timeAgo(f.created_at)}</span>
                         </div>
                       </td>
                       <td className="px-5 py-4 text-right">
@@ -499,7 +499,7 @@ export default function FlaggedReviewsPage() {
                             <button
                               type="button"
                               onClick={() => setActiveFlagId(f.id)}
-                              className="inline-flex items-center gap-1.5 rounded-xl bg-navbar-bg text-white px-4 py-2 text-xs font-semibold font-google-sans hover:bg-navbar-bg/90 transition-colors"
+                              className="inline-flex items-center gap-1.5 rounded-xl bg-navbar-bg text-white px-4 py-2 text-xs font-semibold font-urbanist hover:bg-navbar-bg/90 transition-colors"
                             >
                               Review
                             </button>
@@ -531,17 +531,17 @@ export default function FlaggedReviewsPage() {
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
                           {business && (
-                            <p className="font-google-sans font-semibold text-charcoal text-sm truncate">
+                            <p className="font-urbanist font-semibold text-charcoal text-sm truncate">
                               {business.name}
                             </p>
                           )}
                           {review?.content && (
-                            <p className="font-google-sans text-xs text-charcoal/50 line-clamp-2 mt-0.5">
+                            <p className="font-urbanist text-xs text-charcoal/50 line-clamp-2 mt-0.5">
                               {review.content}
                             </p>
                           )}
                         </div>
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold font-google-sans flex-shrink-0 ${REASON_COLORS[f.reason] ?? "bg-charcoal/8 text-charcoal/60"}`}>
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold font-urbanist flex-shrink-0 ${REASON_COLORS[f.reason] ?? "bg-charcoal/8 text-charcoal/60"}`}>
                           {REASON_LABELS[f.reason] ?? f.reason}
                         </span>
                       </div>
@@ -551,12 +551,12 @@ export default function FlaggedReviewsPage() {
                   <div className="flex items-center justify-between flex-wrap gap-2">
                     <div className="flex items-center gap-3">
                       <Stars rating={review?.rating ?? null} />
-                      <span className="font-google-sans text-xs text-charcoal/45 flex items-center gap-1">
+                      <span className="font-urbanist text-xs text-charcoal/45 flex items-center gap-1">
                         <Clock className="w-3 h-3" />
                         {timeAgo(f.created_at)}
                       </span>
                       {f.total_flags_on_review > 1 && (
-                        <span className="font-google-sans text-xs text-red-600 font-semibold">
+                        <span className="font-urbanist text-xs text-red-600 font-semibold">
                           {f.total_flags_on_review} flags
                         </span>
                       )}
@@ -577,7 +577,7 @@ export default function FlaggedReviewsPage() {
                         <button
                           type="button"
                           onClick={() => setActiveFlagId(f.id)}
-                          className="inline-flex items-center gap-1.5 rounded-xl bg-navbar-bg text-white px-4 py-2 text-xs font-semibold font-google-sans hover:bg-navbar-bg/90 transition-colors"
+                          className="inline-flex items-center gap-1.5 rounded-xl bg-navbar-bg text-white px-4 py-2 text-xs font-semibold font-urbanist hover:bg-navbar-bg/90 transition-colors"
                         >
                           Review <ChevronRight className="w-3.5 h-3.5" />
                         </button>
@@ -586,7 +586,7 @@ export default function FlaggedReviewsPage() {
                   </div>
 
                   {f.details && (
-                    <p className="font-google-sans text-xs text-charcoal/45 italic border-t border-charcoal/5 pt-2">
+                    <p className="font-urbanist text-xs text-charcoal/45 italic border-t border-charcoal/5 pt-2">
                       &ldquo;{f.details}&rdquo;
                     </p>
                   )}
@@ -602,18 +602,18 @@ export default function FlaggedReviewsPage() {
                 type="button"
                 onClick={() => setPage((p) => Math.max(0, p - 1))}
                 disabled={page === 0}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-charcoal/15 px-4 py-2.5 text-sm font-semibold font-google-sans text-charcoal/60 hover:bg-charcoal/5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-charcoal/15 px-4 py-2.5 text-sm font-semibold font-urbanist text-charcoal/60 hover:bg-charcoal/5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <ChevronLeft className="w-4 h-4" /> Previous
               </button>
-              <span className="font-google-sans text-sm text-charcoal/50">
+              <span className="font-urbanist text-sm text-charcoal/50">
                 Page {page + 1} of {totalPages}
               </span>
               <button
                 type="button"
                 onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
                 disabled={page >= totalPages - 1}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-charcoal/15 px-4 py-2.5 text-sm font-semibold font-google-sans text-charcoal/60 hover:bg-charcoal/5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-charcoal/15 px-4 py-2.5 text-sm font-semibold font-urbanist text-charcoal/60 hover:bg-charcoal/5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Next <ChevronRight className="w-4 h-4" />
               </button>
@@ -633,4 +633,3 @@ export default function FlaggedReviewsPage() {
     </div>
   );
 }
-

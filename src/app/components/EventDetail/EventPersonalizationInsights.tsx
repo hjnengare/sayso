@@ -57,7 +57,7 @@ export default function EventPersonalizationInsights({
                 </div>
                 <h3
                     className="text-base font-semibold text-charcoal"
-                    style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                    style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                 >
                     Why You'll Love This
                 </h3>
@@ -70,7 +70,7 @@ export default function EventPersonalizationInsights({
                         </span>
                         <p
                             className="text-sm text-charcoal/80 leading-relaxed"
-                            style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                         >
                             {insight.text}
                         </p>
@@ -80,8 +80,3 @@ export default function EventPersonalizationInsights({
         </div>
     );
 }
-
-
-
-
-

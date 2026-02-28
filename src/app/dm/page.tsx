@@ -43,7 +43,7 @@ export default function DMPage() {
   if (authLoading || !user || (role === 'business' && businessesLoading)) {
     return (
       <div className="flex min-h-[100dvh] items-center justify-center bg-white">
-        <div className="inline-flex items-center gap-2 text-sm text-charcoal/60" style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}>
+        <div className="inline-flex items-center gap-2 text-sm text-charcoal/60" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
           <Loader2 className="h-4 w-4 animate-spin" />
           Loading messages...
         </div>
@@ -68,7 +68,7 @@ export default function DMPage() {
         <nav className="pb-1" aria-label="Breadcrumb">
           <ol
             className="flex items-center gap-2 text-sm sm:text-base"
-            style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}
+            style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
           >
             <li>
               <Link
@@ -112,8 +112,3 @@ export default function DMPage() {
     </div>
   );
 }
-
-
-
-
-

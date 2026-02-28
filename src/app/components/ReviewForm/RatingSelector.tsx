@@ -29,7 +29,7 @@ export default function RatingSelector({ overallRating, onRatingChange }: Rating
       <div className="flex flex-col items-center gap-2 mb-4">
         <h3
           className="text-base font-semibold text-charcoal"
-          style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}
+          style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
         >
           How was your experience?
         </h3>
@@ -48,7 +48,7 @@ export default function RatingSelector({ overallRating, onRatingChange }: Rating
               <span className="text-lg">{currentLabel.emoji}</span>
               <span
                 className="text-base font-bold"
-                style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}
+                style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
               >
                 {currentLabel.text}
               </span>
@@ -58,7 +58,7 @@ export default function RatingSelector({ overallRating, onRatingChange }: Rating
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="text-sm text-charcoal/60"
-              style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}
+              style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
             >
               Tap a star to rate
             </m.p>
@@ -141,8 +141,3 @@ export default function RatingSelector({ overallRating, onRatingChange }: Rating
     </div>
   );
 }
-
-
-
-
-
