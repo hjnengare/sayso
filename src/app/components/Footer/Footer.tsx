@@ -129,9 +129,9 @@ export default function Footer() {
   ];
 
   const linkColumns = [
-    [linkSections[0], linkSections[1]],
-    [linkSections[2], linkSections[3]],
-    [linkSections[4]],
+    [linkSections[0], linkSections[1]], // Discover + Community
+    [linkSections[2]],                  // Business
+    [linkSections[3], linkSections[4]], // Company + Legal
   ];
 
   const appDownloadBadges = [
@@ -158,7 +158,7 @@ export default function Footer() {
         <div className="border-t border-white/10 py-10 sm:py-12">
 
           <div
-            className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr_1fr_1fr_auto] gap-10 lg:gap-12 items-start"
+            className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr_1fr_1fr_1fr] gap-10 lg:gap-8 items-start"
           >
             {/* Brand */}
             <div className="flex flex-col items-start gap-4 text-left">
