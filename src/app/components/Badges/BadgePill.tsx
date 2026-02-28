@@ -82,9 +82,10 @@ export default function BadgePill({
           unoptimized
         />
       </div>
-      <span className={`font-urbanist font-700 ${style.text} whitespace-nowrap leading-tight`}>
+      <span className={`font-google-sans font-700 ${style.text} whitespace-nowrap leading-tight`}>
         {badge.name}
       </span>
     </m.div>
   );
 }
+

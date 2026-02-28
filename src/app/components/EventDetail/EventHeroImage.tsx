@@ -80,7 +80,7 @@ export default function EventHeroImage({
           event.type === "event"
             ? "bg-coral/90 text-white border-coral/50"
             : "bg-card-bg/90 text-white border-sage/50"
-        }`} style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+        }`} style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
           {event.type === "event" ? "Event" : "Special"}
         </span>
       </div>
@@ -92,7 +92,7 @@ export default function EventHeroImage({
             event.availabilityStatus === 'sold_out'
               ? 'bg-coral/90 text-white'
               : 'bg-amber-500/90 text-white'
-          }`} style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+          }`} style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
             {event.availabilityStatus === 'sold_out' ? 'Sold Out' : 'Limited Spots'}
           </span>
         </div>
@@ -102,7 +102,7 @@ export default function EventHeroImage({
         <div className={`absolute top-6 z-20 inline-flex items-center gap-1 rounded-full bg-off-white/95 backdrop-blur-xl px-3 py-1.5 text-charcoal border-none ${event.availabilityStatus ? 'right-36' : 'right-6'}`}>
           <GoldStar size={14} className="w-3.5 h-3.5" />
           <span className="text-body-sm font-semibold text-charcoal" style={{ 
-            fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', 
+            fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', 
             fontWeight: 600
           }}>
             {Number(event.rating).toFixed(1)}
@@ -127,3 +127,8 @@ export default function EventHeroImage({
     </m.div>
   );
 }
+
+
+
+
+

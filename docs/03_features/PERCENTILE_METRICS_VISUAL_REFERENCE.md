@@ -128,7 +128,7 @@ Business Profile Page
 - **Coral**: #F4735A - Icons for metrics
 
 ### Typography
-- **Font**: Urbanist (system fallback: -apple-system, BlinkMacSystemFont)
+- **Font**: Google Sans (system fallback: -apple-system, BlinkMacSystemFont)
 - **Header**: semibold, text-charcoal
 - **Label**: medium, text-charcoal/70
 - **Value**: bold, text-charcoal
@@ -193,3 +193,4 @@ The percentile metrics shown on business profiles display **identical data** to:
 
 **Last Updated**: January 20, 2026
 **Component Status**: ✅ Production Ready
+

@@ -19,7 +19,6 @@ import {
   UploadCloud,
   X,
 } from "lucide-react";
-import { Urbanist } from "next/font/google";
 import { useAuth } from "@/app/contexts/AuthContext";
 import { useToast } from "@/app/contexts/ToastContext";
 import { PageLoader } from "@/app/components/Loader";
@@ -29,12 +28,7 @@ import { animations } from "@/app/(business-portal)/add-business/components/type
 import { BusinessOwnershipService } from "@/app/lib/services/businessOwnershipService";
 import { ImageUploadService } from "@/app/lib/services/imageUploadService";
 
-const urbanist = Urbanist({
-  weight: ["400", "600", "700", "800"],
-  subsets: ["latin"],
-  display: "swap",
-});
-
+const GOOGLE_SANS_FONT_FAMILY = '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif';
 type ContentType = "event" | "special";
 
 interface AddEventSpecialFormPageProps {
@@ -102,7 +96,7 @@ const COPY: Record<
 };
 
 const fontStyle = {
-  fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+  fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
 };
 
 const sectionClassName =
@@ -446,7 +440,7 @@ export default function AddEventSpecialFormPage({ type }: AddEventSpecialFormPag
       <>
         <style dangerouslySetInnerHTML={{ __html: authStyles }} />
         <style dangerouslySetInnerHTML={{ __html: animations }} />
-        <div className="min-h-dvh bg-off-white relative overflow-hidden font-urbanist" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif' }}>
+        <div className="min-h-dvh bg-off-white relative overflow-hidden font-google-sans" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif' }}>
           {/* Background Gradient */}
           <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)]" />
@@ -474,7 +468,7 @@ export default function AddEventSpecialFormPage({ type }: AddEventSpecialFormPag
       <style dangerouslySetInnerHTML={{ __html: authStyles }} />
       <style dangerouslySetInnerHTML={{ __html: animations }} />
       <div
-        className="min-h-dvh min-h-[100dvh] bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white relative overflow-hidden font-urbanist"
+        className="min-h-dvh min-h-[100dvh] bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white relative overflow-hidden font-google-sans"
         style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif' }}
       >
          {/* Background Gradient */}
@@ -508,7 +502,7 @@ export default function AddEventSpecialFormPage({ type }: AddEventSpecialFormPag
 
               <div className="max-w-4xl mx-auto pt-8 pb-8">
                 <m.div className="text-center mb-8" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}>
-                  <h1 className={`${urbanist.className} text-2xl sm:text-3xl font-semibold mb-2 text-center leading-[1.2] tracking-tight text-charcoal`} style={{ fontFamily: urbanist.style.fontFamily }}>
+                  <h1 className={`font-google-sans text-2xl sm:text-3xl font-semibold mb-2 text-center leading-[1.2] tracking-tight text-charcoal`} style={{ fontFamily: GOOGLE_SANS_FONT_FAMILY }}>
                     {copy.heroTitle}
                   </h1>
                   <p className="text-sm sm:text-base text-charcoal/70 max-w-md mx-auto" style={fontStyle}>{copy.heroSubtitle}</p>
@@ -519,7 +513,7 @@ export default function AddEventSpecialFormPage({ type }: AddEventSpecialFormPag
                     <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-sage/10 to-transparent rounded-full blur-lg pointer-events-none" />
                     <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-coral/10 to-transparent rounded-full blur-lg pointer-events-none" />
                     <div className="relative z-10">
-                      <h3 className="font-urbanist text-base font-semibold text-charcoal mb-6 flex items-center gap-3" style={fontStyle}>
+                      <h3 className="font-google-sans text-base font-semibold text-charcoal mb-6 flex items-center gap-3" style={fontStyle}>
                         <span className={ICON_CHIP_CLASS}>
                           <Store className="w-5 h-5" />
                         </span>
@@ -581,7 +575,7 @@ export default function AddEventSpecialFormPage({ type }: AddEventSpecialFormPag
                       <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-sage/10 to-transparent rounded-full blur-lg pointer-events-none" />
                       <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-coral/10 to-transparent rounded-full blur-lg pointer-events-none" />
                       <div className="relative z-10 space-y-6">
-                        <h3 className="font-urbanist text-base font-semibold text-charcoal flex items-center gap-3" style={fontStyle}>
+                        <h3 className="font-google-sans text-base font-semibold text-charcoal flex items-center gap-3" style={fontStyle}>
                           <span className={ICON_CHIP_CLASS}>
                             <CalendarDays className="w-5 h-5" />
                           </span>
@@ -704,7 +698,7 @@ export default function AddEventSpecialFormPage({ type }: AddEventSpecialFormPag
                       <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-sage/10 to-transparent rounded-full blur-lg pointer-events-none" />
                       <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-coral/10 to-transparent rounded-full blur-lg pointer-events-none" />
                       <div className="relative z-10 space-y-6">
-                        <h3 className="font-urbanist text-base font-semibold text-charcoal flex items-center gap-3" style={fontStyle}>
+                        <h3 className="font-google-sans text-base font-semibold text-charcoal flex items-center gap-3" style={fontStyle}>
                           <span className={ICON_CHIP_CLASS}>
                             <Link2 className="w-5 h-5" />
                           </span>
@@ -820,7 +814,7 @@ export default function AddEventSpecialFormPage({ type }: AddEventSpecialFormPag
 
                   {(isEventForm || businesses.length > 0) ? (
                     <m.div className="flex flex-col sm:flex-row gap-4 justify-end pt-4" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.35 }}>
-                      <Link href={backRoute} className="px-6 py-3 rounded-full border-2 border-charcoal/20 text-charcoal font-urbanist font-600 hover:bg-charcoal/5 transition-all duration-200 text-center">
+                      <Link href={backRoute} className="px-6 py-3 rounded-full border-2 border-charcoal/20 text-charcoal font-google-sans font-600 hover:bg-charcoal/5 transition-all duration-200 text-center">
                         Cancel
                       </Link>
                       <m.button type="submit" disabled={isSubmitting} whileHover={{ scale: isSubmitting ? 1 : 1.02 }} whileTap={{ scale: isSubmitting ? 1 : 0.98 }} style={fontStyle} className="w-full bg-gradient-to-r from-coral to-coral/80 text-white text-body font-semibold py-4 px-6 rounded-full hover:from-coral/90 hover:to-coral transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg">
@@ -852,3 +846,9 @@ export default function AddEventSpecialFormPage({ type }: AddEventSpecialFormPag
     </>
   );
 }
+
+
+
+
+
+

@@ -65,7 +65,7 @@ function SubcategoryGroup({
   shakingIds = new Set()
 }: SubcategoryGroupProps) {
   const sfPro = {
-    fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+    fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
   };
 
   return (
@@ -106,3 +106,7 @@ function SubcategoryGroup({
 }
 
 export default memo(SubcategoryGroup);
+
+
+
+

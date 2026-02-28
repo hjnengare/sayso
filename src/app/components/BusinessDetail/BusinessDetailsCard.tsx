@@ -198,7 +198,7 @@ export default function BusinessDetailsCard({ priceRange, verified, hours }: Bus
     >
       <h2
         className="text-h3 font-semibold text-charcoal mb-4"
-        style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+        style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
       >
         Business Details
       </h2>
@@ -212,7 +212,7 @@ export default function BusinessDetailsCard({ priceRange, verified, hours }: Bus
           <div className="flex-1">
             <p
               className="text-caption text-charcoal/60"
-              style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+              style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
             >
               Price Range
             </p>
@@ -220,14 +220,14 @@ export default function BusinessDetailsCard({ priceRange, verified, hours }: Bus
               <div className="flex items-center gap-2">
                 <span
                   className="text-body-sm font-bold text-charcoal"
-                  style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                  style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                 >
                   {priceInfo.display}
                 </span>
                 {priceInfo.description && (
                   <span
                     className="text-sm text-charcoal/70"
-                    style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                    style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                   >
                     · {priceInfo.description}
                   </span>
@@ -236,7 +236,7 @@ export default function BusinessDetailsCard({ priceRange, verified, hours }: Bus
             ) : (
               <p
                 className="text-body-sm font-semibold text-charcoal/70 italic"
-                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
               >
                 Coming soon
               </p>
@@ -253,7 +253,7 @@ export default function BusinessDetailsCard({ priceRange, verified, hours }: Bus
             <div className="flex items-center justify-between">
               <p
                 className="text-caption text-charcoal/60"
-                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
               >
                 Hours
               </p>
@@ -261,7 +261,7 @@ export default function BusinessDetailsCard({ priceRange, verified, hours }: Bus
                 <button
                   onClick={() => setShowAllHours(!showAllHours)}
                   className="flex items-center gap-1 text-sm text-charcoal/60 hover:text-charcoal transition-colors"
-                  style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                  style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                 >
                   {showAllHours ? 'Hide' : 'See all'}
                   {showAllHours ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
@@ -279,14 +279,14 @@ export default function BusinessDetailsCard({ priceRange, verified, hours }: Bus
                         ? 'bg-card-bg/20 text-navbar-bg'
                         : 'bg-coral/20 text-sage/80'
                     }`}
-                    style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                    style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                   >
                     <span className={`w-1.5 h-1.5 rounded-full ${openStatus.isOpen ? 'bg-card-bg' : 'bg-coral'}`} />
                     {openStatus.isOpen ? 'Open' : 'Closed'}
                   </span>
                   <span
                     className="text-sm text-charcoal/60"
-                    style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                    style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                   >
                     {openStatus.status}
                   </span>
@@ -311,7 +311,7 @@ export default function BusinessDetailsCard({ priceRange, verified, hours }: Bus
                         >
                           <span
                             className={`text-sm ${isToday ? 'font-semibold text-charcoal' : 'text-charcoal/70'}`}
-                            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                            style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                           >
                             {label}
                             {isToday && <span className="ml-1 text-sm text-sage">(Today)</span>}
@@ -324,7 +324,7 @@ export default function BusinessDetailsCard({ priceRange, verified, hours }: Bus
                                   ? 'font-semibold text-charcoal'
                                   : 'text-charcoal/70'
                             }`}
-                            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                            style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                           >
                             {hours}
                           </span>
@@ -337,7 +337,7 @@ export default function BusinessDetailsCard({ priceRange, verified, hours }: Bus
             ) : (
               <p
                 className="text-body-sm font-semibold text-charcoal/70 italic mt-1"
-                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
               >
                 Hours coming soon
               </p>
@@ -353,7 +353,7 @@ export default function BusinessDetailsCard({ priceRange, verified, hours }: Bus
           <div>
             <p
               className="text-caption text-charcoal/60"
-              style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+              style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
             >
               Status
             </p>
@@ -362,7 +362,7 @@ export default function BusinessDetailsCard({ priceRange, verified, hours }: Bus
                 className={`inline-flex items-center gap-1.5 text-body-sm font-semibold ${
                   verified ? 'text-sage' : 'text-charcoal/70'
                 }`}
-                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
               >
                 {verified ? (
                   <>
@@ -382,3 +382,8 @@ export default function BusinessDetailsCard({ priceRange, verified, hours }: Bus
     </m.div>
   );
 }
+
+
+
+
+

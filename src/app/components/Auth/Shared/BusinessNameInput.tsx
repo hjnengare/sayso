@@ -43,7 +43,7 @@ export function BusinessNameInput({
       <label
         htmlFor={inputId}
         className="block text-sm font-semibold text-white mb-2"
-        style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 600 }}
+        style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
       >
         {label}
       </label>
@@ -76,7 +76,7 @@ export function BusinessNameInput({
           onFocus={() => setFocusKey((k) => k + 1)}
           aria-invalid={hasError ? "true" : "false"}
           aria-describedby={hasError ? errorId : isValid ? successId : undefined}
-          style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 600 }}
+          style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
           className={`w-full bg-white/95 backdrop-blur-sm border pl-12 sm:pl-14 pr-4 py-3 sm:py-4 md:py-5 text-body font-semibold text-charcoal placeholder-charcoal/50 placeholder:font-normal focus:outline-none focus:ring-2 transition-all duration-300 hover:border-sage/50 input-mobile rounded-full ${
             hasError
               ? "border-navbar-bg focus:border-navbar-bg focus:ring-navbar-bg/20"
@@ -110,3 +110,8 @@ export function BusinessNameInput({
     </div>
   );
 }
+
+
+
+
+

@@ -67,7 +67,7 @@ export default function CityPageClient({
         >
           {/* Page Header */}
           <div className="mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold text-charcoal mb-2" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
+            <h1 className="text-3xl md:text-4xl font-bold text-charcoal mb-2" style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}>
               {pageTitle}
             </h1>
             <p className="text-charcoal/70 text-lg">
@@ -109,7 +109,7 @@ export default function CityPageClient({
                         ? "bg-gradient-to-br from-sage to-sage/80 text-white shadow-lg scale-105"
                         : "bg-gradient-to-br from-sage/20 to-sage/10 hover:from-sage/40 hover:to-sage/20 text-charcoal hover:text-sage hover:shadow-lg active:scale-95"
                     }`}
-                    style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
+                    style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}
                   >
                     {page}
                   </button>
@@ -124,4 +124,9 @@ export default function CityPageClient({
     </div>
   );
 }
+
+
+
+
+
 

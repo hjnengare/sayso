@@ -6,7 +6,7 @@ import { Send, ChevronRight, CheckCircle2, AlertCircle, Loader2 } from "lucide-r
 import { m, AnimatePresence } from "framer-motion";
 import Footer from "../components/Footer/Footer";
 
-const FONT = "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif";
+const FONT = '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif';
 
 const CONTACT_REASONS = [
   { value: "general", label: "General enquiry" },
@@ -382,3 +382,8 @@ export default function ContactPage() {
     </div>
   );
 }
+
+
+
+
+

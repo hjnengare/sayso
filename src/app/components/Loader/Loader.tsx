@@ -140,7 +140,7 @@ export const Loader: React.FC<LoaderProps> = ({
       {variant === "wavy" && <WavyDotsLoader size={size} color={color} />}
       
       {text && (
-        <p className={`${textClass} ${textColorClass} opacity-70 font-urbanist font-500`}>
+        <p className={`${textClass} ${textColorClass} opacity-70 font-google-sans font-500`}>
           {text}
         </p>
       )}
@@ -178,4 +178,5 @@ export const ContentLoader: React.FC<Omit<LoaderProps, "fullPage">> = (props) =>
 );
 
 export default Loader;
+
 

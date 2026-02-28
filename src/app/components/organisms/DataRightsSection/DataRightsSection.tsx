@@ -34,7 +34,7 @@ export const DataRightsSection: React.FC<DataRightsSectionProps> = ({
             </p>
             <button
               onClick={onExportData}
-              className="px-6 py-2 rounded-full text-sm font-600 font-urbanist bg-coral text-white hover:bg-coral/90 transition-all duration-300 shadow-lg inline-flex items-center gap-2"
+              className="px-6 py-2 rounded-full text-sm font-600 font-google-sans bg-coral text-white hover:bg-coral/90 transition-all duration-300 shadow-lg inline-flex items-center gap-2"
             >
               <Download className="w-4 h-4" />
               Export My Data
@@ -77,7 +77,7 @@ export const DataRightsSection: React.FC<DataRightsSectionProps> = ({
             </p>
             <button
               onClick={onDeleteData}
-              className="px-6 py-2 rounded-full text-sm font-600 font-urbanist bg-white/40 text-coral border border-coral hover:bg-coral hover:text-white transition-all duration-300"
+              className="px-6 py-2 rounded-full text-sm font-600 font-google-sans bg-white/40 text-coral border border-coral hover:bg-coral hover:text-white transition-all duration-300"
             >
               Delete All My Data
             </button>
@@ -87,4 +87,5 @@ export const DataRightsSection: React.FC<DataRightsSectionProps> = ({
     </SettingsCard>
   );
 };
+
 

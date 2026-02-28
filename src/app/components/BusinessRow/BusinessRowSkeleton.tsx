@@ -14,7 +14,7 @@ export default function BusinessRowSkeleton({ title, cards = DEFAULT_CARD_COUNT 
       aria-label={`${title} loading`}
       aria-busy="true"
       style={{
-        fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+        fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
       }}
     >
       <div className="mx-auto w-full max-w-[2000px] relative z-10 px-2">
@@ -94,4 +94,9 @@ export default function BusinessRowSkeleton({ title, cards = DEFAULT_CARD_COUNT 
     </section>
   );
 }
+
+
+
+
+
 

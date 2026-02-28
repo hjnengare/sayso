@@ -10,9 +10,9 @@ export default function SavedHeader() {
 
   return (
     <div
-      className="fixed top-0 left-0 right-0 z-50 bg-navbar-bg backdrop-blur-xl border-b border-sage/10 font-urbanist"
+      className="fixed top-0 left-0 right-0 z-50 bg-navbar-bg backdrop-blur-xl border-b border-sage/10 font-google-sans"
       style={{
-        fontFamily: '"Urbanist", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+        fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
       }}
     >
       <div className="mx-auto w-full max-w-[2000px] px-2 py-4">
@@ -27,7 +27,7 @@ export default function SavedHeader() {
             <h3 
               className="text-h2 sm:text-h1 font-semibold text-white transition-all duration-300 group-hover:text-white/80 relative"
               style={{
-                fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
               }}
             >
               Your Saved Gems
@@ -40,7 +40,7 @@ export default function SavedHeader() {
               <span 
                 className="text-body-sm font-semibold text-white"
                 style={{
-                  fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                  fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                 }}
               >
                 {savedCount} {savedCount === 1 ? ' Item' : ' Items'}
@@ -52,3 +52,8 @@ export default function SavedHeader() {
     </div>
   );
 }
+
+
+
+
+

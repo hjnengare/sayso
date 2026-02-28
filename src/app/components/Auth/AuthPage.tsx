@@ -469,7 +469,7 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
               enableScrollTrigger={false}
               disableWave={true}
               style={{
-                fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                 fontWeight: 700,
               }}
             />
@@ -478,7 +478,7 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
           <p
             className="text-body font-normal text-charcoal/70 mb-4 leading-[1.55] px-2 max-w-[70ch] mx-auto animate-fade-in-up animate-delay-700"
             style={{
-              fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+              fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
               fontWeight: 400,
             }}
           >
@@ -497,7 +497,7 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
                   ? "bg-navbar-bg/90 text-white shadow-md"
                   : "text-charcoal/70 hover:text-charcoal"
               }`}
-              style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
+              style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
             >
               Personal Account
             </button>
@@ -509,7 +509,7 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
                   ? "bg-navbar-bg/90 text-white shadow-md"
                   : "text-charcoal/70 hover:text-charcoal"
               }`}
-              style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
+              style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
             >
               Business Account
             </button>
@@ -534,7 +534,7 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
                           ? "bg-white text-charcoal shadow-sm"
                           : "text-white/70 hover:text-white"
                       }`}
-                      style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
+                      style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                     >
                       Register
                     </button>
@@ -546,7 +546,7 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
                           ? "bg-white text-charcoal shadow-sm"
                           : "text-white/70 hover:text-white"
                       }`}
-                      style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
+                      style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                     >
                       Login
                     </button>
@@ -575,7 +575,7 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
                       <h3
                         className="text-lg font-semibold text-blue-900 mb-2"
                         style={{
-                          fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                          fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                         }}
                       >
                         Account Already Exists
@@ -584,7 +584,7 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
                       <p
                         className="text-blue-700 mb-6"
                         style={{
-                          fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                          fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                         }}
                       >
                         Email already registered for a {existingAccountLabel} account. Log in or use a different email.
@@ -601,7 +601,7 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
                           }}
                           className="inline-flex items-center justify-center w-full px-6 py-3 bg-blue-600 text-white text-body font-semibold rounded-full hover:bg-blue-700 transition-all duration-300"
                           style={{
-                            fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                            fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                           }}
                         >
                           Switch to Login
@@ -616,7 +616,7 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
                           }}
                           className="inline-flex items-center justify-center w-full px-6 py-3 bg-gray-100 text-gray-700 text-body font-semibold rounded-full hover:bg-gray-200 transition-all duration-300"
                           style={{
-                            fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                            fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                           }}
                         >
                           Try Different Email
@@ -638,7 +638,7 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
                               className="text-caption font-semibold text-error-600"
                               style={{
                                 fontFamily:
-                                  "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                                  '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                               }}
                             >
                               {error}
@@ -652,7 +652,7 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
                               className="text-caption font-semibold text-orange-600"
                               style={{
                                 fontFamily:
-                                  "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                                  '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                               }}
                             >
                               You&apos;re offline. We&apos;ll try again when you&apos;re back online.
@@ -679,7 +679,7 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
                                   className="text-xs text-white/80 mt-1"
                                   style={{
                                     fontFamily:
-                                      "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                                      '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                                   }}
                                 >
                                   This is your account username.
@@ -737,7 +737,7 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
                               className="text-body-sm text-white hover:text-coral transition-colors duration-300 font-medium"
                               style={{
                                 fontFamily:
-                                  "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                                  '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                                 fontWeight: 600,
                               }}
                             >
@@ -752,7 +752,7 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
                               className="flex items-start gap-3 text-body-sm text-white cursor-pointer"
                               style={{
                                 fontFamily:
-                                  "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                                  '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                                 fontWeight: 400,
                               }}
                             >
@@ -788,7 +788,7 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
                             disabled={isSubmitDisabled}
                             style={{
                               fontFamily:
-                                "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                                '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                               fontWeight: 600,
                             }}
                             className="w-full bg-gradient-to-r from-coral to-coral/80 text-white text-body font-semibold py-4 px-2 rounded-full hover:from-coral/90 hover:to-coral transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 btn-target btn-press"
@@ -823,7 +823,7 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
                           className="text-body-sm sm:text-body text-white"
                           style={{
                             fontFamily:
-                              "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                              '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                             fontWeight: 400,
                           }}
                         >
@@ -836,7 +836,7 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
                             className="text-white font-semibold hover:text-coral transition-colors duration-300 relative group"
                             style={{
                               fontFamily:
-                                "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                                '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                               fontWeight: 600,
                             }}
                           >
@@ -855,4 +855,9 @@ export default function AuthPage({ defaultAuthMode }: AuthPageProps) {
     </>
   );
 }
+
+
+
+
+
 

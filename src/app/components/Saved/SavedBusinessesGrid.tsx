@@ -64,7 +64,7 @@ function SavedBusinessesGrid({ savedBusinesses }: SavedBusinessesGridProps) {
               key={category}
               onClick={() => setSelectedCategory(category)}
               className={`
-                px-4 py-2 rounded-full font-urbanist text-sm font-500 whitespace-nowrap
+                px-4 py-2 rounded-full font-google-sans text-sm font-500 whitespace-nowrap
                 transition-all duration-300 flex-shrink-0
                 ${selectedCategory === category
                   ? "bg-gradient-to-r from-sage to-sage/80 text-white scale-105 border border-white/30"
@@ -90,7 +90,7 @@ function SavedBusinessesGrid({ savedBusinesses }: SavedBusinessesGridProps) {
 
       {filteredBusinesses.length === 0 && selectedCategory !== "All" && (
         <div className="text-center py-12">
-          <p className="font-urbanist text-sm text-charcoal/60">
+          <p className="font-google-sans text-sm text-charcoal/60">
             No saved businesses in this category yet
           </p>
         </div>
@@ -100,3 +100,4 @@ function SavedBusinessesGrid({ savedBusinesses }: SavedBusinessesGridProps) {
 }
 
 export default memo(SavedBusinessesGrid);
+

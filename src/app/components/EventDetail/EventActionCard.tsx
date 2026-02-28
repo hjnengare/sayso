@@ -222,7 +222,7 @@ export default function EventActionCard({
     setShowReminderPicker(false);
   };
 
-  const fontStyle = { fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' };
+  const fontStyle = { fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' };
 
   return (
     <m.div
@@ -366,3 +366,8 @@ export default function EventActionCard({
     </m.div>
   );
 }
+
+
+
+
+

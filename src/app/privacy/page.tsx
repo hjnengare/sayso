@@ -8,8 +8,8 @@ export default function PrivacyPolicyPage() {
 
   return (
     <div
-      className="min-h-dvh bg-navbar-bg font-urbanist relative overflow-hidden"
-      style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
+      className="min-h-dvh bg-navbar-bg font-google-sans relative overflow-hidden"
+      style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
     >
       <div className="mx-auto max-w-3xl px-4 py-8 sm:py-12 relative z-10">
         <button
@@ -233,3 +233,8 @@ export default function PrivacyPolicyPage() {
     </div>
   );
 }
+
+
+
+
+

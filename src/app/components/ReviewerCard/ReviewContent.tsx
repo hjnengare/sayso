@@ -23,20 +23,20 @@ export default function ReviewContent({
     <div className="flex-1 text-center px-2 pb-2">
       <div className="mb-1">
         <div className="flex items-center justify-center mb-0.5">
-          <h4 className="font-urbanist text-[10px] font-600 text-charcoal truncate">{businessName}</h4>
+          <h4 className="font-google-sans text-[10px] font-600 text-charcoal truncate">{businessName}</h4>
         </div>
         <div className="flex items-center justify-center mb-0.5">
-          <span className="text-[12px] text-charcoal/60 font-urbanist">{date}</span>
+          <span className="text-[12px] text-charcoal/60 font-google-sans">{date}</span>
         </div>
 
         <div className="flex items-center justify-center gap-1 mb-0.5">
-          <span className="text-[10px] text-charcoal/70 font-urbanist">
+          <span className="text-[10px] text-charcoal/70 font-google-sans">
             {businessType}
           </span>
         </div>
       </div>
 
-      <p className="font-urbanist text-[10px] text-charcoal/80 leading-relaxed mb-2 line-clamp-2">
+      <p className="font-google-sans text-[10px] text-charcoal/80 leading-relaxed mb-2 line-clamp-2">
         {reviewText}
       </p>
 
@@ -60,8 +60,9 @@ export default function ReviewContent({
           strokeWidth={2}
           aria-hidden="true"
         />
-        <span className="text-[10px] font-urbanist">{likes}</span>
+        <span className="text-[10px] font-google-sans">{likes}</span>
       </div>
     </div>
   );
 }
+

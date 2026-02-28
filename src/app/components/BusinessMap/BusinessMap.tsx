@@ -68,7 +68,7 @@ export default function BusinessMap({
             <h3
               className="text-base sm:text-lg font-bold text-charcoal"
               style={{
-                fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                 fontWeight: 700,
               }}
             >
@@ -79,7 +79,7 @@ export default function BusinessMap({
             <p
               className="text-sm text-charcoal/70 mt-1 ml-7"
               style={{
-                fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
               }}
             >
               {address || location}
@@ -118,7 +118,7 @@ export default function BusinessMap({
                   <p
                     className="text-sm font-semibold text-charcoal mb-1"
                     style={{
-                      fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                      fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                       fontWeight: 600,
                     }}
                   >
@@ -127,7 +127,7 @@ export default function BusinessMap({
                   <p
                     className="text-xs text-charcoal/60"
                     style={{
-                      fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                      fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                     }}
                   >
                     {address || location || 'Click to view location'}
@@ -151,7 +151,7 @@ export default function BusinessMap({
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-sm font-semibold text-navbar-bg hover:text-navbar-bg/80 transition-colors"
               style={{
-                fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                 fontWeight: 600,
               }}
             >
@@ -164,4 +164,9 @@ export default function BusinessMap({
     </div>
   );
 }
+
+
+
+
+
 

@@ -89,7 +89,7 @@ export default function BadgeCard({ badge, onClick }: BadgeCardProps) {
       {/* Badge Name */}
       <h3
         className={`
-          font-urbanist font-700 text-sm text-center mb-1
+          font-google-sans font-700 text-sm text-center mb-1
           ${isLocked ? "text-charcoal/70" : "text-charcoal"}
         `}
       >
@@ -99,7 +99,7 @@ export default function BadgeCard({ badge, onClick }: BadgeCardProps) {
       {/* Badge Description */}
       <p
         className={`
-          font-urbanist text-xs text-center line-clamp-2
+          font-google-sans text-xs text-center line-clamp-2
           ${isLocked ? "text-charcoal/60" : "text-charcoal/70"}
         `}
       >
@@ -115,3 +115,4 @@ export default function BadgeCard({ badge, onClick }: BadgeCardProps) {
     </m.div>
   );
 }
+

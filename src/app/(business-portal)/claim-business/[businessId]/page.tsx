@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { Loader } from "../../../components/Loader";
 
-const FONT = "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif";
+const FONT = '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif';
 const ICON_CHIP_CLASS =
   "inline-flex items-center justify-center rounded-full bg-off-white/80 text-charcoal/85 transition-colors duration-200 hover:bg-off-white/90";
 const SMALL_ICON_CHIP_CLASS = `${ICON_CHIP_CLASS} h-6 w-6`;
@@ -721,4 +721,8 @@ export default function ClaimBusinessFormPage() {
     </div>
   );
 }
+
+
+
+
 

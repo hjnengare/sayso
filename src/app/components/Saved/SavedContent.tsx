@@ -15,7 +15,7 @@ function SavedContent({ savedBusinesses }: SavedContentProps) {
     <section
       className="relative"
       style={{
-        fontFamily: '"Urbanist", system-ui, sans-serif',
+        fontFamily: '"Google Sans", system-ui, sans-serif',
       }}
     >
       <div className="mx-auto w-full max-w-[2000px] px-2 relative z-10">
@@ -23,7 +23,7 @@ function SavedContent({ savedBusinesses }: SavedContentProps) {
           <div className="mb-6 flex items-center gap-3">
             <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-sage/10 to-coral/10 rounded-full backdrop-blur-sm border border-sage/20">
               <Sparkles className="w-4 h-4 text-sage" />
-              <h2 className="font-urbanist text-sm font-600 text-charcoal">
+              <h2 className="font-google-sans text-sm font-600 text-charcoal">
                 Your Collection
               </h2>
             </div>
@@ -42,3 +42,8 @@ function SavedContent({ savedBusinesses }: SavedContentProps) {
 }
 
 export default memo(SavedContent);
+
+
+
+
+

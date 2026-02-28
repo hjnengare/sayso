@@ -108,8 +108,8 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
           <div className="w-16 h-16 bg-gradient-to-br from-white/40 to-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-4 border-none">
             <Calendar className="w-7 h-7 text-charcoal" />
           </div>
-          <h1 className="text-2xl font-bold text-charcoal mb-4" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>Event Not Found</h1>
-          <Link href="/events" className="px-6 py-2.5 bg-gradient-to-br from-charcoal to-charcoal/90 text-white rounded-full text-sm font-600 hover:bg-charcoal/90 transition-all duration-300 border border-white/30 inline-block" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+          <h1 className="text-2xl font-bold text-charcoal mb-4" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>Event Not Found</h1>
+          <Link href="/events" className="px-6 py-2.5 bg-gradient-to-br from-charcoal to-charcoal/90 text-white rounded-full text-sm font-600 hover:bg-charcoal/90 transition-all duration-300 border border-white/30 inline-block" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
             Back to Events & Specials
           </Link>
         </div>
@@ -124,11 +124,11 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
           <div className="w-16 h-16 bg-gradient-to-br from-white/40 to-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-4 border-none">
             <Calendar className="w-7 h-7 text-charcoal" />
           </div>
-          <h1 className="text-2xl font-bold text-charcoal mb-4" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>Unable to Load Event</h1>
-          <p className="text-charcoal/70 mb-6" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+          <h1 className="text-2xl font-bold text-charcoal mb-4" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>Unable to Load Event</h1>
+          <p className="text-charcoal/70 mb-6" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
             {loadError || "Please try again."}
           </p>
-          <Link href="/events" className="px-6 py-2.5 bg-gradient-to-br from-charcoal to-charcoal/90 text-white rounded-full text-sm font-600 hover:bg-charcoal/90 transition-all duration-300 border border-white/30 inline-block" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+          <Link href="/events" className="px-6 py-2.5 bg-gradient-to-br from-charcoal to-charcoal/90 text-white rounded-full text-sm font-600 hover:bg-charcoal/90 transition-all duration-300 border border-white/30 inline-block" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
             Back to Events & Specials
           </Link>
         </div>
@@ -146,8 +146,8 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -10 }}
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="min-h-dvh bg-off-white font-urbanist"
-        style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
+        className="min-h-dvh bg-off-white font-google-sans"
+        style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}
       >
 
         <div className="min-h-[100dvh] bg-gradient-to-b from-off-white/0 via-off-white/50 to-off-white relative overflow-hidden">
@@ -160,7 +160,7 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
             <section
               className="relative"
               style={{
-                fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
               }}
             >
               <div className="mx-auto w-full max-w-[2000px] px-2 relative z-10">
@@ -197,7 +197,7 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
                         <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-4 sm:p-6">
                           <h3
                             className="text-h3 font-semibold text-charcoal mb-4"
-                            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                            style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                           >
                             More {event.type === 'special' ? 'Specials' : 'Events'} Near You
                           </h3>
@@ -224,13 +224,13 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
                                   <div className="min-w-0 flex-1">
                                     <p
                                       className="text-sm font-semibold text-charcoal group-hover:text-navbar-bg transition-colors line-clamp-1"
-                                      style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                                      style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                                     >
                                       {rel.title}
                                     </p>
                                     <p
                                       className="text-xs text-charcoal/60 line-clamp-1"
-                                      style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                                      style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                                     >
                                       {rel.startDate}{rel.city ? ` · ${rel.city}` : ''}
                                     </p>
@@ -240,7 +240,7 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
                                       rel.availabilityStatus === 'sold_out'
                                         ? 'bg-coral/15 text-coral'
                                         : 'bg-amber-500/15 text-amber-600'
-                                    }`} style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                    }`} style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                                       {rel.availabilityStatus === 'sold_out' ? 'Sold Out' : 'Limited'}
                                     </span>
                                   )}
@@ -303,7 +303,7 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
                           <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px]  shadow-md p-4 sm:p-6">
                             <h3
                               className="text-h3 font-semibold text-charcoal mb-3"
-                              style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                              style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                             >
                               More dates
                             </h3>
@@ -314,14 +314,14 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
                                   <li key={o.id} className="flex items-center justify-between gap-3">
                                     <span
                                       className="text-body-sm text-charcoal/80"
-                                      style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                                      style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                                     >
                                       {o.label}
                                     </span>
                                     <Link
                                       href={`${hrefBase}/${o.id}`}
                                       className="text-body-sm font-semibold text-coral hover:underline"
-                                      style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                                      style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                                     >
                                       View
                                     </Link>
@@ -372,11 +372,11 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
                 <WavyTypedTitle
                   text="Event Reviews"
                   as="h2"
-                  className="font-urbanist text-lg sm:text-xl font-700 text-charcoal"
+                  className="font-google-sans text-lg sm:text-xl font-700 text-charcoal"
                   typingSpeedMs={40}
                   startDelayMs={300}
                   disableWave={true}
-                  style={{ fontFamily: 'Urbanist, system-ui, sans-serif', fontWeight: 700 }}
+                  style={{ fontFamily: '"Google Sans", system-ui, sans-serif', fontWeight: 700 }}
                 />
               </div>
 
@@ -407,4 +407,9 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
     </AnimatePresence>
   );
 }
+
+
+
+
+
 

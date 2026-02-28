@@ -65,13 +65,13 @@ export default function BusinessInfoModal({
           }`}
           style={{
             maxWidth: 'min(680px, 100%)',
-            fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+            fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
             animation: isClosing ? 'none' : 'fadeInScale 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards',
           }}
           onClick={(e) => e.stopPropagation()}
         >
         <div className="sticky top-0 bg-off-white border-b border-charcoal/10 px-5 sm:px-6 py-4 flex items-center justify-between">
-          <h2 className="text-base font-bold text-charcoal" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
+          <h2 className="text-base font-bold text-charcoal" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
             Business Information
           </h2>
           <button
@@ -83,16 +83,16 @@ export default function BusinessInfoModal({
           </button>
         </div>
 
-        <div className="px-5 sm:px-6 py-4 pb-6 space-y-4" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
+        <div className="px-5 sm:px-6 py-4 pb-6 space-y-4" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
           {/* Business Name */}
           <div>
-            <h3 className="text-sm font-semibold text-charcoal mb-2" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
+            <h3 className="text-sm font-semibold text-charcoal mb-2" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
               {businessInfo.name || 'Business Name Not Available'}
             </h3>
           </div>
 
           {/* Category */}
-          <div className="flex items-center gap-2 text-sm text-charcoal/70" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
+          <div className="flex items-center gap-2 text-sm text-charcoal/70" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
             <span className="font-medium text-charcoal/60">Category:</span>
             <span className={!businessInfo.category ? 'italic text-charcoal/60' : ''}>
               {businessInfo.category || 'Not specified'}
@@ -100,7 +100,7 @@ export default function BusinessInfoModal({
           </div>
 
           {/* Description */}
-          <div className="text-sm text-charcoal/70" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
+          <div className="text-sm text-charcoal/70" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
             <p className="font-medium text-charcoal/60 mb-1">Description</p>
             <p className={`leading-relaxed ${!businessInfo.description ? 'italic text-charcoal/60' : ''}`}>
               {(() => {
@@ -117,7 +117,7 @@ export default function BusinessInfoModal({
           </div>
 
           {/* Price Range */}
-          <div className="flex items-center gap-2 text-sm text-charcoal/70" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
+          <div className="flex items-center gap-2 text-sm text-charcoal/70" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
             <span className="grid h-6 w-6 flex-shrink-0 place-items-center rounded-full bg-off-white/70 hover:bg-off-white/90 transition-colors">
               <DollarSign className="w-3 h-3 text-charcoal/85" />
             </span>
@@ -128,7 +128,7 @@ export default function BusinessInfoModal({
           </div>
 
           {/* Verification Status */}
-          <div className="flex items-center gap-2 text-sm" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
+          <div className="flex items-center gap-2 text-sm" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
             <span className="grid h-6 w-6 flex-shrink-0 place-items-center rounded-full bg-off-white/70 hover:bg-off-white/90 transition-colors">
               <CheckCircle className="w-3 h-3 text-charcoal/85" />
             </span>
@@ -143,8 +143,8 @@ export default function BusinessInfoModal({
               <MapPin className="w-3 h-3 text-charcoal/85" />
             </span>
             <div className="flex-1">
-              <p className="text-sm font-medium text-charcoal mb-0.5" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>Location</p>
-              <p className={`text-sm ${businessInfo.location ? 'text-charcoal/70' : 'italic text-charcoal/60'}`} style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
+              <p className="text-sm font-medium text-charcoal mb-0.5" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>Location</p>
+              <p className={`text-sm ${businessInfo.location ? 'text-charcoal/70' : 'italic text-charcoal/60'}`} style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                 {businessInfo.location || 'Location not provided'}
               </p>
             </div>
@@ -154,8 +154,8 @@ export default function BusinessInfoModal({
           <div className="flex items-start gap-3">
             <MapPin className={`w-4 h-4 mt-0.5 flex-shrink-0 ${businessInfo.address ? 'text-sage' : 'text-charcoal/30'}`} />
             <div className="flex-1">
-              <p className="text-sm font-medium text-charcoal mb-0.5" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>Address</p>
-              <p className={`text-sm ${businessInfo.address ? 'text-charcoal/70' : 'italic text-charcoal/60'}`} style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
+              <p className="text-sm font-medium text-charcoal mb-0.5" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>Address</p>
+              <p className={`text-sm ${businessInfo.address ? 'text-charcoal/70' : 'italic text-charcoal/60'}`} style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                 {businessInfo.address || 'Address not provided'}
               </p>
             </div>
@@ -167,13 +167,13 @@ export default function BusinessInfoModal({
               <Phone className="w-3 h-3 text-charcoal/85" />
             </span>
             <div className="flex-1">
-              <p className="text-sm font-medium text-charcoal mb-0.5" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>Phone</p>
+              <p className="text-sm font-medium text-charcoal mb-0.5" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>Phone</p>
               {businessInfo.phone ? (
-                <a href={`tel:${businessInfo.phone}`} className="text-sm text-sage hover:text-coral transition-colors" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
+                <a href={`tel:${businessInfo.phone}`} className="text-sm text-sage hover:text-coral transition-colors" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                   {businessInfo.phone}
                 </a>
               ) : (
-                <p className="text-sm italic text-charcoal/60" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
+                <p className="text-sm italic text-charcoal/60" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                   Phone number not provided
                 </p>
               )}
@@ -186,13 +186,13 @@ export default function BusinessInfoModal({
               <Mail className="w-3 h-3 text-charcoal/85" />
             </span>
             <div className="flex-1">
-              <p className="text-sm font-medium text-charcoal mb-0.5" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>Email</p>
+              <p className="text-sm font-medium text-charcoal mb-0.5" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>Email</p>
               {businessInfo.email ? (
-                <a href={`mailto:${businessInfo.email}`} className="text-sm text-sage hover:text-coral transition-colors break-all" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
+                <a href={`mailto:${businessInfo.email}`} className="text-sm text-sage hover:text-coral transition-colors break-all" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                   {businessInfo.email}
                 </a>
               ) : (
-                <p className="text-sm italic text-charcoal/60" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
+                <p className="text-sm italic text-charcoal/60" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                   Email not provided
                 </p>
               )}
@@ -205,19 +205,19 @@ export default function BusinessInfoModal({
               <Globe className="w-3 h-3 text-charcoal/85" />
             </span>
             <div className="flex-1">
-              <p className="text-sm font-medium text-charcoal mb-0.5" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>Website</p>
+              <p className="text-sm font-medium text-charcoal mb-0.5" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>Website</p>
               {businessInfo.website ? (
                 <a
                   href={businessInfo.website.startsWith('http') ? businessInfo.website : `https://${businessInfo.website}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center rounded-full bg-navbar-bg px-3 py-1.5 text-sm text-white hover:bg-navbar-bg/90 transition-colors font-urbanist"
+                  className="inline-flex items-center rounded-full bg-navbar-bg px-3 py-1.5 text-sm text-white hover:bg-navbar-bg/90 transition-colors font-google-sans"
                   aria-label="View business website (opens in a new tab)"
                 >
                   View Website
                 </a>
               ) : (
-                <p className="text-sm italic text-charcoal/60" style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
+                <p className="text-sm italic text-charcoal/60" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                   Website not provided
                 </p>
               )}
@@ -230,4 +230,8 @@ export default function BusinessInfoModal({
     document.body
   );
 }
+
+
+
+
 

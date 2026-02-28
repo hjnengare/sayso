@@ -15,7 +15,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 
-const FONT = "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif";
+const FONT = '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif';
 
 type BusinessDetail = {
   id: string;
@@ -748,3 +748,7 @@ export default function AdminBusinessReviewPage() {
     </main>
   );
 }
+
+
+
+

@@ -71,7 +71,7 @@ export default function PersonalizationInsights({ business }: PersonalizationIns
           <Link
             href="/login"
             className="inline-flex w-full items-center justify-center rounded-full border border-white/30 bg-gradient-to-br from-navbar-bg to-navbar-bg/90 px-4 py-2.5 text-body-sm font-semibold text-white shadow-md transition-all duration-300 hover:bg-navbar-bg"
-            style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
+            style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
           >
             Sign in
           </Link>
@@ -154,3 +154,8 @@ export default function PersonalizationInsights({ business }: PersonalizationIns
     </div>
   );
 }
+
+
+
+
+

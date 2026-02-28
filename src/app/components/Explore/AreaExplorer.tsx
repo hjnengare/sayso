@@ -35,7 +35,7 @@ export default function AreaExplorer({ onAreaClick }: AreaExplorerProps) {
         <WavyTypedTitle
           text="Explore by Area"
           as="h2"
-          className="font-urbanist text-h2 sm:text-h1 font-700 text-charcoal px-3 sm:px-4 py-1 rounded-lg cursor-default"
+          className="font-google-sans text-h2 sm:text-h1 font-700 text-charcoal px-3 sm:px-4 py-1 rounded-lg cursor-default"
           typingSpeedMs={40}
           startDelayMs={300}
           waveVariant="subtle"
@@ -43,7 +43,7 @@ export default function AreaExplorer({ onAreaClick }: AreaExplorerProps) {
           enableScrollTrigger={true}
           disableWave={true}
           style={{ 
-            fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+            fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
             fontWeight: 700,
           }}
         />
@@ -51,7 +51,7 @@ export default function AreaExplorer({ onAreaClick }: AreaExplorerProps) {
           onClick={() => router.push("/explore/areas")}
           className="group inline-flex items-center gap-1 text-body-sm sm:text-caption font-normal text-charcoal transition-all duration-300 hover:text-sage focus:outline-none px-4 py-2 -mx-2 relative"
           aria-label="See all: Explore by Area"
-          style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
+          style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
         >
           <span className="relative z-10 transition-transform duration-300 group-hover:-translate-x-0.5 text-charcoal group-hover:text-sage" style={{ fontWeight: 600 }}>
             See All
@@ -75,13 +75,13 @@ export default function AreaExplorer({ onAreaClick }: AreaExplorerProps) {
               <div className="flex-1 min-w-0">
                 <h3 
                   className="text-body-sm font-semibold text-charcoal mb-1 group-hover:text-navbar-bg transition-colors duration-300 truncate"
-                  style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                  style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                 >
                   {area.name}
                 </h3>
                 <p 
                   className="text-caption text-charcoal/60 line-clamp-2"
-                  style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                  style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                 >
                   {area.description}
                 </p>
@@ -93,4 +93,9 @@ export default function AreaExplorer({ onAreaClick }: AreaExplorerProps) {
     </div>
   );
 }
+
+
+
+
+
 

@@ -132,13 +132,13 @@ export default function ToastNotification({
             </ProfileBadgeRibbon>
           </div>
           <div className="flex flex-col gap-0.5 px-1">
-            <p className="font-urbanist text-xs font-600 text-charcoal/70">
+            <p className="font-google-sans text-xs font-600 text-charcoal/70">
               {notification.message}
             </p>
-            <p className="font-urbanist text-sm font-700 text-charcoal line-clamp-2">
+            <p className="font-google-sans text-sm font-700 text-charcoal line-clamp-2">
               {notification.title}
             </p>
-            <p className="font-urbanist text-xs text-charcoal/60">
+            <p className="font-google-sans text-xs text-charcoal/60">
               <time>{notification.timeAgo}</time> ago
             </p>
           </div>
@@ -181,15 +181,15 @@ export default function ToastNotification({
 
           {/* Details */}
           <div className="toast-detail flex-1 min-w-0">
-            <p className="toast-message font-urbanist text-sm sm:text-xs font-600 text-charcoal/70 mb-1">
+            <p className="toast-message font-google-sans text-sm sm:text-xs font-600 text-charcoal/70 mb-1">
               {notification.message}
             </p>
 
-            <p className="toast-title font-urbanist text-sm font-600 text-charcoal line-clamp-2 mb-1">
+            <p className="toast-title font-google-sans text-sm font-600 text-charcoal line-clamp-2 mb-1">
               {notification.title}
             </p>
 
-            <p className="toast-meta font-urbanist text-sm sm:text-xs text-charcoal/60">
+            <p className="toast-meta font-google-sans text-sm sm:text-xs text-charcoal/60">
               <time>{notification.timeAgo}</time> ago
             </p>
           </div>
@@ -198,3 +198,4 @@ export default function ToastNotification({
     </m.div>
   );
 }
+

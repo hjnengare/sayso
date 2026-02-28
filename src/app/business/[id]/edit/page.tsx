@@ -621,20 +621,20 @@ export default function BusinessEditPage() {
         return (
             <div className="min-h-dvh bg-off-white flex items-center justify-center px-6 text-center">
                 <div className="space-y-4 max-w-sm">
-                    <h2 className="text-xl font-semibold text-charcoal font-urbanist">Access denied</h2>
-                    <p className="text-sm text-charcoal/70 font-urbanist">
+                    <h2 className="text-xl font-semibold text-charcoal font-google-sans">Access denied</h2>
+                    <p className="text-sm text-charcoal/70 font-google-sans">
                         You must be a verified owner of this business to edit its profile.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-3 justify-center">
                         <Link
                             href={`/business/${businessId}`}
-                            className="px-5 py-2.5 rounded-full bg-card-bg text-white font-urbanist font-600 hover:bg-card-bg/90 transition-all duration-200"
+                            className="px-5 py-2.5 rounded-full bg-card-bg text-white font-google-sans font-600 hover:bg-card-bg/90 transition-all duration-200"
                         >
                             View Business
                         </Link>
                         <Link
                           href="/claim-business"
-                            className="px-5 py-2.5 rounded-full border border-sage/40 text-charcoal font-urbanist font-600 hover:bg-card-bg/10 transition-all duration-200"
+                            className="px-5 py-2.5 rounded-full border border-sage/40 text-charcoal font-google-sans font-600 hover:bg-card-bg/10 transition-all duration-200"
                         >
                             Claim Ownership
                         </Link>
@@ -648,11 +648,11 @@ export default function BusinessEditPage() {
         return (
             <div className="min-h-dvh bg-off-white flex items-center justify-center px-6 text-center">
                 <div className="space-y-4 max-w-sm">
-                    <h2 className="text-xl font-semibold text-charcoal font-urbanist">Error</h2>
-                    <p className="text-sm text-charcoal/70 font-urbanist">{error}</p>
+                    <h2 className="text-xl font-semibold text-charcoal font-google-sans">Error</h2>
+                    <p className="text-sm text-charcoal/70 font-google-sans">{error}</p>
                     <Link
                         href={`/business/${businessId}`}
-                        className="px-5 py-2.5 rounded-full bg-card-bg text-white font-urbanist font-600 hover:bg-card-bg/90 transition-all duration-200"
+                        className="px-5 py-2.5 rounded-full bg-card-bg text-white font-google-sans font-600 hover:bg-card-bg/90 transition-all duration-200"
                     >
                         Back to Business
                     </Link>
@@ -669,7 +669,7 @@ export default function BusinessEditPage() {
             <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
             {/* SF Pro Font Setup */}
             <style jsx global>{`
-                .font-urbanist {
+                .font-google-sans {
                     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
                         "SF Pro Display", "Helvetica Neue", Helvetica, Arial, system-ui,
                         sans-serif;
@@ -679,7 +679,7 @@ export default function BusinessEditPage() {
                 }
             `}</style>
             <div
-                className="min-h-dvh bg-off-white relative overflow-hidden font-urbanist"
+                className="min-h-dvh bg-off-white relative overflow-hidden font-google-sans"
                 style={{
                     fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif',
                 }}
@@ -698,7 +698,7 @@ export default function BusinessEditPage() {
                                 <nav className="pb-1" aria-label="Breadcrumb">
                                     <ol className="flex items-center gap-2 text-sm sm:text-base flex-nowrap overflow-x-auto scrollbar-hide">
                                         <li className="flex-shrink-0">
-                                            <Link href={previousHref} className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium whitespace-nowrap truncate max-w-[150px] sm:max-w-none" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                            <Link href={previousHref} className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium whitespace-nowrap truncate max-w-[150px] sm:max-w-none" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                                                 {previousLabel}
                                             </Link>
                                         </li>
@@ -706,7 +706,7 @@ export default function BusinessEditPage() {
                                             <ChevronRight className="w-4 h-4 text-navbar-bg" />
                                         </li>
                                         <li className="min-w-0 flex-1">
-                                            <span className="text-charcoal font-semibold truncate block" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                            <span className="text-charcoal font-semibold truncate block" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                                                 Edit
                                             </span>
                                         </li>
@@ -717,7 +717,7 @@ export default function BusinessEditPage() {
                         {/* Basic Information Section */}
                         <div className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden  backdrop-blur-md shadow-md ring-1 ring-white/20 px-2 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10 lg:px-12 lg:py-10 xl:px-16 xl:py-12 animate-fade-in-up animate-delay-100">
                             <div className="relative z-10">
-                                <h3 className="font-urbanist text-base font-600 text-charcoal mb-6 flex items-center gap-3">
+                                <h3 className="font-google-sans text-base font-600 text-charcoal mb-6 flex items-center gap-3">
                                     <span className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-sage/20 to-sage/10">
                                         <Store className="w-4 h-4 text-navbar-bg" />
                                     </span>
@@ -726,22 +726,22 @@ export default function BusinessEditPage() {
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label className="block text-sm font-semibold text-white mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>Business Name</label>
+                                        <label className="block text-sm font-semibold text-white mb-2" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>Business Name</label>
                                         <input
                                             type="text"
                                             value={formData.name}
                                             onChange={(e) => handleInputChange('name', e.target.value)}
-                                            className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-full text-sm placeholder:text-charcoal/70 font-urbanist text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
+                                            className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-full text-sm placeholder:text-charcoal/70 font-google-sans text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
                                             placeholder="Enter business name"
                                         />
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-semibold text-white mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>Category</label>
+                                        <label className="block text-sm font-semibold text-white mb-2" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>Category</label>
                                         <select
                                             value={formData.category}
                                             onChange={(e) => handleInputChange('category', e.target.value)}
-                                            className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-full text-sm font-urbanist text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
+                                            className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-full text-sm font-google-sans text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
                                         >
                                             {categories.map(category => (
                                                 <option key={category} value={category}>{category}</option>
@@ -750,12 +750,12 @@ export default function BusinessEditPage() {
                                     </div>
 
                                     <div className="md:col-span-2">
-                                        <label className="block text-sm font-semibold text-white mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>Description</label>
+                                        <label className="block text-sm font-semibold text-white mb-2" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>Description</label>
                                         <textarea
                                             value={formData.description}
                                             onChange={(e) => handleInputChange('description', e.target.value)}
                                             rows={4}
-                                            className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-[12px] text-sm placeholder:text-charcoal/70 font-urbanist text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200 resize-none"
+                                            className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-[12px] text-sm placeholder:text-charcoal/70 font-google-sans text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200 resize-none"
                                             placeholder="Describe your business..."
                                         />
                                     </div>
@@ -766,7 +766,7 @@ export default function BusinessEditPage() {
                         {/* Images Section */}
                         <div className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden  backdrop-blur-md shadow-md ring-1 ring-white/20 px-2 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10 lg:px-12 lg:py-10 xl:px-16 xl:py-12 animate-fade-in-up animate-delay-200">
                             <div className="relative z-10">
-                                <h3 className="font-urbanist text-base font-600 text-charcoal mb-6 flex items-center gap-3">
+                                <h3 className="font-google-sans text-base font-600 text-charcoal mb-6 flex items-center gap-3">
                                     <span className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-sage/20 to-sage/10">
                                         <ImageIcon className="w-4 h-4 text-navbar-bg" />
                                     </span>
@@ -843,8 +843,8 @@ export default function BusinessEditPage() {
                                         <label className="aspect-square rounded-sm border-2 border-dashed border-charcoal/30 flex items-center justify-center cursor-pointer hover:border-sage hover:bg-card-bg/5 transition-all duration-200">
                                             <div className="text-center">
                                                 <Upload className="w-8 h-8 text-navbar-bg mx-auto mb-2" />
-                                                <span className="font-urbanist text-sm text-charcoal/60">Add Photo</span>
-                                                <span className="font-urbanist text-xs text-charcoal/60 block mt-1">
+                                                <span className="font-google-sans text-sm text-charcoal/60">Add Photo</span>
+                                                <span className="font-google-sans text-xs text-charcoal/60 block mt-1">
                                                     {10 - formData.images.length} remaining
                                                 </span>
                                             </div>
@@ -871,7 +871,7 @@ export default function BusinessEditPage() {
                         {/* Contact Information Section */}
                         <div className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden  backdrop-blur-md shadow-md ring-1 ring-white/20 px-2 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10 lg:px-12 lg:py-10 xl:px-16 xl:py-12 animate-fade-in-up animate-delay-300">
                             <div className="relative z-10">
-                                <h3 className="font-urbanist text-base font-600 text-charcoal mb-6 flex items-center gap-3">
+                                <h3 className="font-google-sans text-base font-600 text-charcoal mb-6 flex items-center gap-3">
                                     <span className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-sage/20 to-sage/10">
                                         <Phone className="w-4 h-4 text-navbar-bg" />
                                     </span>
@@ -880,7 +880,7 @@ export default function BusinessEditPage() {
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label className="block text-sm font-semibold text-white mb-2 flex items-center gap-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
+                                        <label className="block text-sm font-semibold text-white mb-2 flex items-center gap-2" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
                                             <MapPin className="w-4 h-4 text-navbar-bg" />
                                             Address
                                         </label>
@@ -888,13 +888,13 @@ export default function BusinessEditPage() {
                                             type="text"
                                             value={formData.address}
                                             onChange={(e) => handleInputChange('address', e.target.value)}
-                                            className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-full text-sm placeholder:text-charcoal/70 font-urbanist text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
+                                            className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-full text-sm placeholder:text-charcoal/70 font-google-sans text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
                                             placeholder="Enter business address"
                                         />
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-semibold text-white mb-2 flex items-center gap-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
+                                        <label className="block text-sm font-semibold text-white mb-2 flex items-center gap-2" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
                                             <Phone className="w-4 h-4 text-navbar-bg" />
                                             Phone Number
                                         </label>
@@ -902,13 +902,13 @@ export default function BusinessEditPage() {
                                             type="tel"
                                             value={formData.phone}
                                             onChange={(e) => handleInputChange('phone', e.target.value)}
-                                            className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-full text-sm placeholder:text-charcoal/70 font-urbanist text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
+                                            className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-full text-sm placeholder:text-charcoal/70 font-google-sans text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
                                             placeholder="Enter phone number"
                                         />
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-semibold text-white mb-2 flex items-center gap-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
+                                        <label className="block text-sm font-semibold text-white mb-2 flex items-center gap-2" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
                                             <Mail className="w-4 h-4 text-navbar-bg" />
                                             Email
                                         </label>
@@ -916,13 +916,13 @@ export default function BusinessEditPage() {
                                             type="email"
                                             value={formData.email}
                                             onChange={(e) => handleInputChange('email', e.target.value)}
-                                            className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-full text-sm placeholder:text-charcoal/70 font-urbanist text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
+                                            className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-full text-sm placeholder:text-charcoal/70 font-google-sans text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
                                             placeholder="Enter email address"
                                         />
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-semibold text-white mb-2 flex items-center gap-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
+                                        <label className="block text-sm font-semibold text-white mb-2 flex items-center gap-2" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
                                             <Globe className="w-4 h-4 text-navbar-bg" />
                                             Website
                                         </label>
@@ -930,20 +930,20 @@ export default function BusinessEditPage() {
                                             type="url"
                                             value={formData.website}
                                             onChange={(e) => handleInputChange('website', e.target.value)}
-                                            className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-full text-sm placeholder:text-charcoal/70 font-urbanist text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
+                                            className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-full text-sm placeholder:text-charcoal/70 font-google-sans text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
                                             placeholder="Enter website URL"
                                         />
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-semibold text-white mb-2 flex items-center gap-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
+                                        <label className="block text-sm font-semibold text-white mb-2 flex items-center gap-2" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>
                                             <DollarSign className="w-4 h-4 text-navbar-bg" />
                                             Price Range
                                         </label>
                                         <select
                                             value={formData.priceRange}
                                             onChange={(e) => handleInputChange('priceRange', e.target.value)}
-                                            className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-full text-sm font-urbanist text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
+                                            className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-full text-sm font-google-sans text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
                                         >
                                             {priceRanges.map(range => (
                                                 <option key={range.value} value={range.value}>{range.label}</option>
@@ -957,7 +957,7 @@ export default function BusinessEditPage() {
                         {/* Business Hours Section */}
                         <div className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden  backdrop-blur-md shadow-md ring-1 ring-white/20 px-2 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10 lg:px-12 lg:py-10 xl:px-16 xl:py-12 animate-fade-in-up">
                             <div className="relative z-10">
-                                <h3 className="font-urbanist text-base font-600 text-charcoal mb-6 flex items-center gap-3">
+                                <h3 className="font-google-sans text-base font-600 text-charcoal mb-6 flex items-center gap-3">
                                     <span className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-sage/20 to-sage/10">
                                         <Clock className="w-4 h-4 text-navbar-bg" />
                                     </span>
@@ -967,12 +967,12 @@ export default function BusinessEditPage() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                     {days.map(day => (
                                         <div key={day.key} className="flex items-center gap-3">
-                                            <label className="w-24 text-sm font-semibold text-white" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>{day.label}</label>
+                                            <label className="w-24 text-sm font-semibold text-white" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>{day.label}</label>
                                             <input
                                                 type="text"
                                                 value={formData.hours[day.key as keyof typeof formData.hours]}
                                                 onChange={(e) => handleHoursChange(day.key, e.target.value)}
-                                                className="flex-1 px-3 py-2 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-full text-sm font-urbanist text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
+                                                className="flex-1 px-3 py-2 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-full text-sm font-google-sans text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
                                                 placeholder="e.g., 9:00 AM - 5:00 PM"
                                             />
                                         </div>
@@ -985,7 +985,7 @@ export default function BusinessEditPage() {
                         <div className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden  backdrop-blur-md shadow-md ring-1 ring-white/20 px-2 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10 lg:px-12 lg:py-10 xl:px-16 xl:py-12 animate-fade-in-up">
                             <div className="relative z-10">
                                 <div className="flex items-center justify-between mb-6">
-                                    <h3 className="font-urbanist text-base font-600 text-charcoal flex items-center gap-3">
+                                    <h3 className="font-google-sans text-base font-600 text-charcoal flex items-center gap-3">
                                         <span className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-sage/20 to-sage/10">
                                             <Tag className="w-4 h-4 text-navbar-bg" />
                                         </span>
@@ -993,7 +993,7 @@ export default function BusinessEditPage() {
                                     </h3>
                                     <button
                                         onClick={addSpecial}
-                                        className="bg-card-bg hover:bg-card-bg/90 text-white px-4 py-2 rounded-full text-sm font-600 font-urbanist transition-all duration-300 flex items-center gap-2"
+                                        className="bg-card-bg hover:bg-card-bg/90 text-white px-4 py-2 rounded-full text-sm font-600 font-google-sans transition-all duration-300 flex items-center gap-2"
                                     >
                                         <Plus className="w-4 h-4 text-navbar-bg" />
                                         Add Special
@@ -1012,22 +1012,22 @@ export default function BusinessEditPage() {
                                             </button>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                                 <div>
-                                                    <label className="block text-sm font-semibold text-white mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>Name</label>
+                                                    <label className="block text-sm font-semibold text-white mb-2" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>Name</label>
                                                     <input
                                                         type="text"
                                                         value={special.name}
                                                         onChange={(e) => updateSpecial(special.id, 'name', e.target.value)}
-                                                        className="w-full px-3 py-2 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-full text-sm font-urbanist text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
+                                                        className="w-full px-3 py-2 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-full text-sm font-google-sans text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
                                                         placeholder="Special name"
                                                     />
                                                 </div>
                                                 <div>
-                                                    <label className="block text-sm font-semibold text-white mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>Description</label>
+                                                    <label className="block text-sm font-semibold text-white mb-2" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>Description</label>
                                                     <input
                                                         type="text"
                                                         value={special.description}
                                                         onChange={(e) => updateSpecial(special.id, 'description', e.target.value)}
-                                                        className="w-full px-3 py-2 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-full text-sm font-urbanist text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
+                                                        className="w-full px-3 py-2 bg-white/80 backdrop-blur-sm border-2 border-charcoal/20 rounded-full text-sm font-google-sans text-charcoal focus:outline-none focus:border-sage focus:ring-2 focus:ring-sage/20 transition-all duration-200"
                                                         placeholder="When available"
                                                     />
                                                 </div>
@@ -1079,14 +1079,14 @@ export default function BusinessEditPage() {
                         <div className="flex justify-between items-center gap-3">
                             <Link
                                 href={`/business/${businessId}`}
-                                className="px-6 py-3 bg-white/40 text-charcoal rounded-full text-sm font-600 font-urbanist transition-all duration-300 hover:bg-white/60 "
+                                className="px-6 py-3 bg-white/40 text-charcoal rounded-full text-sm font-600 font-google-sans transition-all duration-300 hover:bg-white/60 "
                             >
                                 Cancel
                             </Link>
                             <button
                                 onClick={handleSave}
                                 disabled={isSaving}
-                                className="px-6 py-3 bg-card-bg hover:bg-card-bg/90 text-white rounded-full text-sm font-600 font-urbanist transition-all duration-300 flex items-center gap-2 disabled:opacity-50"
+                                className="px-6 py-3 bg-card-bg hover:bg-card-bg/90 text-white rounded-full text-sm font-600 font-google-sans transition-all duration-300 flex items-center gap-2 disabled:opacity-50"
                             >
                                 <Save className="w-4 h-4 text-navbar-bg" />
                                 {isSaving ? "Saving..." : "Save Changes"}
@@ -1119,3 +1119,8 @@ export default function BusinessEditPage() {
         </>
     );
 }
+
+
+
+
+

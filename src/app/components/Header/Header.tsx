@@ -652,7 +652,7 @@ export default function Header({
                   style={{
                     width: expandedWidth,
                     fontFamily:
-                      "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                      '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                   }}
                   aria-label="Search businesses"
                   autoComplete="off"
@@ -756,7 +756,7 @@ export default function Header({
               ${isSearchActive ? 'border-sage bg-white' : 'border-charcoal/10'}
             `}
             style={{
-              fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+              fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
             }}
             aria-label="Search businesses"
             autoComplete="off"
@@ -906,3 +906,8 @@ export default function Header({
     </>
   );
 }
+
+
+
+
+

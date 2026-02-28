@@ -21,8 +21,9 @@ export default function ResultsCount({ count, filterType }: ResultsCountProps) {
   };
 
   return (
-    <p className="font-urbanist text-body-sm text-charcoal/60">
+    <p className="font-google-sans text-body-sm text-charcoal/60">
       Showing {count} {getFilterText()}
     </p>
   );
 }
+

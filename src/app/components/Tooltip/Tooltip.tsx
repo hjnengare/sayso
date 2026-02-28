@@ -104,7 +104,7 @@ export default function Tooltip({
           style={{
             top: `${tooltipPosition.top}px`,
             left: `${tooltipPosition.left}px`,
-            fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+            fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
           }}
         >
           {content}
@@ -124,4 +124,9 @@ export default function Tooltip({
     </>
   );
 }
+
+
+
+
+
 

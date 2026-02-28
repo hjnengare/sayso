@@ -62,8 +62,8 @@ export default function BadgeDefinitionsPage() {
 
   return (
     <div
-      className="min-h-dvh bg-off-white font-urbanist"
-      style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
+      className="min-h-dvh bg-off-white font-google-sans"
+      style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
     >
       <div className="mx-auto max-w-4xl px-4 py-8 sm:py-12">
         <Link
@@ -151,3 +151,8 @@ function BadgeItem({ badge }: { badge: typeof BADGE_MAPPINGS[string] }) {
     </div>
   );
 }
+
+
+
+
+

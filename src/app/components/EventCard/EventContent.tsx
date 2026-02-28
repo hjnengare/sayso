@@ -21,7 +21,7 @@ export default function EventContent({ title, location, description, href }: Eve
           </h3>
         </div>
 
-        <div className="mb-2 flex items-center justify-center gap-1.5 text-sm sm:text-xs text-charcoal/70 font-urbanist">
+        <div className="mb-2 flex items-center justify-center gap-1.5 text-sm sm:text-xs text-charcoal/70 font-google-sans">
           <MapPin className="w-3 h-3 text-charcoal/70" />
           <span className="truncate font-medium">{location}</span>
         </div>
@@ -30,7 +30,7 @@ export default function EventContent({ title, location, description, href }: Eve
 
       {/* Learn More Button - Fixed at bottom */}
       <div className="flex justify-center mt-auto pt-3 pb-2 flex-shrink-0">
-        <button className="w-full max-w-[300px] py-2 bg-gradient-to-r from-coral to-coral/90 text-white text-sm sm:text-xs font-600 font-urbanist rounded-full hover:from-coral/90 hover:to-coral/80 transition-all duration-300 hover:shadow-lg hover:scale-105 shadow-md">
+        <button className="w-full max-w-[300px] py-2 bg-gradient-to-r from-coral to-coral/90 text-white text-sm sm:text-xs font-600 font-google-sans rounded-full hover:from-coral/90 hover:to-coral/80 transition-all duration-300 hover:shadow-lg hover:scale-105 shadow-md">
           Learn More
         </button>
       </div>
@@ -40,3 +40,4 @@ export default function EventContent({ title, location, description, href }: Eve
     </div>
   );
 }
+

@@ -31,7 +31,7 @@ export default function IntentBrowser({ onIntentClick }: IntentBrowserProps) {
       <WavyTypedTitle
         text="Browse by Intent"
         as="h2"
-        className="font-urbanist text-h2 sm:text-h1 font-700 text-charcoal px-3 sm:px-4 py-1 rounded-lg cursor-default"
+        className="font-google-sans text-h2 sm:text-h1 font-700 text-charcoal px-3 sm:px-4 py-1 rounded-lg cursor-default"
         typingSpeedMs={40}
         startDelayMs={300}
         waveVariant="subtle"
@@ -39,7 +39,7 @@ export default function IntentBrowser({ onIntentClick }: IntentBrowserProps) {
         enableScrollTrigger={true}
         disableWave={true}
         style={{ 
-          fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+          fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
           fontWeight: 700,
         }}
       />
@@ -59,7 +59,7 @@ export default function IntentBrowser({ onIntentClick }: IntentBrowserProps) {
               </div>
               <span 
                 className="text-body-sm font-semibold text-charcoal group-hover:text-navbar-bg transition-colors duration-300"
-                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
               >
                 {intent.label}
               </span>
@@ -70,4 +70,9 @@ export default function IntentBrowser({ onIntentClick }: IntentBrowserProps) {
     </div>
   );
 }
+
+
+
+
+
 

@@ -253,7 +253,7 @@ export default function FilterModal({
             <Sliders className="w-4 h-4 sm:w-4 sm:h-4 text-warning-600" />
             <h2
               className="text-base sm:text-sm font-semibold text-charcoal"
-              style={{ fontFamily: '"Urbanist", system-ui, sans-serif', letterSpacing: '-0.01em' }}
+              style={{ fontFamily: '"Google Sans", system-ui, sans-serif', letterSpacing: '-0.01em' }}
             >
               Filters
             </h2>
@@ -286,7 +286,7 @@ export default function FilterModal({
           <section className="rounded-[12px] bg-off-white/70 border border-charcoal/10 p-3 sm:p-4 animate-fade-in-up [animation-delay:0.05s]">
             <h3
               className="text-base sm:text-sm font-semibold text-charcoal mb-3 sm:mb-3 flex items-center gap-2"
-              style={{ fontFamily: '"Urbanist", system-ui, sans-serif', letterSpacing: '-0.01em' }}
+              style={{ fontFamily: '"Google Sans", system-ui, sans-serif', letterSpacing: '-0.01em' }}
             >
               <Star className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-warning-600" />
               Minimum Rating
@@ -325,7 +325,7 @@ export default function FilterModal({
           <section className="rounded-[12px] bg-off-white/70 border border-charcoal/10 p-3 sm:p-4 animate-fade-in-up [animation-delay:0.1s]">
             <h3
               className="text-base sm:text-sm font-semibold text-charcoal mb-3 sm:mb-3 flex items-center gap-2"
-              style={{ fontFamily: '"Urbanist", system-ui, sans-serif', letterSpacing: '-0.01em' }}
+              style={{ fontFamily: '"Google Sans", system-ui, sans-serif', letterSpacing: '-0.01em' }}
             >
               <MapPin className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-warning-600" />
               Distance
@@ -359,3 +359,8 @@ export default function FilterModal({
     </div>
   );
 }
+
+
+
+
+

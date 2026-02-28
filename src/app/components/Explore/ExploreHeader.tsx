@@ -22,7 +22,7 @@ export default function ExploreHeader() {
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-charcoal/10 to-charcoal/5 hover:from-sage/20 hover:to-sage/10 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 border border-charcoal/5 hover:border-sage/20 mr-3 sm:mr-4">
               <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6 text-white group-hover:text-sage transition-colors duration-300" />
             </div>
-            <h1 className="font-urbanist text-sm font-700 text-white transition-all duration-300 group-hover:text-white/80 relative">
+            <h1 className="font-google-sans text-sm font-700 text-white transition-all duration-300 group-hover:text-white/80 relative">
               Explore
             </h1>
           </button>
@@ -31,4 +31,5 @@ export default function ExploreHeader() {
     </div>
   );
 }
+
 

@@ -36,7 +36,7 @@ function SubcategoryGrid({
   shakingIds = new Set()
 }: SubcategoryGridProps) {
   const sfPro = {
-    fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+    fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
   };
 
   return (
@@ -70,3 +70,7 @@ function SubcategoryGrid({
 }
 
 export default memo(SubcategoryGrid);
+
+
+
+

@@ -143,7 +143,7 @@ const BusinessHoursSection: React.FC<BusinessHoursSectionProps> = ({
             <div className="relative z-10">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6">
-                    <h3 className="font-urbanist text-base font-semibold text-charcoal flex items-center gap-3" style={{ fontFamily: 'Urbanist, sans-serif', fontWeight: 600 }}>
+                    <h3 className="font-google-sans text-base font-semibold text-charcoal flex items-center gap-3" style={{ fontFamily: '"Google Sans", sans-serif', fontWeight: 600 }}>
                         <span className={ICON_CHIP_CLASS}>
                             <Clock className="w-5 h-5" />
                         </span>
@@ -154,7 +154,7 @@ const BusinessHoursSection: React.FC<BusinessHoursSectionProps> = ({
                             initial={{ opacity: 0, scale: 0.8 }}
                             animate={{ opacity: 1, scale: 1 }}
                             className="text-xs text-charcoal/60 bg-charcoal/5 px-3 py-1 rounded-full"
-                            style={{ fontFamily: 'Urbanist, sans-serif' }}
+                            style={{ fontFamily: '"Google Sans", sans-serif' }}
                         >
                             {openDaysCount} day{openDaysCount !== 1 ? 's' : ''} open
                         </m.span>
@@ -163,7 +163,7 @@ const BusinessHoursSection: React.FC<BusinessHoursSectionProps> = ({
 
                 {/* Quick Presets */}
                 <div className="mb-6">
-                    <p className="text-sm text-charcoal mb-3 flex items-center gap-2" style={{ fontFamily: 'Urbanist, sans-serif' }}>
+                    <p className="text-sm text-charcoal mb-3 flex items-center gap-2" style={{ fontFamily: '"Google Sans", sans-serif' }}>
                         Quick setup
                     </p>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -185,11 +185,11 @@ const BusinessHoursSection: React.FC<BusinessHoursSectionProps> = ({
                                 >
                                     <div className="flex items-center gap-2 mb-1">
                                         <Icon className={`w-4 h-4 ${isSelected ? 'text-coral' : 'text-charcoal/60'}`} />
-                                        <span className={`text-sm font-semibold ${isSelected ? 'text-charcoal' : 'text-charcoal/70'}`} style={{ fontFamily: 'Urbanist, sans-serif' }}>
+                                        <span className={`text-sm font-semibold ${isSelected ? 'text-charcoal' : 'text-charcoal/70'}`} style={{ fontFamily: '"Google Sans", sans-serif' }}>
                                             {preset.label}
                                         </span>
                                     </div>
-                                    <span className="text-xs text-charcoal/50" style={{ fontFamily: 'Urbanist, sans-serif' }}>
+                                    <span className="text-xs text-charcoal/50" style={{ fontFamily: '"Google Sans", sans-serif' }}>
                                         {preset.description}
                                     </span>
                                     {isSelected && (
@@ -208,14 +208,14 @@ const BusinessHoursSection: React.FC<BusinessHoursSectionProps> = ({
                 {/* Days Schedule - Visual Grid */}
                 <div className="space-y-2">
                     <div className="flex items-center justify-between mb-3">
-                        <p className="text-sm text-charcoal" style={{ fontFamily: 'Urbanist, sans-serif' }}>
+                        <p className="text-sm text-charcoal" style={{ fontFamily: '"Google Sans", sans-serif' }}>
                             Customize schedule
                         </p>
                         <button
                             type="button"
                             onClick={() => setShowCustomize(!showCustomize)}
                             className="text-xs text-coral hover:text-coral/80 transition-colors flex items-center gap-1"
-                            style={{ fontFamily: 'Urbanist, sans-serif' }}
+                            style={{ fontFamily: '"Google Sans", sans-serif' }}
                         >
                             <Zap className="w-3 h-3" />
                             {showCustomize ? 'Simple view' : 'Edit times'}
@@ -265,7 +265,7 @@ const BusinessHoursSection: React.FC<BusinessHoursSectionProps> = ({
 
                                     {/* Day Label */}
                                     <div className="w-20 flex-shrink-0">
-                                        <span className={`text-sm font-semibold ${isOpen ? 'text-charcoal' : 'text-charcoal/50'}`} style={{ fontFamily: 'Urbanist, sans-serif' }}>
+                                        <span className={`text-sm font-semibold ${isOpen ? 'text-charcoal' : 'text-charcoal/50'}`} style={{ fontFamily: '"Google Sans", sans-serif' }}>
                                             {day.fullLabel}
                                         </span>
                                     </div>
@@ -287,7 +287,7 @@ const BusinessHoursSection: React.FC<BusinessHoursSectionProps> = ({
                                                             value={hours.open}
                                                             onChange={(e) => updateTime(day.key, 'open', e.target.value)}
                                                             className="bg-white border border-charcoal/20 rounded-full px-3 py-1.5 text-sm text-charcoal font-semibold focus:outline-none focus:border-coral/50 focus:ring-2 focus:ring-coral/30 w-[100px] hover:border-sage/50 transition-all duration-200"
-                                                            style={{ fontFamily: 'Urbanist, sans-serif', fontWeight: 600 }}
+                                                            style={{ fontFamily: '"Google Sans", sans-serif', fontWeight: 600 }}
                                                         />
                                                         <span className="text-charcoal/40">–</span>
                                                         <input
@@ -295,7 +295,7 @@ const BusinessHoursSection: React.FC<BusinessHoursSectionProps> = ({
                                                             value={hours.close}
                                                             onChange={(e) => updateTime(day.key, 'close', e.target.value)}
                                                             className="bg-white border border-charcoal/20 rounded-full px-3 py-1.5 text-sm text-charcoal font-semibold focus:outline-none focus:border-coral/50 focus:ring-2 focus:ring-coral/30 w-[100px] hover:border-sage/50 transition-all duration-200"
-                                                            style={{ fontFamily: 'Urbanist, sans-serif', fontWeight: 600 }}
+                                                            style={{ fontFamily: '"Google Sans", sans-serif', fontWeight: 600 }}
                                                         />
                                                     </m.div>
                                                 ) : (
@@ -306,7 +306,7 @@ const BusinessHoursSection: React.FC<BusinessHoursSectionProps> = ({
                                                         exit={{ opacity: 0 }}
                                                         className="flex items-center gap-2"
                                                     >
-                                                        <span className="text-sm text-charcoal/80 font-medium" style={{ fontFamily: 'Urbanist, sans-serif' }}>
+                                                        <span className="text-sm text-charcoal/80 font-medium" style={{ fontFamily: '"Google Sans", sans-serif' }}>
                                                             {formatTimeDisplay(hours.open)} – {formatTimeDisplay(hours.close)}
                                                         </span>
                                                     </m.div>
@@ -318,7 +318,7 @@ const BusinessHoursSection: React.FC<BusinessHoursSectionProps> = ({
                                                     animate={{ opacity: 1 }}
                                                     exit={{ opacity: 0 }}
                                                     className="text-sm text-charcoal/45 italic"
-                                                    style={{ fontFamily: 'Urbanist, sans-serif' }}
+                                                    style={{ fontFamily: '"Google Sans", sans-serif' }}
                                                 >
                                                     Closed
                                                 </m.span>
@@ -359,7 +359,7 @@ const BusinessHoursSection: React.FC<BusinessHoursSectionProps> = ({
                                 if (firstOpen) copyToWeekdays(firstOpen.key);
                             }}
                             className="text-xs text-charcoal/70 hover:text-charcoal bg-charcoal/5 hover:bg-charcoal/10 px-3 py-1.5 rounded-full transition-all flex items-center gap-1.5"
-                            style={{ fontFamily: 'Urbanist, sans-serif' }}
+                            style={{ fontFamily: '"Google Sans", sans-serif' }}
                         >
                             <Copy className="w-3 h-3" />
                             Apply to weekdays
@@ -371,7 +371,7 @@ const BusinessHoursSection: React.FC<BusinessHoursSectionProps> = ({
                                 if (firstOpen) copyToAll(firstOpen.key);
                             }}
                             className="text-xs text-charcoal/70 hover:text-charcoal bg-charcoal/5 hover:bg-charcoal/10 px-3 py-1.5 rounded-full transition-all flex items-center gap-1.5"
-                            style={{ fontFamily: 'Urbanist, sans-serif' }}
+                            style={{ fontFamily: '"Google Sans", sans-serif' }}
                         >
                             <Sparkles className="w-3 h-3" />
                             Apply to all days
@@ -383,7 +383,7 @@ const BusinessHoursSection: React.FC<BusinessHoursSectionProps> = ({
                                 setSelectedPreset(null);
                             }}
                             className="text-xs text-charcoal/45 hover:text-coral/80 px-3 py-1.5 rounded-full transition-all"
-                            style={{ fontFamily: 'Urbanist, sans-serif' }}
+                            style={{ fontFamily: '"Google Sans", sans-serif' }}
                         >
                             Clear all
                         </button>
@@ -392,7 +392,7 @@ const BusinessHoursSection: React.FC<BusinessHoursSectionProps> = ({
 
                 {/* Helper text */}
                 {!hasAnyHours && (
-                    <p className="text-xs text-charcoal/45 mt-4 text-center" style={{ fontFamily: 'Urbanist, sans-serif' }}>
+                    <p className="text-xs text-charcoal/45 mt-4 text-center" style={{ fontFamily: '"Google Sans", sans-serif' }}>
                         Select a preset above or customize each day individually
                     </p>
                 )}
@@ -402,3 +402,8 @@ const BusinessHoursSection: React.FC<BusinessHoursSectionProps> = ({
 };
 
 export default BusinessHoursSection;
+
+
+
+
+

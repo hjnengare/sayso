@@ -368,12 +368,12 @@ export default function BusinessRegisterPage() {
               triggerOnTypingComplete={true}
               enableScrollTrigger={false}
               style={{
-                fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                 fontWeight: 700,
               }}
             />
           </div>
-          <p className="text-body font-normal text-charcoal/70 mb-4 leading-[1.55] px-2 max-w-[70ch] mx-auto animate-fade-in-up animate-delay-700" style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 400 }}>
+          <p className="text-body font-normal text-charcoal/70 mb-4 leading-[1.55] px-2 max-w-[70ch] mx-auto animate-fade-in-up animate-delay-700" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 400 }}>
             Register your business to manage your presence, respond to reviews, and connect with customers!
           </p>
         </div>
@@ -407,7 +407,7 @@ export default function BusinessRegisterPage() {
                     className="text-lg font-semibold text-blue-900 mb-2"
                     style={{
                       fontFamily:
-                        "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                        '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                     }}
                   >
                     Account Already Exists
@@ -417,7 +417,7 @@ export default function BusinessRegisterPage() {
                     className="text-blue-700 mb-6"
                     style={{
                       fontFamily:
-                        "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                        '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                     }}
                   >
                     Email already registered for a {existingAccountLabel} account. Log in or use a different email.
@@ -434,7 +434,7 @@ export default function BusinessRegisterPage() {
                       className="inline-flex items-center justify-center w-full px-6 py-3 bg-gray-100 text-gray-700 text-body font-semibold rounded-full hover:bg-gray-200 transition-all duration-300"
                       style={{
                         fontFamily:
-                          "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                          '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                       }}
                     >
                       Try Different Email
@@ -447,14 +447,14 @@ export default function BusinessRegisterPage() {
                 {/* Error Message */}
                 {error && (
                   <div className="bg-error-50 border border-error-100 rounded-[12px] p-4 text-center">
-                    <p className="text-caption font-semibold text-error-600" style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>{error}</p>
+                    <p className="text-caption font-semibold text-error-600" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>{error}</p>
                   </div>
                 )}
 
                 {/* Offline Message */}
                 {!isOnline && !error && (
                   <div className="bg-orange-50 border border-orange-200 rounded-[12px] p-4 text-center">
-                    <p className="text-caption font-semibold text-orange-600" style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>You&apos;re offline. We&apos;ll try again when you&apos;re back online.</p>
+                    <p className="text-caption font-semibold text-orange-600" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>You&apos;re offline. We&apos;ll try again when you&apos;re back online.</p>
                   </div>
                 )}
 
@@ -471,7 +471,7 @@ export default function BusinessRegisterPage() {
                   className="text-xs text-white/80 mt-1"
                   style={{
                     fontFamily:
-                      "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                      '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                   }}
                 >
                   This is your account username.
@@ -509,7 +509,7 @@ export default function BusinessRegisterPage() {
 
                 {/* Terms consent */}
                 <div className="pt-2">
-                  <label className="flex items-start gap-3 text-body-sm text-white cursor-pointer" style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 400 }}>
+                  <label className="flex items-start gap-3 text-body-sm text-white cursor-pointer" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 400 }}>
                     <input
                       type="checkbox"
                       checked={consent}
@@ -534,7 +534,7 @@ export default function BusinessRegisterPage() {
                     <button
                       type="submit"
                       disabled={isSubmitDisabled}
-                      style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 600 }}
+                      style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
                       className="w-full bg-gradient-to-r from-coral to-coral/80 text-white text-body font-semibold py-4 px-2 rounded-full hover:from-coral/90 hover:to-coral transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 btn-target btn-press"
                     >
                       {isFormDisabled ? (
@@ -551,7 +551,7 @@ export default function BusinessRegisterPage() {
                       <Link
                         href="/login"
                         className="text-body-sm text-white/80 hover:text-coral font-medium underline-offset-2 hover:underline transition-colors duration-200"
-                        style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 500 }}
+                        style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 500 }}
                       >
                         Log in to a Personal Account
                       </Link>
@@ -559,7 +559,7 @@ export default function BusinessRegisterPage() {
                       <Link
                         href="/register"
                         className="text-body-sm text-white/80 hover:text-coral font-medium underline-offset-2 hover:underline transition-colors duration-200"
-                        style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 500 }}
+                        style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 500 }}
                       >
                         Sign up for a Personal Account
                       </Link>
@@ -580,12 +580,12 @@ export default function BusinessRegisterPage() {
 
             {/* Footer */}
               <div className="text-center mt-6 pt-6 border-t border-white/20">
-              <div className="text-body-sm sm:text-body text-white" style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 400 }}>
+              <div className="text-body-sm sm:text-body text-white" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 400 }}>
                 Already have a business account?{" "}
                 <Link
                   href="/business/login"
                   className="text-white font-semibold hover:text-coral transition-colors duration-300 relative group"
-                  style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 600 }}
+                  style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
                 >
                   Log in
                 </Link>
@@ -599,4 +599,9 @@ export default function BusinessRegisterPage() {
     </>
   );
 }
+
+
+
+
+
 

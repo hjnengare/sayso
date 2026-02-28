@@ -42,7 +42,7 @@ export default function SpecialHeroImage({ special, isLiked = false, onLike }: S
             <div className="absolute top-4 left-4 z-20">
                 <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card-bg/90 text-white border border-sage/50 backdrop-blur-sm">
                     <Percent className="w-3.5 h-3.5" />
-                    <span className="text-xs font-semibold" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
+                    <span className="text-xs font-semibold" style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}>
                         Special Offer
                     </span>
                 </div>
@@ -53,7 +53,7 @@ export default function SpecialHeroImage({ special, isLiked = false, onLike }: S
                 <div className="absolute top-4 right-4 z-20">
                     <div className="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-white/90 backdrop-blur-sm border-none">
                         <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                        <span className="text-xs font-semibold text-charcoal" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
+                        <span className="text-xs font-semibold text-charcoal" style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}>
                             {special.rating.toFixed(1)}
                         </span>
                     </div>
@@ -77,3 +77,8 @@ export default function SpecialHeroImage({ special, isLiked = false, onLike }: S
         </m.div>
     );
 }
+
+
+
+
+

@@ -11,7 +11,6 @@ import { PageLoader } from "../../components/Loader";
 import { usePreviousPageBreadcrumb } from "../../hooks/usePreviousPageBreadcrumb";
 import dynamic from "next/dynamic";
 import { authStyles } from "../../components/Auth/Shared/authStyles";
-import { Urbanist } from "next/font/google";
 
 // Import extracted components
 import {
@@ -27,12 +26,7 @@ import {
     getFieldLabel,
 } from "./components";
 
-const urbanist = Urbanist({
-    weight: ["400", "600", "700", "800"],
-    subsets: ["latin"],
-    display: "swap",
-});
-
+const GOOGLE_SANS_FONT_FAMILY = '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif';
 
 export default function AddBusinessPage() {
     const router = useRouter();
@@ -739,7 +733,7 @@ export default function AddBusinessPage() {
             <style dangerouslySetInnerHTML={{ __html: authStyles }} />
             <style dangerouslySetInnerHTML={{ __html: animations }} />
             <div
-                className="min-h-dvh bg-off-white relative overflow-hidden font-urbanist"
+                className="min-h-dvh bg-off-white relative overflow-hidden font-google-sans"
                 style={{
                     fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif',
                 }}
@@ -758,7 +752,7 @@ export default function AddBusinessPage() {
                                 <nav className="pb-1" aria-label="Breadcrumb">
                                     <ol className="flex items-center gap-2 text-sm sm:text-base">
                                         <li>
-                                            <Link href={previousHref} className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                            <Link href={previousHref} className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                                                 {previousLabel}
                                             </Link>
                                         </li>
@@ -766,7 +760,7 @@ export default function AddBusinessPage() {
                                             <ChevronRight size={16} className="text-charcoal/60" />
                                         </li>
                                         <li>
-                                            <span className="text-charcoal font-semibold" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                            <span className="text-charcoal font-semibold" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                                                 Add Business
                                             </span>
                                         </li>
@@ -783,14 +777,14 @@ export default function AddBusinessPage() {
                                     >
                                         <div className="inline-block relative mb-2">
                                             <h1
-                                                className={`${urbanist.className} text-2xl sm:text-3xl font-semibold mb-2 text-center leading-[1.2] tracking-tight text-charcoal`}
-                                                style={{ fontFamily: urbanist.style.fontFamily }}
+                                                className={`font-google-sans text-2xl sm:text-3xl font-semibold mb-2 text-center leading-[1.2] tracking-tight text-charcoal`}
+                                                style={{ fontFamily: GOOGLE_SANS_FONT_FAMILY }}
                                             >
                                                 Create Business Profile
                                             </h1>
                                         </div>
                                         <m.p
-                                            className="text-sm sm:text-base text-charcoal/70 font-urbanist max-w-md mx-auto"
+                                            className="text-sm sm:text-base text-charcoal/70 font-google-sans max-w-md mx-auto"
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
                                             transition={{ delay: 0.3, duration: 0.4 }}
@@ -873,13 +867,13 @@ export default function AddBusinessPage() {
                                                 <div>
                                                     <p
                                                         className="text-sm sm:text-base font-semibold text-charcoal"
-                                                        style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                                                        style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                                                     >
                                                         Business Ownership Notice
                                                     </p>
                                                     <p
                                                         className="mt-1 text-sm sm:text-base leading-relaxed text-charcoal/80"
-                                                        style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                                                        style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                                                     >
                                                         {ownershipPricingNotice}
                                                     </p>
@@ -896,7 +890,7 @@ export default function AddBusinessPage() {
                                         >
                                             <Link
                                                 href="/claim-business"
-                                                className="px-6 py-3 rounded-full border-2 border-charcoal/20 text-charcoal font-urbanist font-600 hover:bg-charcoal/5 transition-all duration-200 text-center"
+                                                className="px-6 py-3 rounded-full border-2 border-charcoal/20 text-charcoal font-google-sans font-600 hover:bg-charcoal/5 transition-all duration-200 text-center"
                                             >
                                                 Cancel
                                             </Link>
@@ -905,7 +899,7 @@ export default function AddBusinessPage() {
                                                 disabled={isSubmitting || nameDuplicateCheck.checking || nameDuplicateCheck.available === false}
                                                 whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
                                                 whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
-                                                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
+                                                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
                                                 className="w-full bg-gradient-to-r from-coral to-coral/80 text-white text-body font-semibold py-4 px-6 rounded-full hover:from-coral/90 hover:to-coral transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg"
                                             >
                                                 <AnimatePresence mode="wait">
@@ -962,3 +956,9 @@ export default function AddBusinessPage() {
         </>
     );
 }
+
+
+
+
+
+

@@ -106,7 +106,7 @@ function InterestButton({
   index 
 }: InterestButtonProps) {
   const sfPro = {
-    fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+    fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
     fontWeight: 600,
   };
 
@@ -174,3 +174,7 @@ function InterestButton({
 }
 
 export default memo(InterestButton);
+
+
+
+

@@ -91,7 +91,7 @@ module.exports = {
         white: 'hsl(0, 0%, 100%)',
       },
       fontFamily: {
-        urbanist: ['Urbanist', 'sans-serif'],
+        'google-sans': ['"Google Sans"', 'sans-serif'],
         sf: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'SF Pro Text', 'system-ui', 'sans-serif'],
       },
       fontSize: {

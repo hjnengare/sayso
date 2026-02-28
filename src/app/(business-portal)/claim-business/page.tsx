@@ -145,9 +145,9 @@ function ClaimBusinessPageContent() {
         <button
           onClick={() => handleClaimClick(business)}
           disabled={isActionLoading}
-          className="w-full sm:w-auto px-5 py-2.5 min-h-[44px] rounded-full text-sm font-semibold font-urbanist transition-all duration-200 flex-shrink-0
+          className="w-full sm:w-auto px-5 py-2.5 min-h-[44px] rounded-full text-sm font-semibold font-google-sans transition-all duration-200 flex-shrink-0
             bg-gradient-to-br from-coral to-coral/90 text-white hover:from-coral/90 hover:to-coral/80 hover:shadow-lg active:scale-[0.98] touch-manipulation disabled:opacity-60 disabled:cursor-not-allowed"
-          style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+          style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
         >
           {isActionLoading ? (
             <span className="inline-flex items-center gap-2">
@@ -166,9 +166,9 @@ function ClaimBusinessPageContent() {
         <button
           onClick={() => handleClaimClick(business)}
           disabled={isActionLoading}
-          className="w-full sm:w-auto px-5 py-2.5 min-h-[44px] rounded-full text-sm font-semibold font-urbanist transition-all duration-200 flex-shrink-0
+          className="w-full sm:w-auto px-5 py-2.5 min-h-[44px] rounded-full text-sm font-semibold font-google-sans transition-all duration-200 flex-shrink-0
             bg-gradient-to-br from-sage to-sage/90 text-white hover:from-sage/90 hover:to-sage/80 hover:shadow-lg active:scale-[0.98] touch-manipulation disabled:opacity-60 disabled:cursor-not-allowed"
-          style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+          style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
         >
           {isActionLoading ? (
             <span className="inline-flex items-center gap-2">
@@ -186,9 +186,9 @@ function ClaimBusinessPageContent() {
       return (
         <button
           disabled
-          className="w-full sm:w-auto px-5 py-2.5 min-h-[44px] rounded-full text-sm font-semibold font-urbanist transition-all duration-200 flex-shrink-0
+          className="w-full sm:w-auto px-5 py-2.5 min-h-[44px] rounded-full text-sm font-semibold font-google-sans transition-all duration-200 flex-shrink-0
             bg-charcoal/10 text-charcoal/60 cursor-not-allowed"
-          style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+          style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
         >
           Claim pending review
         </button>
@@ -201,9 +201,9 @@ function ClaimBusinessPageContent() {
           <span className="text-xs text-charcoal/60 text-center sm:text-left">Business already claimed</span>
           <Link
             href="mailto:info@sayso.com?subject=Business%20claim%20support&body=Please%20share%20your%20business%20name%2C%20location%2C%20and%20ownership%20details."
-            className="w-full sm:w-auto px-5 py-2.5 min-h-[44px] rounded-full text-sm font-semibold font-urbanist transition-all duration-200 flex-shrink-0
+            className="w-full sm:w-auto px-5 py-2.5 min-h-[44px] rounded-full text-sm font-semibold font-google-sans transition-all duration-200 flex-shrink-0
               border-2 border-charcoal/20 text-charcoal hover:bg-charcoal/5 text-center"
-            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+            style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
             aria-label="Email support about an already claimed business"
           >
             Contact support
@@ -216,9 +216,9 @@ function ClaimBusinessPageContent() {
       <button
         onClick={() => handleClaimClick(business)}
         disabled={isActionLoading}
-        className="w-full sm:w-auto px-5 py-2.5 min-h-[44px] rounded-full text-sm font-semibold font-urbanist transition-all duration-200 flex-shrink-0
+        className="w-full sm:w-auto px-5 py-2.5 min-h-[44px] rounded-full text-sm font-semibold font-google-sans transition-all duration-200 flex-shrink-0
           bg-gradient-to-br from-coral to-coral/90 text-white hover:from-coral/90 hover:to-coral/80 hover:shadow-lg active:scale-[0.98] touch-manipulation disabled:opacity-60 disabled:cursor-not-allowed"
-        style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+        style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
       >
         {isActionLoading ? (
           <span className="inline-flex items-center gap-2">
@@ -252,7 +252,7 @@ function ClaimBusinessPageContent() {
           <nav className="pb-1" aria-label="Breadcrumb">
             <ol className="flex items-center gap-2 text-sm sm:text-base">
               <li>
-                <Link href={previousHref} className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                <Link href={previousHref} className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                   {previousLabel}
                 </Link>
               </li>
@@ -260,7 +260,7 @@ function ClaimBusinessPageContent() {
                 <ChevronRight className="w-4 h-4 text-charcoal/60" />
               </li>
               <li>
-                <span className="text-charcoal font-semibold" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                <span className="text-charcoal font-semibold" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                   Claim Business
                 </span>
               </li>
@@ -277,10 +277,10 @@ function ClaimBusinessPageContent() {
                     <span className={`${ICON_CHIP_CLASS} w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 shadow-sm`}>
                       <Store className="w-6 h-6 sm:w-7 sm:h-7" />
                     </span>
-                    <h2 className="font-urbanist text-lg sm:text-xl md:text-2xl font-semibold text-charcoal mb-2 px-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                    <h2 className="font-google-sans text-lg sm:text-xl md:text-2xl font-semibold text-charcoal mb-2 px-2" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                       Own or manage a business?
                     </h2>
-                    <p className="font-urbanist text-sm sm:text-base text-charcoal/70 max-w-md mx-auto px-4 sm:px-0 break-keep" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', wordBreak: 'normal', overflowWrap: 'normal', whiteSpace: 'normal', hyphens: 'none', WebkitHyphens: 'none', MozHyphens: 'none', msHyphens: 'none' }}>
+                    <p className="font-google-sans text-sm sm:text-base text-charcoal/70 max-w-md mx-auto px-4 sm:px-0 break-keep" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', wordBreak: 'normal', overflowWrap: 'normal', whiteSpace: 'normal', hyphens: 'none', WebkitHyphens: 'none', MozHyphens: 'none', msHyphens: 'none' }}>
                       Claim your business profile to respond to reviews, update information, and connect with customers
                     </p>
                   </div>
@@ -296,10 +296,10 @@ function ClaimBusinessPageContent() {
                         <AlertCircle className="h-4 w-4" />
                       </span>
                       <div>
-                        <p className="font-urbanist text-sm sm:text-base font-semibold text-charcoal" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                        <p className="font-google-sans text-sm sm:text-base font-semibold text-charcoal" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                           Business Ownership Notice
                         </p>
-                        <p className="mt-1 font-urbanist text-sm sm:text-base leading-relaxed text-charcoal/75" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                        <p className="mt-1 font-google-sans text-sm sm:text-base leading-relaxed text-charcoal/75" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                           {ownershipPricingNotice}
                         </p>
                       </div>
@@ -309,7 +309,7 @@ function ClaimBusinessPageContent() {
                   {/* Your claims (status states: Pending Verification, Action Required, Under Review, Verified, Rejected) */}
                   {user && (claimsLoading || myClaims.length > 0 || Boolean(claimsError)) && (
                     <div className="mb-8">
-                      <h3 className="font-urbanist text-base font-semibold text-charcoal mb-3" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                      <h3 className="font-google-sans text-base font-semibold text-charcoal mb-3" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                         Your claims
                       </h3>
                       {claimsLoading ? (
@@ -325,21 +325,21 @@ function ClaimBusinessPageContent() {
                             >
                               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
                                 <div className="min-w-0">
-                                  <p className="font-urbanist text-sm font-semibold text-charcoal truncate" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                  <p className="font-google-sans text-sm font-semibold text-charcoal truncate" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                                     {claim.business_name}
                                   </p>
                                   {(claim as { location?: string }).location && (
-                                    <p className="font-urbanist text-sm text-charcoal/70 mt-0.5" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                    <p className="font-google-sans text-sm text-charcoal/70 mt-0.5" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                                       {(claim as { location?: string }).location}
                                     </p>
                                   )}
                                   {claim.next_step && (
-                                    <p className="font-urbanist text-sm text-charcoal/60 mt-1.5" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                    <p className="font-google-sans text-sm text-charcoal/60 mt-1.5" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                                       {claim.next_step}
                                     </p>
                                   )}
                                   {claim.status === 'rejected' && claim.rejection_reason && (
-                                    <p className="font-urbanist text-sm text-red-600 mt-1" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                    <p className="font-google-sans text-sm text-red-600 mt-1" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                                       {claim.rejection_reason}
                                     </p>
                                   )}
@@ -349,8 +349,8 @@ function ClaimBusinessPageContent() {
                                   {claim.status === 'verified' && claim.business_id && (
                                     <Link
                                       href={`/my-businesses/${claim.business_id}`}
-                                      className="font-urbanist text-sm font-semibold text-sage hover:text-sage/80 underline"
-                                      style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                                      className="font-google-sans text-sm font-semibold text-sage hover:text-sage/80 underline"
+                                      style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                                     >
                                       Open dashboard
                                     </Link>
@@ -364,7 +364,7 @@ function ClaimBusinessPageContent() {
                       {claimsError && !claimsLoading && (
                         <div
                           className="mt-3 p-3 rounded-[10px] bg-coral/10 border border-coral/30 text-coral text-sm font-medium"
-                          style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                          style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                           role="alert"
                         >
                           {claimsError}
@@ -388,7 +388,7 @@ function ClaimBusinessPageContent() {
                                    text-base placeholder:text-base placeholder:text-charcoal/60 font-normal text-charcoal
                                    focus:outline-none focus:border-charcoal/60
                                    hover:border-charcoal/30 transition-all duration-200 touch-manipulation"
-                        style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                        style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                       />
                     </div>
                   </div>
@@ -398,7 +398,7 @@ function ClaimBusinessPageContent() {
                     {actionError && (
                       <div
                         className="p-3 rounded-[10px] bg-coral/10 border border-coral/30 text-coral text-sm font-medium"
-                        style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                        style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                         role="alert"
                       >
                         {actionError}
@@ -422,13 +422,13 @@ function ClaimBusinessPageContent() {
                             </span>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between gap-2 mb-1">
-                                <h3 className="font-urbanist text-sm sm:text-base font-semibold text-white
-                                               transition-colors duration-200 truncate" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                <h3 className="font-google-sans text-sm sm:text-base font-semibold text-white
+                                               transition-colors duration-200 truncate" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                                   {business.name}
                                 </h3>
                                 {getStatusBadge(business)}
                               </div>
-                              <div className="flex items-center flex-wrap gap-1.5 sm:gap-2 font-urbanist text-xs sm:text-sm text-white/90" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                              <div className="flex items-center flex-wrap gap-1.5 sm:gap-2 font-google-sans text-xs sm:text-sm text-white/90" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                                 <span className="truncate max-w-[120px] sm:max-w-none">{business.category}</span>
                                 <span className="text-white/60 hidden sm:inline">•</span>
                                 <div className="flex items-center gap-1 min-w-0">
@@ -452,15 +452,15 @@ function ClaimBusinessPageContent() {
                       <span className={`${ICON_CHIP_CLASS} w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 shadow-sm`}>
                         <Search className="w-5 h-5 sm:w-6 sm:h-6" />
                       </span>
-                      <h3 className="font-urbanist text-base sm:text-lg font-semibold text-charcoal mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                      <h3 className="font-google-sans text-base sm:text-lg font-semibold text-charcoal mb-2" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                         Business not found
                       </h3>
-                      <p className="font-urbanist text-sm sm:text-base text-charcoal/70 pt-2 max-w-md mx-auto" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                      <p className="font-google-sans text-sm sm:text-base text-charcoal/70 pt-2 max-w-md mx-auto" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                         Can't find your business? You can add it to our directory.
                       </p>
-                      <button className="px-6 py-2.5 min-h-[44px] bg-gradient-to-br from-sage to-sage/90 text-white rounded-full text-sm font-semibold font-urbanist
+                      <button className="px-6 py-2.5 min-h-[44px] bg-gradient-to-br from-sage to-sage/90 text-white rounded-full text-sm font-semibold font-google-sans
                                          hover:from-sage/90 hover:to-sage/80 transition-all duration-300 hover:shadow-lg active:scale-[0.98] touch-manipulation"
-                                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                         Add Your Business
                       </button>
                     </div>
@@ -468,25 +468,25 @@ function ClaimBusinessPageContent() {
 
                   {/* Help Section */}
                   <div className="mt-8 sm:mt-12 mb-8 sm:mb-12 p-4 sm:p-6 bg-white border border-charcoal/10 rounded-[12px] shadow-sm">
-                    <h3 className="font-urbanist text-base sm:text-lg font-semibold text-charcoal mb-2 px-1" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                    <h3 className="font-google-sans text-base sm:text-lg font-semibold text-charcoal mb-2 px-1" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                       Need help claiming your business?
                     </h3>
-                    <p className="font-urbanist text-sm sm:text-base text-charcoal/75 mb-4 sm:mb-5 break-keep leading-relaxed" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', wordBreak: 'normal', overflowWrap: 'normal', whiteSpace: 'normal', hyphens: 'none', WebkitHyphens: 'none', MozHyphens: 'none', msHyphens: 'none' }}>
+                    <p className="font-google-sans text-sm sm:text-base text-charcoal/75 mb-4 sm:mb-5 break-keep leading-relaxed" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', wordBreak: 'normal', overflowWrap: 'normal', whiteSpace: 'normal', hyphens: 'none', WebkitHyphens: 'none', MozHyphens: 'none', msHyphens: 'none' }}>
                       Our business verification process is quick and easy. You'll need to provide proof of ownership
                       or management authorisation.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-3">
                       <Link
                         href="mailto:info@sayso.com?subject=Need%20help%20claiming%20my%20business&body=Please%20include%20your%20business%20name%2C%20location%2C%20and%20any%20documents%20you%20have%20ready."
-                        className="w-full sm:w-auto px-5 py-2.5 min-h-[44px] border-2 border-charcoal/20 text-charcoal rounded-full text-sm font-semibold font-urbanist
+                        className="w-full sm:w-auto px-5 py-2.5 min-h-[44px] border-2 border-charcoal/20 text-charcoal rounded-full text-sm font-semibold font-google-sans
                                          hover:bg-charcoal/5 transition-all duration-300 active:scale-[0.98] touch-manipulation whitespace-nowrap text-center"
-                        style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                        style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                         aria-label="Email business support for claim assistance"
                       >
                         Contact Support
                       </Link>
-                      <Link href="/add-business" className="w-full sm:w-auto px-6 py-2.5 min-h-[44px] bg-gradient-to-br from-coral to-coral/90 text-white text-sm font-semibold font-urbanist rounded-full hover:from-coral/90 hover:to-coral/80 transition-all duration-300 hover:shadow-lg active:scale-[0.98] touch-manipulation whitespace-nowrap inline-flex items-center justify-center"
-                              style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                      <Link href="/add-business" className="w-full sm:w-auto px-6 py-2.5 min-h-[44px] bg-gradient-to-br from-coral to-coral/90 text-white text-sm font-semibold font-google-sans rounded-full hover:from-coral/90 hover:to-coral/80 transition-all duration-300 hover:shadow-lg active:scale-[0.98] touch-manipulation whitespace-nowrap inline-flex items-center justify-center"
+                              style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                         Add New Business
                       </Link>
                     </div>
@@ -509,4 +509,9 @@ export default function ClaimBusinessPage() {
     </Suspense>
   );
 }
+
+
+
+
+
 

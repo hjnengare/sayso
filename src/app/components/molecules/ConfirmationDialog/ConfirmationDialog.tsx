@@ -172,7 +172,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.15, duration: 0.3 }}
-                  style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                  style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                 >
                   {title}
                 </m.h3>
@@ -183,7 +183,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2, duration: 0.3 }}
-                  style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                  style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                 >
                   {message}
                 </m.p>
@@ -196,7 +196,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.25, duration: 0.3 }}
                   >
-                    <label className="block text-sm font-medium text-charcoal/80 mb-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                    <label className="block text-sm font-medium text-charcoal/80 mb-2" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                       Type <span className="font-semibold bg-coral/10 text-coral px-2 py-0.5 rounded-md">{requireConfirmText}</span> to confirm:
                     </label>
                     <input
@@ -206,7 +206,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
                       className="w-full px-4 py-3 rounded-full text-sm text-charcoal border-2 border-charcoal/10 bg-white/80 focus:border-coral/50 focus:outline-none focus:ring-4 focus:ring-coral/10 transition-all duration-300"
                       placeholder={requireConfirmText}
                       autoFocus
-                      style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                      style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                     />
                   </m.div>
                 )}
@@ -234,7 +234,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
                     onClick={onClose}
                     disabled={isLoading}
                     className="flex-1 px-6 py-3 rounded-full text-sm font-semibold bg-white/60 text-charcoal border border-charcoal/10 hover:bg-white hover:border-charcoal/20 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
-                    style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                    style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                   >
                     {cancelText}
                   </button>
@@ -242,7 +242,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
                     onClick={handleConfirm}
                     disabled={isLoading || !canConfirm}
                     className={`flex-1 px-6 py-3 rounded-full text-sm font-semibold ${styles.button} transition-all duration-300 shadow-lg ${styles.buttonShadow} disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white/50 disabled:hover:text-coral`}
-                    style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                    style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                   >
                     {isLoading ? 'Processing...' : confirmText}
                   </button>
@@ -256,4 +256,9 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
   // Render in a portal to document.body to escape any stacking context issues
   return createPortal(modalContent, document.body);
 };
+
+
+
+
+
 

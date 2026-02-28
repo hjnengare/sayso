@@ -22,7 +22,7 @@ export default function SpecialDetailsCard({ special }: SpecialDetailsCardProps)
         >
             <h2
                 className="text-lg font-bold text-charcoal mb-4"
-                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
             >
                 Special Details
             </h2>
@@ -36,13 +36,13 @@ export default function SpecialDetailsCard({ special }: SpecialDetailsCardProps)
                         <div>
                             <p
                                 className="text-xs text-charcoal/60"
-                                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                             >
                                 Valid From
                             </p>
                             <p
                                 className="text-sm font-semibold text-charcoal"
-                                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                             >
                                 {special.startDate}
                             </p>
@@ -57,13 +57,13 @@ export default function SpecialDetailsCard({ special }: SpecialDetailsCardProps)
                     <div>
                         <p
                             className="text-xs text-charcoal/60"
-                            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                            style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                         >
                             Discount
                         </p>
                         <p
                             className="text-sm font-semibold text-charcoal"
-                            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                            style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                         >
                             {special.price || "Special Price"}
                         </p>
@@ -77,13 +77,13 @@ export default function SpecialDetailsCard({ special }: SpecialDetailsCardProps)
                     <div>
                         <p
                             className="text-xs text-charcoal/60"
-                            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                            style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                         >
                             Available
                         </p>
                         <p
                             className="text-sm font-semibold text-charcoal"
-                            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                            style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                         >
                             Limited Time
                         </p>
@@ -97,13 +97,13 @@ export default function SpecialDetailsCard({ special }: SpecialDetailsCardProps)
                     <div>
                         <p
                             className="text-xs text-charcoal/60"
-                            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                            style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                         >
                             Terms
                         </p>
                         <p
                             className="text-sm font-semibold text-charcoal"
-                            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                            style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                         >
                             See venue for details
                         </p>
@@ -113,3 +113,8 @@ export default function SpecialDetailsCard({ special }: SpecialDetailsCardProps)
         </m.div>
     );
 }
+
+
+
+
+

@@ -412,7 +412,7 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
       id={idForSnap}
       className="snap-start snap-always flex-shrink-0 w-[100vw] sm:w-auto sm:w-[260px] md:w-[340px] list-none"
       style={{
-        fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+        fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
         fontWeight: 600,
       }}
     >
@@ -536,7 +536,7 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
                       className="truncate text-[11px] font-medium leading-none text-charcoal"
                       style={{
                         fontFamily:
-                          "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                          '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                       }}
                     >
                       {activeOverlayBadge.label}
@@ -553,7 +553,7 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
                 <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill={`url(#starGradient${starGradientId}BOTM)`} stroke={`url(#starGradient${starGradientId}BOTM)`} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               <span className="text-sm font-semibold text-charcoal" style={{ 
-                fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', 
+                fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', 
                 fontWeight: 600
               }}>
                 {Number(displayTotal).toFixed(1)}
@@ -562,7 +562,7 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
           ) : (
             <div className="absolute right-4 top-4 z-20 inline-flex items-center gap-1 rounded-full bg-off-white/95 backdrop-blur-xl px-3 py-1.5 text-charcoal shadow-md">
               <span className="text-sm font-semibold text-charcoal" style={{ 
-                fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', 
+                fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', 
                 fontWeight: 600
               }}>
                 New
@@ -632,7 +632,7 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
                       <h3
                         className="text-h2 sm:text-h1 font-bold text-inherit text-center leading-[1.3] truncate tracking-tight transition-colors duration-300 group-hover:text-navbar-bg/90 w-full max-w-full overflow-hidden text-ellipsis whitespace-nowrap"
                         style={{
-                          fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                          fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                           fontWeight: 700,
                           WebkitFontSmoothing: 'antialiased',
                           MozOsxFontSmoothing: 'grayscale',
@@ -660,7 +660,7 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
                           <span 
                             className="truncate text-caption sm:text-xs text-charcoal/80 font-semibold"
                             style={{
-                              fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                              fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                               fontWeight: 600,
                               WebkitFontSmoothing: 'antialiased',
                               MozOsxFontSmoothing: 'grayscale',
@@ -695,7 +695,7 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
                           }}
                           className="inline-flex items-center justify-center text-body-sm sm:text-base font-bold leading-none text-navbar-bg underline-offset-2 cursor-pointer transition-colors duration-200 hover:text-coral"
                           style={{
-                            fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                            fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                             fontWeight: 700
                           }}
                         >
@@ -716,7 +716,7 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
                           }}
                           className="inline-flex items-center justify-center text-sm leading-none text-navbar-bg underline-offset-2 cursor-pointer transition-colors duration-200 hover:text-coral"
                           style={{
-                            fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                            fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                             fontWeight: 400
                           }}
                         >
@@ -739,7 +739,7 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
                         }}
                         className="inline-flex items-center justify-center text-sm font-normal underline-offset-2 min-w-[92px] text-center transition-colors duration-200 text-charcoal cursor-pointer hover:text-coral"
                         style={{
-                          fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                          fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                           fontWeight: 400
                         }}
                         title="Be the first to review"
@@ -768,7 +768,7 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
               }}
               aria-label={`Write a review for ${business.name}`}
               style={{
-                fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                 fontWeight: 600,
               }}
             >
@@ -780,3 +780,8 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
     </li>
   );
 }
+
+
+
+
+

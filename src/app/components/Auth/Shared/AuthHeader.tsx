@@ -12,10 +12,10 @@ interface AuthHeaderProps {
 
 export function AuthHeader({ backLink, title, subtitle, subtitleStyle }: AuthHeaderProps) {
   const titleStyle = {
-    fontFamily: '"Urbanist", system-ui, sans-serif',
+    fontFamily: '"Google Sans", system-ui, sans-serif',
   } as React.CSSProperties;
   const bodyStyle = {
-    fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+    fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
     fontWeight: 400,
     ...subtitleStyle,
   } as React.CSSProperties;
@@ -43,3 +43,8 @@ export function AuthHeader({ backLink, title, subtitle, subtitleStyle }: AuthHea
     </>
   );
 }
+
+
+
+
+

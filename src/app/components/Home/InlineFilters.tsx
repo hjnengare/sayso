@@ -72,7 +72,7 @@ export default function InlineFilters({
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-sm font-semibold text-charcoal/70">
                 <MapPin className="w-4 h-4" />
-                <span style={{ fontFamily: "Urbanist, system-ui, sans-serif" }}>
+                <span style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}>
                   Distance
                 </span>
               </div>
@@ -89,7 +89,7 @@ export default function InlineFilters({
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-sm font-semibold text-charcoal/70">
                 <Star className="w-4 h-4 fill-current" />
-                <span style={{ fontFamily: "Urbanist, system-ui, sans-serif" }}>
+                <span style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}>
                   Minimum Rating
                 </span>
               </div>
@@ -107,3 +107,8 @@ export default function InlineFilters({
     </AnimatePresence>
   );
 }
+
+
+
+
+

@@ -41,7 +41,7 @@ export default function TagSelector({ selectedTags, onTagToggle, availableTags }
           <Sparkles className="w-4 h-4 text-coral/80" />
           <h3
             className="text-base font-semibold text-charcoal"
-            style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
+            style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}
           >
             Quick tags
           </h3>
@@ -56,7 +56,7 @@ export default function TagSelector({ selectedTags, onTagToggle, availableTags }
               ? 'bg-coral/20 text-coral'
               : 'bg-charcoal/10 text-charcoal/60'
           }`}
-          style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
+          style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}
         >
           {selectedCount}/4 selected
         </m.div>
@@ -92,7 +92,7 @@ export default function TagSelector({ selectedTags, onTagToggle, availableTags }
                   }
                 `}
                 style={{
-                  fontFamily: 'Urbanist, system-ui, sans-serif',
+                  fontFamily: '"Google Sans", system-ui, sans-serif',
                   WebkitTapHighlightColor: 'transparent',
                 }}
               >
@@ -133,7 +133,7 @@ export default function TagSelector({ selectedTags, onTagToggle, availableTags }
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
           className="mt-3 text-sm text-charcoal/60 text-center"
-          style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
+          style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}
         >
           Tap a selected tag to remove it
         </m.p>
@@ -141,3 +141,8 @@ export default function TagSelector({ selectedTags, onTagToggle, availableTags }
     </div>
   );
 }
+
+
+
+
+

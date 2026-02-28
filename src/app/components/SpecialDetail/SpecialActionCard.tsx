@@ -31,7 +31,7 @@ export default function SpecialActionCard({ specialId, hasReviewed = false }: Sp
         >
             <h3
                 className="text-lg font-bold text-charcoal mb-4"
-                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
             >
                 Claim This Special
             </h3>
@@ -39,7 +39,7 @@ export default function SpecialActionCard({ specialId, hasReviewed = false }: Sp
             <div className="space-y-3">
                 <button
                     className="w-full bg-gradient-to-r from-sage to-sage/90 hover:from-sage/90 hover:to-sage/80 text-white font-semibold py-3 px-5 rounded-full transition-all duration-300 hover:scale-105 border border-white/30 text-sm"
-                    style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                    style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                 >
                     Visit Venue
                 </button>
@@ -48,7 +48,7 @@ export default function SpecialActionCard({ specialId, hasReviewed = false }: Sp
                     <Link
                         href={`/write-review/special/${specialId}`}
                         className="w-full inline-block text-center bg-gradient-to-r from-coral to-coral/90 hover:from-coral/90 hover:to-coral/80 text-white font-semibold py-3 px-5 rounded-full transition-all duration-300 hover:scale-105 border border-white/30 text-sm"
-                        style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                        style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                     >
                         <Star className="w-4 h-4 inline-block mr-1.5" />
                         Write Review
@@ -59,7 +59,7 @@ export default function SpecialActionCard({ specialId, hasReviewed = false }: Sp
                     <button
                         onClick={handleShare}
                         className="w-full flex items-center justify-center gap-2 bg-white/40 backdrop-blur-sm hover:bg-charcoal text-charcoal hover:text-white py-2.5 px-4 rounded-full transition-all duration-200 border-none text-sm font-medium"
-                        style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                        style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                     >
                         <Share2 className="w-4 h-4" />
                         Share Special
@@ -69,3 +69,8 @@ export default function SpecialActionCard({ specialId, hasReviewed = false }: Sp
         </m.div>
     );
 }
+
+
+
+
+

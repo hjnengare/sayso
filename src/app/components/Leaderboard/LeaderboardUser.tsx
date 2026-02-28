@@ -46,7 +46,7 @@ function LeaderboardUser({ user, index, isMobile = false }: LeaderboardUserProps
       >
         <div className="flex items-center justify-between p-3 sm:p-4">
           <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
-            <div className={`w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br ${getBadgeStyles()} rounded-full flex items-center justify-center font-urbanist text-caption sm:text-body-sm font-600 shadow-[0_4px_12px_rgba(0,0,0,0.1)] flex-shrink-0`}>
+            <div className={`w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br ${getBadgeStyles()} rounded-full flex items-center justify-center font-google-sans text-caption sm:text-body-sm font-600 shadow-[0_4px_12px_rgba(0,0,0,0.1)] flex-shrink-0`}>
               {user.rank <= 3 ? <Trophy className="w-3 h-3 sm:w-4 sm:h-4" /> : user.rank}
             </div>
             <div className="w-12 h-12 sm:w-14 sm:h-14 relative rounded-lg overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.15)] flex-shrink-0">
@@ -60,8 +60,8 @@ function LeaderboardUser({ user, index, isMobile = false }: LeaderboardUserProps
               />
             </div>
             <div className="min-w-0 flex-1">
-              <div className="font-urbanist text-body-sm sm:text-body font-600 text-charcoal truncate">@{user.username}</div>
-              <div className="font-urbanist text-caption sm:text-body-sm text-charcoal/60 flex items-center gap-1 flex-wrap">
+              <div className="font-google-sans text-body-sm sm:text-body font-600 text-charcoal truncate">@{user.username}</div>
+              <div className="font-google-sans text-caption sm:text-body-sm text-charcoal/60 flex items-center gap-1 flex-wrap">
                 <span className="font-500">{user.reviews} reviews</span>
               </div>
             </div>
@@ -69,9 +69,9 @@ function LeaderboardUser({ user, index, isMobile = false }: LeaderboardUserProps
           <div className="flex flex-col items-end gap-1 flex-shrink-0 ml-2">
             <div className="bg-gradient-to-br from-off-white via-off-white to-off-white/90 backdrop-blur-xl px-2 sm:px-3 py-1 rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.15)] flex items-center gap-1">
               <Star className="w-3 h-3 sm:w-4 sm:h-4 text-coral fill-coral" />
-              <span className="font-urbanist text-caption sm:text-body-sm font-600 text-charcoal">{user.totalRating?.toFixed(1) || "4.8"}</span>
+              <span className="font-google-sans text-caption sm:text-body-sm font-600 text-charcoal">{user.totalRating?.toFixed(1) || "4.8"}</span>
             </div>
-            <span className="font-urbanist text-caption sm:text-body-sm text-charcoal/70 whitespace-nowrap">{user.reviews > 0 ? `${user.reviews} reviews` : "No reviews yet"}</span>
+            <span className="font-google-sans text-caption sm:text-body-sm text-charcoal/70 whitespace-nowrap">{user.reviews > 0 ? `${user.reviews} reviews` : "No reviews yet"}</span>
           </div>
         </div>
       </m.div>
@@ -80,3 +80,4 @@ function LeaderboardUser({ user, index, isMobile = false }: LeaderboardUserProps
 }
 
 export default memo(LeaderboardUser);
+

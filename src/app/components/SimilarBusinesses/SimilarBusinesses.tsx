@@ -176,14 +176,14 @@ export default function SimilarBusinesses({
             <WavyTypedTitle
               text="You Might Also Like"
               as="h3"
-              className="font-urbanist text-2xl sm:text-3xl md:text-4xl font-bold text-charcoal"
+              className="font-google-sans text-2xl sm:text-3xl md:text-4xl font-bold text-charcoal"
                 typingSpeedMs={40}
                 startDelayMs={300}
                 waveVariant="subtle"
                 loopWave={true}
                 disableWave={true}
                 style={{
-                  fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                  fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                 }}
               />
             </div>
@@ -237,7 +237,7 @@ export default function SimilarBusinesses({
             <WavyTypedTitle
               text="You Might Also Like"
               as="h2"
-              className="font-urbanist text-2xl sm:text-3xl md:text-4xl font-bold text-charcoal"
+              className="font-google-sans text-2xl sm:text-3xl md:text-4xl font-bold text-charcoal"
               typingSpeedMs={40}
               startDelayMs={300}
               waveVariant="subtle"
@@ -246,7 +246,7 @@ export default function SimilarBusinesses({
               enableScrollTrigger={true}
               disableWave={true}
               style={{
-                fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
               }}
             />
           </div>
@@ -289,3 +289,7 @@ export default function SimilarBusinesses({
     </section>
   );
 }
+
+
+
+

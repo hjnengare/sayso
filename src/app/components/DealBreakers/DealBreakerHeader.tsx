@@ -4,7 +4,7 @@ import WavyTypedTitle from "@/app/components/Animations/WavyTypedTitle";
 
 export default function DealBreakerHeader() {
   const bodyStyle = {
-    fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+    fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
     fontWeight: 400,
   } as React.CSSProperties;
 
@@ -13,7 +13,7 @@ export default function DealBreakerHeader() {
       <WavyTypedTitle
         text="What are your dealbreakers?"
         as="h2"
-        className="font-urbanist text-2xl md:text-3xl lg:text-4xl font-700 mb-2 tracking-tight px-6 sm:px-4 md:px-2 text-charcoal"
+        className="font-google-sans text-2xl md:text-3xl lg:text-4xl font-700 mb-2 tracking-tight px-6 sm:px-4 md:px-2 text-charcoal"
         typingSpeedMs={40}
         startDelayMs={300}
         waveVariant="subtle"
@@ -21,7 +21,7 @@ export default function DealBreakerHeader() {
         triggerOnTypingComplete={true}
         enableScrollTrigger={false}
         style={{
-          fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+          fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
           fontWeight: 700,
         }}
       />
@@ -34,3 +34,7 @@ export default function DealBreakerHeader() {
     </div>
   );
 }
+
+
+
+

@@ -52,7 +52,7 @@ class OnboardingErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <div className="min-h-[100dvh] flex items-center justify-center p-4 bg-off-white font-urbanist">
+        <div className="min-h-[100dvh] flex items-center justify-center p-4 bg-off-white font-google-sans">
           {/* Subtle background gradient accent */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className="absolute top-0 right-0 w-96 h-96 bg-card-bg/5 rounded-full blur-3xl" />
@@ -85,13 +85,13 @@ class OnboardingErrorBoundary extends Component<Props, State> {
               <div className="flex gap-3 flex-col sm:flex-row">
                 <button
                   onClick={this.handleReset}
-                  className="flex-1 px-4 py-3 bg-card-bg text-white rounded-lg font-600 hover:bg-card-bg/90 transition-all duration-300 font-urbanist focus:outline-none focus:ring-2 focus:ring-sage/30 active:scale-95"
+                  className="flex-1 px-4 py-3 bg-card-bg text-white rounded-lg font-600 hover:bg-card-bg/90 transition-all duration-300 font-google-sans focus:outline-none focus:ring-2 focus:ring-sage/30 active:scale-95"
                 >
                   Try Again
                 </button>
                 <button
                   onClick={() => window.location.reload()}
-                  className="flex-1 px-4 py-3 bg-charcoal/10 text-charcoal rounded-lg font-600 hover:bg-charcoal/15 transition-all duration-300 font-urbanist border border-charcoal/10 focus:outline-none focus:ring-2 focus:ring-charcoal/30 active:scale-95"
+                  className="flex-1 px-4 py-3 bg-charcoal/10 text-charcoal rounded-lg font-600 hover:bg-charcoal/15 transition-all duration-300 font-google-sans border border-charcoal/10 focus:outline-none focus:ring-2 focus:ring-charcoal/30 active:scale-95"
                 >
                   Refresh Page
                 </button>
@@ -114,7 +114,7 @@ class OnboardingErrorBoundary extends Component<Props, State> {
 
             {/* Support Contact */}
             <div className="mt-6 text-center">
-              <p className="font-urbanist text-sm font-500 text-charcoal/70">
+              <p className="font-google-sans text-sm font-500 text-charcoal/70">
                 Continue having issues?{" "}
                 <a
                   href="mailto:support@sayso.com"
@@ -134,4 +134,5 @@ class OnboardingErrorBoundary extends Component<Props, State> {
 }
 
 export { OnboardingErrorBoundary };
+
 

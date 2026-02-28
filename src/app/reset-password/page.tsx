@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Urbanist } from "next/font/google";
 import { ArrowLeft } from "lucide-react";
 import { AuthService } from "../lib/auth";
 import { useToast } from "../contexts/ToastContext";
@@ -19,12 +18,7 @@ import { AuthAlert } from "../components/Auth/Shared/AuthAlert";
 import { authCopy, formatAuthMessage } from "../components/Auth/Shared/authCopy";
 import { PageLoader, InlineLoader } from "../components/Loader";
 
-const urbanist = Urbanist({
-  weight: ["400", "600", "700", "800"],
-  subsets: ["latin"],
-  display: "swap",
-});
-
+const GOOGLE_SANS_FONT_FAMILY = '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif';
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -215,17 +209,17 @@ export default function ResetPasswordPage() {
               <WavyTypedTitle
                 text="Invalid link"
                 as="h2"
-                className={`${urbanist.className} text-3xl md:text-4xl font-semibold mb-2 text-center leading-[1.2] px-2 tracking-tight text-charcoal`}
+                className={`font-google-sans text-3xl md:text-4xl font-semibold mb-2 text-center leading-[1.2] px-2 tracking-tight text-charcoal`}
                 typingSpeedMs={40}
                 startDelayMs={300}
                 waveVariant="subtle"
                 loopWave={false}
                 style={{ 
-                  fontFamily: urbanist.style.fontFamily,
+                  fontFamily: GOOGLE_SANS_FONT_FAMILY,
                 }}
               />
             </div>
-            <p className="text-body font-normal text-charcoal/70 mb-4 leading-[1.55] px-2 max-w-[70ch] mx-auto animate-fade-in-up animate-delay-700" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 400 }}>
+            <p className="text-body font-normal text-charcoal/70 mb-4 leading-[1.55] px-2 max-w-[70ch] mx-auto animate-fade-in-up animate-delay-700" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 400 }}>
               This reset link is no longer valid
             </p>
           </div>
@@ -241,10 +235,10 @@ export default function ResetPasswordPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <h2 className="text-heading-md font-bold text-white" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 700 }}>
+                  <h2 className="text-heading-md font-bold text-white" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 700 }}>
                     Link expired
                   </h2>
-                  <p className="text-body-sm text-white/90" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                  <p className="text-body-sm text-white/90" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                     This password reset link is no longer valid. Please request a new one.
                   </p>
                 </div>
@@ -253,7 +247,7 @@ export default function ResetPasswordPage() {
                   <button
                     onClick={() => router.push('/forgot-password')}
                     className="w-full bg-gradient-to-r from-coral to-coral/80 text-white text-body font-semibold py-4 px-2 rounded-full hover:from-coral/90 hover:to-coral transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-sage/30 transform hover:scale-105 active:scale-95 btn-target btn-press"
-                    style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
+                    style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
                   >
                     Request new link
                   </button>
@@ -261,7 +255,7 @@ export default function ResetPasswordPage() {
                   <button
                     onClick={() => router.push('/login')}
                     className="w-full text-sm text-white hover:text-coral transition-colors duration-300 font-medium"
-                    style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 500 }}
+                    style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 500 }}
                   >
                     Back to Login
                   </button>
@@ -301,17 +295,17 @@ export default function ResetPasswordPage() {
               <WavyTypedTitle
                 text="Password updated"
                 as="h2"
-                className={`${urbanist.className} text-3xl md:text-4xl font-semibold mb-2 text-center leading-[1.2] px-2 tracking-tight text-charcoal`}
+                className={`font-google-sans text-3xl md:text-4xl font-semibold mb-2 text-center leading-[1.2] px-2 tracking-tight text-charcoal`}
                 typingSpeedMs={40}
                 startDelayMs={300}
                 waveVariant="subtle"
                 loopWave={false}
                 style={{ 
-                  fontFamily: urbanist.style.fontFamily,
+                  fontFamily: GOOGLE_SANS_FONT_FAMILY,
                 }}
               />
             </div>
-            <p className="text-body font-normal text-charcoal/70 mb-4 leading-[1.55] px-2 max-w-[70ch] mx-auto animate-fade-in-up animate-delay-700" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 400 }}>
+            <p className="text-body font-normal text-charcoal/70 mb-4 leading-[1.55] px-2 max-w-[70ch] mx-auto animate-fade-in-up animate-delay-700" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 400 }}>
               Your password has been reset
             </p>
           </div>
@@ -327,10 +321,10 @@ export default function ResetPasswordPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <h2 className="text-heading-md font-bold text-white" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 700 }}>
+                  <h2 className="text-heading-md font-bold text-white" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 700 }}>
                     Password updated
                   </h2>
-                  <p className="text-body-sm text-white/90" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                  <p className="text-body-sm text-white/90" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                     Your password has been updated. Redirecting you to home.
                   </p>
                 </div>
@@ -339,7 +333,7 @@ export default function ResetPasswordPage() {
                   <button
                     onClick={() => router.push('/home')}
                     className="w-full bg-gradient-to-r from-coral to-coral/80 text-white text-body font-semibold py-4 px-2 rounded-full hover:from-coral/90 hover:to-coral transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-sage/30 transform hover:scale-105 active:scale-95 btn-target btn-press"
-                    style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
+                    style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
                   >
                     Continue to Home
                   </button>
@@ -379,17 +373,17 @@ export default function ResetPasswordPage() {
             <WavyTypedTitle
               text="Reset password"
               as="h2"
-              className={`${urbanist.className} text-3xl md:text-4xl font-semibold mb-2 text-center leading-[1.2] px-2 tracking-tight text-charcoal`}
+              className={`font-google-sans text-3xl md:text-4xl font-semibold mb-2 text-center leading-[1.2] px-2 tracking-tight text-charcoal`}
               typingSpeedMs={40}
               startDelayMs={300}
               waveVariant="subtle"
               loopWave={false}
               style={{ 
-                fontFamily: urbanist.style.fontFamily,
+                fontFamily: GOOGLE_SANS_FONT_FAMILY,
               }}
             />
           </div>
-          <p className="text-body font-normal text-charcoal/70 mb-4 leading-[1.55] px-2 max-w-[70ch] mx-auto animate-fade-in-up animate-delay-700" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 400 }}>
+          <p className="text-body font-normal text-charcoal/70 mb-4 leading-[1.55] px-2 max-w-[70ch] mx-auto animate-fade-in-up animate-delay-700" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 400 }}>
             Enter your new password
           </p>
         </div>
@@ -406,7 +400,7 @@ export default function ResetPasswordPage() {
               )}
 
               <div className="mb-4 text-center">
-                <p className="text-body-sm text-white/90" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                <p className="text-body-sm text-white/90" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                   Create a password with at least 6 characters.
                 </p>
               </div>
@@ -453,7 +447,7 @@ export default function ResetPasswordPage() {
                   <button
                     type="submit"
                     disabled={isSubmitting || !password || !confirmPassword}
-                    style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
+                    style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
                     className="w-full bg-gradient-to-r from-coral to-coral/80 text-white text-body font-semibold py-4 px-2 rounded-full hover:from-coral/90 hover:to-coral transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 btn-target btn-press"
                   >
                     {isSubmitting ? (
@@ -471,12 +465,12 @@ export default function ResetPasswordPage() {
 
             {/* Footer */}
             <div className="text-center mt-6 pt-6 border-t border-white/20">
-              <div className="text-body-sm sm:text-body text-white" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 400 }}>
+              <div className="text-body-sm sm:text-body text-white" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 400 }}>
                 Remember your password?{" "}
                 <Link
                   href="/login"
                   className="text-white font-semibold hover:text-coral transition-colors duration-300 relative group"
-                  style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif", fontWeight: 600 }}
+                  style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
                 >
                   Sign in
                 </Link>
@@ -489,3 +483,9 @@ export default function ResetPasswordPage() {
     </>
   );
 }
+
+
+
+
+
+

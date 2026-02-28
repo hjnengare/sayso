@@ -29,7 +29,7 @@ const BusinessCardReviews: React.FC<BusinessCardReviewsProps> = ({
             onClick={onCardClick}
             onKeyDown={onCardClick}
             className="inline-flex items-center justify-center text-body-sm sm:text-base font-bold leading-none text-navbar-bg underline-offset-2 cursor-pointer transition-colors duration-200 hover:text-coral"
-            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 700 }}
+            style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 700 }}
           >
             {reviews}
           </span>
@@ -39,7 +39,7 @@ const BusinessCardReviews: React.FC<BusinessCardReviewsProps> = ({
             onClick={onCardClick}
             onKeyDown={onCardClick}
             className="inline-flex items-center justify-center text-sm leading-none text-navbar-bg underline-offset-2 cursor-pointer transition-colors duration-200 hover:text-coral"
-            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 400 }}
+            style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 400 }}
           >
             Reviews
           </span>
@@ -51,7 +51,7 @@ const BusinessCardReviews: React.FC<BusinessCardReviewsProps> = ({
           onClick={onWriteReview}
           onKeyDown={onWriteReview}
           className={`inline-flex items-center justify-center text-sm font-normal underline-offset-2 min-w-[92px] text-center transition-colors duration-200 ${hasReviewed ? 'text-charcoal/70 cursor-not-allowed' : 'text-charcoal cursor-pointer hover:text-coral'} ${compact ? 'lg:order-1 lg:mb-1' : ''}`}
-          style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 400 }}
+          style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 400 }}
           aria-disabled={hasReviewed}
           title={hasReviewed ? 'You have already reviewed this business' : 'Be the first to review'}
         >
@@ -63,3 +63,8 @@ const BusinessCardReviews: React.FC<BusinessCardReviewsProps> = ({
 );
 
 export default BusinessCardReviews;
+
+
+
+
+

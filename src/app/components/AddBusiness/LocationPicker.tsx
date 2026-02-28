@@ -205,7 +205,7 @@ export default function LocationPicker({
       <div className="bg-white rounded-[12px] w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b">
-          <h3 className="text-lg font-semibold text-charcoal" style={{ fontFamily: 'Urbanist, sans-serif' }}>
+          <h3 className="text-lg font-semibold text-charcoal" style={{ fontFamily: '"Google Sans", sans-serif' }}>
             Select Location
           </h3>
           <button
@@ -228,14 +228,14 @@ export default function LocationPicker({
                 onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                 placeholder="Search for an address..."
                 className="w-full pl-10 pr-4 py-2 border border-charcoal/20 rounded-full focus:outline-none focus:ring-2 focus:ring-sage/30"
-                style={{ fontFamily: 'Urbanist, sans-serif' }}
+                style={{ fontFamily: '"Google Sans", sans-serif' }}
               />
             </div>
             <button
               onClick={handleSearch}
               disabled={isGeocoding || !searchQuery.trim()}
               className="px-4 py-2 bg-card-bg text-white rounded-full hover:bg-card-bg/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-              style={{ fontFamily: 'Urbanist, sans-serif' }}
+              style={{ fontFamily: '"Google Sans", sans-serif' }}
             >
               {isGeocoding ? (
                 <>
@@ -254,7 +254,7 @@ export default function LocationPicker({
               onClick={handleGeocodeAddress}
               disabled={isGeocoding}
               className="mt-2 w-full px-4 py-2 bg-charcoal/10 text-charcoal rounded-full hover:bg-charcoal/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm"
-              style={{ fontFamily: 'Urbanist, sans-serif' }}
+              style={{ fontFamily: '"Google Sans", sans-serif' }}
             >
               {isGeocoding ? (
                 <>
@@ -279,15 +279,15 @@ export default function LocationPicker({
         {/* Selected Location Info */}
         {(selectedLat && selectedLng) && (
           <div className="p-4 border-t bg-card-bg/5">
-            <p className="text-sm text-charcoal/70 mb-2" style={{ fontFamily: 'Urbanist, sans-serif' }}>
+            <p className="text-sm text-charcoal/70 mb-2" style={{ fontFamily: '"Google Sans", sans-serif' }}>
               Selected Location:
             </p>
             {formattedAddress && (
-              <p className="text-sm font-semibold text-charcoal mb-2" style={{ fontFamily: 'Urbanist, sans-serif' }}>
+              <p className="text-sm font-semibold text-charcoal mb-2" style={{ fontFamily: '"Google Sans", sans-serif' }}>
                 {formattedAddress}
               </p>
             )}
-            <p className="text-xs text-charcoal/60" style={{ fontFamily: 'Urbanist, sans-serif' }}>
+            <p className="text-xs text-charcoal/60" style={{ fontFamily: '"Google Sans", sans-serif' }}>
               Coordinates: {selectedLat.toFixed(6)}, {selectedLng.toFixed(6)}
             </p>
           </div>
@@ -298,7 +298,7 @@ export default function LocationPicker({
           <button
             onClick={onClose}
             className="flex-1 px-4 py-3 border border-charcoal/20 text-charcoal rounded-full hover:bg-charcoal/5 transition-colors"
-            style={{ fontFamily: 'Urbanist, sans-serif' }}
+            style={{ fontFamily: '"Google Sans", sans-serif' }}
           >
             Cancel
           </button>
@@ -306,7 +306,7 @@ export default function LocationPicker({
             onClick={handleConfirm}
             disabled={!selectedLat || !selectedLng}
             className="flex-1 px-4 py-3 bg-card-bg text-white rounded-full hover:bg-card-bg/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            style={{ fontFamily: 'Urbanist, sans-serif' }}
+            style={{ fontFamily: '"Google Sans", sans-serif' }}
           >
             Confirm Location
           </button>
@@ -315,4 +315,9 @@ export default function LocationPicker({
     </div>
   );
 }
+
+
+
+
+
 

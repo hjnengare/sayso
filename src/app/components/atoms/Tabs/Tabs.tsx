@@ -29,7 +29,7 @@ export const Tabs: React.FC<TabsProps> = ({
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
             className={`
-              px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 rounded-full font-urbanist font-semibold text-xs sm:text-sm
+              px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 rounded-full font-google-sans font-semibold text-xs sm:text-sm
               transition-all duration-300
               focus:outline-none focus:ring-2 focus:ring-sage/30
               whitespace-nowrap
@@ -49,3 +49,4 @@ export const Tabs: React.FC<TabsProps> = ({
 };
 
 Tabs.displayName = 'Tabs';
+

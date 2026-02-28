@@ -13,7 +13,7 @@ export default function FeaturedBusinessesSkeleton({ count = 4 }: FeaturedBusine
       aria-label="Featured Businesses loading"
       aria-busy="true"
       style={{
-        fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+        fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
       }}
     >
       <div className="mx-auto w-full max-w-[2000px] relative z-10">
@@ -58,4 +58,9 @@ export default function FeaturedBusinessesSkeleton({ count = 4 }: FeaturedBusine
     </section>
   );
 }
+
+
+
+
+
 

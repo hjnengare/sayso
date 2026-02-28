@@ -77,7 +77,7 @@ export default function FilterPillGroup<T extends PillValue>({
               .join(" ")}
             style={{
               fontFamily:
-                "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
             }}
           >
             {option.icon && <span aria-hidden>{option.icon}</span>}
@@ -93,3 +93,8 @@ export default function FilterPillGroup<T extends PillValue>({
     </div>
   );
 }
+
+
+
+
+

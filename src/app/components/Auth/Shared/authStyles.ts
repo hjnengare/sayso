@@ -90,7 +90,7 @@ export const authStyles = `
 
   .auth-alert-message {
     margin: 0;
-    font-family: 'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
     font-size: 0.875rem;
     line-height: 1.45;
     font-weight: 600;
@@ -126,7 +126,7 @@ export const authStyles = `
     display: flex;
     align-items: center;
     gap: 0.375rem;
-    font-family: 'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
     font-size: 0.75rem;
     line-height: 1.4;
     font-weight: 600;
@@ -281,4 +281,9 @@ export const authStyles = `
     }
   }
 `;
+
+
+
+
+
 

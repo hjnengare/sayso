@@ -33,7 +33,7 @@ export default function SpecialContactInfo({
         >
             <h3
                 className="text-lg font-bold text-charcoal mb-4"
-                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
             >
                 Venue Information
             </h3>
@@ -49,7 +49,7 @@ export default function SpecialContactInfo({
                         </div>
                         <span
                             className="text-sm font-medium"
-                            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                            style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                         >
                             {phone}
                         </span>
@@ -68,7 +68,7 @@ export default function SpecialContactInfo({
                         </div>
                         <span
                             className="text-sm font-medium truncate"
-                            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                            style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                         >
                             {website.replace(/^https?:\/\//, '')}
                         </span>
@@ -83,7 +83,7 @@ export default function SpecialContactInfo({
                         <div className="flex-1 min-w-0">
                             <p
                                 className="text-sm font-medium break-words"
-                                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                             >
                                 {location}
                             </p>
@@ -91,7 +91,7 @@ export default function SpecialContactInfo({
                                 <button
                                     onClick={onViewMap}
                                     className="text-xs text-sage hover:text-sage/80 font-medium mt-1"
-                                    style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                                    style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                                 >
                                     View on map
                                 </button>
@@ -103,3 +103,8 @@ export default function SpecialContactInfo({
         </m.div>
     );
 }
+
+
+
+
+

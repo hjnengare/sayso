@@ -129,7 +129,7 @@ export default function BusinessLoginPage() {
             <WavyTypedTitle
               text="Business Login"
               as="h2"
-              className="font-urbanist text-3xl md:text-4xl font-700 mb-2 text-center leading-[1.2] px-2 tracking-tight text-charcoal"
+              className="font-google-sans text-3xl md:text-4xl font-700 mb-2 text-center leading-[1.2] px-2 tracking-tight text-charcoal"
               typingSpeedMs={40}
               startDelayMs={300}
               waveVariant="subtle"
@@ -190,7 +190,7 @@ export default function BusinessLoginPage() {
                 <Link
                   href="/forgot-password"
                   className="text-body-sm text-white hover:text-coral transition-colors duration-300 font-medium"
-                  style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
+                  style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
                 >
                   Forgot password?
                 </Link>
@@ -219,7 +219,7 @@ export default function BusinessLoginPage() {
                     <Link
                       href="/login"
                       className="text-body-sm text-white/80 hover:text-coral font-medium underline-offset-2 hover:underline transition-colors duration-200"
-                      style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 500 }}
+                      style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 500 }}
                     >
                       Log in to a Personal Account
                     </Link>
@@ -227,7 +227,7 @@ export default function BusinessLoginPage() {
                     <Link
                       href="/register"
                       className="text-body-sm text-white/80 hover:text-coral font-medium underline-offset-2 hover:underline transition-colors duration-200"
-                      style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 500 }}
+                      style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 500 }}
                     >
                       Sign up for a Personal Account
                     </Link>
@@ -256,3 +256,8 @@ export default function BusinessLoginPage() {
     </>
   );
 }
+
+
+
+
+

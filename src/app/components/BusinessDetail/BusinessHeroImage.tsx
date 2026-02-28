@@ -201,7 +201,7 @@ export default function BusinessHeroImage({
       {/* Verified Badge */}
       {verified && (
         <div className="absolute top-6 left-6 z-20">
-          <span className="px-4 py-2 rounded-full text-body-sm font-600 backdrop-blur-xl border bg-card-bg/90 text-white border-sage/50" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+          <span className="px-4 py-2 rounded-full text-body-sm font-600 backdrop-blur-xl border bg-card-bg/90 text-white border-sage/50" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
             Verified
           </span>
         </div>
@@ -211,7 +211,7 @@ export default function BusinessHeroImage({
       <div className="absolute top-6 right-6 z-20 inline-flex items-center gap-1 rounded-full bg-off-white/95 backdrop-blur-xl px-3 py-1.5 text-charcoal border-none">
         <GoldStar size={14} className="w-3.5 h-3.5" />
         <span className="text-body-sm font-semibold text-charcoal" style={{
-          fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+          fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
           fontWeight: 600
         }}>
           {Number(rating).toFixed(1)}
@@ -262,7 +262,7 @@ export default function BusinessHeroImage({
 
           {/* Image Counter */}
           <div className="absolute bottom-6 right-6 z-30 px-3 py-1.5 rounded-full bg-charcoal/80 backdrop-blur-xl">
-            <span className="text-sm font-semibold text-white" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+            <span className="text-sm font-semibold text-white" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
               {activeIndex + 1} / {allImages.length}
             </span>
           </div>
@@ -272,3 +272,8 @@ export default function BusinessHeroImage({
     </m.div>
   );
 }
+
+
+
+
+

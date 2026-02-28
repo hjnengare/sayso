@@ -41,17 +41,22 @@ export default function BusinessDescription({ description }: BusinessDescription
     <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px]  shadow-md p-4 sm:p-6">
         <h2
           className="text-h3 font-semibold text-charcoal mb-3"
-          style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+          style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
         >
           About This Business
         </h2>
         <p
           className="text-body text-charcoal/70 leading-relaxed"
-          style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+          style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
         >
           {descriptionText}
         </p>
     </div>
   );
 }
+
+
+
+
+
 

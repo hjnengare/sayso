@@ -353,7 +353,7 @@ export default function ImageUpload({
 
           {/* Image counter */}
           <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-10 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/20">
-            <p className="text-sm text-white font-medium" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
+            <p className="text-sm text-white font-medium" style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}>
               {previewIndex + 1} / {existingImageUrls.length + previews.length}
             </p>
           </div>
@@ -394,11 +394,11 @@ export default function ImageUpload({
               )}
             </div>
 
-            <p className="text-base font-semibold text-charcoal/70 mb-1 text-center" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
+            <p className="text-base font-semibold text-charcoal/70 mb-1 text-center" style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}>
               {isDragging ? 'Drop images here' : 'Tap to add photos'}
             </p>
 
-            <p className="text-sm text-charcoal/60 text-center" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
+            <p className="text-sm text-charcoal/60 text-center" style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}>
               {(existingImageUrls.length + files.length) > 0
                 ? `${existingImageUrls.length + files.length}/${maxImages} added`
                 : maxImages === 2
@@ -413,7 +413,7 @@ export default function ImageUpload({
       {/* Disabled state message */}
       {disabled && (existingImageUrls.length + files.length) >= maxImages && (
         <div className="w-full min-h-[120px] rounded-[12px] border-2 border-dashed border-charcoal/10 bg-off-white/20 flex items-center justify-center">
-          <p className="text-sm text-charcoal/70 text-center" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
+          <p className="text-sm text-charcoal/70 text-center" style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}>
             Maximum {maxImages} images reached
           </p>
         </div>
@@ -421,4 +421,9 @@ export default function ImageUpload({
     </div>
   );
 }
+
+
+
+
+
 

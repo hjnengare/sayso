@@ -9,14 +9,8 @@ import { useBusinesses } from "../../../hooks/useBusinesses";
 import BusinessGridSkeleton from "../../../components/Explore/BusinessGridSkeleton";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Utensils, Coffee, Activity, Heart, PartyPopper, ShoppingBag, Wrench } from "lucide-react";
-import { Urbanist } from "next/font/google";
 
-const urbanist = Urbanist({
-  weight: ["400", "600", "700", "800"],
-  subsets: ["latin"],
-  display: "swap",
-});
-
+const GOOGLE_SANS_FONT_FAMILY = '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif';
 // Intent data
 const INTENTS: Record<string, { 
   label: string;
@@ -115,13 +109,13 @@ function IntentDetailContent() {
       <div className="min-h-dvh bg-off-white">
         <main className="">
           <div className="mx-auto w-full max-w-[2000px] px-4 sm:px-6 text-center py-20">
-            <h1 className="text-h2 font-semibold text-charcoal mb-4" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+            <h1 className="text-h2 font-semibold text-charcoal mb-4" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
               Intent not found
             </h1>
             <Link
               href="/explore"
               className="text-sage hover:text-sage/80 font-semibold transition-colors flex items-center gap-1.5"
-              style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+              style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
             >
               <ChevronLeft className="w-4 h-4" />
               Back to Explore
@@ -151,7 +145,7 @@ function IntentDetailContent() {
           <nav className="pb-1" aria-label="Breadcrumb">
             <ol className="flex items-center gap-2 text-sm sm:text-base">
               <li>
-                <Link href="/explore" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                <Link href="/explore" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                   Explore
                 </Link>
               </li>
@@ -159,7 +153,7 @@ function IntentDetailContent() {
                 <ChevronRight className="w-4 h-4 text-charcoal/60" />
               </li>
               <li>
-                <span className="text-charcoal font-semibold" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                <span className="text-charcoal font-semibold" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                   {intent.label}
                 </span>
               </li>
@@ -181,12 +175,12 @@ function IntentDetailContent() {
                 </div>
                 <div>
                   <h1
-                    className={`${urbanist.className} text-2xl sm:text-3xl md:text-4xl font-bold leading-[1.2] tracking-tight text-charcoal`}
-                    style={{ fontFamily: urbanist.style.fontFamily, fontWeight: 800 }}
+                    className={`font-google-sans text-2xl sm:text-3xl md:text-4xl font-bold leading-[1.2] tracking-tight text-charcoal`}
+                    style={{ fontFamily: GOOGLE_SANS_FONT_FAMILY, fontWeight: 800 }}
                   >
                     {intent.label}
                   </h1>
-                  <p className="text-body-sm text-charcoal/60 mt-2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                  <p className="text-body-sm text-charcoal/60 mt-2" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                     {intent.description}
                   </p>
                 </div>
@@ -203,16 +197,16 @@ function IntentDetailContent() {
 
           {!loading && error && (
             <div className="bg-white border border-sage/20 rounded-3xl shadow-sm px-6 py-10 text-center space-y-4">
-              <p className="text-charcoal font-semibold text-h2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+              <p className="text-charcoal font-semibold text-h2" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                 We couldn't load businesses right now.
               </p>
-              <p className="text-body-sm text-charcoal/60 max-w-[70ch]" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 500 }}>
+              <p className="text-body-sm text-charcoal/60 max-w-[70ch]" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 500 }}>
                 {error}
               </p>
               <button
                 onClick={refetch}
                 className="inline-flex items-center justify-center px-5 py-2.5 rounded-full bg-card-bg text-white hover:bg-card-bg/90 transition-colors text-body font-semibold"
-                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
               >
                 Try again
               </button>
@@ -223,16 +217,16 @@ function IntentDetailContent() {
             <>
               {businesses.length === 0 ? (
                 <div className="bg-white border border-sage/20 rounded-3xl shadow-sm px-6 py-16 text-center space-y-3">
-                  <h2 className="text-h2 font-semibold text-charcoal" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                  <h2 className="text-h2 font-semibold text-charcoal" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                     No businesses found for {intent.label.toLowerCase()}
                   </h2>
-                  <p className="text-body-sm text-charcoal/60 max-w-[70ch] mx-auto" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 500 }}>
+                  <p className="text-body-sm text-charcoal/60 max-w-[70ch] mx-auto" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 500 }}>
                     Check back soon as new businesses join this category.
                   </p>
                 </div>
               ) : (
                 <>
-                  <div className="mb-4 text-body-sm text-charcoal/60" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                  <div className="mb-4 text-body-sm text-charcoal/60" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                     {businesses.length} {businesses.length === 1 ? 'place' : 'places'} found
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-3">
@@ -265,4 +259,10 @@ export default function IntentDetailPage() {
     </Suspense>
   );
 }
+
+
+
+
+
+
 

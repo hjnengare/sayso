@@ -92,11 +92,11 @@ export default function AdminDashboardPage() {
       <div className="mb-8">
         <div className="flex items-center gap-2.5 mb-1">
           <Activity className="w-5 h-5 text-navbar-bg" />
-          <h1 className="font-urbanist text-2xl font-bold text-charcoal tracking-tight">
+          <h1 className="font-google-sans text-2xl font-bold text-charcoal tracking-tight">
             Dashboard
           </h1>
         </div>
-        <p className="font-urbanist text-sm text-charcoal/55 ml-7">
+        <p className="font-google-sans text-sm text-charcoal/55 ml-7">
           Sayso platform administration
         </p>
       </div>
@@ -104,59 +104,59 @@ export default function AdminDashboardPage() {
       {/* Stats bar */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
         <div className="rounded-2xl bg-white border border-charcoal/8 shadow-premium px-5 py-4 col-span-2 sm:col-span-1">
-          <p className="font-urbanist text-xs font-semibold text-charcoal/45 uppercase tracking-widest mb-1">
+          <p className="font-google-sans text-xs font-semibold text-charcoal/45 uppercase tracking-widest mb-1">
             Awaiting Review
           </p>
-          <p className="font-urbanist text-3xl font-bold text-charcoal tabular-nums">
+          <p className="font-google-sans text-3xl font-bold text-charcoal tabular-nums">
             {pendingBusinessCount == null && pendingClaimCount == null && pendingFlagCount == null ? (
               <span className="text-charcoal/25 text-xl animate-pulse">—</span>
             ) : (
               totalPending
             )}
           </p>
-          <p className="font-urbanist text-xs text-charcoal/45 mt-1">Total pending items</p>
+          <p className="font-google-sans text-xs text-charcoal/45 mt-1">Total pending items</p>
         </div>
 
         <div className="rounded-2xl bg-white border border-charcoal/8 shadow-premium px-5 py-4">
-          <p className="font-urbanist text-xs font-semibold text-charcoal/45 uppercase tracking-widest mb-1">
+          <p className="font-google-sans text-xs font-semibold text-charcoal/45 uppercase tracking-widest mb-1">
             Businesses
           </p>
-          <p className="font-urbanist text-3xl font-bold text-amber-600 tabular-nums">
+          <p className="font-google-sans text-3xl font-bold text-amber-600 tabular-nums">
             {pendingBusinessCount == null ? (
               <span className="text-charcoal/25 text-xl animate-pulse">—</span>
             ) : (
               pendingBusinessCount
             )}
           </p>
-          <p className="font-urbanist text-xs text-charcoal/45 mt-1">Pending approval</p>
+          <p className="font-google-sans text-xs text-charcoal/45 mt-1">Pending approval</p>
         </div>
 
         <div className="rounded-2xl bg-white border border-charcoal/8 shadow-premium px-5 py-4">
-          <p className="font-urbanist text-xs font-semibold text-charcoal/45 uppercase tracking-widest mb-1">
+          <p className="font-google-sans text-xs font-semibold text-charcoal/45 uppercase tracking-widest mb-1">
             Claims
           </p>
-          <p className="font-urbanist text-3xl font-bold text-sage tabular-nums">
+          <p className="font-google-sans text-3xl font-bold text-sage tabular-nums">
             {pendingClaimCount == null ? (
               <span className="text-charcoal/25 text-xl animate-pulse">—</span>
             ) : (
               pendingClaimCount
             )}
           </p>
-          <p className="font-urbanist text-xs text-charcoal/45 mt-1">Pending review</p>
+          <p className="font-google-sans text-xs text-charcoal/45 mt-1">Pending review</p>
         </div>
 
         <div className="rounded-2xl bg-white border border-charcoal/8 shadow-premium px-5 py-4">
-          <p className="font-urbanist text-xs font-semibold text-charcoal/45 uppercase tracking-widest mb-1">
+          <p className="font-google-sans text-xs font-semibold text-charcoal/45 uppercase tracking-widest mb-1">
             Flags
           </p>
-          <p className="font-urbanist text-3xl font-bold text-red-500 tabular-nums">
+          <p className="font-google-sans text-3xl font-bold text-red-500 tabular-nums">
             {pendingFlagCount == null ? (
               <span className="text-charcoal/25 text-xl animate-pulse">—</span>
             ) : (
               pendingFlagCount
             )}
           </p>
-          <p className="font-urbanist text-xs text-charcoal/45 mt-1">Flagged reviews</p>
+          <p className="font-google-sans text-xs text-charcoal/45 mt-1">Flagged reviews</p>
         </div>
       </div>
 
@@ -178,20 +178,20 @@ export default function AdminDashboardPage() {
                   <Icon className={`w-5 h-5 ${card.iconColor}`} />
                 </div>
                 {hasAlert && (
-                  <span className="inline-flex items-center justify-center min-w-[24px] h-6 px-2 rounded-full bg-amber-100 text-amber-800 text-xs font-bold font-urbanist">
+                  <span className="inline-flex items-center justify-center min-w-[24px] h-6 px-2 rounded-full bg-amber-100 text-amber-800 text-xs font-bold font-google-sans">
                     {count}
                   </span>
                 )}
               </div>
               <div className="flex-1">
-                <h2 className="font-urbanist text-base font-semibold text-charcoal mb-1 group-hover:text-navbar-bg transition-colors">
+                <h2 className="font-google-sans text-base font-semibold text-charcoal mb-1 group-hover:text-navbar-bg transition-colors">
                   {card.label}
                 </h2>
-                <p className="font-urbanist text-sm text-charcoal/55 leading-relaxed">
+                <p className="font-google-sans text-sm text-charcoal/55 leading-relaxed">
                   {card.description}
                 </p>
               </div>
-              <div className="flex items-center gap-1 text-xs font-semibold text-charcoal/40 group-hover:text-navbar-bg transition-colors font-urbanist">
+              <div className="flex items-center gap-1 text-xs font-semibold text-charcoal/40 group-hover:text-navbar-bg transition-colors font-google-sans">
                 <span>Open</span>
                 <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
               </div>
@@ -202,3 +202,4 @@ export default function AdminDashboardPage() {
     </div>
   );
 }
+

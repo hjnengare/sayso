@@ -51,7 +51,7 @@ export default function FormField({
   };
 
   const getInputClasses = () => {
-    const baseClasses = "w-full bg-cultured-1/50 border pl-12 sm:pl-14 pr-4 py-3 sm:py-4 md:py-5 font-urbanist text-body font-600 text-charcoal placeholder-charcoal/50 focus:outline-none focus:ring-2 transition-all duration-300 hover:border-sage/50 input-mobile rounded-full";
+    const baseClasses = "w-full bg-cultured-1/50 border pl-12 sm:pl-14 pr-4 py-3 sm:py-4 md:py-5 font-google-sans text-body font-600 text-charcoal placeholder-charcoal/50 focus:outline-none focus:ring-2 transition-all duration-300 hover:border-sage/50 input-mobile rounded-full";
 
     if (error) {
       return `${baseClasses} border-error-100 focus:border-error-500 focus:ring-error-500/20`;
@@ -91,3 +91,4 @@ export default function FormField({
     </div>
   );
 }
+

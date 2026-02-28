@@ -27,7 +27,7 @@ export default function BusinessContactInfo({ phone, website, address, email, lo
       <div>
         <h3
           className="text-h3 font-semibold text-charcoal mb-3"
-          style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+          style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
         >
           Contact Information
         </h3>
@@ -41,14 +41,14 @@ export default function BusinessContactInfo({ phone, website, address, email, lo
               <a
                 href={`tel:${phone}`}
                 className="text-body-sm text-charcoal/70 hover:text-charcoal transition-colors"
-                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
               >
                 {phone}
               </a>
             ) : (
               <span
                 className="text-body-sm text-charcoal/70 italic"
-                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
               >
                 Phone number coming soon
               </span>
@@ -62,14 +62,14 @@ export default function BusinessContactInfo({ phone, website, address, email, lo
               <a
                 href={`mailto:${email}`}
                 className="text-body-sm text-charcoal/70 hover:text-charcoal transition-colors break-all"
-                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
               >
                 {email}
               </a>
             ) : (
               <span
                 className="text-body-sm text-charcoal/70 italic"
-                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
               >
                 Email coming soon
               </span>
@@ -85,7 +85,7 @@ export default function BusinessContactInfo({ phone, website, address, email, lo
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center rounded-full bg-navbar-bg px-3 py-1.5 text-body-sm text-white hover:bg-navbar-bg/90 transition-colors"
-                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                 aria-label="View business website (opens in a new tab)"
               >
                 View Website
@@ -93,7 +93,7 @@ export default function BusinessContactInfo({ phone, website, address, email, lo
             ) : (
               <span
                 className="text-body-sm text-charcoal/70 italic"
-                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
               >
                 Website coming soon
               </span>
@@ -106,14 +106,14 @@ export default function BusinessContactInfo({ phone, website, address, email, lo
             {address || location ? (
               <span
                 className="text-body-sm text-charcoal/70"
-                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
               >
                 {address || location}
               </span>
             ) : (
               <span
                 className="text-body-sm text-charcoal/70 italic"
-                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
               >
                 Address coming soon
               </span>
@@ -124,4 +124,9 @@ export default function BusinessContactInfo({ phone, website, address, email, lo
     </m.div>
   );
 }
+
+
+
+
+
 

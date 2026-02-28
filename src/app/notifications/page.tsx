@@ -155,7 +155,7 @@ function NotificationRow({
           className={`text-[13.5px] leading-snug ${
             isRead ? 'text-charcoal/55 font-normal' : 'text-charcoal font-semibold'
           }`}
-          style={{ fontFamily: "'Urbanist', system-ui, sans-serif" }}
+          style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}
         >
           {notification.title}
         </p>
@@ -164,7 +164,7 @@ function NotificationRow({
             className={`text-[12.5px] leading-snug mt-0.5 ${
               isRead ? 'text-charcoal/38' : 'text-charcoal/58'
             }`}
-            style={{ fontFamily: "'Urbanist', system-ui, sans-serif" }}
+            style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}
           >
             {notification.message}
           </p>
@@ -173,7 +173,7 @@ function NotificationRow({
           className={`text-[11px] mt-1.5 font-medium tabular-nums ${
             isRead ? 'text-charcoal/30' : 'text-charcoal/45'
           }`}
-          style={{ fontFamily: "'Urbanist', system-ui, sans-serif" }}
+          style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}
         >
           {notification.timeAgo} ago
         </p>
@@ -249,13 +249,13 @@ function NotificationList({
         </div>
         <p
           className="text-[15px] font-semibold text-charcoal/50"
-          style={{ fontFamily: "'Urbanist', system-ui, sans-serif" }}
+          style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}
         >
           No notifications yet
         </p>
         <p
           className="text-[13px] text-charcoal/38 mt-1"
-          style={{ fontFamily: "'Urbanist', system-ui, sans-serif" }}
+          style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}
         >
           You'll see updates from your activity here.
         </p>
@@ -270,7 +270,7 @@ function NotificationList({
         <div className="flex items-center gap-2.5">
           <p
             className="text-[13px] text-charcoal/55 font-medium"
-            style={{ fontFamily: "'Urbanist', system-ui, sans-serif" }}
+            style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}
           >
             {filtered.length} {filtered.length === 1 ? 'notification' : 'notifications'}
             {filterType !== 'All' && (
@@ -283,7 +283,7 @@ function NotificationList({
           <button
             onClick={markAllAsRead}
             className="text-[13px] font-semibold text-sage hover:text-sage/75 transition-colors duration-150 whitespace-nowrap"
-            style={{ fontFamily: "'Urbanist', system-ui, sans-serif" }}
+            style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}
           >
             Mark all as read
           </button>
@@ -310,7 +310,7 @@ function NotificationList({
       {filtered.length === 0 ? (
         <p
           className="text-center text-[13px] text-charcoal/45 py-12"
-          style={{ fontFamily: "'Urbanist', system-ui, sans-serif" }}
+          style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}
         >
           No {filterType.toLowerCase()} notifications
         </p>
@@ -323,7 +323,7 @@ function NotificationList({
                 <div className="px-4 py-2 bg-off-white/55 border-b border-charcoal/[0.06]">
                   <p
                     className="text-[10.5px] font-bold uppercase tracking-[0.1em] text-charcoal/38"
-                    style={{ fontFamily: "'Urbanist', system-ui, sans-serif" }}
+                    style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}
                   >
                     {group.label}
                   </p>
@@ -436,8 +436,8 @@ export default function NotificationsPage() {
 
   return (
     <div
-      className="min-h-[100dvh] flex flex-col bg-off-white relative font-urbanist"
-      style={{ fontFamily: '"Urbanist", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+      className="min-h-[100dvh] flex flex-col bg-off-white relative font-google-sans"
+      style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
     >
       <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)]" />
@@ -487,13 +487,13 @@ export default function NotificationsPage() {
                 >
                   <h1
                     className="text-2xl sm:text-3xl md:text-4xl font-bold text-charcoal"
-                    style={{ fontFamily: '"Urbanist", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 800 }}
+                    style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 800 }}
                   >
                     {headingTitle}
                   </h1>
                   <p
                     className="text-body-sm text-charcoal/60 mt-2"
-                    style={{ fontFamily: '"Urbanist", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                    style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                   >
                     {headingSubtitle}
                   </p>
@@ -527,3 +527,8 @@ export default function NotificationsPage() {
     </div>
   );
 }
+
+
+
+
+

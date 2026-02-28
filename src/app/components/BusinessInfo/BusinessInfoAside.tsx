@@ -12,7 +12,7 @@ interface BusinessInfoAsideProps {
 }
 
 const sectionTitleStyle: CSSProperties = {
-  fontFamily: '"Urbanist", system-ui, sans-serif',
+  fontFamily: '"Google Sans", system-ui, sans-serif',
 };
 
 const formatPriceRangeDisplay = (priceRange?: string | null): string => {
@@ -93,7 +93,7 @@ export default function BusinessInfoAside({ businessInfo, className = "", stacke
             }
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center rounded-full bg-navbar-bg px-3 py-1.5 text-body-sm text-white hover:bg-navbar-bg/90 transition-colors font-urbanist"
+            className="inline-flex items-center rounded-full bg-navbar-bg px-3 py-1.5 text-body-sm text-white hover:bg-navbar-bg/90 transition-colors font-google-sans"
             aria-label="View business website (opens in a new tab)"
           >
             View Website
@@ -117,7 +117,7 @@ export default function BusinessInfoAside({ businessInfo, className = "", stacke
       className={`${sectionClasses} ${className}`}
       aria-labelledby="business-info-heading"
       style={{
-        fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+        fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
       }}
     >
       {/* Premium gradient overlays */}
@@ -211,4 +211,9 @@ export default function BusinessInfoAside({ businessInfo, className = "", stacke
     </section>
   );
 }
+
+
+
+
+
 

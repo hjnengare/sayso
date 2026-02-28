@@ -15,7 +15,7 @@ export default function EventCardSkeleton({ fullWidth = false }: EventCardSkelet
     <li
       className={fullWidth ? "flex w-full" : "flex w-[100vw] sm:w-auto sm:w-[260px] md:w-[340px]"}
       style={{
-        fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+        fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
       }}
     >
       <article
@@ -62,3 +62,7 @@ export default function EventCardSkeleton({ fullWidth = false }: EventCardSkelet
     </li>
   );
 }
+
+
+
+

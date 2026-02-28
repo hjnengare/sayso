@@ -93,7 +93,7 @@ function SubcategoryPill({
   index = 0
 }: SubcategoryPillProps) {
   const sfPro = {
-    fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+    fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
     fontWeight: 600,
   };
 
@@ -138,3 +138,7 @@ function SubcategoryPill({
 }
 
 export default memo(SubcategoryPill);
+
+
+
+

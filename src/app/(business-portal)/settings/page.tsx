@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { LogOut, Trash2, UserRound, Mail, ShieldAlert } from "lucide-react";
 
-const FONT_STACK = "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif";
+const FONT_STACK = '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif';
 const ICON_CHIP_CLASS =
   "inline-flex items-center justify-center rounded-full bg-off-white/80 text-charcoal/85 transition-colors duration-200 hover:bg-off-white/90";
 const SMALL_ICON_CHIP_CLASS = `${ICON_CHIP_CLASS} h-6 w-6`;
@@ -163,3 +163,8 @@ export default function SettingsPage() {
   );
 }
  
+
+
+
+
+

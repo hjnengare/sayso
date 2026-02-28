@@ -150,7 +150,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
                 disabled={disabled}
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
-                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
+                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
                 className={`w-full bg-white/95 rounded-[12px] border-none shadow-[0_8px_32px_rgba(0,0,0,0.12),0_4px_16px_rgba(0,0,0,0.08)] backdrop-blur-xl pl-4 pr-10 py-3 text-sm font-semibold text-charcoal focus:outline-none focus:ring-2 focus:ring-navbar-bg/30 focus:border-navbar-bg transition-colors duration-200 hover:shadow-[0_8px_40px_rgba(0,0,0,0.15)] text-left flex items-center justify-between ${disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
                 aria-haspopup="listbox"
                 aria-expanded={isOpen}
@@ -179,7 +179,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
                         left: dropdownPos.left,
                         width: dropdownPos.width,
                         maxHeight: dropdownPos.maxHeight,
-                        fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                        fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                     }}
                     onClick={(e) => e.stopPropagation()}
                     role="listbox"
@@ -193,7 +193,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
                                 onChange={(event) => setSearchTerm(event.target.value)}
                                 placeholder={searchPlaceholder}
                                 className="w-full rounded-[10px] border border-charcoal/10 bg-white/90 px-3 py-2 text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-navbar-bg/20"
-                                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                             />
                         </div>
                     )}
@@ -202,7 +202,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
                         style={{ maxHeight: searchable ? dropdownPos.maxHeight - 64 : dropdownPos.maxHeight }}
                     >
                         {filteredOptions.length === 0 && (
-                            <div className="px-4 py-3 text-sm text-charcoal/70" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                            <div className="px-4 py-3 text-sm text-charcoal/70" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                                 {noOptionsText}
                             </div>
                         )}
@@ -220,7 +220,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
                                         ? 'bg-gradient-to-r from-sage/10 to-sage/5 text-charcoal'
                                         : 'text-charcoal'
                                 }`}
-                                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
+                                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
                                 role="option"
                                 aria-selected={option.value === value}
                             >
@@ -236,3 +236,8 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
 };
 
 export default CustomDropdown;
+
+
+
+
+

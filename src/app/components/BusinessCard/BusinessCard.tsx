@@ -551,7 +551,7 @@ function BusinessCard({
     <li
       id={idForSnap}
       className={`snap-start snap-always flex-shrink-0 ${compact ? 'w-auto' : 'w-[240px] sm:w-[260px] md:w-[340px]'}`}
-      style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
+      style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
     >
       <Link
         href={businessProfileRoute}
@@ -608,12 +608,12 @@ function BusinessCard({
                 </defs>
                 <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill={`url(#starGradient${starGradientId}-${gradientSuffix})`} stroke={`url(#starGradient${starGradientId}-${gradientSuffix})`} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-              <span className="text-sm font-semibold text-charcoal" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>{Number(displayRating).toFixed(1)}</span>
+              <span className="text-sm font-semibold text-charcoal" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>{Number(displayRating).toFixed(1)}</span>
             </div>
           )}
           {!hideStar && !hasRating && (
             <div className="absolute right-4 top-4 z-20 inline-flex items-center gap-1 rounded-full bg-off-white/95 backdrop-blur-xl px-3 py-1.5 text-charcoal shadow-md">
-              <span className="text-sm font-semibold text-charcoal" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>New</span>
+              <span className="text-sm font-semibold text-charcoal" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>New</span>
             </div>
           )}
           {distanceBadgeText && (
@@ -622,7 +622,7 @@ function BusinessCard({
                 className="leading-none"
                 style={{
                   fontFamily:
-                    "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                    '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                 }}
                 title={distanceHint ?? distanceBadgeText}
               >
@@ -663,14 +663,14 @@ function BusinessCard({
                       <m.h3
                         layoutId={businessTitleLayoutId}
                         className="text-h2 sm:text-h1 font-bold text-center leading-[1.3] truncate tracking-tight transition-colors duration-300 group-hover:text-navbar-bg/90 w-full max-w-full overflow-hidden text-ellipsis whitespace-nowrap relative z-[1]"
-                        style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 700, WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility', letterSpacing: '-0.01em' }}
+                        style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 700, WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale', textRendering: 'optimizeLegibility', letterSpacing: '-0.01em' }}
                       >
                         {business.name}
                       </m.h3>
                     </button>
                   </Tooltip>
                   {ownerView && (business as { status?: string }).status === 'pending_approval' && (
-                    <span className="mt-1.5 inline-flex items-center rounded-full bg-off-white px-2.5 py-1 text-xs font-semibold text-charcoal" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                    <span className="mt-1.5 inline-flex items-center rounded-full bg-off-white px-2.5 py-1 text-xs font-semibold text-charcoal" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                       Pending Approval
                     </span>
                   )}
@@ -709,7 +709,7 @@ function BusinessCard({
                 handleCardClick();
               }}
               aria-label={`View ${business.name} details`}
-              style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
+              style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
             >
               <span>{isBusinessAccount ? 'View Business Profile' : 'View Details'}</span>
             </button>
@@ -722,4 +722,9 @@ function BusinessCard({
 
 export default memo(BusinessCard);
 export type { Business };
+
+
+
+
+
 

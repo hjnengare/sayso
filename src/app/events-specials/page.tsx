@@ -130,7 +130,7 @@ export default function EventsSpecialsPage() {
   const renderGridSection = (items: Event[], title: string) => (
     <section key={title} className="space-y-3">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-charcoal" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>{title}</h2>
+        <h2 className="text-lg font-semibold text-charcoal" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>{title}</h2>
       </div>
       {isDesktop ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 sm:gap-3 md:gap-3 lg:gap-2 xl:gap-2 2xl:gap-2">
@@ -226,7 +226,7 @@ export default function EventsSpecialsPage() {
       <main
         className="relative"
         style={{
-          fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+          fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
         }}
       >
         
@@ -241,7 +241,7 @@ export default function EventsSpecialsPage() {
                 <Link
                   href="/home"
                   className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium"
-                  style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                  style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                 >
                   Home
                 </Link>
@@ -250,7 +250,7 @@ export default function EventsSpecialsPage() {
                 <ChevronRight className="w-4 h-4 text-charcoal/60" />
               </li>
               <li>
-                <span className="text-charcoal font-semibold" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                <span className="text-charcoal font-semibold" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                   Events & Specials
                 </span>
               </li>
@@ -264,9 +264,9 @@ export default function EventsSpecialsPage() {
           >
             <div className="my-4">
               <h1 
-                className="text-2xl sm:text-3xl md:text-4xl font-bold leading-[1.2] tracking-tight text-charcoal mx-auto font-urbanist"
+                className="text-2xl sm:text-3xl md:text-4xl font-bold leading-[1.2] tracking-tight text-charcoal mx-auto font-google-sans"
                 style={{ 
-                  fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                  fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                   wordBreak: 'keep-all',
                   overflowWrap: 'break-word',
                   whiteSpace: 'normal',
@@ -274,7 +274,7 @@ export default function EventsSpecialsPage() {
                 }}
               >
                 <span className="inline-block font-bold" style={{
-                  fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                  fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                   wordBreak: 'keep-all',
                   overflowWrap: 'break-word',
                   whiteSpace: 'normal',
@@ -282,7 +282,7 @@ export default function EventsSpecialsPage() {
                 }}>Events & Specials</span>
               </h1>
             </div>
-            <p className="text-sm sm:text-base text-charcoal/70 max-w-2xl mx-auto leading-relaxed" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+            <p className="text-sm sm:text-base text-charcoal/70 max-w-2xl mx-auto leading-relaxed" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
               Discover exciting local events and exclusive special offers. 
               Find concerts, festivals, workshops, and limited-time deals happening near you.
             </p>
@@ -306,7 +306,7 @@ export default function EventsSpecialsPage() {
             />
             {/* Show search status indicator */}
             {debouncedSearchQuery.trim().length > 0 && (
-              <div className="mt-2 px-2 text-sm text-charcoal/60" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+              <div className="mt-2 px-2 text-sm text-charcoal/60" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                 {filteredEvents.length > 0
                   ? `Found ${filteredEvents.length} result${filteredEvents.length === 1 ? '' : 's'} for "${debouncedSearchQuery}"`
                   : `No results found for "${debouncedSearchQuery}"`
@@ -389,7 +389,7 @@ export default function EventsSpecialsPage() {
                       onClick={handleLoadMore}
                       disabled={loadingMore}
                       className="flex items-center gap-2 px-6 py-3 bg-navbar-bg text-white rounded-full font-medium hover:bg-navbar-bg/90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
-                      style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                      style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                     >
                       {loadingMore ? (
                         <>
@@ -434,4 +434,9 @@ export default function EventsSpecialsPage() {
     </div>
   );
 }
+
+
+
+
+
 

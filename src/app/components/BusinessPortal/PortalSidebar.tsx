@@ -77,7 +77,7 @@ export default function PortalSidebar({ pathname, onClose }: PortalSidebarProps)
                 }`}
             >
               <Icon className={`w-4 h-4 flex-shrink-0 ${active ? "text-white" : "text-white/50 group-hover:text-white/80"}`} />
-              <span className="flex-1 font-urbanist">{label}</span>
+              <span className="flex-1 font-google-sans">{label}</span>
               {showInboxBadge && (
                 <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-coral px-1.5 text-[10px] font-bold text-white shadow-sm">
                   {unreadCount > 99 ? "99+" : unreadCount}
@@ -94,7 +94,7 @@ export default function PortalSidebar({ pathname, onClose }: PortalSidebarProps)
         <Link
           href="/home"
           onClick={handleMobileLinkClick}
-          className="flex items-center gap-2 text-xs text-white/50 hover:text-white/80 transition-colors font-urbanist"
+          className="flex items-center gap-2 text-xs text-white/50 hover:text-white/80 transition-colors font-google-sans"
         >
           <span>← Back to Sayso</span>
         </Link>
@@ -102,3 +102,4 @@ export default function PortalSidebar({ pathname, onClose }: PortalSidebarProps)
     </aside>
   );
 }
+

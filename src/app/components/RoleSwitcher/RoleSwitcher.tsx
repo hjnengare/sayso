@@ -50,7 +50,7 @@ export function RoleSwitcher() {
             ? 'bg-navbar-bg text-white border-white/20'
             : 'bg-white/5 text-white/70 hover:text-white hover:bg-white/10 border-white/10'
         }`}
-        style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+        style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
       >
         {roleLabel}
       </button>
@@ -64,7 +64,7 @@ export function RoleSwitcher() {
             <button
               onClick={() => handleSwitchRole(otherRole as any)}
               className="w-full px-3 py-2 text-sm text-white hover:bg-white/10 rounded transition-colors duration-200 text-left"
-              style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+              style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
             >
               {otherLabel}
             </button>
@@ -74,4 +74,9 @@ export function RoleSwitcher() {
     </div>
   );
 }
+
+
+
+
+
 

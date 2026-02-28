@@ -135,11 +135,11 @@ export default function EventsSpecials({
 
   const hasEvents = displayEvents.length > 0;
   const hasFilteredEvents = filteredEvents.length > 0;
-  const headingClass = `font-urbanist text-xl sm:text-2xl md:text-2xl font-bold text-charcoal hover:text-sage transition-all duration-300 ${
+  const headingClass = `font-google-sans text-xl sm:text-2xl md:text-2xl font-bold text-charcoal hover:text-sage transition-all duration-300 ${
     alignTitleWithFilters ? "pl-0 pr-3 sm:pr-4 py-1" : "px-3 sm:px-4 py-1"
   } hover:bg-card-bg/5 rounded-lg cursor-default`;
   const headingStyle = {
-    fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+    fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
     fontWeight: titleFontWeight,
   } as const;
 
@@ -149,7 +149,7 @@ export default function EventsSpecials({
         className="relative m-0 w-full"
         aria-label={title}
         style={{
-          fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+          fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
         }}
       >
         <div className={containerClass}>
@@ -190,7 +190,7 @@ export default function EventsSpecials({
       className="relative m-0 w-full"
       aria-label={title}
       style={{
-        fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+        fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
       }}
     >
       <div className={containerClass}>
@@ -241,7 +241,7 @@ export default function EventsSpecials({
                     ? "relative z-10 transition-[color] duration-200 ease-[cubic-bezier(0.25,0.1,0.25,1)] text-charcoal group-hover:text-sage after:content-[''] after:absolute after:-bottom-px after:left-0 after:h-px after:w-full after:bg-current after:origin-left after:scale-x-0 after:transition-transform after:duration-200 after:ease-[cubic-bezier(0.25,0.1,0.25,1)] group-hover:after:scale-x-100 motion-reduce:transition-none motion-reduce:after:transition-none"
                     : "relative z-10 transition-transform duration-300 group-hover:-translate-x-0.5 text-charcoal group-hover:text-sage"
                 }
-                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: ctaFontWeight }}
+                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: ctaFontWeight }}
               >
                 {cta.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')}
               </span>
@@ -355,7 +355,7 @@ export default function EventsSpecials({
                 <button
                   onClick={() => router.push(href)}
                   className="mi-tap inline-flex items-center justify-center gap-2 rounded-full min-h-[48px] px-6 py-3 text-body font-semibold text-white bg-gradient-to-r from-coral to-coral/85 hover:opacity-95 transition-all duration-200 shadow-md w-full sm:w-auto sm:min-w-[200px]"
-                  style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                  style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                   aria-label={`See more: ${title}`}
                 >
                   <span>See More</span>
@@ -369,3 +369,8 @@ export default function EventsSpecials({
     </section>
   );
 }
+
+
+
+
+

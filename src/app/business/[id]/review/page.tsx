@@ -3,7 +3,6 @@
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense, useMemo, useRef } from "react";
 import dynamic from "next/dynamic";
-import { Urbanist } from "next/font/google";
 import { Edit, Star, ChevronUp, Info, ChevronRight, ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import confetti from "canvas-confetti";
@@ -24,12 +23,7 @@ import { useDealbreakerQuickTags } from "../../../hooks/useDealbreakerQuickTags"
 import { useBusinessDetail } from "../../../hooks/useBusinessDetail";
 import { fireBadgeCelebration } from "../../../lib/celebration/badgeCelebration";
 
-const urbanist = Urbanist({
-  weight: ["400", "600", "700", "800"],
-  subsets: ["latin"],
-  display: "swap",
-});
-
+const GOOGLE_SANS_FONT_FAMILY = '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif';
 // CSS animations removed - using Framer Motion instead
 
 // Lazy load BusinessCarousel for mobile
@@ -439,10 +433,10 @@ function WriteReviewContent() {
     return (
       <div className="min-h-dvh bg-off-white flex items-center justify-center">
         <div className="text-center max-w-md px-4">
-          <h2 className="text-h1 font-semibold text-charcoal mb-2" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
+          <h2 className="text-h1 font-semibold text-charcoal mb-2" style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}>
             {error || 'Business not found'}
           </h2>
-          <p className="text-body text-charcoal/70 mb-6" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+          <p className="text-body text-charcoal/70 mb-6" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
             {error || "The business you're looking for doesn't exist."}
           </p>
           <m.button
@@ -461,7 +455,7 @@ function WriteReviewContent() {
   return (
     <>
       <style jsx global>{`
-        .font-urbanist {
+        .font-google-sans {
           font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
             "SF Pro Display", "Helvetica Neue", Helvetica, Arial, system-ui,
             sans-serif;
@@ -471,7 +465,7 @@ function WriteReviewContent() {
         }
       `}</style>
       <div
-        className="min-h-dvh bg-off-white relative overflow-x-hidden font-urbanist"
+        className="min-h-dvh bg-off-white relative overflow-x-hidden font-google-sans"
         style={{
           fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif',
         }}
@@ -498,7 +492,7 @@ function WriteReviewContent() {
                       <Link
                         href={`/business/${business?.slug || business?.id || businessId}`}
                         className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium truncate max-w-[200px] sm:max-w-none"
-                        style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                        style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                       >
                         {businessName}
                       </Link>
@@ -507,7 +501,7 @@ function WriteReviewContent() {
                       <ChevronRight className="w-4 h-4 text-charcoal/60" />
                     </li>
                     <li>
-                      <span className="text-charcoal font-semibold" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                      <span className="text-charcoal font-semibold" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                         Write Review
                       </span>
                     </li>
@@ -583,14 +577,14 @@ function WriteReviewContent() {
                             <WavyTypedTitle
                               text="What Others Are Saying"
                               as="h2"
-                              className={`${urbanist.className} text-2xl sm:text-3xl md:text-4xl font-bold text-charcoal border-b border-charcoal/10 pt-4 pb-2`}
+                              className={`font-google-sans text-2xl sm:text-3xl md:text-4xl font-bold text-charcoal border-b border-charcoal/10 pt-4 pb-2`}
                               typingSpeedMs={40}
                               startDelayMs={300}
                               waveVariant="subtle"
                               loopWave={true}
                               disableWave={true}
                               style={{ 
-                                fontFamily: urbanist.style.fontFamily,
+                                fontFamily: GOOGLE_SANS_FONT_FAMILY,
                               }}
                             />
                           </div>
@@ -636,4 +630,10 @@ export default function WriteReviewPage() {
     </Suspense>
   );
 }
+
+
+
+
+
+
 

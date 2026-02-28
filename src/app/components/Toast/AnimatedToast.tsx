@@ -42,7 +42,7 @@ export default function AnimatedToast({ toast, onRemove, getToastStyles, getToas
           {getToastIcon(toast.type)}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="font-urbanist text-sm font-600 leading-tight">
+          <p className="font-google-sans text-sm font-600 leading-tight">
             {toast.message}
           </p>
         </div>
@@ -56,3 +56,4 @@ export default function AnimatedToast({ toast, onRemove, getToastStyles, getToas
     </m.div>
   );
 }
+

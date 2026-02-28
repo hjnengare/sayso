@@ -81,7 +81,7 @@ function PercentileChip({ label, value }: PercentileChipProps) {
       <span className={`text-[10px] sm:text-[9px] font-semibold whitespace-nowrap leading-none ${
         isPlaceholder ? 'text-charcoal/40' : 'text-charcoal/80'
       }`}
-        style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
+        style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
       >
         {percentageText}
       </span>
@@ -90,3 +90,7 @@ function PercentileChip({ label, value }: PercentileChipProps) {
 }
 
 export default memo(PercentileChip);
+
+
+
+

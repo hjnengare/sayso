@@ -158,7 +158,7 @@ export default function AboutPage() {
   return (
     <main
       className="bg-navbar-bg text-white min-h-[100dvh]"
-      style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
+      style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
     >
 
       {/* ── Hero ── */}
@@ -459,3 +459,8 @@ export default function AboutPage() {
     </main>
   );
 }
+
+
+
+
+

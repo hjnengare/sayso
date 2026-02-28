@@ -376,7 +376,7 @@ function EventCard({
     <li
       className={fullWidth ? "flex w-full" : "flex w-[100vw] sm:w-auto sm:w-[260px] md:w-[340px]"}
       style={{
-        fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+        fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
         fontWeight: 600,
       }}
     >
@@ -459,7 +459,7 @@ function EventCard({
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="rounded-full p-1" aria-hidden>
                     <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill={`url(#starGradient${starGradientId}Event)`} stroke={`url(#starGradient${starGradientId}Event)`} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
-                  <span className="text-sm font-semibold text-charcoal" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>{Number(displayRating).toFixed(1)}</span>
+                  <span className="text-sm font-semibold text-charcoal" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}>{Number(displayRating).toFixed(1)}</span>
                 </div>
               )}
 
@@ -504,7 +504,7 @@ function EventCard({
                         <span
                           className="text-xs font-bold text-charcoal/90 leading-none"
                           style={{
-                            fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                            fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                             fontWeight: 700,
                           }}
                         >
@@ -513,7 +513,7 @@ function EventCard({
                         <span
                           className="text-[10px] font-medium text-charcoal/90 leading-none"
                           style={{
-                            fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                            fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                           }}
                         >
                           d
@@ -525,7 +525,7 @@ function EventCard({
                         <span
                           className="text-xs font-bold text-charcoal/90 leading-none"
                           style={{
-                            fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                            fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                             fontWeight: 700,
                           }}
                         >
@@ -534,7 +534,7 @@ function EventCard({
                         <span
                           className="text-[10px] font-medium text-charcoal/90 leading-none"
                           style={{
-                            fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                            fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                           }}
                         >
                           h
@@ -545,7 +545,7 @@ function EventCard({
                       <span
                         className="text-xs font-bold text-charcoal/90 leading-none"
                         style={{
-                          fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                          fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                           fontWeight: 700,
                         }}
                       >
@@ -554,7 +554,7 @@ function EventCard({
                       <span
                         className="text-[10px] font-medium text-charcoal/90 leading-none"
                         style={{
-                          fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                          fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                         }}
                       >
                         m
@@ -586,7 +586,7 @@ function EventCard({
                 layoutId={eventTitleLayoutId}
                 className="text-base sm:text-lg font-bold text-charcoal leading-tight line-clamp-1 transition-colors duration-300 group-hover:text-navbar-bg/90"
                 style={{
-                  fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                  fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                   fontWeight: 700,
                   WebkitFontSmoothing: 'antialiased',
                   MozOsxFontSmoothing: 'grayscale',
@@ -600,7 +600,7 @@ function EventCard({
                 <p
                   className="text-sm text-charcoal/70 line-clamp-2 leading-snug"
                   style={{
-                    fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                    fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                     fontWeight: 400,
                   }}
                   title={event.description || undefined}
@@ -613,7 +613,7 @@ function EventCard({
             {event.occurrencesCount != null && event.occurrencesCount > 1 && (
               <span
                 className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-card-bg/10 text-sage text-sm font-medium w-fit"
-                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
+                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
               >
                 {event.occurrencesCount} dates available
               </span>
@@ -623,7 +623,7 @@ function EventCard({
                 className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-sm font-medium w-fit ${
                   "bg-coral/10 text-coral"
                 }`}
-                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
+                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
               >
                 Community-hosted event
               </span>
@@ -631,7 +631,7 @@ function EventCard({
             {event.availabilityStatus === 'sold_out' && (
               <span
                 className="inline-flex items-center px-2.5 py-1 rounded-full bg-coral/15 text-coral text-sm font-semibold w-fit"
-                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
+                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
               >
                 Sold Out
               </span>
@@ -639,7 +639,7 @@ function EventCard({
             {event.availabilityStatus === 'limited' && (
               <span
                 className="inline-flex items-center px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-600 text-sm font-semibold w-fit"
-                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
+                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
               >
                 Limited Spots
               </span>
@@ -655,7 +655,7 @@ function EventCard({
                       onClick={(e) => { e.preventDefault(); e.stopPropagation(); router.push(eventDetailHref); }}
                       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); router.push(eventDetailHref); } }}
                       className="inline-flex items-center justify-center text-body-sm sm:text-base font-bold leading-none text-navbar-bg underline-offset-2 cursor-pointer transition-colors duration-200 hover:text-coral"
-                      style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 700 }}
+                      style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 700 }}
                     >
                       {reviews}
                     </span>
@@ -665,7 +665,7 @@ function EventCard({
                       onClick={(e) => { e.preventDefault(); e.stopPropagation(); router.push(eventDetailHref); }}
                       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); router.push(eventDetailHref); } }}
                       className="inline-flex items-center justify-center text-sm leading-none text-navbar-bg underline-offset-2 cursor-pointer transition-colors duration-200 hover:text-coral"
-                      style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 400 }}
+                      style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 400 }}
                     >
                       Reviews
                     </span>
@@ -677,7 +677,7 @@ function EventCard({
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (!hasReviewed) router.push(reviewRoute); }}
                     onKeyDown={(e) => { if (!hasReviewed && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); router.push(reviewRoute); } }}
                     className={`inline-flex items-center justify-center text-sm font-normal underline-offset-2 min-w-[92px] text-center transition-colors duration-200 ${hasReviewed ? 'text-charcoal/70 cursor-not-allowed' : 'text-charcoal cursor-pointer hover:text-coral'}`}
-                    style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 400 }}
+                    style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 400 }}
                     aria-disabled={hasReviewed}
                     title={hasReviewed ? 'You have already reviewed this event' : 'Be the first to review'}
                   >
@@ -693,7 +693,7 @@ function EventCard({
                 type="button"
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); router.push(eventDetailHref); }}
                 className="w-full flex items-center justify-center px-4 py-2.5 rounded-full text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-sage/40 border transition-all duration-200 shadow-md bg-gradient-to-br from-navbar-bg to-navbar-bg/90 text-white border-sage/50 hover:scale-[1.02] active:scale-95 active:translate-y-[1px] transform-gpu touch-manipulation select-none"
-                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
+                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
                 aria-label={detailAriaLabel}
               >
                 {detailCtaLabel}
@@ -706,7 +706,7 @@ function EventCard({
                 type="button"
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); router.push(eventDetailHref); }}
                 className="w-full flex items-center justify-center px-4 py-3 rounded-full text-caption sm:text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-sage/40 border transition-all duration-200 min-h-[48px] shadow-md bg-gradient-to-br from-navbar-bg to-navbar-bg/90 text-white border-sage/50 active:scale-95 active:translate-y-[1px] transform-gpu touch-manipulation select-none"
-                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
+                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 600 }}
                 aria-label={detailAriaLabel}
               >
                 {detailCtaLabel}
@@ -721,3 +721,8 @@ function EventCard({
 
 // Memoize to prevent re-renders when parent list updates
 export default memo(EventCard);
+
+
+
+
+

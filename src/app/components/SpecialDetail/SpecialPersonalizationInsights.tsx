@@ -57,7 +57,7 @@ export default function SpecialPersonalizationInsights({
                 </div>
                 <h3
                     className="text-base font-semibold text-charcoal"
-                    style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                    style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                 >
                     Why You'll Love This
                 </h3>
@@ -70,7 +70,7 @@ export default function SpecialPersonalizationInsights({
                         </div>
                         <p
                             className="text-sm text-charcoal/80 leading-relaxed"
-                            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                            style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                         >
                             {insight.text}
                         </p>
@@ -80,3 +80,8 @@ export default function SpecialPersonalizationInsights({
         </div>
     );
 }
+
+
+
+
+

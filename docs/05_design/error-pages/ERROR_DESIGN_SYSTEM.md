@@ -50,7 +50,7 @@ Charcoal      #2D2D2D  - Primary text color
 
 ## Typography
 
-Uses the Urbanist font family for consistency with the main application.
+Uses the Google Sans font family for consistency with the main application.
 
 ### Type Scale
 
@@ -74,3 +74,4 @@ Uses the Urbanist font family for consistency with the main application.
 
 **For implementation details**: See IMPLEMENTATION_EXAMPLES.md
 **For quick reference**: See QUICK_REFERENCE.md
+

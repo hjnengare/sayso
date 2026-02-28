@@ -236,7 +236,7 @@ export const getLinkHref = (
 // ============================================================================
 
 export const HEADER_FONT_STYLE = {
-  fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+  fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
 } as const;
 
 /**
@@ -268,3 +268,8 @@ export const getAllNavLinksForRole = (
     discoverLinks: DISCOVER_LINKS,
   };
 };
+
+
+
+
+

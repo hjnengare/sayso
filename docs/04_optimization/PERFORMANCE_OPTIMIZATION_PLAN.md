@@ -107,13 +107,7 @@ Multiple components fetching the same data simultaneously.
 
 ```typescript
 // layout.tsx
-const urbanist = Urbanist({
-  subsets: ["latin"],
-  display: "swap",
-  preload: true,
-  fallback: ["system-ui", "sans-serif"],
-  adjustFontFallback: true, // Add this
-});
+const googleSansFont = '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif';
 ```
 
 ### 10. **Add Service Worker for Offline Support** 💾
@@ -315,4 +309,5 @@ Would you like me to:
 5. **All of the above** - comprehensive optimization?
 
 Let me know which path you prefer, and I'll implement it!
+
 

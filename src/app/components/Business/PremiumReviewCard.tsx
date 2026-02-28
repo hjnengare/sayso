@@ -590,7 +590,7 @@ export function PremiumReviewCard({
                                     aria-label={`Helpful ${helpfulCount > 0 ? `(${helpfulCount})` : ''}`}
                                 >
                                     <ThumbsUp className={`h-4 w-4 sm:h-4 sm:w-4 text-white ${isLiked ? 'fill-current' : ''}`} strokeWidth={2.5} />
-                                    <span className="font-urbanist font-700 text-white hidden sm:inline">
+                                    <span className="font-google-sans font-700 text-white hidden sm:inline">
                                         Helpful {helpfulCount > 0 && `(${helpfulCount})`}
                                     </span>
                                 </button>
@@ -599,7 +599,7 @@ export function PremiumReviewCard({
                                     className="flex items-center justify-center gap-1 sm:gap-1.5 rounded-full px-2.5 sm:px-3 py-2 sm:py-2 text-xs sm:text-sm transition bg-navbar-bg hover:bg-navbar-bg/90 min-h-[44px] min-w-[44px] flex-1 sm:flex-initial"
                                 >
                                     <Share2 className="h-4 w-4 sm:h-4 sm:w-4 text-white" strokeWidth={2.5} />
-                                    <span className="font-urbanist font-700 text-white hidden sm:inline">Share</span>
+                                    <span className="font-google-sans font-700 text-white hidden sm:inline">Share</span>
                                 </button>
                                 {isOwner && (
                                     <>
@@ -661,7 +661,7 @@ export function PremiumReviewCard({
                                         }`}
                                     >
                                         <Flag className="h-4 w-4 sm:h-4 sm:w-4 text-white" strokeWidth={2.5} />
-                                        <span className="font-urbanist font-700 text-white hidden sm:inline">
+                                        <span className="font-google-sans font-700 text-white hidden sm:inline">
                                             {isFlagged ? 'Reported' : 'Report'}
                                         </span>
                                     </button>
@@ -701,7 +701,7 @@ export function PremiumReviewCard({
                     {/* Image Counter */}
                     {reviewImages.length > 1 && (
                         <div className="absolute top-4 left-4 bg-off-white/10 backdrop-blur-sm px-4 py-2 rounded-full z-10 border border-white/20">
-                            <span className="text-white font-urbanist text-sm font-600">
+                            <span className="text-white font-google-sans text-sm font-600">
                                 {selectedImageIndex + 1} / {reviewImages.length}
                             </span>
                         </div>
@@ -720,7 +720,7 @@ export function PremiumReviewCard({
                         >
                             <span className="text-lg font-bold">−</span>
                         </button>
-                        <span className="text-white font-urbanist text-sm font-600 min-w-[3rem] text-center">
+                        <span className="text-white font-google-sans text-sm font-600 min-w-[3rem] text-center">
                             {Math.round(zoomLevel * 100)}%
                         </span>
                         <button
@@ -876,8 +876,8 @@ function FlagModal({
                 <div className="flex-1 overflow-y-auto px-5 pt-2 pb-6 sm:pt-5">
                     <div className="flex items-start justify-between mb-4">
                         <div>
-                            <h2 className="font-urbanist text-lg font-bold text-charcoal">Report Review</h2>
-                            <p className="font-urbanist text-sm text-charcoal/50">Help us keep sayso trustworthy</p>
+                            <h2 className="font-google-sans text-lg font-bold text-charcoal">Report Review</h2>
+                            <p className="font-google-sans text-sm text-charcoal/50">Help us keep sayso trustworthy</p>
                         </div>
                         <button
                             type="button"
@@ -901,8 +901,8 @@ function FlagModal({
                                 }`}
                             >
                                 <div className="flex-1">
-                                    <p className="font-urbanist text-sm font-semibold text-charcoal">{label}</p>
-                                    <p className="font-urbanist text-xs text-charcoal/50">{desc}</p>
+                                    <p className="font-google-sans text-sm font-semibold text-charcoal">{label}</p>
+                                    <p className="font-google-sans text-xs text-charcoal/50">{desc}</p>
                                 </div>
                                 {reason === value && (
                                     <div className="w-4 h-4 rounded-full bg-navbar-bg flex items-center justify-center flex-shrink-0">
@@ -917,7 +917,7 @@ function FlagModal({
 
                     {reason && (
                         <label className="block mb-4">
-                            <span className="font-urbanist text-xs font-semibold text-charcoal/60 uppercase tracking-wider mb-1.5 block">
+                            <span className="font-google-sans text-xs font-semibold text-charcoal/60 uppercase tracking-wider mb-1.5 block">
                                 Additional details {reason === "other" ? "(required)" : "(optional)"}
                             </span>
                             <textarea
@@ -925,13 +925,13 @@ function FlagModal({
                                 onChange={(e) => { setDetails(e.target.value); setLocalError(null); }}
                                 rows={3}
                                 placeholder="Describe the issue…"
-                                className="w-full rounded-2xl border border-charcoal/15 bg-charcoal/[0.025] px-4 py-3 font-urbanist text-sm text-charcoal placeholder-charcoal/35 focus:outline-none focus:ring-2 focus:ring-navbar-bg/25 focus:border-navbar-bg/40 resize-none"
+                                className="w-full rounded-2xl border border-charcoal/15 bg-charcoal/[0.025] px-4 py-3 font-google-sans text-sm text-charcoal placeholder-charcoal/35 focus:outline-none focus:ring-2 focus:ring-navbar-bg/25 focus:border-navbar-bg/40 resize-none"
                             />
                         </label>
                     )}
 
                     {localError && (
-                        <div className="flex items-center gap-2 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-red-700 text-sm font-urbanist mb-4">
+                        <div className="flex items-center gap-2 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-red-700 text-sm font-google-sans mb-4">
                             <AlertCircle className="w-4 h-4 flex-shrink-0" />
                             {localError}
                         </div>
@@ -942,7 +942,7 @@ function FlagModal({
                             type="button"
                             onClick={onClose}
                             disabled={submitting}
-                            className="flex-1 py-3 rounded-2xl border border-charcoal/15 font-urbanist text-sm font-semibold text-charcoal/70 hover:bg-charcoal/5 transition-colors disabled:opacity-40"
+                            className="flex-1 py-3 rounded-2xl border border-charcoal/15 font-google-sans text-sm font-semibold text-charcoal/70 hover:bg-charcoal/5 transition-colors disabled:opacity-40"
                         >
                             Cancel
                         </button>
@@ -950,7 +950,7 @@ function FlagModal({
                             type="button"
                             onClick={handleSubmit}
                             disabled={!reason || submitting}
-                            className="flex-1 py-3 rounded-2xl bg-navbar-bg font-urbanist text-sm font-semibold text-white hover:bg-navbar-bg/90 transition-colors disabled:opacity-40 flex items-center justify-center gap-2"
+                            className="flex-1 py-3 rounded-2xl bg-navbar-bg font-google-sans text-sm font-semibold text-white hover:bg-navbar-bg/90 transition-colors disabled:opacity-40 flex items-center justify-center gap-2"
                         >
                             {submitting && (
                                 <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
@@ -1028,3 +1028,4 @@ function KeyboardNavigation({
 
     return null;
 }
+

@@ -355,7 +355,7 @@ function ReviewCard({
             </div>
           ) : (
             <div className="w-12 h-12 bg-gradient-to-br from-sage/20 to-sage/10 rounded-full flex items-center justify-center ring-2 ring-white/40 transition-shadow duration-300">
-              <span className="font-urbanist text-lg font-700 text-sage">
+              <span className="font-google-sans text-lg font-700 text-sage">
                 {(review.user?.name || getDisplayUsername(
                   review.user?.username,
                   review.user?.display_name,
@@ -374,7 +374,7 @@ function ReviewCard({
               <div className="flex min-w-0 flex-1 flex-col gap-1.5">
                 <div className="flex min-w-0 flex-nowrap items-center gap-2">
                   <span
-                    className={`min-w-0 truncate font-urbanist text-lg font-600 leading-tight text-charcoal-700 ${
+                    className={`min-w-0 truncate font-google-sans text-lg font-600 leading-tight text-charcoal-700 ${
                       isDesktop ? '' : 'transition-colors duration-300 group-hover:text-sage'
                     }`}
                     title={review.user?.name || getDisplayUsername(
@@ -452,7 +452,7 @@ function ReviewCard({
                     </m.div>
                   ))}
                 </div>
-                <span className="font-urbanist text-xs sm:text-sm font-600 text-charcoal/60">
+                <span className="font-google-sans text-xs sm:text-sm font-600 text-charcoal/60">
                   {formatDate(review.created_at)}
                 </span>
               </div>
@@ -506,7 +506,7 @@ function ReviewCard({
           {/* Review Title */}
           {review.title && (
             <h4
-              className={`font-urbanist text-xl font-600 text-charcoal mb-2 ${
+              className={`font-google-sans text-xl font-600 text-charcoal mb-2 ${
                 isDesktop ? '' : 'group-hover:text-sage transition-colors duration-300'
               }`}
             >
@@ -517,14 +517,14 @@ function ReviewCard({
           {/* Business Info (if showing) */}
           {showBusinessInfo && 'business' in review && (
             <div className="mb-3 p-2 bg-card-bg/10 rounded-lg">
-              <span className="font-urbanist text-sm font-500 text-sage">
+              <span className="font-google-sans text-sm font-500 text-sage">
                 Review for: {(review as ReviewWithUser & { business: { name: string } }).business?.name}
               </span>
             </div>
           )}
 
           {/* Review Text */}
-          <p className="font-urbanist text-base font-600 text-charcoal/90 leading-relaxed mb-4">
+          <p className="font-google-sans text-base font-600 text-charcoal/90 leading-relaxed mb-4">
             {review.content}
           </p>
 
@@ -574,7 +574,7 @@ function ReviewCard({
                   whileHover={isDesktop ? undefined : { scale: 1.05 }}
                   whileTap={isDesktop ? undefined : { scale: 0.95 }}
                   onClick={() => setShowAllImages(true)}
-                  className={`text-sage font-urbanist text-sm font-500 flex items-center space-x-1 ${
+                  className={`text-sage font-google-sans text-sm font-500 flex items-center space-x-1 ${
                     isDesktop ? '' : 'hover:text-sage/80'
                   }`}
                 >
@@ -588,7 +588,7 @@ function ReviewCard({
                   whileHover={isDesktop ? undefined : { scale: 1.05 }}
                   whileTap={isDesktop ? undefined : { scale: 0.95 }}
                   onClick={() => setShowAllImages(false)}
-                  className={`text-charcoal/60 font-urbanist text-sm font-500 flex items-center space-x-1 ${
+                  className={`text-charcoal/60 font-google-sans text-sm font-500 flex items-center space-x-1 ${
                     isDesktop ? '' : 'hover:text-charcoal'
                   }`}
                 >
@@ -623,7 +623,7 @@ function ReviewCard({
                   disabled={!user || loadingHelpful}
                 >
                   <Heart size={18} fill={isLiked ? "currentColor" : "none"} />
-                  <span className="font-urbanist text-sm font-500">
+                  <span className="font-google-sans text-sm font-500">
                     Helpful ({helpfulCount})
                   </span>
                 </m.button>
@@ -648,7 +648,7 @@ function ReviewCard({
                   }`}
                 >
                   <MessageCircle size={isOwnerView ? 16 : 18} />
-                  <span className="font-urbanist text-sm">
+                  <span className="font-google-sans text-sm">
                     Reply{replies.length > 0 ? ` (${replies.length})` : ''}
                   </span>
                 </m.button>
@@ -665,7 +665,7 @@ function ReviewCard({
                   }`}
                 >
                   <MessageCircle size={16} />
-                  <span className="font-urbanist text-sm">
+                  <span className="font-google-sans text-sm">
                     Message Customer
                   </span>
                 </m.button>
@@ -673,7 +673,7 @@ function ReviewCard({
             </div>
 
             {!user && !isOwnerView && (
-              <span className="font-urbanist text-sm sm:text-xs text-charcoal/60">
+              <span className="font-google-sans text-sm sm:text-xs text-charcoal/60">
                 Login to interact
               </span>
             )}
@@ -721,7 +721,7 @@ function ReviewCard({
                       value={replyText}
                       onChange={(e) => setReplyText(e.target.value)}
                       placeholder="Write a public reply to this review..."
-                      className="w-full px-4 py-3 rounded-lg border border-sage/20 bg-off-white/50 focus:outline-none focus:ring-2 focus:ring-sage/30 focus:border-sage/40 resize-none font-urbanist text-sm"
+                      className="w-full px-4 py-3 rounded-lg border border-sage/20 bg-off-white/50 focus:outline-none focus:ring-2 focus:ring-sage/30 focus:border-sage/40 resize-none font-google-sans text-sm"
                       rows={3}
                       disabled={submittingReply}
                     />
@@ -737,7 +737,7 @@ function ReviewCard({
                           isDesktop ? '' : 'hover:bg-charcoal/20 transition-colors'
                         }`}
                         disabled={submittingReply}
-                        style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                        style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                       >
                         Cancel
                       </m.button>
@@ -749,7 +749,7 @@ function ReviewCard({
                         className={`px-4 py-2 text-sm font-semibold bg-card-bg text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 ${
                           isDesktop ? '' : 'hover:bg-card-bg/90 transition-colors'
                         }`}
-                        style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                        style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                       >
                         <Send size={16} />
                         <span>{submittingReply ? 'Sending...' : 'Save Reply'}</span>
@@ -763,7 +763,7 @@ function ReviewCard({
           {/* Replies List - Visible to everyone */}
           {replies.length > 0 && (
             <div className="mt-4 pt-4 border-t border-sage/10 space-y-3">
-              <h5 className="font-urbanist text-sm font-semibold text-charcoal/70 mb-3" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+              <h5 className="font-google-sans text-sm font-semibold text-charcoal/70 mb-3" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                 {replies.length === 1 ? '1 Reply' : `${replies.length} Replies`}
               </h5>
               {replies.map((reply) => {
@@ -809,10 +809,10 @@ function ReviewCard({
                     {/* Row 1: username + time (mobile: stacked/inline); desktop: same row as buttons */}
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2 mb-1">
                       <div className="flex items-center gap-2 min-w-0 flex-1 sm:flex-initial">
-                        <span className="font-urbanist text-sm font-semibold text-charcoal-700 truncate min-w-0" title={replyDisplayName}>
+                        <span className="font-google-sans text-sm font-semibold text-charcoal-700 truncate min-w-0" title={replyDisplayName}>
                           {replyDisplayName}
                         </span>
-                        <span className="font-urbanist text-xs font-semibold text-charcoal/70 flex-shrink-0">
+                        <span className="font-google-sans text-xs font-semibold text-charcoal/70 flex-shrink-0">
                           {formatDate(reply.created_at)}
                         </span>
                       </div>
@@ -824,7 +824,7 @@ function ReviewCard({
                         <textarea
                           value={editReplyText}
                           onChange={(e) => setEditReplyText(e.target.value)}
-                          className="w-full px-3 py-2 rounded-lg border border-sage/20 bg-off-white/50 focus:outline-none focus:ring-2 focus:ring-sage/30 focus:border-sage/40 resize-none font-urbanist text-sm min-w-0"
+                          className="w-full px-3 py-2 rounded-lg border border-sage/20 bg-off-white/50 focus:outline-none focus:ring-2 focus:ring-sage/30 focus:border-sage/40 resize-none font-google-sans text-sm min-w-0"
                           rows={2}
                           autoFocus
                         />
@@ -853,7 +853,7 @@ function ReviewCard({
                         </div>
                       </div>
                     ) : (
-                      <p className="font-urbanist text-sm font-bold text-charcoal/80 min-w-0 break-words">
+                      <p className="font-google-sans text-sm font-bold text-charcoal/80 min-w-0 break-words">
                         {reply.content}
                       </p>
                     )}
@@ -978,8 +978,8 @@ function ReviewFlagModal({
         <div className="flex-1 overflow-y-auto px-5 pt-2 pb-6 sm:pt-5">
           <div className="flex items-start justify-between mb-4">
             <div>
-              <h2 className="font-urbanist text-lg font-bold text-charcoal">Report Review</h2>
-              <p className="font-urbanist text-sm text-charcoal/50">Help us keep sayso trustworthy</p>
+              <h2 className="font-google-sans text-lg font-bold text-charcoal">Report Review</h2>
+              <p className="font-google-sans text-sm text-charcoal/50">Help us keep sayso trustworthy</p>
             </div>
             <button
               type="button"
@@ -1007,8 +1007,8 @@ function ReviewFlagModal({
                 }`}
               >
                 <div className="flex-1">
-                  <p className="font-urbanist text-sm font-semibold text-charcoal">{label}</p>
-                  <p className="font-urbanist text-xs text-charcoal/50">{desc}</p>
+                  <p className="font-google-sans text-sm font-semibold text-charcoal">{label}</p>
+                  <p className="font-google-sans text-xs text-charcoal/50">{desc}</p>
                 </div>
                 {reason === value && (
                   <div className="w-4 h-4 rounded-full bg-navbar-bg flex items-center justify-center flex-shrink-0">
@@ -1023,7 +1023,7 @@ function ReviewFlagModal({
 
           {reason && (
             <label className="block mb-4">
-              <span className="font-urbanist text-xs font-semibold text-charcoal/60 uppercase tracking-wider mb-1.5 block">
+              <span className="font-google-sans text-xs font-semibold text-charcoal/60 uppercase tracking-wider mb-1.5 block">
                 Additional details {reason === 'other' ? '(required)' : '(optional)'}
               </span>
               <textarea
@@ -1034,13 +1034,13 @@ function ReviewFlagModal({
                 }}
                 rows={3}
                 placeholder="Describe the issue..."
-                className="w-full rounded-2xl border border-charcoal/15 bg-charcoal/[0.025] px-4 py-3 font-urbanist text-sm text-charcoal placeholder-charcoal/35 focus:outline-none focus:ring-2 focus:ring-navbar-bg/25 focus:border-navbar-bg/40 resize-none"
+                className="w-full rounded-2xl border border-charcoal/15 bg-charcoal/[0.025] px-4 py-3 font-google-sans text-sm text-charcoal placeholder-charcoal/35 focus:outline-none focus:ring-2 focus:ring-navbar-bg/25 focus:border-navbar-bg/40 resize-none"
               />
             </label>
           )}
 
           {localError && (
-            <div className="flex items-center gap-2 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-red-700 text-sm font-urbanist mb-4">
+            <div className="flex items-center gap-2 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-red-700 text-sm font-google-sans mb-4">
               <AlertCircle className="w-4 h-4 flex-shrink-0" />
               {localError}
             </div>
@@ -1051,7 +1051,7 @@ function ReviewFlagModal({
               type="button"
               onClick={onClose}
               disabled={submitting}
-              className="flex-1 py-3 rounded-2xl border border-charcoal/15 font-urbanist text-sm font-semibold text-charcoal/70 hover:bg-charcoal/5 transition-colors disabled:opacity-40"
+              className="flex-1 py-3 rounded-2xl border border-charcoal/15 font-google-sans text-sm font-semibold text-charcoal/70 hover:bg-charcoal/5 transition-colors disabled:opacity-40"
             >
               Cancel
             </button>
@@ -1059,7 +1059,7 @@ function ReviewFlagModal({
               type="button"
               onClick={handleSubmit}
               disabled={!reason || submitting}
-              className="flex-1 py-3 rounded-2xl bg-navbar-bg font-urbanist text-sm font-semibold text-white hover:bg-navbar-bg/90 transition-colors disabled:opacity-40 flex items-center justify-center gap-2"
+              className="flex-1 py-3 rounded-2xl bg-navbar-bg font-google-sans text-sm font-semibold text-white hover:bg-navbar-bg/90 transition-colors disabled:opacity-40 flex items-center justify-center gap-2"
             >
               {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
               Submit Report
@@ -1073,4 +1073,9 @@ function ReviewFlagModal({
 
 // Memoize to prevent re-renders when parent updates
 export default memo(ReviewCard);
+
+
+
+
+
 

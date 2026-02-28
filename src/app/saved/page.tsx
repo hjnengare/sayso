@@ -135,9 +135,9 @@ export default function SavedPage() {
   return (
     <EmailVerificationGuard>
       <div
-        className="min-h-[100dvh] flex flex-col bg-off-white relative font-urbanist"
+        className="min-h-[100dvh] flex flex-col bg-off-white relative font-google-sans"
         style={{
-          fontFamily: '"Urbanist", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+          fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
         }}
       >
         {/* Background Gradient */}
@@ -153,7 +153,7 @@ export default function SavedPage() {
             >
               {/* Breadcrumb Navigation */}
               <nav className="pb-1" aria-label="Breadcrumb">
-                <ol className="flex items-center gap-2 text-sm sm:text-base" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
+                <ol className="flex items-center gap-2 text-sm sm:text-base" style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}>
                   <li>
                     <Link
                       href="/home"
@@ -184,14 +184,14 @@ export default function SavedPage() {
                 <div className="text-center max-w-md mx-auto px-4">
                   <p
                     className="text-body text-charcoal/70 mb-4"
-                    style={{ fontFamily: "Urbanist, system-ui, sans-serif" }}
+                    style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}
                   >
                     {error}
                   </p>
                   <button
                     onClick={handleRefetch}
                     className="px-6 py-3 bg-card-bg text-white rounded-full text-body font-semibold hover:bg-card-bg/90 transition-colors"
-                    style={{ fontFamily: "Urbanist, system-ui, sans-serif" }}
+                    style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}
                   >
                     Try Again
                   </button>
@@ -211,7 +211,7 @@ export default function SavedPage() {
                     <h1
                       className="text-2xl sm:text-3xl md:text-4xl font-bold text-charcoal"
                       style={{
-                        fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                        fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                         fontWeight: 800,
                       }}
                     >
@@ -220,7 +220,7 @@ export default function SavedPage() {
                     <p
                       className="text-body-sm text-charcoal/60 mt-2"
                       style={{
-                        fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                        fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                       }}
                     >
                       {totalSavedCount} {totalSavedCount === 1 ? "item" : "items"} saved
@@ -278,7 +278,7 @@ export default function SavedPage() {
                         <span className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-off-white/70 text-charcoal/85 transition duration-200 ease-out hover:bg-off-white/90 hover:scale-[1.03]">
                           <Store className="w-6 h-6" aria-hidden />
                         </span>
-                        <p className="text-charcoal/60 text-body" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
+                        <p className="text-charcoal/60 text-body" style={{ fontFamily: '"Google Sans", system-ui, sans-serif' }}>
                           No saved businesses yet
                         </p>
                         <Link
@@ -322,3 +322,8 @@ export default function SavedPage() {
     </EmailVerificationGuard>
   );
 }
+
+
+
+
+

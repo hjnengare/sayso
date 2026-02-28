@@ -63,7 +63,7 @@ export default function MoreToDiscover() {
       <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-12">
-          <h2 className="font-urbanist text-lg md:text-4xl font-700 text-charcoal mb-4">
+          <h2 className="font-google-sans text-lg md:text-4xl font-700 text-charcoal mb-4">
             More to Discover
           </h2>
         </div>
@@ -96,7 +96,7 @@ export default function MoreToDiscover() {
 
               {/* Card Content */}
               <div className="p-6 text-center">
-                <h3 className="font-urbanist text-xl font-700 text-charcoal mb-3">
+                <h3 className="font-google-sans text-xl font-700 text-charcoal mb-3">
                   {card.title}
                 </h3>
 
@@ -105,7 +105,7 @@ export default function MoreToDiscover() {
                 </p>
 
                 {/* CTA Text */}
-                <div className="inline-flex items-center text-charcoal font-urbanist text-sm font-600">
+                <div className="inline-flex items-center text-charcoal font-google-sans text-sm font-600">
                   {card.ctaText}
                   <ChevronRight className="w-4 h-4 ml-1" />
                 </div>
@@ -117,3 +117,4 @@ export default function MoreToDiscover() {
     </section>
   );
 }
+

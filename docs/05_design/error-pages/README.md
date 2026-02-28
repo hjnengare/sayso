@@ -8,7 +8,7 @@ The Error Pages System is a unified, premium design system for all error states 
 
 - **✨ Premium Design**: Minimal, intentional, professional
 - **🎨 Consistent Colors**: Sage (#7D9B76), Charcoal, Off-white palette
-- **📐 Unified Typography**: Urbanist font with consistent scale
+- **📐 Unified Typography**: Google Sans font with consistent scale
 - **🔄 Reusable Component**: Single ErrorPage component for all error types
 - **♿ Accessible**: WCAG AA compliant, keyboard navigable
 - **📱 Responsive**: Mobile, tablet, desktop optimized
@@ -96,3 +96,4 @@ Background: Off-white (#E5E0E5) - Page background
 **For migration details**: See [MIGRATION_GUIDE.md](./MIGRATION_GUIDE.md)
 
 Last Updated: January 2026 | Version: 1.0
+

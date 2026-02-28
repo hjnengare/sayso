@@ -26,7 +26,7 @@ export default function HeroFallback({ onReady }: HeroFallbackProps) {
         className="relative h-[100dvh] sm:h-[90dvh] md:h-[80dvh] w-full overflow-hidden outline-none rounded-none min-h-[420px] sm:min-h-[520px] sm:max-h-[820px]"
         aria-label="Hero fallback"
         style={{
-          fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+          fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
           touchAction: "pan-y",
         }}
       >
@@ -72,3 +72,7 @@ export default function HeroFallback({ onReady }: HeroFallbackProps) {
     </div>
   );
 }
+
+
+
+

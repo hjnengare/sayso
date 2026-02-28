@@ -17,7 +17,7 @@ interface DealBreakerSelectionProps {
 
 export default function DealBreakerSelection({ selectedCount, maxSelections = 3, children }: DealBreakerSelectionProps) {
   const sfPro = {
-    fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+    fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
     fontWeight: 600,
   };
 
@@ -42,3 +42,7 @@ export default function DealBreakerSelection({ selectedCount, maxSelections = 3,
     </div>
   );
 }
+
+
+
+

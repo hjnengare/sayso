@@ -82,11 +82,11 @@ export default function BadgeModal({ badge, onClose }: BadgeModalProps) {
 
           {/* Badge Details */}
           <div className="text-center mb-4">
-            <h2 className="font-urbanist font-800 text-2xl text-charcoal mb-2">
+            <h2 className="font-google-sans font-800 text-2xl text-charcoal mb-2">
               {badge.name}
             </h2>
 
-            <p className="font-urbanist text-base text-charcoal/70 mb-4">
+            <p className="font-google-sans text-base text-charcoal/70 mb-4">
               {badge.description}
             </p>
 
@@ -105,17 +105,17 @@ export default function BadgeModal({ badge, onClose }: BadgeModalProps) {
           {/* Status */}
           {isLocked ? (
             <div className="text-center p-4 bg-charcoal/5 rounded-xl">
-              <p className="font-urbanist text-sm text-charcoal/60">
+              <p className="font-google-sans text-sm text-charcoal/60">
                 🔒 Keep exploring to unlock this badge!
               </p>
             </div>
           ) : (
             <div className="text-center p-4 bg-gradient-to-br from-sage/10 to-coral/10 rounded-xl">
-              <p className="font-urbanist text-sm font-700 text-sage mb-1">
+              <p className="font-google-sans text-sm font-700 text-sage mb-1">
                 ✨ Badge Earned!
               </p>
               {badge.awarded_at && (
-                <p className="font-urbanist text-xs text-charcoal/60">
+                <p className="font-google-sans text-xs text-charcoal/60">
                   {new Date(badge.awarded_at).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'long',
@@ -130,3 +130,4 @@ export default function BadgeModal({ badge, onClose }: BadgeModalProps) {
     </AnimatePresence>
   );
 }
+

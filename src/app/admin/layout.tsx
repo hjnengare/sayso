@@ -39,7 +39,7 @@ function Sidebar({
       <div className="flex items-center justify-between px-5 py-5">
         <Link href="/admin" className="flex items-center gap-1.5" onClick={onClose}>
           <Wordmark size="text-base" className="tracking-tight" />
-          <span className="font-urbanist font-semibold text-sm text-white/85 tracking-tight">admin</span>
+          <span className="font-google-sans font-semibold text-sm text-white/85 tracking-tight">admin</span>
         </Link>
         {onClose && (
           <button type="button" onClick={onClose} className="p-1 rounded-lg hover:bg-white/10 text-white/70 hover:text-white">
@@ -64,7 +64,7 @@ function Sidebar({
                 }`}
             >
               <Icon className={`w-4 h-4 flex-shrink-0 ${active ? "text-white" : "text-white/50 group-hover:text-white/80"}`} />
-              <span className="flex-1 font-urbanist">{label}</span>
+              <span className="flex-1 font-google-sans">{label}</span>
               {active && <ChevronRight className="w-3.5 h-3.5 text-white/50" />}
             </Link>
           );
@@ -84,7 +84,7 @@ function Sidebar({
             }
             onClose?.();
           }}
-          className="flex items-center gap-2 text-xs text-white/50 hover:text-white/80 transition-colors font-urbanist"
+          className="flex items-center gap-2 text-xs text-white/50 hover:text-white/80 transition-colors font-google-sans"
         >
           <span>← Back to Sayso</span>
         </Link>
@@ -152,7 +152,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           </button>
           <div className="flex items-center gap-1.5">
             <Wordmark size="text-base" className="tracking-tight" />
-            <span className="font-urbanist font-semibold text-sm text-white/85 tracking-tight">admin</span>
+            <span className="font-google-sans font-semibold text-sm text-white/85 tracking-tight">admin</span>
           </div>
         </header>
 
@@ -162,7 +162,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             children
           ) : (
             <div className="min-h-full bg-page-bg flex items-center justify-center">
-              <div className="flex items-center gap-3 text-charcoal/60 font-urbanist">
+              <div className="flex items-center gap-3 text-charcoal/60 font-google-sans">
                 <div className="w-5 h-5 border-2 border-charcoal/15 border-t-charcoal/60 rounded-full animate-spin" />
                 <span className="text-sm font-medium">Checking access…</span>
               </div>
@@ -173,3 +173,4 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     </div>
   );
 }
+

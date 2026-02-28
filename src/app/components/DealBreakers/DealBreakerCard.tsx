@@ -27,7 +27,7 @@ export default function DealBreakerCard({
   IconComponent 
 }: DealBreakerCardProps) {
   const sfPro = {
-    fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+    fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
     fontWeight: 600,
   };
 
@@ -103,3 +103,7 @@ export default function DealBreakerCard({
     </div>
   );
 }
+
+
+
+

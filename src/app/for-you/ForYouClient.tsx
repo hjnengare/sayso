@@ -490,7 +490,7 @@ export default function ForYouClient({
           >
             <ol className="flex items-center gap-2 text-sm sm:text-base">
               <li>
-                <Link href="/home" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                <Link href="/home" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                   Home
                 </Link>
               </li>
@@ -498,7 +498,7 @@ export default function ForYouClient({
                 <ChevronRight className="w-4 h-4 text-charcoal/60" />
               </li>
               <li>
-                <span className="text-charcoal font-semibold" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                <span className="text-charcoal font-semibold" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                   For You
                 </span>
               </li>
@@ -512,9 +512,9 @@ export default function ForYouClient({
           >
             <div className="my-4">
               <h1
-                className="font-urbanist text-2xl sm:text-3xl md:text-4xl font-bold leading-[1.2] tracking-tight text-charcoal mx-auto"
+                className="font-google-sans text-2xl sm:text-3xl md:text-4xl font-bold leading-[1.2] tracking-tight text-charcoal mx-auto"
                 style={{
-                  fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                  fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                   wordBreak: 'keep-all',
                   overflowWrap: 'break-word',
                   whiteSpace: 'normal',
@@ -522,7 +522,7 @@ export default function ForYouClient({
                 }}
               >
                 <span className="inline-block font-bold" style={{
-                  fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                  fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                   wordBreak: 'keep-all',
                   overflowWrap: 'break-word',
                   whiteSpace: 'normal',
@@ -530,7 +530,7 @@ export default function ForYouClient({
                 }}>Curated Just For You</span>
               </h1>
             </div>
-            <p className="text-sm sm:text-base text-charcoal/70 max-w-2xl mx-auto leading-relaxed" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+            <p className="text-sm sm:text-base text-charcoal/70 max-w-2xl mx-auto leading-relaxed" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
               Discover personalised recommendations tailored to your interests and preferences. 
               We've handpicked the best local businesses just for you.
             </p>
@@ -604,16 +604,16 @@ export default function ForYouClient({
           )}
           {canShowError && (
             <div className="bg-white border border-sage/20 rounded-3xl shadow-sm px-6 py-10 text-center space-y-4">
-              <p className="text-charcoal font-semibold text-h2" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+              <p className="text-charcoal font-semibold text-h2" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                 We couldn't load businesses right now.
               </p>
-              <p className="text-body-sm text-charcoal/60 max-w-[70ch]" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 500 }}>
+              <p className="text-body-sm text-charcoal/60 max-w-[70ch]" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 500 }}>
                 {combinedError}
               </p>
               <button
                 onClick={refetch}
                 className="inline-flex items-center justify-center px-5 py-2.5 rounded-full bg-card-bg text-white hover:bg-card-bg/90 transition-colors text-body font-semibold"
-                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
               >
                 Try again
               </button>
@@ -627,10 +627,10 @@ export default function ForYouClient({
                   /* Search empty state - matches home page style */
                   <div className="w-full sm:max-w-md lg:max-w-lg xl:max-w-xl sm:mx-auto relative z-10">
                     <div className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden backdrop-blur-md shadow-md px-4 py-6 sm:px-8 sm:py-8 md:px-10 md:py-10 lg:px-12 lg:py-10 xl:px-16 xl:py-12 text-center space-y-4">
-                      <h2 className="text-h2 font-semibold text-white" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                      <h2 className="text-h2 font-semibold text-white" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                         No results found
                       </h2>
-                      <p className="text-body-sm text-white/80 max-w-[70ch] mx-auto leading-relaxed" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 400 }}>
+                      <p className="text-body-sm text-white/80 max-w-[70ch] mx-auto leading-relaxed" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 400 }}>
                         We couldn't find any businesses matching "{debouncedSearchQuery}". Try adjusting your search or check back soon.
                       </p>
                     </div>
@@ -638,10 +638,10 @@ export default function ForYouClient({
                 ) : (
                   /* Default empty state for filters/personalization */
                   <div className="bg-white border border-sage/20 rounded-3xl shadow-md px-6 py-16 text-center space-y-3">
-                    <h2 className="text-h2 font-semibold text-charcoal" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                    <h2 className="text-h2 font-semibold text-charcoal" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                       {isFiltered ? 'No businesses match your filters' : 'Curated from your interests'}
                     </h2>
-                    <p className="text-body-sm text-charcoal/60 max-w-[70ch] mx-auto" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 500 }}>
+                    <p className="text-body-sm text-charcoal/60 max-w-[70ch] mx-auto" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 500 }}>
                       {isFiltered
                         ? 'Try adjusting your filters or check back soon as new businesses join the community.'
                         : 'No matches in your selected categories yet. Adjust your interests or check back as more businesses join.'}
@@ -653,7 +653,7 @@ export default function ForYouClient({
                   {/* Search Results Header */}
                   {isSearchActive && totalCount > 0 && (
                     <div className="mb-4 px-2 flex items-center justify-between">
-                      <div className="text-sm text-charcoal/60" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                      <div className="text-sm text-charcoal/60" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                         Found {totalCount} {totalCount === 1 ? 'result' : 'results'} for "{debouncedSearchQuery}"
                       </div>
                     </div>
@@ -677,7 +677,7 @@ export default function ForYouClient({
                             ? 'bg-card-bg text-white shadow-sm'
                             : 'text-charcoal/70 hover:text-charcoal'
                         }`}
-                        style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                        style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                       >
                         <List className="w-3.5 h-3.5" />
                         List
@@ -692,7 +692,7 @@ export default function ForYouClient({
                             ? 'bg-coral text-white shadow-sm'
                             : 'text-charcoal/70 hover:text-charcoal'
                         }`}
-                        style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                        style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                       >
                         <MapIcon className="w-3.5 h-3.5" />
                         Map
@@ -821,4 +821,9 @@ export default function ForYouClient({
     </div>
   );
 }
+
+
+
+
+
 

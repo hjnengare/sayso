@@ -23,7 +23,7 @@ export default function SpecialInfo({ special }: SpecialInfoProps) {
         >
             <h1
                 className="text-2xl sm:text-3xl font-bold text-charcoal leading-tight"
-                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
             >
                 {special.title}
             </h1>
@@ -33,7 +33,7 @@ export default function SpecialInfo({ special }: SpecialInfoProps) {
                         <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
                         <span
                             className="text-sm font-semibold text-charcoal"
-                            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                            style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                         >
                             {special.rating.toFixed(1)}
                         </span>
@@ -44,7 +44,7 @@ export default function SpecialInfo({ special }: SpecialInfoProps) {
                         <MapPin className="w-4 h-4" />
                         <span
                             className="text-sm font-medium"
-                            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                            style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                         >
                             {special.location}
                         </span>
@@ -59,3 +59,8 @@ export default function SpecialInfo({ special }: SpecialInfoProps) {
         </m.div>
     );
 }
+
+
+
+
+

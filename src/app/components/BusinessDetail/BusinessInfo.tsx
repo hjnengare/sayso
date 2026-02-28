@@ -22,8 +22,8 @@ export default function BusinessInfo({ name, rating, location, category, sharedT
     >
       <m.h1
         layoutId={sharedTitleLayoutId}
-        className="font-urbanist text-2xl sm:text-3xl md:text-4xl font-bold text-charcoal mb-3"
-        style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+        className="font-google-sans text-2xl sm:text-3xl md:text-4xl font-bold text-charcoal mb-3"
+        style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
       >
         {name}
       </m.h1>
@@ -35,7 +35,7 @@ export default function BusinessInfo({ name, rating, location, category, sharedT
           <span
             className="text-body-sm font-semibold text-charcoal"
             style={{ 
-              fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+              fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
               fontWeight: 600
             }}
           >
@@ -46,7 +46,7 @@ export default function BusinessInfo({ name, rating, location, category, sharedT
           <div className="inline-flex items-center gap-1.5 text-charcoal/70">
             <span
               className="text-body-sm font-medium"
-              style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+              style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
             >
               {category}
             </span>
@@ -58,7 +58,7 @@ export default function BusinessInfo({ name, rating, location, category, sharedT
           </span>
           <span
             className="text-body-sm font-medium"
-            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+            style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
           >
             {location}
           </span>
@@ -67,4 +67,9 @@ export default function BusinessInfo({ name, rating, location, category, sharedT
     </m.div>
   );
 }
+
+
+
+
+
 

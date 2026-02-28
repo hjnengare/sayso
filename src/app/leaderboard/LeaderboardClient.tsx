@@ -185,7 +185,7 @@ function LeaderboardPage() {
                     >
                       <ol className="flex items-center gap-2 text-sm sm:text-base">
                         <li>
-                          <Link href="/home" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                          <Link href="/home" className="text-charcoal/70 hover:text-charcoal transition-colors duration-200 font-medium" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                             Home
                           </Link>
                         </li>
@@ -193,7 +193,7 @@ function LeaderboardPage() {
                           <ChevronRight className="w-4 h-4 text-charcoal/60" />
                         </li>
                         <li>
-                          <span className="text-charcoal font-semibold" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                          <span className="text-charcoal font-semibold" style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
                             Leaderboard
                           </span>
                         </li>
@@ -214,9 +214,9 @@ function LeaderboardPage() {
                       )}
                       <div className="my-4 relative">
                         <h1 
-                          className="text-2xl sm:text-3xl md:text-4xl font-semibold leading-[1.2] tracking-tight text-charcoal mx-auto font-urbanist"
+                          className="text-2xl sm:text-3xl md:text-4xl font-semibold leading-[1.2] tracking-tight text-charcoal mx-auto font-google-sans"
                           style={{ 
-                            fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                            fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                             wordBreak: 'keep-all',
                             overflowWrap: 'break-word',
                             whiteSpace: 'normal',
@@ -232,7 +232,7 @@ function LeaderboardPage() {
                             disableWave={true}
                             enableScrollTrigger={true}
                             style={{
-                              fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                              fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                               fontWeight: 800,
                               wordBreak: 'keep-all',
                               overflowWrap: 'break-word',
@@ -244,7 +244,7 @@ function LeaderboardPage() {
                       </div>
                       <m.p 
                         className="text-sm sm:text-base text-charcoal/70 max-w-2xl mx-auto leading-relaxed" 
-                        style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                        style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                         variants={isDesktop ? itemVariants : undefined}
                         initial={isDesktop ? "hidden" : false}
                         animate={isDesktop ? "visible" : undefined}
@@ -260,7 +260,7 @@ function LeaderboardPage() {
                 <section
                   className="relative pb-12 sm:pb-16 md:pb-20"
                   style={{
-                    fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+                    fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
                   }}
                 >
                   <div className="mx-auto w-full max-w-[2000px] px-2 relative z-10">
@@ -350,13 +350,13 @@ function LeaderboardPage() {
               <div className="text-center sm:text-left">
                 <h3
                   className="text-lg sm:text-xl font-semibold text-white mb-1"
-                  style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                  style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                 >
                   What Do Your Badges Mean?
                 </h3>
                 <p
                   className="text-sm text-white/60"
-                  style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                  style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                 >
                   Learn about all the badges you can earn
                 </p>
@@ -369,7 +369,7 @@ function LeaderboardPage() {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-full bg-white text-navbar-bg hover:bg-white/90 transition-all duration-200 text-sm font-semibold shadow-sm hover:shadow-md hover:-translate-y-0.5"
-                  style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                  style={{ fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                 >
                   <FileText className="w-4 h-4" />
                   <span className="hidden sm:inline">View badge guide</span>
@@ -388,3 +388,8 @@ function LeaderboardPage() {
 }
 
 export default memo(LeaderboardPage);
+
+
+
+
+

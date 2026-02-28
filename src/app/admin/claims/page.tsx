@@ -76,16 +76,16 @@ export default function AdminClaimsPage() {
         <div>
           <div className="flex items-center gap-2.5 mb-1">
             <FileCheck className="w-5 h-5 text-sage" />
-            <h1 className="font-urbanist text-2xl font-bold text-charcoal tracking-tight">
+            <h1 className="font-google-sans text-2xl font-bold text-charcoal tracking-tight">
               Business Claims
             </h1>
             {claims.length > 0 && (
-              <span className="inline-flex items-center justify-center min-w-[24px] h-6 px-2 rounded-full bg-sage/15 text-sage text-xs font-bold font-urbanist">
+              <span className="inline-flex items-center justify-center min-w-[24px] h-6 px-2 rounded-full bg-sage/15 text-sage text-xs font-bold font-google-sans">
                 {claims.length}
               </span>
             )}
           </div>
-          <p className="font-urbanist text-sm text-charcoal/55 ml-7">
+          <p className="font-google-sans text-sm text-charcoal/55 ml-7">
             Review and manage business ownership claim requests
           </p>
         </div>
@@ -97,7 +97,7 @@ export default function AdminClaimsPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="appearance-none font-urbanist text-sm text-charcoal bg-white border border-charcoal/15 rounded-xl pl-4 pr-9 py-2.5 focus:outline-none focus:ring-2 focus:ring-sage/30 shadow-premium cursor-pointer"
+            className="appearance-none font-google-sans text-sm text-charcoal bg-white border border-charcoal/15 rounded-xl pl-4 pr-9 py-2.5 focus:outline-none focus:ring-2 focus:ring-sage/30 shadow-premium cursor-pointer"
           >
             <option value="">All statuses</option>
             <option value="pending">Pending</option>
@@ -112,7 +112,7 @@ export default function AdminClaimsPage() {
           <select
             value={methodFilter}
             onChange={(e) => setMethodFilter(e.target.value)}
-            className="appearance-none font-urbanist text-sm text-charcoal bg-white border border-charcoal/15 rounded-xl pl-4 pr-9 py-2.5 focus:outline-none focus:ring-2 focus:ring-sage/30 shadow-premium cursor-pointer"
+            className="appearance-none font-google-sans text-sm text-charcoal bg-white border border-charcoal/15 rounded-xl pl-4 pr-9 py-2.5 focus:outline-none focus:ring-2 focus:ring-sage/30 shadow-premium cursor-pointer"
           >
             <option value="">All methods</option>
             <option value="email">Email</option>
@@ -129,13 +129,13 @@ export default function AdminClaimsPage() {
       {loading && (
         <div className="flex flex-col items-center justify-center py-24 gap-3">
           <Loader2 className="w-8 h-8 animate-spin text-charcoal/30" />
-          <span className="font-urbanist text-sm text-charcoal/50">Loading…</span>
+          <span className="font-google-sans text-sm text-charcoal/50">Loading…</span>
         </div>
       )}
 
       {/* Error */}
       {error && (
-        <div className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-red-800 text-sm font-urbanist mb-6">
+        <div className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-red-800 text-sm font-google-sans mb-6">
           {error}
         </div>
       )}
@@ -146,10 +146,10 @@ export default function AdminClaimsPage() {
           <div className="w-16 h-16 rounded-2xl bg-sage/10 flex items-center justify-center">
             <FileCheck className="w-8 h-8 text-sage/60" />
           </div>
-          <p className="font-urbanist text-base font-semibold text-charcoal/70">
+          <p className="font-google-sans text-base font-semibold text-charcoal/70">
             No claims match the filters
           </p>
-          <p className="font-urbanist text-sm text-charcoal/40">
+          <p className="font-google-sans text-sm text-charcoal/40">
             Try adjusting the status or method filter above
           </p>
         </div>
@@ -162,11 +162,11 @@ export default function AdminClaimsPage() {
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-charcoal/8 bg-charcoal/[0.025]">
-                  <th className="px-5 py-3.5 font-urbanist font-semibold text-charcoal/60 text-xs uppercase tracking-wider">Business</th>
-                  <th className="px-5 py-3.5 font-urbanist font-semibold text-charcoal/60 text-xs uppercase tracking-wider">Claimed by</th>
-                  <th className="px-5 py-3.5 font-urbanist font-semibold text-charcoal/60 text-xs uppercase tracking-wider">Status</th>
-                  <th className="px-5 py-3.5 font-urbanist font-semibold text-charcoal/60 text-xs uppercase tracking-wider">Method</th>
-                  <th className="px-5 py-3.5 font-urbanist font-semibold text-charcoal/60 text-xs uppercase tracking-wider">Submitted</th>
+                  <th className="px-5 py-3.5 font-google-sans font-semibold text-charcoal/60 text-xs uppercase tracking-wider">Business</th>
+                  <th className="px-5 py-3.5 font-google-sans font-semibold text-charcoal/60 text-xs uppercase tracking-wider">Claimed by</th>
+                  <th className="px-5 py-3.5 font-google-sans font-semibold text-charcoal/60 text-xs uppercase tracking-wider">Status</th>
+                  <th className="px-5 py-3.5 font-google-sans font-semibold text-charcoal/60 text-xs uppercase tracking-wider">Method</th>
+                  <th className="px-5 py-3.5 font-google-sans font-semibold text-charcoal/60 text-xs uppercase tracking-wider">Submitted</th>
                   <th className="px-5 py-3.5 w-24" />
                 </tr>
               </thead>
@@ -182,30 +182,30 @@ export default function AdminClaimsPage() {
                         <div className="w-8 h-8 rounded-xl bg-sage/10 flex items-center justify-center flex-shrink-0">
                           <FileCheck className="w-4 h-4 text-sage" />
                         </div>
-                        <p className="font-urbanist font-semibold text-charcoal">
+                        <p className="font-google-sans font-semibold text-charcoal">
                           {c.business_name ?? "—"}
                         </p>
                       </div>
                     </td>
                     <td className="px-5 py-4">
-                      <span className="font-urbanist text-sm text-charcoal/70 truncate block max-w-[180px]">
+                      <span className="font-google-sans text-sm text-charcoal/70 truncate block max-w-[180px]">
                         {c.claimant_email ?? "—"}
                       </span>
                     </td>
                     <td className="px-5 py-4">
-                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold font-urbanist capitalize ${STATUS_STYLES[c.status] ?? "bg-charcoal/8 text-charcoal/70"}`}>
+                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold font-google-sans capitalize ${STATUS_STYLES[c.status] ?? "bg-charcoal/8 text-charcoal/70"}`}>
                         {c.status.replace(/_/g, " ")}
                       </span>
                     </td>
                     <td className="px-5 py-4">
-                      <span className="font-urbanist text-sm text-charcoal/60 capitalize">
+                      <span className="font-google-sans text-sm text-charcoal/60 capitalize">
                         {c.method_attempted ?? "—"}
                       </span>
                     </td>
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-1.5 text-charcoal/50">
                         <Clock className="w-3.5 h-3.5 flex-shrink-0" />
-                        <span className="font-urbanist text-sm">
+                        <span className="font-google-sans text-sm">
                           {timeAgo(c.created_at) ?? formatDate(c.created_at)}
                         </span>
                       </div>
@@ -213,7 +213,7 @@ export default function AdminClaimsPage() {
                     <td className="px-5 py-4 text-right" onClick={(e) => e.stopPropagation()}>
                       <Link
                         href={`/admin/claims/${c.id}`}
-                        className="inline-flex items-center gap-1.5 rounded-xl bg-navbar-bg text-white px-4 py-2 text-xs font-semibold font-urbanist hover:bg-navbar-bg/90 transition-colors"
+                        className="inline-flex items-center gap-1.5 rounded-xl bg-navbar-bg text-white px-4 py-2 text-xs font-semibold font-google-sans hover:bg-navbar-bg/90 transition-colors"
                       >
                         View
                       </Link>
@@ -237,23 +237,23 @@ export default function AdminClaimsPage() {
                     <FileCheck className="w-4 h-4 text-sage" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-urbanist font-semibold text-charcoal truncate">
+                    <p className="font-google-sans font-semibold text-charcoal truncate">
                       {c.business_name ?? "—"}
                     </p>
                     {c.claimant_email && (
-                      <p className="font-urbanist text-xs text-charcoal/45 truncate">{c.claimant_email}</p>
+                      <p className="font-google-sans text-xs text-charcoal/45 truncate">{c.claimant_email}</p>
                     )}
                   </div>
-                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold font-urbanist capitalize flex-shrink-0 ${STATUS_STYLES[c.status] ?? "bg-charcoal/8 text-charcoal/70"}`}>
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold font-google-sans capitalize flex-shrink-0 ${STATUS_STYLES[c.status] ?? "bg-charcoal/8 text-charcoal/70"}`}>
                     {c.status.replace(/_/g, " ")}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="font-urbanist text-xs text-charcoal/45 flex items-center gap-1">
+                  <span className="font-google-sans text-xs text-charcoal/45 flex items-center gap-1">
                     <Clock className="w-3 h-3" />
                     {timeAgo(c.created_at) ?? formatDate(c.created_at)}
                   </span>
-                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-navbar-bg font-urbanist group-hover:gap-2 transition-all">
+                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-navbar-bg font-google-sans group-hover:gap-2 transition-all">
                     View <ArrowRight className="w-3.5 h-3.5" />
                   </span>
                 </div>
@@ -265,3 +265,4 @@ export default function AdminClaimsPage() {
     </div>
   );
 }
+

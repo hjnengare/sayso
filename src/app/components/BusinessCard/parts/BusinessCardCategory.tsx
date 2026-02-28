@@ -23,7 +23,7 @@ const BusinessCardCategory: React.FC<BusinessCardCategoryProps> = ({
       <span
         className="truncate text-caption sm:text-xs text-charcoal/80 font-semibold"
         style={{
-          fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+          fontFamily: '"Google Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
           fontWeight: 600,
           WebkitFontSmoothing: 'antialiased',
           MozOsxFontSmoothing: 'grayscale',
@@ -38,3 +38,8 @@ const BusinessCardCategory: React.FC<BusinessCardCategoryProps> = ({
 };
 
 export default BusinessCardCategory;
+
+
+
+
+
