@@ -22,25 +22,6 @@ const ITEMS_PER_PAGE = 20;
 const REQUEST_TIMEOUT_MS = 12000;
 const REQUEST_RETRY_DELAY_MS = 250;
 
-// Animation variants for staggered card appearance
-const containerVariants = {
-  hidden: { opacity: 1 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.08, delayChildren: 0.1 },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20, filter: "blur(4px)" },
-  visible: {
-    opacity: 1,
-    y: 0,
-    filter: "blur(0px)",
-    transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const },
-  },
-};
-
 export default function EventsSpecialsPage() {
   const prefersReducedMotion = useReducedMotion() ?? false;
   const choreoEnabled = !prefersReducedMotion;
@@ -60,8 +41,11 @@ export default function EventsSpecialsPage() {
 
   const handleLoadMoreWithSkeletons = async () => {
     setOptimisticSkeletons(ITEMS_PER_PAGE);
-    await fetchMore();
-    setOptimisticSkeletons(0);
+    try {
+      await fetchMore();
+    } finally {
+      setOptimisticSkeletons(0);
+    }
   };
 
   // Merge events and specials for unified display
@@ -149,18 +133,22 @@ export default function EventsSpecialsPage() {
         <h2 className="text-lg font-semibold text-charcoal" style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>{title}</h2>
       </div>
       {isDesktop ? (
-        <m.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-50px" }}
-          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 sm:gap-3 md:gap-3 lg:gap-2 xl:gap-2 2xl:gap-2"
-        >
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 sm:gap-3 md:gap-3 lg:gap-2 xl:gap-2 2xl:gap-2">
           {items.map((event, index) => (
             <m.div
               key={event.id}
-              variants={itemVariants}
               className="list-none relative desktop-card-shimmer"
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 20, filter: "blur(4px)" }}
+              animate={prefersReducedMotion ? undefined : { opacity: 1, y: 0, filter: "blur(0px)" }}
+              transition={
+                prefersReducedMotion
+                  ? undefined
+                  : {
+                      duration: 0.45,
+                      ease: [0.16, 1, 0.3, 1] as const,
+                      delay: Math.min(index, ITEMS_PER_PAGE - 1) * 0.05,
+                    }
+              }
             >
               <span aria-hidden className="desktop-shimmer-veil" />
               <EventCard event={event} index={index} fullWidth />
@@ -170,13 +158,23 @@ export default function EventsSpecialsPage() {
           {optimisticSkeletons > 0 && Array.from({ length: optimisticSkeletons }).map((_, idx) => (
             <m.div
               key={`skeleton-${idx}`}
-              variants={itemVariants}
               className="list-none"
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 20, filter: "blur(4px)" }}
+              animate={prefersReducedMotion ? undefined : { opacity: 1, y: 0, filter: "blur(0px)" }}
+              transition={
+                prefersReducedMotion
+                  ? undefined
+                  : {
+                      duration: 0.35,
+                      ease: [0.16, 1, 0.3, 1] as const,
+                      delay: idx * 0.03,
+                    }
+              }
             >
               <EventCardSkeleton fullWidth />
             </m.div>
           ))}
-        </m.div>
+        </div>
       ) : (
         <m.div
           key={title}
