@@ -180,16 +180,18 @@ export default function EventActionCard({
             <m.button
               type="button"
               onClick={() => eventId && toggleRsvp()}
-              whileTap={{ scale: 0.95 }}
-              className={`flex flex-col items-center justify-center gap-1 py-2.5 px-1 rounded-xl transition-all duration-200 text-center ${
+              whileHover={{ y: -2, boxShadow: '0 6px 20px rgba(186,73,73,0.18)' }}
+              whileTap={{ scale: 0.94 }}
+              transition={{ duration: 0.18 }}
+              className={`flex flex-col items-center justify-center gap-1.5 py-3 px-1 rounded-2xl border transition-colors duration-200 ${
                 isGoing
-                  ? "bg-sage/15 text-sage"
-                  : "bg-charcoal/5 text-charcoal/60 hover:bg-charcoal/10 hover:text-charcoal/80"
+                  ? "bg-coral/10 border-coral/30 text-coral shadow-sm"
+                  : "bg-white border-charcoal/10 text-charcoal/50 hover:border-coral/25 hover:text-coral/70 shadow-sm"
               }`}
               aria-label={isGoing ? "Remove Going" : "Mark as Going"}
             >
-              <Users className="w-4 h-4 flex-shrink-0" strokeWidth={2} />
-              <span className="text-[10px] font-semibold leading-none" style={fontStyle}>
+              <Users className={`w-[18px] h-[18px] flex-shrink-0 transition-transform duration-200 ${isGoing ? 'scale-110' : ''}`} strokeWidth={isGoing ? 2.5 : 1.75} />
+              <span className={`text-[10px] font-bold leading-none tracking-wide ${isGoing ? '' : 'opacity-70'}`} style={fontStyle}>
                 {rsvpCount > 0 ? rsvpCount : "Going"}
               </span>
             </m.button>
@@ -199,56 +201,63 @@ export default function EventActionCard({
               <m.button
                 type="button"
                 onClick={() => setShowReminderPicker((p) => !p)}
-                whileTap={{ scale: 0.95 }}
-                className={`w-full flex flex-col items-center justify-center gap-1 py-2.5 px-1 rounded-xl transition-all duration-200 ${
+                whileHover={{ y: -2, boxShadow: '0 6px 20px rgba(217,119,6,0.18)' }}
+                whileTap={{ scale: 0.94 }}
+                transition={{ duration: 0.18 }}
+                className={`w-full flex flex-col items-center justify-center gap-1.5 py-3 px-1 rounded-2xl border transition-colors duration-200 ${
                   hasReminder('1_day') || hasReminder('2_hours')
-                    ? "bg-sage/15 text-sage"
-                    : "bg-charcoal/5 text-charcoal/60 hover:bg-charcoal/10 hover:text-charcoal/80"
+                    ? "bg-amber-50 border-amber-300 text-amber-600 shadow-sm"
+                    : "bg-white border-charcoal/10 text-charcoal/50 hover:border-amber-200 hover:text-amber-500/70 shadow-sm"
                 }`}
                 aria-label="Set reminder"
               >
-                <Bell className="w-4 h-4 flex-shrink-0" strokeWidth={2} />
-                <span className="text-[10px] font-semibold leading-none" style={fontStyle}>Remind</span>
+                <Bell className={`w-[18px] h-[18px] flex-shrink-0 transition-transform duration-200 ${hasReminder('1_day') || hasReminder('2_hours') ? 'scale-110' : ''}`} strokeWidth={hasReminder('1_day') || hasReminder('2_hours') ? 2.5 : 1.75} />
+                <span className="text-[10px] font-bold leading-none tracking-wide opacity-70" style={fontStyle}>Remind</span>
               </m.button>
 
               {/* Reminder picker dropdown */}
               <AnimatePresence>
                 {showReminderPicker && (
                   <m.div
-                    initial={{ opacity: 0, y: -6, scale: 0.95 }}
+                    initial={{ opacity: 0, y: 4, scale: 0.96 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -6, scale: 0.95 }}
-                    transition={{ duration: 0.15 }}
-                    className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 bg-white rounded-xl shadow-xl border border-charcoal/8 p-2 min-w-[160px]"
+                    exit={{ opacity: 0, y: 4, scale: 0.96 }}
+                    transition={{ duration: 0.15, ease: [0.22, 1, 0.36, 1] }}
+                    className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2.5 z-50 bg-white rounded-2xl shadow-2xl border border-charcoal/8 p-2 min-w-[168px]"
                   >
+                    <p className="text-[10px] font-bold text-charcoal/40 uppercase tracking-widest px-3 pt-1 pb-2" style={fontStyle}>Remind me</p>
                     <button
                       type="button"
                       onClick={() => handleReminderOption('1_day')}
                       disabled={reminderLoading}
-                      className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-sm transition-colors duration-150 ${
-                        hasReminder('1_day') ? 'bg-sage/10 text-sage font-semibold' : 'hover:bg-charcoal/5 text-charcoal/80'
+                      className={`w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 ${
+                        hasReminder('1_day')
+                          ? 'bg-amber-50 text-amber-600 border border-amber-200'
+                          : 'hover:bg-charcoal/5 text-charcoal/70'
                       }`}
                       style={fontStyle}
                     >
                       1 day before
-                      {hasReminder('1_day') && <Check className="w-3.5 h-3.5" />}
+                      {hasReminder('1_day') && <Check className="w-3.5 h-3.5 text-amber-600" />}
                     </button>
                     <button
                       type="button"
                       onClick={() => handleReminderOption('2_hours')}
                       disabled={reminderLoading}
-                      className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-sm transition-colors duration-150 ${
-                        hasReminder('2_hours') ? 'bg-sage/10 text-sage font-semibold' : 'hover:bg-charcoal/5 text-charcoal/80'
+                      className={`w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 ${
+                        hasReminder('2_hours')
+                          ? 'bg-amber-50 text-amber-600 border border-amber-200'
+                          : 'hover:bg-charcoal/5 text-charcoal/70'
                       }`}
                       style={fontStyle}
                     >
                       2 hours before
-                      {hasReminder('2_hours') && <Check className="w-3.5 h-3.5" />}
+                      {hasReminder('2_hours') && <Check className="w-3.5 h-3.5 text-amber-600" />}
                     </button>
                     <button
                       type="button"
                       onClick={() => setShowReminderPicker(false)}
-                      className="w-full flex items-center justify-center mt-1 px-3 py-1.5 rounded-lg text-xs text-charcoal/40 hover:text-charcoal/60 transition-colors"
+                      className="w-full flex items-center justify-center mt-1 px-3 py-1.5 rounded-xl text-xs text-charcoal/30 hover:text-charcoal/50 transition-colors"
                       style={fontStyle}
                     >
                       <X className="w-3 h-3 mr-1" /> Close
@@ -262,24 +271,28 @@ export default function EventActionCard({
             <m.button
               type="button"
               onClick={handleCalendar}
-              whileTap={{ scale: 0.95 }}
-              className="flex flex-col items-center justify-center gap-1 py-2.5 px-1 rounded-xl bg-charcoal/5 text-charcoal/60 hover:bg-charcoal/10 hover:text-charcoal/80 transition-all duration-200"
+              whileHover={{ y: -2, boxShadow: '0 6px 20px rgba(59,130,246,0.16)' }}
+              whileTap={{ scale: 0.94 }}
+              transition={{ duration: 0.18 }}
+              className="flex flex-col items-center justify-center gap-1.5 py-3 px-1 rounded-2xl bg-white border border-charcoal/10 text-charcoal/50 hover:border-blue-200 hover:text-blue-500/80 shadow-sm transition-colors duration-200"
               aria-label="Add to calendar"
             >
-              <Calendar className="w-4 h-4 flex-shrink-0" strokeWidth={2} />
-              <span className="text-[10px] font-semibold leading-none" style={fontStyle}>Calendar</span>
+              <Calendar className="w-[18px] h-[18px] flex-shrink-0" strokeWidth={1.75} />
+              <span className="text-[10px] font-bold leading-none tracking-wide opacity-70" style={fontStyle}>Calendar</span>
             </m.button>
 
             {/* Share */}
             <m.button
               type="button"
               onClick={handleShare}
-              whileTap={{ scale: 0.95 }}
-              className="flex flex-col items-center justify-center gap-1 py-2.5 px-1 rounded-xl bg-charcoal/5 text-charcoal/60 hover:bg-charcoal/10 hover:text-charcoal/80 transition-all duration-200"
+              whileHover={{ y: -2, boxShadow: '0 6px 20px rgba(114,47,55,0.16)' }}
+              whileTap={{ scale: 0.94 }}
+              transition={{ duration: 0.18 }}
+              className="flex flex-col items-center justify-center gap-1.5 py-3 px-1 rounded-2xl bg-white border border-charcoal/10 text-charcoal/50 hover:border-navbar-bg/30 hover:text-navbar-bg/80 shadow-sm transition-colors duration-200"
               aria-label="Share event"
             >
-              <Share2 className="w-4 h-4 flex-shrink-0" strokeWidth={2} />
-              <span className="text-[10px] font-semibold leading-none" style={fontStyle}>Share</span>
+              <Share2 className="w-[18px] h-[18px] flex-shrink-0" strokeWidth={1.75} />
+              <span className="text-[10px] font-bold leading-none tracking-wide opacity-70" style={fontStyle}>Share</span>
             </m.button>
           </div>
 
