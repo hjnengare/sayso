@@ -12,14 +12,11 @@ import useSWR from "swr";
 import { swrConfig } from "../lib/swrConfig";
 import { useSearchParams } from "next/navigation";
 import nextDynamic from "next/dynamic";
-import Link from "next/link";
 import { usePredefinedPageTitle } from "../hooks/usePageTitle";
 import { useIsDesktop } from "../hooks/useIsDesktop";
 import { FilterState } from "../components/FilterModal/FilterModal";
 import BusinessRow from "../components/BusinessRow/BusinessRow";
-import BusinessRowSkeleton from "../components/BusinessRow/BusinessRowSkeleton";
 import FeaturedBusinessesSkeleton from "../components/CommunityHighlights/FeaturedBusinessesSkeleton";
-import CommunityHighlightsSkeleton from "../components/CommunityHighlights/CommunityHighlightsSkeleton";
 import { useBusinesses, useForYouBusinesses, useTrendingBusinesses } from "../hooks/useBusinesses";
 import { getBrowserSupabase } from "../lib/supabase/client";
 import { useFeaturedBusinesses } from "../hooks/useFeaturedBusinesses";
@@ -27,6 +24,7 @@ import { useRoutePrefetch } from "../hooks/useRoutePrefetch";
 import { useUserPreferences } from "../hooks/useUserPreferences";
 import { useAuth } from "../contexts/AuthContext";
 import type { Event } from "../lib/types/Event";
+import { HomeDiscoverySections } from "./HomeDiscoverySections";
 
 // Dynamically import HeroCarousel - it's heavy with images and animations
 import HeroSkeleton from "../components/Hero/HeroSkeleton";
@@ -107,7 +105,7 @@ export default function HomeClient({ initialTrending }: { initialTrending?: impo
   );
   const eventsAndSpecials = eventsData ?? [];
 
-  // ── Realtime: refresh feed sections when any new review is inserted ──────────
+  // Ã¢â€â‚¬Ã¢â€â‚¬ Realtime: refresh feed sections when any new review is inserted Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   // Keep a ref to the latest refetch callbacks so the channel doesn't need
   // to be recreated when user auth state or SWR mutate identity changes.
   const supabaseHomeRef = useRef(getBrowserSupabase());
@@ -159,15 +157,15 @@ export default function HomeClient({ initialTrending }: { initialTrending?: impo
     }
   }, [searchQueryParam, liveQuery, setQuery]);
 
-  // ✅ ACTIVE FILTERS: User-initiated, ephemeral UI state (starts empty)
+  // Ã¢Å“â€¦ ACTIVE FILTERS: User-initiated, ephemeral UI state (starts empty)
   const [selectedInterestIds, setSelectedInterestIds] = useState<string[]>([]);
-  // ✅ Track if filters were user-initiated (prevents treating preferences as filters)
+  // Ã¢Å“â€¦ Track if filters were user-initiated (prevents treating preferences as filters)
   const [hasUserInitiatedFilters, setHasUserInitiatedFilters] = useState(false);
   const [filters, setFilters] = useState<FilterState>({ minRating: null, distance: null });
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const hasActiveFilters = selectedInterestIds.length > 0 || filters.minRating !== null || filters.distance !== null;
   const isFiltered = hasUserInitiatedFilters && hasActiveFilters;
-  // ✅ USER PREFERENCES: From onboarding, persistent, used for personalization
+  // Ã¢Å“â€¦ USER PREFERENCES: From onboarding, persistent, used for personalization
   const { interests, subcategories, dealbreakers, loading: prefsLoading } = useUserPreferences();
   const preferences = useMemo(
     () => ({ interests, subcategories, dealbreakers }),
@@ -239,7 +237,7 @@ export default function HomeClient({ initialTrending }: { initialTrending?: impo
   // The API automatically prioritizes businesses the user has reviewed within the last 24 hours
 
 
-  // ✅ Guard: Debug logging to track filter state changes
+  // Ã¢Å“â€¦ Guard: Debug logging to track filter state changes
   useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
       console.log('[Home] Filter state changed:', {
@@ -287,7 +285,7 @@ export default function HomeClient({ initialTrending }: { initialTrending?: impo
   };
 
   const handleFiltersChange = (f: FilterState) => {
-    // ✅ Mark that user has explicitly initiated filtering
+    // Ã¢Å“â€¦ Mark that user has explicitly initiated filtering
     setHasUserInitiatedFilters(true);
     setFilters(f);
 
@@ -315,7 +313,7 @@ export default function HomeClient({ initialTrending }: { initialTrending?: impo
   };
 
   const handleClearFilters = () => {
-    // ✅ Reset filter state - return to default mode
+    // Ã¢Å“â€¦ Reset filter state - return to default mode
     setHasUserInitiatedFilters(false);
     setSelectedInterestIds([]);
     setFilters({ minRating: null, distance: null });
@@ -350,7 +348,7 @@ export default function HomeClient({ initialTrending }: { initialTrending?: impo
   };
 
   const handleToggleInterest = (interestId: string) => {
-    // ✅ Mark that user has explicitly initiated filtering
+    // Ã¢Å“â€¦ Mark that user has explicitly initiated filtering
     // This is the ONLY way hasUserInitiatedFilters should become true
     if (isDev) {
       console.log('[Home] User toggled interest filter:', interestId);
@@ -382,9 +380,9 @@ export default function HomeClient({ initialTrending }: { initialTrending?: impo
   // Debug logging for business counts (placed after featuredByCategory is defined)
   useEffect(() => {
     if (!isDev) return;
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('📊 [Home Page] Business Counts Summary');
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('Ã¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€Â');
+    console.log('Ã°Å¸â€œÅ  [Home Page] Business Counts Summary');
+    console.log('Ã¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€Â');
     console.log('[Home Page] For You:', {
       count: forYouBusinesses.length,
       loading: forYouLoading,
@@ -410,7 +408,7 @@ export default function HomeClient({ initialTrending }: { initialTrending?: impo
       loading: featuredLoading,
       categories: safeFeatured.map(f => f.category),
     });
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('Ã¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€Â');
   }, [forYouBusinesses, trendingBusinesses, allBusinesses, forYouLoading, trendingLoading, allBusinessesLoading, featuredByCategory, featuredLoading, isDev]);
 
   useRoutePrefetch(
@@ -525,171 +523,44 @@ export default function HomeClient({ initialTrending }: { initialTrending?: impo
               </m.div>
             ) : (
               /* Discovery Mode - Default Home Page Content */
-              <div className="flex flex-col gap-8 sm:gap-10 md:gap-12 pt-0">
-                  {/* For You Section - Only show when NOT filtered */}
-                  {!isFiltered && (
-                    <m.div
-                      className="relative z-10 snap-start"
-                      {...getChoreoItemMotion({ order: 0, intent: "section", enabled: choreoEnabled })}
-                    >
-                      {!user ? (
-                        /* Not signed in: Show Locked For You Section (teaser only) */
-                        <div className="mx-auto w-full max-w-[2000px] px-2 pt-4 sm:pt-8 md:pt-10">
-                          <div className="relative border border-charcoal/10 bg-off-white rounded-[14px] p-6 sm:p-8 md:p-10 text-center space-y-4 shadow-[0_1px_0_rgba(0,0,0,0.02)]">
-                            <h3
-                              className="text-lg sm:text-xl font-extrabold text-charcoal"
-                              style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
-                            >
-                              For You
-                            </h3>
-                            <p
-                              className="text-body sm:text-base text-charcoal/60 max-w-[60ch] mx-auto"
-                              style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
-                            >
-                              Create an account to unlock personalised recommendations.
-                            </p>
-
-                            <div className="pt-2 w-full flex flex-col sm:flex-row items-stretch justify-center gap-3">
-                              <Link
-                                href="/register"
-                                className="mi-tap inline-flex items-center justify-center rounded-full min-h-[48px] px-6 py-3 text-body font-semibold text-white bg-gradient-to-r from-coral to-coral/85 hover:opacity-95 shadow-md w-full sm:w-auto sm:min-w-[180px]"
-                                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
-                              >
-                                Create Account
-                              </Link>
-                              <Link
-                                href="/onboarding"
-                                className="mi-tap inline-flex items-center justify-center rounded-full min-h-[48px] px-6 py-3 text-body font-semibold text-charcoal border border-charcoal/15 bg-white hover:bg-off-white shadow-sm w-full sm:w-auto sm:min-w-[180px]"
-                                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
-                              >
-                                Sign In
-                              </Link>
-                            </div>
-                          </div>
-                        </div>
-                      ) : (
-                        /* Regular For You Section (Authenticated Users) */
-                        <>
-                          {forYouLoading ? (
-                            <BusinessRowSkeleton title="For You Now" />
-                          ) : forYouError ? (
-                            <div className="mx-auto w-full max-w-[2000px] px-2 py-4 text-sm text-coral">
-                              Couldn't load personalised picks right now. We'll retry in the background.
-                            </div>
-                          ) : forYouBusinesses.length > 0 ? (
-                            <MemoizedBusinessRow
-                              title="For You"
-                              businesses={forYouBusinesses}
-                              cta="See More"
-                              href="/for-you"
-                              disableAnimations
-                            />
-                          ) : (
-                            <div className="mx-auto w-full max-w-[2000px] px-2 py-4">
-                              <div className="bg-card-bg/10 border border-sage/30 rounded-lg p-6 text-center">
-                                <p className="text-body text-charcoal/70 mb-2">
-                                  Curated from your interests
-                                </p>
-                                <p className="text-body-sm text-charcoal/70">
-                                  Based on what you selected — no matches in this section yet. See more on For You or explore Trending.
-                                </p>
-                              </div>
-                            </div>
-                          )}
-                        </>
-                      )}
-                    </m.div>
-                  )}
-
-                  {/* Filtered Results Section - Show when filters are active */}
-                  {isFiltered && (
-                    <m.div
-                      className="relative z-10 snap-start"
-                      {...getChoreoItemMotion({ order: 0, intent: "section", enabled: choreoEnabled })}
-                    >
-                      {allBusinessesLoading ? (
-                        <BusinessRowSkeleton title="Filtered Results" />
-                      ) : allBusinesses.length > 0 ? (
-                        <MemoizedBusinessRow
-                          title="Filtered Results"
-                          businesses={allBusinesses.slice(0, 10)}
-                          cta="See All"
-                          href="/for-you"
-                          disableAnimations
-                        />
-                      ) : (
-                        <div className="mx-auto w-full max-w-[2000px] px-2 py-4 text-sm text-charcoal/70">
-                          No businesses match your filters. Try adjusting your selections.
-                        </div>
-                      )}
-                    </m.div>
-                  )}
-
-                  {/* Trending Section - Only show when not filtered */}
-                  {!isFiltered && (
-                    <m.div
-                      className="relative z-10 snap-start"
-                      {...getChoreoItemMotion({ order: 1, intent: "section", enabled: choreoEnabled })}
-                    >
-                      {trendingLoading && <BusinessRowSkeleton title="Trending Now" />}
-                      {!trendingLoading && hasTrendingBusinesses && (
-                        <MemoizedBusinessRow title="Trending Now" businesses={trendingBusinesses} cta="See More" href="/trending" disableAnimations />
-                      )}
-                      {!trendingLoading && !hasTrendingBusinesses && !trendingError && (
-                        <MemoizedBusinessRow title="Trending Now" businesses={[]} cta="See More" href="/trending" disableAnimations />
-                      )}
-                      {trendingError && !trendingLoading && (
-                        <div className="mx-auto w-full max-w-[2000px] px-2 py-4 text-sm text-coral space-y-1">
-                          <p className="font-medium">Trending</p>
-                          <p>{trendingError}</p>
-                          {trendingStatus != null && (
-                            <p className="text-charcoal/70">Status: {trendingStatus}</p>
-                          )}
-                        </div>
-                      )}
-                    </m.div>
-                  )}
-
-                  {/* Events & Specials */}
-                  <m.div
-                    className="relative z-10 snap-start"
-                    {...getChoreoItemMotion({ order: 2, intent: "section", enabled: choreoEnabled })}
-                  >
-                    <EventsSpecials
-                      events={eventsAndSpecials}
-                      loading={eventsAndSpecialsLoading}
-                      titleFontWeight={800}
-                      ctaFontWeight={400}
-                      premiumCtaHover
-                      disableAnimations
-                    />
-                  </m.div>
-
-                  {/* Community Highlights (Featured by Category) */}
-                  <m.div
-                    className="relative z-10 snap-start"
-                    {...getChoreoItemMotion({ order: 3, intent: "section", enabled: choreoEnabled })}
-                  >
-                    {featuredError && !featuredLoading ? (
-                      <div className="mx-auto w-full max-w-[2000px] px-2 py-4 text-sm text-coral space-y-1">
-                        <p className="font-medium">Featured</p>
-                        <p>{featuredError}</p>
-                        {featuredStatus != null && (
-                          <p className="text-charcoal/70">Status: {featuredStatus}</p>
-                        )}
-                      </div>
-                    ) : featuredLoading ? (
-                      <CommunityHighlightsSkeleton reviewerCount={12} businessCount={4} />
-                    ) : (
-                      <CommunityHighlights
-                        businessesOfTheMonth={Array.isArray(featuredByCategory) ? featuredByCategory : []}
-                        variant="reviews"
-                        disableAnimations
-                      />
-                    )}
-                  </m.div>
-                </div>
-              )}
+              <HomeDiscoverySections
+                choreoEnabled={choreoEnabled}
+                isFiltered={isFiltered}
+                hasUser={Boolean(user)}
+                forYouLoading={forYouLoading}
+                forYouError={forYouError}
+                forYouBusinesses={forYouBusinesses}
+                allBusinessesLoading={allBusinessesLoading}
+                allBusinesses={allBusinesses}
+                trendingLoading={trendingLoading}
+                trendingError={trendingError}
+                trendingStatus={trendingStatus ?? null}
+                hasTrendingBusinesses={hasTrendingBusinesses}
+                trendingBusinesses={trendingBusinesses}
+                featuredError={featuredError}
+                featuredLoading={featuredLoading}
+                featuredStatus={featuredStatus ?? null}
+                featuredByCategory={Array.isArray(featuredByCategory) ? featuredByCategory : []}
+                renderBusinessRow={(props) => <MemoizedBusinessRow {...props} />}
+                renderEventsSpecials={() => (
+                  <EventsSpecials
+                    events={eventsAndSpecials}
+                    loading={eventsAndSpecialsLoading}
+                    titleFontWeight={800}
+                    ctaFontWeight={400}
+                    premiumCtaHover
+                    disableAnimations
+                  />
+                )}
+                renderCommunityHighlights={(businessesOfTheMonth) => (
+                  <CommunityHighlights
+                    businessesOfTheMonth={businessesOfTheMonth}
+                    variant="reviews"
+                    disableAnimations
+                  />
+                )}
+              />
+            )}
           </div>
         </main>
         <Footer />

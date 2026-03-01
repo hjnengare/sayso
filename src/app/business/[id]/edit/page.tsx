@@ -2,10 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useParams, useRouter } from "next/navigation";
-import React, { useMemo, useState, useEffect } from "react";
 import { ChevronRight } from "lucide-react";
-import { useToast } from "../../../contexts/ToastContext";
 import {
     Store,
     Save,
@@ -24,12 +21,14 @@ import {
     Trash2,
 } from "lucide-react";
 import { PageLoader } from "../../../components/Loader";
-import { useRequireBusinessOwner } from "../../../hooks/useBusinessAccess";
-import { usePreviousPageBreadcrumb } from "../../../hooks/usePreviousPageBreadcrumb";
-import { useBusinessDetail } from "../../../hooks/useBusinessDetail";
-import { getBrowserSupabase } from "../../../lib/supabase/client";
 import { ConfirmationDialog } from "@/components/molecules/ConfirmationDialog";
 import EventsForm from "../../../components/BusinessEdit/EventsForm";
+import {
+    EDIT_BUSINESS_CATEGORIES,
+    EDIT_BUSINESS_DAYS,
+    EDIT_BUSINESS_PRICE_RANGES,
+    useBusinessEditPage,
+} from "./useBusinessEditPage";
 
 // CSS animations to match business profile page
 const animations = `
@@ -66,552 +65,40 @@ const animations = `
 `;
 
 export default function BusinessEditPage() {
-    const params = useParams();
-    const router = useRouter();
-    const { showToast } = useToast();
-    const paramId = params?.id;
-    const businessId = Array.isArray(paramId) ? paramId[0] : paramId;
-    const { previousHref, previousLabel } = usePreviousPageBreadcrumb({
-        fallbackHref: businessId ? `/business/${businessId}` : "/my-businesses",
-        fallbackLabel: "Business",
-    });
-    const redirectTarget = businessId ? `/business/${businessId}` : "/login";
-    
-    const { isChecking, hasAccess } = useRequireBusinessOwner({
+    const {
         businessId,
-        redirectTo: redirectTarget,
-    });
+        previousHref,
+        previousLabel,
+        formData,
+        isChecking,
+        hasAccess,
+        isLoading,
+        error,
+        isSaving,
+        uploadingImages,
+        deletingImageIndex,
+        reorderingImage,
+        isDeleteDialogOpen,
+        isDeleting,
+        deleteError,
+        handleInputChange,
+        handleHoursChange,
+        handleImageUpload,
+        removeImage,
+        setAsPrimary,
+        addSpecial,
+        updateSpecial,
+        removeSpecial,
+        handleSave,
+        handleDeleteClick,
+        handleConfirmDelete,
+        setIsDeleteDialogOpen,
+        setDeleteError,
+    } = useBusinessEditPage();
 
-    // Form state
-    const [formData, setFormData] = useState({
-        name: "",
-        description: "",
-        category: "",
-        address: "",
-        phone: "",
-        email: "",
-        website: "",
-        priceRange: "$",
-        hours: {
-            monday: "",
-            tuesday: "",
-            wednesday: "",
-            thursday: "",
-            friday: "",
-            saturday: "",
-            sunday: "",
-        },
-        images: [] as string[],
-        specials: [] as Array<{ id: number; name: string; description: string; icon: string }>,
-    });
-
-    const [isSaving, setIsSaving] = useState(false);
-    const [uploadingImages, setUploadingImages] = useState(false);
-    const [deletingImageIndex, setDeletingImageIndex] = useState<number | null>(null);
-    const [reorderingImage, setReorderingImage] = useState<number | null>(null);
-    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-    const [isDeleting, setIsDeleting] = useState(false);
-    const [deleteError, setDeleteError] = useState<string | null>(null);
-    const [formPopulated, setFormPopulated] = useState(false);
-
-    // Fetch business data via SWR (only after ownership check passes)
-    const { business: businessData, loading: isLoading, error } = useBusinessDetail(
-        hasAccess && !isChecking ? businessId : null
-    );
-
-    // Populate form once when business data first loads
-    useEffect(() => {
-        if (!businessData || formPopulated) return;
-        setFormData({
-            name: businessData.name || "",
-            description: businessData.description || "",
-            category: businessData.category || "",
-            address: businessData.address || "",
-            phone: businessData.phone || "",
-            email: businessData.email || "",
-            website: businessData.website || "",
-            priceRange: businessData.price_range || "$",
-            hours: businessData.hours || {
-                monday: "",
-                tuesday: "",
-                wednesday: "",
-                thursday: "",
-                friday: "",
-                saturday: "",
-                sunday: "",
-            },
-            images: businessData.uploaded_images || businessData.images || [],
-            specials: [],
-        });
-        setFormPopulated(true);
-    }, [businessData, formPopulated]);
-
-    const handleInputChange = (field: string, value: any) => {
-        setFormData(prev => ({
-            ...prev,
-            [field]: value
-        }));
-    };
-
-    const handleHoursChange = (day: string, value: string) => {
-        setFormData(prev => ({
-            ...prev,
-            hours: {
-                ...prev.hours,
-                [day]: value
-            }
-        }));
-    };
-
-    const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        const files = event.target.files;
-        if (!files || files.length === 0 || !businessId) return;
-
-        // Check image limit before uploading (max 10 images per business)
-        const MAX_IMAGES = 10;
-        const currentCount = formData.images.length;
-        const newCount = files.length;
-        
-        if (currentCount >= MAX_IMAGES) {
-            showToast(`Maximum image limit reached (${MAX_IMAGES} images). Please delete some images before adding new ones.`, 'error', 5000);
-            event.target.value = '';
-            return;
-        }
-        
-        if (currentCount + newCount > MAX_IMAGES) {
-            const remainingSlots = MAX_IMAGES - currentCount;
-            showToast(`You can only add ${remainingSlots} more image(s). Maximum limit is ${MAX_IMAGES} images per business.`, 'sage', 5000);
-            event.target.value = '';
-            return;
-        }
-
-        setUploadingImages(true);
-        try {
-            // Validate image files
-            const { validateImageFiles, getFirstValidationError } = await import('@/app/lib/utils/imageValidation');
-            const validationResults = validateImageFiles(Array.from(files));
-            const invalidFiles = validationResults.filter(r => !r.valid);
-            
-            if (invalidFiles.length > 0) {
-                const firstError = getFirstValidationError(Array.from(files));
-                if (firstError) {
-                    showToast(firstError, 'error', 6000);
-                } else {
-                    showToast('Some image files are invalid. Please upload only JPG, PNG, WebP, or GIF images under 5MB each.', 'error', 6000);
-                }
-                setUploadingImages(false);
-                event.target.value = '';
-                return;
-            }
-
-            const supabase = getBrowserSupabase();
-            const uploadedUrls: string[] = [];
-            const { STORAGE_BUCKETS } = await import('../../../lib/utils/storageBucketConfig');
-
-            // Upload each file (respecting the limit)
-            const filesToUpload = Array.from(files).slice(0, MAX_IMAGES - currentCount);
-            const uploadErrors: string[] = [];
-            
-            for (let i = 0; i < filesToUpload.length; i++) {
-                const file = filesToUpload[i];
-                try {
-                    const fileExt = file.name.split('.').pop()?.toLowerCase() || 'jpg';
-                    // Path pattern: {business_id}/{timestamp}_{index}.{ext} (matching API pattern)
-                    const timestamp = Date.now();
-                    const filePath = `${businessId}/${timestamp}_${i}.${fileExt}`;
-
-                    // Upload to Supabase Storage
-                    const { error: uploadError } = await supabase.storage
-                        .from(STORAGE_BUCKETS.BUSINESS_IMAGES)
-                        .upload(filePath, file, {
-                            contentType: file.type,
-                            upsert: false, // Don't overwrite existing files
-                        });
-
-                    if (uploadError) {
-                        // Handle specific error cases
-                        if (uploadError.message.includes('already exists')) {
-                            uploadErrors.push(`Image ${i + 1} already exists`);
-                            continue;
-                        }
-                        console.error('[Edit Business] Error uploading image:', uploadError);
-                        uploadErrors.push(`Failed to upload image ${i + 1}: ${uploadError.message}`);
-                        continue;
-                    }
-
-                    // Get public URL
-                    const { data: { publicUrl } } = supabase.storage
-                        .from(STORAGE_BUCKETS.BUSINESS_IMAGES)
-                        .getPublicUrl(filePath);
-
-                    if (publicUrl) {
-                        uploadedUrls.push(publicUrl);
-                    } else {
-                        uploadErrors.push(`Failed to get URL for image ${i + 1}`);
-                    }
-                } catch (fileError: any) {
-                    console.error(`[Edit Business] Error processing image ${i + 1}:`, fileError);
-                    uploadErrors.push(`Error processing image ${i + 1}: ${fileError.message || 'Unknown error'}`);
-                }
-            }
-
-            // Show warnings if some uploads failed
-            if (uploadErrors.length > 0 && uploadedUrls.length === 0) {
-                showToast(`Failed to upload images: ${uploadErrors[0]}`, 'error', 6000);
-                setUploadingImages(false);
-                event.target.value = '';
-                return;
-            } else if (uploadErrors.length > 0) {
-                showToast(`Some images failed to upload (${uploadErrors.length} error(s))`, 'sage', 5000);
-            }
-
-            if (uploadedUrls.length > 0) {
-                // Add images via API
-                const response = await fetch(`/api/businesses/${businessId}/images`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        images: uploadedUrls.map(url => ({ url }))
-                    }),
-                });
-
-                if (!response.ok) {
-                    const contentType = response.headers.get("content-type") || "";
-                    const rawText = await response.text(); // ✅ read once
-                    
-                    let errorData: any = null;
-                    
-                    if (contentType.includes("application/json")) {
-                        try {
-                            errorData = rawText ? JSON.parse(rawText) : null;
-                        } catch (e) {
-                            errorData = { parseError: String(e), rawText };
-                        }
-                    } else {
-                        errorData = { rawText };
-                    }
-                    
-                    console.error("[Edit Business] API error response:", {
-                        status: response.status,
-                        statusText: response.statusText,
-                        contentType,
-                        errorData,
-                        rawText,
-                    });
-                    
-                    const message =
-                        errorData?.error ||
-                        errorData?.details ||
-                        errorData?.message ||
-                        `Server error (${response.status}): ${response.statusText}`;
-                    
-                    throw new Error(message);
-                }
-
-                // Update local state
-                setFormData(prev => ({
-                    ...prev,
-                    images: [...prev.images, ...uploadedUrls]
-                }));
-
-                showToast(`Successfully uploaded ${uploadedUrls.length} image(s)!`, 'success', 3000);
-                
-                // Notify other components
-                const { notifyBusinessUpdated } = await import('../../../lib/utils/businessUpdateEvents');
-                notifyBusinessUpdated(businessId);
-            }
-        } catch (error: any) {
-            console.error('Error uploading images:', error);
-            showToast(error.message || 'Failed to upload images', 'error', 5000);
-        } finally {
-            setUploadingImages(false);
-            // Reset file input
-            event.target.value = '';
-        }
-    };
-
-    const removeImage = async (index: number) => {
-        if (!businessId || index < 0 || index >= formData.images.length) return;
-
-        const imageUrl = formData.images[index];
-        if (!imageUrl) return;
-
-        setDeletingImageIndex(index);
-        try {
-            // Encode the image URL for the API
-            const encodedUrl = encodeURIComponent(imageUrl);
-            
-            const response = await fetch(`/api/businesses/${businessId}/images/${encodedUrl}`, {
-                method: 'DELETE',
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to delete image');
-            }
-
-            const result = await response.json();
-            
-            // Update local state
-            setFormData(prev => ({
-                ...prev,
-                images: prev.images.filter((_, i) => i !== index)
-            }));
-
-            showToast(result.message || 'Image deleted successfully', 'success', 3000);
-            
-            // Notify other components
-            const { notifyBusinessUpdated } = await import('../../../lib/utils/businessUpdateEvents');
-            notifyBusinessUpdated(businessId);
-        } catch (error: any) {
-            console.error('Error deleting image:', error);
-            showToast(error.message || 'Failed to delete image', 'error', 5000);
-        } finally {
-            setDeletingImageIndex(null);
-        }
-    };
-
-    const setAsPrimary = async (index: number) => {
-        if (!businessId || index < 0 || index >= formData.images.length || index === 0) return;
-
-        setReorderingImage(index);
-        try {
-            // Reorder images: move selected image to first position
-            const newImages = [...formData.images];
-            const [movedImage] = newImages.splice(index, 1);
-            newImages.unshift(movedImage);
-
-            // Update uploaded_images array directly via Supabase
-            const supabase = getBrowserSupabase();
-            const { error: updateError } = await supabase
-                .from('businesses')
-                .update({ uploaded_images: newImages })
-                .eq('id', businessId);
-
-            if (updateError) {
-                throw new Error(updateError.message || 'Failed to reorder images');
-            }
-
-            // Update local state
-            setFormData(prev => ({
-                ...prev,
-                images: newImages
-            }));
-
-            showToast('Primary image updated successfully!', 'success', 3000);
-            
-            // Notify other components
-            const { notifyBusinessUpdated } = await import('../../../lib/utils/businessUpdateEvents');
-            notifyBusinessUpdated(businessId);
-        } catch (error: any) {
-            console.error('Error reordering images:', error);
-            showToast(error.message || 'Failed to set primary image', 'error', 5000);
-        } finally {
-            setReorderingImage(null);
-        }
-    };
-
-    const addSpecial = () => {
-        const newSpecial = {
-            id: Date.now(),
-            name: "",
-            description: "",
-            icon: "star"
-        };
-        setFormData(prev => ({
-            ...prev,
-            specials: [...prev.specials, newSpecial]
-        }));
-    };
-
-    const updateSpecial = (id: number, field: string, value: string) => {
-        setFormData(prev => ({
-            ...prev,
-            specials: prev.specials.map(special => 
-                special.id === id ? { ...special, [field]: value } : special
-            )
-        }));
-    };
-
-    const removeSpecial = (id: number) => {
-        setFormData(prev => ({
-            ...prev,
-            specials: prev.specials.filter(special => special.id !== id)
-        }));
-    };
-
-    const handleSave = async () => {
-        if (!businessId) {
-            showToast('Business ID is required', 'sage', 3000);
-            return;
-        }
-
-        setIsSaving(true);
-        try {
-            const response = await fetch(`/api/businesses/${businessId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    name: formData.name,
-                    description: formData.description,
-                    category: formData.category,
-                    address: formData.address,
-                    phone: formData.phone,
-                    email: formData.email,
-                    website: formData.website,
-                    priceRange: formData.priceRange,
-                    hours: formData.hours,
-                }),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to save business');
-            }
-
-            const result = await response.json();
-            showToast('Business updated successfully!', 'success', 2000);
-            
-            // Notify other components about the update
-            const { notifyBusinessUpdated } = await import('../../../lib/utils/businessUpdateEvents');
-            notifyBusinessUpdated(businessId);
-            
-            // Invalidate Next.js router cache and redirect
-            router.refresh(); // Invalidate all cached data
-            
-            // Redirect to business page after short delay
-            setTimeout(() => {
-                router.push(`/business/${businessId}`);
-            }, 500);
-        } catch (error: any) {
-            console.error('Error saving business:', error);
-            showToast(error.message || 'Failed to save business', 'sage', 4000);
-        } finally {
-            setIsSaving(false);
-        }
-    };
-
-    const handleDeleteClick = () => {
-        setIsDeleteDialogOpen(true);
-        setDeleteError(null);
-    };
-
-    const handleConfirmDelete = async () => {
-        try {
-            // ✅ Always prefer the route param id (source of truth)
-            const businessIdToDelete =
-                (typeof paramId === "string" ? paramId : undefined) ||
-                businessId;
-
-            if (!businessIdToDelete) {
-                throw new Error("Missing business id");
-            }
-
-            setIsDeleting(true);
-            setDeleteError(null);
-
-            // Log the ID we're about to delete for debugging
-            console.log('[Delete] Attempting to delete business:', {
-                paramId,
-                businessId,
-                businessIdToDelete,
-            });
-
-            const response = await fetch(`/api/businesses/${businessIdToDelete}`, {
-                method: 'DELETE',
-                headers: { "Content-Type": "application/json" },
-            });
-
-            // ✅ Attempt to read JSON, even on errors
-            let payload: any = null;
-            try {
-                payload = await response.json();
-            } catch {
-                payload = null;
-            }
-
-            if (!response.ok) {
-                // ✅ If it's already gone / not visible, treat it as a soft-success for UX
-                if (response.status === 404) {
-                    showToast('This business no longer exists or you don\'t have access.', 'sage', 4000);
-                    // Redirect to profile since business is gone
-                    setIsDeleteDialogOpen(false);
-                    setTimeout(() => {
-                        router.replace('/profile');
-                    }, 1500);
-                    return;
-                }
-
-                // Handle 403 Forbidden (no permission)
-                if (response.status === 403) {
-                    throw new Error('You do not have permission to delete this business');
-                }
-
-                // Handle 401 Unauthorized
-                if (response.status === 401) {
-                    throw new Error('You must be logged in to delete this business');
-                }
-
-                // Handle 400 Bad Request
-                if (response.status === 400) {
-                    throw new Error(payload?.error || 'Invalid business ID');
-                }
-
-                // Handle 500 Server Error with details
-                if (response.status === 500) {
-                    const details = payload?.details || 'Server error occurred';
-                    throw new Error(`Failed to delete business: ${details}`);
-                }
-
-                throw new Error(payload?.error || `Failed to delete business (HTTP ${response.status})`);
-            }
-
-            // ✅ Success
-            showToast('Business deleted successfully', 'success', 3000);
-            
-            // Notify other components about the deletion
-            const { notifyBusinessDeleted } = await import('../../../lib/utils/businessUpdateEvents');
-            notifyBusinessDeleted(businessIdToDelete);
-            
-            // Close dialog and redirect to profile after deletion
-            setIsDeleteDialogOpen(false);
-            setTimeout(() => {
-                router.replace('/profile');
-            }, 1000);
-        } catch (error: any) {
-            console.error('Error deleting business:', error);
-            setDeleteError(error.message || 'Failed to delete business');
-            showToast(error.message || 'Failed to delete business', 'error', 5000);
-        } finally {
-            setIsDeleting(false);
-        }
-    };
-
-    const categories = [
-        "Restaurant", "Cafe", "Bar", "Fast Food", "Fine Dining",
-        "Bakery", "Food Truck", "Catering", "Grocery", "Other", "Miscellaneous"
-    ];
-
-    const priceRanges = [
-        { value: "$", label: "R" },
-        { value: "$$", label: "RR" },
-        { value: "$$$", label: "RRR" },
-        { value: "$$$$", label: "RRRR" },
-    ];
-
-    const days = [
-        { key: "monday", label: "Monday" },
-        { key: "tuesday", label: "Tuesday" },
-        { key: "wednesday", label: "Wednesday" },
-        { key: "thursday", label: "Thursday" },
-        { key: "friday", label: "Friday" },
-        { key: "saturday", label: "Saturday" },
-        { key: "sunday", label: "Sunday" },
-    ];
+    const categories = EDIT_BUSINESS_CATEGORIES;
+    const priceRanges = EDIT_BUSINESS_PRICE_RANGES;
+    const days = EDIT_BUSINESS_DAYS;
 
     if (!businessId || isChecking || isLoading) {
         return <PageLoader size="lg" variant="wavy" color="sage"  />;
@@ -1119,3 +606,5 @@ export default function BusinessEditPage() {
         </>
     );
 }
+
+
