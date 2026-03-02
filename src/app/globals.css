@@ -508,11 +508,19 @@
   }
 
   .card-img-zoom {
+    transform: translateZ(0);
     transition: transform 500ms ease-out;
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
   }
 
   .card-overlay-fade {
+    transform: translateZ(0);
     transition: opacity 500ms ease-out;
+    will-change: opacity;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
   }
 
   @media (hover: hover) and (pointer: fine) {

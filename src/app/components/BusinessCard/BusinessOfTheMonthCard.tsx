@@ -458,7 +458,7 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
        
         {/* MEDIA - Full bleed with premium overlay */}
         <div
-          className="relative overflow-hidden z-10 cursor-pointer backdrop-blur-xl h-[280px] sm:h-[300px] md:h-[220px]"
+          className="relative isolate overflow-hidden z-10 cursor-pointer backdrop-blur-xl h-[280px] sm:h-[300px] md:h-[220px]"
           onMouseEnter={() => {
             if (canSwitchBadges) setIsMediaHovered(true);
           }}
@@ -468,10 +468,10 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
           onClick={handleCardClick}
         >
           <div 
-            className="relative w-full h-full"
+            className="relative w-full h-full [transform:translateZ(0)]"
           >
             {!imgError && displayImage ? (
-              <div className="relative w-full h-full overflow-hidden shadow-sm">
+              <div className="relative w-full h-full overflow-hidden shadow-sm [backface-visibility:hidden] [-webkit-backface-visibility:hidden]">
                 <Image
                   src={usingFallback ? getSubcategoryPlaceholderFromCandidates([
                     (business as any).sub_interest_id,
