@@ -1,7 +1,7 @@
 "use client";
 
 import { type ComponentProps, type ReactNode, type RefObject } from "react";
-import { Bell, MessageSquare, Search } from "@/app/lib/icons";
+import { Bell, BellOutline, MessageSquare, MessageSquareOutline, SearchOutline } from "@/app/lib/icons";
 import { m, AnimatePresence } from "framer-motion";
 import Logo from "../../Logo/Logo";
 import OptimizedLink from "../../Navigation/OptimizedLink";
@@ -132,7 +132,7 @@ export function PersonalHeaderRole({
               }`}
               aria-label="Open search"
             >
-              <Search className="w-5 h-5" strokeWidth={2} />
+              <SearchOutline className="w-5 h-5" />
             </button>
           )}
 
@@ -149,7 +149,9 @@ export function PersonalHeaderRole({
                 }`}
                 aria-label={isGuest ? "Sign in for notifications" : "Notifications"}
               >
-                <Bell className="w-5 h-5 pointer-events-none" fill={isNotificationsActive ? "currentColor" : "none"} />
+                {isNotificationsActive
+                  ? <Bell className="w-5 h-5 pointer-events-none" />
+                  : <BellOutline className="w-5 h-5 pointer-events-none" />}
               </OptimizedLink>
               {unreadCount > 0 && (
                 <span className="pointer-events-none absolute -top-1.5 -right-1.5 z-10 flex items-center justify-center min-w-[20px] h-[20px] px-1.5 text-[10px] leading-none font-extrabold tracking-tight rounded-full bg-coral text-white ring-[1.5px] ring-white/85 shadow-sm">
@@ -172,7 +174,9 @@ export function PersonalHeaderRole({
                 }`}
                 aria-label={isGuest ? "Sign in for messages" : "Messages"}
               >
-                <MessageSquare className="w-5 h-5 pointer-events-none" fill={isMessagesActive ? "currentColor" : "none"} />
+                {isMessagesActive
+                  ? <MessageSquare className="w-5 h-5 pointer-events-none" />
+                  : <MessageSquareOutline className="w-5 h-5 pointer-events-none" />}
               </OptimizedLink>
               {messageUnreadCount > 0 && (
                 <span className="pointer-events-none absolute -top-1.5 -right-1.5 z-10 flex items-center justify-center min-w-[20px] h-[20px] px-1.5 text-[10px] leading-none font-extrabold tracking-tight rounded-full bg-coral text-white ring-[1.5px] ring-white/85 shadow-sm">

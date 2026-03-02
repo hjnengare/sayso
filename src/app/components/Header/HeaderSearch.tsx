@@ -1,7 +1,7 @@
 "use client";
 
 import type { CSSProperties, ChangeEvent, FormEvent, KeyboardEvent, RefObject } from "react";
-import { Search, X } from "@/app/lib/icons";
+import { SearchOutline, XOutline } from "@/app/lib/icons";
 import { AnimatePresence, m } from "framer-motion";
 
 import type { LiveSearchResult } from "../../hooks/useLiveSearch";
@@ -193,7 +193,7 @@ export function DesktopHeaderSearch({
               className="mi-tap w-11 h-10 flex items-center justify-center rounded-full bg-off-white/95 border border-charcoal/10 transition-[color,transform] duration-200 ease-in-out lg:hover:scale-105 lg:focus-visible:scale-105"
               aria-label="Open search"
             >
-              <Search className="w-4 h-4 text-charcoal/60" strokeWidth={2} />
+              <SearchOutline className="w-4 h-4 text-charcoal/60" />
             </button>
           )}
 
@@ -208,7 +208,7 @@ export function DesktopHeaderSearch({
                 className="relative"
               >
                 <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none z-10">
-                  <Search className="w-4 h-4 text-charcoal/50" strokeWidth={2} />
+                  <SearchOutline className="w-4 h-4 text-charcoal/50" />
                 </div>
 
                 <div className="absolute inset-y-0 right-2 flex items-center z-10">
@@ -223,7 +223,7 @@ export function DesktopHeaderSearch({
                     className="mi-tap flex items-center justify-center w-7 h-7 rounded-full text-charcoal/60 hover:text-charcoal transition-[color,transform] duration-150 ease-in-out lg:hover:scale-105 lg:focus-visible:scale-105"
                     aria-label={headerSearchQuery ? "Clear search" : "Close search"}
                   >
-                    <X className="w-4 h-4" strokeWidth={2} />
+                    <XOutline className="w-4 h-4" />
                   </button>
                 </div>
 
@@ -334,7 +334,7 @@ export function MobileHeaderSearch({
             exit={{ opacity: 0, x: 8 }}
             transition={{ delay: 0.22, duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
           >
-            <Search className="w-5 h-5 text-charcoal/50" strokeWidth={2} />
+            <SearchOutline className="w-5 h-5 text-charcoal/50" />
           </m.div>
 
           <m.div
@@ -356,7 +356,7 @@ export function MobileHeaderSearch({
               className="flex items-center justify-center w-8 h-8 rounded-full text-charcoal/60 hover:text-charcoal transition-colors duration-150"
               aria-label={headerSearchQuery ? "Clear search" : "Close search"}
             >
-              <X className="w-5 h-5" strokeWidth={2} />
+              <XOutline className="w-5 h-5" />
             </button>
           </m.div>
 

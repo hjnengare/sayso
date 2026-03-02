@@ -16,10 +16,15 @@ import { m, useAnimation } from "framer-motion";
 import {
   ChevronDown,
   Bell,
+  BellOutline,
   MessageSquare,
+  MessageSquareOutline,
   User,
+  UserOutline,
   Settings,
+  SettingsOutline,
   Bookmark,
+  BookmarkOutline,
 } from "@/app/lib/icons";
 import OptimizedLink from "../Navigation/OptimizedLink";
 
@@ -542,11 +547,7 @@ export default function DesktopNav(props: DesktopNavProps) {
               aria-label="Sign in for notifications"
             >
               <m.span className="inline-flex" animate={bellControls}>
-                <Bell
-                  className={`${iconClass(false)} pointer-events-none`}
-                  fill="none"
-                  style={{ textShadow: "0 2px 4px rgba(0, 0, 0, 0.1)" }}
-                />
+                <BellOutline className={`${iconClass(false)} pointer-events-none`} />
               </m.span>
             </OptimizedLink>
           ) : (
@@ -558,11 +559,9 @@ export default function DesktopNav(props: DesktopNavProps) {
                 aria-label="Notifications"
               >
                 <m.span className="inline-flex" animate={bellControls}>
-                  <Bell
-                    className={`${iconClass(isNotificationsActive)} pointer-events-none`}
-                    fill={isNotificationsActive ? "currentColor" : "none"}
-                    style={{ textShadow: "0 2px 4px rgba(0, 0, 0, 0.1)" }}
-                  />
+                  {isNotificationsActive
+                    ? <Bell className={`${iconClass(true)} pointer-events-none`} />
+                    : <BellOutline className={`${iconClass(false)} pointer-events-none`} />}
                 </m.span>
               </OptimizedLink>
               {unreadCount > 0 && (
@@ -588,17 +587,9 @@ export default function DesktopNav(props: DesktopNavProps) {
                   }`}
                   aria-label="Saved"
                 >
-                  <Bookmark
-                    className={`w-5 h-5 transition-colors duration-200 ${
-                      isSavedActive
-                        ? "text-sage"
-                        : whiteText
-                          ? "text-white group-hover:text-white/85"
-                          : "text-current group-hover:text-sage"
-                    }`}
-                    fill={isSavedActive ? "currentColor" : "none"}
-                    style={{ textShadow: "0 2px 4px rgba(0, 0, 0, 0.1)" }}
-                  />
+                  {isSavedActive
+                    ? <Bookmark className={iconClass(true)} />
+                    : <BookmarkOutline className={iconClass(false)} />}
                 </OptimizedLink>
                 {savedCount > 0 && (
                   <span className="pointer-events-none absolute -top-1.5 -right-1.5 z-10 flex items-center justify-center min-w-[20px] h-[20px] px-1.5 text-[10px] leading-none font-extrabold tracking-tight rounded-full bg-coral text-white ring-[1.5px] ring-white/85 shadow-sm">
@@ -620,11 +611,9 @@ export default function DesktopNav(props: DesktopNavProps) {
                 className={`${iconWrapClass(isMessagesActive)} cursor-pointer pointer-events-auto select-none z-[2]`}
                 aria-label={isGuest ? "Sign in for messages" : "Messages"}
               >
-                <MessageSquare
-                  className={`${iconClass(isMessagesActive)} pointer-events-none`}
-                  fill={isMessagesActive ? "currentColor" : "none"}
-                  style={{ textShadow: "0 2px 4px rgba(0, 0, 0, 0.1)" }}
-                />
+                {isMessagesActive
+                  ? <MessageSquare className={`${iconClass(true)} pointer-events-none`} />
+                  : <MessageSquareOutline className={`${iconClass(false)} pointer-events-none`} />}
               </OptimizedLink>
               {messageUnreadCount > 0 && (
                 <span className="pointer-events-none absolute -top-1.5 -right-1.5 z-10 flex items-center justify-center min-w-[20px] h-[20px] px-1.5 text-[10px] leading-none font-extrabold tracking-tight rounded-full bg-coral text-white ring-[1.5px] ring-white/85 shadow-sm">
@@ -640,11 +629,9 @@ export default function DesktopNav(props: DesktopNavProps) {
                 className={iconWrapClass(isProfileActive)}
                 aria-label={isGuest ? "Sign in" : "Profile"}
               >
-                <User
-                  className={iconClass(isProfileActive)}
-                  fill={isProfileActive ? "currentColor" : "none"}
-                  style={{ textShadow: "0 2px 4px rgba(0, 0, 0, 0.1)" }}
-                />
+                {isProfileActive
+                  ? <User className={iconClass(true)} />
+                  : <UserOutline className={iconClass(false)} />}
               </OptimizedLink>
             </div>
           </div>
@@ -663,11 +650,9 @@ export default function DesktopNav(props: DesktopNavProps) {
               className={`${iconWrapClass(isMessagesActive)} cursor-pointer pointer-events-auto select-none z-[2]`}
               aria-label={isGuest ? "Sign in for messages" : "Messages"}
             >
-              <MessageSquare
-                className={`${iconClass(isMessagesActive)} pointer-events-none`}
-                fill={isMessagesActive ? "currentColor" : "none"}
-                style={{ textShadow: "0 2px 4px rgba(0, 0, 0, 0.1)" }}
-              />
+              {isMessagesActive
+                ? <MessageSquare className={`${iconClass(true)} pointer-events-none`} />
+                : <MessageSquareOutline className={`${iconClass(false)} pointer-events-none`} />}
             </OptimizedLink>
             {messageUnreadCount > 0 && (
               <span className="pointer-events-none absolute -top-1.5 -right-1.5 z-10 flex items-center justify-center min-w-[20px] h-[20px] px-1.5 text-[10px] leading-none font-extrabold tracking-tight rounded-full bg-coral text-white ring-[1.5px] ring-white/85 shadow-sm">
@@ -682,11 +667,9 @@ export default function DesktopNav(props: DesktopNavProps) {
               className={iconWrapClass(isSettingsActive)}
               aria-label={isGuest ? "Sign in" : "Settings"}
             >
-              <Settings
-                className={iconClass(isSettingsActive)}
-                fill={isSettingsActive ? "currentColor" : "none"}
-                style={{ textShadow: "0 2px 4px rgba(0, 0, 0, 0.1)" }}
-              />
+              {isSettingsActive
+                ? <Settings className={iconClass(true)} />
+                : <SettingsOutline className={iconClass(false)} />}
             </OptimizedLink>
           </div>
         </>

@@ -1,4 +1,4 @@
-import { Star } from "@/app/lib/icons";
+import { Star, StarOutline } from "@/app/lib/icons";
 
 interface StarsProps {
   value?: number;
@@ -38,7 +38,7 @@ export default function Stars({ value = 5, color = "amber", size = 15, spacing =
           color === "gold"
             ? `url(#${gradientId})`
             : color === "charcoal"
-            ? "#404040"
+            ? "#2a2a2a"
             : color === "navbar-bg"
             ? "#722F37"
             : color === "coral/90"
@@ -51,15 +51,14 @@ export default function Stars({ value = 5, color = "amber", size = 15, spacing =
             style={{ width: size, height: size }}
             aria-hidden
           >
-            {/* Background star (empty) */}
-            <Star
+            {/* Background star (empty outline) */}
+            <StarOutline
               className="transition-all duration-200 absolute"
               style={{
                 width: size,
                 height: size,
-                stroke: starColor,
-                fill: "transparent",
-                strokeWidth: 2.5
+                color: starColor,
+                opacity: 0.65,
               }}
             />
             {/* Foreground star (filled/half-filled) */}
@@ -79,9 +78,7 @@ export default function Stars({ value = 5, color = "amber", size = 15, spacing =
                   style={{
                     width: size,
                     height: size,
-                    stroke: isFullStar || isHalfStar ? "none" : starColor,
-                    fill: starColor,
-                    strokeWidth: 2.5
+                    color: starColor,
                   }}
                 />
               </div>

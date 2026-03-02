@@ -1,7 +1,7 @@
 "use client";
 
 import { type ComponentProps } from "react";
-import { MessageSquare, Settings } from "@/app/lib/icons";
+import { MessageSquare, MessageSquareOutline, Settings, SettingsOutline } from "@/app/lib/icons";
 import Logo from "../../Logo/Logo";
 import OptimizedLink from "../../Navigation/OptimizedLink";
 import DesktopNav from "../DesktopNav";
@@ -77,7 +77,9 @@ export function BusinessHeaderRole({
             }`}
             aria-label={isGuest ? "Sign in for messages" : "Messages"}
           >
-            <MessageSquare className="w-5 h-5" fill={isMessagesActive ? "currentColor" : "none"} />
+            {isMessagesActive
+              ? <MessageSquare className="w-5 h-5" />
+              : <MessageSquareOutline className="w-5 h-5" />}
             {messageUnreadCount > 0 && (
               <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-white text-[10px] font-bold rounded-full bg-coral ring-[1.5px] ring-white/85 shadow-sm">
                 {messageUnreadCount > 99 ? "99+" : messageUnreadCount}
@@ -98,7 +100,9 @@ export function BusinessHeaderRole({
             }`}
             aria-label="Settings"
           >
-            <Settings className="w-5 h-5" fill={isSettingsActive ? "currentColor" : "none"} />
+            {isSettingsActive
+              ? <Settings className="w-5 h-5" />
+              : <SettingsOutline className="w-5 h-5" />}
           </OptimizedLink>
         )}
 
