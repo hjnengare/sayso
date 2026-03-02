@@ -247,7 +247,7 @@ export default function CommunityHighlights({
             </div>
             <ScrollableSection hideArrowsOnDesktop={hideCarouselArrowsOnDesktop}>
               <div className="flex gap-3 sm:gap-3 md:gap-3 lg:gap-2 xl:gap-2 2xl:gap-2 items-start py-2">
-                {Array.from({ length: 4 }).map((_, index) => (
+                {Array.from({ length: 12 }).map((_, index) => (
                   <div
                     key={`reviewer-skeleton-${index}`}
                     className="snap-start snap-always flex-shrink-0 w-[100vw] sm:w-auto sm:min-w-[25%] md:min-w-[25%] lg:min-w-[20%] xl:min-w-[18%] 2xl:min-w-[16%] list-none flex justify-center"
