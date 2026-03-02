@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useReviewersTop } from "../../hooks/useReviewersTop";
 import { useRecentReviews } from "../../hooks/useRecentReviews";
 import Image from "next/image";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight } from "@/app/lib/icons";
 import ReviewerCard from "../ReviewerCard/ReviewerCard";
 import BusinessOfTheMonthCard from "../BusinessCard/BusinessOfTheMonthCard";
 import ScrollableSection from "../ScrollableSection/ScrollableSection";

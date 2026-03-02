@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertCircle, CheckCircle } from "lucide-react";
+import { AlertCircle, CheckCircle } from "@/app/lib/icons";
 
 interface ValidationMessageProps {
   error: string;

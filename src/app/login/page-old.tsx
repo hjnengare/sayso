@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useRef } from "react";
-import { ArrowLeft, Mail, AlertCircle, CheckCircle, Lock, Eye, EyeOff, ShieldCheck, Users, Star } from "lucide-react";
+import { ArrowLeft, Mail, AlertCircle, CheckCircle, Lock, Eye, EyeOff, ShieldCheck, Users, Star } from "@/app/lib/icons";
 import { useAuth } from "../contexts/AuthContext";
 import { useToast } from "../contexts/ToastContext";
 

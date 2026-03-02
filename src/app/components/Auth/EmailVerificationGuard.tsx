@@ -6,7 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
 import { AuthService } from '../../lib/auth';
 import { useToast } from '../../contexts/ToastContext';
-import { Mail, CheckCircle, AlertCircle, Loader, ExternalLink } from 'lucide-react';
+import { Mail, CheckCircle, AlertCircle, Loader, ExternalLink } from "@/app/lib/icons";
 
 interface EmailVerificationGuardProps {
   children: React.ReactNode;

@@ -11,7 +11,7 @@ import {
   Star,
   Search,
   X
-} from "lucide-react";
+} from "@/app/lib/icons";
 import Footer from "../components/Footer/Footer";
 import { BADGE_MAPPINGS } from "../lib/badgeMappings";
 import { useAuth } from "../contexts/AuthContext";

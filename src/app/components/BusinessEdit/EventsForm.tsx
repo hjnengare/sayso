@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Trash2, Edit2, Plus, X } from 'lucide-react';
+import { Trash2, Edit2, Plus, X } from "@/app/lib/icons";
 import { useToast } from '@/app/contexts/ToastContext';
 import { useBusinessEvents, BusinessEvent } from '../../hooks/useBusinessEvents';
 

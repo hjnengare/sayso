@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, ChevronUp } from "lucide-react";
+import { ArrowLeft, ChevronUp } from "@/app/lib/icons";
 import { BADGE_MAPPINGS } from "../../lib/badgeMappings";
 
 const GROUP_LABELS: Record<string, string> = {

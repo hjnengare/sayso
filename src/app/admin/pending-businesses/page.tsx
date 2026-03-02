@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Loader2, Store, Eye, ArrowRight, Clock } from "lucide-react";
+import { Loader2, Store, Eye, ArrowRight, Clock } from "@/app/lib/icons";
 
 type PendingBusiness = {
   id: string;

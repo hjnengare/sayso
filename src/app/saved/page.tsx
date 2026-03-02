@@ -6,7 +6,7 @@ import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useSavedBusinesses } from "../hooks/useSavedBusinessesFull";
 import { AnimatePresence, m, useReducedMotion } from "framer-motion";
 import { getChoreoItemMotion } from "../lib/motion/choreography";
-import { ChevronRight, Store } from "lucide-react";
+import { ChevronRight, Store } from "@/app/lib/icons";
 import FilterPillGroup from "../components/Filters/FilterPillGroup";
 import Pagination from "../components/EventsPage/Pagination";
 import EmailVerificationGuard from "../components/Auth/EmailVerificationGuard";

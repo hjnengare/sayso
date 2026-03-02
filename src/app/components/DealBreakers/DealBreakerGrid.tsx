@@ -7,7 +7,7 @@ import {
   Smile,
   BadgeDollarSign,
   CheckCircle,
-} from "lucide-react";
+} from "@/app/lib/icons";
 
 interface DealBreaker {
   id: string;

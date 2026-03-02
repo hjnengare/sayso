@@ -1,7 +1,7 @@
 "use client";
 
 import { type ComponentProps } from "react";
-import { MessageSquare, Settings } from "lucide-react";
+import { MessageSquare, Settings } from "@/app/lib/icons";
 import Logo from "../../Logo/Logo";
 import OptimizedLink from "../../Navigation/OptimizedLink";
 import DesktopNav from "../DesktopNav";

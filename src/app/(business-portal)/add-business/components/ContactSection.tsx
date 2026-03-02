@@ -2,7 +2,7 @@
 
 import React from "react";
 import { m } from "framer-motion";
-import { Phone, Coins, Sparkles, Wallet, Gem, Crown } from "lucide-react";
+import { Phone, Coins, Sparkles, Wallet, Gem, Crown } from "@/app/lib/icons";
 import { BusinessFormData } from "./types";
 
 interface ContactSectionProps {

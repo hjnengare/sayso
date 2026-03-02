@@ -4,7 +4,7 @@
 import { useState, type CSSProperties, type ReactNode } from "react";
 import { m, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { Calendar, Share2, Bell, Users, Check, X } from "lucide-react";
+import { Calendar, Share2, Bell, Users, Check, X } from "@/app/lib/icons";
 import { useToast } from "../../contexts/ToastContext";
 import { useAuth } from "../../contexts/AuthContext";
 import type { Event } from "../../lib/types/Event";

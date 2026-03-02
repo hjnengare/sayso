@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { m } from 'framer-motion';
-import { CheckCircle, AlertTriangle, Info, X } from 'lucide-react';
+import { CheckCircle, AlertTriangle, Info, X } from "@/app/lib/icons";
 
 interface Toast {
   id: string;

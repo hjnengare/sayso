@@ -1,4 +1,4 @@
-import { Star } from "lucide-react";
+import { Star } from "@/app/lib/icons";
 
 interface StarsProps {
   value?: number;

@@ -11,7 +11,7 @@ import {
     X,
     ChevronRight,
     ChevronLeft,
-} from "lucide-react";
+} from "@/app/lib/icons";
 import ReviewsList from "../../components/Reviews/ReviewsList";
 import type { ReviewWithUser } from "../../lib/types/database";
 import { isPlaceholderImage } from "../../utils/categoryToPngMapping";

@@ -2,7 +2,7 @@
 "use client";
 
 import { m } from "framer-motion";
-import { Phone, Globe, MapPin, Mail } from "lucide-react";
+import { Phone, Globe, MapPin, Mail } from "@/app/lib/icons";
 
 interface BusinessContactInfoProps {
   phone?: string;

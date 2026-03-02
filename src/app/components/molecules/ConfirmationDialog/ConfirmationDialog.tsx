@@ -3,7 +3,7 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { m } from 'framer-motion';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle } from "@/app/lib/icons";
 
 export interface ConfirmationDialogProps {
   isOpen: boolean;

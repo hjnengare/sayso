@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
-import { User, AlertCircle, CheckCircle } from "lucide-react";
+import { User, AlertCircle, CheckCircle } from "@/app/lib/icons";
 import { AutoDismissFeedback } from "../Shared/AutoDismissFeedback";
 
 interface UsernameInputProps {

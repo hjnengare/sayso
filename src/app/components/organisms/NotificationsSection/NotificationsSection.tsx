@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Bell } from 'lucide-react';
+import { Bell } from "@/app/lib/icons";
 import { SettingsCard } from '@/components/atoms/SettingsCard';
 
 export const NotificationsSection: React.FC = () => {

@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useMemo, useState } from "react";
-import { BookmarkCheck, Filter } from "lucide-react";
+import { BookmarkCheck, Filter } from "@/app/lib/icons";
 import BusinessCard, { Business } from "../BusinessCard/BusinessCard";
 import LocationPromptBanner from "../Location/LocationPromptBanner";
 

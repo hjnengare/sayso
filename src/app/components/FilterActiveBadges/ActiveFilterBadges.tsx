@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { X, Star, MapPin, ChevronDown } from "lucide-react";
+import { X, Star, MapPin, ChevronDown } from "@/app/lib/icons";
 import { FilterState } from "../FilterModal/FilterModal";
 import { m, AnimatePresence, useReducedMotion } from "framer-motion";
 import { pillBase, pillSize, pillActive } from "../Filters/filterPillTokens";

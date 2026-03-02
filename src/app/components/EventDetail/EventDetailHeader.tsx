@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, Share2 } from "lucide-react";
+import { ArrowLeft, Share2 } from "@/app/lib/icons";
 
 interface EventDetailHeaderProps {
   onShare: () => void;

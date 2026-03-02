@@ -2,7 +2,7 @@
 
 import { memo } from "react";
 import { m } from "framer-motion";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle } from "@/app/lib/icons";
 
 interface Interest {
   id: string;

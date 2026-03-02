@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Loader2, FileCheck, ArrowRight, Clock, ChevronDown } from "lucide-react";
+import { Loader2, FileCheck, ArrowRight, Clock, ChevronDown } from "@/app/lib/icons";
 
 type ClaimRow = {
   id: string;

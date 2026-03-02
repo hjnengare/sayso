@@ -3,7 +3,7 @@
 
 import { m } from "framer-motion";
 import Image from "next/image";
-import { Heart } from "lucide-react";
+import { Heart } from "@/app/lib/icons";
 import type { Event } from "../../lib/types/Event";
 import GoldStar from "../Icons/GoldStar";
 

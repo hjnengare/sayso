@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Heart } from "lucide-react";
+import { Heart } from "@/app/lib/icons";
 
 interface ReviewContentProps {
   businessName: string;

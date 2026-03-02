@@ -1,7 +1,7 @@
 "use client";
 
 import type { CSSProperties, ReactNode } from "react";
-import { CheckCircle, DollarSign, Globe, Mail, MapPin, Phone, Clock, Award, Star } from "lucide-react";
+import { CheckCircle, DollarSign, Globe, Mail, MapPin, Phone, Clock, Award, Star } from "@/app/lib/icons";
 import { Text } from '@/components/atoms/Text';
 import type { BusinessInfo } from "./BusinessInfoModal";
 

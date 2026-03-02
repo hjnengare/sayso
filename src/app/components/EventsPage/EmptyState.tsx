@@ -1,7 +1,7 @@
 // src/components/EventsPage/EmptyState.tsx
 "use client";
 
-import { Calendar } from "lucide-react";
+import { Calendar } from "@/app/lib/icons";
 
 interface EmptyStateProps {
   filterType: "all" | "event" | "special";

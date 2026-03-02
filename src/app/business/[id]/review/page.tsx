@@ -4,7 +4,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense, useMemo, useRef } from "react";
 import dynamic from "next/dynamic";
 import { Urbanist } from "next/font/google";
-import { Edit, Star, ChevronUp, Info, ChevronRight, ChevronLeft } from "lucide-react";
+import { Edit, Star, ChevronUp, Info, ChevronRight, ChevronLeft } from "@/app/lib/icons";
 import Link from "next/link";
 import confetti from "canvas-confetti";
 import { m, AnimatePresence } from "framer-motion";

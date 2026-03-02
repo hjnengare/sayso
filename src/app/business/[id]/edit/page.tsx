@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight } from "@/app/lib/icons";
 import {
     Store,
     Save,
@@ -19,7 +19,7 @@ import {
     ImageIcon,
     Edit3,
     Trash2,
-} from "lucide-react";
+} from "@/app/lib/icons";
 import { PageLoader } from "../../../components/Loader";
 import { ConfirmationDialog } from "@/components/molecules/ConfirmationDialog";
 import EventsForm from "../../../components/BusinessEdit/EventsForm";

@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertCircle, CheckCircle2, Info } from "lucide-react";
+import { AlertCircle, CheckCircle2, Info } from "@/app/lib/icons";
 
 type AuthAlertTone = "error" | "warning" | "info" | "success";
 

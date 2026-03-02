@@ -9,7 +9,7 @@ import {
   Eye,
   Star as StarIcon,
   ThumbsUp,
-} from "lucide-react";
+} from "@/app/lib/icons";
 import type { UserStats } from "@/app/lib/types/user";
 
 interface ProfileStatsProps {

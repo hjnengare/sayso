@@ -17,7 +17,7 @@ import {
   Heart,
   ChevronRight,
   MapPin,
-} from "lucide-react";
+} from "@/app/lib/icons";
 
 
 interface ReviewerCardProps {

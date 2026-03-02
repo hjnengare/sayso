@@ -2,7 +2,7 @@
 
 import { memo } from "react";
 import { m } from "framer-motion";
-import { Trophy } from "lucide-react";
+import { Trophy } from "@/app/lib/icons";
 import FallbackImage from "../FallbackImage/FallbackImage";
 
 interface LeaderboardUser {

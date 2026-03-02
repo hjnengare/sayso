@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { X, MapPin, Star, MessageCircle, Heart } from "lucide-react";
+import { X, MapPin, Star, MessageCircle, Heart } from "@/app/lib/icons";
 import { m, AnimatePresence } from "framer-motion";
 
 export default function WelcomeModal() {

@@ -1,9 +1,9 @@
 /**
- * Badge Mappings - Maps badge IDs to PNG images and Lucide icons
+ * Badge Mappings - Maps badge IDs to PNG images and Ionicons
  * Source of truth: grouped by badge category per AC requirements
  *
  * PNG images are stored in /public/badges/
- * Lucide icons are used for compact display on review cards
+ * Icons are used for compact display on review cards
  */
 
 import {
@@ -73,15 +73,15 @@ import {
   Gem,
   Aperture,
   Medal,
-  type LucideIcon,
-} from "lucide-react";
+  type IconType,
+} from "@/app/lib/icons";
 
 export interface BadgeMapping {
   id: string;
   name: string;
   description?: string;
   pngPath: string;
-  lucideIcon: LucideIcon;
+  lucideIcon: IconType;
   badgeGroup: "explorer" | "specialist" | "milestone" | "community";
   categoryKey?: string;
 }
@@ -694,7 +694,7 @@ export function getBadgePngPath(badgeId: string): string {
 /**
  * Get Lucide icon for a badge ID
  */
-export function getBadgeLucideIcon(badgeId: string): LucideIcon {
+export function getBadgeLucideIcon(badgeId: string): IconType {
   const mapping = BADGE_MAPPINGS[badgeId];
   return mapping?.lucideIcon || Award; // Default fallback
 }

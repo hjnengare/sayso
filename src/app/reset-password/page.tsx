@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Urbanist } from "next/font/google";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "@/app/lib/icons";
 import { AuthService } from "../lib/auth";
 import { useToast } from "../contexts/ToastContext";
 import { getBrowserSupabase } from "../lib/supabase/client";

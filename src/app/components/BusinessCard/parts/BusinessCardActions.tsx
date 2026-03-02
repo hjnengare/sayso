@@ -1,5 +1,5 @@
 import React from "react";
-import { Edit, Bookmark, Share2 } from "lucide-react";
+import { Edit, Bookmark, Share2 } from "@/app/lib/icons";
 
 interface BusinessCardActionsProps {
   hasReviewed: boolean;

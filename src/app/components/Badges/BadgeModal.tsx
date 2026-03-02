@@ -2,7 +2,7 @@
 
 import { m, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import { X } from 'lucide-react';
+import { X } from "@/app/lib/icons";
 import { Badge } from './BadgeCard';
 
 interface BadgeModalProps {

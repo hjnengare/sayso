@@ -2,7 +2,7 @@
 
 import { m } from "framer-motion";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "@/app/lib/icons";
 
 const sf = {
   fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",

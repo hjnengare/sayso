@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "@/app/lib/icons";
 
 interface AuthHeaderProps {
   backLink: string;

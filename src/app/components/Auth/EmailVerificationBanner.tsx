@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
-import { Mail, X } from 'lucide-react';
+import { Mail, X } from "@/app/lib/icons";
 import { InlineLoader } from '../Loader';
 
 interface EmailVerificationBannerProps {

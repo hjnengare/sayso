@@ -45,7 +45,6 @@
     "dotenv": "^17.2.3",
     "framer-motion": "^12.23.12",
     "isomorphic-dompurify": "^2.33.0",
-    "lucide-react": "^0.544.0",
     "mapbox-gl": "^3.17.0",
     "next": "^16.0.7",
     "openai": "^4.104.0",

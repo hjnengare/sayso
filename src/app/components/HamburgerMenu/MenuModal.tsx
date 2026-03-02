@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { X, Edit, ChevronRight, Bookmark, Home, User, Search, Settings, HelpCircle } from "lucide-react";
+import { X, Edit, ChevronRight, Bookmark, Home, User, Search, Settings, HelpCircle } from "@/app/lib/icons";
 import { useAuth } from "../../contexts/AuthContext";
 import { useSavedItems } from "../../contexts/SavedItemsContext";
 

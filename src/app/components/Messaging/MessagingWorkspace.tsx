@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ChevronLeft, MessageCircle } from 'lucide-react';
+import { ChevronLeft, MessageCircle } from "@/app/lib/icons";
 import { useReducedMotion } from 'framer-motion';
 import { useAuth } from '@/app/contexts/AuthContext';
 import {

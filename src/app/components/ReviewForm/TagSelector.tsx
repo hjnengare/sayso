@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { m, AnimatePresence } from "framer-motion";
-import { Check, Plus, Sparkles } from "lucide-react";
+import { Check, Plus, Sparkles } from "@/app/lib/icons";
 
 interface TagSelectorProps {
   selectedTags: string[];

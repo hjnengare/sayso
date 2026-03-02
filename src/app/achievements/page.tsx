@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRef, useEffect, useState } from 'react';
 import { m, useInView, useMotionValue, useSpring } from 'framer-motion';
-import { Trophy, Map, Star, Target, Users, Lock, ArrowRight, Zap, ChevronLeft } from 'lucide-react';
+import { Trophy, Map, Star, Target, Users, Lock, ArrowRight, Zap, ChevronLeft } from "@/app/lib/icons";
 import useSWR from 'swr';
 import { useAuth } from '../contexts/AuthContext';
 import { Loader } from '../components/Loader';

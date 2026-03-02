@@ -10,7 +10,7 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
 import { useRouter } from 'next/navigation';
-import { Trash2, Heart, MessageCircle, Edit, Flag, Loader2 } from 'lucide-react';
+import { Trash2, Heart, MessageCircle, Edit, Flag, Loader2 } from "@/app/lib/icons";
 import type { ReviewWithUser } from '../../lib/types/database';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';

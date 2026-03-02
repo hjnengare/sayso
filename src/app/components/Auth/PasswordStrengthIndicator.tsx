@@ -1,6 +1,6 @@
 "use client";
 
-import { Circle } from "lucide-react";
+import { Circle } from "@/app/lib/icons";
 import { PasswordStrength } from "../../utils/validation";
 
 interface PasswordStrengthIndicatorProps {

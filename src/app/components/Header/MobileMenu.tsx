@@ -2,7 +2,7 @@ import { CSSProperties, MouseEvent, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import {
   ChevronDown,
-} from "lucide-react";
+} from "@/app/lib/icons";
 import OptimizedLink from "../Navigation/OptimizedLink";
 import { NavLink } from "./DesktopNav";
 import MobileMenuToggleIcon from "./MobileMenuToggleIcon";

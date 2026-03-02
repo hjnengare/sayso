@@ -16,7 +16,7 @@ import {
   MessageSquare,
   ChevronRight,
   ChevronLeft,
-} from "lucide-react";
+} from "@/app/lib/icons";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

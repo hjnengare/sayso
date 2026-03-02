@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { m } from "framer-motion";
 import { getBadgeMapping, getBadgeLucideIcon } from "../../lib/badgeMappings";
-import { Award } from "lucide-react";
+import { Award } from "@/app/lib/icons";
 
 export interface BadgePillData {
   id: string;
@@ -53,7 +53,7 @@ export default function BadgePill({
 
   // Get the mapping for this badge
   const mapping = getBadgeMapping(badge.id);
-  const LucideIcon = mapping?.lucideIcon || getBadgeLucideIcon(badge.id) || Award;
+  const IconType = mapping?.lucideIcon || getBadgeLucideIcon(badge.id) || Award;
   const pngPath = mapping?.pngPath || badge.icon_path || "/badges/012-expertise.png";
   const group = mapping?.badgeGroup || badge.badge_group || "";
   const style = GROUP_STYLES[group] || DEFAULT_STYLE;

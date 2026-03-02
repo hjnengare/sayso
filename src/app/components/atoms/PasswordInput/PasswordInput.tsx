@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff } from "@/app/lib/icons";
 
 export interface PasswordInputProps {
   label: string;

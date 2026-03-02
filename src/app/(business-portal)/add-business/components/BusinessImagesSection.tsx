@@ -2,7 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
-import { ImageIcon, Upload, X, Loader2 } from "lucide-react";
+import { ImageIcon, Upload, X, Loader2 } from "@/app/lib/icons";
 
 interface BusinessImagesSectionProps {
     imagePreviews: string[];

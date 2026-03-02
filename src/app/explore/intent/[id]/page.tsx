@@ -7,8 +7,8 @@ import Footer from "../../../components/Footer/Footer";
 import BusinessCard from "../../../components/BusinessCard/BusinessCard";
 import { useBusinesses } from "../../../hooks/useBusinesses";
 import BusinessGridSkeleton from "../../../components/Explore/BusinessGridSkeleton";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Utensils, Coffee, Activity, Heart, PartyPopper, ShoppingBag, Wrench } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "@/app/lib/icons";
+import { Utensils, Coffee, Activity, Heart, PartyPopper, ShoppingBag, Wrench } from "@/app/lib/icons";
 import { Urbanist } from "next/font/google";
 
 const urbanist = Urbanist({

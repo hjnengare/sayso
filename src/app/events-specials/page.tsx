@@ -15,7 +15,7 @@ import EmptyState from "../components/EventsPage/EmptyState";
 import SearchInput from "../components/SearchInput/SearchInput";
 import type { Event } from "../lib/types/Event";
 import { useDebounce } from "../hooks/useDebounce";
-import { ChevronRight, ChevronDown, ChevronLeft } from "lucide-react";
+import { ChevronRight, ChevronDown, ChevronLeft } from "@/app/lib/icons";
 import { Loader } from "../components/Loader/Loader";
 import { useIsDesktop } from "../hooks/useIsDesktop";
 const ITEMS_PER_PAGE = 20;

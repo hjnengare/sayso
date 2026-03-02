@@ -1,7 +1,7 @@
 // src/components/SpecialDetail/SpecialInfo.tsx
 "use client";
 
-import { Star, MapPin } from "lucide-react";
+import { Star, MapPin } from "@/app/lib/icons";
 import { m } from "framer-motion";
 
 interface SpecialInfoProps {

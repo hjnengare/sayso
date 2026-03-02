@@ -1,4 +1,4 @@
-import { MapPin } from "lucide-react";
+import { MapPin } from "@/app/lib/icons";
 
 interface ReviewerStatsProps {
   reviewCount: number;

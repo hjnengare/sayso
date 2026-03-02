@@ -2,8 +2,8 @@
 
 import { useEffect, Suspense, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, CheckCircle } from "lucide-react";
-import { ShieldCheck, Clock, Smile, BadgeDollarSign } from "lucide-react";
+import { ArrowRight, CheckCircle } from "@/app/lib/icons";
+import { ShieldCheck, Clock, Smile, BadgeDollarSign } from "@/app/lib/icons";
 import { useReducedMotion } from "../utils/useReducedMotion";
 import { 
   OnboardingLayout, 

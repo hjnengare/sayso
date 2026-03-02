@@ -2,7 +2,7 @@
 
 import { memo, useMemo, useState } from "react";
 import { m } from "framer-motion";
-import { Trophy, Star, ImageIcon } from "lucide-react";
+import { Trophy, Star, ImageIcon } from "@/app/lib/icons";
 import Link from "next/link";
 import Image from "next/image";
 import { BusinessOfTheMonth } from "../../types/community";

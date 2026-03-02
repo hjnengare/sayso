@@ -3,10 +3,10 @@
 import React, { memo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowRight, Star } from "lucide-react";
+import { ArrowRight, Star } from "@/app/lib/icons";
 import Image from "next/image";
-import { Scissors, Coffee, UtensilsCrossed, Wine, Dumbbell, Activity, Heart, Book, ShoppingBag, Home, Briefcase, MapPin, Music, Film, Camera, Car, GraduationCap, CreditCard, Tag } from "lucide-react";
-import { ImageIcon } from "lucide-react";
+import { Scissors, Coffee, UtensilsCrossed, Wine, Dumbbell, Activity, Heart, Book, ShoppingBag, Home, Briefcase, MapPin, Music, Film, Camera, Car, GraduationCap, CreditCard, Tag } from "@/app/lib/icons";
+import { ImageIcon } from "@/app/lib/icons";
 import { getCategoryPlaceholder, isPlaceholderImage } from "../../utils/categoryToPngMapping";
 import { getCategorySlugFromBusiness } from "../../utils/subcategoryPlaceholders";
 

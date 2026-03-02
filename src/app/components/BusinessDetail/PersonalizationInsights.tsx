@@ -8,7 +8,7 @@ import {
   calculatePersonalizationScore,
   type BusinessForScoring,
 } from "../../lib/services/personalizationService";
-import { CheckCircle, Info, Lock } from "lucide-react";
+import { CheckCircle, Info, Lock } from "@/app/lib/icons";
 import PercentileChipsSection from "./PercentileChipsSection";
 
 interface PersonalizationInsightsProps {

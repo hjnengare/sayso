@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { FormEvent, RefObject } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "@/app/lib/icons";
 import { AnimatePresence, m } from "framer-motion";
 
 import { InlineLoader } from "../Loader/Loader";

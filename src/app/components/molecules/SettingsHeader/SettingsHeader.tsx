@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from "@/app/lib/icons";
 
 export interface SettingsHeaderProps {
   title: string;

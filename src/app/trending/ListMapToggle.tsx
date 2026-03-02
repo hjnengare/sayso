@@ -1,6 +1,6 @@
 "use client";
 
-import { List, Map as MapIcon } from "lucide-react";
+import { List, Map as MapIcon } from "@/app/lib/icons";
 
 interface ListMapToggleProps {
   isMapMode: boolean;

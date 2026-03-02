@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import { ChevronRight, ChevronLeft, AlertCircle } from "lucide-react";
+import { ChevronRight, ChevronLeft, AlertCircle } from "@/app/lib/icons";
 import { m, AnimatePresence } from "framer-motion";
 import { useToast } from "../../contexts/ToastContext";
 import { useAuth } from "../../contexts/AuthContext";

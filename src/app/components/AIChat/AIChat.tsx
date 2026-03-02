@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send, Loader } from "lucide-react";
+import { MessageCircle, X, Send, Loader } from "@/app/lib/icons";
 
 interface Message {
   id: string;

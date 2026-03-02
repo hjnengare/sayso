@@ -1,7 +1,7 @@
 // src/components/SpecialDetail/SpecialPersonalizationInsights.tsx
 "use client";
 
-import { Sparkles, Star, MapPin, TrendingUp } from "lucide-react";
+import { Sparkles, Star, MapPin, TrendingUp } from "@/app/lib/icons";
 
 interface SpecialPersonalizationInsightsProps {
     special: {

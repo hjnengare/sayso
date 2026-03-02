@@ -2,7 +2,7 @@
 
 import { memo, useMemo, useState } from "react";
 import { m } from "framer-motion";
-import { Star, Trophy, MapPin, ImageIcon } from "lucide-react";
+import { Star, Trophy, MapPin, ImageIcon } from "@/app/lib/icons";
 import Image from "next/image";
 import { BusinessOfTheMonth } from "../../types/community";
 import { getCategoryPlaceholder, getCategoryPlaceholderFromLabels, isPlaceholderImage } from "../../utils/categoryToPngMapping";

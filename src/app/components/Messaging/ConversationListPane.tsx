@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Loader2, MessageCircle, Search } from 'lucide-react';
+import { Loader2, MessageCircle, Search } from "@/app/lib/icons";
 import type { ConversationListItem, MessagingRole } from '@/app/hooks/messaging';
 import { MessageBubbleAvatar, buildInitials } from './MessageBubbleAvatar';
 

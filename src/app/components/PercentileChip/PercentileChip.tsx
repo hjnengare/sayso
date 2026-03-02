@@ -1,6 +1,6 @@
 "use client";
 
-import { Clock, DollarSign, Smile, Shield, CheckCircle } from "lucide-react";
+import { Clock, DollarSign, Smile, Shield, CheckCircle } from "@/app/lib/icons";
 import { memo } from "react";
 
 interface PercentileChipProps {

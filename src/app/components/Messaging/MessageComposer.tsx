@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Loader2, Send } from 'lucide-react';
+import { Loader2, Send } from "@/app/lib/icons";
 
 interface MessageComposerProps {
   value: string;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
-import { MapPin, X, Search, Loader } from 'lucide-react';
+import { MapPin, X, Search, Loader } from "@/app/lib/icons";
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import React, { useState, useCallback, useMemo } from "react";
-import { ChevronLeft, ChevronRight, Star, Image as ImageIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight, Star, Image as ImageIcon } from "@/app/lib/icons";
 import { getSubcategoryPlaceholder } from "../../utils/subcategoryPlaceholders";
 import { isPlaceholderImage } from "../../utils/subcategoryPlaceholders";
 

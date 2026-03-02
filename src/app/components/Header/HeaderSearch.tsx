@@ -1,7 +1,7 @@
 "use client";
 
 import type { CSSProperties, ChangeEvent, FormEvent, KeyboardEvent, RefObject } from "react";
-import { Search, X } from "lucide-react";
+import { Search, X } from "@/app/lib/icons";
 import { AnimatePresence, m } from "framer-motion";
 
 import type { LiveSearchResult } from "../../hooks/useLiveSearch";

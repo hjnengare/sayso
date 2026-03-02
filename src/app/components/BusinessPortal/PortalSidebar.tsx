@@ -12,7 +12,7 @@ import {
   Calendar,
   Tag,
   Settings,
-} from "lucide-react";
+} from "@/app/lib/icons";
 import Wordmark from "../Logo/Wordmark";
 import { useMessageUnreadCount } from "@/app/hooks/messaging";
 

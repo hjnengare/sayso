@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, m } from "framer-motion";
-import { AlertCircle, Clock3, Loader2, ShieldCheck, X } from "lucide-react";
+import { AlertCircle, Clock3, Loader2, ShieldCheck, X } from "@/app/lib/icons";
 
 const FONT = "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif";
 

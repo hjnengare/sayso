@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertCircle } from "lucide-react";
+import { AlertCircle } from "@/app/lib/icons";
 import { AutoDismissFeedback } from "../Auth/Shared/AutoDismissFeedback";
 
 interface OnboardingErrorBannerProps {

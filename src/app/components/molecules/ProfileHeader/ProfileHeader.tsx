@@ -4,7 +4,7 @@ import React from 'react';
 import { Avatar } from '@/components/atoms/Avatar';
 import { Badge } from '@/components/atoms/Badge';
 import { IconButton } from '@/components/atoms/IconButton';
-import { Award, Edit } from 'lucide-react';
+import { Award, Edit } from "@/app/lib/icons";
 
 export interface ProfileHeaderProps {
   username: string;

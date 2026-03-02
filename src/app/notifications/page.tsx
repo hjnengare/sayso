@@ -10,7 +10,7 @@ import {
   Bell, Check, X, MessageSquare, MessageCircle, Star, Heart,
   TrendingUp, ChevronRight, Award, ThumbsUp, CheckCircle,
   ImageIcon, Trophy, User,
-} from "lucide-react";
+} from "@/app/lib/icons";
 import Footer from "../components/Footer/Footer";
 import { usePredefinedPageTitle } from "../hooks/usePageTitle";
 import { useNotifications } from "../contexts/NotificationsContext";

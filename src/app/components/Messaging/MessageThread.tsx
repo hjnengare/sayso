@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2 } from "@/app/lib/icons";
 import type { ConversationMessage, MessagingRole } from '@/app/hooks/messaging';
 import { MessageBubbleAvatar } from './MessageBubbleAvatar';
 

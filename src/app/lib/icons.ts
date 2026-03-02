@@ -1,0 +1,423 @@
+/**
+ * Central icon registry — single source of truth for all icons in the app.
+ *
+ * Icons are sourced from Ionicons 5 via `react-icons/io5`.
+ * Each export uses a lucide-compatible alias so existing component code
+ * only needs its import path updated, not its internal usage.
+ *
+ * Performance notes:
+ * - `react-icons/io5` tree-shakes per-icon (~300–500 bytes gzipped each)
+ * - `optimizePackageImports: ['react-icons']` in next.config.ts ensures
+ *   the bundler only includes icons actually imported
+ * - All icons are static SVG renders — no dynamic loading, no CLS
+ *
+ * Variant convention for new code:
+ *   Outline (default UI chrome) →  e.g. HomeOutline
+ *   Filled  (active/emphasis)   →  e.g. Home
+ */
+
+import React from 'react';
+export type { IconType } from 'react-icons';
+
+// ─── Navigation ──────────────────────────────────────────────────────────────
+export {
+  IoArrowBack          as ArrowLeft,
+  IoArrowBackOutline   as ArrowLeftOutline,
+  IoArrowForward       as ArrowRight,
+  IoArrowForwardOutline as ArrowRightOutline,
+  IoArrowUp            as ArrowUp,
+  IoArrowDown          as ArrowDown,
+  IoChevronBack        as ChevronLeft,
+  IoChevronBackOutline as ChevronLeftOutline,
+  IoChevronForward     as ChevronRight,
+  IoChevronForwardOutline as ChevronRightOutline,
+  IoChevronDown        as ChevronDown,
+  IoChevronDownOutline as ChevronDownOutline,
+  IoChevronUp          as ChevronUp,
+  IoChevronUpOutline   as ChevronUpOutline,
+  IoOpen               as ExternalLink,
+  IoNavigate           as Navigation,
+  IoNavigateOutline    as NavigationOutline,
+  IoCompass            as Compass,
+  IoCompassOutline     as CompassOutline,
+} from 'react-icons/io5';
+
+// ─── UI / Controls ────────────────────────────────────────────────────────────
+export {
+  IoClose              as X,
+  IoCloseOutline       as XOutline,
+  IoCheckmark          as Check,
+  IoCheckmarkOutline   as CheckOutline,
+  IoCheckmarkCircle    as CheckCircle,
+  IoCheckmarkCircleOutline as CheckCircleOutline,
+  IoCheckmarkDoneCircle as CheckCircle2,
+  IoAlertCircle        as AlertCircle,
+  IoAlertCircleOutline as AlertCircleOutline,
+  IoWarning            as AlertTriangle,
+  IoWarningOutline     as AlertTriangleOutline,
+  IoInformationCircle  as Info,
+  IoInformationCircleOutline as InfoOutline,
+  IoHelpCircle         as HelpCircle,
+  IoHelpCircleOutline  as HelpCircleOutline,
+  IoSearch             as Search,
+  IoSearchOutline      as SearchOutline,
+  IoFunnel             as Filter,
+  IoFunnelOutline      as FilterOutline,
+  IoMenu               as Menu,
+  IoMenuOutline        as MenuOutline,
+  IoAdd                as Plus,
+  IoAddOutline         as PlusOutline,
+  IoRemove             as Minus,
+  IoEye                as Eye,
+  IoEyeOutline         as EyeOutline,
+  IoEyeOff             as EyeOff,
+  IoEyeOffOutline      as EyeOffOutline,
+  IoCopy               as Copy,
+  IoCopyOutline        as CopyOutline,
+  IoPencil             as Edit,
+  IoPencilOutline      as EditOutline,
+  IoPencil             as Edit2,
+  IoPencil             as Edit3,
+  IoTrash              as Trash2,
+  IoTrashOutline       as TrashOutline,
+  IoCloudUpload        as Upload,
+  IoCloudUploadOutline as UploadOutline,
+  IoCloudDownload      as Download,
+  IoCloudDownloadOutline as DownloadOutline,
+  IoShareSocial        as Share2,
+  IoShareSocialOutline as ShareOutline,
+  IoPaperPlane         as Send,
+  IoPaperPlaneOutline  as SendOutline,
+  IoLockClosed         as Lock,
+  IoLockClosedOutline  as LockOutline,
+  IoLockOpen           as Unlock,
+  IoRefresh            as RefreshCw,
+  IoRefreshOutline     as RefreshOutline,
+  IoExpand             as Maximize2,
+  IoEllipsisHorizontal as MoreHorizontal,
+  IoEllipsisVertical   as MoreVertical,
+  IoEllipse            as Circle,
+  IoGrid               as Grid3x3,
+  IoList               as List,
+  IoText               as Type,
+  IoLink               as Link,
+  IoLinkOutline        as LinkOutline,
+  IoSearchCircle       as ZoomIn,
+  IoSearch             as ZoomOut,
+  IoScan               as Target,
+  IoPricetag           as Percent,
+  IoPricetag           as Tag,
+  IoCloudUpload        as UploadCloud,
+  IoCloseCircle        as XCircle,
+  IoAddCircle          as PlusCircle,
+  IoOptions            as Sliders,
+  IoMove               as Move,
+  IoSave               as Save,
+  IoShieldHalf         as ShieldAlert,
+  IoLink               as Link2,
+  IoList               as ListPlus,
+  IoFlag               as Flag,
+  IoMoon               as Moon,
+  IoSunny              as Sun,
+} from 'react-icons/io5';
+
+// ─── Devices / Layout ─────────────────────────────────────────────────────────
+export {
+  IoCar                as Car,
+  IoCar                as Truck,
+  IoLaptop             as Laptop,
+  IoDesktop            as Monitor,
+  IoGrid               as LayoutDashboard,
+  IoDocumentText       as FileSpreadsheet,
+  IoCalendarNumber     as CalendarDays,
+  IoBook               as Book,
+  IoFootsteps          as Footprints,
+  IoHandRight          as HelpingHand,
+  IoAirplane           as Plane,
+  IoKey                as Key,
+} from 'react-icons/io5';
+
+// ─── User ─────────────────────────────────────────────────────────────────────
+export {
+  IoPerson             as User,
+  IoPersonOutline      as UserOutline,
+  IoPerson             as UserRound,
+  IoPersonCircle       as UserCheck,
+  IoPersonCircleOutline as UserCircleOutline,
+  IoPeople             as Users,
+  IoPeopleOutline      as UsersOutline,
+  IoLogOut             as LogOut,
+  IoLogOutOutline      as LogOutOutline,
+} from 'react-icons/io5';
+
+// ─── Content / Social ─────────────────────────────────────────────────────────
+export {
+  IoHeart              as Heart,
+  IoHeartOutline       as HeartOutline,
+  IoStar               as Star,
+  IoStarOutline        as StarOutline,
+  IoBookmark           as Bookmark,
+  IoBookmarkOutline    as BookmarkOutline,
+  IoBookmark           as BookmarkCheck,
+  IoNotifications      as Bell,
+  IoNotificationsOutline as BellOutline,
+  IoCalendar           as Calendar,
+  IoCalendarOutline    as CalendarOutline,
+  IoTime               as Clock,
+  IoTimeOutline        as ClockOutline,
+  IoTime               as Clock3,
+  IoMail               as Mail,
+  IoMailOutline        as MailOutline,
+  IoCall               as Phone,
+  IoCallOutline        as PhoneOutline,
+  IoChatbox            as MessageSquare,
+  IoChatboxOutline     as MessageSquareOutline,
+  IoChatbubble         as MessageCircle,
+  IoChatbubbleOutline  as MessageCircleOutline,
+  IoMap                as Map,
+  IoMapOutline         as MapOutline,
+  IoLocation           as MapPin,
+  IoLocationOutline    as MapPinOutline,
+  IoLocate             as MapPinned,
+  IoGlobe              as Globe,
+  IoGlobeOutline       as GlobeOutline,
+  IoHome               as Home,
+  IoHomeOutline        as HomeOutline,
+  IoSettings           as Settings,
+  IoSettingsOutline    as SettingsOutline,
+  IoCamera             as Camera,
+  IoCameraOutline      as CameraOutline,
+  IoImage              as ImageIcon,
+  IoImage              as Image,
+  IoImageOutline       as ImageOutline,
+  IoDocumentText       as FileText,
+  IoDocumentTextOutline as FileTextOutline,
+  IoDocumentAttach     as FileCheck,
+  IoDocumentAttachOutline as FileCheckOutline,
+  IoPulse              as Activity,
+  IoTrendingUp         as TrendingUp,
+  IoTrendingUpOutline  as TrendingUpOutline,
+  IoBarChart           as BarChart3,
+  IoBarChartOutline    as BarChartOutline,
+  IoSpeedometer        as Gauge,
+  IoSpeedometerOutline as GaugeOutline,
+  IoFlash              as Zap,
+  IoFlashOutline       as ZapOutline,
+  IoSparkles           as Sparkles,
+  IoSparklesOutline    as SparklesOutline,
+  IoAperture           as Aperture,
+  IoApertureOutline    as ApertureOutline,
+  IoThumbsUp           as ThumbsUp,
+  IoThumbsUpOutline    as ThumbsUpOutline,
+} from 'react-icons/io5';
+
+// ─── Business / Commerce ──────────────────────────────────────────────────────
+export {
+  IoStorefront         as Store,
+  IoStorefrontOutline  as StoreOutline,
+  IoBriefcase          as Briefcase,
+  IoBriefcaseOutline   as BriefcaseOutline,
+  IoWallet             as Wallet,
+  IoWalletOutline      as WalletOutline,
+  IoCard               as CreditCard,
+  IoCardOutline        as CreditCardOutline,
+  IoCash               as DollarSign,
+  IoCash               as Coins,
+  IoCashOutline        as CashOutline,
+  IoBag                as ShoppingBag,
+  IoBagOutline         as ShoppingBagOutline,
+  IoCart               as ShoppingCart,
+  IoCartOutline        as ShoppingCartOutline,
+  IoPhonePortrait      as Smartphone,
+  IoPhonePortraitOutline as SmartphoneOutline,
+  IoServer             as Database,
+  IoServerOutline      as DatabaseOutline,
+  IoPricetag           as BadgeDollarSign,
+  IoPricetagOutline    as BadgeDollarSignOutline,
+  IoShieldCheckmark    as BadgeCheck,
+  IoShieldCheckmarkOutline as BadgeCheckOutline,
+  IoShirt              as Shirt,
+  IoShirtOutline       as ShirtOutline,
+} from 'react-icons/io5';
+
+// ─── Achievements / Rewards ───────────────────────────────────────────────────
+export {
+  IoRibbon             as Award,
+  IoRibbonOutline      as AwardOutline,
+  IoTrophy             as Trophy,
+  IoTrophyOutline      as TrophyOutline,
+  IoMedal              as Medal,
+  IoMedalOutline       as MedalOutline,
+  IoRibbon             as Crown,
+  IoDiamond            as Gem,
+  IoDiamondOutline     as GemOutline,
+  IoRocket             as Rocket,
+  IoRocketOutline      as RocketOutline,
+  IoShield             as Shield,
+  IoShieldOutline      as ShieldOutline,
+  IoShieldCheckmark    as ShieldCheck,
+} from 'react-icons/io5';
+
+// ─── Food / Lifestyle ─────────────────────────────────────────────────────────
+export {
+  IoCafe               as Coffee,
+  IoCafeOutline        as CoffeeOutline,
+  IoNutrition          as Cake,
+  IoNutrition          as Croissant,
+  IoRestaurant         as Utensils,
+  IoRestaurant         as UtensilsCrossed,
+  IoRestaurantOutline  as UtensilsOutline,
+  IoWine               as Wine,
+  IoWineOutline        as WineOutline,
+  IoBrush              as Brush,
+  IoBrushOutline       as BrushOutline,
+  IoPizza              as Pizza,
+  IoPizzaOutline       as PizzaOutline,
+  IoCut                as Scissors,
+  IoCutOutline         as ScissorsOutline,
+  IoMusicalNotes       as Music,
+  IoMusicalNotesOutline as MusicOutline,
+  IoBarbell            as Dumbbell,
+  IoBarbellOutline     as DumbbellOutline,
+  IoFlower             as Flower2,
+  IoFlowerOutline      as FlowerOutline,
+  IoColorPalette       as Palette,
+  IoColorPaletteOutline as PaletteOutline,
+  IoFilm               as Film,
+  IoFilmOutline        as FilmOutline,
+  IoFilm               as Clapperboard,
+  IoTicket             as Theater,
+  IoTicketOutline      as TheaterOutline,
+  IoLeaf               as Leaf,
+  IoLeafOutline        as LeafOutline,
+  IoFlame              as Flame,
+  IoFlameOutline       as FlameOutline,
+  IoLeaf               as TreePine,
+  IoWater              as Waves,
+  IoWaterOutline       as WavesOutline,
+  IoPaw                as PawPrint,
+  IoPawOutline         as PawPrintOutline,
+  IoGameController     as Gamepad2,
+  IoGameControllerOutline as Gamepad2Outline,
+  IoHappy              as Smile,
+  IoHappyOutline       as SmileOutline,
+  IoHappy              as PartyPopper,
+  IoSchool             as GraduationCap,
+  IoSchoolOutline      as GraduationCapOutline,
+  IoBook               as BookOpen,
+  IoBookOutline        as BookOpenOutline,
+  IoLibrary            as Landmark,
+  IoLibraryOutline     as LandmarkOutline,
+  IoBusiness           as Building2,
+  IoBusinessOutline    as Building2Outline,
+  IoBulb               as Lightbulb,
+  IoBulbOutline        as LightbulbOutline,
+  IoBuild              as Wrench,
+  IoBuildOutline       as WrenchOutline,
+  IoMegaphone          as Megaphone,
+  IoMegaphoneOutline   as MegaphoneOutline,
+  IoBoat               as Ship,
+  IoBoatOutline        as ShipOutline,
+  IoBody               as Baby,
+  IoBodyOutline        as BabyOutline,
+  IoTriangle           as Mountain,
+  IoTriangleOutline    as MountainOutline,
+  IoLeaf               as Bird,
+  IoLeafOutline        as BirdOutline,
+  IoBoat               as Sailboat,
+  IoRepeat             as Repeat,
+  IoRepeatOutline      as RepeatOutline,
+} from 'react-icons/io5';
+
+// ─── Social Media ─────────────────────────────────────────────────────────────
+export {
+  IoLogoFacebook       as Facebook,
+  IoLogoInstagram      as Instagram,
+  IoLogoTwitter        as Twitter,
+  IoLogoLinkedin       as Linkedin,
+  IoLogoYoutube        as Youtube,
+  IoLogoTiktok         as TikTok,
+} from 'react-icons/io5';
+
+// ─── Spinner — replaces Lucide's `Loader` / `Loader2` ────────────────────────
+// Lucide's Loader2 is almost always used with `animate-spin`.
+// This component bakes the animation in so call sites don't need to change.
+import { IoRefreshCircle } from 'react-icons/io5';
+
+export function Loader2({
+  size = 20,
+  className = '',
+}: {
+  size?: number;
+  className?: string;
+}) {
+  return React.createElement(IoRefreshCircle, {
+    size,
+    className: `animate-spin ${className}`.trim(),
+  });
+}
+
+export function Loader({
+  size = 20,
+  className = '',
+}: {
+  size?: number;
+  className?: string;
+}) {
+  return React.createElement(IoRefreshCircle, {
+    size,
+    className: `animate-spin ${className}`.trim(),
+  });
+}
+
+// ─── Re-export Ionicons native names (for new code preferring Io* convention) ─
+export {
+  IoArrowBack,
+  IoArrowForward,
+  IoHome,
+  IoHomeOutline,
+  IoLocation,
+  IoLocationOutline,
+  IoPerson,
+  IoPersonOutline,
+  IoSearch,
+  IoSearchOutline,
+  IoClose,
+  IoCloseOutline,
+  IoStar,
+  IoStarOutline,
+  IoHeart,
+  IoHeartOutline,
+  IoCheckmarkCircle,
+  IoCheckmarkCircleOutline,
+  IoAlertCircle,
+  IoAlertCircleOutline,
+  IoStorefront,
+  IoStorefrontOutline,
+  IoChevronBack,
+  IoChevronForward,
+  IoAdd,
+  IoTrash,
+  IoPencil,
+  IoPeople,
+  IoSettings,
+  IoSettingsOutline,
+  IoCalendar,
+  IoCalendarOutline,
+  IoTime,
+  IoTimeOutline,
+  IoMail,
+  IoMailOutline,
+  IoCall,
+  IoCallOutline,
+  IoChatbox,
+  IoChatboxOutline,
+  IoMenu,
+  IoMenuOutline,
+  IoLogoFacebook,
+  IoLogoInstagram,
+  IoLogoTwitter,
+  IoLogoLinkedin,
+  IoLogoYoutube,
+  IoLogoTiktok,
+} from 'react-icons/io5';

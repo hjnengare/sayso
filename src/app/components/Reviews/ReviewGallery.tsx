@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { m, AnimatePresence } from 'framer-motion';
-import { Image as ImageIcon, ChevronUp, X } from 'lucide-react';
+import { Image as ImageIcon, ChevronUp, X } from "@/app/lib/icons";
 
 interface ReviewImage {
   id: string;

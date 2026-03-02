@@ -10,7 +10,7 @@ import {
     Truck,
     Monitor,
     Link as LinkIcon,
-} from "lucide-react";
+} from "@/app/lib/icons";
 import { Subcategory, BusinessFormData } from "./types";
 import CustomDropdown from "./CustomDropdown";
 

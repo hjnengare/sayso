@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
-import { Building2, AlertCircle, CheckCircle } from "lucide-react";
+import { Building2, AlertCircle, CheckCircle } from "@/app/lib/icons";
 import { AutoDismissFeedback } from "./AutoDismissFeedback";
 
 interface BusinessNameInputProps {

@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { m, AnimatePresence } from "framer-motion";
-import { X, User, Upload, Camera } from "lucide-react";
+import { X, User, Upload, Camera } from "@/app/lib/icons";
 import Image from "next/image";
 import { authStyles } from "../Auth/Shared/authStyles";
 

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Lock, Eye, Globe, Database, Download } from 'lucide-react';
+import { Lock, Eye, Globe, Database, Download } from "@/app/lib/icons";
 import { SettingsCard } from '@/components/atoms/SettingsCard';
 import { ExpandableSection } from '@/components/atoms/ExpandableSection';
 

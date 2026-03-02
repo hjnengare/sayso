@@ -21,7 +21,7 @@ import {
   Medal,
   Flame,
   Globe,
-} from "lucide-react";
+} from "@/app/lib/icons";
 import Wordmark from "../components/Logo/Wordmark";
 
 // ─── Intersection Observer reveal ───────────────────────────────────────────

@@ -2,7 +2,7 @@
 "use client";
 
 import { m } from "framer-motion";
-import { Calendar, Clock, Users } from "lucide-react";
+import { Calendar, Clock, Users } from "@/app/lib/icons";
 import type { Event } from "../../lib/types/Event";
 
 interface EventDetailsCardProps {

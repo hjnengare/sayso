@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle } from "lucide-react";
+import { CheckCircle } from "@/app/lib/icons";
 
 interface InterestSelectionProps {
   selectedCount: number;

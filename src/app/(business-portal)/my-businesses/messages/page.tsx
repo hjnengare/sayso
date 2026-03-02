@@ -1,6 +1,6 @@
 'use client';
 
-import { Loader2 } from 'lucide-react';
+import { Loader2 } from "@/app/lib/icons";
 import MessagingWorkspace from '@/app/components/Messaging/MessagingWorkspace';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useOwnerBusinessesList } from '@/app/hooks/useOwnerBusinessesList';

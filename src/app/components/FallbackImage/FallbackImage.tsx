@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { User, ImageIcon } from "lucide-react";
+import { User, ImageIcon } from "@/app/lib/icons";
 
 interface FallbackImageProps {
   src: string;

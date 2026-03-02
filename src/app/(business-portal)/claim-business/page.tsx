@@ -14,8 +14,8 @@ import {
   AlertCircle,
   FileCheck,
   Loader2,
-} from "lucide-react";
-import { ChevronRight } from "lucide-react";
+} from "@/app/lib/icons";
+import { ChevronRight } from "@/app/lib/icons";
 import { PageLoader, Loader } from "../../components/Loader";
 import Link from "next/link";
 import { Suspense } from "react";

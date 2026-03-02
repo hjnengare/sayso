@@ -23,7 +23,7 @@ import {
     ChevronRight,
     ChevronLeft,
     User,
-} from "lucide-react";
+} from "@/app/lib/icons";
 import { GoldBanner } from "@/app/components/GoldBanner";
 import Footer from "../../components/Footer/Footer";
 import { ReviewsList } from "@/components/organisms/ReviewsList";

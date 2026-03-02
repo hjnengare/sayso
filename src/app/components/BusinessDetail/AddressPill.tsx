@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { Check, Copy } from 'lucide-react';
+import { Check, Copy } from "@/app/lib/icons";
 import { useReverseGeocode } from '../../hooks/useReverseGeocode';
 
 interface AddressPillProps {

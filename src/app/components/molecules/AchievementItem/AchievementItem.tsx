@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { Award, CheckCircle } from 'lucide-react';
+import { Award, CheckCircle } from "@/app/lib/icons";
 
 export interface AchievementItemProps {
   name: string;

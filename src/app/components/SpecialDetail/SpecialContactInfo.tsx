@@ -1,7 +1,7 @@
 // src/components/SpecialDetail/SpecialContactInfo.tsx
 "use client";
 
-import { Phone, Globe, MapPin } from "lucide-react";
+import { Phone, Globe, MapPin } from "@/app/lib/icons";
 import { m } from "framer-motion";
 
 interface SpecialContactInfoProps {

@@ -4,8 +4,8 @@
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Image as ImageIcon, Star, Edit, Bookmark, Share2 } from "lucide-react";
-import { Scissors, Coffee, UtensilsCrossed, Wine, Dumbbell, Activity, Heart, Book, ShoppingBag, Home, Briefcase, MapPin, Music, Film, Camera, Car, GraduationCap, CreditCard, Tag } from "lucide-react";
+import { Image as ImageIcon, Star, Edit, Bookmark, Share2 } from "@/app/lib/icons";
+import { Scissors, Coffee, UtensilsCrossed, Wine, Dumbbell, Activity, Heart, Book, ShoppingBag, Home, Briefcase, MapPin, Music, Film, Camera, Car, GraduationCap, CreditCard, Tag } from "@/app/lib/icons";
 import { AnimatePresence, m, useReducedMotion } from "framer-motion";
 
 // Tiny 4x3 SVG matching the card error-state bg (#E5E0E5) — instant visual fill while image loads

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown } from "@/app/lib/icons";
 import { createPortal } from "react-dom";
 import { m } from "framer-motion";
 

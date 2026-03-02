@@ -2,7 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
-import { ImageIcon } from "lucide-react";
+import { ImageIcon } from "@/app/lib/icons";
 import { m } from "framer-motion";
 import { getCategoryPlaceholder } from "../../../utils/categoryToPngMapping";
 

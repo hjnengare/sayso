@@ -14,7 +14,7 @@ import {
   ChevronRight,
   Menu,
   X,
-} from "lucide-react";
+} from "@/app/lib/icons";
 
 const NAV_ITEMS = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },

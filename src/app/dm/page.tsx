@@ -3,7 +3,7 @@
 import { useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ChevronRight, Loader2 } from 'lucide-react';
+import { ChevronRight, Loader2 } from "@/app/lib/icons";
 import { m, useReducedMotion } from 'framer-motion';
 import MessagingWorkspace from '@/app/components/Messaging/MessagingWorkspace';
 import { useAuth } from '@/app/contexts/AuthContext';

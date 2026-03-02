@@ -7,7 +7,7 @@ import Footer from "../../../components/Footer/Footer";
 import BusinessCard from "../../../components/BusinessCard/BusinessCard";
 import { useBusinesses } from "../../../hooks/useBusinesses";
 import { Loader } from "../../../components/Loader/Loader";
-import { ChevronLeft, ChevronRight, MapPin } from "lucide-react";
+import { ChevronLeft, ChevronRight, MapPin } from "@/app/lib/icons";
 import { Urbanist } from "next/font/google";
 
 const urbanist = Urbanist({

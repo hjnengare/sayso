@@ -2,7 +2,7 @@
 
 import { useRef, useEffect } from "react";
 import { m, AnimatePresence } from "framer-motion";
-import { Send, Loader2, AlertCircle } from "lucide-react";
+import { Send, Loader2, AlertCircle } from "@/app/lib/icons";
 
 interface ReviewSubmitButtonProps {
   isFormValid: boolean;

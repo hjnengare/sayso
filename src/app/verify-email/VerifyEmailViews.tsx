@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Urbanist } from "next/font/google";
-import { AlertCircle, ArrowLeft, CheckCircle, ExternalLink, Mail } from "lucide-react";
+import { AlertCircle, ArrowLeft, CheckCircle, ExternalLink, Mail } from "@/app/lib/icons";
 import type { ReactNode } from "react";
 
 import { Loader as AppLoader } from "../components/Loader";

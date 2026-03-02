@@ -14,7 +14,7 @@ import {
   Plus,
   Trash2,
   Upload,
-} from "lucide-react";
+} from "@/app/lib/icons";
 import { CANONICAL_SUBCATEGORY_SLUGS, SUBCATEGORY_SLUG_TO_LABEL } from "../../utils/subcategoryPlaceholders";
 
 const FONT = "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif";

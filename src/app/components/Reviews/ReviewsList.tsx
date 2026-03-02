@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { AlertCircle, MessageCircle } from 'lucide-react';
+import { AlertCircle, MessageCircle } from "@/app/lib/icons";
 import Link from 'next/link';
 import ReviewCard from './ReviewCard';
 import type { ReviewWithUser } from '../../lib/types/database';

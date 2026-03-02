@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { m } from "framer-motion";
-import { Star, Edit, Bookmark, Share2 } from "lucide-react";
+import { Star, Edit, Bookmark, Share2 } from "@/app/lib/icons";
 import { getEventIconPng } from "../../utils/eventIconToPngMapping";
 import EventBadge from "./EventBadge";
 import { useState, memo, useEffect, useMemo, useRef } from "react";

@@ -2,7 +2,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight } from "@/app/lib/icons";
 import EventCard from "../EventCard/EventCard";
 import EventCardSkeleton from "../EventCard/EventCardSkeleton";
 import type { Event } from "../../lib/types/Event";

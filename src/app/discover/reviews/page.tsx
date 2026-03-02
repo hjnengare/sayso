@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { m, AnimatePresence } from "framer-motion";
 import { useState, useMemo } from "react";
-import { ArrowLeft, Briefcase, Image as ImageIcon, ThumbsUp, FileText, Star, ChevronRight, ChevronLeft, TrendingUp } from "lucide-react";
+import { ArrowLeft, Briefcase, Image as ImageIcon, ThumbsUp, FileText, Star, ChevronRight, ChevronLeft, TrendingUp } from "@/app/lib/icons";
 import VerifiedBadge from "@/app/components/VerifiedBadge/VerifiedBadge";
 import FilterPillGroup from "@/app/components/Filters/FilterPillGroup";
 

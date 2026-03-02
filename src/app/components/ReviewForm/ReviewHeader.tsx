@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useRef } from "react";
-import { ArrowLeft, Info } from "lucide-react";
+import { ArrowLeft, Info } from "@/app/lib/icons";
 import BusinessInfoModal, { BusinessInfo } from "../BusinessInfo/BusinessInfoModal";
 
 interface ReviewHeaderProps {

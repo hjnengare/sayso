@@ -13,7 +13,7 @@ import {
   FileText,
   RefreshCw,
   ChevronRight,
-} from "lucide-react";
+} from "@/app/lib/icons";
 
 const FONT = "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif";
 

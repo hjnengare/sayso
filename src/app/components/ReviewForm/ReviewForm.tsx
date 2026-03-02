@@ -1,7 +1,7 @@
 "use client";
 
 import { m } from "framer-motion";
-import { Edit3, Camera } from "lucide-react";
+import { Edit3, Camera } from "@/app/lib/icons";
 import RatingSelector from "./RatingSelector";
 import TagSelector from "./TagSelector";
 import ReviewTextForm from "./ReviewTextForm";

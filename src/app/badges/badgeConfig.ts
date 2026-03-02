@@ -1,4 +1,4 @@
-import { Compass, Target, Trophy, Users } from "lucide-react";
+import { Compass, Target, Trophy, Users } from "@/app/lib/icons";
 
 export const BADGE_DETAILS: Record<string, { description: string; howToEarn: string }> = {
   // Explorer Badges

@@ -1,7 +1,7 @@
 // src/components/SpecialDetail/SpecialLocation.tsx
 "use client";
 
-import { MapPin } from "lucide-react";
+import { MapPin } from "@/app/lib/icons";
 import dynamic from "next/dynamic";
 
 // Dynamically import Mapbox to avoid SSR issues

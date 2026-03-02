@@ -6,7 +6,7 @@ import { AnimatePresence, m, useReducedMotion } from "framer-motion";
 import { getChoreoItemMotion } from "../lib/motion/choreography";
 import BusinessCard from "../components/BusinessCard/BusinessCard";
 import Footer from "../components/Footer/Footer";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight } from "@/app/lib/icons";
 import Pagination from "../components/EventsPage/Pagination";
 import { useBusinesses } from "../hooks/useBusinesses";
 import { useTrendingBusinesses } from "../hooks/useTrendingBusinesses";

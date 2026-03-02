@@ -2,7 +2,7 @@
 "use client";
 
 import { m } from "framer-motion";
-import { Facebook, Instagram, Twitter } from "lucide-react";
+import { Facebook, Instagram, Twitter } from "@/app/lib/icons";
 import Link from "next/link";
 
 interface BusinessActionCardProps {

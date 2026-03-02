@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import React, { useState } from 'react';
-import { User, Trophy, CheckCircle, MapPin } from 'lucide-react';
+import { User, Trophy, CheckCircle, MapPin } from "@/app/lib/icons";
 
 interface ProfilePictureProps {
   src: string;

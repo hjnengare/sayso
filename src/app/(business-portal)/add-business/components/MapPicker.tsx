@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import { MapPin, Search, Loader2, AlertCircle } from "lucide-react";
+import { MapPin, Search, Loader2, AlertCircle } from "@/app/lib/icons";
 import dynamic from "next/dynamic";
 
 const CAPE_TOWN_CENTER: [number, number] = [18.4241, -33.9249];

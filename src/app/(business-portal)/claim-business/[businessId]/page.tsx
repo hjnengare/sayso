@@ -17,7 +17,7 @@ import {
   FileText,
   AlertCircle,
   MapPin,
-} from "lucide-react";
+} from "@/app/lib/icons";
 import { Loader } from "../../../components/Loader";
 
 const FONT = "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif";

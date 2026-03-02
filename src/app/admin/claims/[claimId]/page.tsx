@@ -10,7 +10,7 @@ import {
   FileText,
   ExternalLink,
   Send,
-} from "lucide-react";
+} from "@/app/lib/icons";
 
 type ClaimDetail = {
   claim: {

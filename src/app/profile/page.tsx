@@ -10,7 +10,7 @@ import {
   ChevronRight,
   Navigation,
   Loader2,
-} from "lucide-react";
+} from "@/app/lib/icons";
 import { getBrowserSupabase } from "@/app/lib/supabase/client";
 
 // Import components directly for faster loading

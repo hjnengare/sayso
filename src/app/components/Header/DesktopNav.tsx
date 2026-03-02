@@ -20,7 +20,7 @@ import {
   User,
   Settings,
   Bookmark,
-} from "lucide-react";
+} from "@/app/lib/icons";
 import OptimizedLink from "../Navigation/OptimizedLink";
 
 import { getLinkHref } from "./headerActionsConfig";

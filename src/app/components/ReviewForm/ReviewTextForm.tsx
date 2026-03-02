@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { m, AnimatePresence } from "framer-motion";
-import { Type, MessageSquare, Lightbulb } from "lucide-react";
+import { Type, MessageSquare, Lightbulb } from "@/app/lib/icons";
 
 interface ReviewTextFormProps {
   reviewTitle: string;

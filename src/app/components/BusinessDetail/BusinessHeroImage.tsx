@@ -4,7 +4,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { m, AnimatePresence, useReducedMotion } from "framer-motion";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "@/app/lib/icons";
 import GoldStar from "../Icons/GoldStar";
 import { getSubcategoryPlaceholder } from "../../utils/subcategoryPlaceholders";
 import { isPlaceholderImage } from "../../utils/subcategoryPlaceholders";

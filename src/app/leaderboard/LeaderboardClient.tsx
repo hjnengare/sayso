@@ -7,7 +7,7 @@ import { m, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import nextDynamic from "next/dynamic";
-import { ChevronRight, ChevronLeft, Award, FileText, ExternalLink } from "lucide-react";
+import { ChevronRight, ChevronLeft, Award, FileText, ExternalLink } from "@/app/lib/icons";
 import EmailVerificationGuard from "../components/Auth/EmailVerificationGuard";
 import LeaderboardPodium from "../components/Leaderboard/LeaderboardPodium";
 import LeaderboardList from "../components/Leaderboard/LeaderboardList";

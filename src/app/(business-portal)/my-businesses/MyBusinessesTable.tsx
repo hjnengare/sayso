@@ -4,7 +4,7 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight } from "@/app/lib/icons";
 import type { Business } from "../../components/BusinessCard/BusinessCard";
 import {
   getCategoryLabelFromBusiness,

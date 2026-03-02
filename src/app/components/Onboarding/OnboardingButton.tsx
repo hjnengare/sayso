@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight } from "lucide-react";
+import { ArrowRight } from "@/app/lib/icons";
 import { m } from "framer-motion";
 
 interface OnboardingButtonProps {

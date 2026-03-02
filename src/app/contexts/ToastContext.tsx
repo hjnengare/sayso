@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo, ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
-import { CheckCircle, XCircle, AlertTriangle, Info, X, Sparkles } from 'lucide-react';
+import { CheckCircle, XCircle, AlertTriangle, Info, X, Sparkles } from "@/app/lib/icons";
 import { m, AnimatePresence } from 'framer-motion';
 
 interface Toast {

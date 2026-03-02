@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, m, useReducedMotion } from "framer-motion";
-import { ChevronUp } from "lucide-react";
+import { ChevronUp } from "@/app/lib/icons";
 
 interface ScrollToTopButtonProps {
   threshold?: number;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "@/app/lib/icons";
 
 export default function PrivacyPolicyPage() {
   const router = useRouter();

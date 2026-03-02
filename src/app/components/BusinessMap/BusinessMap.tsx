@@ -1,6 +1,6 @@
 "use client";
 
-import { MapPin, ExternalLink } from "lucide-react";
+import { MapPin, ExternalLink } from "@/app/lib/icons";
 import { useMemo } from "react";
 
 interface BusinessMapProps {

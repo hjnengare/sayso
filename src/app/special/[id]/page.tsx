@@ -18,7 +18,7 @@ import {
   Phone,
   Globe,
   Percent,
-} from "lucide-react";
+} from "@/app/lib/icons";
 import type { Event } from "../../lib/types/Event";
 import { useToast } from "../../contexts/ToastContext";
 import { PageLoader } from "../../components/Loader";

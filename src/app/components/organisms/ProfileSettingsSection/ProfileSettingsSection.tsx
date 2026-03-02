@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { User, ArrowLeft, Mail } from 'lucide-react';
+import { User, ArrowLeft, Mail } from "@/app/lib/icons";
 import { SettingsCard } from '@/components/atoms/SettingsCard';
 import { ProfileInfoItem } from '@/components/molecules/ProfileInfoItem';
 

@@ -12,7 +12,7 @@ import {
   User,
   Check,
   Briefcase,
-} from "lucide-react";
+} from "@/app/lib/icons";
 import { LiveIndicator } from "@/app/components/Realtime/RealtimeIndicators";
 import { ProfileBadgeRibbon } from "@/app/components/Badges/ProfileBadgeRibbon";
 import type { AuthUser } from "@/app/lib/types/database";

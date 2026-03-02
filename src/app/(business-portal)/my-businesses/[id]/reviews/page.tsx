@@ -3,7 +3,7 @@
 import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "../../../../contexts/AuthContext";
 import { PageLoader } from "../../../../components/Loader";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "@/app/lib/icons";
 import Link from "next/link";
 import ReviewsList from "../../../../components/Reviews/ReviewsList";
 import { useOwnerBusinessDashboard } from "../../../../hooks/useOwnerBusinessDashboard";

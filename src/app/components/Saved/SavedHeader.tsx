@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Bookmark } from "lucide-react";
+import { ArrowLeft, Bookmark } from "@/app/lib/icons";
 import { useSavedItems } from "../../contexts/SavedItemsContext";
 
 export default function SavedHeader() {

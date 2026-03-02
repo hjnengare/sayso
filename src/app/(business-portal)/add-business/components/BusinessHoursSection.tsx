@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback } from "react";
 import { m, AnimatePresence } from "framer-motion";
-import { Clock, Sun, Moon, Copy, Sparkles, Coffee, Store, Zap } from "lucide-react";
+import { Clock, Sun, Moon, Copy, Sparkles, Coffee, Store, Zap } from "@/app/lib/icons";
 import { BusinessFormData } from "./types";
 
 interface BusinessHoursSectionProps {

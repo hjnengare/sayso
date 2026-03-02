@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Star, Heart, MapPin, Calendar, User, MessageSquare } from "lucide-react";
+import { Star, Heart, MapPin, Calendar, User, MessageSquare } from "@/app/lib/icons";
 
 interface SmallReview {
   id: string;

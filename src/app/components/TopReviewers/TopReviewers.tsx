@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight } from "@/app/lib/icons";
 import ReviewerCard from "../ReviewerCard/ReviewerCard";
 import { Reviewer } from "../../types/community";
 import { useReviewersTop } from "../../hooks/useReviewersTop";

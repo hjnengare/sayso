@@ -3,7 +3,7 @@
 
 import { useState, useEffect, forwardRef, useRef, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Search, Sliders, Map } from "lucide-react";
+import { Search, Sliders, Map } from "@/app/lib/icons";
 import MobileMenuToggleIcon from "../Header/MobileMenuToggleIcon";
 import { AnimatePresence, m, useReducedMotion } from "framer-motion";
 import { useLiveSearch, type LiveSearchResult } from "../../hooks/useLiveSearch";

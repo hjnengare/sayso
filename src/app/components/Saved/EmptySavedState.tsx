@@ -1,6 +1,6 @@
 "use client";
 
-import { Bookmark } from "lucide-react";
+import { Bookmark } from "@/app/lib/icons";
 
 export default function EmptySavedState() {
   return (

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { ReviewItem, ReviewItemProps } from '@/components/molecules/ReviewItem';
-import { ChevronUp, ChevronRight } from 'lucide-react';
+import { ChevronUp, ChevronRight } from "@/app/lib/icons";
 import { Text } from '@/components/atoms/Text';
 
 export interface ReviewsListProps {

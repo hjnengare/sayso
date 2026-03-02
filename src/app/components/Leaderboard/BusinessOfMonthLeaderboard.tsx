@@ -2,7 +2,7 @@
 
 import { memo, useMemo, useState } from "react";
 import { m, AnimatePresence } from "framer-motion";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp } from "@/app/lib/icons";
 import BusinessOfMonthPodium from "./BusinessOfMonthPodium";
 import BusinessLeaderboardItem from "./BusinessLeaderboardItem";
 import { BusinessOfTheMonth } from "../../types/community";

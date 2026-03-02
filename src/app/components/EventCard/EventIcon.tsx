@@ -1,4 +1,4 @@
-import { Brush, Pizza, Scissors, Music, Wine, Dumbbell, Calendar } from "lucide-react";
+import { Brush, Pizza, Scissors, Music, Wine, Dumbbell, Calendar } from "@/app/lib/icons";
 
 interface EventIconProps {
   iconName?: string;

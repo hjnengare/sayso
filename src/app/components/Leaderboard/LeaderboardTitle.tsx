@@ -1,7 +1,7 @@
 "use client";
 
 import { m } from "framer-motion";
-import { Trophy } from "lucide-react";
+import { Trophy } from "@/app/lib/icons";
 
 export default function LeaderboardTitle() {
   return (

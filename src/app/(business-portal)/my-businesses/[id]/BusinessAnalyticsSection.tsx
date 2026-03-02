@@ -5,7 +5,7 @@ import {
   BarChart,
   AreaChart,
 } from "@tremor/react";
-import { BarChart3, Eye, Star, MessageSquare, ThumbsUp, Calendar } from "lucide-react";
+import { BarChart3, Eye, Star, MessageSquare, ThumbsUp, Calendar } from "@/app/lib/icons";
 import { useReducedMotion } from "../../../utils/useReducedMotion";
 import { useBusinessAnalytics } from "../../../hooks/useBusinessAnalytics";
 import type { AnalyticsData } from "../../../hooks/useBusinessAnalytics";

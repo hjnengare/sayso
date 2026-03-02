@@ -17,7 +17,7 @@ import {
   MapPin,
   Plus,
   Loader2,
-} from "lucide-react";
+} from "@/app/lib/icons";
 import type { Business } from "../../components/BusinessCard/BusinessCard";
 import MyBusinessesTable from "./MyBusinessesTable";
 

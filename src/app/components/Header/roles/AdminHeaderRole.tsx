@@ -1,7 +1,7 @@
 "use client";
 
 import { type ComponentType, type CSSProperties } from "react";
-import { Database, FileCheck, LogOut, Shield } from "lucide-react";
+import { Database, FileCheck, LogOut, Shield } from "@/app/lib/icons";
 import Logo from "../../Logo/Logo";
 import OptimizedLink from "../../Navigation/OptimizedLink";
 

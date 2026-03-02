@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { m } from "framer-motion";
 import { getBadgeMapping, getBadgePngPath } from "../../lib/badgeMappings";
-import { Lock } from "lucide-react";
+import { Lock } from "@/app/lib/icons";
 
 export interface Badge {
   id: string;

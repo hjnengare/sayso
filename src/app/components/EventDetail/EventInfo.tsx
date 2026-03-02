@@ -2,7 +2,7 @@
 "use client";
 
 import { m } from "framer-motion";
-import { MapPin } from "lucide-react";
+import { MapPin } from "@/app/lib/icons";
 import GoldStar from "../Icons/GoldStar";
 import type { Event } from "../../lib/types/Event";
 

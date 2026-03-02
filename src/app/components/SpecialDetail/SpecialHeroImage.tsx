@@ -2,7 +2,7 @@
 "use client";
 
 import Image from "next/image";
-import { Star, Heart, Percent } from "lucide-react";
+import { Star, Heart, Percent } from "@/app/lib/icons";
 import { m } from "framer-motion";
 
 interface SpecialHeroImageProps {

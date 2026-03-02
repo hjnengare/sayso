@@ -16,7 +16,7 @@ import {
   Briefcase,
   Edit,
   Trash2,
-} from 'lucide-react';
+} from '@/app/lib/icons';
 
 export type IconSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 export type IconColor = 'current' | 'sage' | 'coral' | 'charcoal' | 'white' | 'gray';
@@ -44,7 +44,6 @@ const colorStyles: Record<IconColor, string> = {
   gray: 'text-charcoal/70',
 };
 
-// Common icon components using lucide-react
 export const IconChevronRight: React.FC<IconProps> = ({ size = 'md', color = 'current', className = '' }) => (
   <ChevronRight size={sizeMap[size]} className={`${colorStyles[color]} flex-shrink-0 ${className}`} />
 );

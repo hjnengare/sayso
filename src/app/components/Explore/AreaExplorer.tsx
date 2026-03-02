@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { MapPin, ArrowRight } from "lucide-react";
+import { MapPin, ArrowRight } from "@/app/lib/icons";
 import WavyTypedTitle from "@/app/components/Animations/WavyTypedTitle";
 
 // Common neighborhoods/areas - can be made dynamic later

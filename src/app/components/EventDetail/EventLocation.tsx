@@ -1,7 +1,7 @@
 "use client";
 // src/components/EventDetail/EventLocation.tsx
 
-import { MapPin } from "lucide-react";
+import { MapPin } from "@/app/lib/icons";
 
 interface EventLocationProps {
     name: string;

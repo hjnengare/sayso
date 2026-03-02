@@ -2,7 +2,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { BookmarkCheck } from "lucide-react";
+import { BookmarkCheck } from "@/app/lib/icons";
 import BusinessCard, { Business } from "../BusinessCard/BusinessCard";
 import ScrollableSection from "../ScrollableSection/ScrollableSection";
 import { useSavedItems } from "../../contexts/SavedItemsContext";

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from "@/app/lib/icons";
 
 export interface ExpandableSectionProps {
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;

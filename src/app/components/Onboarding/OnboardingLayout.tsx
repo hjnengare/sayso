@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { ReactNode } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "@/app/lib/icons";
 
 // Shared CSS animations for all onboarding pages
 const globalAnimations = `

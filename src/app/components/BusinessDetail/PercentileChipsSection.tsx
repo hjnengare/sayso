@@ -1,6 +1,6 @@
 "use client";
 
-import { Clock, Smile, Shield } from "lucide-react";
+import { Clock, Smile, Shield } from "@/app/lib/icons";
 import { memo } from "react";
 import { m } from "framer-motion";
 

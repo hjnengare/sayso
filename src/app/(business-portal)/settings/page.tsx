@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { LogOut, Trash2, UserRound, Mail, ShieldAlert } from "lucide-react";
+import { LogOut, Trash2, UserRound, Mail, ShieldAlert } from "@/app/lib/icons";
 
 const FONT_STACK = "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif";
 const ICON_CHIP_CLASS =

@@ -6,7 +6,7 @@ import { useEventReviews } from "../../hooks/useEventReviews";
 import { useEventRatings } from "../../hooks/useEventRatings";
 import Link from "next/link";
 import { m, AnimatePresence } from "framer-motion";
-import { ChevronRight, Calendar } from "lucide-react";
+import { ChevronRight, Calendar } from "@/app/lib/icons";
 import type { Event } from "../../lib/types/Event";
 import nextDynamic from "next/dynamic";
 import { PageLoader } from "../../components/Loader";

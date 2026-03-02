@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Send, ChevronRight, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import { Send, ChevronRight, CheckCircle2, AlertCircle, Loader2 } from "@/app/lib/icons";
 import { m, AnimatePresence } from "framer-motion";
 import Footer from "../components/Footer/Footer";
 

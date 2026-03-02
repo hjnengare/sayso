@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Utensils, Coffee, Activity, Heart, PartyPopper, ShoppingBag, Wrench } from "lucide-react";
+import { Utensils, Coffee, Activity, Heart, PartyPopper, ShoppingBag, Wrench } from "@/app/lib/icons";
 import WavyTypedTitle from "@/app/components/Animations/WavyTypedTitle";
 
 const INTENTS = [

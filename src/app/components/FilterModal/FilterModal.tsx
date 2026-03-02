@@ -9,7 +9,7 @@ import {
   Truck,
   Navigation,
   MapPin,
-} from "lucide-react";
+} from "@/app/lib/icons";
 
 export interface FilterState {
   categories?: string[];

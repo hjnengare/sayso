@@ -2,7 +2,7 @@
 
 import React from "react";
 import { m, AnimatePresence } from "framer-motion";
-import { MapPin, X } from "lucide-react";
+import { MapPin, X } from "@/app/lib/icons";
 import { BusinessFormData } from "./types";
 import MapPicker, { MapPickerLocation } from "./MapPicker";
 

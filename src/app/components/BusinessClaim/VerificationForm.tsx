@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, Mail, Phone, FileText, UserCheck } from "lucide-react";
+import { X, Mail, Phone, FileText, UserCheck } from "@/app/lib/icons";
 import { InlineLoader } from "../Loader";
 import { BusinessOwnershipService } from "../../lib/services/businessOwnershipService";
 import { useAuth } from "../../contexts/AuthContext";

@@ -1,7 +1,7 @@
 "use client";
 
 import { m, AnimatePresence, useReducedMotion, Easing } from "framer-motion";
-import { MapPin, Star } from "lucide-react";
+import { MapPin, Star } from "@/app/lib/icons";
 import FilterPillGroup from "../Filters/FilterPillGroup";
 
 interface InlineFiltersProps {

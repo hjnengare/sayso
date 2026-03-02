@@ -1,6 +1,6 @@
 "use client";
 
-import { Circle, CheckCircle } from "lucide-react";
+import { Circle, CheckCircle } from "@/app/lib/icons";
 
 interface RegistrationProgressProps {
   usernameValid: boolean;

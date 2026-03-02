@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Edit, Trash2, ThumbsUp, ArrowRight } from 'lucide-react';
+import { Edit, Trash2, ThumbsUp, ArrowRight } from "@/app/lib/icons";
 import { Text } from '@/components/atoms/Text';
 import { Badge } from '@/components/atoms/Badge';
 import { getCategoryPlaceholder } from '@/app/utils/categoryToPngMapping';

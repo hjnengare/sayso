@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "../../../contexts/AuthContext";
 import { PageLoader } from "../../../components/Loader";
-import { Store, MapPin, Star, Edit, ArrowLeft, Eye, TrendingUp, ChevronRight, Camera, Upload, Loader2, CheckCircle, Calendar, Trash2, MessageSquare } from "lucide-react";
+import { Store, MapPin, Star, Edit, ArrowLeft, Eye, TrendingUp, ChevronRight, Camera, Upload, Loader2, CheckCircle, Calendar, Trash2, MessageSquare } from "@/app/lib/icons";
 import Link from "next/link";
 import { ConfirmationDialog } from "@/components/molecules/ConfirmationDialog";
 

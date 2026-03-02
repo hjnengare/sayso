@@ -1,7 +1,7 @@
 // src/components/SpecialDetail/SpecialDetailsCard.tsx
 "use client";
 
-import { Calendar, Percent, Clock, Users } from "lucide-react";
+import { Calendar, Percent, Clock, Users } from "@/app/lib/icons";
 import { m } from "framer-motion";
 
 interface SpecialDetailsCardProps {

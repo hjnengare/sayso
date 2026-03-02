@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
-import { Mail, AlertCircle, CheckCircle } from "lucide-react";
+import { Mail, AlertCircle, CheckCircle } from "@/app/lib/icons";
 import { AutoDismissFeedback } from "./AutoDismissFeedback";
 
 interface EmailInputProps {

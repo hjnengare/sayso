@@ -9,7 +9,7 @@ import {
   Flag,
   ArrowRight,
   Activity,
-} from "lucide-react";
+} from "@/app/lib/icons";
 
 type SectionKey = "pending-businesses" | "claims" | "flagged-reviews" | "seed";
 

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { m } from "framer-motion";
-import { X, UserCheck, Mail, Phone, FileText, Building2, AlertCircle } from "lucide-react";
+import { X, UserCheck, Mail, Phone, FileText, Building2, AlertCircle } from "@/app/lib/icons";
 import { Loader } from "../Loader/Loader";
 import { useAuth } from "../../contexts/AuthContext";
 import { useToast } from "../../contexts/ToastContext";

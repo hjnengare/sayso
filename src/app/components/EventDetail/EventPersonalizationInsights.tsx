@@ -1,7 +1,7 @@
 // src/components/EventDetail/EventPersonalizationInsights.tsx
 "use client";
 
-import { Sparkles, Star, MapPin, TrendingUp } from "lucide-react";
+import { Sparkles, Star, MapPin, TrendingUp } from "@/app/lib/icons";
 
 interface EventPersonalizationInsightsProps {
     event: {

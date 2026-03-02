@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { m } from "framer-motion";
-import { Award, ChevronRight } from "lucide-react";
+import { Award, ChevronRight } from "@/app/lib/icons";
 import { ProfileBadgeRibbon } from "@/app/components/Badges/ProfileBadgeRibbon";
 import { getBadgePngPath } from "@/app/lib/badgeMappings";
 import type { UserAchievement } from "@/app/hooks/useUserBadges";

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { m, AnimatePresence } from 'framer-motion';
-import { Edit, Trash2, Send } from 'lucide-react';
+import { Edit, Trash2, Send } from "@/app/lib/icons";
 import type { AuthUser } from '../../lib/types/database';
 import { useReviewReplies } from '../../hooks/useReviewReplies';
 import { ConfirmationDialog } from '@/app/components/molecules/ConfirmationDialog/ConfirmationDialog';

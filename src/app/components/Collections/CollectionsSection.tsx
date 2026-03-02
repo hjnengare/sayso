@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Star, MapPin, ChevronRight, Award } from "lucide-react";
+import { Star, MapPin, ChevronRight, Award } from "@/app/lib/icons";
 
 interface BusinessCollection {
   id: number;

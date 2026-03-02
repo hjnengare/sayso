@@ -1,7 +1,7 @@
 "use client";
 
 import { m } from "framer-motion";
-import { Check } from "lucide-react";
+import { Check } from "@/app/lib/icons";
 
 interface VerifiedBadgeProps {
   size?: "sm" | "md" | "lg";

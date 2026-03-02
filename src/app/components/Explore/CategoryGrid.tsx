@@ -14,7 +14,7 @@ import {
   Palette, 
   Heart, 
   ShoppingBag 
-} from "lucide-react";
+} from "@/app/lib/icons";
 
 // Map interest IDs to Lucide React icons
 const INTEREST_ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {

@@ -2,7 +2,7 @@
 
 import { memo, useMemo } from "react";
 import { m, AnimatePresence } from "framer-motion";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp } from "@/app/lib/icons";
 import LeaderboardUser from "./LeaderboardUser";
 
 interface LeaderboardUser {

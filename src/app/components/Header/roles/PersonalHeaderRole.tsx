@@ -1,7 +1,7 @@
 "use client";
 
 import { type ComponentProps, type ReactNode, type RefObject } from "react";
-import { Bell, MessageSquare, Search } from "lucide-react";
+import { Bell, MessageSquare, Search } from "@/app/lib/icons";
 import { m, AnimatePresence } from "framer-motion";
 import Logo from "../../Logo/Logo";
 import OptimizedLink from "../../Navigation/OptimizedLink";

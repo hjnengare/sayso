@@ -2,7 +2,7 @@
 
 import { ReactNode, useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { X } from "lucide-react";
+import { X } from "@/app/lib/icons";
 import { useAuth } from "../../contexts/AuthContext";
 import PortalSidebar from "./PortalSidebar";
 import MobileMenuToggleIcon from "../Header/MobileMenuToggleIcon";

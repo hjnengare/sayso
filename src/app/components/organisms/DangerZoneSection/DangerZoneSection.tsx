@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Trash2 } from 'lucide-react';
+import { Trash2 } from "@/app/lib/icons";
 import { SettingsCard } from '@/components/atoms/SettingsCard';
 import { DangerAction } from '@/components/molecules/DangerAction';
 

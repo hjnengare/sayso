@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import { m, AnimatePresence } from "framer-motion";
-import { Clock, CheckCircle, ChevronDown, ChevronUp, Coins } from "lucide-react";
+import { Clock, CheckCircle, ChevronDown, ChevronUp, Coins } from "@/app/lib/icons";
 
 type DayHours = {
   open: string;

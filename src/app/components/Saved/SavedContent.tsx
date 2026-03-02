@@ -1,7 +1,7 @@
 "use client";
 
 import { memo } from "react";
-import { Sparkles, Grid3x3 } from "lucide-react";
+import { Sparkles, Grid3x3 } from "@/app/lib/icons";
 import { Business } from "../BusinessCard/BusinessCard";
 import SavedBusinessesGrid from "./SavedBusinessesGrid";
 import EmptySavedState from "./EmptySavedState";

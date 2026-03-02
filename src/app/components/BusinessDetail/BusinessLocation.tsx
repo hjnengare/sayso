@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { m, AnimatePresence } from "framer-motion";
-import { MapPin, ExternalLink, Maximize2, Copy, Check, X, Navigation, Share2, Car, Footprints, Clock } from "lucide-react";
+import { MapPin, ExternalLink, Maximize2, Copy, Check, X, Navigation, Share2, Car, Footprints, Clock } from "@/app/lib/icons";
 import dynamic from "next/dynamic";
 import { createPortal } from "react-dom";
 import Logo from "../Logo/Logo";

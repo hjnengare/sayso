@@ -2,7 +2,7 @@
 "use client";
 
 import { m } from "framer-motion";
-import { Star, Share2 } from "lucide-react";
+import { Star, Share2 } from "@/app/lib/icons";
 import Link from "next/link";
 
 interface SpecialActionCardProps {

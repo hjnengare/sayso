@@ -18,7 +18,7 @@ import {
   MessageCircle,
   UploadCloud,
   X,
-} from "lucide-react";
+} from "@/app/lib/icons";
 import { Urbanist } from "next/font/google";
 import { useAuth } from "@/app/contexts/AuthContext";
 import { useToast } from "@/app/contexts/ToastContext";

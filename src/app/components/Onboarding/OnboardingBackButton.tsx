@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "@/app/lib/icons";
 import { useRouter } from "next/navigation";
 
 interface OnboardingBackButtonProps {

@@ -3,7 +3,13 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Facebook, Instagram, Linkedin, Twitter, Youtube } from "lucide-react";
+import {
+  IoLogoInstagram,
+  IoLogoFacebook,
+  IoLogoTwitter,
+  IoLogoLinkedin,
+  IoLogoYoutube,
+} from "@/app/lib/icons";
 import { useState, useEffect } from "react";
 import confetti from "canvas-confetti";
 import Logo from "../Logo/Logo";
@@ -122,11 +128,11 @@ export default function Footer() {
   ];
 
   const socialLinks = [
-    { name: "Instagram", href: "https://www.instagram.com", Icon: Instagram },
-    { name: "Facebook", href: "https://www.facebook.com", Icon: Facebook },
-    { name: "X", href: "https://x.com", Icon: Twitter },
-    { name: "LinkedIn", href: "https://www.linkedin.com", Icon: Linkedin },
-    { name: "YouTube", href: "https://www.youtube.com", Icon: Youtube },
+    { name: "Instagram", href: "https://www.instagram.com", Icon: IoLogoInstagram },
+    { name: "Facebook", href: "https://www.facebook.com", Icon: IoLogoFacebook },
+    { name: "X", href: "https://x.com", Icon: IoLogoTwitter },
+    { name: "LinkedIn", href: "https://www.linkedin.com", Icon: IoLogoLinkedin },
+    { name: "YouTube", href: "https://www.youtube.com", Icon: IoLogoYoutube },
   ];
 
   const linkColumns = [
@@ -264,7 +270,7 @@ export default function Footer() {
                     aria-label={name}
                     className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 text-off-white/80 hover:text-off-white flex items-center justify-center transition-colors"
                   >
-                    <Icon className="w-4 h-4" strokeWidth={2} />
+                    <Icon className="w-4 h-4" />
                   </Link>
                 ))}
               </div>

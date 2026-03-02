@@ -3,7 +3,7 @@
 import { memo } from "react";
 import Link from "next/link";
 import { m } from "framer-motion";
-import { Star, Trophy } from "lucide-react";
+import { Star, Trophy } from "@/app/lib/icons";
 import FallbackImage from "../FallbackImage/FallbackImage";
 
 interface LeaderboardUser {
