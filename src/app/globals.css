@@ -508,17 +508,13 @@
   }
 
   .card-img-zoom {
-    transform: translateZ(0);
     transition: transform 500ms ease-out;
-    will-change: transform;
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
   }
 
   .card-overlay-fade {
-    transform: translateZ(0);
     transition: opacity 500ms ease-out;
-    will-change: opacity;
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
   }
@@ -530,12 +526,15 @@
       border-color: rgba(255, 255, 255, 0.8);
     }
 
+    /* Promote GPU layer only on hover — avoids compositor-layer flicker on initial paint */
     .group:hover .card-img-zoom {
       transform: scale(1.02);
+      will-change: transform;
     }
 
     .group:hover .card-overlay-fade {
       opacity: 0;
+      will-change: opacity;
     }
   }
 

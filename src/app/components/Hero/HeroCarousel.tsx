@@ -1,7 +1,7 @@
 // src/components/Hero/HeroCarousel.tsx
 "use client";
 
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo } from "react";
 import { AnimatePresence, m, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import nextDynamic from "next/dynamic";
@@ -190,28 +190,30 @@ export default function HeroCarousel() {
   const slidesRef = useRef<HeroSlide[]>(slides);
   const preloadedImagesRef = useRef<Set<string>>(new Set());
 
-  useEffect(() => {
-    if (typeof window === "undefined" || !window.matchMedia) return;
-
+  // Set correct viewport before first paint to avoid mobile/desktop image-count flicker.
+  useLayoutEffect(() => {
+    if (!window.matchMedia) return;
     const mobileMql = window.matchMedia("(max-width: 767px)");
     const tabletMql = window.matchMedia("(min-width: 768px) and (max-width: 1024px)");
+    setHeroViewport(mobileMql.matches ? "mobile" : tabletMql.matches ? "tablet" : "desktop");
+  }, []);
 
+  // Ongoing resize listener (fires after paint — no flicker risk on resize).
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+    const mobileMql = window.matchMedia("(max-width: 767px)");
+    const tabletMql = window.matchMedia("(min-width: 768px) and (max-width: 1024px)");
     const update = () => {
       setHeroViewport(mobileMql.matches ? "mobile" : tabletMql.matches ? "tablet" : "desktop");
     };
-
-    update();
-
     const add = (mql: MediaQueryList) => {
       if ("addEventListener" in mql) {
         mql.addEventListener("change", update);
         return () => mql.removeEventListener("change", update);
       }
-      // Safari < 14
       (mql as any).addListener?.(update);
       return () => (mql as any).removeListener?.(update);
     };
-
     const removeMobile = add(mobileMql);
     const removeTablet = add(tabletMql);
     return () => {
@@ -220,8 +222,8 @@ export default function HeroCarousel() {
     };
   }, []);
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
+  // Run before first paint so the slide order is stable — no post-paint reorder flicker.
+  useLayoutEffect(() => {
     setHeroSeed(getOrCreateSessionSeed());
   }, []);
 
@@ -584,7 +586,7 @@ export default function HeroCarousel() {
         >
           {/* Liquid Glass Ambient Lighting */}
       <div
-        className="absolute inset-0 z-0 bg-gradient-to-br from-white/20 via-transparent to-sage/10 pointer-events-none rounded-none will-change-transform"
+        className="absolute inset-0 z-0 bg-gradient-to-br from-white/20 via-transparent to-sage/10 pointer-events-none rounded-none"
       />
       <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_center,_rgba(255,255,255,0.15)_0%,_transparent_70%)] pointer-events-none rounded-none" />
       <div className="absolute inset-0 z-0 backdrop-blur-[1px] bg-off-white/5 mix-blend-overlay pointer-events-none rounded-none" />

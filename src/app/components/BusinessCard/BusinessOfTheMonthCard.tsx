@@ -467,11 +467,9 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
           }}
           onClick={handleCardClick}
         >
-          <div 
-            className="relative w-full h-full [transform:translateZ(0)]"
-          >
+          <div className="relative w-full h-full">
             {!imgError && displayImage ? (
-              <div className="relative w-full h-full overflow-hidden shadow-sm [backface-visibility:hidden] [-webkit-backface-visibility:hidden]">
+              <div className="relative w-full h-full overflow-hidden shadow-sm">
                 <Image
                   src={usingFallback ? getSubcategoryPlaceholderFromCandidates([
                     (business as any).sub_interest_id,
