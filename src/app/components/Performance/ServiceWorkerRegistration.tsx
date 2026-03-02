@@ -1,6 +1,8 @@
 /**
- * Service Worker Registration Component
- * Registers service worker for offline caching and image optimization
+ * Legacy service worker cleanup component.
+ * The service worker is intentionally disabled because cached app-shell/API
+ * responses are unsafe for this auth-heavy app and have caused reload issues
+ * on iPhone Safari.
  */
 
 "use client";
@@ -9,51 +11,24 @@ import { useEffect } from 'react';
 
 export default function ServiceWorkerRegistration() {
   useEffect(() => {
-    if (
-      typeof window !== 'undefined' &&
-      'serviceWorker' in navigator &&
-      process.env.NODE_ENV === 'production'
-    ) {
-      // Register service worker
-      navigator.serviceWorker
-        .register('/sw.js')
-        .then((registration) => {
-          console.log('[SW] Service Worker registered:', registration.scope);
+    if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return;
 
-          // Check for updates periodically (every hour)
-          setInterval(() => {
-            registration.update();
-          }, 60 * 60 * 1000);
-
-          // Listen for updates
-          registration.addEventListener('updatefound', () => {
-            const newWorker = registration.installing;
-            if (newWorker) {
-              newWorker.addEventListener('statechange', () => {
-                if (
-                  newWorker.state === 'installed' &&
-                  navigator.serviceWorker.controller
-                ) {
-                  // New service worker available, reload page when user closes tabs
-                  console.log('[SW] New service worker available');
-                }
-              });
-            }
-          });
-        })
-        .catch((error) => {
-          console.error('[SW] Service Worker registration failed:', error);
-        });
-
-      // Handle service worker controller changes
-      let refreshing = false;
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!refreshing) {
-          refreshing = true;
-          window.location.reload();
-        }
-      });
-    }
+    navigator.serviceWorker
+      .getRegistrations()
+      .then((registrations) =>
+        Promise.all(registrations.map((registration) => registration.unregister()))
+      )
+      .then(() => {
+        if (!('caches' in window)) return;
+        return caches.keys().then((keys) =>
+          Promise.all(
+            keys
+              .filter((key) => key.startsWith('klio-'))
+              .map((key) => caches.delete(key))
+          )
+        );
+      })
+      .catch(() => {});
   }, []);
 
   return null;

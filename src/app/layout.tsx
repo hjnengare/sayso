@@ -205,14 +205,35 @@ export default function RootLayout({
       <body className="no-layout-shift scroll-smooth bg-off-white">
         <WebVitals />
         <ClientLayoutWrapper />
-        {/* Service Worker Registration - deferred to not block initial render */}
+        {/* Disable the legacy service worker.
+            This app is auth-heavy and dynamic; cached navigations/API responses have
+            caused iPhone Safari users to experience apparent reload loops/stale shell swaps. */}
         <Script
-          id="sw-registration"
+          id="sw-cleanup"
           strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: `
               if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('/sw.js').catch(function () {});
+                navigator.serviceWorker.getRegistrations()
+                  .then(function (registrations) {
+                    return Promise.all(
+                      registrations.map(function (registration) {
+                        return registration.unregister();
+                      })
+                    );
+                  })
+                  .then(function () {
+                    if ('caches' in window) {
+                      return caches.keys().then(function (keys) {
+                        return Promise.all(
+                          keys
+                            .filter(function (key) { return key.indexOf('klio-') === 0; })
+                            .map(function (key) { return caches.delete(key); })
+                        );
+                      });
+                    }
+                  })
+                  .catch(function () {});
               }
             `,
           }}
