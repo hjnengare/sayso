@@ -20,11 +20,11 @@ export function MessageComposer({ value, onChange, onSend, isSending }: MessageC
 
   return (
     <div
-      className="border-t border-charcoal/8 bg-white px-4 py-3 sm:px-5"
+      className="border-t border-charcoal/8 bg-off-white px-4 py-3 sm:px-5"
       style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
     >
       <div className="flex items-end gap-3">
-        <div className="flex flex-1 items-end rounded-[24px] border border-charcoal/15 bg-white px-4 py-2.5 focus-within:border-charcoal/25 transition-colors">
+        <div className="flex flex-1 items-end rounded-[24px] border border-charcoal/15 bg-off-white px-4 py-2.5 focus-within:border-charcoal/25 transition-colors">
           <textarea
             value={value}
             onChange={(event) => onChange(event.target.value)}

@@ -489,7 +489,7 @@ export default function MessagingWorkspace({
 
   return (
     <>
-      <div className={`bg-white ${topPaddingClassName}`}>
+      <div className={`bg-off-white ${topPaddingClassName}`}>
         <div className={`mx-auto flex w-full max-w-7xl overflow-hidden sm:rounded-xl sm:border sm:border-charcoal/8 sm:shadow-sm ${viewportClassName}`}>
 
           {/* ── Sidebar ──────────────────────────────────────────── */}
@@ -518,7 +518,7 @@ export default function MessagingWorkspace({
           />
 
           {/* ── Thread pane ──────────────────────────────────────── */}
-          <section className={`${threadPaneVisibleClass} min-w-0 flex-1 flex-col bg-white`}>
+          <section className={`${threadPaneVisibleClass} min-w-0 flex-1 flex-col bg-off-white`}>
             {!selectedConversation && (
               <div className="flex h-full flex-col items-center justify-center px-6 text-center">
                 <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full border-2 border-charcoal/15">
@@ -536,7 +536,7 @@ export default function MessagingWorkspace({
             {selectedConversation && (
               <>
                 {/* Thread header */}
-                <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-charcoal/8 bg-white/98 px-4 py-3 backdrop-blur sm:px-5">
+                <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-charcoal/8 bg-off-white/98 px-4 py-3 backdrop-blur sm:px-5">
                   {(() => {
                     const fallbackBusinessName = getFallbackBusinessName(selectedConversation);
                     const selectedConversationTitle = getConversationTitle(selectedConversation, role, fallbackBusinessName);

@@ -102,7 +102,7 @@ export function ConversationListPane({
   listPaneVisibleClass,
 }: ConversationListPaneProps) {
   return (
-    <aside className={`${listPaneVisibleClass} w-full lg:w-[360px] xl:w-[400px] flex-col border-r border-charcoal/8 bg-white`}>
+    <aside className={`${listPaneVisibleClass} w-full lg:w-[360px] xl:w-[400px] flex-col border-r border-charcoal/8 bg-off-white`}>
 
       {/* Header */}
       <div className="px-5 pb-3 pt-5">

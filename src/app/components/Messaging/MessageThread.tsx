@@ -48,7 +48,7 @@ export function MessageThread({
   scrollRef,
 }: MessageThreadProps) {
   return (
-    <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto bg-white px-4 py-5 sm:px-6">
+    <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto bg-off-white px-4 py-5 sm:px-6">
       {messagesLoading && (
         <div className="flex h-full items-center justify-center">
           <Loader2 className="h-5 w-5 animate-spin text-charcoal/35" />
