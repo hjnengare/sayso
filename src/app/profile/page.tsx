@@ -484,11 +484,16 @@ function ProfileContent() {
     profile.username ||
     user?.email?.split("@")[0] ||
     "Your Profile";
-  const profileLocation =
-    enhancedProfile?.location ||
-    profile.location ||
-    profile.locale ||
-    "Location not set";
+  const rawProfileLocation = enhancedProfile?.location || profile.location || "";
+  const profileLocation = (() => {
+    const normalizedLocation = rawProfileLocation.trim();
+    if (!normalizedLocation) return "Location not set";
+    // Ignore locale codes such as "en" or "en-ZA" leaking into the location slot.
+    if (/^[a-z]{2}(?:-[A-Z]{2})?$/.test(normalizedLocation)) {
+      return "Location not set";
+    }
+    return normalizedLocation;
+  })();
   const reviewsCount = userReviews.length > 0 ? userReviews.length : (userStats?.totalReviewsWritten ?? profile.reviews_count ?? 0);
   const badgesCount = achievements.length;
   const interestsCount = profile.interests_count ?? 0;

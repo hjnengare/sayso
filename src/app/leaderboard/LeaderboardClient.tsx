@@ -28,6 +28,7 @@ import { useBusinesses } from "../hooks/useBusinesses";
 import { useFeaturedBusinesses } from "../hooks/useFeaturedBusinesses";
 import { useIsDesktop } from "../hooks/useIsDesktop";
 import { LiveIndicator } from "../components/Realtime/RealtimeIndicators";
+import { useAuth } from "../contexts/AuthContext";
 
 // Note: dynamic and revalidate cannot be exported from client components
 // Client components are automatically dynamic
@@ -48,6 +49,7 @@ interface LeaderboardUser {
 }
 
 function LeaderboardPage() {
+  const { user } = useAuth();
   const isDesktop = useIsDesktop();
   const searchParams = useSearchParams();
   const tabFromUrl = searchParams.get('tab');
@@ -376,6 +378,17 @@ function LeaderboardPage() {
                   <span className="sm:hidden">View</span>
                   <ExternalLink className="w-3.5 h-3.5 opacity-80" />
                 </a>
+                {user && (
+                  <Link
+                    href="/achievements"
+                    className="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-full border border-white/20 bg-white/10 text-white hover:bg-white/15 transition-all duration-200 text-sm font-semibold shadow-sm hover:shadow-md hover:-translate-y-0.5"
+                    style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                  >
+                    <Award className="w-4 h-4" />
+                    <span className="hidden sm:inline">View achievements</span>
+                    <span className="sm:hidden">Achievements</span>
+                  </Link>
+                )}
               </div>
             </div>
           </div>
