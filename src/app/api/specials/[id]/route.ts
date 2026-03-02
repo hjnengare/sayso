@@ -1,7 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSupabase } from '@/app/lib/supabase/server';
+import { createClient } from '@supabase/supabase-js';
+import { getServiceSupabase } from '@/app/lib/admin';
+import type { Database } from '@/app/types/supabase';
 
 export const dynamic = 'force-dynamic';
+
+async function getReadableSupabase() {
+  try {
+    return getServiceSupabase();
+  } catch {
+    return createClient<Database>(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      { auth: { persistSession: false, autoRefreshToken: false } }
+    );
+  }
+}
 
 /**
  * GET /api/specials/[id]
@@ -21,7 +35,7 @@ export async function GET(
       );
     }
 
-    const supabase = await getServerSupabase(req);
+    const supabase = await getReadableSupabase();
 
     // Fetch the special with business info
     type Business = {

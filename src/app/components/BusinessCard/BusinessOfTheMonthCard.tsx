@@ -458,7 +458,7 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
        
         {/* MEDIA - Full bleed with premium overlay */}
         <div
-          className="relative isolate overflow-hidden z-10 cursor-pointer backdrop-blur-xl h-[280px] sm:h-[300px] md:h-[220px]"
+          className="relative isolate overflow-hidden z-10 cursor-pointer h-[280px] sm:h-[300px] md:h-[220px]"
           onMouseEnter={() => {
             if (canSwitchBadges) setIsMediaHovered(true);
           }}
@@ -518,7 +518,7 @@ export default function BusinessOfTheMonthCard({ business, index = 0 }: { busine
           {/* Single overlay badge: smoothly switches between Sayso Select and distance */}
           {activeOverlayBadge && (
             <div className="absolute left-3 bottom-3 z-20 w-[calc(100%-1.5rem)] max-w-[230px] sm:max-w-[250px]">
-              <div className="relative h-[30px] overflow-hidden rounded-full bg-off-white/90 backdrop-blur-[2px] shadow-[0_2px_8px_rgba(0,0,0,0.12)]">
+              <div className="relative h-[30px] overflow-hidden rounded-full bg-off-white/90 shadow-[0_2px_8px_rgba(0,0,0,0.12)]">
                 <AnimatePresence mode="wait" initial={false}>
                   <m.div
                     key={activeOverlayBadge.key}
