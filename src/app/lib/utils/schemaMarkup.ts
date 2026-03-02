@@ -339,10 +339,7 @@ export function generateWebSiteSchema(): object {
     url: SITE_URL,
     potentialAction: {
       '@type': 'SearchAction',
-      target: {
-        '@type': 'EntryPoint',
-        urlTemplate: `${SITE_URL}/search?q={search_term_string}`,
-      },
+      target: `${SITE_URL}/search?q={search_term_string}`,
       'query-input': 'required name=search_term_string',
     },
   };

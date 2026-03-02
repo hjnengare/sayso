@@ -15,6 +15,7 @@ export default function SchemaMarkup({ schemas }: SchemaMarkupProps) {
       {schemaArray.map((schema, index) => (
         <script
           key={index}
+          id={`schema-ld-json-${index}`}
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(schema, null, 2),

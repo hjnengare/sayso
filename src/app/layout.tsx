@@ -196,13 +196,13 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
         
         {/* Canonical tag removed - set per page via metadata */}
-      </head>
-      <body className="no-layout-shift scroll-smooth bg-off-white">
         <SchemaMarkup schemas={[
           generateOrganizationSchema(),
           generateWebSiteSchema(),
           generateSiteNavigationSchema(),
         ]} />
+      </head>
+      <body className="no-layout-shift scroll-smooth bg-off-white">
         <WebVitals />
         <ClientLayoutWrapper />
         {/* Service Worker Registration - deferred to not block initial render */}

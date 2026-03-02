@@ -197,13 +197,13 @@ export default function SavedPage() {
                   </button>
                 </div>
               </m.div>
-            ) : hasAnyContent ? (
+            ) : (
               <m.div
-                className="relative z-10 min-h-[100dvh]"
+                className="relative z-10"
                 {...getChoreoItemMotion({ order: 1, intent: "section", enabled: choreoEnabled })}
               >
                 <div className="mx-auto w-full max-w-[2000px] px-2">
-                  {/* Title */}
+                  {/* Title — always visible */}
                   <m.div
                     className="mb-6 sm:mb-8 px-2"
                     {...getChoreoItemMotion({ order: 2, intent: "heading", enabled: choreoEnabled })}
@@ -223,95 +223,101 @@ export default function SavedPage() {
                         fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                       }}
                     >
-                      {totalSavedCount} {totalSavedCount === 1 ? "item" : "items"} saved
+                      {hasAnyContent
+                        ? `${totalSavedCount} ${totalSavedCount === 1 ? "item" : "items"} saved`
+                        : "Businesses you bookmark will appear here"}
                     </p>
                   </m.div>
 
-                  {/* Category Filters */}
-                  {categories.length > 1 && (
+                  {hasAnyContent ? (
+                    <>
+                      {/* Category Filters */}
+                      {categories.length > 1 && (
+                        <m.div
+                          className="mb-6 px-2"
+                          {...getChoreoItemMotion({ order: 3, intent: "section", enabled: choreoEnabled })}
+                        >
+                          <FilterPillGroup
+                            options={categories.map((cat) => ({
+                              value: cat === 'All' ? null : cat,
+                              label: cat,
+                              count: cat === 'All'
+                                ? savedBusinesses.length
+                                : savedBusinesses.filter(b => b.category === cat).length,
+                            }))}
+                            value={selectedCategory}
+                            onChange={(value) => setSelectedCategory((value as string | null) ?? null)}
+                            ariaLabel="Filter by category"
+                            size="md"
+                            showCounts
+                          />
+                        </m.div>
+                      )}
+
+                      {/* Loading Spinner Overlay for Pagination */}
+                      {isPaginationLoading && (
+                        <div className="fixed inset-0 z-[9998] bg-off-white/92 backdrop-blur-sm overflow-y-auto">
+                          <div className="pt-24 pb-10">
+                            <SavedPageSkeleton showHeader={false} />
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Content Grid */}
+                      <AnimatePresence mode="wait" initial={false}>
+                        {filteredBusinesses.length > 0 ? (
+                          <m.div
+                            key={`businesses-${currentPage}`}
+                            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-3"
+                            {...getChoreoItemMotion({ order: 4, intent: "section", enabled: choreoEnabled })}
+                          >
+                            {(paginatedItems as Business[]).map((business) => (
+                              <div key={business.id} className="list-none">
+                                <BusinessCard business={business} compact inGrid={true} />
+                              </div>
+                            ))}
+                          </m.div>
+                        ) : (
+                          <div className="text-center py-12">
+                            <span className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-off-white/70 text-charcoal/85 transition duration-200 ease-out hover:bg-off-white/90 hover:scale-[1.03]">
+                              <Store className="w-6 h-6" aria-hidden />
+                            </span>
+                            <p className="text-charcoal/60 text-body" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
+                              No saved businesses yet
+                            </p>
+                            <Link
+                              href="/home"
+                              className="inline-block mt-4 px-6 py-2 bg-card-bg text-white rounded-full text-sm font-medium hover:bg-card-bg/90 transition-colors"
+                            >
+                              Explore Businesses
+                            </Link>
+                          </div>
+                        )}
+                      </AnimatePresence>
+
+                      {/* Pagination */}
+                      {currentItems.length > ITEMS_PER_PAGE && (
+                        <m.div
+                          {...getChoreoItemMotion({ order: 5, intent: "section", enabled: choreoEnabled })}
+                        >
+                          <Pagination
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            onPageChange={handlePageChange}
+                            disabled={isPaginationLoading}
+                          />
+                        </m.div>
+                      )}
+                    </>
+                  ) : (
                     <m.div
-                      className="mb-6 px-2"
+                      className="px-2"
                       {...getChoreoItemMotion({ order: 3, intent: "section", enabled: choreoEnabled })}
                     >
-                      <FilterPillGroup
-                        options={categories.map((cat) => ({
-                          value: cat === 'All' ? null : cat,
-                          label: cat,
-                          count: cat === 'All'
-                            ? savedBusinesses.length
-                            : savedBusinesses.filter(b => b.category === cat).length,
-                        }))}
-                        value={selectedCategory}
-                        onChange={(value) => setSelectedCategory((value as string | null) ?? null)}
-                        ariaLabel="Filter by category"
-                        size="md"
-                        showCounts
-                      />
-                    </m.div>
-                  )}
-
-                  {/* Loading Spinner Overlay for Pagination */}
-                  {isPaginationLoading && (
-                    <div className="fixed inset-0 z-[9998] bg-off-white/92 backdrop-blur-sm overflow-y-auto">
-                      <div className="pt-24 pb-10">
-                        <SavedPageSkeleton showHeader={false} />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Content Grid */}
-                  <AnimatePresence mode="wait" initial={false}>
-                    {filteredBusinesses.length > 0 ? (
-                      <m.div
-                        key={`businesses-${currentPage}`}
-                        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-3"
-                        {...getChoreoItemMotion({ order: 4, intent: "section", enabled: choreoEnabled })}
-                      >
-                        {(paginatedItems as Business[]).map((business) => (
-                          <div key={business.id} className="list-none">
-                            <BusinessCard business={business} compact inGrid={true} />
-                          </div>
-                        ))}
-                      </m.div>
-                    ) : (
-                      <div className="text-center py-12">
-                        <span className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-off-white/70 text-charcoal/85 transition duration-200 ease-out hover:bg-off-white/90 hover:scale-[1.03]">
-                          <Store className="w-6 h-6" aria-hidden />
-                        </span>
-                        <p className="text-charcoal/60 text-body" style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}>
-                          No saved businesses yet
-                        </p>
-                        <Link
-                          href="/home"
-                          className="inline-block mt-4 px-6 py-2 bg-card-bg text-white rounded-full text-sm font-medium hover:bg-card-bg/90 transition-colors"
-                        >
-                          Explore Businesses
-                        </Link>
-                      </div>
-                    )}
-                  </AnimatePresence>
-
-                  {/* Pagination */}
-                  {currentItems.length > ITEMS_PER_PAGE && (
-                    <m.div
-                      {...getChoreoItemMotion({ order: 5, intent: "section", enabled: choreoEnabled })}
-                    >
-                      <Pagination
-                        currentPage={currentPage}
-                        totalPages={totalPages}
-                        onPageChange={handlePageChange}
-                        disabled={isPaginationLoading}
-                      />
+                      <EmptySavedState />
                     </m.div>
                   )}
                 </div>
-              </m.div>
-            ) : (
-              <m.div
-                className="relative z-10 min-h-[100dvh] flex items-center justify-center"
-                {...getChoreoItemMotion({ order: 1, intent: "section", enabled: choreoEnabled })}
-              >
-                <EmptySavedState />
               </m.div>
             )}
           </div>
