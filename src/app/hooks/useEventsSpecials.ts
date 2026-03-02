@@ -59,7 +59,7 @@ export function useEventsSpecials(filter: string, search: string) {
     [filter, search]
   );
 
-  const { data: pages, error, isLoading, isValidating, setSize, size } = useSWRInfinite(
+  const { data: pages, error, isLoading, isValidating, setSize, size, mutate } = useSWRInfinite(
     getKey,
     fetchEventsPage,
     {
@@ -94,5 +94,6 @@ export function useEventsSpecials(filter: string, search: string) {
     loadingMore,
     error: error ? (error as Error).message : null,
     fetchMore,
+    refetch: () => mutate(),
   };
 }

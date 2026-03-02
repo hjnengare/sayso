@@ -1,10 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSupabase } from "@/app/lib/supabase/server";
+import { createClient } from "@supabase/supabase-js";
+import { getServiceSupabase } from "@/app/lib/admin";
+import type { Database } from "@/app/types/supabase";
 import { mapEventsAndSpecialsRowToEventCard, type EventsAndSpecialsRow } from "@/app/lib/events/mapEvent";
 
 export const dynamic = "force-dynamic";
 
 const normalize = (value: string | null | undefined) => (value ?? "").toString().trim().toLowerCase();
+
+async function getReadableSupabase() {
+  try {
+    return getServiceSupabase();
+  } catch {
+    return createClient<Database>(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      { auth: { persistSession: false, autoRefreshToken: false } }
+    );
+  }
+}
 
 const buildSeriesKey = (row: Pick<EventsAndSpecialsRow, "title" | "business_id" | "location">) =>
   `${normalize(row.title)}|${normalize(row.business_id)}|${normalize(row.location)}`;
@@ -23,11 +37,11 @@ export async function GET(
       return NextResponse.json({ error: "Event not found" }, { status: 404 });
     }
 
-    const supabase = await getServerSupabase(req);
+    const supabase = await getReadableSupabase();
 
     // 1) Representative row by id
     const baseSelect =
-      "id,title,type,business_id,start_date,end_date,location,description,icon,image,price,rating,created_by,created_at,updated_at";
+      "id,title,type,business_id,start_date,end_date,location,description,icon,image,price,rating,availability_status,created_by,created_at,updated_at";
 
     let representative: any = null;
     let repError: any = null;

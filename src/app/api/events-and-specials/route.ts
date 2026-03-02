@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 import { getServerSupabase } from "@/app/lib/supabase/server";
+import { getServiceSupabase } from "@/app/lib/admin";
+import type { Database } from "@/app/types/supabase";
 import { formatDateRangeLabel, mapEventsAndSpecialsRowToEventCard, type EventsAndSpecialsRow } from "@/app/lib/events/mapEvent";
 import { createEventOrSpecial } from "@/app/lib/events/createEventSpecial";
 
@@ -9,8 +12,21 @@ export const runtime = "nodejs";
 const MAX_RAW_ROWS = 4000;
 const BOOKING_SELECT_FRAGMENT =
   ",booking_url,booking_contact,cta_source,whatsapp_number,whatsapp_prefill_template";
-const FETCH_TIMEOUT_MS = 1500;
+const FETCH_TIMEOUT_MS = 10_000;
 const CACHE_CONTROL = "public, s-maxage=30, stale-while-revalidate=300";
+
+async function getEventsSupabase() {
+  try {
+    return getServiceSupabase();
+  } catch {
+    console.warn("[events-and-specials] Service role not configured, falling back to anon server client.");
+    return createClient<Database>(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      { auth: { persistSession: false, autoRefreshToken: false } }
+    );
+  }
+}
 
 function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
   return new Promise<T>((resolve, reject) => {
@@ -84,7 +100,7 @@ export async function GET(req: NextRequest) {
     // Escape ILIKE wildcards in user input so they're treated as literals
     const ilikePat = searchParam.replace(/%/g, "\\%").replace(/_/g, "\\_");
 
-    const supabase = await getServerSupabase(req);
+    const supabase = await getEventsSupabase();
 
     // SAST-aware cutoff: midnight today in UTC+2
     const nowUtc = new Date();
@@ -95,7 +111,7 @@ export async function GET(req: NextRequest) {
     const bufferStart = sastMidnight.toISOString();
 
     const baseSelect =
-      "id,title,type,business_id,start_date,end_date,location,description,icon,image,price,rating";
+      "id,title,type,business_id,start_date,end_date,location,description,icon,image,price,rating,availability_status";
 
     let query = supabase
       .from("events_and_specials")
@@ -154,8 +170,18 @@ export async function GET(req: NextRequest) {
 
     if (error) {
       console.error("[events-and-specials] query error:", error);
-      const response = NextResponse.json({ items: [], count: 0, limit, offset }, { status: 200 });
-      response.headers.set("Cache-Control", CACHE_CONTROL);
+      const response = NextResponse.json(
+        {
+          error: "Failed to fetch events and specials",
+          details: error.message ?? "Unknown query error",
+          items: [],
+          count: 0,
+          limit,
+          offset,
+        },
+        { status: 503 }
+      );
+      response.headers.set("Cache-Control", "no-store");
       response.headers.set("X-Query-Duration-MS", String(Date.now() - reqStart));
       return response;
     }
@@ -317,8 +343,18 @@ export async function GET(req: NextRequest) {
     return response;
   } catch (err) {
     console.error("[events-and-specials] error:", err);
-    const response = NextResponse.json({ items: [], count: 0, limit: 20, offset: 0 }, { status: 200 });
-    response.headers.set("Cache-Control", CACHE_CONTROL);
+    const response = NextResponse.json(
+      {
+        error: "Failed to fetch events and specials",
+        details: err instanceof Error ? err.message : "Unknown server error",
+        items: [],
+        count: 0,
+        limit: 20,
+        offset: 0,
+      },
+      { status: 503 }
+    );
+    response.headers.set("Cache-Control", "no-store");
     response.headers.set("X-Query-Duration-MS", String(Date.now() - reqStart));
     return response;
   }

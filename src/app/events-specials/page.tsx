@@ -34,7 +34,7 @@ export default function EventsSpecialsPage() {
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
   // SWR-backed events list (caching, dedup, pre-fetch next page)
-  const { items, count, hasMore, loading, loadingMore, error, fetchMore } = useEventsSpecials(
+  const { items, count, hasMore, loading, loadingMore, error, fetchMore, refetch } = useEventsSpecials(
     selectedFilter,
     debouncedSearchQuery
   );
@@ -114,9 +114,7 @@ export default function EventsSpecialsPage() {
   };
 
   const handleRetry = () => {
-    // Trigger re-fetch by changing filter slightly then back, or use window.location.reload
-    // SWR will re-validate automatically on next render
-    setSelectedFilter(f => f);
+    void refetch();
   };
 
   const hasAnyData = Array.isArray(items) && items.length > 0;
