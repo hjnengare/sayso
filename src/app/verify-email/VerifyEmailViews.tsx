@@ -6,7 +6,6 @@ import { AlertCircle, ArrowLeft, CheckCircle, ExternalLink, Mail } from "lucide-
 import type { ReactNode } from "react";
 
 import { Loader as AppLoader } from "../components/Loader";
-import WavyTypedTitle from "../components/Animations/WavyTypedTitle";
 
 import { verifyEmailStyles } from "./verifyEmailStyles";
 
@@ -249,16 +248,12 @@ export function VerifyEmailMainView({
       <div className="w-full max-w-sm sm:max-w-md lg:max-w-lg mx-auto relative z-10 flex-1 flex flex-col justify-center py-8 sm:py-12">
         <div className="text-center mb-4 pt-16 sm:pt-20">
           <div className="inline-block relative mb-4 animate-fade-in-up animate-delay-400">
-            <WavyTypedTitle
-              text="Check Your Email"
-              as="h2"
+            <h2
               className={`${urbanist.className} text-3xl md:text-4xl font-semibold mb-2 text-center leading-[1.2] px-2 tracking-tight text-charcoal`}
-              typingSpeedMs={40}
-              startDelayMs={300}
-              waveVariant="subtle"
-              loopWave={false}
               style={{ fontFamily: urbanist.style.fontFamily }}
-            />
+            >
+              Check Your Email
+            </h2>
           </div>
           <p className="text-body font-normal text-charcoal/70 mb-4 leading-[1.55] px-2 max-w-[70ch] mx-auto animate-fade-in-up animate-delay-700" style={FONT_STYLE}>
             We&apos;ve sent a confirmation email to verify your account and unlock full features!

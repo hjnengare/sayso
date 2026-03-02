@@ -12,7 +12,6 @@ import {
   OnboardingActionBar 
 } from "../components/Onboarding";
 import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
-import WavyTypedTitle from "@/app/components/Animations/WavyTypedTitle";
 import { Loader } from "../components/Loader";
 import { useCompletePage } from "../hooks/useCompletePage";
 
@@ -245,21 +244,15 @@ function CompletePageContent() {
         >
           {/* Heading */}
           <div className="title-no-break mb-4">
-            <WavyTypedTitle
-              text="You're all set!"
-              as="h1"
+            <h1
               className="font-urbanist text-lg md:text-4xl lg:text-5xl font-700 tracking-tight leading-snug text-charcoal"
-              typingSpeedMs={40}
-              startDelayMs={300}
-              waveVariant="subtle"
-              loopWave={false}
-              triggerOnTypingComplete={true}
-              enableScrollTrigger={false}
-              style={{ 
+              style={{
                 fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                 fontWeight: 700,
               }}
-            />
+            >
+              You&apos;re all set!
+            </h1>
           </div>
 
           {/* Subheading */}

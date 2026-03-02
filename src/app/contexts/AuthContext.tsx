@@ -323,8 +323,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
           // Business accounts NEVER need personal onboarding
           router.push('/my-businesses');
         } else if (activeUser.profile?.onboarding_completed_at) {
-          // Personal user with completed onboarding -> complete
-          router.push('/complete');
+          // Personal user with completed onboarding -> go home (skip /complete on returning logins)
+          router.push('/home');
         } else {
           // Personal user with incomplete onboarding → start onboarding
           router.push('/interests');

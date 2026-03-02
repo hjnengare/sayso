@@ -30,7 +30,8 @@ const staticPublicPages: Array<{
   { url: '/privacy', priority: 0.3, changeFrequency: 'yearly' },
 ];
 
-async function getBusinesses(): Promise<Array<{ slug: string; updated_at: string | null; created_at: string | null }>> {
+async function getBusinesses(): 
+Promise<Array<{ slug: string; updated_at: string | null; created_at: string | null }>> {
   try {
     const supabase = getSitemapSupabase();
     const { data, error } = await supabase
