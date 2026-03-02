@@ -46,7 +46,8 @@ export async function getCurrentUserId(
 }
 
 /**
- * Update user's last_active_at timestamp
+ * Touch the profile row so activity-dependent callers can record recency.
+ * Some databases no longer have profiles.last_active_at, so we only bump updated_at.
  */
 export async function updateLastActive(
   supabase: SupabaseClient,
@@ -54,7 +55,7 @@ export async function updateLastActive(
 ): Promise<void> {
   await supabase
     .from('profiles')
-    .update({ last_active_at: new Date().toISOString() })
+    .update({ updated_at: new Date().toISOString() })
     .eq('user_id', userId);
 }
 
@@ -152,10 +153,10 @@ export async function getUserStats(
   userId: string
 ): Promise<UserStats | null> {
   try {
-    // Get profile for account creation date
+    // Get profile timestamps from columns present in the current schema.
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('created_at, last_active_at')
+      .select('created_at, updated_at')
       .eq('user_id', userId)
       .single();
 
@@ -198,7 +199,7 @@ export async function getUserStats(
           totalHelpfulVotesGiven: cachedStats.total_helpful_votes_given || 0,
           totalBusinessesSaved: cachedStats.total_businesses_saved || 0,
           accountCreationDate: profile.created_at,
-          lastActiveDate: profile.last_active_at || profile.created_at,
+          lastActiveDate: profile.updated_at || profile.created_at,
           helpfulVotesReceived: cachedStats.helpful_votes_received || 0,
         };
       }
@@ -325,7 +326,7 @@ export async function getUserStats(
       totalHelpfulVotesGiven: totalHelpfulVotes || 0,
       totalBusinessesSaved: totalSaved || 0,
       accountCreationDate: profile.created_at,
-      lastActiveDate: profile.last_active_at || profile.created_at,
+      lastActiveDate: profile.updated_at || profile.created_at,
       helpfulVotesReceived,
     };
   } catch (error) {
