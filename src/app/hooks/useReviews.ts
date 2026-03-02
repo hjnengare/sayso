@@ -112,6 +112,9 @@ export function useReviewSubmission() {
   const { user, isLoading } = useAuth();
   const { showToast } = useToast();
   const { checkEmailVerification } = useEmailVerification();
+  const showReviewSubmittedToast = useCallback(() => {
+    showToast('Review submitted', 'sage', 3000);
+  }, [showToast]);
 
   const submitReview = async (reviewData: ReviewFormData): Promise<{ success: boolean; review?: any }> => {
     // Wait for auth to finish loading (up to 2 seconds)
@@ -260,31 +263,28 @@ export function useReviewSubmission() {
           .then((res) => res.json())
           .then((data) => {
             if (data?.newBadges?.length > 0) {
-              const n = data.newBadges.length;
-              showToast(
-                n === 1
-                  ? `You earned a new badge: ${data.newBadges[0].name}!`
-                  : `You earned ${n} new badges!`,
-                'success',
-                4000
-              );
               globalMutate(
                 (key: unknown) =>
                   Array.isArray(key) && typeof key[0] === 'string' && (key[0] as string).includes('/api/badges/user'),
                 undefined,
                 { revalidate: true }
               );
-            globalMutate(
+              globalMutate(
                 (key: unknown) =>
                   Array.isArray(key) && typeof key[0] === 'string' && (key[0] as string).includes('/api/user/reviews'),
                 undefined,
                 { revalidate: true }
               );
+              return;
             }
+            showReviewSubmittedToast();
           })
-          .catch(() => {});
+          .catch(() => {
+            showReviewSubmittedToast();
+          });
+      } else {
+        showReviewSubmittedToast();
       }
-      showToast('Review submitted', 'sage', 3000);
       return { success: true, review: createdReview };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to submit review';

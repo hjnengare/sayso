@@ -260,11 +260,16 @@ function WriteReviewContent() {
           .then((data) => {
             if (data?.newBadges?.length > 0) {
               void fireBadgeCelebration(`review-badge-${Date.now()}`);
+              return;
             }
+            showToast("Review submitted successfully!", "success");
           })
-          .catch(() => {});
+          .catch(() => {
+            showToast("Review submitted successfully!", "success");
+          });
+      } else {
+        showToast("Review submitted successfully!", "success");
       }
-      showToast("Review submitted successfully!", "success");
       resetForm();
       // Bust SWR caches so the detail page shows fresh ratings immediately on navigate-back
       invalidateEventRatings(id);
