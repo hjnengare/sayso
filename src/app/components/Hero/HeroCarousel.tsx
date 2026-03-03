@@ -352,7 +352,7 @@ export default function HeroCarousel() {
       slideTimeoutRef.current = null;
     }
 
-    const slideDuration = heroViewport === "mobile" ? 9000 : 6500;
+    const slideDuration = 9000;
     slideTimeoutRef.current = window.setTimeout(() => {
       transitionToIndex((prev) => (prev + 1) % slides.length);
     }, slideDuration);
