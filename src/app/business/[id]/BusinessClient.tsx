@@ -595,11 +595,11 @@ export default function BusinessProfilePage() {
                     {/* Reviews Section */}
                     <section className="space-y-6" aria-labelledby="reviews-heading">
                         <div className="text-center justify-center py-2 px-3 sm:px-4">
-                            <h2 id="reviews-heading" className="sr-only">Community Reviews</h2>
+                            <h3 id="reviews-heading" className="sr-only">Community Reviews</h3>
                             <WavyTypedTitle
                                 text="Community Reviews"
-                                as="h2"
-                                className="font-urbanist text-2xl sm:text-3xl md:text-4xl font-bold text-charcoal rounded-lg cursor-default"
+                                as="h3"
+                                className="font-urbanist text-xl sm:text-2xl md:text-3xl font-bold text-charcoal rounded-lg cursor-default"
                                 typingSpeedMs={40}
                                 startDelayMs={300}
                                 disableWave={true}

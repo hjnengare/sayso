@@ -172,11 +172,11 @@ export default function SimilarBusinesses({
               <div className="flex items-center gap-2">
                 <p className="text-[11px] uppercase tracking-[0.15em] text-charcoal/70 font-bold">Similar Businesses</p>
               </div>
-              <h2 id="similar-businesses-heading" className="sr-only">You Might Also Like</h2>
+              <h3 id="similar-businesses-heading" className="sr-only">You Might Also Like</h3>
             <WavyTypedTitle
               text="You Might Also Like"
               as="h3"
-              className="font-urbanist text-2xl sm:text-3xl md:text-4xl font-bold text-charcoal"
+              className="font-urbanist text-xl sm:text-2xl md:text-3xl font-bold text-charcoal"
                 typingSpeedMs={40}
                 startDelayMs={300}
                 waveVariant="subtle"
@@ -233,11 +233,11 @@ export default function SimilarBusinesses({
             <div className="flex items-center gap-2">
               <p className="text-[11px] uppercase tracking-[0.15em] text-charcoal/70 font-bold">Similar Businesses</p>
             </div>
-            <h2 id="similar-businesses-heading" className="sr-only">You Might Also Like</h2>
+            <h3 id="similar-businesses-heading" className="sr-only">You Might Also Like</h3>
             <WavyTypedTitle
               text="You Might Also Like"
-              as="h2"
-              className="font-urbanist text-2xl sm:text-3xl md:text-4xl font-bold text-charcoal"
+              as="h3"
+              className="font-urbanist text-xl sm:text-2xl md:text-3xl font-bold text-charcoal"
               typingSpeedMs={40}
               startDelayMs={300}
               waveVariant="subtle"
