@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { LogOut, Trash2, UserRound, Mail, ShieldAlert } from "@/app/lib/icons";
+import { animations } from "../add-business/components";
 
 const FONT_STACK = "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif";
 const ICON_CHIP_CLASS =
@@ -51,7 +52,9 @@ export default function SettingsPage() {
   const username = user?.profile?.username || user?.profile?.display_name || user?.email?.split("@")[0] || "User";
 
   return (
-    <div className="mx-auto w-full max-w-5xl p-4 sm:p-6 lg:p-8">
+    <>
+      <style dangerouslySetInnerHTML={{ __html: animations }} />
+      <div className="mx-auto w-full max-w-5xl p-4 sm:p-6 lg:p-8">
         <div className="space-y-5">
           {/* Account Summary */}
           <section className="relative bg-white border border-charcoal/10 rounded-[16px] shadow-sm p-5 sm:p-6">
@@ -159,7 +162,8 @@ export default function SettingsPage() {
             )}
           </section>
         </div>
-    </div>
+      </div>
+    </>
   );
 }
  

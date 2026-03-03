@@ -10,6 +10,7 @@ import { useAuth } from '@/app/contexts/AuthContext';
 import { useOwnerBusinessesList } from '@/app/hooks/useOwnerBusinessesList';
 import { getChoreoItemMotion } from '@/app/lib/motion/choreography';
 import Footer from '@/app/components/Footer/Footer';
+import { animations } from '@/app/(business-portal)/add-business/components';
 
 export default function DMPage() {
   const router = useRouter();
@@ -60,7 +61,9 @@ export default function DMPage() {
     : undefined;
 
   return (
-    <div className="min-h-[100dvh] bg-off-white">
+    <>
+      <style dangerouslySetInnerHTML={{ __html: animations }} />
+      <div className="min-h-[100dvh] bg-off-white">
       <m.div
         className="mx-auto w-full max-w-[2000px] px-2 relative pb-1 hidden sm:block"
         {...getChoreoItemMotion({ order: 0, intent: 'inline', enabled: choreoEnabled })}
@@ -110,5 +113,6 @@ export default function DMPage() {
       </m.div>
       <div className="hidden sm:block"><Footer /></div>
     </div>
+    </>
   );
 }

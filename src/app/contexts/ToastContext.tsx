@@ -4,6 +4,12 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 import { usePathname } from 'next/navigation';
 import { CheckCircle, XCircle, AlertTriangle, Info, X, Sparkles } from "@/app/lib/icons";
 import { m, AnimatePresence } from 'framer-motion';
+import {
+  FLASH_TOAST_TTL_MS,
+  clearFlashToast,
+  readFlashToast,
+  writeFlashToast,
+} from "@/app/lib/toast/flashToast";
 
 interface Toast {
   id: string;
@@ -15,6 +21,12 @@ interface Toast {
 interface ToastContextType {
   showToast: (message: string, type?: Toast['type'], duration?: number) => void;
   showToastOnce: (key: string, message: string, type?: Toast['type'], duration?: number) => void;
+  queueFlashToast: (
+    message: string,
+    type?: Toast['type'],
+    duration?: number,
+    options?: { targetPath: string; onceKey?: string }
+  ) => void;
   removeToast: (id: string) => void;
 }
 
@@ -93,6 +105,45 @@ export function ToastProvider({ children }: ToastProviderProps) {
     showToast(message, type, duration);
   }, [showToast]);
 
+  useEffect(() => {
+    if (!pathname) return;
+
+    const pendingToast = readFlashToast();
+    if (!pendingToast) return;
+    if (pendingToast.targetPath !== pathname) return;
+
+    if (pendingToast.onceKey && seenToastsRef.current.has(pendingToast.onceKey)) {
+      clearFlashToast();
+      return;
+    }
+
+    if (pendingToast.onceKey) {
+      showToastOnce(pendingToast.onceKey, pendingToast.message, pendingToast.type, pendingToast.duration);
+    } else {
+      showToast(pendingToast.message, pendingToast.type, pendingToast.duration);
+    }
+
+    clearFlashToast();
+  }, [pathname, showToast, showToastOnce]);
+
+  const queueFlashToast = useCallback((
+    message: string,
+    type: Toast['type'] = 'info',
+    duration = 4000,
+    options?: { targetPath: string; onceKey?: string }
+  ) => {
+    if (typeof window === 'undefined' || !options?.targetPath) return;
+
+    writeFlashToast({
+      message,
+      type,
+      duration,
+      targetPath: options.targetPath,
+      onceKey: options.onceKey,
+      expiresAt: Date.now() + FLASH_TOAST_TTL_MS,
+    });
+  }, []);
+
   const getToastStyles = (type: Toast['type']) => {
     return 'bg-card-bg text-white';
   };
@@ -117,8 +168,9 @@ export function ToastProvider({ children }: ToastProviderProps) {
   const value: ToastContextType = useMemo(() => ({
     showToast,
     showToastOnce,
+    queueFlashToast,
     removeToast
-  }), [showToast, showToastOnce, removeToast]);
+  }), [showToast, showToastOnce, queueFlashToast, removeToast]);
 
   return (
     <ToastContext.Provider value={value}>

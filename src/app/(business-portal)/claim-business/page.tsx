@@ -21,6 +21,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { usePreviousPageBreadcrumb } from "../../hooks/usePreviousPageBreadcrumb";
 import { useUserBusinessClaims } from "../../hooks/useUserBusinessClaims";
+import { animations } from "../add-business/components";
 
 const ICON_CHIP_CLASS =
   "inline-flex items-center justify-center rounded-full bg-off-white/80 text-charcoal/85 transition-colors duration-200 hover:bg-off-white/90";
@@ -233,7 +234,9 @@ function ClaimBusinessPageContent() {
   };
 
   return (
-    <div className="min-h-dvh bg-off-white relative">
+    <>
+      <style dangerouslySetInnerHTML={{ __html: animations }} />
+      <div className="min-h-dvh bg-off-white relative">
       {/* Background Gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5 pointer-events-none" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(157,171,155,0.15)_0%,_transparent_50%)] pointer-events-none" />
@@ -499,6 +502,7 @@ function ClaimBusinessPageContent() {
       </main>
 
     </div>
+    </>
   );
 }
 

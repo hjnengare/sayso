@@ -16,7 +16,10 @@ import {
   VerifyEmailShell,
   VerifyEmailSuccessView,
 } from "./VerifyEmailViews";
+
 const RESEND_COOLDOWN_SECONDS = 60;
+const POST_VERIFY_SUCCESS_MESSAGE = "Email verified. Account secured.";
+const POST_VERIFY_SUCCESS_ONCE_KEY = "email-verified-redirect-success";
 
 function isExpiredVerificationError(message: string): boolean {
   const lower = message.toLowerCase();
@@ -31,7 +34,7 @@ function isExpiredVerificationError(message: string): boolean {
 
 export default function VerifyEmailPage() {
   const { user, resendVerificationEmail, refreshUser, isLoading } = useAuth();
-  const { showToast, showToastOnce } = useToast();
+  const { showToast, queueFlashToast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
   const isDev = process.env.NODE_ENV !== "production";
@@ -229,15 +232,11 @@ export default function VerifyEmailPage() {
     manual?: boolean;
     showSuccessToast?: boolean;
     fromVerificationCallback?: boolean;
-    successToastMessage?: string;
-    successToastOnceKey?: string;
   }): Promise<boolean> => {
     const {
       manual = false,
       showSuccessToast = true,
       fromVerificationCallback = false,
-      successToastMessage = "Email verified successfully",
-      successToastOnceKey,
     } = options || {};
     if (redirectingRef.current || checkingRef.current) return false;
 
@@ -373,15 +372,14 @@ export default function VerifyEmailPage() {
 
       setVerificationSuccess(true);
       setVerificationStatusMessage(null);
+      const redirectTarget = getPostVerifyRedirect(verifiedUser);
       if (showSuccessToast) {
-        if (successToastOnceKey) {
-          showToastOnce(successToastOnceKey, successToastMessage, "sage", 3000);
-        } else {
-          showToast(successToastMessage, "sage", 2200);
-        }
+        queueFlashToast(POST_VERIFY_SUCCESS_MESSAGE, "sage", 3000, {
+          targetPath: redirectTarget,
+          onceKey: POST_VERIFY_SUCCESS_ONCE_KEY,
+        });
       }
       redirectingRef.current = true;
-      const redirectTarget = getPostVerifyRedirect(verifiedUser);
       debugLog("redirect chosen", { redirectTarget });
       router.replace(redirectTarget);
       return true;
@@ -396,11 +394,11 @@ export default function VerifyEmailPage() {
   }, [
     debugLog,
     getPostVerifyRedirect,
+    queueFlashToast,
     refreshUser,
     router,
     searchParams,
     showToast,
-    showToastOnce,
     user?.email,
     user?.profile,
   ]);
@@ -487,8 +485,6 @@ export default function VerifyEmailPage() {
         const verified = await checkVerificationStatus({
           manual: false,
           showSuccessToast: true,
-          successToastMessage: "Email verified. Account secured.",
-          successToastOnceKey: "email-verified-v2",
         });
         if (!verified && !cancelled && !redirectingRef.current) {
           setVerificationLinkError("Could not confirm verification. Please log in or request a new link.");
@@ -542,8 +538,6 @@ export default function VerifyEmailPage() {
         manual: false,
         fromVerificationCallback: true,
         showSuccessToast: true,
-        successToastMessage: "Email verified. Account secured.",
-        successToastOnceKey: "email-verified-v1",
       });
 
       if (verified || cancelled || redirectingRef.current || attempt >= maxAttempts) {
@@ -591,8 +585,6 @@ export default function VerifyEmailPage() {
       await checkVerificationStatus({
         manual: false,
         showSuccessToast: true,
-        successToastMessage: "Email verified. Account secured.",
-        successToastOnceKey: "email-verified-auth-event",
       });
     });
     return () => {
