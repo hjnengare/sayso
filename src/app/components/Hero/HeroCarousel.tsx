@@ -160,7 +160,6 @@ export default function HeroCarousel() {
   const router = useRouter();
   const { user } = useAuth();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [textIndex, setTextIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const [heroImages] = useState<string[]>(() => HERO_IMAGES);
   const [heroViewport, setHeroViewport] = useState<HeroViewport>("desktop");
@@ -337,14 +336,6 @@ export default function HeroCarousel() {
     currentIndexRef.current = currentIndex;
   }, [currentIndex]);
 
-  // Stagger text change: update after image transition starts
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setTextIndex(currentIndex);
-    }, 800);
-    return () => window.clearTimeout(timer);
-  }, [currentIndex]);
-
   // Auto-advance slides (avoid frequent state updates on mobile Safari).
   useEffect(() => {
     if (prefersReduced || paused || slides.length === 0) {
@@ -361,7 +352,7 @@ export default function HeroCarousel() {
       slideTimeoutRef.current = null;
     }
 
-    const slideDuration = heroViewport === "mobile" ? 8000 : 5000;
+    const slideDuration = heroViewport === "mobile" ? 9000 : 6500;
     slideTimeoutRef.current = window.setTimeout(() => {
       transitionToIndex((prev) => (prev + 1) % slides.length);
     }, slideDuration);
@@ -467,7 +458,7 @@ export default function HeroCarousel() {
   // Render all capped slides simultaneously — no mount/unmount cycles, no flicker.
   // Opacity is controlled purely via the animate prop keyed to currentIndex.
 
-  const currentTextSlide = slides[textIndex % slides.length] ?? slides[0];
+  const currentTextSlide = slides[currentIndex % slides.length] ?? slides[0];
   const currentTitle =
     typeof currentTextSlide?.title === "string" && currentTextSlide.title.trim().length > 0
       ? currentTextSlide.title.trim()
@@ -476,96 +467,7 @@ export default function HeroCarousel() {
     typeof currentTextSlide?.description === "string" && currentTextSlide.description.trim().length > 0
       ? currentTextSlide.description.trim()
       : FALLBACK_HERO_TEXT.description;
-  const titleLayoutFallback = HERO_COPY.find((copy) => copy.title)?.title ?? FALLBACK_HERO_TEXT.title;
-  const descriptionLayoutFallback =
-    HERO_COPY.find((copy) => copy.description)?.description ?? FALLBACK_HERO_TEXT.description;
-  const textMotionKey = currentTextSlide?.id ?? `hero-text-${textIndex}`;
-  const heroTextStaggerVariants = prefersReduced
-    ? {
-        hidden: {},
-        visible: { transition: { staggerChildren: 0.12, delayChildren: 0.08 } },
-      }
-    : {
-        hidden: {},
-        visible: { transition: { staggerChildren: 0.4, delayChildren: 0.3 } },
-      };
-
-  // Title: dramatic scale + large Y travel + heavy blur → feels cinematic
-  const heroTitleEntranceVariants = prefersReduced
-    ? {
-        hidden: { opacity: 0 },
-        visible: { opacity: 1, transition: { duration: 0.44, ease: [0.22, 1, 0.36, 1] as const } },
-      }
-    : {
-        hidden: { opacity: 0, y: 32, scale: 0.95, filter: "blur(8px)" },
-        visible: {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          filter: "blur(0px)",
-          transition: { duration: 1.5, ease: [0.16, 1, 0.3, 1] as const },
-        },
-      };
-
-  // Subtitle: clean slide-up, no scale, lighter blur → refined, not competing with title
-  const heroSubtitleEntranceVariants = prefersReduced
-    ? {
-        hidden: { opacity: 0 },
-        visible: { opacity: 1, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] as const } },
-      }
-    : {
-        hidden: { opacity: 0, y: 22, filter: "blur(3px)" },
-        visible: {
-          opacity: 1,
-          y: 0,
-          filter: "blur(0px)",
-          transition: { duration: 1.3, ease: [0.22, 1, 0.36, 1] as const },
-        },
-      };
-
-  // CTA: spring overshoot pop, no blur → physical, tactile feel
-  const heroCtaEntranceVariants = prefersReduced
-    ? {
-        hidden: { opacity: 0 },
-        visible: { opacity: 1, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] as const } },
-      }
-    : {
-        hidden: { opacity: 0, y: 16, scale: 0.91 },
-        visible: {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          transition: { duration: 1.1, ease: [0.34, 1.56, 0.64, 1] as const },
-        },
-      };
-
-  // Swap: richer crossfade when carousel advances to next slide
-  const heroTitleSwapMotion = prefersReduced
-    ? {
-        initial: { opacity: 0 },
-        animate: { opacity: 1 },
-        exit: { opacity: 0 },
-        transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] as const },
-      }
-    : {
-        initial: { opacity: 0, y: 14, scale: 0.97, filter: "blur(3px)" },
-        animate: { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" },
-        exit: { opacity: 0, y: -10, scale: 1.02, filter: "blur(3px)" },
-        transition: { duration: 0.76, ease: [0.22, 1, 0.36, 1] as const },
-      };
-  const heroSubtitleSwapMotion = prefersReduced
-    ? {
-        initial: { opacity: 0 },
-        animate: { opacity: 1 },
-        exit: { opacity: 0 },
-        transition: { duration: 0.36, ease: [0.22, 1, 0.36, 1] as const },
-      }
-    : {
-        initial: { opacity: 0, y: 10, filter: "blur(2px)" },
-        animate: { opacity: 1, y: 0, filter: "blur(0px)" },
-        exit: { opacity: 0, y: -6, filter: "blur(2px)" },
-        transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const },
-      };
+  const textTransitionClass = prefersReduced ? "duration-200" : "duration-500";
 
   return (
     <>
@@ -590,19 +492,18 @@ export default function HeroCarousel() {
       />
       <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_center,_rgba(255,255,255,0.15)_0%,_transparent_70%)] pointer-events-none rounded-none" />
       <div className="absolute inset-0 z-0 backdrop-blur-[1px] bg-off-white/5 mix-blend-overlay pointer-events-none rounded-none" />
-      {/* Slides — all capped slides rendered; opacity driven by currentIndex. No mount/unmount flicker. */}
+      {/* Slides — all capped slides rendered; hard cut between slides to avoid opacity flicker. */}
       {slides.map((slide, idx) => {
         const isActive = idx === currentIndex;
         const fallbackImg = HERO_IMAGES[idx % HERO_IMAGES.length];
         const src = failedImageUrls.has(slide.image) ? fallbackImg : slide.image;
         return (
-        <m.div
+        <div
           key={slide.id}
-          initial={false}
-          animate={{ opacity: isActive ? 1 : 0, zIndex: isActive ? 10 : 0 }}
-          transition={{ opacity: { duration: 2.4, ease: "easeInOut" }, zIndex: { duration: 0 } }}
           aria-hidden={!isActive}
-          className="absolute inset-0 z-10 overflow-hidden will-change-[opacity] transform-gpu [backface-visibility:hidden] rounded-none"
+          className={`absolute inset-0 overflow-hidden transform-gpu rounded-none ${
+            isActive ? "z-10 opacity-100" : "z-0 opacity-0"
+          }`}
         >
            <div
              className="absolute inset-0 rounded-none overflow-hidden transform-gpu [backface-visibility:hidden] will-change-transform"
@@ -630,68 +531,32 @@ export default function HeroCarousel() {
              <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/30 via-transparent to-black/40" />
              <div className="absolute inset-0 pointer-events-none bg-black/20" />
            </div>
-        </m.div>
+        </div>
       );
       })}
 
-      {/* Hero Text - transitions independently from image slides */}
+      {/* Hero Text - tied directly to the active slide with simple transitions. */}
       <div data-testid="hero-text" className="absolute inset-0 z-30 flex items-center justify-center w-full pt-[var(--safe-area-top)] sm:pt-[var(--header-height)] translate-y-0 sm:-translate-y-4 px-6 sm:px-10 pointer-events-none">
-          <m.div
+          <div
             className="w-full max-w-3xl flex flex-col items-center justify-center text-center pb-12 sm:pb-20"
-            initial="hidden"
-            animate="visible"
-            variants={heroTextStaggerVariants}
           >
-            <m.h2
-              className="text-[2rem] sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-off-white drop-shadow-lg mb-3 sm:mb-4 leading-[1.1] tracking-[-0.02em] whitespace-pre-line [word-break:normal] [overflow-wrap:normal] [hyphens:none]"
+            <h2
+              key={`hero-title-${currentTextSlide?.id ?? currentIndex}`}
+              className={`text-[2rem] sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-off-white drop-shadow-lg mb-3 sm:mb-4 leading-[1.1] tracking-[-0.02em] whitespace-pre-line [word-break:normal] [overflow-wrap:normal] [hyphens:none] transition-opacity ease-out ${textTransitionClass}`}
               style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', textShadow: '0 2px 24px rgba(0,0,0,0.4)' }}
-              variants={heroTitleEntranceVariants}
             >
-              <span className="inline-grid items-center justify-items-center whitespace-pre-line [word-break:normal] [overflow-wrap:normal] [hyphens:none]">
-                <span className="invisible col-start-1 row-start-1 whitespace-pre-line [word-break:normal] [overflow-wrap:normal] [hyphens:none]">
-                  {titleLayoutFallback}
-                </span>
-                <AnimatePresence mode="sync" initial={false}>
-                  <m.span
-                    key={`text-${textMotionKey}`}
-                    className="col-start-1 row-start-1 whitespace-pre-line [word-break:normal] [overflow-wrap:normal] [hyphens:none]"
-                    initial={heroTitleSwapMotion.initial}
-                    animate={heroTitleSwapMotion.animate}
-                    exit={heroTitleSwapMotion.exit}
-                    transition={heroTitleSwapMotion.transition}
-                  >
-                    {currentTitle}
-                  </m.span>
-                </AnimatePresence>
-              </span>
-            </m.h2>
-            <m.p
-              className="text-base sm:text-lg lg:text-xl text-off-white/90 drop-shadow-md max-w-xl mb-5 sm:mb-6 leading-relaxed whitespace-pre-line [word-break:normal] [overflow-wrap:normal] [hyphens:none]"
+              {currentTitle}
+            </h2>
+            <p
+              key={`hero-description-${currentTextSlide?.id ?? currentIndex}`}
+              className={`text-base sm:text-lg lg:text-xl text-off-white/90 drop-shadow-md max-w-xl mb-5 sm:mb-6 leading-relaxed whitespace-pre-line [word-break:normal] [overflow-wrap:normal] [hyphens:none] transition-opacity ease-out ${textTransitionClass}`}
               style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: 500 }}
-              variants={heroSubtitleEntranceVariants}
             >
-              <span className="grid whitespace-pre-line [word-break:normal] [overflow-wrap:normal] [hyphens:none]">
-                <span className="invisible col-start-1 row-start-1 whitespace-pre-line [word-break:normal] [overflow-wrap:normal] [hyphens:none]">
-                  {descriptionLayoutFallback}
-                </span>
-                <AnimatePresence mode="sync" initial={false}>
-                  <m.span
-                    key={`desc-${textMotionKey}`}
-                    className="col-start-1 row-start-1 whitespace-pre-line [word-break:normal] [overflow-wrap:normal] [hyphens:none]"
-                    initial={heroSubtitleSwapMotion.initial}
-                    animate={heroSubtitleSwapMotion.animate}
-                    exit={heroSubtitleSwapMotion.exit}
-                    transition={heroSubtitleSwapMotion.transition}
-                  >
-                    {currentDescription}
-                  </m.span>
-                </AnimatePresence>
-              </span>
-            </m.p>
+              {currentDescription}
+            </p>
 
             {/* Conditional CTA Button */}
-            <m.div
-              variants={heroCtaEntranceVariants}
+            <div
               className="w-full flex justify-center pointer-events-auto"
             >
               {!user ? (
@@ -717,8 +582,8 @@ export default function HeroCarousel() {
                   <span className="relative z-10">Discover</span>
                 </Link>
               )}
-            </m.div>
-          </m.div>
+            </div>
+          </div>
       </div>
 
       {/* Accessible live region (announces slide title) */}
