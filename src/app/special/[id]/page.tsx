@@ -21,7 +21,7 @@ import {
 } from "@/app/lib/icons";
 import type { Event } from "../../lib/types/Event";
 import { useToast } from "../../contexts/ToastContext";
-import { PageLoader } from "../../components/Loader";
+import SpecialDetailPageSkeleton from "../../components/SpecialDetail/SpecialDetailPageSkeleton";
 import { normalizeDescriptionText } from "../../lib/utils/descriptionText";
 import { resolveCtaTarget } from "../../lib/events/cta";
 // Extended type for special with business info
@@ -145,21 +145,7 @@ export default function SpecialDetailPage({ params }: SpecialDetailPageProps) {
   })();
 
   if (loading) {
-    return (
-      <div className="min-h-dvh bg-off-white">
-        <AnimatePresence>
-          <m.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-[9999] bg-off-white min-h-[100dvh] w-full flex items-center justify-center"
-          >
-            <PageLoader size="lg" variant="wavy" color="sage" />
-          </m.div>
-        </AnimatePresence>
-      </div>
-    );
+    return <SpecialDetailPageSkeleton />;
   }
 
   if (error || !special || isExpired) {
