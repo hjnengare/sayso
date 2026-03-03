@@ -483,18 +483,18 @@ export default function HeroCarousel() {
   const heroTextStaggerVariants = prefersReduced
     ? {
         hidden: {},
-        visible: { transition: { staggerChildren: 0.06, delayChildren: 0.04 } },
+        visible: { transition: { staggerChildren: 0.12, delayChildren: 0.08 } },
       }
     : {
         hidden: {},
-        visible: { transition: { staggerChildren: 0.2, delayChildren: 0.15 } },
+        visible: { transition: { staggerChildren: 0.4, delayChildren: 0.3 } },
       };
 
   // Title: dramatic scale + large Y travel + heavy blur → feels cinematic
   const heroTitleEntranceVariants = prefersReduced
     ? {
         hidden: { opacity: 0 },
-        visible: { opacity: 1, transition: { duration: 0.22, ease: [0.22, 1, 0.36, 1] as const } },
+        visible: { opacity: 1, transition: { duration: 0.44, ease: [0.22, 1, 0.36, 1] as const } },
       }
     : {
         hidden: { opacity: 0, y: 32, scale: 0.95, filter: "blur(8px)" },
@@ -503,7 +503,7 @@ export default function HeroCarousel() {
           y: 0,
           scale: 1,
           filter: "blur(0px)",
-          transition: { duration: 0.75, ease: [0.16, 1, 0.3, 1] as const },
+          transition: { duration: 1.5, ease: [0.16, 1, 0.3, 1] as const },
         },
       };
 
@@ -511,7 +511,7 @@ export default function HeroCarousel() {
   const heroSubtitleEntranceVariants = prefersReduced
     ? {
         hidden: { opacity: 0 },
-        visible: { opacity: 1, transition: { duration: 0.2, ease: [0.22, 1, 0.36, 1] as const } },
+        visible: { opacity: 1, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] as const } },
       }
     : {
         hidden: { opacity: 0, y: 22, filter: "blur(3px)" },
@@ -519,7 +519,7 @@ export default function HeroCarousel() {
           opacity: 1,
           y: 0,
           filter: "blur(0px)",
-          transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1] as const },
+          transition: { duration: 1.3, ease: [0.22, 1, 0.36, 1] as const },
         },
       };
 
@@ -527,7 +527,7 @@ export default function HeroCarousel() {
   const heroCtaEntranceVariants = prefersReduced
     ? {
         hidden: { opacity: 0 },
-        visible: { opacity: 1, transition: { duration: 0.2, ease: [0.22, 1, 0.36, 1] as const } },
+        visible: { opacity: 1, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] as const } },
       }
     : {
         hidden: { opacity: 0, y: 16, scale: 0.91 },
@@ -535,7 +535,7 @@ export default function HeroCarousel() {
           opacity: 1,
           y: 0,
           scale: 1,
-          transition: { duration: 0.55, ease: [0.34, 1.56, 0.64, 1] as const },
+          transition: { duration: 1.1, ease: [0.34, 1.56, 0.64, 1] as const },
         },
       };
 
@@ -545,26 +545,26 @@ export default function HeroCarousel() {
         initial: { opacity: 0 },
         animate: { opacity: 1 },
         exit: { opacity: 0 },
-        transition: { duration: 0.2, ease: [0.22, 1, 0.36, 1] as const },
+        transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] as const },
       }
     : {
         initial: { opacity: 0, y: 14, scale: 0.97, filter: "blur(3px)" },
         animate: { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" },
         exit: { opacity: 0, y: -10, scale: 1.02, filter: "blur(3px)" },
-        transition: { duration: 0.38, ease: [0.22, 1, 0.36, 1] as const },
+        transition: { duration: 0.76, ease: [0.22, 1, 0.36, 1] as const },
       };
   const heroSubtitleSwapMotion = prefersReduced
     ? {
         initial: { opacity: 0 },
         animate: { opacity: 1 },
         exit: { opacity: 0 },
-        transition: { duration: 0.18, ease: [0.22, 1, 0.36, 1] as const },
+        transition: { duration: 0.36, ease: [0.22, 1, 0.36, 1] as const },
       }
     : {
         initial: { opacity: 0, y: 10, filter: "blur(2px)" },
         animate: { opacity: 1, y: 0, filter: "blur(0px)" },
         exit: { opacity: 0, y: -6, filter: "blur(2px)" },
-        transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] as const },
+        transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const },
       };
 
   return (
@@ -600,7 +600,7 @@ export default function HeroCarousel() {
           key={slide.id}
           initial={false}
           animate={{ opacity: isActive ? 1 : 0, zIndex: isActive ? 10 : 0 }}
-          transition={{ opacity: { duration: 1.2, ease: "easeInOut" }, zIndex: { duration: 0 } }}
+          transition={{ opacity: { duration: 2.4, ease: "easeInOut" }, zIndex: { duration: 0 } }}
           aria-hidden={!isActive}
           className="absolute inset-0 z-10 overflow-hidden will-change-[opacity] transform-gpu [backface-visibility:hidden] rounded-none"
         >

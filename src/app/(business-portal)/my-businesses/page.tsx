@@ -20,6 +20,7 @@ import {
 } from "@/app/lib/icons";
 import type { Business } from "../../components/BusinessCard/BusinessCard";
 import MyBusinessesTable from "./MyBusinessesTable";
+import { animations } from "../add-business/components";
 
 type ListingTypeFilter = "all" | "event" | "special";
 
@@ -268,8 +269,10 @@ export default function MyBusinessesPage() {
   }
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8 py-8 max-w-5xl mx-auto">
-      {/* Header */}
+    <>
+      <style dangerouslySetInnerHTML={{ __html: animations }} />
+      <div className="px-4 sm:px-6 lg:px-8 py-8 max-w-5xl mx-auto">
+        {/* Header */}
       <div className="flex items-start justify-between mb-8">
         <div>
           <div className="flex items-center gap-2.5 mb-1">
@@ -497,5 +500,6 @@ export default function MyBusinessesPage() {
         </div>
       )}
     </div>
+    </>
   );
 }
