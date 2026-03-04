@@ -132,7 +132,7 @@ export const metadata: Metadata = {
     apple: "/favicon.png",
   },
   verification: {
-    google: "01a88f23a79c8d23",
+    google: "uVszIMWfFQ78Lzgyi04D0UouFykx7EJfdo2KLimAP08",
   },
 };
 
