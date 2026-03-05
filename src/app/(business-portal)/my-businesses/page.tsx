@@ -16,7 +16,6 @@ import {
   Clock3,
   MapPin,
   Plus,
-  Loader2,
 } from "@/app/lib/icons";
 import type { Business } from "../../components/BusinessCard/BusinessCard";
 import MyBusinessesTable from "./MyBusinessesTable";
@@ -238,7 +237,7 @@ export default function MyBusinessesPage() {
     return (
       <div className="px-4 sm:px-6 lg:px-8 py-8 max-w-5xl mx-auto">
         <div className="flex items-center gap-2.5 mb-6">
-          <div className="w-5 h-5 border-2 border-charcoal/15 border-t-charcoal/60 rounded-full animate-spin" />
+          <div className="w-5 h-5 rounded bg-charcoal/15 animate-pulse" />
           <span className="font-urbanist text-sm text-charcoal/50">Loading…</span>
         </div>
         <SkeletonList count={3} />

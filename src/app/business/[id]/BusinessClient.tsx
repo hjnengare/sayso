@@ -33,6 +33,8 @@ import {
 } from "../../components/BusinessDetail";
 import BusinessLocation from "../../components/BusinessDetail/BusinessLocation";
 import BusinessOwnedEventsSection from "../../components/BusinessDetail/BusinessOwnedEventsSection";
+import BusinessContactCard from "../../components/BusinessDetail/BusinessContactCard";
+import BusinessPhotoGrid from "../../components/BusinessDetail/BusinessPhotoGrid";
 import { useBusinessDetail } from "../../hooks/useBusinessDetail";
 import { notifyBusinessDeleted } from "../../lib/utils/businessUpdateEvents";
 export default function BusinessProfilePage() {
@@ -223,6 +225,17 @@ export default function BusinessProfilePage() {
                                             </div>
                                         </div>
 
+                                        {/* Photo Grid Skeleton */}
+                                        <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-6">
+                                            <div className="h-6 w-24 bg-white/30 rounded animate-pulse mb-4" />
+                                            <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                                                {Array.from({ length: 9 }).map((_, i) => (
+                                                    <div key={i} className="aspect-square rounded-[10px] bg-white/25 animate-pulse" />
+                                                ))}
+                                            </div>
+                                            <div className="mt-4 h-10 w-full rounded-full bg-navbar-bg/40 animate-pulse" />
+                                        </div>
+
                                         {/* Map Skeleton */}
                                         <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md overflow-hidden">
                                             <div className="h-[200px] sm:h-[300px] bg-card-bg/10 animate-pulse" />
@@ -256,6 +269,19 @@ export default function BusinessProfilePage() {
                                                     <div className="h-10 flex-1 bg-white/30 rounded-full animate-pulse" />
                                                     <div className="h-10 flex-1 bg-white/30 rounded-full animate-pulse" />
                                                 </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Contact Card Skeleton */}
+                                        <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-6">
+                                            <div className="h-6 w-24 bg-white/30 rounded animate-pulse mb-4" />
+                                            <div className="space-y-3">
+                                                <div className="h-10 w-full bg-white/30 rounded-full animate-pulse" />
+                                                <div className="h-10 w-full bg-white/30 rounded-full animate-pulse" />
+                                                <div className="h-10 w-full bg-white/30 rounded-full animate-pulse" />
+                                                <div className="h-10 w-full bg-white/30 rounded-full animate-pulse" />
+                                                <div className="h-24 w-full bg-white/25 rounded-[12px] animate-pulse" />
+                                                <div className="h-10 w-full bg-coral/40 rounded-full animate-pulse" />
                                             </div>
                                         </div>
 
@@ -515,6 +541,11 @@ export default function BusinessProfilePage() {
                                         hours={business.hours || business.opening_hours || business.openingHours || undefined}
                                     />
 
+                                    <BusinessPhotoGrid
+                                        businessName={businessData.name}
+                                        photos={businessData.images}
+                                    />
+
                                     {/* Location Map */}
                                     <div ref={mapSectionRef}>
                                         <BusinessLocation
@@ -548,6 +579,12 @@ export default function BusinessProfilePage() {
                                         businessId={businessId}
                                         isBusinessOwner={isBusinessOwner}
                                         hasReviewed={hasReviewed}
+                                    />
+
+                                    <BusinessContactCard
+                                        businessId={businessData.id}
+                                        businessName={businessData.name}
+                                        phone={businessData.phone}
                                     />
 
                                     {/* Personalization Insights */}

@@ -125,7 +125,7 @@ export const BADGE_MAPPINGS: Record<string, BadgeMapping> = {
   explorer_full_circle: {
     id: "explorer_full_circle",
     name: "Full Circle",
-    pngPath: "/badges/043-choice.png",
+    pngPath: "/badges/memory-maker.png",
     lucideIcon: Target,
     badgeGroup: "explorer",
   },
@@ -146,7 +146,7 @@ export const BADGE_MAPPINGS: Record<string, BadgeMapping> = {
   specialist_food_flavour_finder: {
     id: "specialist_food_flavour_finder",
     name: "Flavour Finder",
-    pngPath: "/badges/051-searcher.png",
+    pngPath: "/badges/flavour-finder.png",
     lucideIcon: Search,
     badgeGroup: "specialist",
     categoryKey: "food-drink",
@@ -170,7 +170,7 @@ export const BADGE_MAPPINGS: Record<string, BadgeMapping> = {
   specialist_food_dessert_detective: {
     id: "specialist_food_dessert_detective",
     name: "Dessert Detective",
-    pngPath: "/badges/052-croissant.png",
+    pngPath: "/badges/flavour-finder.png",
     lucideIcon: Cake,
     badgeGroup: "specialist",
     categoryKey: "food-drink",
@@ -438,7 +438,7 @@ export const BADGE_MAPPINGS: Record<string, BadgeMapping> = {
   specialist_experiences_memory_maker: {
     id: "specialist_experiences_memory_maker",
     name: "Memory Maker",
-    pngPath: "/badges/046-rec.png",
+    pngPath: "/badges/memory-maker.png",
     lucideIcon: PartyPopper,
     badgeGroup: "specialist",
     categoryKey: "experiences-entertainment",

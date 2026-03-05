@@ -40,6 +40,30 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
 const TRENDING_POOL_SIZE = 1500;
 const TRENDING_TIME_BUCKET_MINUTES = 15;
 
+type TrendingCursor = {
+  kind: 'offset';
+  offset: number;
+};
+
+function parseTrendingCursor(rawCursor: string | null): number {
+  if (!rawCursor) return 0;
+
+  try {
+    const decoded = JSON.parse(Buffer.from(rawCursor, 'base64url').toString('utf8')) as Partial<TrendingCursor>;
+    if (decoded.kind === 'offset' && typeof decoded.offset === 'number' && Number.isFinite(decoded.offset)) {
+      return Math.max(0, Math.floor(decoded.offset));
+    }
+  } catch {
+    return 0;
+  }
+
+  return 0;
+}
+
+function encodeTrendingCursor(offset: number): string {
+  return Buffer.from(JSON.stringify({ kind: 'offset', offset }), 'utf8').toString('base64url');
+}
+
 function logSampleRows(label: string, rows: unknown[], debug: boolean) {
   if (!debug) return;
   const sample = rows?.[0] ?? null;
@@ -70,6 +94,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
 
     const limit = Math.min(parseInt(searchParams.get('limit') || '20', 10), 50);
+    const cursorOffset = parseTrendingCursor(searchParams.get('cursor'));
     const category = searchParams.get('category')?.trim() || null;
     const city = searchParams.get('city')?.trim() || null;
     const debug = searchParams.get('debug') === '1';
@@ -116,13 +141,15 @@ export async function GET(request: NextRequest) {
     // 2. Diversity-first selection (round-based, deterministic seed)
     const seed = getTrendingSeed(TRENDING_TIME_BUCKET_MINUTES, city);
     const selected = selectColdStartTrending(candidates, {
-      limit,
+      limit: cursorOffset + limit + 1,
       seed,
     });
 
     if (selected.length === 0) {
       const payload = {
+        items: [],
         businesses: [],
+        nextCursor: null,
         meta: { count: 0, refreshedAt: new Date().toISOString(), category },
       };
       const response = NextResponse.json(payload);
@@ -276,10 +303,15 @@ export async function GET(request: NextRequest) {
       };
     });
 
+    const pagedBusinesses = transformed.slice(cursorOffset, cursorOffset + limit);
+    const nextCursor =
+      transformed.length > cursorOffset + limit ? encodeTrendingCursor(cursorOffset + limit) : null;
     const refreshedAt = new Date().toISOString();
     const payload = {
-      businesses: transformed,
-      meta: { count: transformed.length, refreshedAt, category },
+      items: pagedBusinesses,
+      businesses: pagedBusinesses,
+      nextCursor,
+      meta: { count: pagedBusinesses.length, refreshedAt, category, offset: cursorOffset },
     };
 
     const totalMs = Date.now() - start;

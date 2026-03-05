@@ -16,7 +16,6 @@ import SearchInput from "../components/SearchInput/SearchInput";
 import type { Event } from "../lib/types/Event";
 import { useDebounce } from "../hooks/useDebounce";
 import { ChevronRight, ChevronDown, ChevronLeft } from "@/app/lib/icons";
-import { Loader } from "../components/Loader/Loader";
 import { useIsDesktop } from "../hooks/useIsDesktop";
 const ITEMS_PER_PAGE = 20;
 const REQUEST_TIMEOUT_MS = 12000;
@@ -390,10 +389,7 @@ export default function EventsSpecialsPage() {
                       style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
                     >
                       {loadingMore ? (
-                        <>
-                          <Loader size="sm" variant="spinner" color="white" />
-                          <span>Loading more...</span>
-                        </>
+                        <span aria-live="polite">Loading more...</span>
                       ) : (
                         <>
                           <span>Load More Results</span>

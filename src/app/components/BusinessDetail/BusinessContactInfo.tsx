@@ -1,8 +1,9 @@
 // src/components/BusinessDetail/BusinessContactInfo.tsx
 "use client";
 
+import { useState } from "react";
 import { m } from "framer-motion";
-import { Phone, Globe, MapPin, Mail } from "@/app/lib/icons";
+import { Phone, Globe, MapPin, Mail, Copy, Check } from "@/app/lib/icons";
 
 interface BusinessContactInfoProps {
   phone?: string;
@@ -16,6 +17,21 @@ interface BusinessContactInfoProps {
 
 export default function BusinessContactInfo({ phone, website, address, email, location }: BusinessContactInfoProps) {
   const websiteHref = website ? (website.startsWith("http") ? website : `https://${website}`) : "";
+  const [isPhoneVisible, setIsPhoneVisible] = useState(false);
+  const [copiedPhone, setCopiedPhone] = useState(false);
+
+  const displayPhone = typeof phone === "string" && phone.trim().length > 0 ? phone.trim() : null;
+
+  const handleCopyPhone = async () => {
+    if (!displayPhone) return;
+    try {
+      await navigator.clipboard.writeText(displayPhone);
+      setCopiedPhone(true);
+      setTimeout(() => setCopiedPhone(false), 2000);
+    } catch {
+      setCopiedPhone(false);
+    }
+  };
 
   return (
     <m.div
@@ -32,28 +48,51 @@ export default function BusinessContactInfo({ phone, website, address, email, lo
           Contact Information
         </h3>
 
-        <div className="space-y-2.5">
-          <div className="flex items-center gap-2.5">
-            <span className="grid h-6 w-6 flex-shrink-0 place-items-center rounded-full bg-off-white/70 hover:bg-off-white/90 transition-colors">
-              <Phone className="w-3 h-3 text-charcoal/85" />
-            </span>
-            {phone ? (
-              <a
-                href={`tel:${phone}`}
-                className="text-body-sm text-charcoal/70 hover:text-charcoal transition-colors"
-                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
-              >
-                {phone}
-              </a>
-            ) : (
-              <span
-                className="text-body-sm text-charcoal/70 italic"
-                style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
-              >
-                Phone number coming soon
+          <div className="space-y-2.5">
+            <div className="flex items-center gap-2.5">
+              <span className="grid h-6 w-6 flex-shrink-0 place-items-center rounded-full bg-off-white/70 hover:bg-off-white/90 transition-colors">
+                <Phone className="w-3 h-3 text-charcoal/85" />
               </span>
-            )}
-          </div>
+              {displayPhone ? (
+                <div className="flex min-w-0 flex-1 items-center gap-2">
+                  {!isPhoneVisible ? (
+                    <button
+                      type="button"
+                      onClick={() => setIsPhoneVisible(true)}
+                      className="inline-flex rounded-full bg-navbar-bg px-3 py-1.5 text-body-sm text-white hover:bg-navbar-bg/90 transition-colors"
+                      style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                    >
+                      Show Contact Number
+                    </button>
+                  ) : (
+                    <>
+                      <a
+                        href={`tel:${displayPhone}`}
+                        className="min-w-0 truncate text-body-sm text-charcoal/70 hover:text-charcoal transition-colors"
+                        style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                      >
+                        {displayPhone}
+                      </a>
+                      <button
+                        type="button"
+                        onClick={handleCopyPhone}
+                        className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-off-white/70 hover:bg-off-white/90 transition-colors"
+                        aria-label="Copy contact number"
+                      >
+                        {copiedPhone ? <Check className="w-3.5 h-3.5 text-charcoal/85" /> : <Copy className="w-3.5 h-3.5 text-charcoal/85" />}
+                      </button>
+                    </>
+                  )}
+                </div>
+              ) : (
+                <span
+                  className="text-body-sm text-charcoal/70 italic"
+                  style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                >
+                  Phone number coming soon
+                </span>
+              )}
+            </div>
           <div className="flex items-center gap-2.5">
             <span className="grid h-6 w-6 flex-shrink-0 place-items-center rounded-full bg-off-white/70 hover:bg-off-white/90 transition-colors">
               <Mail className="w-3 h-3 text-charcoal/85" />

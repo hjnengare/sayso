@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import {
-  Loader2,
   CheckCircle,
   XCircle,
   MapPin,
@@ -553,7 +552,7 @@ export default function AdminBusinessReviewPage() {
             >
               {duplicateCheck.checking ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <RefreshCw className="w-4 h-4" />
                   Checking for duplicates…
                 </>
               ) : duplicateCheck.available === false ? (
@@ -653,7 +652,7 @@ export default function AdminBusinessReviewPage() {
             style={{ fontFamily: FONT }}
           >
             {action === "approve" ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
+              <RefreshCw className="w-5 h-5" />
             ) : (
               <CheckCircle className="w-5 h-5" />
             )}
@@ -667,7 +666,7 @@ export default function AdminBusinessReviewPage() {
             style={{ fontFamily: FONT }}
           >
             {action === "disapprove" ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
+              <RefreshCw className="w-5 h-5" />
             ) : (
               <XCircle className="w-5 h-5" />
             )}
@@ -735,7 +734,7 @@ export default function AdminBusinessReviewPage() {
                 className="inline-flex items-center gap-1.5 rounded-full border border-red-300 bg-red-600 text-white px-4 py-2 text-sm font-semibold hover:bg-red-700 disabled:opacity-50"
               >
                 {action === "disapprove" ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <RefreshCw className="w-4 h-4" />
                 ) : (
                   <XCircle className="w-4 h-4" />
                 )}

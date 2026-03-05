@@ -480,6 +480,52 @@ function expandSearchWithSynonyms(query: string): string {
   return query;
 }
 
+type EncodedFeedCursor =
+  | {
+      kind: 'business-keyset';
+      cursor_id: string;
+      cursor_created_at: string;
+    }
+  | {
+      kind: 'offset';
+      offset: number;
+    };
+
+function parseEncodedFeedCursor(rawCursor: string | null): EncodedFeedCursor | null {
+  if (!rawCursor) return null;
+
+  try {
+    const decoded = JSON.parse(Buffer.from(rawCursor, 'base64url').toString('utf8')) as Partial<EncodedFeedCursor>;
+    if (
+      decoded.kind === 'business-keyset' &&
+      typeof decoded.cursor_id === 'string' &&
+      typeof decoded.cursor_created_at === 'string'
+    ) {
+      return {
+        kind: 'business-keyset',
+        cursor_id: decoded.cursor_id,
+        cursor_created_at: decoded.cursor_created_at,
+      };
+    }
+
+    if (decoded.kind === 'offset' && typeof decoded.offset === 'number' && Number.isFinite(decoded.offset)) {
+      return {
+        kind: 'offset',
+        offset: Math.max(0, Math.floor(decoded.offset)),
+      };
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+}
+
+function encodeFeedCursor(cursor: EncodedFeedCursor | null): string | null {
+  if (!cursor) return null;
+  return Buffer.from(JSON.stringify(cursor), 'utf8').toString('base64url');
+}
+
 export async function GET(req: Request) {
   const requestStart = Date.now();
   console.log('[BUSINESSES API] GET start at', new Date().toISOString());
@@ -524,11 +570,20 @@ export async function GET(req: Request) {
 
     const requestUrl = req?.url ?? `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/businesses`;
     const { searchParams } = new URL(requestUrl);
+    const encodedCursor = parseEncodedFeedCursor(searchParams.get('cursor'));
 
     // Pagination parameters - use cursor-based (keyset) pagination
     const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') || '20')));
-    const cursorId = searchParams.get('cursor_id') || null;
-    const cursorCreatedAt = searchParams.get('cursor_created_at') || null;
+    const cursorId =
+      searchParams.get('cursor_id') ||
+      (encodedCursor?.kind === 'business-keyset' ? encodedCursor.cursor_id : null);
+    const cursorCreatedAt =
+      searchParams.get('cursor_created_at') ||
+      (encodedCursor?.kind === 'business-keyset' ? encodedCursor.cursor_created_at : null);
+    const cursorOffset =
+      encodedCursor?.kind === 'offset'
+        ? encodedCursor.offset
+        : Math.max(0, parseInt(searchParams.get('cursor_offset') || '0', 10) || 0);
 
     // Filter parameters
     const category = searchParams.get('category') || null;
@@ -802,6 +857,7 @@ export async function GET(req: Request) {
       const response = await handleForYouFeed({
         supabase: feedSupabase,
         limit,
+        cursorOffset,
         category,
         badge,
         verified,
@@ -1149,7 +1205,9 @@ export async function GET(req: Request) {
         // Return 200 with empty array for graceful degradation (RPC not found scenario)
         return NextResponse.json(
           { 
+            items: [],
             businesses: [],
+            nextCursor: null,
             cursorId: null,
           },
           { status: 200 }
@@ -1442,9 +1500,18 @@ export async function GET(req: Request) {
 
     // Get cursor for next page (simplified format for tests)
     const nextCursorId = nextCursor?.cursor_id ?? null;
+    const encodedNextCursor = hasMore && nextCursor
+      ? encodeFeedCursor({
+          kind: 'business-keyset',
+          cursor_id: nextCursor.cursor_id,
+          cursor_created_at: nextCursor.cursor_created_at,
+        })
+      : null;
     
     const response = NextResponse.json({
+      items: transformedBusinesses,
       businesses: transformedBusinesses,
+      nextCursor: encodedNextCursor,
       cursorId: nextCursorId,
       meta: dealbreakersRelaxed ? { dealbreakersRelaxed: true } : undefined,
     });
@@ -1591,6 +1658,7 @@ export async function HEAD(req: Request) {
 type MixedFeedOptions = {
   supabase: SupabaseClientInstance;
   limit: number;
+  cursorOffset?: number;
   category: string | null;
   badge: string | null;
   verified: boolean | null;
@@ -1629,6 +1697,7 @@ async function handleForYouFeed(options: MixedFeedOptions): Promise<NextResponse
   const {
     supabase,
     limit,
+    cursorOffset = 0,
     interestIds,
     subInterestIds,
     dealbreakerIds,
@@ -1645,6 +1714,7 @@ async function handleForYouFeed(options: MixedFeedOptions): Promise<NextResponse
 
   console.log('[BUSINESSES API] For You unified:', {
     limit,
+    cursorOffset,
     interestIds: interestIds?.length || 0,
     subInterestIds: subInterestIds?.length || 0,
     dealbreakerIds: dealbreakerIds?.length || 0,
@@ -1655,6 +1725,7 @@ async function handleForYouFeed(options: MixedFeedOptions): Promise<NextResponse
   let rpcError: any = null;
 
   try {
+    const fetchLimit = Math.min(Math.max(cursorOffset + limit + 1, limit + 1), 1000);
     const result = await supabase.rpc('recommend_for_you_unified', {
       p_interest_ids: interestIds || [],
       p_sub_interest_ids: subInterestIds || [],
@@ -1662,7 +1733,7 @@ async function handleForYouFeed(options: MixedFeedOptions): Promise<NextResponse
       p_price_ranges: priceFilters && priceFilters.length > 0 ? priceFilters : null,
       p_latitude: latitude,
       p_longitude: longitude,
-      p_limit: Math.min(limit, 120),
+      p_limit: fetchLimit,
       p_seed: seed,
     });
     rpcData = Array.isArray(result.data) ? result.data : null;
@@ -1802,21 +1873,37 @@ async function handleForYouFeed(options: MixedFeedOptions): Promise<NextResponse
     (business) => business?.is_system !== true && business?.name !== 'Sayso System'
   );
   const transformedBusinesses = cleanedBusinesses.map(transformBusinessForCard);
-  console.log('FOR_YOU RESULTS COUNT', { requestId: requestId ?? null, count: transformedBusinesses.length });
+  const pagedBusinesses = transformedBusinesses.slice(cursorOffset, cursorOffset + limit);
+  const nextCursor =
+    transformedBusinesses.length > cursorOffset + limit
+      ? encodeFeedCursor({
+          kind: 'offset',
+          offset: cursorOffset + limit,
+        })
+      : null;
+  console.log('FOR_YOU RESULTS COUNT', {
+    requestId: requestId ?? null,
+    count: pagedBusinesses.length,
+    totalAvailable: transformedBusinesses.length,
+    nextCursor: nextCursor !== null,
+  });
 
   const response = NextResponse.json({
-    businesses: transformedBusinesses,
+    items: pagedBusinesses,
+    businesses: pagedBusinesses,
+    nextCursor,
     cursorId: null,
     meta: {
       requestId: requestId ?? null,
       seed: seed.slice(0, 30),
       durationMs: Date.now() - start,
       feed: 'for-you',
+      offset: cursorOffset,
       dealbreakersRelaxed: filteredOutAll ? true : undefined,
     },
   });
   response.headers.set('X-Feed-Path', 'for_you_unified');
-  response.headers.set('X-For-You-Results-Count', String(transformedBusinesses.length));
+  response.headers.set('X-For-You-Results-Count', String(pagedBusinesses.length));
   return applySharedResponseHeaders(response);
 }
 
@@ -1828,7 +1915,7 @@ async function fetchTopPicksFallback(
   details: { reason: string; details?: string }
 ): Promise<NextResponse> {
   const start = Date.now();
-  const { supabase, limit, requestId, seed, dealbreakerIds } = options;
+  const { supabase, limit, cursorOffset = 0, requestId, seed, dealbreakerIds } = options;
 
   // Simple direct query: active, not hidden, ordered by average_rating desc.
   // Used only when recommend_for_you_unified fails or returns empty.
@@ -1891,10 +1978,20 @@ async function fetchTopPicksFallback(
   const cleanedRows = baseRows.filter(
     (business) => business?.is_system !== true && business?.name !== 'Sayso System'
   );
-  const transformed = cleanedRows.slice(0, limit).map(transformBusinessForCard);
+  const transformed = cleanedRows.map(transformBusinessForCard);
+  const pagedBusinesses = transformed.slice(cursorOffset, cursorOffset + limit);
+  const nextCursor =
+    transformed.length > cursorOffset + limit
+      ? encodeFeedCursor({
+          kind: 'offset',
+          offset: cursorOffset + limit,
+        })
+      : null;
 
   const response = NextResponse.json({
-    businesses: transformed,
+    items: pagedBusinesses,
+    businesses: pagedBusinesses,
+    nextCursor,
     cursorId: null,
     meta: {
       fallback: 'top_picks',
@@ -1902,11 +1999,12 @@ async function fetchTopPicksFallback(
       details: details.details ?? null,
       requestId: requestId ?? null,
       seed: seed ?? null,
+      offset: cursorOffset,
       durationMs: Date.now() - start,
     },
   });
 
-  response.headers.set('X-For-You-Results-Count', String(transformed.length));
+  response.headers.set('X-For-You-Results-Count', String(pagedBusinesses.length));
   return applySharedResponseHeaders(response);
 }
 

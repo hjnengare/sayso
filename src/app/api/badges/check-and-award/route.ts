@@ -75,7 +75,7 @@ export const POST = withUser(async (_req: NextRequest, { user, supabase }) => {
         p_user_id: user.id,
         p_badge_id: badge.id,
         p_badge_name: badge.name,
-        p_badge_icon: badge.icon_path || '/badges/default-badge.png'
+        p_badge_icon: badge.icon_path || '/badges/012-expertise.png'
       });
       if (notifError) {
         console.error(`[Badge Check] Failed to create notification for badge ${badge.id}:`, notifError);

@@ -540,7 +540,7 @@ export default function ForYouClient({
                 aria-live="polite"
               >
                 <span
-                  className="inline-block h-3 w-3 animate-spin rounded-full border border-charcoal/30 border-t-transparent"
+                  className="inline-block h-2 w-6 rounded-full bg-charcoal/20"
                   aria-hidden
                 />
                 <span>Personalizing...</span>

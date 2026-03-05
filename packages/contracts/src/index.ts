@@ -29,15 +29,44 @@ export interface MobileSessionUserDto {
   profile?: MobileSessionProfileDto;
 }
 
+export interface BusinessPercentilesDto {
+  punctuality?: number;
+  'cost-effectiveness'?: number;
+  friendliness?: number;
+  trustworthiness?: number;
+}
+
 export interface BusinessListItemDto {
   id: string;
   name: string;
-  category_label?: string;
-  location?: string;
-  rating?: number;
-  reviews?: number;
-  verified?: boolean;
   image?: string | null;
+  image_url?: string | null;
+  uploaded_images?: string[];
+  alt?: string;
+  category?: string;
+  category_label?: string;
+  sub_interest_id?: string;
+  subInterestId?: string;
+  subInterestLabel?: string;
+  interest_id?: string;
+  interestId?: string;
+  location?: string;
+  address?: string;
+  phone?: string;
+  website?: string;
+  description?: string;
+  slug?: string;
+  rating?: number;
+  totalRating?: number;
+  reviews?: number;
+  badge?: string;
+  priceRange?: string;
+  hasRating?: boolean;
+  distance?: number | string;
+  lat?: number | null;
+  lng?: number | null;
+  percentiles?: BusinessPercentilesDto;
+  verified?: boolean;
   href?: string;
 }
 
@@ -47,12 +76,166 @@ export interface BusinessSearchResponseDto {
   count: number;
 }
 
+export interface PaginatedBusinessFeedResponseDto {
+  items: BusinessListItemDto[];
+  nextCursor: string | null;
+  businesses?: BusinessListItemDto[];
+  cursorId?: string | null;
+  meta?: Record<string, unknown>;
+}
+
+export interface UserPreferenceDto {
+  id: string;
+  name: string;
+}
+
+export interface UserPreferencesResponseDto {
+  interests: UserPreferenceDto[];
+  subcategories: UserPreferenceDto[];
+  dealbreakers: UserPreferenceDto[];
+}
+
+export interface FeaturedBusinessDto extends BusinessListItemDto {
+  alt?: string;
+  category: string;
+  description: string;
+  reviewCount: number;
+  totalRating?: number;
+  badge: 'featured';
+  rank: number;
+  monthAchievement: string;
+  verified: boolean;
+  ui_hints?: {
+    badge?: 'featured';
+    rank?: number;
+    period?: string;
+    reason?: {
+      label: string;
+      metric?: string;
+      value?: number;
+    };
+  };
+  featured_score?: number;
+  recent_reviews_30d?: number;
+  recent_reviews_7d?: number;
+  bayesian_rating?: number | null;
+  lat?: number | null;
+  lng?: number | null;
+  top_review_preview?: {
+    content: string;
+    rating?: number | null;
+    createdAt?: string | null;
+  } | null;
+}
+
+export interface FeaturedBusinessesResponseDto {
+  data?: FeaturedBusinessDto[];
+  businesses?: FeaturedBusinessDto[];
+  meta?: {
+    period?: string;
+    generated_at?: string;
+    seed?: string;
+    source?: 'cold_start' | 'rpc' | 'fallback';
+    count?: number;
+  } | null;
+}
+
+export interface TopReviewerDto {
+  id: string;
+  name: string;
+  username?: string;
+  profilePicture: string;
+  reviewCount: number;
+  rating: number;
+  avgRatingGiven?: number | null;
+  helpfulVotes?: number;
+  badge?: 'top' | 'verified' | 'local';
+  trophyBadge?: 'gold' | 'silver' | 'bronze' | 'rising-star' | 'community-favorite';
+  badgesCount?: number;
+  location: string;
+}
+
+export interface TopReviewersResponseDto {
+  reviewers: TopReviewerDto[];
+  mode: 'stage1' | 'normal';
+}
+
+export interface RecentReviewDto {
+  id: string;
+  reviewer: TopReviewerDto;
+  businessName: string;
+  businessType: string;
+  businessId?: string;
+  rating: number;
+  reviewText: string;
+  date: string;
+  likes: number;
+  tags?: string[];
+  images?: string[];
+}
+
+export interface RecentReviewsResponseDto {
+  reviews: RecentReviewDto[];
+}
+
+export interface EventSpecialListItemDto {
+  id: string;
+  title: string;
+  type: 'event' | 'special';
+  image?: string | null;
+  image_url?: string | null;
+  uploaded_images?: string[];
+  heroImage?: string | null;
+  bannerImage?: string | null;
+  businessImages?: string[];
+  alt?: string;
+  icon?: string;
+  location: string;
+  rating?: number | null;
+  reviews?: number;
+  totalReviews?: number;
+  startDate: string;
+  endDate?: string;
+  startDateISO?: string;
+  endDateISO?: string;
+  occurrences?: EventOccurrenceDto[];
+  occurrencesCount?: number;
+  date_range_label?: string | null;
+  price?: string | null;
+  description?: string;
+  bookingUrl?: string;
+  bookingContact?: string;
+  ctaSource?: 'website' | 'whatsapp' | 'quicket' | 'webtickets' | 'other' | null;
+  whatsappNumber?: string;
+  whatsappPrefillTemplate?: string;
+  href?: string;
+  businessId?: string;
+  businessName?: string;
+  venueName?: string;
+  city?: string;
+  country?: string;
+  source?: string;
+  isCommunityEvent?: boolean;
+  isExternalEvent?: boolean;
+  availabilityStatus?: 'sold_out' | 'limited' | null;
+}
+
+export interface EventOccurrenceDto {
+  startDate: string;
+  endDate?: string;
+  bookingUrl?: string;
+}
+
+export interface EventsAndSpecialsResponseDto {
+  items: EventSpecialListItemDto[];
+  count: number;
+  nextCursor?: string | null;
+  limit?: number;
+  offset?: number;
+}
+
 export interface SavedBusinessDto extends BusinessListItemDto {
   savedAt?: string;
-  address?: string;
-  phone?: string;
-  website?: string;
-  description?: string;
 }
 
 export interface SavedBusinessesResponseDto {

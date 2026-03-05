@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { withUser } from '@/app/api/_lib/withAuth';
+import { getBadgePngPath } from '@/app/lib/badgeMappings';
 
 export const GET = withUser(async (req: NextRequest, { user, supabase }) => {
   try {
@@ -71,7 +72,7 @@ export const GET = withUser(async (req: NextRequest, { user, supabase }) => {
       achievements.push({
         name: "Century Club",
         description: "Posted 100 reviews",
-        icon: "/badges/048-award.png",
+        icon: getBadgePngPath("milestone_century_club"),
         earnedAt: firstReviewDate || accountCreatedAt,
       });
     }
@@ -79,7 +80,7 @@ export const GET = withUser(async (req: NextRequest, { user, supabase }) => {
       achievements.push({
         name: "Review Machine",
         description: "Posted 50 reviews",
-        icon: "/badges/044-rocket.png",
+        icon: getBadgePngPath("milestone_review_machine"),
         earnedAt: firstReviewDate || accountCreatedAt,
       });
     }
@@ -87,7 +88,7 @@ export const GET = withUser(async (req: NextRequest, { user, supabase }) => {
       achievements.push({
         name: "Level Up!",
         description: "Posted 10 reviews",
-        icon: "/badges/041-speedometer.png",
+        icon: getBadgePngPath("milestone_level_up"),
         earnedAt: firstReviewDate || accountCreatedAt,
       });
     }
@@ -95,7 +96,7 @@ export const GET = withUser(async (req: NextRequest, { user, supabase }) => {
       achievements.push({
         name: "Rookie Reviewer",
         description: "Posted 5 reviews",
-        icon: "/badges/030-badge.png",
+        icon: getBadgePngPath("milestone_rookie_reviewer"),
         earnedAt: firstReviewDate || accountCreatedAt,
       });
     }
@@ -103,7 +104,7 @@ export const GET = withUser(async (req: NextRequest, { user, supabase }) => {
       achievements.push({
         name: "New Voice",
         description: "Posted your first review",
-        icon: "/badges/027-megaphone.png",
+        icon: getBadgePngPath("milestone_new_voice"),
         earnedAt: firstReviewDate,
       });
     }
@@ -111,7 +112,7 @@ export const GET = withUser(async (req: NextRequest, { user, supabase }) => {
       achievements.push({
         name: "Helpful Honeybee",
         description: "10 helpful likes",
-        icon: "/badges/021-like.png",
+        icon: getBadgePngPath("milestone_helpful_honeybee"),
         earnedAt: accountCreatedAt,
       });
     }

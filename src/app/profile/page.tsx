@@ -9,7 +9,6 @@ import {
   AlertTriangle,
   ChevronRight,
   Navigation,
-  Loader2,
 } from "@/app/lib/icons";
 import { getBrowserSupabase } from "@/app/lib/supabase/client";
 
@@ -759,10 +758,7 @@ function ProfileContent() {
                               className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-coral/90 hover:bg-coral text-white text-xs font-semibold whitespace-nowrap transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed shadow-sm"
                             >
                               {locationStatus === 'loading' ? (
-                                <>
-                                  <Loader2 size={14} className="animate-spin" />
-                                  Requesting...
-                                </>
+                                "Requesting..."
                               ) : locationStatus === 'denied' ? (
                                 <>
                                   <Navigation size={14} />

@@ -15,6 +15,30 @@ const BOOKING_SELECT_FRAGMENT =
 const FETCH_TIMEOUT_MS = 10_000;
 const CACHE_CONTROL = "public, s-maxage=30, stale-while-revalidate=300";
 
+type EventsCursor = {
+  kind: "offset";
+  offset: number;
+};
+
+function parseEventsCursor(rawCursor: string | null): number {
+  if (!rawCursor) return 0;
+
+  try {
+    const decoded = JSON.parse(Buffer.from(rawCursor, "base64url").toString("utf8")) as Partial<EventsCursor>;
+    if (decoded.kind === "offset" && typeof decoded.offset === "number" && Number.isFinite(decoded.offset)) {
+      return Math.max(0, Math.floor(decoded.offset));
+    }
+  } catch {
+    return 0;
+  }
+
+  return 0;
+}
+
+function encodeEventsCursor(offset: number): string {
+  return Buffer.from(JSON.stringify({ kind: "offset", offset }), "utf8").toString("base64url");
+}
+
 async function getEventsSupabase() {
   try {
     return getServiceSupabase();
@@ -88,7 +112,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const typeParam = (searchParams.get("type") || "").trim().toLowerCase();
     const limitParam = parseInt(searchParams.get("limit") || "20", 10);
-    const offsetParam = parseInt(searchParams.get("offset") || "0", 10); // internal pagination
+    const offsetParam = parseEventsCursor(searchParams.get("cursor")) || parseInt(searchParams.get("offset") || "0", 10);
 
     const limit = Number.isFinite(limitParam) ? Math.min(Math.max(limitParam, 1), 100) : 20;
     const offset = Number.isFinite(offsetParam) ? Math.max(offsetParam, 0) : 0;
@@ -176,6 +200,7 @@ export async function GET(req: NextRequest) {
           details: error.message ?? "Unknown query error",
           items: [],
           count: 0,
+          nextCursor: null,
           limit,
           offset,
         },
@@ -330,11 +355,58 @@ export async function GET(req: NextRequest) {
 
     // When a search query is active return all consolidated matches (client handles display).
     // For normal browsing, apply server-side pagination.
-    const paged = searchParam ? consolidated : consolidated.slice(offset, offset + limit);
+    const pagedBase = searchParam ? consolidated : consolidated.slice(offset, offset + limit);
+
+    const eventIds = pagedBase.filter((item) => item.type === "event").map((item) => item.id);
+    const specialIds = pagedBase.filter((item) => item.type === "special").map((item) => item.id);
+
+    const [eventReviewRows, specialReviewRows] = await Promise.all([
+      eventIds.length > 0
+        ? supabase
+            .from("event_reviews")
+            .select("event_id")
+            .in("event_id", eventIds)
+            .then(({ data, error }) => {
+              if (error) {
+                console.warn("[events-and-specials] event review count query error:", error);
+                return [] as Array<{ event_id: string }>;
+              }
+              return (data ?? []) as Array<{ event_id: string }>;
+            })
+        : Promise.resolve([] as Array<{ event_id: string }>),
+      specialIds.length > 0
+        ? supabase
+            .from("special_reviews")
+            .select("special_id")
+            .in("special_id", specialIds)
+            .then(({ data, error }) => {
+              if (error) {
+                console.warn("[events-and-specials] special review count query error:", error);
+                return [] as Array<{ special_id: string }>;
+              }
+              return (data ?? []) as Array<{ special_id: string }>;
+            })
+        : Promise.resolve([] as Array<{ special_id: string }>),
+    ]);
+
+    const reviewCounts = new Map<string, number>();
+    for (const row of eventReviewRows) {
+      reviewCounts.set(row.event_id, (reviewCounts.get(row.event_id) ?? 0) + 1);
+    }
+    for (const row of specialReviewRows) {
+      reviewCounts.set(row.special_id, (reviewCounts.get(row.special_id) ?? 0) + 1);
+    }
+
+    const paged = pagedBase.map((item) => ({
+      ...item,
+      reviews: reviewCounts.get(item.id) ?? 0,
+    }));
+    const nextCursor = consolidated.length > offset + limit ? encodeEventsCursor(offset + limit) : null;
 
     const response = NextResponse.json({
       items: paged,
       count: consolidated.length,
+      nextCursor,
       limit,
       offset,
     });
@@ -349,6 +421,7 @@ export async function GET(req: NextRequest) {
         details: err instanceof Error ? err.message : "Unknown server error",
         items: [],
         count: 0,
+        nextCursor: null,
         limit: 20,
         offset: 0,
       },

@@ -1,6 +1,6 @@
 -- =============================================
 -- UPDATE BADGES TO MATCH NEW SPEC
--- 72 Badges, 72 Unique Icons, 1 Unused (007-home.png)
+-- 72 Badges, canonical icon_name mapping
 -- =============================================
 
 BEGIN;
@@ -36,7 +36,7 @@ INSERT INTO public.badges (id, name, description, badge_group, category_key, rul
 ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, description = EXCLUDED.description, badge_group = EXCLUDED.badge_group, category_key = EXCLUDED.category_key, rule_type = EXCLUDED.rule_type, icon_name = EXCLUDED.icon_name;
 
 INSERT INTO public.badges (id, name, description, badge_group, category_key, rule_type, icon_name) VALUES 
-('explorer_full_circle', 'Full Circle', 'Reviewed all 8 categories', 'explorer', NULL, 'achievement', '043-choice.png')
+('explorer_full_circle', 'Full Circle', 'Reviewed all 8 categories', 'explorer', NULL, 'achievement', 'memory-maker.png')
 ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, description = EXCLUDED.description, badge_group = EXCLUDED.badge_group, category_key = EXCLUDED.category_key, rule_type = EXCLUDED.rule_type, icon_name = EXCLUDED.icon_name;
 
 -- =============================================
@@ -49,7 +49,7 @@ INSERT INTO public.badges (id, name, description, badge_group, category_key, rul
 ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, description = EXCLUDED.description, badge_group = EXCLUDED.badge_group, category_key = EXCLUDED.category_key, rule_type = EXCLUDED.rule_type, icon_name = EXCLUDED.icon_name;
 
 INSERT INTO public.badges (id, name, description, badge_group, category_key, rule_type, icon_name) VALUES 
-('specialist_food_flavour_finder', 'Flavour Finder', '10 Food & Drink reviews', 'specialist', 'food-drink', 'achievement', '051-searcher.png')
+('specialist_food_flavour_finder', 'Flavour Finder', '10 Food & Drink reviews', 'specialist', 'food-drink', 'achievement', 'flavour-finder.png')
 ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, description = EXCLUDED.description, badge_group = EXCLUDED.badge_group, category_key = EXCLUDED.category_key, rule_type = EXCLUDED.rule_type, icon_name = EXCLUDED.icon_name;
 
 INSERT INTO public.badges (id, name, description, badge_group, category_key, rule_type, icon_name) VALUES 
@@ -61,7 +61,7 @@ INSERT INTO public.badges (id, name, description, badge_group, category_key, rul
 ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, description = EXCLUDED.description, badge_group = EXCLUDED.badge_group, category_key = EXCLUDED.category_key, rule_type = EXCLUDED.rule_type, icon_name = EXCLUDED.icon_name;
 
 INSERT INTO public.badges (id, name, description, badge_group, category_key, rule_type, icon_name) VALUES 
-('specialist_food_dessert_detective', 'Dessert Detective', '5 dessert spot reviews', 'specialist', 'food-drink', 'achievement', '052-croissant.png')
+('specialist_food_dessert_detective', 'Dessert Detective', '5 dessert spot reviews', 'specialist', 'food-drink', 'achievement', 'flavour-finder.png')
 ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, description = EXCLUDED.description, badge_group = EXCLUDED.badge_group, category_key = EXCLUDED.category_key, rule_type = EXCLUDED.rule_type, icon_name = EXCLUDED.icon_name;
 
 INSERT INTO public.badges (id, name, description, badge_group, category_key, rule_type, icon_name) VALUES 
@@ -195,7 +195,7 @@ ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, description = EXCLUDED.desc
 
 -- B.7 Experiences & Entertainment (6 badges)
 INSERT INTO public.badges (id, name, description, badge_group, category_key, rule_type, icon_name) VALUES 
-('specialist_experiences_memory_maker', 'Memory Maker', '3 Experiences & Entertainment reviews', 'specialist', 'experiences-entertainment', 'achievement', '046-rec.png')
+('specialist_experiences_memory_maker', 'Memory Maker', '3 Experiences & Entertainment reviews', 'specialist', 'experiences-entertainment', 'achievement', 'memory-maker.png')
 ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, description = EXCLUDED.description, badge_group = EXCLUDED.badge_group, category_key = EXCLUDED.category_key, rule_type = EXCLUDED.rule_type, icon_name = EXCLUDED.icon_name;
 
 INSERT INTO public.badges (id, name, description, badge_group, category_key, rule_type, icon_name) VALUES 
@@ -324,12 +324,11 @@ INSERT INTO public.badges (id, name, description, badge_group, category_key, rul
 ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, description = EXCLUDED.description, badge_group = EXCLUDED.badge_group, category_key = EXCLUDED.category_key, rule_type = EXCLUDED.rule_type, icon_name = EXCLUDED.icon_name;
 
 INSERT INTO public.badges (id, name, description, badge_group, category_key, rule_type, icon_name) VALUES 
-('community_plug_of_year', 'Plug of the Year', 'Top community contributor', 'community', NULL, 'achievement', '058-plant.png')
+('community_plug_of_year', 'Plug of the Year', 'Top community contributor', 'community', NULL, 'achievement', '038-plug.png')
 ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, description = EXCLUDED.description, badge_group = EXCLUDED.badge_group, category_key = EXCLUDED.category_key, rule_type = EXCLUDED.rule_type, icon_name = EXCLUDED.icon_name;
 
 -- =============================================
 -- SUMMARY
 -- =============================================
 -- Total: 72 badges (5 explorer + 48 specialist + 10 milestone + 9 community)
--- Icons used: 72 unique PNGs from 001-073 (excluding 007-home.png)
--- Each badge has a unique icon_name, no reuse
+-- icon_name values are canonical and may be shared by design for select badges.
