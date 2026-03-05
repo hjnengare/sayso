@@ -75,10 +75,10 @@ export function useReviewReplies(reviewId: string) {
     );
 
     try {
-      const res = await fetch(`/api/reviews/${reviewId}/replies/${replyId}`, {
-        method: 'PATCH',
+      const res = await fetch(`/api/reviews/${reviewId}/replies`, {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content }),
+        body: JSON.stringify({ replyId, content }),
       });
 
       if (!res.ok) {
@@ -99,8 +99,10 @@ export function useReviewReplies(reviewId: string) {
     mutate(prev.filter(r => r.id !== replyId), { revalidate: false });
 
     try {
-      const res = await fetch(`/api/reviews/${reviewId}/replies/${replyId}`, {
+      const res = await fetch(`/api/reviews/${reviewId}/replies`, {
         method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ replyId }),
       });
 
       if (!res.ok) {

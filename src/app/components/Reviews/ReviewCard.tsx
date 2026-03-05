@@ -451,11 +451,7 @@ function ReviewCard({
           <ReviewGallery images={review.images || []} isDesktop={isDesktop} />
 
           {/* Actions */}
-          <div
-            className={`flex items-center justify-between pt-3 border-t border-sage/10 ${
-              user && !isOwner ? 'pr-12 sm:pr-14' : ''
-            }`}
-          >
+          <div className="flex items-center justify-between pt-3 border-t border-sage/10 gap-2">
             <div className="flex items-center gap-3">
               {!isOwnerView && (
                 <m.button
@@ -523,43 +519,44 @@ function ReviewCard({
               )}
             </div>
 
-            {!user && !isOwnerView && (
-              <span className="font-urbanist text-sm sm:text-xs text-charcoal/60">
-                Login to interact
-              </span>
-            )}
-          </div>
-
-          {/* Flag button */}
-          {user && !isOwner && (
-            <button
-              type="button"
-              onClick={handleOpenFlagModal}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.stopPropagation();
-                }
-              }}
-              disabled={reportButtonDisabled}
-              aria-label="Report review"
-              title={isFlagged ? 'Review already reported' : 'Report review'}
-              className={`absolute bottom-4 right-4 sm:bottom-5 sm:right-5 z-10 inline-flex h-10 w-10 sm:h-9 sm:w-9 items-center justify-center rounded-full touch-manipulation ${
-                isDesktop ? '' : 'transition-all duration-200'
-              } focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300/70 focus-visible:ring-offset-2 focus-visible:ring-offset-off-white ${
-                isFlagged
-                  ? 'text-red-500 bg-red-50/70 cursor-not-allowed'
-                  : isDesktop
-                    ? 'text-charcoal/50'
-                    : 'text-charcoal/50 hover:text-red-500 hover:bg-red-50/70'
-              } ${reportButtonDisabled && !isFlagged ? 'opacity-60 cursor-not-allowed' : ''}`}
-            >
-              {flagging ? (
-                <Loader2 className="w-[18px] h-[18px] sm:w-4 sm:h-4 animate-spin" />
-              ) : (
-                <Flag className="w-[18px] h-[18px] sm:w-4 sm:h-4" />
+            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+              {!user && !isOwnerView && (
+                <span className="font-urbanist text-sm sm:text-xs text-charcoal/60">
+                  Login to interact
+                </span>
               )}
-            </button>
-          )}
+
+              {user && !isOwner && (
+                <button
+                  type="button"
+                  onClick={handleOpenFlagModal}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.stopPropagation();
+                    }
+                  }}
+                  disabled={reportButtonDisabled}
+                  aria-label="Report review"
+                  title={isFlagged ? 'Review already reported' : 'Report review'}
+                  className={`inline-flex h-10 w-10 sm:h-9 sm:w-9 items-center justify-center rounded-full touch-manipulation ${
+                    isDesktop ? '' : 'transition-all duration-200'
+                  } focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300/70 focus-visible:ring-offset-2 focus-visible:ring-offset-off-white ${
+                    isFlagged
+                      ? 'text-red-500 bg-red-50/70 cursor-not-allowed'
+                      : isDesktop
+                        ? 'text-charcoal/50'
+                        : 'text-charcoal/50 hover:text-red-500 hover:bg-red-50/70'
+                  } ${reportButtonDisabled && !isFlagged ? 'opacity-60 cursor-not-allowed' : ''}`}
+                >
+                  {flagging ? (
+                    <Loader2 className="w-[18px] h-[18px] sm:w-4 sm:h-4 animate-spin" />
+                  ) : (
+                    <Flag className="w-[18px] h-[18px] sm:w-4 sm:h-4" />
+                  )}
+                </button>
+              )}
+            </div>
+          </div>
 
           {/* Reply Form + Replies List */}
           <ReviewReplies

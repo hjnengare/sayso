@@ -177,8 +177,8 @@ function CompletePageContent() {
           (function frame() {
             if (cancelled) return;
 
-            // Use app color scheme: sage, coral, white, and gold
-            const colors = ['#7D9B76', '#E88D67', '#FFFFFF', '#FFD700'];
+            // Use app brand palette only: navbar-bg, card-bg, off-white
+            const colors = ['#722F37', '#9DAB9B', '#E5E0E5'];
 
             confetti.default({
               particleCount: 3, // Reduced particle count for better performance

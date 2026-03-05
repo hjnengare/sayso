@@ -581,7 +581,7 @@ export default function AchievementsPage() {
             </p>
             <div className="flex gap-3 justify-center flex-wrap">
               <Link
-                href="/explore"
+                href="/for-you"
                 className="inline-flex items-center gap-2 bg-white text-navbar-bg font-urbanist font-700 text-sm px-6 py-3 rounded-xl hover:bg-off-white transition-colors"
               >
                 Explore Businesses

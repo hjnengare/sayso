@@ -68,6 +68,7 @@ export default function BusinessContactCard({ businessId, businessName, phone }:
     const trimmed = phone.trim();
     return trimmed.length > 0 ? trimmed : null;
   }, [phone]);
+  const isFormEnabled = Boolean(contactPhone);
 
   const whatsappNumber = useMemo(() => normalizeDigits(contactPhone), [contactPhone]);
 
@@ -121,6 +122,13 @@ export default function BusinessContactCard({ businessId, businessName, phone }:
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+
+    if (!isFormEnabled) {
+      setSubmitState("idle");
+      setSubmitMessage("Inquiry form is unavailable for this business.");
+      return;
+    }
+
     setTouched({
       name: true,
       email: true,
@@ -291,10 +299,11 @@ export default function BusinessContactCard({ businessId, businessName, phone }:
             onBlur={() => setTouched((prev) => ({ ...prev, name: true }))}
             maxLength={NAME_MAX}
             placeholder="Name"
-            className="w-full rounded-full border border-white/25 bg-white/70 px-4 py-2.5 text-sm text-charcoal placeholder:text-charcoal/50 focus:border-white/50 focus:outline-none"
+            disabled={!isFormEnabled}
+            className="w-full rounded-full border border-white/25 bg-white/70 px-4 py-2.5 text-sm text-charcoal placeholder:text-charcoal/50 focus:border-white/50 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
             style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
           />
-          {touched.name && errors.name && (
+          {isFormEnabled && touched.name && errors.name && (
             <p className="mt-1 text-xs text-red-700">{errors.name}</p>
           )}
         </div>
@@ -307,10 +316,11 @@ export default function BusinessContactCard({ businessId, businessName, phone }:
             onBlur={() => setTouched((prev) => ({ ...prev, email: true }))}
             maxLength={EMAIL_MAX}
             placeholder="Email"
-            className="w-full rounded-full border border-white/25 bg-white/70 px-4 py-2.5 text-sm text-charcoal placeholder:text-charcoal/50 focus:border-white/50 focus:outline-none"
+            disabled={!isFormEnabled}
+            className="w-full rounded-full border border-white/25 bg-white/70 px-4 py-2.5 text-sm text-charcoal placeholder:text-charcoal/50 focus:border-white/50 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
             style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
           />
-          {touched.email && errors.email && (
+          {isFormEnabled && touched.email && errors.email && (
             <p className="mt-1 text-xs text-red-700">{errors.email}</p>
           )}
         </div>
@@ -323,10 +333,11 @@ export default function BusinessContactCard({ businessId, businessName, phone }:
             onBlur={() => setTouched((prev) => ({ ...prev, mobile: true }))}
             maxLength={32}
             placeholder="Mobile"
-            className="w-full rounded-full border border-white/25 bg-white/70 px-4 py-2.5 text-sm text-charcoal placeholder:text-charcoal/50 focus:border-white/50 focus:outline-none"
+            disabled={!isFormEnabled}
+            className="w-full rounded-full border border-white/25 bg-white/70 px-4 py-2.5 text-sm text-charcoal placeholder:text-charcoal/50 focus:border-white/50 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
             style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
           />
-          {touched.mobile && errors.mobile && (
+          {isFormEnabled && touched.mobile && errors.mobile && (
             <p className="mt-1 text-xs text-red-700">{errors.mobile}</p>
           )}
         </div>
@@ -340,17 +351,18 @@ export default function BusinessContactCard({ businessId, businessName, phone }:
             maxLength={MESSAGE_MAX}
             rows={4}
             placeholder="Message"
-            className="w-full rounded-[12px] border border-white/25 bg-white/70 px-4 py-3 text-sm text-charcoal placeholder:text-charcoal/50 focus:border-white/50 focus:outline-none resize-none"
+            disabled={!isFormEnabled}
+            className="w-full rounded-[12px] border border-white/25 bg-white/70 px-4 py-3 text-sm text-charcoal placeholder:text-charcoal/50 focus:border-white/50 focus:outline-none resize-none disabled:cursor-not-allowed disabled:opacity-60"
             style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
           />
-          {touched.message && errors.message && (
+          {isFormEnabled && touched.message && errors.message && (
             <p className="mt-1 text-xs text-red-700">{errors.message}</p>
           )}
         </div>
 
         <button
           type="submit"
-          disabled={submitState === "loading"}
+          disabled={!isFormEnabled || submitState === "loading"}
           className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-coral px-4 py-2.5 text-body-sm font-semibold text-white transition-colors hover:bg-coral/90 disabled:cursor-not-allowed disabled:opacity-70"
           style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
         >
@@ -363,6 +375,12 @@ export default function BusinessContactCard({ businessId, businessName, phone }:
             "Submit"
           )}
         </button>
+
+        {!isFormEnabled && (
+          <p className="text-xs text-charcoal/60 italic">
+            Inquiry form is unavailable because this business has no contact number.
+          </p>
+        )}
 
         {submitMessage && (
           <p className={`text-xs ${submitState === "success" ? "text-emerald-700" : "text-red-700"}`}>

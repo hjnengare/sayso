@@ -492,48 +492,46 @@ export default function HeroCarousel() {
       />
       <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_center,_rgba(255,255,255,0.15)_0%,_transparent_70%)] pointer-events-none rounded-none" />
       <div className="absolute inset-0 z-0 backdrop-blur-[1px] bg-off-white/5 mix-blend-overlay pointer-events-none rounded-none" />
-      {/* Slides — all capped slides rendered; hard cut between slides to avoid opacity flicker. */}
-      {slides.map((slide, idx) => {
-        const isActive = idx === currentIndex;
-        const fallbackImg = HERO_IMAGES[idx % HERO_IMAGES.length];
-        const src = failedImageUrls.has(slide.image) ? fallbackImg : slide.image;
+      {/* Active slide only: avoid loading multiple hero images at once. */}
+      {(() => {
+        const activeIdx = currentIndex % slides.length;
+        const activeSlide = slides[activeIdx] ?? slides[0];
+        const fallbackImg = HERO_IMAGES[activeIdx % HERO_IMAGES.length];
+        const src = failedImageUrls.has(activeSlide.image) ? fallbackImg : activeSlide.image;
+
         return (
-        <div
-          key={slide.id}
-          aria-hidden={!isActive}
-          className={`absolute inset-0 overflow-hidden transform-gpu rounded-none ${
-            isActive ? "z-10 opacity-100" : "z-0 opacity-0"
-          }`}
-        >
-           <div
-             className="absolute inset-0 rounded-none overflow-hidden transform-gpu [backface-visibility:hidden] will-change-transform"
-           >
+          <div
+            key={activeSlide.id}
+            aria-hidden={false}
+            className="absolute inset-0 overflow-hidden transform-gpu rounded-none z-10 opacity-100"
+          >
+            <div className="absolute inset-0 rounded-none overflow-hidden transform-gpu [backface-visibility:hidden] will-change-transform">
               <Image
                 src={src}
-                alt={slide.title?.trim() || FALLBACK_HERO_TEXT.title}
+                alt={activeSlide.title?.trim() || FALLBACK_HERO_TEXT.title}
                 fill
-                priority={idx === 0}
-                loading={idx === 0 ? "eager" : "lazy"}
-                fetchPriority={idx === 0 ? "high" : "auto"}
+                priority={activeIdx === 0}
+                loading={activeIdx === 0 ? "eager" : "lazy"}
+                fetchPriority={activeIdx === 0 ? "high" : "auto"}
                 quality={heroViewport === "mobile" ? 75 : 85}
                 className="transform-gpu [backface-visibility:hidden] object-cover object-center"
                 style={{ filter: "brightness(0.95) contrast(1.05) saturate(1.1)" }}
                 sizes="(max-width: 640px) 100vw, (max-width: 768px) 100vw, (max-width: 1200px) 90vw, 80vw"
                 onError={() => {
-                  setFailedImageUrls((prev) => new Set(prev).add(slide.image));
+                  setFailedImageUrls((prev) => new Set(prev).add(activeSlide.image));
                 }}
               />
-             <div
-               className="absolute inset-0 pointer-events-none"
-               style={{ background: "hsla(0, 0%, 0%, 0.3)" }}
-             />
-             <div className="absolute inset-0 pointer-events-none bg-gradient-to-r from-black/60 via-black/40 to-transparent" />
-             <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/30 via-transparent to-black/40" />
-             <div className="absolute inset-0 pointer-events-none bg-black/20" />
-           </div>
-        </div>
-      );
-      })}
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{ background: "hsla(0, 0%, 0%, 0.3)" }}
+              />
+              <div className="absolute inset-0 pointer-events-none bg-gradient-to-r from-black/60 via-black/40 to-transparent" />
+              <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/30 via-transparent to-black/40" />
+              <div className="absolute inset-0 pointer-events-none bg-black/20" />
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Hero Text - tied directly to the active slide with simple transitions. */}
       <div data-testid="hero-text" className="absolute inset-0 z-30 flex items-center justify-center w-full pt-[var(--safe-area-top)] sm:pt-[var(--header-height)] translate-y-0 sm:-translate-y-4 px-6 sm:px-10 pointer-events-none">
