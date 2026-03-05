@@ -65,10 +65,15 @@ export default async function ReviewerLayout({
   const profile = await getReviewerProfile(id);
 
   const schemas: object[] = [];
+  let reviewerSummary: { name: string; reviewsCount: number } | null = null;
 
   if (profile) {
     const name = profile.display_name || profile.username || 'Reviewer';
     const reviewerUrl = `${SITE_URL}/reviewer/${id}`;
+    reviewerSummary = {
+      name,
+      reviewsCount: profile.reviews_count || 0,
+    };
 
     schemas.push(
       generatePersonSchema({
@@ -78,7 +83,7 @@ export default async function ReviewerLayout({
         description: profile.bio || undefined,
       }),
       generateBreadcrumbSchema([
-        { name: 'Home', url: `${SITE_URL}/home` },
+        { name: 'Home', url: `${SITE_URL}/` },
         { name: 'Leaderboard', url: `${SITE_URL}/leaderboard` },
         { name, url: reviewerUrl },
       ])
@@ -88,6 +93,14 @@ export default async function ReviewerLayout({
   return (
     <>
       {schemas.length > 0 && <SchemaMarkup schemas={schemas} />}
+      {reviewerSummary && (
+        <article aria-label="Reviewer summary" className="sr-only">
+          <h1>{reviewerSummary.name}</h1>
+          <p>
+            {reviewerSummary.name} has contributed {reviewerSummary.reviewsCount} review{reviewerSummary.reviewsCount === 1 ? '' : 's'} on Sayso.
+          </p>
+        </article>
+      )}
       {children}
     </>
   );

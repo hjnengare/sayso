@@ -510,11 +510,10 @@ export async function proxy(request: NextRequest) {
       edgeLog('REDIRECT', pathname, { hasUser: false, to });
       return redirectWithGuard(request, new URL(to, request.url));
     }
-    // CRITICAL: Guest hitting "/" — middleware must redirect here. Otherwise app/page.tsx runs and we get competing redirect sources (loop on iOS webview).
+    // Keep root public for guests so "/" remains crawlable and indexable.
     if (pathname === '/') {
-      const to = '/onboarding';
-      edgeLog('REDIRECT', pathname, { hasUser: false, to, reason: 'unauthenticated_to_onboarding' });
-      return redirectWithGuard(request, new URL(to, request.url));
+      edgeLog('ALLOW', pathname, { hasUser: false, reason: 'guest_root_public' });
+      return response;
     }
     edgeLog('ALLOW', pathname, { hasUser: false });
     return response;
@@ -912,5 +911,6 @@ export async function proxy(request: NextRequest) {
   edgeLog('ALLOW', pathname, { hasUser: !!user, emailConfirmed: !!user?.email_confirmed_at });
   return response;
 }
+
 
 

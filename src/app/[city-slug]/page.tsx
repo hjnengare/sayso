@@ -124,13 +124,24 @@ export default async function CityPage({ params }: CityPageProps) {
   });
 
   const breadcrumbSchema = generateBreadcrumbSchema([
-    { name: 'Home', url: `${SITE_URL}/home` },
+    { name: 'Home', url: `${SITE_URL}/` },
     { name: displayCityName, url: canonicalUrl },
   ]);
 
   return (
     <>
       <SchemaMarkup schemas={[collectionSchema, itemListSchema, breadcrumbSchema]} />
+      {normalizedBusinesses.length > 0 && (
+        <nav aria-label={`${displayCityName} business links`} className="sr-only">
+          <ul>
+            {normalizedBusinesses.slice(0, 30).map((business: any) => (
+              <li key={business.id}>
+                <a href={`/business/${business.slug || business.id}`}>{business.name}</a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )}
       <CityPageClient 
         cityName={displayCityName}
         categoryName={categoryName}

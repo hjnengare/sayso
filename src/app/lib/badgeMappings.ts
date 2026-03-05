@@ -146,7 +146,7 @@ export const BADGE_MAPPINGS: Record<string, BadgeMapping> = {
   specialist_food_flavour_finder: {
     id: "specialist_food_flavour_finder",
     name: "Flavour Finder",
-    pngPath: "/badges/flavour-finder.png",
+    pngPath: "/badges/051-searcher.png",
     lucideIcon: Search,
     badgeGroup: "specialist",
     categoryKey: "food-drink",
@@ -438,7 +438,7 @@ export const BADGE_MAPPINGS: Record<string, BadgeMapping> = {
   specialist_experiences_memory_maker: {
     id: "specialist_experiences_memory_maker",
     name: "Memory Maker",
-    pngPath: "/badges/memory-maker.png",
+    pngPath: "/badges/046-rec.png",
     lucideIcon: PartyPopper,
     badgeGroup: "specialist",
     categoryKey: "experiences-entertainment",
@@ -649,7 +649,7 @@ export const BADGE_MAPPINGS: Record<string, BadgeMapping> = {
   community_neighbourhood_plug: {
     id: "community_neighbourhood_plug",
     name: "Neighbourhood Plug",
-    pngPath: "/badges/038-plug.png",
+    pngPath: "/badges/007-home.png",
     lucideIcon: MapPinned,
     badgeGroup: "community",
   },

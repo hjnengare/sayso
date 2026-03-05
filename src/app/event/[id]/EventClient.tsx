@@ -9,9 +9,9 @@ import { m, AnimatePresence } from "framer-motion";
 import { ChevronRight, Calendar } from "@/app/lib/icons";
 import type { Event } from "../../lib/types/Event";
 import nextDynamic from "next/dynamic";
-import { PageLoader } from "../../components/Loader";
 import WavyTypedTitle from "@/app/components/Animations/WavyTypedTitle";
 import ReviewsList from "../../components/Reviews/ReviewsList";
+import EventDetailPageSkeleton from "../../components/EventDetail/EventDetailPageSkeleton";
 import {
   EventHeroImage,
   EventInfo,
@@ -82,23 +82,9 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
     Boolean(event?.bookingUrl || event?.purchaseUrl || (event as any)?.ticketmaster_url || (event as any)?.url) ||
     (((event?.ctaSource ?? "").toLowerCase() === "whatsapp" || Boolean(event?.whatsappNumber)) && Boolean(event));
 
-  // Loading state - show full page loader with transition
+  // Loading state - render full-page skeleton (no spinner loader)
   if (isLoading) {
-    return (
-      <div className="min-h-dvh bg-off-white">
-        <AnimatePresence>
-          <m.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-[9999] bg-off-white min-h-[100dvh] w-full flex items-center justify-center"
-          >
-            <PageLoader size="lg" variant="wavy" color="sage"  />
-          </m.div>
-        </AnimatePresence>
-      </div>
-    );
+    return <EventDetailPageSkeleton />;
   }
 
   if (isNotFound) {

@@ -1,6 +1,35 @@
 import type { Metadata } from 'next';
 
-export const SITE_URL = 'https://sayso.co.za';
+const FALLBACK_SITE_URL = 'https://www.sayso.co.za';
+const CANONICAL_SITE_HOST = 'www.sayso.co.za';
+const SITE_HOST_ALIASES = new Set(['sayso.co.za', 'www.sayso.co.za']);
+const LOCALHOST_HOSTS = new Set(['localhost', '127.0.0.1', '0.0.0.0']);
+
+function normalizeSiteUrl(url: string): string {
+  const trimmed = (url || '').trim();
+  if (!trimmed) return FALLBACK_SITE_URL;
+
+  const candidate = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+
+  try {
+    const parsed = new URL(candidate);
+    const host = parsed.hostname.toLowerCase();
+
+    if (process.env.NODE_ENV === 'production' && LOCALHOST_HOSTS.has(host)) {
+      return FALLBACK_SITE_URL;
+    }
+
+    if (SITE_HOST_ALIASES.has(host)) {
+      return `https://${CANONICAL_SITE_HOST}`;
+    }
+
+    return parsed.origin.replace(/\/+$/, '');
+  } catch {
+    return FALLBACK_SITE_URL;
+  }
+}
+
+export const SITE_URL = normalizeSiteUrl(process.env.NEXT_PUBLIC_SITE_URL || FALLBACK_SITE_URL);
 export const SITE_NAME = 'Sayso';
 export const SITE_TAGLINE = 'Less guessing, and more confessing.';
 export const BRAND_POSITIONING = 'Hyper-local reviews & discovery for Cape Town';

@@ -134,7 +134,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   });
 
   const breadcrumbSchema = generateBreadcrumbSchema([
-    { name: 'Home', url: `${SITE_URL}/home` },
+    { name: 'Home', url: `${SITE_URL}/` },
     { name: 'Categories', url: `${SITE_URL}/categories/${slug}` },
     { name: categoryName, url: canonicalUrl },
   ]);
@@ -144,6 +144,17 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   return (
     <>
       <SchemaMarkup schemas={[collectionSchema, itemListSchema, breadcrumbSchema, organizationSchema]} />
+      {normalizedBusinesses.length > 0 && (
+        <nav aria-label={`${categoryName} business links`} className="sr-only">
+          <ul>
+            {normalizedBusinesses.slice(0, 30).map((business: any) => (
+              <li key={business.id}>
+                <a href={`/business/${business.slug || business.id}`}>{business.name}</a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )}
       <CategoryPageClient 
         categoryName={categoryName}
         categorySlug={slug}

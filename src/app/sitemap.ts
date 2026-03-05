@@ -1,17 +1,46 @@
 import { MetadataRoute } from 'next';
 import { createClient } from '@supabase/supabase-js';
 import { SITE_URL } from './lib/utils/seoMetadata';
+import { getServiceSupabase } from './lib/admin';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 3600;
 
-const MAX_ROWS = 10000;
+const QUERY_PAGE_SIZE = 1000;
 
 function getSitemapSupabase() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+  try {
+    return getServiceSupabase();
+  } catch {
+    return createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+  }
+}
+
+async function fetchAllRows<T>(
+  fetchPage: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: any }>
+): Promise<T[]> {
+  const rows: T[] = [];
+  let from = 0;
+
+  while (true) {
+    const to = from + QUERY_PAGE_SIZE - 1;
+    const { data, error } = await fetchPage(from, to);
+
+    if (error) throw error;
+
+    const page = data || [];
+    if (page.length === 0) break;
+
+    rows.push(...page);
+
+    if (page.length < QUERY_PAGE_SIZE) break;
+    from += QUERY_PAGE_SIZE;
+  }
+
+  return rows;
 }
 
 const staticPublicPages: Array<{
@@ -30,26 +59,21 @@ const staticPublicPages: Array<{
   { url: '/privacy', priority: 0.3, changeFrequency: 'yearly' },
 ];
 
-async function getBusinesses(): 
-Promise<Array<{ slug: string; updated_at: string | null; created_at: string | null }>> {
+async function getBusinesses(): Promise<Array<{ slug: string; updated_at: string | null; created_at: string | null }>> {
   try {
     const supabase = getSitemapSupabase();
-    const { data, error } = await supabase
-      .from('businesses')
-      .select('slug, updated_at, created_at')
-      .eq('status', 'active')
-      .or('is_system.is.null,is_system.eq.false')
-      .not('slug', 'is', null)
-      .limit(MAX_ROWS);
 
-    if (error) {
-      console.error('[Sitemap] Error fetching businesses:', error);
-      return [];
-    }
-
-    return (data || []) as Array<{ slug: string; updated_at: string | null; created_at: string | null }>;
+    return await fetchAllRows<{ slug: string; updated_at: string | null; created_at: string | null }>((from, to) =>
+      supabase
+        .from('businesses')
+        .select('slug, updated_at, created_at')
+        .eq('status', 'active')
+        .or('is_system.is.null,is_system.eq.false')
+        .not('slug', 'is', null)
+        .range(from, to)
+    );
   } catch (error) {
-    console.error('[Sitemap] Unexpected business fetch error:', error);
+    console.error('[Sitemap] Error fetching businesses:', error);
     return [];
   }
 }
@@ -64,26 +88,22 @@ async function getCategoriesAndSubcategories(): Promise<
 > {
   try {
     const supabase = getSitemapSupabase();
-    const { data, error } = await supabase
-      .from('businesses')
-      .select('primary_category_slug, primary_subcategory_slug, updated_at, created_at')
-      .eq('status', 'active')
-      .or('is_system.is.null,is_system.eq.false')
-      .limit(MAX_ROWS);
 
-    if (error) {
-      console.error('[Sitemap] Error fetching categories/subcategories:', error);
-      return [];
-    }
-
-    return (data || []) as Array<{
+    return await fetchAllRows<{
       primary_category_slug: string | null;
       primary_subcategory_slug: string | null;
       updated_at: string | null;
       created_at: string | null;
-    }>;
+    }>((from, to) =>
+      supabase
+        .from('businesses')
+        .select('primary_category_slug, primary_subcategory_slug, updated_at, created_at')
+        .eq('status', 'active')
+        .or('is_system.is.null,is_system.eq.false')
+        .range(from, to)
+    );
   } catch (error) {
-    console.error('[Sitemap] Unexpected category fetch error:', error);
+    console.error('[Sitemap] Error fetching categories/subcategories:', error);
     return [];
   }
 }
@@ -91,19 +111,22 @@ async function getCategoriesAndSubcategories(): Promise<
 async function getCityLongTailSlugs(): Promise<Array<{ slug: string; updated_at: string | null; created_at: string | null }>> {
   try {
     const supabase = getSitemapSupabase();
-    const { data, error } = await supabase
-      .from('businesses')
-      .select('location, primary_subcategory_label, updated_at, created_at')
-      .eq('status', 'active')
-      .or('is_system.is.null,is_system.eq.false')
-      .not('location', 'is', null)
-      .not('primary_subcategory_label', 'is', null)
-      .limit(2000);
 
-    if (error) {
-      console.error('[Sitemap] Error fetching city long-tail slugs:', error);
-      return [];
-    }
+    const rows = await fetchAllRows<{
+      location: string | null;
+      primary_subcategory_label: string | null;
+      updated_at: string | null;
+      created_at: string | null;
+    }>((from, to) =>
+      supabase
+        .from('businesses')
+        .select('location, primary_subcategory_label, updated_at, created_at')
+        .eq('status', 'active')
+        .or('is_system.is.null,is_system.eq.false')
+        .not('location', 'is', null)
+        .not('primary_subcategory_label', 'is', null)
+        .range(from, to)
+    );
 
     const toSlug = (value: string) =>
       value
@@ -115,7 +138,7 @@ async function getCityLongTailSlugs(): Promise<Array<{ slug: string; updated_at:
 
     const map = new Map<string, { updated_at: string | null; created_at: string | null }>();
 
-    for (const row of data || []) {
+    for (const row of rows) {
       const location = typeof row.location === 'string' ? row.location : '';
       const category = typeof row.primary_subcategory_label === 'string' ? row.primary_subcategory_label : '';
       const city = location.split(',')[0]?.trim();
@@ -142,7 +165,7 @@ async function getCityLongTailSlugs(): Promise<Array<{ slug: string; updated_at:
       created_at: dates.created_at,
     }));
   } catch (error) {
-    console.error('[Sitemap] Unexpected city slug fetch error:', error);
+    console.error('[Sitemap] Error fetching city long-tail slugs:', error);
     return [];
   }
 }
@@ -151,20 +174,15 @@ async function getEvents(): Promise<Array<{ id: string; updated_at: string | nul
   try {
     const supabase = getSitemapSupabase();
 
-    const { data, error } = await supabase
-      .from('events_and_specials')
-      .select('id, updated_at, created_at')
-      .eq('type', 'event')
-      .limit(5000);
-
-    if (error) {
-      console.error('[Sitemap] Error fetching events:', error);
-      return [];
-    }
-
-    return (data || []) as Array<{ id: string; updated_at: string | null; created_at: string | null }>;
+    return await fetchAllRows<{ id: string; updated_at: string | null; created_at: string | null }>((from, to) =>
+      supabase
+        .from('events_and_specials')
+        .select('id, updated_at, created_at')
+        .eq('type', 'event')
+        .range(from, to)
+    );
   } catch (error) {
-    console.error('[Sitemap] Unexpected event fetch error:', error);
+    console.error('[Sitemap] Error fetching events:', error);
     return [];
   }
 }
@@ -173,19 +191,16 @@ async function getPublicProfiles(): Promise<Array<{ user_id: string; updated_at:
   try {
     const supabase = getSitemapSupabase();
 
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('user_id, updated_at, created_at, reviews_count')
-      .not('user_id', 'is', null)
-      .gt('reviews_count', 0)
-      .limit(5000);
+    const rows = await fetchAllRows<any>((from, to) =>
+      supabase
+        .from('profiles')
+        .select('user_id, updated_at, created_at, reviews_count')
+        .not('user_id', 'is', null)
+        .gt('reviews_count', 0)
+        .range(from, to)
+    );
 
-    if (error) {
-      console.error('[Sitemap] Error fetching public profiles:', error);
-      return [];
-    }
-
-    return (data || [])
+    return rows
       .filter((row: any) => typeof row.user_id === 'string' && row.user_id.trim().length > 0)
       .map((row: any) => ({
         user_id: String(row.user_id),
@@ -193,7 +208,7 @@ async function getPublicProfiles(): Promise<Array<{ user_id: string; updated_at:
         created_at: row.created_at || null,
       }));
   } catch (error) {
-    console.error('[Sitemap] Unexpected profile fetch error:', error);
+    console.error('[Sitemap] Error fetching public profiles:', error);
     return [];
   }
 }
@@ -202,6 +217,21 @@ function toDate(value?: string | null): Date {
   if (!value) return new Date();
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? new Date() : date;
+}
+
+function toUniqueSitemapEntries(entries: MetadataRoute.Sitemap): MetadataRoute.Sitemap {
+  const byUrl = new Map<string, MetadataRoute.Sitemap[number]>();
+
+  for (const entry of entries) {
+    if (!entry?.url || typeof entry.url !== 'string') continue;
+    const existing = byUrl.get(entry.url);
+
+    if (!existing || new Date(entry.lastModified ?? 0) > new Date(existing.lastModified ?? 0)) {
+      byUrl.set(entry.url, entry);
+    }
+  }
+
+  return Array.from(byUrl.values()).sort((a, b) => a.url.localeCompare(b.url));
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -222,12 +252,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: page.priority,
   }));
 
-  const businessUrls: MetadataRoute.Sitemap = businesses.map((business) => ({
-    url: `${SITE_URL}/business/${business.slug}`,
-    lastModified: toDate(business.updated_at || business.created_at),
-    changeFrequency: 'weekly',
-    priority: 0.8,
-  }));
+  const businessUrls: MetadataRoute.Sitemap = businesses
+    .filter((business) => typeof business.slug === 'string' && business.slug.trim().length > 0)
+    .map((business) => ({
+      url: `${SITE_URL}/business/${String(business.slug).trim()}`,
+      lastModified: toDate(business.updated_at || business.created_at),
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    }));
 
   const categoryMap = new Map<string, Date>();
   const subcategoryMap = new Map<string, Date>();
@@ -266,12 +298,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  const eventUrls: MetadataRoute.Sitemap = events.map((event) => ({
-    url: `${SITE_URL}/event/${event.id}`,
-    lastModified: toDate(event.updated_at || event.created_at),
-    changeFrequency: 'weekly',
-    priority: 0.7,
-  }));
+  const eventUrls: MetadataRoute.Sitemap = events
+    .filter((event) => typeof event.id === 'string' && event.id.trim().length > 0)
+    .map((event) => ({
+      url: `${SITE_URL}/event/${String(event.id).trim()}`,
+      lastModified: toDate(event.updated_at || event.created_at),
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    }));
 
   const cityUrls: MetadataRoute.Sitemap = citySlugs.map((row) => ({
     url: `${SITE_URL}/${row.slug}`,
@@ -280,14 +314,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.65,
   }));
 
-  const profileUrls: MetadataRoute.Sitemap = profiles.map((profile) => ({
-    url: `${SITE_URL}/reviewer/${profile.user_id}`,
-    lastModified: toDate(profile.updated_at || profile.created_at),
-    changeFrequency: 'weekly',
-    priority: 0.6,
-  }));
+  const profileUrls: MetadataRoute.Sitemap = profiles
+    .filter((profile) => typeof profile.user_id === 'string' && profile.user_id.trim().length > 0)
+    .map((profile) => ({
+      url: `${SITE_URL}/reviewer/${String(profile.user_id).trim()}`,
+      lastModified: toDate(profile.updated_at || profile.created_at),
+      changeFrequency: 'weekly',
+      priority: 0.6,
+    }));
 
-  return [
+  return toUniqueSitemapEntries([
     ...staticUrls,
     ...categoryUrls,
     ...subcategoryUrls,
@@ -295,6 +331,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...eventUrls,
     ...cityUrls,
     ...profileUrls,
-  ];
+  ]);
 }
-

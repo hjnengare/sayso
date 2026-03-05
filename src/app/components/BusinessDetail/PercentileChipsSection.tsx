@@ -81,7 +81,7 @@ function PercentileChipsSection({
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.3, delay: index * 0.05 }}
-              title={
+              aria-label={
                 isPlaceholder
                   ? `${metric.label} insights coming soon`
                   : metric.tooltip
@@ -116,8 +116,10 @@ function PercentileChipsSection({
 
               {/* Premium Tooltip */}
               {!isPlaceholder && (
-                <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover:block z-50 bg-charcoal text-white text-xs font-medium rounded-lg px-2.5 py-1.5 whitespace-nowrap pointer-events-none shadow-lg">
-                  {metric.tooltip}
+                <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover:block z-50 w-max max-w-[min(24rem,calc(100vw-2rem))] bg-charcoal text-white text-xs font-medium rounded-lg px-3 py-2 whitespace-normal break-words [overflow-wrap:anywhere] leading-snug text-center pointer-events-none shadow-lg">
+                  <span className="block">
+                    {metric.tooltip}
+                  </span>
                   <div className="absolute top-full left-1/2 -translate-x-1/2 w-2 h-2 bg-charcoal transform rotate-45" />
                 </div>
               )}

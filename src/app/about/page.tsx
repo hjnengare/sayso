@@ -190,13 +190,13 @@ export default function AboutPage() {
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Link
-                href="/signup"
+                href="/home"
                 className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-bold text-navbar-bg shadow-lg hover:bg-white/90 transition-all hover:scale-[1.03] active:scale-95"
               >
                 Get started <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
-                href="/trending"
+                href="/trending-now"
                 className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/8 px-6 py-3 text-sm font-bold text-white hover:border-white/40 transition-all hover:scale-[1.02]"
               >
                 Browse trending
@@ -440,7 +440,7 @@ export default function AboutPage() {
             </p>
             <div className="flex flex-wrap justify-center gap-3">
               <Link
-                href="/signup"
+                href="/register"
                 className="inline-flex items-center gap-2 rounded-full bg-white px-7 py-3.5 text-sm font-bold text-navbar-bg shadow-xl hover:bg-white/95 transition-all hover:scale-[1.03] active:scale-95"
               >
                 Create your account <ArrowRight className="w-4 h-4" />

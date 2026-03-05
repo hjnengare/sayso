@@ -272,19 +272,6 @@ export default function BusinessProfilePage() {
                                             </div>
                                         </div>
 
-                                        {/* Contact Card Skeleton */}
-                                        <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-6">
-                                            <div className="h-6 w-24 bg-white/30 rounded animate-pulse mb-4" />
-                                            <div className="space-y-3">
-                                                <div className="h-10 w-full bg-white/30 rounded-full animate-pulse" />
-                                                <div className="h-10 w-full bg-white/30 rounded-full animate-pulse" />
-                                                <div className="h-10 w-full bg-white/30 rounded-full animate-pulse" />
-                                                <div className="h-10 w-full bg-white/30 rounded-full animate-pulse" />
-                                                <div className="h-24 w-full bg-white/25 rounded-[12px] animate-pulse" />
-                                                <div className="h-10 w-full bg-coral/40 rounded-full animate-pulse" />
-                                            </div>
-                                        </div>
-
                                         {/* Personalization Insights Skeleton */}
                                         <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-6">
                                             <div className="h-6 w-40 bg-white/30 rounded animate-pulse mb-4" />
@@ -307,6 +294,19 @@ export default function BusinessProfilePage() {
                                                         <div className="h-5 w-32 bg-white/30 rounded animate-pulse" />
                                                     </div>
                                                 ))}
+                                            </div>
+                                        </div>
+
+                                        {/* Contact Card Skeleton */}
+                                        <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-6">
+                                            <div className="h-6 w-24 bg-white/30 rounded animate-pulse mb-4" />
+                                            <div className="space-y-3">
+                                                <div className="h-10 w-full bg-white/30 rounded-full animate-pulse" />
+                                                <div className="h-10 w-full bg-white/30 rounded-full animate-pulse" />
+                                                <div className="h-10 w-full bg-white/30 rounded-full animate-pulse" />
+                                                <div className="h-10 w-full bg-white/30 rounded-full animate-pulse" />
+                                                <div className="h-24 w-full bg-white/25 rounded-[12px] animate-pulse" />
+                                                <div className="h-10 w-full bg-coral/40 rounded-full animate-pulse" />
                                             </div>
                                         </div>
                                     </div>
@@ -581,12 +581,6 @@ export default function BusinessProfilePage() {
                                         hasReviewed={hasReviewed}
                                     />
 
-                                    <BusinessContactCard
-                                        businessId={businessData.id}
-                                        businessName={businessData.name}
-                                        phone={businessData.phone}
-                                    />
-
                                     {/* Personalization Insights */}
                                     <PersonalizationInsights
                                         business={{
@@ -615,6 +609,12 @@ export default function BusinessProfilePage() {
                                             showMapLink={!!(businessData.address || businessData.location || businessData.latitude)}
                                         />
                                     </div>
+
+                                    <BusinessContactCard
+                                        businessId={businessData.id}
+                                        businessName={businessData.name}
+                                        phone={businessData.phone}
+                                    />
                                 </div>
                             </div>
                         </div>

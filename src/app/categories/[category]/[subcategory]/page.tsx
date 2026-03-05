@@ -137,7 +137,7 @@ export default async function CategorySubcategoryPage({ params }: CategorySubcat
   );
 
   const breadcrumbSchema = generateBreadcrumbSchema([
-    { name: 'Home', url: `${SITE_URL}/home` },
+    { name: 'Home', url: `${SITE_URL}/` },
     { name: categoryName, url: `${SITE_URL}/categories/${category}` },
     { name: subcategoryName, url: canonicalUrl },
   ]);
@@ -145,6 +145,17 @@ export default async function CategorySubcategoryPage({ params }: CategorySubcat
   return (
     <>
       <SchemaMarkup schemas={[collectionSchema, itemListSchema, breadcrumbSchema]} />
+      {normalizedBusinesses.length > 0 && (
+        <nav aria-label={`${pageName} business links`} className="sr-only">
+          <ul>
+            {normalizedBusinesses.slice(0, 30).map((business: any) => (
+              <li key={business.id}>
+                <a href={`/business/${business.slug || business.id}`}>{business.name}</a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )}
       <CategoryPageClient
         categoryName={pageName}
         categorySlug={`${category}/${subcategory}`}

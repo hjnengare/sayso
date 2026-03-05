@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { DEFAULT_SITE_DESCRIPTION, generateSEOMetadata, SITE_URL } from '../../lib/utils/seoMetadata';
 import { getServerSupabase } from '../../lib/supabase/server';
+import { getServiceSupabase } from '../../lib/admin';
 import SchemaMarkup from '../../components/SEO/SchemaMarkup';
 import { generateBreadcrumbSchema, generateEventSchema } from '../../lib/utils/schemaMarkup';
 
@@ -23,44 +24,62 @@ function toSlug(value: string): string {
 }
 
 async function getEventData(id: string) {
-  const supabase = await getServerSupabase();
+  const supabase = (() => {
+    try {
+      return getServiceSupabase();
+    } catch {
+      return null;
+    }
+  })();
 
-  const tryByTicketmasterId = async () =>
-    supabase
-      .from('ticketmaster_events')
-      .select('id, title, description, image_url, image, location, start_date')
-      .eq('ticketmaster_id', id)
-      .single();
+  const dbClient = supabase ?? (await getServerSupabase());
 
-  const tryByUuidId = async () =>
-    supabase
+  // Source of truth for event detail pages.
+  const { data: consolidatedEvent } = await dbClient
+    .from('events_and_specials')
+    .select('id, title, description, image, location, start_date, end_date, type')
+    .eq('id', id)
+    .in('type', ['event', 'special'])
+    .maybeSingle();
+
+  if (consolidatedEvent) {
+    return {
+      id: consolidatedEvent.id,
+      title: consolidatedEvent.title,
+      description: consolidatedEvent.description,
+      image: consolidatedEvent.image,
+      image_url: consolidatedEvent.image,
+      location: consolidatedEvent.location,
+      start_date: consolidatedEvent.start_date,
+      end_date: consolidatedEvent.end_date,
+      type: consolidatedEvent.type,
+    };
+  }
+
+  // Fallback for legacy ticketmaster routes/IDs.
+  const { data: ticketmasterByExternalId } = await dbClient
+    .from('ticketmaster_events')
+    .select('id, title, description, image_url, image, location, start_date')
+    .eq('ticketmaster_id', id)
+    .maybeSingle();
+
+  if (ticketmasterByExternalId) {
+    return ticketmasterByExternalId;
+  }
+
+  if (UUID_RE.test(id)) {
+    const { data: ticketmasterByUuid } = await dbClient
       .from('ticketmaster_events')
       .select('id, title, description, image_url, image, location, start_date')
       .eq('id', id)
-      .single();
+      .maybeSingle();
 
-  const tryBusinessEventByUuidId = async () =>
-    supabase
-      .from('events_and_specials')
-      .select('id, title, description, image, location, starts_at')
-      .eq('id', id)
-      .eq('type', 'event')
-      .single();
-
-  let event: any = null;
-  let error: any = null;
-
-  ({ data: event, error } = await tryByTicketmasterId());
-  const notFound = error?.code === 'PGRST116';
-  if (notFound && UUID_RE.test(id)) {
-    ({ data: event, error } = await tryByUuidId());
-  }
-  if ((error?.code === 'PGRST116' || !event) && UUID_RE.test(id)) {
-    ({ data: event, error } = await tryBusinessEventByUuidId());
+    if (ticketmasterByUuid) {
+      return ticketmasterByUuid;
+    }
   }
 
-  if (!event || error) return null;
-  return event;
+  return null;
 }
 
 /**
@@ -99,12 +118,13 @@ export default async function EventLayout({
 
   let schemas: object[] = [];
   let relatedLinks: Array<{ href: string; label: string }> = [];
+  let eventSummary: { title: string; description: string; location: string } | null = null;
 
   if (event) {
     const eventUrl = `${SITE_URL}/event/${id}`;
     const location = event.location || '';
     const citySlug = location ? toSlug(String(location).split(',')[0]) : '';
-    const startDate = event.start_date || event.starts_at || undefined;
+    const startDate = event.start_date || undefined;
 
     const eventSchema = generateEventSchema({
       name: event.title,
@@ -116,14 +136,19 @@ export default async function EventLayout({
     });
 
     const breadcrumbSchema = generateBreadcrumbSchema([
-      { name: 'Home', url: `${SITE_URL}/home` },
-      { name: 'Events', url: `${SITE_URL}/events` },
+      { name: 'Home', url: `${SITE_URL}/` },
+      { name: 'Events & Specials', url: `${SITE_URL}/events-specials` },
       { name: event.title, url: eventUrl },
     ]);
 
     schemas = [eventSchema, breadcrumbSchema];
+    eventSummary = {
+      title: event.title,
+      description: event.description || `Discover ${event.title} on Sayso.`,
+      location: location || 'Cape Town',
+    };
     relatedLinks = [
-      { href: '/events', label: 'More events and specials' },
+      { href: '/events-specials', label: 'More events and specials' },
       ...(citySlug ? [{ href: `/${citySlug}`, label: `More events in ${location}` }] : []),
     ];
   }
@@ -131,6 +156,13 @@ export default async function EventLayout({
   return (
     <>
       {schemas.length > 0 && <SchemaMarkup schemas={schemas} />}
+      {eventSummary && (
+        <article aria-label="Event summary" className="sr-only">
+          <h1>{eventSummary.title}</h1>
+          <p>{eventSummary.description}</p>
+          <p>{eventSummary.location}</p>
+        </article>
+      )}
       {relatedLinks.length > 0 && (
         <nav aria-label="Related links" className="sr-only">
           <ul>

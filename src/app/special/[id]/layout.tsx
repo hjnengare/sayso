@@ -106,7 +106,7 @@ export default async function SpecialLayout({
     });
 
     const breadcrumbSchema = generateBreadcrumbSchema([
-      { name: "Home", url: `${SITE_URL}/home` },
+      { name: "Home", url: `${SITE_URL}/` },
       { name: "Events & Specials", url: `${SITE_URL}/events-specials` },
       { name: special.title, url: specialUrl },
     ]);

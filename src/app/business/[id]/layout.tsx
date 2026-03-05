@@ -100,6 +100,14 @@ export default async function BusinessLayout({
   // Fetch business data for schema
   let schemas: any[] = [];
   let relatedLinks: Array<{ href: string; label: string }> = [];
+  let businessSummary: {
+    name: string;
+    description: string;
+    category: string;
+    location: string;
+    rating: number | null;
+    reviewCount: number;
+  } | null = null;
   try {
     const supabase = await getServerSupabase();
     
@@ -182,10 +190,19 @@ export default async function BusinessLayout({
         } : undefined,
         category: categoryLabel || undefined,
       });
+
+      businessSummary = {
+        name: business.name,
+        description: business.description || `${categoryLabel} located in ${business.location || 'Cape Town'}`,
+        category: categoryLabel || 'Business',
+        location: business.location || 'Cape Town',
+        rating: business.business_stats?.[0]?.average_rating ?? null,
+        reviewCount: business.business_stats?.[0]?.total_reviews || 0,
+      };
       
       // Generate Breadcrumb schema
       const breadcrumbSchema = generateBreadcrumbSchema([
-        { name: 'Home', url: `${SITE_URL}/home` },
+        { name: 'Home', url: `${SITE_URL}/` },
         { name: categoryLabel, url: `${SITE_URL}/categories/${categorySlug}` },
         { name: business.name, url: `${SITE_URL}/business/${businessSlug}` },
       ]);
@@ -217,6 +234,18 @@ export default async function BusinessLayout({
   return (
     <>
       {schemas.length > 0 && <SchemaMarkup schemas={schemas} />}
+      {businessSummary && (
+        <article aria-label="Business summary" className="sr-only">
+          <h1>{businessSummary.name}</h1>
+          <p>{businessSummary.description}</p>
+          <p>{businessSummary.category} in {businessSummary.location}</p>
+          {businessSummary.rating !== null && (
+            <p>
+              Rated {businessSummary.rating.toFixed(1)} out of 5 from {businessSummary.reviewCount} review{businessSummary.reviewCount === 1 ? '' : 's'}.
+            </p>
+          )}
+        </article>
+      )}
       {relatedLinks.length > 0 && (
         <nav aria-label="Related links" className="sr-only">
           <ul>

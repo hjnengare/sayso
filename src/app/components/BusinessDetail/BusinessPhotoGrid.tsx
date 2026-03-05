@@ -123,13 +123,13 @@ export default function BusinessPhotoGrid({ businessName, photos = [] }: Busines
               className="text-body-sm text-charcoal/70"
               style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
             >
-              Photos will appear here as customers upload review photos for this business.
+              Photos from this business profile will appear here once gallery images are available.
             </p>
             <p
               className="mt-2 text-xs text-charcoal/60"
               style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
             >
-              Add a review with photos to help others discover this place.
+              This section uses the business gallery images for consistency.
             </p>
           </div>
 
