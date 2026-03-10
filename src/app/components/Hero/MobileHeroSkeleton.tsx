@@ -13,7 +13,7 @@ export default function MobileHeroSkeleton() {
   return (
     <div className="relative w-full px-0 py-0" aria-hidden="true">
       {/* Keep dimensions aligned with mobile HeroCarousel */}
-      <section className="relative h-[100svh] w-full overflow-hidden outline-none rounded-none min-h-[100svh]">
+      <section className="relative h-[88svh] w-full overflow-hidden outline-none rounded-none">
         <div className="absolute inset-0 bg-gradient-to-r from-slate-300 via-slate-200 to-slate-300 animate-pulse" />
         <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-sage/10 pointer-events-none" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(255,255,255,0.15)_0%,_transparent_70%)] pointer-events-none" />

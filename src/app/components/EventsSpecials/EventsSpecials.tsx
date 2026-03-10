@@ -230,16 +230,16 @@ export default function EventsSpecials({
               onClick={() => router.push(href)}
               className={
                 premiumCtaHover
-                  ? "group inline-flex items-center gap-1 text-body-sm sm:text-caption font-normal text-charcoal transition-colors duration-200 ease-[cubic-bezier(0.25,0.1,0.25,1)] hover:text-sage focus:outline-none px-4 py-2 -mx-2 relative motion-reduce:transition-none"
-                  : "group inline-flex items-center gap-1 text-body-sm sm:text-caption font-normal text-charcoal transition-all duration-300 hover:text-sage focus:outline-none px-4 py-2 -mx-2 relative"
+                  ? "group inline-flex items-center gap-1 text-body-sm sm:text-caption font-normal text-charcoal transition-colors duration-200 ease-[cubic-bezier(0.25,0.1,0.25,1)] hover:text-sage focus:outline-none px-4 py-2 -mx-2 relative no-underline motion-reduce:transition-none"
+                  : "group inline-flex items-center gap-1 text-body-sm sm:text-caption font-normal text-charcoal transition-all duration-300 hover:text-sage focus:outline-none px-4 py-2 -mx-2 relative no-underline"
               }
               aria-label={`${cta}: ${title}`}
             >
               <span
                 className={
                   premiumCtaHover
-                    ? "relative z-10 transition-[color] duration-200 ease-[cubic-bezier(0.25,0.1,0.25,1)] text-charcoal group-hover:text-sage after:content-[''] after:absolute after:-bottom-px after:left-0 after:h-px after:w-full after:bg-current after:origin-left after:scale-x-0 after:transition-transform after:duration-200 after:ease-[cubic-bezier(0.25,0.1,0.25,1)] group-hover:after:scale-x-100 motion-reduce:transition-none motion-reduce:after:transition-none"
-                    : "relative z-10 transition-transform duration-300 group-hover:-translate-x-0.5 text-charcoal group-hover:text-sage"
+                    ? "relative z-10 transition-[color,transform] duration-200 ease-[cubic-bezier(0.25,0.1,0.25,1)] text-charcoal group-hover:text-sage group-hover:-translate-x-0.5 no-underline motion-reduce:transition-none"
+                    : "relative z-10 transition-transform duration-300 group-hover:-translate-x-0.5 text-charcoal group-hover:text-sage no-underline"
                 }
                 style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontWeight: ctaFontWeight }}
               >
@@ -286,11 +286,11 @@ export default function EventsSpecials({
               >
                 {isDesktop ? (
                   disableAnimations ? (
-                    <div className="flex gap-3 items-stretch">
+                    <div className="flex gap-3 sm:gap-3 md:gap-3 lg:gap-2 xl:gap-2 2xl:gap-2 items-stretch">
                       {filteredEvents.map((event, index) => (
                         <div
                           key={getStableEventRailKey(event)}
-                          className="snap-start snap-always flex-shrink-0 w-[100vw] sm:w-auto min-w-[clamp(220px,18vw,320px)] list-none flex justify-center"
+                          className="snap-start snap-always flex-shrink-0 w-[100vw] sm:w-auto min-w-[clamp(200px,16vw,300px)] list-none flex justify-center"
                         >
                           <EventCard event={event} index={index} dateRibbonPosition={dateRibbonPosition} />
                         </div>
@@ -302,13 +302,13 @@ export default function EventsSpecials({
                       initial="hidden"
                       whileInView="visible"
                       viewport={{ once: true, margin: "-50px" }}
-                      className="flex gap-3 items-stretch"
+                      className="flex gap-3 sm:gap-3 md:gap-3 lg:gap-2 xl:gap-2 2xl:gap-2 items-stretch"
                     >
                       {filteredEvents.map((event, index) => (
                         <m.div
                           key={getStableEventRailKey(event)}
                           variants={itemVariants}
-                          className="snap-start snap-always flex-shrink-0 w-[100vw] sm:w-auto min-w-[clamp(220px,18vw,320px)] list-none flex justify-center"
+                          className="snap-start snap-always flex-shrink-0 w-[100vw] sm:w-auto min-w-[clamp(200px,16vw,300px)] list-none flex justify-center"
                         >
                           <EventCard event={event} index={index} dateRibbonPosition={dateRibbonPosition} />
                         </m.div>
@@ -320,7 +320,7 @@ export default function EventsSpecials({
                     {filteredEvents.map((event, index) => (
                       <div
                         key={getStableEventRailKey(event)}
-                        className="snap-start snap-always flex-shrink-0 w-[100vw] sm:w-auto min-w-[clamp(220px,18vw,320px)] list-none flex justify-center"
+                        className="snap-start snap-always flex-shrink-0 w-[100vw] sm:w-auto min-w-[clamp(200px,16vw,300px)] list-none flex justify-center"
                       >
                         <EventCard event={event} index={index} dateRibbonPosition={dateRibbonPosition} />
                       </div>

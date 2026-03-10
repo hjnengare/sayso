@@ -9,6 +9,7 @@ import BusinessCard, { Business } from "../BusinessCard/BusinessCard";
 import ScrollableSection from "../ScrollableSection/ScrollableSection";
 import LocationPromptBanner from "../Location/LocationPromptBanner";
 import { useIsDesktop } from "../../hooks/useIsDesktop";
+import { coerceCoordinate } from "../../hooks/useBusinessDistanceLocation";
 
 // Animation variants for staggered card appearance (matching badge page)
 const containerVariants = {
@@ -49,9 +50,17 @@ export default function BusinessRow({
   const hasCoordinateBusinesses = useMemo(
     () =>
       businesses.some(
-        (business) =>
-          typeof business.lat === "number" && Number.isFinite(business.lat) &&
-          typeof business.lng === "number" && Number.isFinite(business.lng)
+        (business) => {
+          const normalizedLat = coerceCoordinate(
+            (business as Business & { latitude?: unknown }).lat ??
+              (business as Business & { latitude?: unknown }).latitude
+          );
+          const normalizedLng = coerceCoordinate(
+            (business as Business & { longitude?: unknown }).lng ??
+              (business as Business & { longitude?: unknown }).longitude
+          );
+          return normalizedLat !== null && normalizedLng !== null;
+        }
       ),
     [businesses]
   );

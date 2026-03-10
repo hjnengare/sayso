@@ -592,6 +592,7 @@ export async function GET(req: Request) {
     const priceRange = searchParams.get('price_range') || null;
     const location = searchParams.get('location') || null;
     const minRating = searchParams.get('min_rating') ? parseFloat(searchParams.get('min_rating')!) : null;
+    const requireCoordinates = searchParams.get('require_coordinates') === 'true';
 
     // Interest-based filtering
     const interestIdsParam = searchParams.get('interest_ids');
@@ -743,6 +744,7 @@ export async function GET(req: Request) {
         priceRange,
         preferredPriceRanges,
         minRating,
+        requireCoordinates,
         sortBy,
         sortOrder,
         interestIds,
@@ -849,6 +851,7 @@ export async function GET(req: Request) {
         priceRange,
         preferredPriceRanges,
         minRating,
+        requireCoordinates,
         latitude: lat,
         longitude: lng,
       });
@@ -872,6 +875,7 @@ export async function GET(req: Request) {
         sortOrder,
         latitude: lat,
         longitude: lng,
+        requireCoordinates,
         userId,
         requestId,
         seed: seedWindow.seed,
@@ -1673,6 +1677,7 @@ type MixedFeedOptions = {
   sortOrder: string;
   latitude: number | null;
   longitude: number | null;
+  requireCoordinates?: boolean;
   userId?: string | null;
   requestId?: string;
   seed?: string;
@@ -1704,6 +1709,7 @@ async function handleForYouFeed(options: MixedFeedOptions): Promise<NextResponse
     preferredPriceRanges,
     latitude,
     longitude,
+    requireCoordinates = false,
     requestId,
     seed: windowSeed,
   } = options;
@@ -1873,9 +1879,33 @@ async function handleForYouFeed(options: MixedFeedOptions): Promise<NextResponse
     (business) => business?.is_system !== true && business?.name !== 'Sayso System'
   );
   const transformedBusinesses = cleanedBusinesses.map(transformBusinessForCard);
-  const pagedBusinesses = transformedBusinesses.slice(cursorOffset, cursorOffset + limit);
+  const coordinateFilteredBusinesses = requireCoordinates
+    ? transformedBusinesses.filter(
+        (business) =>
+          typeof business.lat === 'number' &&
+          typeof business.lng === 'number' &&
+          isValidLatitude(business.lat) &&
+          isValidLongitude(business.lng)
+      )
+    : transformedBusinesses;
+
+  if (requireCoordinates && coordinateFilteredBusinesses.length === 0 && transformedBusinesses.length > 0) {
+    console.warn('[BUSINESSES API] For You requested map-ready results but unified set had no valid coordinates; using coordinate fallback.', {
+      requestId: requestId ?? null,
+      unifiedCount: transformedBusinesses.length,
+    });
+    const fallback = await fetchTopPicksFallback(options, {
+      reason: 'for_you_unified_no_coordinates',
+      details: 'No map-ready rows in unified recommender output',
+    });
+    fallback.headers.set('X-Feed-Path', 'for_you_unified_coords_fallback');
+    return fallback;
+  }
+
+  const businessesForResponse = coordinateFilteredBusinesses;
+  const pagedBusinesses = businessesForResponse.slice(cursorOffset, cursorOffset + limit);
   const nextCursor =
-    transformedBusinesses.length > cursorOffset + limit
+    businessesForResponse.length > cursorOffset + limit
       ? encodeFeedCursor({
           kind: 'offset',
           offset: cursorOffset + limit,
@@ -1884,7 +1914,7 @@ async function handleForYouFeed(options: MixedFeedOptions): Promise<NextResponse
   console.log('FOR_YOU RESULTS COUNT', {
     requestId: requestId ?? null,
     count: pagedBusinesses.length,
-    totalAvailable: transformedBusinesses.length,
+    totalAvailable: businessesForResponse.length,
     nextCursor: nextCursor !== null,
   });
 
@@ -1902,7 +1932,7 @@ async function handleForYouFeed(options: MixedFeedOptions): Promise<NextResponse
       dealbreakersRelaxed: filteredOutAll ? true : undefined,
     },
   });
-  response.headers.set('X-Feed-Path', 'for_you_unified');
+  response.headers.set('X-Feed-Path', requireCoordinates ? 'for_you_unified_coords' : 'for_you_unified');
   response.headers.set('X-For-You-Results-Count', String(pagedBusinesses.length));
   return applySharedResponseHeaders(response);
 }
@@ -1915,12 +1945,22 @@ async function fetchTopPicksFallback(
   details: { reason: string; details?: string }
 ): Promise<NextResponse> {
   const start = Date.now();
-  const { supabase, limit, cursorOffset = 0, requestId, seed, dealbreakerIds } = options;
+  const {
+    supabase,
+    limit,
+    cursorOffset = 0,
+    requestId,
+    seed,
+    dealbreakerIds,
+    requireCoordinates = false,
+    interestIds,
+    subInterestIds,
+  } = options;
 
   // Simple direct query: active, not hidden, ordered by average_rating desc.
   // Used only when recommend_for_you_unified fails or returns empty.
   const fetchLimit = Math.min(Math.max(limit, 20), 80);
-  const { data: rawData } = await supabase
+  let fallbackQuery: any = supabase
     .from('businesses')
     .select(
       'id,name,description,primary_subcategory_slug,primary_category_slug,location,address,phone,email,website,image_url,verified,price_range,badge,slug,lat,lng,created_at,updated_at,is_hidden,is_system'
@@ -1928,8 +1968,19 @@ async function fetchTopPicksFallback(
     .eq('status', 'active')
     .eq('is_hidden', false)
     .or('is_system.is.null,is_system.eq.false')
-    .order('created_at', { ascending: false })
-    .limit(fetchLimit);
+    .order('created_at', { ascending: false });
+
+  if (subInterestIds && subInterestIds.length > 0) {
+    fallbackQuery = fallbackQuery.in('primary_subcategory_slug', subInterestIds);
+  } else if (interestIds && interestIds.length > 0) {
+    fallbackQuery = fallbackQuery.in('primary_category_slug', interestIds);
+  }
+
+  if (requireCoordinates) {
+    fallbackQuery = fallbackQuery.not('lat', 'is', null).not('lng', 'is', null);
+  }
+
+  const { data: rawData } = await fallbackQuery.limit(fetchLimit);
 
   const rows: BusinessRPCResult[] = (rawData ?? []).map((row: any) => ({
     id: row.id,
@@ -1978,7 +2029,17 @@ async function fetchTopPicksFallback(
   const cleanedRows = baseRows.filter(
     (business) => business?.is_system !== true && business?.name !== 'Sayso System'
   );
-  const transformed = cleanedRows.map(transformBusinessForCard);
+  const transformed = cleanedRows
+    .map(transformBusinessForCard)
+    .filter((business) => {
+      if (!requireCoordinates) return true;
+      return (
+        typeof business.lat === 'number' &&
+        typeof business.lng === 'number' &&
+        isValidLatitude(business.lat) &&
+        isValidLongitude(business.lng)
+      );
+    });
   const pagedBusinesses = transformed.slice(cursorOffset, cursorOffset + limit);
   const nextCursor =
     transformed.length > cursorOffset + limit
@@ -2835,4 +2896,3 @@ function applySharedResponseHeaders(response: NextResponse) {
   response.headers.set('Vary', 'Accept-Encoding');
   return response;
 }
-

@@ -238,9 +238,9 @@ export const PageMetadata = {
 
   leaderboard: (): Metadata =>
     generateSEOMetadata({
-      title: `Top reviewers and businesses in Cape Town | ${SITE_NAME}`,
+      title: 'Sayso (Leaderboard) | Top contributors and businesses in Cape Town',
       description:
-        'See top contributors and standout local businesses in Cape Town on Sayso.',
+        'See top contributors and top-rated businesses in Cape Town on Sayso.',
       keywords: ['cape town leaderboard', 'top reviewers', 'sayso community'],
       url: '/leaderboard',
       type: 'website',
@@ -248,11 +248,22 @@ export const PageMetadata = {
 
   eventsSpecials: (): Metadata =>
     generateSEOMetadata({
-      title: `Cape Town events and specials | ${SITE_NAME}`,
+      title: 'Sayso (Events & Specials) | Local events and limited-time specials in Cape Town',
       description:
-        'Discover upcoming Cape Town events and specials in one hyper-local feed on Sayso.',
+        'Discover upcoming Cape Town events and limited-time specials in one hyper-local feed on Sayso.',
       keywords: ['cape town events', 'cape town specials', 'sayso events'],
       url: '/events-specials',
+      type: 'website',
+    }),
+
+  messages: (): Metadata =>
+    generateSEOMetadata({
+      title: 'Sayso (Messages) | Direct conversations with businesses',
+      description: 'Read and manage your conversations with businesses on Sayso.',
+      keywords: ['messages', 'conversations', 'sayso'],
+      url: '/dm',
+      noindex: true,
+      nofollow: true,
       type: 'website',
     }),
 
@@ -477,5 +488,4 @@ export const PageMetadata = {
       type: 'website',
     }),
 };
-
 

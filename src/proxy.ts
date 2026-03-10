@@ -95,6 +95,22 @@ function clearRedirectGuard(response: NextResponse): NextResponse {
   return response;
 }
 
+function canBypassLoopRedirect(pathname: string): boolean {
+  const normalized = pathname !== '/' ? pathname.replace(/\/+$/, '') : '/';
+  // Restrict loop bypass to known public landing routes only.
+  // Never bypass redirects on protected/auth-sensitive routes.
+  return normalized === '/' || normalized === '/home';
+}
+
+function getLoginRedirectUrl(request: NextRequest): URL {
+  const loginUrl = new URL('/login', request.url);
+  const redirectTarget = `${request.nextUrl.pathname}${request.nextUrl.search}`;
+  if (redirectTarget && redirectTarget !== '/login') {
+    loginUrl.searchParams.set('redirect', redirectTarget);
+  }
+  return loginUrl;
+}
+
 /** Redirect with loop-guard cookie set (so we can detect 2+ redirects in 5s). */
 function redirectWithGuard(req: NextRequest, url: URL): NextResponse {
   if (isPrefetchRequest(req)) {
@@ -102,12 +118,18 @@ function redirectWithGuard(req: NextRequest, url: URL): NextResponse {
   }
 
   if (shouldBypassRedirectForLoop(req)) {
-    console.warn('[Middleware] Redirect loop guard triggered, allowing request through', {
+    if (canBypassLoopRedirect(req.nextUrl.pathname)) {
+      console.warn('[Middleware] Redirect loop guard triggered, allowing request through', {
+        pathname: req.nextUrl.pathname,
+        to: url.pathname,
+      });
+      const allowResponse = NextResponse.next({ request: { headers: req.headers } });
+      return clearRedirectGuard(allowResponse);
+    }
+    console.warn('[Middleware] Redirect loop guard detected on protected/non-home route; keeping redirect', {
       pathname: req.nextUrl.pathname,
       to: url.pathname,
     });
-    const allowResponse = NextResponse.next({ request: { headers: req.headers } });
-    return clearRedirectGuard(allowResponse);
   }
 
   const res = NextResponse.redirect(url);
@@ -239,7 +261,6 @@ export async function proxy(request: NextRequest) {
     '/leaderboard',
     '/reviewer',
     '/reviewer/',
-    '/profile/',
     '/for-you',
     '/notifications',
     '/write-review',
@@ -248,7 +269,8 @@ export async function proxy(request: NextRequest) {
     '/sitemap.xml',
     '/robots.txt',
   ];
-  const isPublicRoute = publicRoutes.some(route =>
+  const isPublicProfileRoute = pathname.startsWith('/profile/') && pathname !== '/profile/';
+  const isPublicRoute = isPublicProfileRoute || publicRoutes.some(route =>
     request.nextUrl.pathname.startsWith(route) ||
     request.nextUrl.pathname === route
   );
@@ -363,10 +385,10 @@ export async function proxy(request: NextRequest) {
           const protectedRoutesFatal = ['/interests', '/subcategories', '/deal-breakers', '/complete', '/reviews', '/write-review', '/saved'];
           const isProtectedRoute = protectedRoutesFatal.some(route =>
             request.nextUrl.pathname.startsWith(route)
-          ) || request.nextUrl.pathname === '/profile';
+          ) || request.nextUrl.pathname === '/profile' || request.nextUrl.pathname === '/profile/';
 
           if (isProtectedRoute) {
-            return redirectWithGuard(request, new URL('/login', request.url));
+            return redirectWithGuard(request, getLoginRedirectUrl(request));
           }
           // For public routes, allow access even with fatal error
           return response;
@@ -441,7 +463,7 @@ export async function proxy(request: NextRequest) {
   const isBusinessViewRoute = request.nextUrl.pathname.match(/^\/business\/[^\/]+$/);
 
   // Check if route is protected
-  const isPrivateProfileRoute = pathname === '/profile';
+  const isPrivateProfileRoute = pathname === '/profile' || pathname === '/profile/';
   const isProtectedRoute = protectedRoutes.some(route =>
     request.nextUrl.pathname.startsWith(route)
   ) || isBusinessReviewRoute || isPrivateProfileRoute;
@@ -488,9 +510,9 @@ export async function proxy(request: NextRequest) {
   // CRITICAL (iOS crash fix): No user session — avoid redirecting to onboarding/complete (except root "/" default landing). Only protect protected routes → /login; allow public.
   if (!user) {
     if (isAdminRoute) {
-      const to = '/login';
-      edgeLog('REDIRECT', pathname, { hasUser: false, to, reason: 'guest_admin_route' });
-      return redirectWithGuard(request, new URL(to, request.url));
+      const loginUrl = getLoginRedirectUrl(request);
+      edgeLog('REDIRECT', pathname, { hasUser: false, to: `${loginUrl.pathname}${loginUrl.search}`, reason: 'guest_admin_route' });
+      return redirectWithGuard(request, loginUrl);
     }
     // Guests should never land on /for-you (empty state can trap navigation on some webviews).
     // Keep /home public; lock personalization to authenticated users only.
@@ -506,9 +528,13 @@ export async function proxy(request: NextRequest) {
     if (isProtectedRoute) {
       const referer = request.headers.get('referer') || '';
       const cameFromVerifyEmail = referer.includes('/verify-email') || referer.includes('/auth/callback');
-      const to = cameFromVerifyEmail ? '/verify-email' : '/login';
-      edgeLog('REDIRECT', pathname, { hasUser: false, to });
-      return redirectWithGuard(request, new URL(to, request.url));
+      if (cameFromVerifyEmail) {
+        edgeLog('REDIRECT', pathname, { hasUser: false, to: '/verify-email' });
+        return redirectWithGuard(request, new URL('/verify-email', request.url));
+      }
+      const loginUrl = getLoginRedirectUrl(request);
+      edgeLog('REDIRECT', pathname, { hasUser: false, to: `${loginUrl.pathname}${loginUrl.search}` });
+      return redirectWithGuard(request, loginUrl);
     }
     // Keep root public for guests so "/" remains crawlable and indexable.
     if (pathname === '/') {
@@ -719,7 +745,7 @@ export async function proxy(request: NextRequest) {
     // Personal discovery routes: redirect business owners to /my-businesses (/home is public; page can show switch if desired)
     const isPersonalRoute = ['/home', '/for-you', '/trending', '/explore', '/events-specials', '/saved', '/write-review'].some(route =>
       pathname === route || pathname.startsWith(route + '/')
-    ) || pathname === '/profile';
+    ) || pathname === '/profile' || pathname === '/profile/';
     if (isPersonalRoute) {
       debugLog('REDIRECT', { requestId, reason: 'business_on_personal_route', to: '/my-businesses' });
       edgeLog('REDIRECT', pathname, { hasUser: true, emailConfirmed: true, isBusiness: true, to: '/my-businesses' });
@@ -819,7 +845,7 @@ export async function proxy(request: NextRequest) {
 
   // Protect owners routes
   if (isOwnersRoute && !user) {
-    return redirectWithGuard(request, new URL('/login', request.url));
+    return redirectWithGuard(request, getLoginRedirectUrl(request));
   }
 
   if (isOwnersRoute && user && !user.email_confirmed_at) {
@@ -911,6 +937,5 @@ export async function proxy(request: NextRequest) {
   edgeLog('ALLOW', pathname, { hasUser: !!user, emailConfirmed: !!user?.email_confirmed_at });
   return response;
 }
-
 
 

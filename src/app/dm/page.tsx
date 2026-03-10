@@ -111,7 +111,7 @@ export default function DMPage() {
           startUserId={startUserId}
         />
       </m.div>
-      <div className="hidden sm:block"><Footer /></div>
+      <div className="hidden sm:block mt-8"><Footer /></div>
     </div>
     </>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import useSWR from "swr";
 import { useDebounce } from "./useDebounce";
 import { swrConfig } from "../lib/swrConfig";
@@ -34,46 +34,68 @@ export interface LiveSearchResult {
   lng?: number | null;
 }
 
+export interface ReviewerSearchResult {
+  id: string;
+  display_name: string | null;
+  username: string | null;
+  avatar_url: string | null;
+  is_top_reviewer: boolean;
+  total_reviews: number;
+}
+
 interface UseLiveSearchOptions {
   initialQuery?: string;
   debounceMs?: number;
 }
 
+interface SearchPayload {
+  results: LiveSearchResult[];
+  reviewerResults: ReviewerSearchResult[];
+  error: string | null;
+}
+
+// ── Fetcher — calls /api/search (Algolia-first, Supabase fallback) ─────────
+
 async function fetchSearchResults(
-  _key: string,
   q: string,
   distanceKm: number | null,
   minRating: number | null
-): Promise<{ results: LiveSearchResult[]; error: string | null }> {
+): Promise<SearchPayload> {
   const params = new URLSearchParams({ q });
   if (distanceKm) params.set("distanceKm", distanceKm.toString());
   if (minRating) params.set("minRating", minRating.toString());
   const response = await fetch(`/api/search?${params.toString()}`);
-  if (!response.ok) {
-    throw new Error("Live search failed");
-  }
+  if (!response.ok) throw new Error("Live search failed");
   const payload = await response.json();
   return {
     results: payload.results || [],
+    reviewerResults: payload.reviewerResults || [],
     error: payload.error || null,
   };
 }
+
+// ── Hook ───────────────────────────────────────────────────────────────────
 
 export function useLiveSearch({ initialQuery = "", debounceMs = 300 }: UseLiveSearchOptions = {}) {
   const [query, setQuery] = useState(initialQuery);
   const [distanceKm, setDistanceKm] = useState<number | null>(null);
   const [minRating, setMinRating] = useState<number | null>(null);
   const debouncedQuery = useDebounce(query, debounceMs);
+  const hasMountedRef = useRef(false);
 
+  // Only sync initialQuery changes that happen AFTER mount — skip the first
+  // run so useState's initial value isn't immediately overwritten, and skip
+  // any re-fires caused by the caller's own debounced URL updates.
   useEffect(() => {
+    if (!hasMountedRef.current) {
+      hasMountedRef.current = true;
+      return;
+    }
     setQuery(initialQuery);
   }, [initialQuery]);
 
   const filters = useMemo<LiveSearchFilters>(
-    () => ({
-      distanceKm,
-      minRating,
-    }),
+    () => ({ distanceKm, minRating }),
     [distanceKm, minRating]
   );
 
@@ -86,11 +108,11 @@ export function useLiveSearch({ initialQuery = "", debounceMs = 300 }: UseLiveSe
   const { data, error, isLoading } = useSWR(
     swrKey,
     ([, q, dKm, mRat]: [string, string, number | null, number | null]) =>
-      fetchSearchResults("search", q, dKm, mRat),
+      fetchSearchResults(q, dKm, mRat),
     {
       ...swrConfig,
-      dedupingInterval: 600, // short window to dedupe rapid keystrokes
-      keepPreviousData: true, // keep last results visible while revalidating
+      dedupingInterval: 600,
+      keepPreviousData: true,
     }
   );
 
@@ -106,6 +128,7 @@ export function useLiveSearch({ initialQuery = "", debounceMs = 300 }: UseLiveSe
     loading: swrKey ? isLoading : false,
     error: error ? (error as Error).message : data?.error ?? null,
     results: swrKey ? (data?.results ?? []) : [],
+    reviewerResults: swrKey ? (data?.reviewerResults ?? []) : [],
     filters,
     setDistanceKm,
     setMinRating,

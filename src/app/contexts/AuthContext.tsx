@@ -317,7 +317,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const isBusinessAccount = !isAdminAccount && userCurrentRole === 'business_owner';
 
         // Step 3: Route based on account type and onboarding status
-        if (isAdminAccount) {
+        // Honor a safe redirect hint when available (e.g., /saved, /profile).
+        let redirectHint: string | null = null;
+        if (typeof window !== 'undefined') {
+          try {
+            const candidate = new URLSearchParams(window.location.search).get('redirect');
+            if (candidate && candidate.startsWith('/') && !candidate.startsWith('//')) {
+              const forbiddenTargets = ['/login', '/register'];
+              const isForbidden = forbiddenTargets.some((route) => candidate === route || candidate.startsWith(`${route}/`));
+              if (!isForbidden) {
+                redirectHint = candidate;
+              }
+            }
+          } catch {
+            redirectHint = null;
+          }
+        }
+
+        if (redirectHint) {
+          router.push(redirectHint);
+        } else if (isAdminAccount) {
           router.push('/admin');
         } else if (isBusinessAccount) {
           // Business accounts NEVER need personal onboarding
@@ -686,5 +705,4 @@ export function useAuth(): AuthContextType {
   }
   return context;
 }
-
 

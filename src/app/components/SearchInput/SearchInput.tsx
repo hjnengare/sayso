@@ -7,6 +7,7 @@ import { Search, Sliders, Map } from "@/app/lib/icons";
 import MobileMenuToggleIcon from "../Header/MobileMenuToggleIcon";
 import { AnimatePresence, m, useReducedMotion } from "framer-motion";
 import { useLiveSearch, type LiveSearchResult } from "../../hooks/useLiveSearch";
+import { useSearchSuggestions } from "../../hooks/useSearchSuggestions";
 
 interface SearchInputProps {
   placeholder?: string;
@@ -76,6 +77,11 @@ const SearchInput = forwardRef<HTMLFormElement, SearchInputProps>(
       loading: liveLoading,
       results: liveResults,
     } = useLiveSearch({ initialQuery: "", debounceMs: 120 });
+
+    const { suggestions: querySuggestions } = useSearchSuggestions({
+      query: enableSuggestions && suggestionsMode === "business" ? searchQuery : "",
+      debounceMs: 200,
+    });
 
     // ref is now the form ref
 
@@ -155,8 +161,19 @@ const SearchInput = forwardRef<HTMLFormElement, SearchInputProps>(
       searchQuery.trim().length > 0 &&
       dismissedQueryRef.current !== searchQuery &&
       (suggestionsMode === "business"
-        ? liveLoading || businessSuggestions.length > 0
+        ? liveLoading || businessSuggestions.length > 0 || querySuggestions.length > 0
         : normalizedCustomSuggestions.length > 0);
+
+    const onSelectQuerySuggestion = useCallback(
+      (q: string) => {
+        setSearchQuery(q);
+        onSearch?.(q);
+        onSubmitQuery?.(q);
+        setIsFocused(false);
+        setActiveIndex(-1);
+      },
+      [onSearch, onSubmitQuery]
+    );
 
     const onSelectBusiness = useCallback(
       (item: LiveSearchResult) => {
@@ -362,6 +379,29 @@ const SearchInput = forwardRef<HTMLFormElement, SearchInputProps>(
                     <MobileMenuToggleIcon isOpen={true} />
                   </button>
                 </div>
+
+                {/* Query suggestions — shown above business results */}
+                {suggestionsMode === "business" && querySuggestions.length > 0 && (
+                  <div className="py-1 border-b border-charcoal/6">
+                    {querySuggestions.map((s) => (
+                      <button
+                        key={`qs-${s.type}-${s.query}`}
+                        type="button"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => onSelectQuerySuggestion(s.query)}
+                        className="mi-tap w-full text-left px-4 py-2.5 flex items-center gap-2.5 hover:bg-charcoal/5 transition-colors duration-150 group"
+                      >
+                        <Search className="w-3.5 h-3.5 text-charcoal/40 flex-shrink-0 group-hover:text-charcoal/60 transition-colors" />
+                        <span className="text-sm text-charcoal truncate flex-1">
+                          {s.query}
+                        </span>
+                        <span className="text-[11px] text-charcoal/40 flex-shrink-0">
+                          {s.type === "location" ? "area" : "category"}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
 
                 <div className="py-2">
                   {suggestionsMode === "business" ? (

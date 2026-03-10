@@ -270,6 +270,7 @@ export default function HeroCarousel() {
   const [filters, setFilters] = useState<FilterState>({ minRating: null, distance: null });
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   // Respect reduced motion for carousel timing and text animation intensity.
   const prefersReduced = useReducedMotion() ?? false;
@@ -278,6 +279,13 @@ export default function HeroCarousel() {
     Boolean((navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData);
 
 
+
+  // Hide scroll indicator once the user starts scrolling.
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 30);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   // Prefetch a small set of upcoming hero images once first paint settles.
   useEffect(() => {
@@ -476,7 +484,7 @@ export default function HeroCarousel() {
         {/* Hero Section - 75vh responsive height */}
         <section
           ref={containerRef as React.RefObject<HTMLElement>}
-          className="relative h-[100svh] sm:h-[90dvh] md:h-[80dvh] lg:h-[72dvh] w-full overflow-hidden outline-none rounded-none min-h-[100svh] sm:max-h-[820px]"
+          className="relative h-[88svh] sm:h-[88dvh] md:h-[85dvh] lg:h-[85dvh] w-full overflow-hidden outline-none rounded-none sm:max-h-[820px]"
           aria-label="Hero carousel"
           tabIndex={0}
           style={{
@@ -492,44 +500,80 @@ export default function HeroCarousel() {
       />
       <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_center,_rgba(255,255,255,0.15)_0%,_transparent_70%)] pointer-events-none rounded-none" />
       <div className="absolute inset-0 z-0 backdrop-blur-[1px] bg-off-white/5 mix-blend-overlay pointer-events-none rounded-none" />
-      {/* Active slide only: avoid loading multiple hero images at once. */}
+      {/* Image layers — previous slide sits beneath as a static backdrop so the
+          grey section background never flashes during the incoming image load. */}
       {(() => {
         const activeIdx = currentIndex % slides.length;
         const activeSlide = slides[activeIdx] ?? slides[0];
-        const fallbackImg = HERO_IMAGES[activeIdx % HERO_IMAGES.length];
-        const src = failedImageUrls.has(activeSlide.image) ? fallbackImg : activeSlide.image;
+        const activeSrc = failedImageUrls.has(activeSlide.image)
+          ? HERO_IMAGES[activeIdx % HERO_IMAGES.length]
+          : activeSlide.image;
+
+        const prevIdx = (activeIdx - 1 + slides.length) % slides.length;
+        const prevSlide = slides[prevIdx];
+        const prevSrc = prevSlide
+          ? (failedImageUrls.has(prevSlide.image)
+              ? HERO_IMAGES[prevIdx % HERO_IMAGES.length]
+              : prevSlide.image)
+          : null;
 
         return (
-          <div
-            key={activeSlide.id}
-            aria-hidden={false}
-            className="absolute inset-0 overflow-hidden transform-gpu rounded-none z-10 opacity-100"
-          >
-            <div className="absolute inset-0 rounded-none overflow-hidden transform-gpu [backface-visibility:hidden] will-change-transform">
-              <Image
-                src={src}
-                alt={activeSlide.title?.trim() || FALLBACK_HERO_TEXT.title}
-                fill
-                priority={activeIdx === 0}
-                loading={activeIdx === 0 ? "eager" : "lazy"}
-                fetchPriority={activeIdx === 0 ? "high" : "auto"}
-                quality={heroViewport === "mobile" ? 75 : 85}
-                className="transform-gpu [backface-visibility:hidden] object-cover object-center"
-                style={{ filter: "brightness(0.95) contrast(1.05) saturate(1.1)" }}
-                sizes="(max-width: 640px) 100vw, (max-width: 768px) 100vw, (max-width: 1200px) 90vw, 80vw"
-                onError={() => {
-                  setFailedImageUrls((prev) => new Set(prev).add(activeSlide.image));
-                }}
-              />
+          <>
+            {/* Previous slide — static backdrop, loaded and cached, fills the gap
+                between when the active slide unmounts and the new image renders. */}
+            {prevSrc && (
               <div
-                className="absolute inset-0 pointer-events-none"
-                style={{ background: "hsla(0, 0%, 0%, 0.3)" }}
-              />
-              <div className="absolute inset-0 pointer-events-none bg-gradient-to-r from-black/60 via-black/40 to-transparent" />
-              <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/30 via-transparent to-black/40" />
-              <div className="absolute inset-0 pointer-events-none bg-black/20" />
+                aria-hidden
+                className="absolute inset-0 overflow-hidden rounded-none z-[9]"
+              >
+                <Image
+                  src={prevSrc}
+                  alt=""
+                  fill
+                  quality={heroViewport === "mobile" ? 75 : 85}
+                  className="object-cover object-center"
+                  style={{ filter: "brightness(0.95) contrast(1.05) saturate(1.1)" }}
+                  sizes="(max-width: 640px) 100vw, (max-width: 768px) 100vw, (max-width: 1200px) 90vw, 80vw"
+                />
+                <div className="absolute inset-0 pointer-events-none" style={{ background: "hsla(0,0%,0%,0.3)" }} />
+                <div className="absolute inset-0 pointer-events-none bg-gradient-to-r from-black/60 via-black/40 to-transparent" />
+                <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/30 via-transparent to-black/40" />
+                <div className="absolute inset-0 pointer-events-none bg-black/20" />
+              </div>
+            )}
+
+            {/* Active slide — remounts on key change for a clean hard-cut swap. */}
+            <div
+              key={activeSlide.id}
+              aria-hidden={false}
+              className="absolute inset-0 overflow-hidden transform-gpu rounded-none z-10"
+            >
+              <div className="absolute inset-0 rounded-none overflow-hidden transform-gpu [backface-visibility:hidden] will-change-transform">
+                <Image
+                  src={activeSrc}
+                  alt={activeSlide.title?.trim() || FALLBACK_HERO_TEXT.title}
+                  fill
+                  priority={activeIdx === 0}
+                  loading={activeIdx === 0 ? "eager" : "lazy"}
+                  fetchPriority={activeIdx === 0 ? "high" : "auto"}
+                  quality={heroViewport === "mobile" ? 75 : 85}
+                  className="transform-gpu [backface-visibility:hidden] object-cover object-center"
+                  style={{ filter: "brightness(0.95) contrast(1.05) saturate(1.1)" }}
+                  sizes="(max-width: 640px) 100vw, (max-width: 768px) 100vw, (max-width: 1200px) 90vw, 80vw"
+                  onError={() => {
+                    setFailedImageUrls((prev) => new Set(prev).add(activeSlide.image));
+                  }}
+                />
+                <div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{ background: "hsla(0, 0%, 0%, 0.3)" }}
+                />
+                <div className="absolute inset-0 pointer-events-none bg-gradient-to-r from-black/60 via-black/40 to-transparent" />
+                <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/30 via-transparent to-black/40" />
+                <div className="absolute inset-0 pointer-events-none bg-black/20" />
+              </div>
             </div>
-          </div>
+          </>
         );
       })()}
 
@@ -588,7 +632,34 @@ export default function HeroCarousel() {
       <div className="sr-only" aria-live="polite">
         {slides[currentIndex]?.title}
       </div>
-      
+
+      {/* Scroll-down indicator — fades out once user scrolls */}
+      <m.div
+        aria-hidden="true"
+        animate={{ opacity: scrolled ? 0 : 1 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+        className="absolute bottom-[22%] left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-1 pointer-events-none"
+      >
+        <m.div
+          animate={prefersReduced ? {} : { y: [0, 6, 0] }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="text-white/70 drop-shadow"
+          >
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </m.div>
+      </m.div>
+
         </section>
       </div>
 

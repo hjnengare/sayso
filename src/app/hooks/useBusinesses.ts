@@ -131,6 +131,7 @@ export interface UseForYouOptions extends Partial<UseBusinessesOptions> {
   skipPreferencesFetch?: boolean;
   preferences?: UserPreferences;
   preferencesLoading?: boolean;
+  requireCoordinates?: boolean;
 }
 
 export interface UseBusinessesResult {
@@ -233,6 +234,7 @@ async function fetchForYouData([, requestKey]: [string, string]): Promise<Busine
     preferredPriceRanges: string[];
     latitude: number | null;
     longitude: number | null;
+    requireCoordinates: boolean;
   };
   const params = new URLSearchParams();
   params.set('limit', parsed.limit.toString());
@@ -241,6 +243,7 @@ async function fetchForYouData([, requestKey]: [string, string]): Promise<Busine
   if (parsed.subInterestIds.length > 0) params.set('sub_interest_ids', parsed.subInterestIds.join(','));
   if (parsed.dealbreakerIds.length > 0) params.set('dealbreakers', parsed.dealbreakerIds.join(','));
   if (parsed.preferredPriceRanges.length > 0) params.set('preferred_price_ranges', parsed.preferredPriceRanges.join(','));
+  if (parsed.requireCoordinates) params.set('require_coordinates', 'true');
   if (parsed.latitude && parsed.longitude) {
     params.set('lat', parsed.latitude.toString());
     params.set('lng', parsed.longitude.toString());
@@ -250,6 +253,7 @@ async function fetchForYouData([, requestKey]: [string, string]): Promise<Busine
     subInterestIds: parsed.subInterestIds.length,
     dealbreakerIds: parsed.dealbreakerIds.length,
     preferredPriceRanges: parsed.preferredPriceRanges.length,
+    requireCoordinates: parsed.requireCoordinates,
   });
   const response = await fetch(`/api/businesses?${params.toString()}`);
   const data = await response.json().catch(() => ({}));
@@ -326,15 +330,29 @@ export function useForYouBusinesses(
         preferredPriceRanges: preferredPriceRanges ?? [],
         latitude: extraOptions.latitude ?? null,
         longitude: extraOptions.longitude ?? null,
+        requireCoordinates: Boolean(extraOptions.requireCoordinates),
       }),
-    [limit, interestIds, subInterestIds, dealbreakerIds, preferredPriceRanges, extraOptions.latitude, extraOptions.longitude]
+    [
+      limit,
+      interestIds,
+      subInterestIds,
+      dealbreakerIds,
+      preferredPriceRanges,
+      extraOptions.latitude,
+      extraOptions.longitude,
+      extraOptions.requireCoordinates,
+    ]
   );
 
   const swrKey = (extraOptions.skip || shouldWaitForPreferences)
     ? null
     : (['for-you', requestKey] as [string, string]);
 
-  const { data, error, isLoading, mutate } = useSWR(swrKey, fetchForYouData, { ...swrConfig, keepPreviousData: true });
+  const fallbackBusinesses = extraOptions.initialBusinesses ?? [];
+  const { data, error, isLoading, mutate } = useSWR(swrKey, fetchForYouData, {
+    ...swrConfig,
+    keepPreviousData: true,
+  });
 
   useEffect(() => {
     if (extraOptions.skip || shouldWaitForPreferences) return;
@@ -346,7 +364,7 @@ export function useForYouBusinesses(
   }, [extraOptions.skip, shouldWaitForPreferences, mutate]);
 
   return {
-    businesses: data ?? [],
+    businesses: data ?? fallbackBusinesses,
     loading: isLoading,
     error: error ? (error as Error).message : null,
     refetch: () => mutate(),

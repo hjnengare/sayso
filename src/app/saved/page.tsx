@@ -58,7 +58,7 @@ export default function SavedPage() {
   const { savedItems, isLoading: savedItemsLoading, refetch: refetchBusinesses } = useSavedItems();
 
   // SWR-backed saved businesses list
-  const { businesses: savedBusinesses, loading: isLoadingBusinesses, error } = useSavedBusinesses();
+  const { businesses: savedBusinesses, loading: isLoadingBusinesses, error, refetch: refetchSavedBusinesses } = useSavedBusinesses();
 
   const [currentPage, setCurrentPage] = useState(1);
   const [isPaginationLoading, setIsPaginationLoading] = useState(false);
@@ -97,6 +97,17 @@ export default function SavedPage() {
     return currentItems.slice(startIndex, endIndex);
   }, [currentItems, currentPage]);
 
+  // Keep page index valid when list shrinks (e.g., unsave on last page).
+  useEffect(() => {
+    if (totalPages === 0 && currentPage !== 1) {
+      setCurrentPage(1);
+      return;
+    }
+    if (totalPages > 0 && currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
   // Reset to page 1 when category changes
   useEffect(() => {
     setCurrentPage(1);
@@ -125,7 +136,7 @@ export default function SavedPage() {
   // (Scroll-to-top is handled globally; no local button needed on saved page.)
 
   const handleRefetch = () => {
-    refetchBusinesses();
+    void Promise.all([refetchBusinesses(), refetchSavedBusinesses()]);
   };
 
   const isLoading = isLoadingBusinesses || savedItemsLoading;

@@ -25,7 +25,6 @@ import type { UserPreferences } from "../hooks/useUserPreferences";
 import type { BusinessMapItem } from "../components/maps/BusinessesMap";
 import { sortBusinessesByPriority } from "../utils/businessPrioritization";
 import { getCategoryLabelFromBusiness } from "../utils/subcategoryPlaceholders";
-import { useIsDesktop as useIsDesktopHook } from "../hooks/useIsDesktop";
 
 
 // Note: dynamic and revalidate cannot be exported from client components
@@ -200,6 +199,13 @@ export default function ForYouClient({
       return;
     }
 
+    // If SWR returns cached data immediately, loading may never flip true.
+    // Mark the first client fetch cycle as settled so results can render.
+    if (businesses.length > 0 && !hasClientFetchSettled) {
+      setHasClientFetchSettled(true);
+      return;
+    }
+
     if (loading) {
       hasClientLoadingCycleRef.current = true;
       return;
@@ -208,7 +214,7 @@ export default function ForYouClient({
     if (hasClientLoadingCycleRef.current && !loading && !hasClientFetchSettled) {
       setHasClientFetchSettled(true);
     }
-  }, [hasClientFetchSettled, hasInitialBusinesses, loading]);
+  }, [businesses.length, hasClientFetchSettled, hasInitialBusinesses, loading]);
 
   // Visibility-based refresh when tab becomes visible
   useEffect(() => {
@@ -238,22 +244,24 @@ export default function ForYouClient({
   // This ensures well-classified businesses appear first, with Miscellaneous as discoverable long-tail
   const prioritizedBusinesses = useMemo(() => sortBusinessesByPriority(businesses), [businesses]);
   const prioritizedSearchResults = useMemo(() => sortBusinessesByPriority(searchResults), [searchResults]);
+  const activeBusinesses = useMemo(
+    () => (isSearchActive ? prioritizedSearchResults : prioritizedBusinesses),
+    [isSearchActive, prioritizedSearchResults, prioritizedBusinesses]
+  );
 
   const totalPages = useMemo(() => {
-    const businessesToCount = isSearchActive ? prioritizedSearchResults : prioritizedBusinesses;
-    return Math.ceil(businessesToCount.length / ITEMS_PER_PAGE);
-  }, [prioritizedBusinesses.length, prioritizedSearchResults.length, isSearchActive, ITEMS_PER_PAGE]);
+    return Math.ceil(activeBusinesses.length / ITEMS_PER_PAGE);
+  }, [activeBusinesses.length]);
 
   const currentBusinesses = useMemo(() => {
-    const businessesToPaginate = isSearchActive ? prioritizedSearchResults : prioritizedBusinesses;
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
-    return businessesToPaginate.slice(startIndex, endIndex);
-  }, [prioritizedBusinesses, prioritizedSearchResults, currentPage, isSearchActive, ITEMS_PER_PAGE]);
+    return activeBusinesses.slice(startIndex, endIndex);
+  }, [activeBusinesses, currentPage]);
 
   const totalCount = useMemo(() => {
-    return isSearchActive ? prioritizedSearchResults.length : prioritizedBusinesses.length;
-  }, [prioritizedBusinesses.length, prioritizedSearchResults.length, isSearchActive]);
+    return activeBusinesses.length;
+  }, [activeBusinesses.length]);
 
   useEffect(() => {
     if (!showDebugInfo) return;
@@ -302,9 +310,8 @@ export default function ForYouClient({
   // Convert all businesses to map format (filter out null coords) — use lat/lng only
   // Map shows ALL businesses from the full result set, not just current page
   // Uses prioritized lists to maintain consistent ordering with list view
-  const mapBusinesses = useMemo((): BusinessMapItem[] => {
-    const businessesToMap = isSearchActive ? prioritizedSearchResults : prioritizedBusinesses;
-    return businessesToMap
+  const primaryMapBusinesses = useMemo((): BusinessMapItem[] => {
+    return activeBusinesses
       .map((b) => {
         const lat = (b as any).lat ?? (b as any).latitude ?? null;
         const lng = (b as any).lng ?? (b as any).longitude ?? null;
@@ -320,7 +327,69 @@ export default function ForYouClient({
         image_url: b.image_url,
         slug: b.slug,
       }));
-  }, [prioritizedBusinesses, prioritizedSearchResults, isSearchActive]);
+  }, [activeBusinesses]);
+
+  const shouldFetchCoordinateFallback =
+    isMapMode &&
+    !isSearchActive &&
+    !loading &&
+    !prefsLoading &&
+    activeBusinesses.length > 0 &&
+    primaryMapBusinesses.length === 0;
+
+  // If personalized results have no coordinates, fetch a coordinate-required variant
+  // so the map does not appear empty while list results exist.
+  const {
+    businesses: coordinateFallbackBusinesses,
+    loading: coordinateFallbackLoading,
+  } = useForYouBusinesses(
+    120,
+    debouncedSearchQuery.trim().length > 0 ? activeInterestIds : preferenceInterestIds,
+    {
+      sortBy: "created_at",
+      sortOrder: "desc",
+      feedStrategy: "mixed",
+      minRating: filters.minRating,
+      radiusKm: radiusKm,
+      latitude: userLocation?.lat ?? null,
+      longitude: userLocation?.lng ?? null,
+      requireCoordinates: true,
+      skip: !shouldFetchCoordinateFallback,
+      preferences,
+      preferencesLoading: prefsLoading,
+    }
+  );
+
+  const coordinateFallbackMapBusinesses = useMemo((): BusinessMapItem[] => {
+    return sortBusinessesByPriority(coordinateFallbackBusinesses)
+      .map((b) => {
+        const lat = (b as any).lat ?? (b as any).latitude ?? null;
+        const lng = (b as any).lng ?? (b as any).longitude ?? null;
+        return { b, lat, lng };
+      })
+      .filter(({ lat, lng }) => lat != null && lng != null)
+      .map(({ b, lat, lng }) => ({
+        id: b.id,
+        name: b.name,
+        lat: lat as number,
+        lng: lng as number,
+        category: getCategoryLabelFromBusiness(b),
+        image_url: b.image_url,
+        slug: b.slug,
+      }));
+  }, [coordinateFallbackBusinesses]);
+
+  const mapBusinesses = useMemo(() => {
+    if (primaryMapBusinesses.length > 0) return primaryMapBusinesses;
+    return coordinateFallbackMapBusinesses;
+  }, [primaryMapBusinesses, coordinateFallbackMapBusinesses]);
+
+  const usingCoordinateFallback =
+    primaryMapBusinesses.length === 0 && mapBusinesses.length > 0;
+  const isMapFallbackLoading =
+    shouldFetchCoordinateFallback &&
+    coordinateFallbackLoading &&
+    mapBusinesses.length === 0;
 
   const handleClearFilters = () => {
     // ✅ Reset filter state - return to default mode
@@ -699,6 +768,14 @@ export default function ForYouClient({
                       </button>
                     </div>
                   </div>
+                  {isMapMode && usingCoordinateFallback && (
+                    <p
+                      className="mb-3 px-2 text-right text-xs text-charcoal/60"
+                      style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                    >
+                      Showing map-ready recommendations.
+                    </p>
+                  )}
 
                   {/* Paginated Content with Smooth Transition - Map or List */}
                   <AnimatePresence mode="wait" initial={false}>
@@ -711,18 +788,27 @@ export default function ForYouClient({
                         transition={isDesktop ? { duration: 0.2 } : undefined}
                         className="w-full h-[calc(100vh-300px)] min-h-[500px] rounded-[12px] overflow-hidden border border-white/30 shadow-lg"
                       >
-                        <BusinessesMap
-                          businesses={mapBusinesses}
-                          className="w-full h-full"
-                        />
+                        {isMapFallbackLoading ? (
+                          <div
+                            className="w-full h-full flex items-center justify-center bg-off-white/70 text-charcoal/60 text-sm"
+                            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                          >
+                            Loading map-ready recommendations...
+                          </div>
+                        ) : (
+                          <BusinessesMap
+                            businesses={mapBusinesses}
+                            className="w-full h-full"
+                          />
+                        )}
                       </m.div>
                     ) : (
                       isDesktop ? (
                         <m.div
+                          key={`list-view-desktop-${currentPage}-${isSearchActive ? "search" : "default"}`}
                           variants={containerVariants}
                           initial="hidden"
-                          whileInView="visible"
-                          viewport={{ once: true, margin: "-50px" }}
+                          animate="visible"
                           className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 sm:gap-3 md:gap-3 lg:gap-2 xl:gap-2 2xl:gap-2"
                         >
                           {currentBusinesses.map((business) => (
@@ -743,7 +829,7 @@ export default function ForYouClient({
                         </m.div>
                       ) : (
                         <m.div
-                          key={currentPage}
+                          key={`list-view-mobile-${currentPage}-${isSearchActive ? "search" : "default"}`}
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: isPaginationLoading ? 0 : 1, y: 0 }}
                           exit={{ opacity: 0, y: -10 }}
@@ -821,4 +907,3 @@ export default function ForYouClient({
     </div>
   );
 }
-

@@ -5,6 +5,8 @@ import { SearchOutline, XOutline } from "@/app/lib/icons";
 import { AnimatePresence, m } from "framer-motion";
 
 import type { LiveSearchResult } from "../../hooks/useLiveSearch";
+import type { QuerySuggestion } from "../../hooks/useSearchSuggestions";
+import { Search } from "@/app/lib/icons";
 
 type SuggestionsDropdownProps = {
   mode: "desktop" | "mobile";
@@ -12,10 +14,12 @@ type SuggestionsDropdownProps = {
   isOpen: boolean;
   loading: boolean;
   suggestions: LiveSearchResult[];
+  querySuggestions?: QuerySuggestion[];
   activeSuggestionIndex: number;
   sf: CSSProperties;
   onSetActiveSuggestionIndex: (index: number) => void;
   onNavigateToSuggestion: (item: LiveSearchResult) => void;
+  onSelectQuerySuggestion?: (suggestion: QuerySuggestion) => void;
   onViewAll: () => void;
 };
 
@@ -30,6 +34,7 @@ type DesktopHeaderSearchProps = {
   isSuggestionsOpen: boolean;
   suggestionsLoading: boolean;
   cappedSuggestions: LiveSearchResult[];
+  querySuggestions?: QuerySuggestion[];
   activeSuggestionIndex: number;
   sf: CSSProperties;
   onSubmit: (event: FormEvent) => void;
@@ -40,6 +45,7 @@ type DesktopHeaderSearchProps = {
   onClearSearch: () => void;
   onSetActiveSuggestionIndex: (index: number) => void;
   onNavigateToSuggestion: (item: LiveSearchResult) => void;
+  onSelectQuerySuggestion?: (suggestion: QuerySuggestion) => void;
   onViewAll: () => void;
 };
 
@@ -51,6 +57,7 @@ type MobileHeaderSearchProps = {
   isSuggestionsOpen: boolean;
   suggestionsLoading: boolean;
   cappedSuggestions: LiveSearchResult[];
+  querySuggestions?: QuerySuggestion[];
   activeSuggestionIndex: number;
   sf: CSSProperties;
   onSubmit: (event: FormEvent) => void;
@@ -60,6 +67,7 @@ type MobileHeaderSearchProps = {
   onClearSearch: () => void;
   onSetActiveSuggestionIndex: (index: number) => void;
   onNavigateToSuggestion: (item: LiveSearchResult) => void;
+  onSelectQuerySuggestion?: (suggestion: QuerySuggestion) => void;
   onViewAll: () => void;
 };
 
@@ -69,13 +77,16 @@ function HeaderSuggestionsDropdown({
   isOpen,
   loading,
   suggestions,
+  querySuggestions = [],
   activeSuggestionIndex,
   sf,
   onSetActiveSuggestionIndex,
   onNavigateToSuggestion,
+  onSelectQuerySuggestion,
   onViewAll,
 }: SuggestionsDropdownProps) {
-  const show = isOpen && (loading || suggestions.length > 0);
+  const hasContent = loading || suggestions.length > 0 || querySuggestions.length > 0;
+  const show = isOpen && hasContent;
   const widthClass = mode === "desktop" ? "" : "w-full";
   const topClass = mode === "desktop" ? "top-[44px] right-0" : "top-[56px] left-0 right-0";
 
@@ -107,6 +118,29 @@ function HeaderSuggestionsDropdown({
             </button>
           </div>
 
+          {/* Query suggestions — shown first */}
+          {querySuggestions.length > 0 && (
+            <div className="py-1 border-b border-charcoal/6">
+              {querySuggestions.map((s) => (
+                <button
+                  key={`qs-${s.type}-${s.query}`}
+                  type="button"
+                  onClick={() => onSelectQuerySuggestion?.(s)}
+                  className="w-full text-left px-4 py-2.5 flex items-center gap-2.5 hover:bg-charcoal/5 transition-colors duration-150 group"
+                >
+                  <Search className="w-3.5 h-3.5 text-charcoal/40 flex-shrink-0 group-hover:text-charcoal/60 transition-colors" />
+                  <span className="text-sm text-charcoal truncate flex-1" style={sf}>
+                    {s.query}
+                  </span>
+                  <span className="text-[11px] text-charcoal/40 flex-shrink-0" style={sf}>
+                    {s.type === "location" ? "area" : "category"}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Business results */}
           <div className="py-2">
             {loading && suggestions.length === 0 ? (
               <div className="px-4 py-3 text-sm text-charcoal/60" style={sf}>
@@ -163,6 +197,7 @@ export function DesktopHeaderSearch({
   isSuggestionsOpen,
   suggestionsLoading,
   cappedSuggestions,
+  querySuggestions,
   activeSuggestionIndex,
   sf,
   onSubmit,
@@ -173,6 +208,7 @@ export function DesktopHeaderSearch({
   onClearSearch,
   onSetActiveSuggestionIndex,
   onNavigateToSuggestion,
+  onSelectQuerySuggestion,
   onViewAll,
 }: DesktopHeaderSearchProps) {
   return (
@@ -263,10 +299,12 @@ export function DesktopHeaderSearch({
                   isOpen={isSuggestionsOpen}
                   loading={suggestionsLoading}
                   suggestions={cappedSuggestions}
+                  querySuggestions={querySuggestions}
                   activeSuggestionIndex={activeSuggestionIndex}
                   sf={sf}
                   onSetActiveSuggestionIndex={onSetActiveSuggestionIndex}
                   onNavigateToSuggestion={onNavigateToSuggestion}
+                  onSelectQuerySuggestion={onSelectQuerySuggestion}
                   onViewAll={onViewAll}
                 />
               </m.div>
@@ -286,6 +324,7 @@ export function MobileHeaderSearch({
   isSuggestionsOpen,
   suggestionsLoading,
   cappedSuggestions,
+  querySuggestions,
   activeSuggestionIndex,
   sf,
   onSubmit,
@@ -295,6 +334,7 @@ export function MobileHeaderSearch({
   onClearSearch,
   onSetActiveSuggestionIndex,
   onNavigateToSuggestion,
+  onSelectQuerySuggestion,
   onViewAll,
 }: MobileHeaderSearchProps) {
   return (
@@ -384,10 +424,12 @@ export function MobileHeaderSearch({
             isOpen={isSuggestionsOpen}
             loading={suggestionsLoading}
             suggestions={cappedSuggestions}
+            querySuggestions={querySuggestions}
             activeSuggestionIndex={activeSuggestionIndex}
             sf={sf}
             onSetActiveSuggestionIndex={onSetActiveSuggestionIndex}
             onNavigateToSuggestion={onNavigateToSuggestion}
+            onSelectQuerySuggestion={onSelectQuerySuggestion}
             onViewAll={onViewAll}
           />
         </m.div>

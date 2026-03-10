@@ -340,14 +340,14 @@ export default function EventsSpecialsPage() {
                 </div>
               </div>
             ) : shouldShowCta ? (
-              <div className="rounded-[24px] border border-charcoal/10 bg-off-white p-6 text-center space-y-4">
-                <p className="text-lg font-semibold text-charcoal">
+              <div className="rounded-[24px] border border-charcoal/10 bg-off-white p-5 sm:p-6 text-center space-y-4">
+                <p className="mx-auto max-w-[22ch] text-base sm:text-lg leading-snug font-semibold text-charcoal">
                   We’re curating something special for you
                 </p>
-                <p className="text-sm text-charcoal/70">
+                <p className="mx-auto max-w-[44ch] text-sm leading-relaxed text-charcoal/70">
                   Business owners are manually adding curated events and specials. Check back soon for the latest experiences.
                 </p>
-                <ul className="list-none space-y-1 text-sm text-charcoal/70">
+                <ul className="mx-auto max-w-[18rem] list-none space-y-1 text-sm leading-relaxed text-charcoal/70">
                   <li>Explore businesses</li>
                   <li>Follow businesses</li>
                   <li>Check back later</li>
@@ -355,7 +355,7 @@ export default function EventsSpecialsPage() {
                 <div className="flex flex-col items-center gap-2 sm:flex-row sm:justify-center">
                   <Link
                     href="/home"
-                    className="px-5 py-2 rounded-full bg-charcoal text-white font-semibold hover:bg-charcoal/90 transition"
+                    className="w-full max-w-[220px] sm:w-auto px-5 py-2 rounded-full bg-charcoal text-white text-sm font-semibold whitespace-nowrap hover:bg-charcoal/90 transition"
                   >
                     Explore businesses
                   </Link>
@@ -428,4 +428,3 @@ export default function EventsSpecialsPage() {
     </div>
   );
 }
-

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { m, AnimatePresence } from "framer-motion";
-import { MapPin, ExternalLink, Maximize2, Copy, Check, X, Navigation, Share2, Car, Footprints, Clock } from "@/app/lib/icons";
+import { MapPin, ExternalLink, Maximize2, Copy, Check, X, Navigation, Share2, Car, Footprints } from "@/app/lib/icons";
 import dynamic from "next/dynamic";
 import { createPortal } from "react-dom";
 import Logo from "../Logo/Logo";
@@ -81,9 +81,74 @@ export default function BusinessLocation({
     const [distance, setDistance] = useState<number | null>(null);
     const [isLoadingLocation, setIsLoadingLocation] = useState(false);
     const [shareSupported, setShareSupported] = useState(false);
+    const [resolvedCoordinates, setResolvedCoordinates] = useState<{ lat: number; lng: number } | null>(null);
+    const [isResolvingCoordinates, setIsResolvingCoordinates] = useState(false);
 
     const hasCoordinates = latitude != null && longitude != null;
     const displayLocation = address || location || "";
+    const geocodeQuery = address || (location ? `${name} ${location}` : "");
+    const effectiveLatitude = latitude ?? resolvedCoordinates?.lat ?? null;
+    const effectiveLongitude = longitude ?? resolvedCoordinates?.lng ?? null;
+    const hasEffectiveCoordinates = effectiveLatitude != null && effectiveLongitude != null;
+    const isAppleDevice = typeof navigator !== "undefined" && /iPhone|iPad/i.test(navigator.userAgent);
+
+    // If coordinates are missing, best-effort geocode from known location text.
+    useEffect(() => {
+        if (hasCoordinates || !geocodeQuery) {
+            setResolvedCoordinates(null);
+            setIsResolvingCoordinates(false);
+            return;
+        }
+
+        const controller = new AbortController();
+        let cancelled = false;
+
+        const resolveCoordinates = async () => {
+            setIsResolvingCoordinates(true);
+            setResolvedCoordinates(null);
+
+            try {
+                const response = await fetch(`/api/geocode?address=${encodeURIComponent(geocodeQuery)}`, {
+                    signal: controller.signal,
+                    cache: "no-store",
+                });
+
+                if (!response.ok) {
+                    if (!cancelled) setResolvedCoordinates(null);
+                    return;
+                }
+
+                const data = await response.json() as { lat?: unknown; lng?: unknown };
+                const lat = typeof data.lat === "number" ? data.lat : Number(data.lat);
+                const lng = typeof data.lng === "number" ? data.lng : Number(data.lng);
+
+                if (!cancelled && Number.isFinite(lat) && Number.isFinite(lng)) {
+                    setResolvedCoordinates({ lat, lng });
+                } else if (!cancelled) {
+                    setResolvedCoordinates(null);
+                }
+            } catch (error) {
+                if (
+                    !cancelled &&
+                    !(error instanceof DOMException && error.name === "AbortError")
+                ) {
+                    console.error("[BusinessLocation] Failed to resolve coordinates:", error);
+                    setResolvedCoordinates(null);
+                }
+            } finally {
+                if (!cancelled) {
+                    setIsResolvingCoordinates(false);
+                }
+            }
+        };
+
+        resolveCoordinates();
+
+        return () => {
+            cancelled = true;
+            controller.abort();
+        };
+    }, [geocodeQuery, hasCoordinates]);
 
     // Check if Web Share API is supported
     useEffect(() => {
@@ -92,14 +157,14 @@ export default function BusinessLocation({
 
     // Get user's location for distance calculation
     useEffect(() => {
-        if (hasCoordinates && typeof navigator !== 'undefined' && 'geolocation' in navigator) {
+        if (hasEffectiveCoordinates && typeof navigator !== 'undefined' && 'geolocation' in navigator) {
             setIsLoadingLocation(true);
             navigator.geolocation.getCurrentPosition(
                 (position) => {
                     const userLat = position.coords.latitude;
                     const userLng = position.coords.longitude;
                     setUserLocation({ lat: userLat, lng: userLng });
-                    const dist = calculateDistance(userLat, userLng, latitude!, longitude!);
+                    const dist = calculateDistance(userLat, userLng, effectiveLatitude!, effectiveLongitude!);
                     setDistance(dist);
                     setIsLoadingLocation(false);
                 },
@@ -108,31 +173,39 @@ export default function BusinessLocation({
                 },
                 { timeout: 5000, maximumAge: 300000 }
             );
+        } else {
+            setDistance(null);
         }
-    }, [hasCoordinates, latitude, longitude]);
+    }, [effectiveLatitude, effectiveLongitude, hasEffectiveCoordinates]);
 
     const getUberUrl = () => {
-        if (latitude == null || longitude == null) return "#";
+        if (!hasEffectiveCoordinates) return "#";
         const params = new URLSearchParams({
             action: "setPickup",
             pickup: "my_location",
-            "dropoff[latitude]": String(latitude),
-            "dropoff[longitude]": String(longitude),
+            "dropoff[latitude]": String(effectiveLatitude),
+            "dropoff[longitude]": String(effectiveLongitude),
             "dropoff[nickname]": name,
+            "dropoff[formatted_address]": displayLocation || name,
         });
+        const clientId = process.env.NEXT_PUBLIC_UBER_CLIENT_ID;
+        if (clientId) {
+            params.set("client_id", clientId);
+        }
+        // Use Uber universal link (/ul/) so installed apps can open directly.
         return `https://m.uber.com/ul/?${params.toString()}`;
     };
 
     const getDirectionsUrl = (mode: 'driving' | 'walking' = 'driving') => {
-        if (latitude && longitude) {
-            if (typeof navigator !== 'undefined' && navigator.userAgent.includes("iPhone") || navigator.userAgent.includes("iPad")) {
-                return `maps://maps.apple.com/?daddr=${latitude},${longitude}&dirflg=${mode === 'walking' ? 'w' : 'd'}`;
+        if (hasEffectiveCoordinates) {
+            if (isAppleDevice) {
+                return `maps://maps.apple.com/?daddr=${effectiveLatitude},${effectiveLongitude}&dirflg=${mode === 'walking' ? 'w' : 'd'}`;
             }
-            return `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}&travelmode=${mode}`;
+            return `https://www.google.com/maps/dir/?api=1&destination=${effectiveLatitude},${effectiveLongitude}&travelmode=${mode}`;
         }
         const query = address || location || "";
         const encodedQuery = encodeURIComponent(`${name} ${query}`);
-        if (typeof navigator !== 'undefined' && navigator.userAgent.includes("iPhone") || navigator.userAgent.includes("iPad")) {
+        if (isAppleDevice) {
             return `maps://maps.apple.com/?q=${encodedQuery}`;
         }
         return `https://www.google.com/maps/dir/?api=1&destination=${encodedQuery}`;
@@ -157,8 +230,8 @@ export default function BusinessLocation({
         const shareData = {
             title: name,
             text: `Check out ${name} at ${displayLocation}`,
-            url: latitude && longitude
-                ? `https://www.google.com/maps?q=${latitude},${longitude}`
+            url: hasEffectiveCoordinates
+                ? `https://www.google.com/maps?q=${effectiveLatitude},${effectiveLongitude}`
                 : `https://www.google.com/maps/search/${encodeURIComponent(`${name} ${displayLocation}`)}`,
         };
 
@@ -180,7 +253,7 @@ export default function BusinessLocation({
         }
     }, [isMapModalOpen]);
 
-    if (!hasCoordinates && !displayLocation) {
+    if (!hasEffectiveCoordinates && !displayLocation) {
         return null;
     }
 
@@ -256,15 +329,15 @@ export default function BusinessLocation({
                     {/* Address with distance */}
                     <div className="mt-2 ml-11.5">
                         {/* Address Copy Pill */}
-                        {(address || latitude || longitude) && (
+                        {(address || hasEffectiveCoordinates) && (
                             <m.div
                                 initial={{ opacity: 0, y: -3 }}
                                 animate={{ opacity: 1, y: 0 }}
                             >
                                 <AddressPill
                                     address={address}
-                                    latitude={latitude}
-                                    longitude={longitude}
+                                    latitude={effectiveLatitude}
+                                    longitude={effectiveLongitude}
                                     isUserUploaded={isUserUploaded}
                                 />
                             </m.div>
@@ -309,7 +382,7 @@ export default function BusinessLocation({
                             </m.div>
                         )}
 
-                        {isLoadingLocation && hasCoordinates && (
+                        {isLoadingLocation && hasEffectiveCoordinates && (
                             <m.div
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
@@ -325,15 +398,15 @@ export default function BusinessLocation({
                 </div>
 
                 {/* Map Container or Fallback */}
-                {hasCoordinates ? (
+                {hasEffectiveCoordinates ? (
                     <>
                         <div
                             className="relative w-full h-[240px] sm:h-[300px] md:h-[380px] overflow-hidden cursor-pointer group"
                             onClick={() => setIsMapModalOpen(true)}
                         >
                             <MapboxMap
-                                latitude={latitude}
-                                longitude={longitude}
+                                latitude={effectiveLatitude}
+                                longitude={effectiveLongitude}
                                 name={name}
                                 interactive={false}
                             />
@@ -386,8 +459,6 @@ export default function BusinessLocation({
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
                                 href={getUberUrl()}
-                                target="_blank"
-                                rel="noopener noreferrer"
                                 className="block w-full text-center px-4 py-2.5 rounded-full text-sm font-semibold bg-white/30 text-charcoal hover:bg-white/50 transition-colors"
                                 style={{ fontFamily: 'Urbanist, sans-serif', fontWeight: 600 }}
                             >
@@ -401,12 +472,24 @@ export default function BusinessLocation({
                             <div className="w-16 h-16 rounded-full bg-charcoal/5 flex items-center justify-center mx-auto mb-4">
                                 <MapPin className="w-8 h-8 text-charcoal/30" />
                             </div>
-                            <p
-                                className="text-sm text-charcoal/60 mb-4"
-                                style={{ fontFamily: 'Urbanist, sans-serif' }}
-                            >
-                                Map coordinates not available
-                            </p>
+                            {isResolvingCoordinates ? (
+                                <div className="mb-4 flex items-center justify-center gap-2">
+                                    <div className="w-3 h-3 border-2 border-sage/30 border-t-sage rounded-full animate-spin" />
+                                    <p
+                                        className="text-sm text-charcoal/60"
+                                        style={{ fontFamily: 'Urbanist, sans-serif' }}
+                                    >
+                                        Finding map coordinates...
+                                    </p>
+                                </div>
+                            ) : (
+                                <p
+                                    className="text-sm text-charcoal/60 mb-4"
+                                    style={{ fontFamily: 'Urbanist, sans-serif' }}
+                                >
+                                    Map coordinates not available
+                                </p>
+                            )}
                             <m.a
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
@@ -426,7 +509,7 @@ export default function BusinessLocation({
 
             {/* Full-Screen Map Modal */}
             <AnimatePresence>
-                {isMapModalOpen && hasCoordinates && typeof window !== "undefined" && createPortal(
+                {isMapModalOpen && hasEffectiveCoordinates && typeof window !== "undefined" && createPortal(
                     <m.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -507,8 +590,8 @@ export default function BusinessLocation({
                             {/* Full Map */}
                             <div className="flex-1 relative">
                                 <MapboxMap
-                                    latitude={latitude}
-                                    longitude={longitude}
+                                    latitude={effectiveLatitude}
+                                    longitude={effectiveLongitude}
                                     name={name}
                                     interactive={true}
                                 />

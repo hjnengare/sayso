@@ -215,6 +215,19 @@ export function isValidCoordinate(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value);
 }
 
+export function coerceCoordinate(value: unknown): number | null {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === "string" && value.trim().length > 0) {
+    const parsed = Number(value);
+    if (Number.isFinite(parsed)) {
+      return parsed;
+    }
+  }
+  return null;
+}
+
 export function formatDistanceAway(distanceKm: number): string {
   if (!Number.isFinite(distanceKm) || distanceKm < 0) return "";
   if (distanceKm < 1) {
@@ -297,14 +310,16 @@ export function useBusinessDistanceLocation(
   ]);
 
   const getDistanceKm = useCallback(
-    (businessLat: number, businessLng: number): number | null => {
+    (businessLat: unknown, businessLng: unknown): number | null => {
       if (storeState.status !== "granted" || !storeState.coords) return null;
-      if (!isValidCoordinate(businessLat) || !isValidCoordinate(businessLng)) return null;
+      const normalizedLat = coerceCoordinate(businessLat);
+      const normalizedLng = coerceCoordinate(businessLng);
+      if (normalizedLat === null || normalizedLng === null) return null;
       return calculateDistanceKm(
         storeState.coords.lat,
         storeState.coords.lng,
-        businessLat,
-        businessLng
+        normalizedLat,
+        normalizedLng
       );
     },
     [storeState.coords, storeState.status]

@@ -25,8 +25,8 @@ import BusinessCardActions from "./parts/BusinessCardActions";
 import BusinessCardPercentiles from "./parts/BusinessCardPercentiles";
 import BusinessCardReviews from "./parts/BusinessCardReviews";
 import {
+  coerceCoordinate,
   formatDistanceAway,
-  isValidCoordinate,
   useBusinessDistanceLocation,
 } from "../../hooks/useBusinessDistanceLocation";
 
@@ -223,14 +223,22 @@ function BusinessCard({
   const [usingFallback, setUsingFallback] = useState(false);
   const [showInfoPopup, setShowInfoPopup] = useState(false);
   const infoPopupRef = useRef<HTMLDivElement>(null);
-  const hasCoordinates = isValidCoordinate(business.lat) && isValidCoordinate(business.lng);
+  const normalizedLat = coerceCoordinate(
+    (business as Business & { latitude?: unknown }).lat ??
+      (business as Business & { latitude?: unknown }).latitude
+  );
+  const normalizedLng = coerceCoordinate(
+    (business as Business & { longitude?: unknown }).lng ??
+      (business as Business & { longitude?: unknown }).longitude
+  );
+  const hasCoordinates = normalizedLat !== null && normalizedLng !== null;
   const { status: locationStatus, getDistanceKm } = useBusinessDistanceLocation();
   const distanceLabel = useMemo(() => {
     if (!hasCoordinates) return null;
-    const distanceKm = getDistanceKm(business.lat, business.lng);
+    const distanceKm = getDistanceKm(normalizedLat, normalizedLng);
     if (distanceKm === null) return null;
     return formatDistanceAway(distanceKm);
-  }, [business.lat, business.lng, getDistanceKm, hasCoordinates]);
+  }, [getDistanceKm, hasCoordinates, normalizedLat, normalizedLng]);
   const distanceHint = useMemo(() => {
     if (!hasCoordinates) return null;
     if (locationStatus === "loading") return "Calculating...";
@@ -722,4 +730,3 @@ function BusinessCard({
 
 export default memo(BusinessCard);
 export type { Business };
-

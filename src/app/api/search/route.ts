@@ -3,9 +3,90 @@ import { getServerSupabase } from "@/app/lib/supabase/server";
 import { getCategoryLabelFromBusiness } from "@/app/utils/subcategoryPlaceholders";
 import { getInterestIdForSubcategory } from "@/app/lib/onboarding/subcategoryMapping";
 import { reRankByContactCompleteness } from "@/app/lib/utils/contactCompleteness";
+import { ALGOLIA_INDICES, BusinessHit } from "@/app/lib/algolia/indices";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
+
+// ── Algolia server-side search ─────────────────────────────────────────────
+
+interface AlgoliaSearchResult {
+  results: Array<Record<string, unknown>>;
+  reviewerResults: Array<Record<string, unknown>>;
+}
+
+async function searchWithAlgolia(
+  query: string,
+  limit: number,
+  offset: number,
+  minRating: number | null
+): Promise<AlgoliaSearchResult> {
+  const { algoliasearch } = await import("algoliasearch");
+
+  const appId = process.env.ALGOLIA_APP_ID;
+  const searchKey = process.env.ALGOLIA_SEARCH_KEY;
+  if (!appId || !searchKey) throw new Error("Algolia env vars not set");
+
+  const client = algoliasearch(appId, searchKey);
+
+  const numericFilters: string[] = [];
+  if (minRating) numericFilters.push(`average_rating >= ${minRating}`);
+
+  const { results } = await client.search({
+    requests: [
+      {
+        indexName: ALGOLIA_INDICES.BUSINESSES,
+        query,
+        hitsPerPage: limit,
+        page: Math.floor(offset / limit),
+        ...(numericFilters.length ? { numericFilters } : {}),
+      },
+      {
+        indexName: ALGOLIA_INDICES.REVIEWERS,
+        query,
+        hitsPerPage: 5,
+      },
+    ],
+  });
+
+  const businessHits = (results[0] as { hits: (BusinessHit & { objectID: string })[] }).hits ?? [];
+  const reviewerHits = (results[1] as { hits: Array<{ objectID: string; display_name?: string; username?: string; avatar_url?: string; is_top_reviewer?: boolean; total_reviews?: number }> }).hits ?? [];
+
+  return {
+    results: businessHits.map((hit) => ({
+      id: hit.objectID,
+      slug: hit.slug,
+      name: hit.name,
+      category: hit.category,
+      category_label: hit.category_label || hit.category,
+      location: hit.location,
+      address: hit.address,
+      phone: hit.phone,
+      email: hit.email,
+      website: hit.website,
+      image_url: hit.image_url,
+      description: hit.description,
+      price_range: hit.price_range,
+      verified: hit.verified,
+      badge: hit.badge,
+      lat: hit._geoloc?.lat ?? null,
+      lng: hit._geoloc?.lng ?? null,
+      reviews: hit.total_reviews,
+      rating: hit.average_rating,
+      stats: { average_rating: hit.average_rating },
+    })),
+    reviewerResults: reviewerHits.map((hit) => ({
+      id: hit.objectID,
+      display_name: hit.display_name ?? null,
+      username: hit.username ?? null,
+      avatar_url: hit.avatar_url ?? null,
+      is_top_reviewer: hit.is_top_reviewer ?? false,
+      total_reviews: hit.total_reviews ?? 0,
+    })),
+  };
+}
+
+// ── Route handler ──────────────────────────────────────────────────────────
 
 export async function GET(req: NextRequest) {
   try {
@@ -29,6 +110,28 @@ export async function GET(req: NextRequest) {
     const offset = Math.max(parseInt(offsetParam, 10) || 0, 0);
     const minRating = minRatingParam ? parseFloat(minRatingParam) : null;
 
+    // ── Try Algolia first ────────────────────────────────────────────────────
+    const algoliaConfigured =
+      !!process.env.ALGOLIA_APP_ID &&
+      !!process.env.ALGOLIA_SEARCH_KEY;
+
+    if (algoliaConfigured) {
+      try {
+        const algoliaResults = await searchWithAlgolia(query, limit, offset, minRating);
+        return NextResponse.json(
+          {
+            results: algoliaResults.results,
+            reviewerResults: algoliaResults.reviewerResults,
+            meta: { query, minRating, total: algoliaResults.results.length, source: "algolia" },
+          },
+          { status: 200 }
+        );
+      } catch (algoliaErr) {
+        console.warn("[SEARCH] Algolia failed, falling back to Supabase:", algoliaErr);
+      }
+    }
+
+    // ── Supabase fallback ────────────────────────────────────────────────────
     const supabase = await getServerSupabase();
 
     // Try intelligent search_businesses RPC first (full-text + fuzzy + aliases)

@@ -507,7 +507,7 @@ export default function HomeClient({ initialTrending }: { initialTrending?: impo
             {isSearchActive ? (
               /* Search Results Mode */
               <m.div
-                className="px-4 sm:px-6 lg:px-8"
+                className="px-4 sm:px-6 lg:px-8 pb-8"
                 {...getChoreoItemMotion({ order: 0, intent: "section", enabled: choreoEnabled })}
               >
                 <SearchResultsPanel

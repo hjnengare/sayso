@@ -10,6 +10,7 @@ import { DesktopHeaderSearch, MobileHeaderSearch } from "./HeaderSearch";
 import { useHeaderState } from "./useHeaderState";
 import { getLogoHref } from "./headerActionsConfig";
 import { useLiveSearch, type LiveSearchResult } from "../../hooks/useLiveSearch";
+import { useSearchSuggestions, type QuerySuggestion } from "../../hooks/useSearchSuggestions";
 import { usePrefetchRoutes } from "../../hooks/usePrefetchRoutes";
 import { AdminHeaderRole } from "./roles/AdminHeaderRole";
 import { PersonalHeaderRole } from "./roles/PersonalHeaderRole";
@@ -84,6 +85,9 @@ export default function Header({
   const inputRef = useRef<HTMLInputElement>(null);
   const mobileInputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  // Tracks whether a URL change was self-initiated by the user typing, so the
+  // URL-sync effect doesn't overwrite in-progress input with stale URL values.
+  const isSelfUrlUpdateRef = useRef(false);
   
   // Prefetch critical routes for instant navigation
   usePrefetchRoutes();
@@ -111,15 +115,21 @@ export default function Header({
     loading: suggestionsLoading,
     results: suggestionResults,
   } = useLiveSearch({ initialQuery: urlSearchQuery, debounceMs: 120 });
+
+  const { suggestions: querySuggestions } = useSearchSuggestions({
+    query: headerSearchQuery,
+    debounceMs: 200,
+  });
   const effectiveIsGuest = isGuest;
   const effectiveIsAdminUser = isAdminUser;
   const effectiveIsBusinessAccountUser = isBusinessAccountUser;
   const effectiveNavLinks = navLinks;
 
-  // Sync local state with URL params
+  // Sync local state with URL params — skip when the URL change was caused by
+  // the user typing (isSelfUrlUpdateRef prevents overwriting in-progress input).
   useEffect(() => {
+    if (isSelfUrlUpdateRef.current) return;
     setHeaderSearchQuery(urlSearchQuery);
-    // Open mobile search if there's a search query
     if (urlSearchQuery) {
       setIsMobileSearchOpen(true);
     }
@@ -131,14 +141,15 @@ export default function Header({
     setSuggestionQuery(headerSearchQuery);
   }, [headerSearchQuery, setSuggestionQuery]);
 
-  const isSuggestionsOpen =
-    headerSearchQuery.trim().length > 0 &&
-    (isDesktopSearchExpanded || isMobileSearchOpen);
-
   const cappedSuggestions = useMemo(() => {
     const list = Array.isArray(suggestionResults) ? suggestionResults : [];
     return list.slice(0, 6);
   }, [suggestionResults]);
+
+  const isSuggestionsOpen =
+    headerSearchQuery.trim().length > 0 &&
+    (isDesktopSearchExpanded || isMobileSearchOpen) &&
+    (suggestionsLoading || cappedSuggestions.length > 0 || querySuggestions.length > 0);
 
   const isHomePage = pathname === "/" || pathname === "/home";
   const isHomepageHeroOverlay = isHomePage && urlSearchQuery.trim().length === 0;
@@ -300,7 +311,11 @@ export default function Header({
       clearTimeout(debounceRef.current);
     }
     debounceRef.current = setTimeout(() => {
+      isSelfUrlUpdateRef.current = true;
       updateSearchUrl(value);
+      // Clear the flag after the next render cycle so external navigations
+      // (back/forward, link clicks) still sync correctly.
+      setTimeout(() => { isSelfUrlUpdateRef.current = false; }, 100);
     }, 300);
   };
 
@@ -390,6 +405,21 @@ export default function Header({
       router.push(`/business/${item.id}`);
     },
     [collapseDesktopSearch, router]
+  );
+
+  const handleSelectQuerySuggestion = useCallback(
+    (suggestion: QuerySuggestion) => {
+      const q = suggestion.query;
+      setHeaderSearchQuery(q);
+      setSuggestionQuery(q);
+      collapseDesktopSearch();
+      setIsMobileSearchOpen(false);
+      setActiveSuggestionIndex(-1);
+      const params = new URLSearchParams();
+      params.set("search", q);
+      router.push(`/home?${params.toString()}`);
+    },
+    [collapseDesktopSearch, router, setSuggestionQuery]
   );
 
   // Handle "View all" button click - preserve search state during navigation
@@ -494,6 +524,7 @@ useEffect(() => {
       isSuggestionsOpen={isSuggestionsOpen}
       suggestionsLoading={suggestionsLoading}
       cappedSuggestions={cappedSuggestions}
+      querySuggestions={querySuggestions}
       activeSuggestionIndex={activeSuggestionIndex}
       sf={sf}
       onSubmit={handleSearchSubmit}
@@ -504,6 +535,7 @@ useEffect(() => {
       onClearSearch={handleClearSearch}
       onSetActiveSuggestionIndex={setActiveSuggestionIndex}
       onNavigateToSuggestion={navigateToSuggestion}
+      onSelectQuerySuggestion={handleSelectQuerySuggestion}
       onViewAll={handleViewAll}
     />
   );
@@ -517,6 +549,7 @@ useEffect(() => {
       isSuggestionsOpen={isSuggestionsOpen}
       suggestionsLoading={suggestionsLoading}
       cappedSuggestions={cappedSuggestions}
+      querySuggestions={querySuggestions}
       activeSuggestionIndex={activeSuggestionIndex}
       sf={sf}
       onSubmit={handleSearchSubmit}
@@ -526,6 +559,7 @@ useEffect(() => {
       onClearSearch={handleClearSearch}
       onSetActiveSuggestionIndex={setActiveSuggestionIndex}
       onNavigateToSuggestion={navigateToSuggestion}
+      onSelectQuerySuggestion={handleSelectQuerySuggestion}
       onViewAll={handleViewAll}
     />
   );

@@ -13,7 +13,7 @@ export default function HeroSkeleton() {
   return (
     <div className="relative w-full px-0 py-0" aria-hidden="true">
       {/* Keep dimensions aligned with HeroCarousel to prevent layout shift */}
-      <section className="relative h-[100svh] sm:h-[90dvh] md:h-[80dvh] lg:h-[72dvh] w-full overflow-hidden outline-none rounded-none min-h-[100svh] sm:max-h-[820px]">
+      <section className="relative h-[88svh] sm:h-[88dvh] md:h-[85dvh] lg:h-[85dvh] w-full overflow-hidden outline-none rounded-none sm:max-h-[820px]">
         <div className="absolute inset-0 bg-gradient-to-r from-slate-300 via-slate-200 to-slate-300 animate-pulse" />
         <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-sage/10 pointer-events-none" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(255,255,255,0.15)_0%,_transparent_70%)] pointer-events-none" />

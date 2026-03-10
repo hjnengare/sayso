@@ -1,9 +1,5 @@
-import type { Metadata } from 'next';
-import EventsSpecialsPage from '../events-specials/page';
-import { PageMetadata } from '../lib/utils/seoMetadata';
-
-export const metadata: Metadata = PageMetadata.eventsSpecials();
+import { permanentRedirect } from 'next/navigation';
 
 export default function EventsPage() {
-  return <EventsSpecialsPage />;
+  permanentRedirect('/events-specials');
 }
