@@ -122,7 +122,9 @@ export default function OnboardingPage() {
     if (!el) return;
     const timer = setTimeout(() => {
       el.querySelectorAll("[data-anim]").forEach((node) => {
-        (node as HTMLElement).style.willChange = "auto";
+        const n = node as HTMLElement;
+        n.style.willChange = "auto";
+        n.style.filter = "none";
       });
     }, 1000); // after tagline (480ms delay + 420ms duration)
     return () => clearTimeout(timer);
@@ -202,9 +204,8 @@ export default function OnboardingPage() {
               </div>
             </div>
 
-            {/* Tagline — blur dissolve fade */}
+            {/* Tagline */}
             <p
-              data-anim="tagline"
               className="font-urbanist text-sm text-charcoal/80 font-medium italic no-hyphens"
             >
               Less guessing, more confessing

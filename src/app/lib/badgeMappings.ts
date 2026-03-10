@@ -125,7 +125,7 @@ export const BADGE_MAPPINGS: Record<string, BadgeMapping> = {
   explorer_full_circle: {
     id: "explorer_full_circle",
     name: "Full Circle",
-    pngPath: "/badges/memory-maker.png",
+    pngPath: "/badges/046-rec.png",
     lucideIcon: Target,
     badgeGroup: "explorer",
   },
@@ -146,7 +146,7 @@ export const BADGE_MAPPINGS: Record<string, BadgeMapping> = {
   specialist_food_flavour_finder: {
     id: "specialist_food_flavour_finder",
     name: "Flavour Finder",
-    pngPath: "/badges/051-searcher.png",
+    pngPath: "/badges/017-scarf.png",
     lucideIcon: Search,
     badgeGroup: "specialist",
     categoryKey: "food-drink",
@@ -170,7 +170,7 @@ export const BADGE_MAPPINGS: Record<string, BadgeMapping> = {
   specialist_food_dessert_detective: {
     id: "specialist_food_dessert_detective",
     name: "Dessert Detective",
-    pngPath: "/badges/flavour-finder.png",
+    pngPath: "/badges/042-test.png",
     lucideIcon: Cake,
     badgeGroup: "specialist",
     categoryKey: "food-drink",
@@ -178,7 +178,7 @@ export const BADGE_MAPPINGS: Record<string, BadgeMapping> = {
   specialist_food_brunch_enthusiast: {
     id: "specialist_food_brunch_enthusiast",
     name: "Brunch Enthusiast",
-    pngPath: "/badges/048-extract.png",
+    pngPath: "/badges/052-croissant.png",
     lucideIcon: Croissant,
     badgeGroup: "specialist",
     categoryKey: "food-drink",
@@ -228,7 +228,7 @@ export const BADGE_MAPPINGS: Record<string, BadgeMapping> = {
   specialist_beauty_serenity_seeker: {
     id: "specialist_beauty_serenity_seeker",
     name: "Serenity Seeker",
-    pngPath: "/badges/018-peace.png",
+    pngPath: "/badges/058-plant.png",
     lucideIcon: Flower2,
     badgeGroup: "specialist",
     categoryKey: "beauty-wellness",
@@ -362,7 +362,7 @@ export const BADGE_MAPPINGS: Record<string, BadgeMapping> = {
   specialist_shopping_style_spotter: {
     id: "specialist_shopping_style_spotter",
     name: "Style Spotter",
-    pngPath: "/badges/017-scarf.png",
+    pngPath: "/badges/001-accessory.png",
     lucideIcon: Shirt,
     badgeGroup: "specialist",
     categoryKey: "shopping-lifestyle",
@@ -396,7 +396,7 @@ export const BADGE_MAPPINGS: Record<string, BadgeMapping> = {
   specialist_family_bonding_buff: {
     id: "specialist_family_bonding_buff",
     name: "Bonding Buff",
-    pngPath: "/badges/005-social-life.png",
+    pngPath: "/badges/018-peace.png",
     lucideIcon: Users,
     badgeGroup: "specialist",
     categoryKey: "family-pets",
@@ -412,7 +412,7 @@ export const BADGE_MAPPINGS: Record<string, BadgeMapping> = {
   specialist_family_care_companion: {
     id: "specialist_family_care_companion",
     name: "Care Companion",
-    pngPath: "/badges/008-baby.png",
+    pngPath: "/badges/005-social-life.png",
     lucideIcon: Heart,
     badgeGroup: "specialist",
     categoryKey: "family-pets",
@@ -438,7 +438,7 @@ export const BADGE_MAPPINGS: Record<string, BadgeMapping> = {
   specialist_experiences_memory_maker: {
     id: "specialist_experiences_memory_maker",
     name: "Memory Maker",
-    pngPath: "/badges/046-rec.png",
+    pngPath: "/badges/008-baby.png",
     lucideIcon: PartyPopper,
     badgeGroup: "specialist",
     categoryKey: "experiences-entertainment",
@@ -446,7 +446,7 @@ export const BADGE_MAPPINGS: Record<string, BadgeMapping> = {
   specialist_experiences_curiosity_cruiser: {
     id: "specialist_experiences_curiosity_cruiser",
     name: "Curiosity Cruiser",
-    pngPath: "/badges/026-gears.png",
+    pngPath: "/badges/051-searcher.png",
     lucideIcon: Compass,
     badgeGroup: "specialist",
     categoryKey: "experiences-entertainment",
@@ -454,7 +454,7 @@ export const BADGE_MAPPINGS: Record<string, BadgeMapping> = {
   specialist_experiences_vibe_voyager: {
     id: "specialist_experiences_vibe_voyager",
     name: "Vibe Voyager",
-    pngPath: "/badges/021-mindset.png",
+    pngPath: "/badges/043-choice.png",
     lucideIcon: Sparkles,
     badgeGroup: "specialist",
     categoryKey: "experiences-entertainment",
@@ -496,7 +496,7 @@ export const BADGE_MAPPINGS: Record<string, BadgeMapping> = {
   specialist_services_solution_seeker: {
     id: "specialist_services_solution_seeker",
     name: "Solution Seeker",
-    pngPath: "/badges/012-expertise.png",
+    pngPath: "/badges/048-extract.png",
     lucideIcon: Lightbulb,
     badgeGroup: "specialist",
     categoryKey: "professional-services",
@@ -504,7 +504,7 @@ export const BADGE_MAPPINGS: Record<string, BadgeMapping> = {
   specialist_services_service_pro: {
     id: "specialist_services_service_pro",
     name: "Service Pro",
-    pngPath: "/badges/023-ai-technology.png",
+    pngPath: "/badges/012-expertise.png",
     lucideIcon: Award,
     badgeGroup: "specialist",
     categoryKey: "professional-services",
@@ -520,7 +520,7 @@ export const BADGE_MAPPINGS: Record<string, BadgeMapping> = {
   specialist_services_money_minded: {
     id: "specialist_services_money_minded",
     name: "Money-Minded",
-    pngPath: "/badges/001-accessory.png",
+    pngPath: "/badges/021-mindset.png",
     lucideIcon: BadgeDollarSign,
     badgeGroup: "specialist",
     categoryKey: "professional-services",
@@ -540,7 +540,7 @@ export const BADGE_MAPPINGS: Record<string, BadgeMapping> = {
   milestone_new_voice: {
     id: "milestone_new_voice",
     name: "New Voice",
-    pngPath: "/badges/027-aniversary.png",
+    pngPath: "/badges/023-ai-technology.png",
     lucideIcon: Megaphone,
     badgeGroup: "milestone",
   },
@@ -561,14 +561,14 @@ export const BADGE_MAPPINGS: Record<string, BadgeMapping> = {
   milestone_review_machine: {
     id: "milestone_review_machine",
     name: "Review Machine",
-    pngPath: "/badges/041-no-connection.png",
+    pngPath: "/badges/026-gears.png",
     lucideIcon: Rocket,
     badgeGroup: "milestone",
   },
   milestone_century_club: {
     id: "milestone_century_club",
     name: "Century Club",
-    pngPath: "/badges/042-test.png",
+    pngPath: "/badges/027-aniversary.png",
     lucideIcon: Trophy,
     badgeGroup: "milestone",
   },
