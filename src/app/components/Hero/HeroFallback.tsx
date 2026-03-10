@@ -23,7 +23,7 @@ export default function HeroFallback({ onReady }: HeroFallbackProps) {
   return (
     <div className="relative w-full px-0 py-0 md:pt-2 md:px-2">
       <section
-        className="relative h-[100vh] sm:h-[90dvh] md:h-[80dvh] w-full overflow-hidden outline-none rounded-none min-h-[420px] sm:min-h-[520px] sm:max-h-[820px]"
+        className="relative h-[100vh] w-full overflow-hidden outline-none rounded-none"
         aria-label="Hero fallback"
         style={{
           fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
