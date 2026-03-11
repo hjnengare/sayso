@@ -1583,14 +1583,22 @@ nav[aria-label="Breadcrumb"] li {
 
 nav[aria-label="Breadcrumb"] li a,
 nav[aria-label="Breadcrumb"] li span {
+  display: inline-block;
   min-width: 0;
-  white-space: normal;
-  word-break: break-word;
+  max-width: min(52vw, 14rem);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 @media (min-width: 640px) {
   nav[aria-label="Breadcrumb"] {
     padding-bottom: 0.75rem;
+  }
+
+  nav[aria-label="Breadcrumb"] li a,
+  nav[aria-label="Breadcrumb"] li span {
+    max-width: min(36vw, 22rem);
   }
 }
 

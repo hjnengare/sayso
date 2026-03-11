@@ -27,6 +27,7 @@ import GlobalHeader from "./components/Header/GlobalHeader";
 import SchemaMarkup from "./components/SEO/SchemaMarkup";
 import { generateOrganizationSchema, generateWebSiteSchema, generateSiteNavigationSchema } from "./lib/utils/schemaMarkup";
 import ScrollToTopButton from "./components/Navigation/ScrollToTopButton";
+import BreadcrumbTitleSync from "./components/Navigation/BreadcrumbTitleSync";
 import SWRProvider from "./components/Providers/SWRProvider";
 
 // Lazy load non-critical components for faster initial load
@@ -205,6 +206,7 @@ export default function RootLayout({
       <body className="no-layout-shift scroll-smooth bg-off-white">
         <WebVitals />
         <ClientLayoutWrapper />
+        <BreadcrumbTitleSync />
         {/* Disable the legacy service worker.
             This app is auth-heavy and dynamic; cached navigations/API responses have
             caused iPhone Safari users to experience apparent reload loops/stale shell swaps. */}
