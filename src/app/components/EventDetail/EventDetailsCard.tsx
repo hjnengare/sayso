@@ -123,6 +123,7 @@ export default function EventDetailsCard({ event }: EventDetailsCardProps) {
             </div>
           </div>
         )}
+
       </div>
       </div>
     </m.div>

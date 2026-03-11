@@ -8,6 +8,7 @@ import Footer from "../components/Footer/Footer";
 import { getChoreoItemMotion } from "../lib/motion/choreography";
 import FilterTabs from "../components/EventsPage/FilterTabs";
 import ResultsCount from "../components/EventsPage/ResultsCount";
+import FilterPillGroup from "../components/Filters/FilterPillGroup";
 import EventCard from "../components/EventCard/EventCard";
 import EventCardSkeleton from "../components/EventCard/EventCardSkeleton";
 import EventsGridSkeleton from "../components/EventsPage/EventsGridSkeleton";
@@ -17,6 +18,7 @@ import type { Event } from "../lib/types/Event";
 import { useDebounce } from "../hooks/useDebounce";
 import { ChevronRight, ChevronDown, ChevronLeft } from "@/app/lib/icons";
 import { useIsDesktop } from "../hooks/useIsDesktop";
+import { QUICKET_CATEGORY_OPTIONS, type QuicketCategorySlug } from "../lib/events/quicketCategory";
 const ITEMS_PER_PAGE = 20;
 const REQUEST_TIMEOUT_MS = 12000;
 const REQUEST_RETRY_DELAY_MS = 250;
@@ -25,6 +27,7 @@ export default function EventsSpecialsPage() {
   const prefersReducedMotion = useReducedMotion() ?? false;
   const choreoEnabled = !prefersReducedMotion;
   const [selectedFilter, setSelectedFilter] = useState<"all" | "event" | "special">("all");
+  const [selectedCategory, setSelectedCategory] = useState<QuicketCategorySlug | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isDesktop, setIsDesktop] = useState(false);
   const [optimisticSkeletons, setOptimisticSkeletons] = useState(0);
@@ -32,10 +35,13 @@ export default function EventsSpecialsPage() {
   // Debounce search query for smoother real-time filtering (300ms delay)
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
+  const effectiveCategory = selectedFilter === "special" ? null : selectedCategory;
+
   // SWR-backed events list (caching, dedup, pre-fetch next page)
-  const { items, count, hasMore, loading, loadingMore, error, fetchMore, refetch } = useEventsSpecials(
+  const { items, count, categoryBuckets, hasMore, loading, loadingMore, error, fetchMore, refetch } = useEventsSpecials(
     selectedFilter,
-    debouncedSearchQuery
+    debouncedSearchQuery,
+    effectiveCategory
   );
 
   const handleLoadMoreWithSkeletons = async () => {
@@ -84,6 +90,36 @@ export default function EventsSpecialsPage() {
     }));
   }, [mergedEvents, searchQuery]);
 
+  const categoryCountBySlug = useMemo(() => {
+    const counts = new Map<QuicketCategorySlug, number>();
+    for (const bucket of categoryBuckets) {
+      counts.set(bucket.slug, Number(bucket.count || 0));
+    }
+    return counts;
+  }, [categoryBuckets]);
+
+  const categoryFilterOptions = useMemo(() => {
+    const total = QUICKET_CATEGORY_OPTIONS.reduce(
+      (sum, option) => sum + (categoryCountBySlug.get(option.slug) ?? 0),
+      0
+    );
+
+    return [
+      { value: null as QuicketCategorySlug | null, label: "All", count: total },
+      ...QUICKET_CATEGORY_OPTIONS.map((option) => ({
+        value: option.slug as QuicketCategorySlug,
+        label: option.label,
+        count: categoryCountBySlug.get(option.slug) ?? 0,
+      })),
+    ];
+  }, [categoryCountBySlug]);
+
+  const hasAnyCategoryData = categoryFilterOptions.some(
+    (option) => option.value !== null && Number(option.count || 0) > 0
+  );
+  const shouldShowCategoryFilters =
+    selectedFilter !== "special" && (hasAnyCategoryData || selectedCategory !== null);
+
   const eventsSectionItems = filteredEvents.filter((event) => event.type === "event");
   const specialsSectionItems = filteredEvents.filter((event) => event.type === "special");
 
@@ -96,6 +132,9 @@ export default function EventsSpecialsPage() {
 
   const handleFilterChange = (filter: "all" | "event" | "special") => {
     setSelectedFilter(filter);
+    if (filter === "special") {
+      setSelectedCategory(null);
+    }
   };
 
   const handleSearch = (query: string) => {
@@ -317,6 +356,20 @@ export default function EventsSpecialsPage() {
             {...getChoreoItemMotion({ order: 3, intent: "section", enabled: choreoEnabled })}
           >
             <FilterTabs selectedFilter={selectedFilter} onFilterChange={handleFilterChange} />
+            {shouldShowCategoryFilters && (
+              <FilterPillGroup
+                options={categoryFilterOptions}
+                value={selectedCategory}
+                onChange={(value) => setSelectedCategory((value as QuicketCategorySlug | null) ?? null)}
+                ariaLabel="Quicket category filter"
+                size="sm"
+                showCounts
+                wrap={!isDesktop}
+                scrollable={isDesktop}
+                className={isDesktop ? "" : "w-full"}
+                activeClassName="bg-navbar-bg border border-navbar-bg/70 text-white"
+              />
+            )}
             <ResultsCount count={filteredEvents.length} filterType={selectedFilter} />
           </m.div>
 

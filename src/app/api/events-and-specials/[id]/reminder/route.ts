@@ -21,6 +21,16 @@ async function makeClient() {
   );
 }
 
+async function getOptionalUserId(supabase: any): Promise<string | null> {
+  try {
+    const { data, error } = await supabase.auth.getUser();
+    if (error) return null;
+    return data?.user?.id ?? null;
+  } catch {
+    return null;
+  }
+}
+
 function computeRemindAt(eventStartISO: string, remindBefore: RemindBefore): Date {
   const start = new Date(eventStartISO);
   if (remindBefore === '1_day') {
@@ -32,18 +42,19 @@ function computeRemindAt(eventStartISO: string, remindBefore: RemindBefore): Dat
 // GET /api/events-and-specials/[id]/reminder
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id: eventId } = await params;
   const supabase = await makeClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const userId = await getOptionalUserId(supabase);
 
-  if (!user) return NextResponse.json({ reminders: [] });
+  if (!userId) return NextResponse.json({ reminders: [] });
 
   const { data } = await supabase
     .from('event_reminders')
     .select('remind_before, remind_at')
-    .eq('event_id', params.id)
-    .eq('user_id', user.id)
+    .eq('event_id', eventId)
+    .eq('user_id', userId)
     .eq('sent', false);
 
   return NextResponse.json({ reminders: data ?? [] });
@@ -52,12 +63,13 @@ export async function GET(
 // POST /api/events-and-specials/[id]/reminder
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id: eventId } = await params;
   const supabase = await makeClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const userId = await getOptionalUserId(supabase);
 
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const body = await req.json();
   const remindBefore: RemindBefore = body.remind_before;
@@ -80,8 +92,8 @@ export async function POST(
 
   const { error } = await supabase.from('event_reminders').upsert(
     {
-      user_id: user.id,
-      event_id: params.id,
+      user_id: userId,
+      event_id: eventId,
       event_title: eventTitle,
       event_start_iso: eventStartISO,
       remind_before: remindBefore,
@@ -98,12 +110,13 @@ export async function POST(
 // DELETE /api/events-and-specials/[id]/reminder?remind_before=1_day
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id: eventId } = await params;
   const supabase = await makeClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const userId = await getOptionalUserId(supabase);
 
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const remindBefore = req.nextUrl.searchParams.get('remind_before');
   if (!remindBefore) {
@@ -113,8 +126,8 @@ export async function DELETE(
   await supabase
     .from('event_reminders')
     .delete()
-    .eq('event_id', params.id)
-    .eq('user_id', user.id)
+    .eq('event_id', eventId)
+    .eq('user_id', userId)
     .eq('remind_before', remindBefore);
 
   return NextResponse.json({ ok: true });

@@ -24,6 +24,7 @@ interface FilterPillGroupProps<T extends PillValue> {
   wrap?: boolean;
   scrollable?: boolean;
   className?: string;
+  activeClassName?: string;
 }
 
 export default function FilterPillGroup<T extends PillValue>({
@@ -36,6 +37,7 @@ export default function FilterPillGroup<T extends PillValue>({
   wrap = false,
   scrollable = true,
   className = "",
+  activeClassName,
 }: FilterPillGroupProps<T>) {
   const prefersReducedMotion = useReducedMotion();
 
@@ -70,7 +72,7 @@ export default function FilterPillGroup<T extends PillValue>({
             className={[
               pillBase,
               pillSize[size],
-              isActive ? pillActive : pillInactive,
+              isActive ? (activeClassName ?? pillActive) : pillInactive,
               option.disabled ? "opacity-50 cursor-not-allowed" : "",
             ]
               .filter(Boolean)

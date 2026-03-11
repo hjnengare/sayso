@@ -90,17 +90,25 @@ export function VerifyEmailExpiredView({
 }: VerifyEmailExpiredViewProps) {
   return (
     <div className="flex-1 flex items-center justify-center">
-      <div className="text-center max-w-md mx-auto p-6">
+      <div className="w-full text-center max-w-md sm:max-w-lg mx-auto p-6">
         <div className="w-20 h-20 mx-auto mb-6 bg-coral/10 rounded-full flex items-center justify-center">
           <AlertCircle className="w-10 h-10 text-coral" />
         </div>
-        <h2 className="text-2xl font-bold text-charcoal mb-3" style={FONT_STYLE}>
+        <h2
+          className="text-2xl font-bold leading-tight text-charcoal mb-3"
+          style={{ ...FONT_STYLE, overflowWrap: "anywhere" }}
+        >
           Verification Link Expired
         </h2>
-        <p className="text-base text-charcoal/70 mb-6 leading-relaxed" style={FONT_STYLE}>
+        <p
+          className="text-base text-charcoal/70 mb-6 leading-relaxed break-words"
+          style={{ ...FONT_STYLE, overflowWrap: "anywhere" }}
+        >
           {displayEmail ? (
             <>
-              The verification link for <strong className="text-charcoal">{displayEmail}</strong> has expired. Request a
+              The verification link for{" "}
+              <strong className="text-charcoal break-all">{displayEmail}</strong>{" "}
+              has expired. Request a
               new one below.
             </>
           ) : (
@@ -127,7 +135,7 @@ export function VerifyEmailExpiredView({
             ) : (
               <>
                 <Mail className="w-5 h-5" />
-                Resend Verification Email
+                <span className="whitespace-nowrap">Resend Verification Email</span>
               </>
             )}
           </button>
@@ -316,7 +324,7 @@ export function VerifyEmailMainView({
               ) : (
                 <>
                   <Mail className="w-4 h-4" />
-                  Resend Verification Email
+                  <span className="whitespace-nowrap">Resend Verification Email</span>
                 </>
               )}
             </button>

@@ -5,6 +5,14 @@ import { getServiceSupabase } from "@/app/lib/admin";
 import type { Database } from "@/app/types/supabase";
 import { formatDateRangeLabel, mapEventsAndSpecialsRowToEventCard, type EventsAndSpecialsRow } from "@/app/lib/events/mapEvent";
 import { createEventOrSpecial } from "@/app/lib/events/createEventSpecial";
+import {
+  QUICKET_CATEGORY_LABEL_BY_SLUG,
+  QUICKET_CATEGORY_OPTIONS,
+  isQuicketEvent,
+  normalizeQuicketCategory,
+  normalizeQuicketCategoryParam,
+  shouldIncludeForQuicketCategoryFilter,
+} from "@/app/lib/events/quicketCategory";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -12,6 +20,7 @@ export const runtime = "nodejs";
 const MAX_RAW_ROWS = 4000;
 const BOOKING_SELECT_FRAGMENT =
   ",booking_url,booking_contact,cta_source,whatsapp_number,whatsapp_prefill_template";
+const CATEGORY_SELECT_FRAGMENT = ",quicket_category_slug,quicket_category_label";
 const FETCH_TIMEOUT_MS = 10_000;
 const CACHE_CONTROL = "public, s-maxage=30, stale-while-revalidate=300";
 
@@ -37,6 +46,12 @@ function parseEventsCursor(rawCursor: string | null): number {
 
 function encodeEventsCursor(offset: number): string {
   return Buffer.from(JSON.stringify({ kind: "offset", offset }), "utf8").toString("base64url");
+}
+
+function parseBooleanSearchParam(value: string | null): boolean {
+  if (!value) return false;
+  const normalized = value.trim().toLowerCase();
+  return normalized === "1" || normalized === "true" || normalized === "yes";
 }
 
 async function getEventsSupabase() {
@@ -105,6 +120,8 @@ const normalizeSeriesKey = (row: Pick<EventsAndSpecialsRow, "title" | "business_
  * - type?: event | special
  * - city?: ignored (schema doesn't include city)
  * - limit?: number (default 20)
+ * - category?: quicket category slug (music | festivals | tech-business | arts | food-drink | community)
+ * - excludeSoldOut?: boolean (home rail use-case; excludes sold-out events only)
  */
 export async function GET(req: NextRequest) {
   const reqStart = Date.now();
@@ -113,11 +130,13 @@ export async function GET(req: NextRequest) {
     const typeParam = (searchParams.get("type") || "").trim().toLowerCase();
     const limitParam = parseInt(searchParams.get("limit") || "20", 10);
     const offsetParam = parseEventsCursor(searchParams.get("cursor")) || parseInt(searchParams.get("offset") || "0", 10);
+    const excludeSoldOut = parseBooleanSearchParam(searchParams.get("excludeSoldOut"));
 
     const limit = Number.isFinite(limitParam) ? Math.min(Math.max(limitParam, 1), 100) : 20;
     const offset = Number.isFinite(offsetParam) ? Math.max(offsetParam, 0) : 0;
 
     const type = typeParam === "event" || typeParam === "special" ? (typeParam as "event" | "special") : null;
+    const selectedCategory = normalizeQuicketCategoryParam(searchParams.get("category"));
 
     // Search param: applied as ILIKE across title, location, description
     const searchParam = (searchParams.get("search") || "").trim().slice(0, 200);
@@ -139,7 +158,7 @@ export async function GET(req: NextRequest) {
 
     let query = supabase
       .from("events_and_specials")
-      .select(baseSelect + BOOKING_SELECT_FRAGMENT)
+      .select(baseSelect + BOOKING_SELECT_FRAGMENT + CATEGORY_SELECT_FRAGMENT)
       // Include items still active via end_date (multi-day) even if start_date is earlier.
       .or(`end_date.gte.${bufferStart},and(end_date.is.null,start_date.gte.${bufferStart})`)
       .order("start_date", { ascending: true })
@@ -161,13 +180,13 @@ export async function GET(req: NextRequest) {
     ({ data, error } = await withTimeout(query as any, FETCH_TIMEOUT_MS, "events-and-specials:primary") as any);
 
     const errorMessage = String(error?.message ?? "");
-    const isMissingCtaOrBookingColumn =
+    const isMissingOptionalColumn =
       error &&
       /does not exist/i.test(errorMessage) &&
-      /(events_and_specials\.)?(booking_url|cta_source|whatsapp_number|whatsapp_prefill_template)/i.test(errorMessage);
+      /(events_and_specials\.)?(booking_url|cta_source|whatsapp_number|whatsapp_prefill_template|quicket_category_slug|quicket_category_label)/i.test(errorMessage);
 
-    if (isMissingCtaOrBookingColumn) {
-      console.warn("[events-and-specials] booking/cta columns missing; retrying without optional fields.");
+    if (isMissingOptionalColumn) {
+      console.warn("[events-and-specials] optional columns missing; retrying without optional fields.");
       let retryQuery = supabase
         .from("events_and_specials")
         .select(baseSelect)
@@ -203,6 +222,8 @@ export async function GET(req: NextRequest) {
           nextCursor: null,
           limit,
           offset,
+          selectedCategory: null,
+          categoryBuckets: [],
         },
         { status: 503 }
       );
@@ -233,12 +254,65 @@ export async function GET(req: NextRequest) {
     }
     
     // Clear business_id for events linked to hidden/system businesses
-    const processedRows = rawRows.map(row => {
+    let processedRows = rawRows.map(row => {
       if (row.business_id && hiddenOrSystemBusinessIds.has(row.business_id)) {
         return { ...row, business_id: null, _isExternalEvent: true };
       }
       return row;
     }) as (EventsAndSpecialsRow & { _isExternalEvent?: boolean })[];
+
+    // Keep specials as-is, but remove non-Quicket events from the unified feed.
+    processedRows = processedRows.filter((row) => {
+      if (row.type !== "event") return true;
+      return (row.icon ?? "").toLowerCase() === "quicket";
+    });
+
+    // Re-derive category at read time for Quicket events so existing rows
+    // benefit from the latest taxonomy rules even before a full re-ingest.
+    processedRows = processedRows.map((row) => {
+      if (!isQuicketEvent(row)) return row;
+
+      const storedSlug = normalizeQuicketCategoryParam(row.quicket_category_slug ?? null);
+      if (storedSlug) {
+        return {
+          ...row,
+          quicket_category_slug: storedSlug,
+          quicket_category_label: row.quicket_category_label ?? QUICKET_CATEGORY_LABEL_BY_SLUG[storedSlug],
+        };
+      }
+
+      const categoryNames =
+        row.quicket_category_label && row.quicket_category_label.trim().toLowerCase() !== "community"
+          ? [row.quicket_category_label]
+          : [];
+
+      const derived = normalizeQuicketCategory({
+        categoryNames,
+      });
+
+      return {
+        ...row,
+        quicket_category_slug: derived.slug,
+        quicket_category_label: derived.label,
+      };
+    });
+
+    if (selectedCategory) {
+      processedRows = processedRows.filter((row) =>
+        shouldIncludeForQuicketCategoryFilter({
+          selectedCategory,
+          type: row.type,
+          icon: row.icon,
+          quicketCategorySlug: row.quicket_category_slug ?? null,
+        })
+      );
+    }
+
+    if (excludeSoldOut) {
+      processedRows = processedRows.filter(
+        (row) => !(row.type === "event" && row.availability_status === "sold_out"),
+      );
+    }
 
     // Consolidate into series cards.
     const series = new Map<
@@ -261,6 +335,8 @@ export async function GET(req: NextRequest) {
           whatsapp_prefill_template: string | null;
           price: number | null;
           rating: number | null;
+          quicket_category_slug: EventsAndSpecialsRow["quicket_category_slug"];
+          quicket_category_label: EventsAndSpecialsRow["quicket_category_label"];
         };
       }
     >();
@@ -290,6 +366,8 @@ export async function GET(req: NextRequest) {
             whatsapp_prefill_template: (row as any).whatsapp_prefill_template ?? null,
             price: row.price ?? null,
             rating: row.rating ?? null,
+            quicket_category_slug: row.quicket_category_slug ?? null,
+            quicket_category_label: row.quicket_category_label ?? null,
           },
         });
         continue;
@@ -321,6 +399,8 @@ export async function GET(req: NextRequest) {
       if (!existing.firstNonNull.whatsapp_prefill_template && (row as any).whatsapp_prefill_template) existing.firstNonNull.whatsapp_prefill_template = (row as any).whatsapp_prefill_template;
       if (existing.firstNonNull.price == null && row.price != null) existing.firstNonNull.price = row.price;
       if (existing.firstNonNull.rating == null && row.rating != null) existing.firstNonNull.rating = row.rating;
+      if (!existing.firstNonNull.quicket_category_slug && row.quicket_category_slug) existing.firstNonNull.quicket_category_slug = row.quicket_category_slug;
+      if (!existing.firstNonNull.quicket_category_label && row.quicket_category_label) existing.firstNonNull.quicket_category_label = row.quicket_category_label;
     }
 
     const consolidated = Array.from(series.values())
@@ -339,6 +419,8 @@ export async function GET(req: NextRequest) {
           cta_source: s.firstNonNull.cta_source as any,
           whatsapp_number: s.firstNonNull.whatsapp_number,
           whatsapp_prefill_template: s.firstNonNull.whatsapp_prefill_template,
+          quicket_category_slug: s.firstNonNull.quicket_category_slug,
+          quicket_category_label: s.firstNonNull.quicket_category_label,
         };
 
         const dateRangeLabel =
@@ -352,6 +434,20 @@ export async function GET(req: NextRequest) {
         });
       })
       .sort((a, b) => new Date(a.startDateISO || a.startDate).getTime() - new Date(b.startDateISO || b.startDate).getTime());
+
+    const quicketCategoryCounts = new Map<string, number>();
+    for (const item of consolidated) {
+      const isQuicketEvent = item.type === "event" && (item.icon ?? "").toLowerCase() === "quicket";
+      if (!isQuicketEvent) continue;
+      const slug = normalizeQuicketCategoryParam(item.category) ?? "community";
+      quicketCategoryCounts.set(slug, (quicketCategoryCounts.get(slug) ?? 0) + 1);
+    }
+
+    const categoryBuckets = QUICKET_CATEGORY_OPTIONS.map((option) => ({
+      slug: option.slug,
+      label: option.label,
+      count: quicketCategoryCounts.get(option.slug) ?? 0,
+    }));
 
     // When a search query is active return all consolidated matches (client handles display).
     // For normal browsing, apply server-side pagination.
@@ -409,6 +505,8 @@ export async function GET(req: NextRequest) {
       nextCursor,
       limit,
       offset,
+      selectedCategory,
+      categoryBuckets,
     });
     response.headers.set("Cache-Control", CACHE_CONTROL);
     response.headers.set("X-Query-Duration-MS", String(Date.now() - reqStart));
@@ -424,6 +522,8 @@ export async function GET(req: NextRequest) {
         nextCursor: null,
         limit: 20,
         offset: 0,
+        selectedCategory: null,
+        categoryBuckets: [],
       },
       { status: 503 }
     );

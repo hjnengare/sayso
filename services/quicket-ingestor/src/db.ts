@@ -62,25 +62,38 @@ export async function resolveCreatedByUserId(
 }
 
 // ---------------------------------------------------------------------------
-// Cleanup: delete Quicket events that ended > 14 days ago
+// Cleanup: delete stale Quicket events
 // ---------------------------------------------------------------------------
 
 export async function cleanupOldEvents(supabase: SupabaseClient): Promise<number> {
-  const cutoff = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString();
+  const cutoff = new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString();
 
-  const { count, error } = await supabase
+  const { count: endedCount, error: endedError } = await supabase
     .from("events_and_specials")
     .delete({ count: "exact" })
     .eq("icon", "quicket")
     .eq("type", "event")
-    .lt("start_date", cutoff);
+    .lt("end_date", cutoff);
 
-  if (error) {
-    log.error(`Cleanup failed: ${error.message}`);
+  if (endedError) {
+    log.error(`Cleanup (ended events) failed: ${endedError.message}`);
     return 0;
   }
 
-  const deleted = count ?? 0;
+  const { count: openEndedCount, error: openEndedError } = await supabase
+    .from("events_and_specials")
+    .delete({ count: "exact" })
+    .eq("icon", "quicket")
+    .eq("type", "event")
+    .is("end_date", null)
+    .lt("start_date", cutoff);
+
+  if (openEndedError) {
+    log.error(`Cleanup (open-ended events) failed: ${openEndedError.message}`);
+    return endedCount ?? 0;
+  }
+
+  const deleted = (endedCount ?? 0) + (openEndedCount ?? 0);
   if (deleted > 0) {
     log.info(`Cleanup: deleted ${deleted} old Quicket events (before ${cutoff.slice(0, 10)}).`);
   }

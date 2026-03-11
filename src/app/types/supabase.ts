@@ -1124,6 +1124,7 @@ export type Database = {
       }
       events_and_specials: {
         Row: {
+          availability_status: string | null
           booking_contact: string | null
           booking_url: string | null
           business_id: string | null
@@ -1132,22 +1133,58 @@ export type Database = {
           cta_source: string | null
           description: string | null
           end_date: string | null
+          event_created_at: string | null
+          event_description: string | null
+          event_end_date: string | null
+          event_image_url: string | null
+          event_last_modified: string | null
+          event_name: string | null
+          event_start_date: string | null
+          event_url: string | null
           external_url: string | null
+          guestlist_count: number
           icon: string | null
           id: string
           image: string | null
           is_community_event: boolean
+          locality_level_one: string | null
+          locality_level_three: string | null
+          locality_level_two: string | null
           location: string | null
+          maximum_ticket_price: number | null
+          minimum_ticket_price: number | null
+          organiser_facebook_url: string | null
+          organiser_hashtag: string | null
+          organiser_id: number | null
+          organiser_mobile: string | null
+          organiser_name: string | null
+          organiser_page_url: string | null
+          organiser_phone: string | null
+          organiser_twitter_handle: string | null
           price: number | null
+          quicket_categories_json: Json | null
+          quicket_category_label: string | null
+          quicket_category_slug: string | null
+          quicket_event_id: number | null
           rating: number | null
+          schedules_json: Json | null
           start_date: string
+          tickets_available_boolean: boolean | null
+          tickets_json: Json | null
           title: string
           type: string
           updated_at: string | null
+          venue_address_line1: string | null
+          venue_address_line2: string | null
+          venue_id: number | null
+          venue_latitude: number | null
+          venue_longitude: number | null
+          venue_name: string | null
           whatsapp_number: string | null
           whatsapp_prefill_template: string | null
         }
         Insert: {
+          availability_status?: string | null
           booking_contact?: string | null
           booking_url?: string | null
           business_id?: string | null
@@ -1156,22 +1193,58 @@ export type Database = {
           cta_source?: string | null
           description?: string | null
           end_date?: string | null
+          event_created_at?: string | null
+          event_description?: string | null
+          event_end_date?: string | null
+          event_image_url?: string | null
+          event_last_modified?: string | null
+          event_name?: string | null
+          event_start_date?: string | null
+          event_url?: string | null
           external_url?: string | null
+          guestlist_count?: number
           icon?: string | null
           id?: string
           image?: string | null
           is_community_event?: boolean
+          locality_level_one?: string | null
+          locality_level_three?: string | null
+          locality_level_two?: string | null
           location?: string | null
+          maximum_ticket_price?: number | null
+          minimum_ticket_price?: number | null
+          organiser_facebook_url?: string | null
+          organiser_hashtag?: string | null
+          organiser_id?: number | null
+          organiser_mobile?: string | null
+          organiser_name?: string | null
+          organiser_page_url?: string | null
+          organiser_phone?: string | null
+          organiser_twitter_handle?: string | null
           price?: number | null
+          quicket_categories_json?: Json | null
+          quicket_category_label?: string | null
+          quicket_category_slug?: string | null
+          quicket_event_id?: number | null
           rating?: number | null
+          schedules_json?: Json | null
           start_date: string
+          tickets_available_boolean?: boolean | null
+          tickets_json?: Json | null
           title: string
           type: string
           updated_at?: string | null
+          venue_address_line1?: string | null
+          venue_address_line2?: string | null
+          venue_id?: number | null
+          venue_latitude?: number | null
+          venue_longitude?: number | null
+          venue_name?: string | null
           whatsapp_number?: string | null
           whatsapp_prefill_template?: string | null
         }
         Update: {
+          availability_status?: string | null
           booking_contact?: string | null
           booking_url?: string | null
           business_id?: string | null
@@ -1180,18 +1253,53 @@ export type Database = {
           cta_source?: string | null
           description?: string | null
           end_date?: string | null
+          event_created_at?: string | null
+          event_description?: string | null
+          event_end_date?: string | null
+          event_image_url?: string | null
+          event_last_modified?: string | null
+          event_name?: string | null
+          event_start_date?: string | null
+          event_url?: string | null
           external_url?: string | null
+          guestlist_count?: number
           icon?: string | null
           id?: string
           image?: string | null
           is_community_event?: boolean
+          locality_level_one?: string | null
+          locality_level_three?: string | null
+          locality_level_two?: string | null
           location?: string | null
+          maximum_ticket_price?: number | null
+          minimum_ticket_price?: number | null
+          organiser_facebook_url?: string | null
+          organiser_hashtag?: string | null
+          organiser_id?: number | null
+          organiser_mobile?: string | null
+          organiser_name?: string | null
+          organiser_page_url?: string | null
+          organiser_phone?: string | null
+          organiser_twitter_handle?: string | null
           price?: number | null
+          quicket_categories_json?: Json | null
+          quicket_category_label?: string | null
+          quicket_category_slug?: string | null
+          quicket_event_id?: number | null
           rating?: number | null
+          schedules_json?: Json | null
           start_date?: string
+          tickets_available_boolean?: boolean | null
+          tickets_json?: Json | null
           title?: string
           type?: string
           updated_at?: string | null
+          venue_address_line1?: string | null
+          venue_address_line2?: string | null
+          venue_id?: number | null
+          venue_latitude?: number | null
+          venue_longitude?: number | null
+          venue_name?: string | null
           whatsapp_number?: string | null
           whatsapp_prefill_template?: string | null
         }

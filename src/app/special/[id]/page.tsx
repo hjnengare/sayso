@@ -1,6 +1,6 @@
 "use client";
 
-import { use } from "react";
+import { use, useRef } from "react";
 import { useEventDetail } from "../../hooks/useEventDetail";
 import { useSavedEvent } from "../../hooks/useSavedEvent";
 import { m, AnimatePresence } from "framer-motion";
@@ -24,6 +24,8 @@ import { useToast } from "../../contexts/ToastContext";
 import SpecialDetailPageSkeleton from "../../components/SpecialDetail/SpecialDetailPageSkeleton";
 import { normalizeDescriptionText } from "../../lib/utils/descriptionText";
 import { resolveCtaTarget } from "../../lib/events/cta";
+import BusinessLocation from "../../components/BusinessDetail/BusinessLocation";
+import ContactOrganiserCard from "../../components/EventsSpecials/ContactOrganiserCard";
 // Extended type for special with business info
 interface SpecialWithBusiness extends Event {
   businessSlug?: string;
@@ -44,6 +46,7 @@ interface SpecialDetailPageProps {
 export default function SpecialDetailPage({ params }: SpecialDetailPageProps) {
   const { showToast } = useToast();
   const { user } = useAuth();
+  const mapSectionRef = useRef<HTMLDivElement>(null);
 
   // Unwrap the params Promise using React.use()
   const resolvedParams = use(params);
@@ -59,6 +62,8 @@ export default function SpecialDetailPage({ params }: SpecialDetailPageProps) {
   } = useEventDetail(resolvedParams.id);
 
   const special = rawEvent as SpecialWithBusiness | null;
+  const quicketEvent = special?.quicketEvent ?? null;
+  const organiser = quicketEvent?.organiser ?? null;
 
   const { isSaved: isLiked, toggle: toggleSaved } = useSavedEvent(special?.id ?? null);
 
@@ -128,6 +133,15 @@ export default function SpecialDetailPage({ params }: SpecialDetailPageProps) {
   };
 
   const phoneContact = isLikelyPhone(special?.bookingContact) ? special?.bookingContact : special?.businessPhone;
+  const mapAddress = [quicketEvent?.venue?.addressLine1, quicketEvent?.venue?.addressLine2]
+    .filter(Boolean)
+    .join(", ");
+  const mapLocation = [special?.businessAddress, special?.location, special?.city, special?.country].filter(Boolean).join(", ");
+  const mapLatitude = quicketEvent?.venue?.latitude ?? null;
+  const mapLongitude = quicketEvent?.venue?.longitude ?? null;
+  const hasLocationMap =
+    Boolean(mapAddress || mapLocation)
+    || (typeof mapLatitude === "number" && typeof mapLongitude === "number");
   const primaryCtaLabel = (() => {
     if (special?.bookingContact && !isLikelyPhone(special.bookingContact)) {
       return special.bookingContact.trim();
@@ -364,6 +378,19 @@ export default function SpecialDetailPage({ params }: SpecialDetailPageProps) {
                   {normalizedDescription}
                 </p>
               </m.div>
+
+              {hasLocationMap && (
+                <div ref={mapSectionRef}>
+                  <BusinessLocation
+                    name={quicketEvent?.venue?.name || special.businessName || special.title}
+                    address={mapAddress || undefined}
+                    location={mapLocation || undefined}
+                    latitude={mapLatitude}
+                    longitude={mapLongitude}
+                    isUserUploaded={false}
+                  />
+                </div>
+              )}
             </div>
 
             {/* Right Column - Sidebar */}
@@ -486,6 +513,8 @@ export default function SpecialDetailPage({ params }: SpecialDetailPageProps) {
                   </m.div>
                 );
               })()}
+
+              <ContactOrganiserCard organiser={organiser} animationDelay={0.58} />
 
               {/* Contact Info */}
               <m.div

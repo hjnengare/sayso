@@ -16,7 +16,13 @@ import { log } from "./utils.js";
 // ---------------------------------------------------------------------------
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-dotenv.config({ path: path.resolve(__dirname, "..", ".env") });
+const serviceRoot = path.resolve(__dirname, "..");
+const repoRoot = path.resolve(serviceRoot, "..", "..");
+
+// Load env from repository root first, then allow service-local env to override.
+dotenv.config({ path: path.resolve(repoRoot, ".env") });
+dotenv.config({ path: path.resolve(repoRoot, ".env.local"), override: true });
+dotenv.config({ path: path.resolve(serviceRoot, ".env"), override: true });
 
 interface AppConfig extends Omit<FetchConfig, "systemUserId"> {
   supabaseUrl: string;
@@ -27,6 +33,7 @@ interface AppConfig extends Omit<FetchConfig, "systemUserId"> {
 
 function loadConfig(): AppConfig {
   const apiKey = process.env.QUICKET_API_KEY;
+  const quicketUserToken = process.env.QUICKET_USER_TOKEN || process.env.QUICKET_USERTOKEN;
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const systemBusinessId = process.env.SYSTEM_BUSINESS_ID;
@@ -41,6 +48,7 @@ function loadConfig(): AppConfig {
 
   return {
     apiKey,
+    quicketUserToken,
     supabaseUrl,
     supabaseServiceRoleKey,
     systemBusinessId,
@@ -96,7 +104,7 @@ async function runIngest(config: AppConfig): Promise<void> {
     });
 
     log.info(
-      `Fetch complete: ${result.fetchedCount} fetched, ${result.filteredCount} filtered, ${result.mappedCount} mapped, ${result.consolidatedCount} consolidated.`
+      `Fetch complete: ${result.fetchedCount} fetched, ${result.filteredCount} filtered, ${result.detailFetchedCount} detail fetched, ${result.mappedCount} mapped, ${result.consolidatedCount} consolidated.`
     );
 
     if (result.rows.length === 0) {
@@ -134,6 +142,7 @@ async function main(): Promise<void> {
   log.info(`Schedule: every 6 hours (0 */6 * * *)`);
   log.info(`Cities: ${config.cities.join(", ")}`);
   log.info(`Page size: ${config.pageSize}`);
+  log.info(`Quicket detail token: ${config.quicketUserToken ? "configured" : "not configured"}`);
 
   // Schedule the cron job
   cron.schedule("0 */6 * * *", () => {

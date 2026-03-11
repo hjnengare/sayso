@@ -6,8 +6,9 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id: eventId } = await params;
   const limit = Math.min(parseInt(req.nextUrl.searchParams.get('limit') ?? '4'), 8);
 
   const supabase = createClient(
@@ -19,7 +20,7 @@ export async function GET(
   const { data: current } = await supabase
     .from('events_and_specials')
     .select('id, location, type, start_date')
-    .eq('id', params.id)
+    .eq('id', eventId)
     .maybeSingle();
 
   if (!current) return NextResponse.json({ events: [] });
@@ -40,7 +41,7 @@ export async function GET(
   const { data: rows } = await supabase
     .from('events_and_specials')
     .select('id, title, type, location, start_date, end_date, image, icon, price, rating, booking_url, description, availability_status')
-    .neq('id', params.id)
+    .neq('id', eventId)
     .eq('type', current.type)
     .ilike('location', `%${city}%`)
     .gte('start_date', now)

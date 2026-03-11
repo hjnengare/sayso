@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect, use, useRef, useCallback } from "react";
+import { useState, useEffect, use, useRef } from "react";
 import { useEventDetail } from "../../hooks/useEventDetail";
 import { useEventReviews } from "../../hooks/useEventReviews";
 import { useEventRatings } from "../../hooks/useEventRatings";
 import Link from "next/link";
 import { m, AnimatePresence } from "framer-motion";
-import { ChevronRight, Calendar } from "@/app/lib/icons";
+import { ChevronDown, ChevronRight, ChevronUp, Calendar } from "@/app/lib/icons";
 import type { Event } from "../../lib/types/Event";
 import nextDynamic from "next/dynamic";
 import WavyTypedTitle from "@/app/components/Animations/WavyTypedTitle";
@@ -19,9 +19,10 @@ import {
   EventDescription,
   EventActionCard,
   EventContactInfo,
-  EventLocation,
   EventPersonalizationInsights,
 } from "../../components/EventDetail";
+import BusinessLocation from "../../components/BusinessDetail/BusinessLocation";
+import ContactOrganiserCard from "../../components/EventsSpecials/ContactOrganiserCard";
 
 // Note: dynamic and revalidate cannot be exported from client components
 // Client components are automatically dynamic
@@ -41,10 +42,7 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
   const hasReviewed = false;
   const mapSectionRef = useRef<HTMLDivElement>(null);
   const [relatedEvents, setRelatedEvents] = useState<Event[]>([]);
-
-  const scrollToMap = () => {
-    mapSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
+  const [showAllSchedules, setShowAllSchedules] = useState(false);
 
   // Unwrap the params Promise using React.use()
   const resolvedParams = use(params);
@@ -78,9 +76,54 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
       .catch(() => {});
   }, [event?.id]);
 
+  useEffect(() => {
+    setShowAllSchedules(false);
+  }, [event?.id]);
+
   const hasDirectCta =
     Boolean(event?.bookingUrl || event?.purchaseUrl || (event as any)?.ticketmaster_url || (event as any)?.url) ||
     (((event?.ctaSource ?? "").toLowerCase() === "whatsapp" || Boolean(event?.whatsappNumber)) && Boolean(event));
+
+  const quicketEvent = event?.quicketEvent ?? null;
+  const organiser = quicketEvent?.organiser ?? null;
+  const categoryNames = [
+    ...(event?.categoryLabel ? [event.categoryLabel] : []),
+    ...((quicketEvent?.categories ?? [])
+      .map((category) => (typeof category?.name === "string" ? category.name.trim() : ""))
+      .filter(Boolean)),
+  ].filter((value, index, list) => list.indexOf(value) === index);
+
+  const ticketRows = Array.isArray(quicketEvent?.tickets) ? quicketEvent!.tickets! : [];
+  const scheduleRows = Array.isArray(quicketEvent?.schedules) ? quicketEvent!.schedules! : [];
+  const visibleScheduleRows = showAllSchedules ? scheduleRows : scheduleRows.slice(0, 3);
+  const hasTicketInformation =
+    ticketRows.length > 0
+    || quicketEvent?.minimumTicketPrice != null
+    || quicketEvent?.maximumTicketPrice != null
+    || quicketEvent?.ticketsAvailableBoolean != null;
+
+  const mapAddress = [quicketEvent?.venue?.addressLine1, quicketEvent?.venue?.addressLine2]
+    .filter(Boolean)
+    .join(", ");
+  const mapLocation = [event?.location, event?.city, event?.country].filter(Boolean).join(", ");
+  const mapLatitude = quicketEvent?.venue?.latitude ?? null;
+  const mapLongitude = quicketEvent?.venue?.longitude ?? null;
+  const hasLocationMap =
+    Boolean(mapAddress || mapLocation)
+    || (typeof mapLatitude === "number" && typeof mapLongitude === "number");
+
+  const formatScheduleDateTime = (value: string | undefined): string => {
+    if (!value) return "TBA";
+    const date = new Date(value);
+    if (!Number.isFinite(date.getTime())) return "TBA";
+    return date.toLocaleString("en-ZA", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
 
   // Loading state - render full-page skeleton (no spinner loader)
   if (isLoading) {
@@ -176,64 +219,148 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
                       <EventHeroImage event={event} sharedLayoutId={eventMediaLayoutId} />
                       <EventInfo event={event} sharedTitleLayoutId={eventTitleLayoutId} />
                       <EventDescription event={event} />
-                      <EventDetailsCard event={event} />
 
-                      {/* Related Events */}
-                      {relatedEvents.length > 0 && (
+                      {hasTicketInformation && (
                         <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-4 sm:p-6">
                           <h3
-                            className="text-h3 font-semibold text-charcoal mb-4"
-                            style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                            className="text-h3 font-semibold text-charcoal mb-3"
+                            style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
                           >
-                            More {event.type === 'special' ? 'Specials' : 'Events'} Near You
+                            Ticket Information
                           </h3>
-                          <ul className="space-y-3">
-                            {relatedEvents.map((rel) => (
-                              <li key={rel.id}>
-                                <Link
-                                  href={rel.href ?? `/event/${rel.id}`}
-                                  className="flex items-center gap-3 group"
-                                >
-                                  <div className="w-12 h-12 flex-shrink-0 rounded-lg overflow-hidden bg-charcoal/5">
-                                    {rel.image ? (
-                                      <img
-                                        src={rel.image}
-                                        alt={rel.title}
-                                        className="w-full h-full object-cover"
-                                      />
-                                    ) : (
-                                      <div className="w-full h-full flex items-center justify-center text-charcoal/30 text-lg">
-                                        🎟
-                                      </div>
+
+                          <div className="mb-3 flex flex-wrap gap-2 text-xs">
+                            {quicketEvent?.minimumTicketPrice != null && (
+                              <span className="inline-flex items-center rounded-full bg-off-white/70 px-3 py-1.5 text-charcoal/80 font-semibold">
+                                From R{quicketEvent.minimumTicketPrice}
+                              </span>
+                            )}
+                            {quicketEvent?.maximumTicketPrice != null
+                              && quicketEvent.maximumTicketPrice !== quicketEvent.minimumTicketPrice && (
+                                <span className="inline-flex items-center rounded-full bg-off-white/70 px-3 py-1.5 text-charcoal/80 font-semibold">
+                                  Up to R{quicketEvent.maximumTicketPrice}
+                                </span>
+                            )}
+                            {quicketEvent?.ticketsAvailableBoolean != null && (
+                              <span
+                                className={`inline-flex items-center rounded-full px-3 py-1.5 font-semibold ${
+                                  quicketEvent.ticketsAvailableBoolean
+                                    ? "bg-sage/15 text-sage"
+                                    : "bg-coral/15 text-coral"
+                                }`}
+                              >
+                                {quicketEvent.ticketsAvailableBoolean ? "Tickets Available" : "Sold Out"}
+                              </span>
+                            )}
+                          </div>
+
+                          {ticketRows.length > 0 && (
+                            <ul className="space-y-2">
+                              {ticketRows.slice(0, 6).map((ticket, index) => (
+                                <li key={`${ticket.id ?? "ticket"}-${index}`} className="rounded-[12px] bg-off-white/55 p-3">
+                                  <div className="flex items-start justify-between gap-3">
+                                    <div>
+                                      <p
+                                        className="text-sm font-semibold text-charcoal"
+                                        style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
+                                      >
+                                        {ticket.name || "Ticket"}
+                                      </p>
+                                      {ticket.description && (
+                                        <p
+                                          className="mt-0.5 text-xs text-charcoal/70"
+                                          style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
+                                        >
+                                          {ticket.description}
+                                        </p>
+                                      )}
+                                    </div>
+                                    {typeof ticket.price === "number" && ticket.price > 0 && (
+                                      <span
+                                        className="text-sm font-semibold text-charcoal"
+                                        style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
+                                      >
+                                        R{ticket.price}
+                                      </span>
                                     )}
                                   </div>
-                                  <div className="min-w-0 flex-1">
-                                    <p
-                                      className="text-sm font-semibold text-charcoal group-hover:text-navbar-bg transition-colors line-clamp-1"
-                                      style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
-                                    >
-                                      {rel.title}
-                                    </p>
-                                    <p
-                                      className="text-xs text-charcoal/60 line-clamp-1"
-                                      style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
-                                    >
-                                      {rel.startDate}{rel.city ? ` · ${rel.city}` : ''}
-                                    </p>
-                                  </div>
-                                  {rel.availabilityStatus && (
-                                    <span className={`flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                                      rel.availabilityStatus === 'sold_out'
-                                        ? 'bg-coral/15 text-coral'
-                                        : 'bg-amber-500/15 text-amber-600'
-                                    }`} style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-                                      {rel.availabilityStatus === 'sold_out' ? 'Sold Out' : 'Limited'}
-                                    </span>
-                                  )}
-                                </Link>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                      )}
+
+                      {scheduleRows.length > 0 && (
+                        <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-4 sm:p-6">
+                          <div className="mb-3 flex items-center justify-between gap-3">
+                            <h3
+                              className="text-h3 font-semibold text-charcoal"
+                              style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
+                            >
+                              Event Schedules
+                            </h3>
+                            <span
+                              className="inline-flex items-center rounded-full bg-off-white/70 px-2.5 py-1 text-xs font-semibold text-charcoal/75"
+                              style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
+                            >
+                              {scheduleRows.length}
+                            </span>
+                          </div>
+
+                          <ul className="space-y-2.5">
+                            {visibleScheduleRows.map((schedule, index) => (
+                              <li key={`${schedule.id ?? "schedule"}-${index}`} className="rounded-[12px] bg-off-white/55 p-3">
+                                <p
+                                  className="text-sm font-semibold text-charcoal"
+                                  style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
+                                >
+                                  {schedule.name || `Schedule ${index + 1}`}
+                                </p>
+                                <p
+                                  className="mt-1 text-xs text-charcoal/70"
+                                  style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
+                                >
+                                  {formatScheduleDateTime(schedule.startDate)}
+                                  {schedule.endDate ? ` → ${formatScheduleDateTime(schedule.endDate)}` : ""}
+                                </p>
                               </li>
                             ))}
                           </ul>
+
+                          {scheduleRows.length > 3 && (
+                            <button
+                              type="button"
+                              onClick={() => setShowAllSchedules((prev) => !prev)}
+                              className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-off-white/70 px-3 py-1.5 text-xs font-semibold text-charcoal/80 transition-colors duration-200 hover:bg-off-white"
+                              style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
+                            >
+                              {showAllSchedules ? (
+                                <>
+                                  <ChevronUp className="h-3.5 w-3.5" />
+                                  Show fewer schedules
+                                </>
+                              ) : (
+                                <>
+                                  <ChevronDown className="h-3.5 w-3.5" />
+                                  Show all schedules
+                                </>
+                              )}
+                            </button>
+                          )}
+                        </div>
+                      )}
+
+                      {hasLocationMap && (
+                        <div ref={mapSectionRef}>
+                          <BusinessLocation
+                            name={quicketEvent?.venue?.name || event.venueName || event.title}
+                            address={mapAddress || undefined}
+                            location={mapLocation || undefined}
+                            latitude={mapLatitude}
+                            longitude={mapLongitude}
+                            isUserUploaded={false}
+                          />
                         </div>
                       )}
 
@@ -329,6 +456,28 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
 
                     {/* Right Column - Sidebar */}
                     <div className="space-y-4 sm:space-y-6">
+                      {categoryNames.length > 0 && (
+                        <div className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-4 sm:p-6">
+                          <h3
+                            className="text-h3 font-semibold text-charcoal mb-3"
+                            style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
+                          >
+                            Event Categories
+                          </h3>
+                          <div className="flex flex-wrap gap-2">
+                            {categoryNames.map((category) => (
+                              <span
+                                key={category}
+                                className="inline-flex items-center rounded-full bg-off-white/70 px-3 py-1.5 text-xs font-semibold text-charcoal/80"
+                                style={{ fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
+                              >
+                                {category}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
                       <EventActionCard
                         eventId={event.id}
                         hasReviewed={hasReviewed}
@@ -338,7 +487,9 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
                         bookingContact={event.bookingContact}
                         eventData={event}
                       />
+                      <EventDetailsCard event={event} />
                       <EventPersonalizationInsights event={{ id: event.id, rating: liveRating, totalReviews: liveTotalReviews }} />
+                      <ContactOrganiserCard organiser={organiser} animationDelay={0.58} />
 
                       {/* Contact Info - Desktop Only (hide when direct booking is available) */}
                       {!hasDirectCta && (
@@ -385,6 +536,64 @@ export default function EventDetailPage({ params }: EventDetailPageProps) {
                   }}
                 />
               </div>
+
+              {relatedEvents.length > 0 && (
+                <div className="mt-6 bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl border-none rounded-[12px] shadow-md p-4 sm:p-6">
+                  <h3
+                    className="text-h3 font-semibold text-charcoal mb-4"
+                    style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                  >
+                    More {event.type === 'special' ? 'Specials' : 'Events'} Near You
+                  </h3>
+                  <ul className="space-y-3">
+                    {relatedEvents.map((rel) => (
+                      <li key={rel.id}>
+                        <Link
+                          href={rel.href ?? `/event/${rel.id}`}
+                          className="flex items-center gap-3 group"
+                        >
+                          <div className="w-12 h-12 flex-shrink-0 rounded-lg overflow-hidden bg-charcoal/5">
+                            {rel.image ? (
+                              <img
+                                src={rel.image}
+                                alt={rel.title}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-charcoal/30 text-lg">
+                                🎟
+                              </div>
+                            )}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p
+                              className="text-sm font-semibold text-charcoal group-hover:text-navbar-bg transition-colors line-clamp-1"
+                              style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                            >
+                              {rel.title}
+                            </p>
+                            <p
+                              className="text-xs text-charcoal/60 line-clamp-1"
+                              style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
+                            >
+                              {rel.startDate}{rel.city ? ` · ${rel.city}` : ''}
+                            </p>
+                          </div>
+                          {rel.availabilityStatus && (
+                            <span className={`flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                              rel.availabilityStatus === 'sold_out'
+                                ? 'bg-coral/15 text-coral'
+                                : 'bg-amber-500/15 text-amber-600'
+                            }`} style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
+                              {rel.availabilityStatus === 'sold_out' ? 'Sold Out' : 'Limited'}
+                            </span>
+                          )}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </section>
           </div>
 

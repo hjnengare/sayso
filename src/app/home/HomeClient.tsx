@@ -94,7 +94,7 @@ export default function HomeClient({ initialTrending }: { initialTrending?: impo
   }, []);
 
   const { data: eventsData, isLoading: eventsAndSpecialsLoading } = useSWR(
-    eventsReady ? '/api/events-and-specials?limit=12' : null,
+    eventsReady ? '/api/events-and-specials?limit=12&excludeSoldOut=true' : null,
     async (url: string) => {
       const res = await fetch(url);
       if (!res.ok) return [];

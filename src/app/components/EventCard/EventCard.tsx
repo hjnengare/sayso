@@ -277,13 +277,13 @@ function EventCard({
     hours: number; 
     minutes: number; 
     show: boolean;
-    status: 'upcoming' | 'live' | 'ended';
+    status: 'upcoming' | 'live' | 'ended' | 'unknown';
   }>({ 
     days: 0, 
     hours: 0, 
     minutes: 0, 
-    show: false,
-    status: 'ended'
+    show: true,
+    status: 'unknown'
   });
 
   // Calculate countdown to event start
@@ -293,17 +293,25 @@ function EventCard({
       const endDate = event.endDateISO || event.endDate;
       
       if (!startDate) {
-        setCountdown({ days: 0, hours: 0, minutes: 0, show: false, status: 'ended' });
+        setCountdown({ days: 0, hours: 0, minutes: 0, show: true, status: 'unknown' });
         return;
       }
 
       const now = new Date().getTime();
       const eventStartTime = new Date(startDate).getTime();
-      const eventEndTime = endDate ? new Date(endDate).getTime() : eventStartTime + (24 * 60 * 60 * 1000); // Default to 24h after start if no end date
+      if (!Number.isFinite(eventStartTime)) {
+        setCountdown({ days: 0, hours: 0, minutes: 0, show: true, status: 'unknown' });
+        return;
+      }
+
+      let eventEndTime = endDate ? new Date(endDate).getTime() : eventStartTime + (24 * 60 * 60 * 1000); // Default to 24h after start if no end date
+      if (!Number.isFinite(eventEndTime)) {
+        eventEndTime = eventStartTime + (24 * 60 * 60 * 1000);
+      }
       
       // Event has ended
       if (now > eventEndTime) {
-        setCountdown({ days: 0, hours: 0, minutes: 0, show: false, status: 'ended' });
+        setCountdown({ days: 0, hours: 0, minutes: 0, show: true, status: 'ended' });
         return;
       }
 
@@ -315,16 +323,14 @@ function EventCard({
 
       // Event is upcoming
       const diff = eventStartTime - now;
-      
-      // Only show countdown if event is within 30 days
-      if (diff > 0 && diff <= 30 * 24 * 60 * 60 * 1000) {
+      if (diff > 0) {
         const days = Math.floor(diff / (1000 * 60 * 60 * 24));
         const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
         
         setCountdown({ days, hours, minutes, show: true, status: 'upcoming' });
       } else {
-        setCountdown({ days: 0, hours: 0, minutes: 0, show: false, status: 'upcoming' });
+        setCountdown({ days: 0, hours: 0, minutes: 0, show: true, status: 'live' });
       }
     };
 
@@ -495,72 +501,111 @@ function EventCard({
                 </button>
               </div>
 
-              {/* Smart Countdown Badge */}
-              {countdown.show && countdown.status === "upcoming" && (
-                <div className="absolute left-3 bottom-3 z-20 inline-flex items-center gap-1.5 rounded-full bg-off-white/95 backdrop-blur-md px-3 py-1.5 shadow-[0_2px_12px_rgba(0,0,0,0.15)]">
-                  <>
-                    {countdown.days > 0 && (
+              {/* Countdown / Status Badge */}
+              {countdown.show && (
+                <div
+                  className={`absolute left-3 bottom-3 z-20 inline-flex items-center gap-1.5 rounded-full backdrop-blur-md px-3 py-1.5 shadow-[0_2px_12px_rgba(0,0,0,0.15)] ${
+                    countdown.status === "live"
+                      ? "bg-sage/95 text-white"
+                      : countdown.status === "ended"
+                        ? "bg-charcoal/85 text-white"
+                        : countdown.status === "unknown"
+                          ? "bg-off-white/95 text-charcoal/90"
+                          : "bg-off-white/95 text-charcoal/90"
+                  }`}
+                >
+                  {countdown.status === "upcoming" && (
+                    <>
+                      {countdown.days > 0 && (
+                        <div className="flex items-baseline gap-0.5">
+                          <span
+                            className="text-xs font-bold leading-none"
+                            style={{
+                              fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                              fontWeight: 700,
+                            }}
+                          >
+                            {countdown.days}
+                          </span>
+                          <span
+                            className="text-[10px] font-medium leading-none"
+                            style={{
+                              fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                            }}
+                          >
+                            d
+                          </span>
+                        </div>
+                      )}
+                      {(countdown.days > 0 || countdown.hours > 0) && (
+                        <div className="flex items-baseline gap-0.5">
+                          <span
+                            className="text-xs font-bold leading-none"
+                            style={{
+                              fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                              fontWeight: 700,
+                            }}
+                          >
+                            {countdown.hours}
+                          </span>
+                          <span
+                            className="text-[10px] font-medium leading-none"
+                            style={{
+                              fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                            }}
+                          >
+                            h
+                          </span>
+                        </div>
+                      )}
                       <div className="flex items-baseline gap-0.5">
                         <span
-                          className="text-xs font-bold text-charcoal/90 leading-none"
+                          className="text-xs font-bold leading-none"
                           style={{
                             fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                             fontWeight: 700,
                           }}
                         >
-                          {countdown.days}
+                          {countdown.minutes}
                         </span>
                         <span
-                          className="text-[10px] font-medium text-charcoal/90 leading-none"
+                          className="text-[10px] font-medium leading-none"
                           style={{
                             fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                           }}
                         >
-                          d
+                          m
                         </span>
                       </div>
-                    )}
-                    {(countdown.days > 0 || countdown.hours > 0) && (
-                      <div className="flex items-baseline gap-0.5">
-                        <span
-                          className="text-xs font-bold text-charcoal/90 leading-none"
-                          style={{
-                            fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-                            fontWeight: 700,
-                          }}
-                        >
-                          {countdown.hours}
-                        </span>
-                        <span
-                          className="text-[10px] font-medium text-charcoal/90 leading-none"
-                          style={{
-                            fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-                          }}
-                        >
-                          h
-                        </span>
-                      </div>
-                    )}
-                    <div className="flex items-baseline gap-0.5">
-                      <span
-                        className="text-xs font-bold text-charcoal/90 leading-none"
-                        style={{
-                          fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-                          fontWeight: 700,
-                        }}
-                      >
-                        {countdown.minutes}
-                      </span>
-                      <span
-                        className="text-[10px] font-medium text-charcoal/90 leading-none"
-                        style={{
-                          fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-                        }}
-                      >
-                        m
-                      </span>
-                    </div>
-                  </>
+                    </>
+                  )}
+
+                  {countdown.status === "live" && (
+                    <span
+                      className="text-xs font-semibold leading-none"
+                      style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
+                    >
+                      Live now
+                    </span>
+                  )}
+
+                  {countdown.status === "ended" && (
+                    <span
+                      className="text-xs font-semibold leading-none"
+                      style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
+                    >
+                      Ended
+                    </span>
+                  )}
+
+                  {countdown.status === "unknown" && (
+                    <span
+                      className="text-xs font-semibold leading-none"
+                      style={{ fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
+                    >
+                      Date TBA
+                    </span>
+                  )}
                 </div>
               )}
             </m.div>

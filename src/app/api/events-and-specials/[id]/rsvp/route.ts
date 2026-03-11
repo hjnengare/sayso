@@ -27,24 +27,34 @@ async function getRsvpCount(supabase: any, eventId: string): Promise<number> {
   return count ?? 0;
 }
 
+async function getOptionalUserId(supabase: any): Promise<string | null> {
+  try {
+    const { data, error } = await supabase.auth.getUser();
+    if (error) return null;
+    return data?.user?.id ?? null;
+  } catch {
+    return null;
+  }
+}
+
 // GET /api/events-and-specials/[id]/rsvp
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const supabase = await makeClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  const eventId = params.id;
+  const userId = await getOptionalUserId(supabase);
+  const { id: eventId } = await params;
 
   const count = await getRsvpCount(supabase, eventId);
 
   let userRsvpd = false;
-  if (user) {
+  if (userId) {
     const { data } = await supabase
       .from('event_rsvps')
       .select('id')
       .eq('event_id', eventId)
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .maybeSingle();
     userRsvpd = !!data;
   }
@@ -55,23 +65,23 @@ export async function GET(
 // POST /api/events-and-specials/[id]/rsvp — toggle
 export async function POST(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const supabase = await makeClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const userId = await getOptionalUserId(supabase);
 
-  if (!user) {
+  if (!userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const eventId = params.id;
+  const { id: eventId } = await params;
 
   // Check if already RSVP'd
   const { data: existing } = await supabase
     .from('event_rsvps')
     .select('id')
     .eq('event_id', eventId)
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .maybeSingle();
 
   if (existing) {
@@ -79,11 +89,11 @@ export async function POST(
       .from('event_rsvps')
       .delete()
       .eq('event_id', eventId)
-      .eq('user_id', user.id);
+      .eq('user_id', userId);
   } else {
     await supabase
       .from('event_rsvps')
-      .insert({ event_id: eventId, user_id: user.id });
+      .insert({ event_id: eventId, user_id: userId });
   }
 
   const count = await getRsvpCount(supabase, eventId);

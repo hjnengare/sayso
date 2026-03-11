@@ -47,49 +47,14 @@ function EventQuickActionButton({
   style,
 }: EventQuickActionButtonProps) {
   return (
-    <m.button
+    <button
       type="button"
       onClick={onClick}
       disabled={disabled}
       aria-label={ariaLabel}
-      initial="rest"
-      whileHover={disabled ? "rest" : "hover"}
-      whileTap={disabled ? "rest" : "tap"}
-      variants={{
-        rest: {
-          y: 0,
-          scale: 1,
-          boxShadow: "0 10px 28px rgba(53, 59, 51, 0.08)",
-        },
-        hover: {
-          y: -4,
-          scale: 1.015,
-          boxShadow: "0 18px 36px rgba(53, 59, 51, 0.14)",
-        },
-        tap: {
-          y: -1,
-          scale: 0.975,
-          boxShadow: "0 8px 18px rgba(53, 59, 51, 0.12)",
-        },
-      }}
-      transition={{ type: "spring", stiffness: 320, damping: 22, mass: 0.9 }}
-      className={`group relative flex min-h-[88px] w-full flex-col items-center justify-center gap-2 overflow-hidden rounded-[22px] border border-white/70 bg-off-white/90 px-3 py-4 text-charcoal/80 backdrop-blur-md ${active ? activeClassName : idleHoverClassName} ${disabled ? "cursor-not-allowed opacity-60" : ""}`}
+      className={`group relative flex min-h-[72px] w-full flex-col items-center justify-center gap-1.5 overflow-hidden rounded-[16px] border border-white/70 bg-off-white/90 px-3 py-3 text-charcoal/80 backdrop-blur-md transition-colors duration-150 ${active ? activeClassName : idleHoverClassName} ${disabled ? "cursor-not-allowed opacity-60" : ""}`}
       style={style}
     >
-      <m.span
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 rounded-[inherit] bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.8),_transparent_62%)] opacity-80"
-      />
-      <m.span
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-y-0 left-[-35%] w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-white/80 to-transparent"
-        variants={{
-          rest: { x: "-150%", opacity: 0 },
-          hover: { x: "260%", opacity: 1 },
-          tap: { x: "260%", opacity: 0.65 },
-        }}
-        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-      />
       <span className="relative z-10 flex items-center justify-center">{icon}</span>
       <span
         className="relative z-10 text-[11px] font-semibold leading-none tracking-[0.16em]"
@@ -97,7 +62,7 @@ function EventQuickActionButton({
       >
         {label}
       </span>
-    </m.button>
+    </button>
   );
 }
 
@@ -252,103 +217,6 @@ export default function EventActionCard({
             {!isLikelyPhone(bookingContact) && bookingContact?.trim() ? bookingContact.trim() : "Reserve Your Spot"}
           </m.button>
 
-          {/* Engagement row: Going · Remind · Calendar · Share */}
-          <div className="grid grid-cols-2 gap-3">
-            <EventQuickActionButton
-              onClick={() => eventId && toggleRsvp()}
-              active={isGoing}
-              activeClassName="border-coral/35 text-coral"
-              idleHoverClassName="hover:border-coral/25 hover:text-coral"
-              ariaLabel={isGoing ? "Remove Going" : "Mark as Going"}
-              label={rsvpCount > 0 ? String(rsvpCount) : "Going"}
-              icon={<Users className={`h-5 w-5 transition-transform duration-300 ${isGoing ? "scale-110" : ""}`} strokeWidth={isGoing ? 2.35 : 1.9} />}
-              style={fontStyle}
-            />
-
-            <div className={`relative ${showReminderPicker ? "z-[210]" : "z-10"}`}>
-              <EventQuickActionButton
-                onClick={() => setShowReminderPicker((p) => !p)}
-                active={hasReminder('1_day') || hasReminder('2_hours')}
-                activeClassName="border-amber-300/70 text-amber-600"
-                idleHoverClassName="hover:border-amber-300/40 hover:text-amber-600"
-                ariaLabel="Set reminder"
-                label="Remind"
-                icon={<Bell className={`h-5 w-5 transition-transform duration-300 ${hasReminder('1_day') || hasReminder('2_hours') ? "scale-110" : ""}`} strokeWidth={hasReminder('1_day') || hasReminder('2_hours') ? 2.35 : 1.9} />}
-                style={fontStyle}
-              />
-
-              <AnimatePresence>
-                {showReminderPicker && (
-                  <m.div
-                    initial={{ opacity: 0, y: 4, scale: 0.96 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 4, scale: 0.96 }}
-                    transition={{ duration: 0.15, ease: [0.22, 1, 0.36, 1] }}
-                    className="absolute bottom-full left-1/2 z-[220] mb-3 min-w-[196px] -translate-x-1/2 rounded-[22px] border border-white/80 bg-off-white/95 p-2.5 shadow-[0_28px_70px_rgba(35,39,34,0.24)] backdrop-blur-xl"
-                  >
-                    <p className="px-3 pb-2 pt-1 text-[10px] font-bold uppercase tracking-[0.22em] text-charcoal/45" style={fontStyle}>Remind me</p>
-                    <button
-                      type="button"
-                      onClick={() => handleReminderOption('1_day')}
-                      disabled={reminderLoading}
-                      className={`w-full flex items-center justify-between gap-2 rounded-2xl px-3 py-3 text-sm font-semibold transition-all duration-150 ${
-                        hasReminder('1_day')
-                          ? 'border border-amber-200 bg-amber-50/90 text-amber-700'
-                          : 'text-charcoal/75 hover:bg-charcoal/5'
-                      }`}
-                      style={fontStyle}
-                    >
-                      1 day before
-                      {hasReminder('1_day') && <Check className="h-3.5 w-3.5 text-amber-700" />}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleReminderOption('2_hours')}
-                      disabled={reminderLoading}
-                      className={`w-full flex items-center justify-between gap-2 rounded-2xl px-3 py-3 text-sm font-semibold transition-all duration-150 ${
-                        hasReminder('2_hours')
-                          ? 'border border-amber-200 bg-amber-50/90 text-amber-700'
-                          : 'text-charcoal/75 hover:bg-charcoal/5'
-                      }`}
-                      style={fontStyle}
-                    >
-                      2 hours before
-                      {hasReminder('2_hours') && <Check className="h-3.5 w-3.5 text-amber-700" />}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setShowReminderPicker(false)}
-                      className="mt-1 flex w-full items-center justify-center rounded-xl px-3 py-2 text-xs text-charcoal/40 transition-colors hover:text-charcoal/60"
-                      style={fontStyle}
-                    >
-                      <X className="mr-1 h-3 w-3" /> Close
-                    </button>
-                  </m.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            <EventQuickActionButton
-              onClick={handleCalendar}
-              activeClassName="border-sage/35 text-sage"
-              idleHoverClassName="hover:border-sage/30 hover:text-sage"
-              ariaLabel="Add to calendar"
-              label="Calendar"
-              icon={<Calendar className="h-5 w-5" strokeWidth={1.9} />}
-              style={fontStyle}
-            />
-
-            <EventQuickActionButton
-              onClick={handleShare}
-              activeClassName="border-navbar-bg/30 text-navbar-bg"
-              idleHoverClassName="hover:border-navbar-bg/30 hover:text-navbar-bg"
-              ariaLabel="Share event"
-              label="Share"
-              icon={<Share2 className="h-5 w-5" strokeWidth={1.9} />}
-              style={fontStyle}
-            />
-          </div>
-
           {/* Write Review */}
           {eventId && (
             <m.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
@@ -361,6 +229,111 @@ export default function EventActionCard({
               </Link>
             </m.div>
           )}
+
+          <div className="mt-2 rounded-[16px] border border-white/70 bg-off-white/70 p-3 sm:p-4">
+            <p
+              className="text-[11px] font-semibold uppercase tracking-[0.14em] text-charcoal/55"
+              style={fontStyle}
+            >
+              Quick Actions
+            </p>
+
+            <div className="mt-3 grid grid-cols-2 gap-3">
+              <EventQuickActionButton
+                onClick={() => eventId && toggleRsvp()}
+                active={isGoing}
+                activeClassName="border-coral/35 text-coral"
+                idleHoverClassName="hover:border-coral/25 hover:text-coral"
+                ariaLabel={isGoing ? "Remove Going" : "Mark as Going"}
+                label={rsvpCount > 0 ? String(rsvpCount) : "Going"}
+                icon={<Users className="h-5 w-5" strokeWidth={isGoing ? 2.2 : 1.9} />}
+                style={fontStyle}
+              />
+
+              <div className={`relative ${showReminderPicker ? "z-[210]" : "z-10"}`}>
+                <EventQuickActionButton
+                  onClick={() => setShowReminderPicker((p) => !p)}
+                  active={hasReminder('1_day') || hasReminder('2_hours')}
+                  activeClassName="border-amber-300/70 text-amber-600"
+                  idleHoverClassName="hover:border-amber-300/40 hover:text-amber-600"
+                  ariaLabel="Set reminder"
+                  label="Remind"
+                  icon={<Bell className="h-5 w-5" strokeWidth={(hasReminder('1_day') || hasReminder('2_hours')) ? 2.2 : 1.9} />}
+                  style={fontStyle}
+                />
+
+                <AnimatePresence>
+                  {showReminderPicker && (
+                    <m.div
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 4 }}
+                      transition={{ duration: 0.12 }}
+                      className="absolute bottom-full left-1/2 z-[220] mb-3 min-w-[196px] -translate-x-1/2 rounded-[22px] border border-white/80 bg-off-white/95 p-2.5 shadow-[0_20px_40px_rgba(35,39,34,0.16)] backdrop-blur-xl"
+                    >
+                      <p className="px-3 pb-2 pt-1 text-[10px] font-bold uppercase tracking-[0.22em] text-charcoal/45" style={fontStyle}>Remind me</p>
+                      <button
+                        type="button"
+                        onClick={() => handleReminderOption('1_day')}
+                        disabled={reminderLoading}
+                        className={`w-full flex items-center justify-between gap-2 rounded-2xl px-3 py-3 text-sm font-semibold transition-colors duration-150 ${
+                          hasReminder('1_day')
+                            ? 'border border-amber-200 bg-amber-50/90 text-amber-700'
+                            : 'text-charcoal/75 hover:bg-charcoal/5'
+                        }`}
+                        style={fontStyle}
+                      >
+                        1 day before
+                        {hasReminder('1_day') && <Check className="h-3.5 w-3.5 text-amber-700" />}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleReminderOption('2_hours')}
+                        disabled={reminderLoading}
+                        className={`w-full flex items-center justify-between gap-2 rounded-2xl px-3 py-3 text-sm font-semibold transition-colors duration-150 ${
+                          hasReminder('2_hours')
+                            ? 'border border-amber-200 bg-amber-50/90 text-amber-700'
+                            : 'text-charcoal/75 hover:bg-charcoal/5'
+                        }`}
+                        style={fontStyle}
+                      >
+                        2 hours before
+                        {hasReminder('2_hours') && <Check className="h-3.5 w-3.5 text-amber-700" />}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowReminderPicker(false)}
+                        className="mt-1 flex w-full items-center justify-center rounded-xl px-3 py-2 text-xs text-charcoal/40 transition-colors hover:text-charcoal/60"
+                        style={fontStyle}
+                      >
+                        <X className="mr-1 h-3 w-3" /> Close
+                      </button>
+                    </m.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              <EventQuickActionButton
+                onClick={handleCalendar}
+                activeClassName="border-sage/35 text-sage"
+                idleHoverClassName="hover:border-sage/30 hover:text-sage"
+                ariaLabel="Add to calendar"
+                label="Calendar"
+                icon={<Calendar className="h-5 w-5" strokeWidth={1.9} />}
+                style={fontStyle}
+              />
+
+              <EventQuickActionButton
+                onClick={handleShare}
+                activeClassName="border-navbar-bg/30 text-navbar-bg"
+                idleHoverClassName="hover:border-navbar-bg/30 hover:text-navbar-bg"
+                ariaLabel="Share event"
+                label="Share"
+                icon={<Share2 className="h-5 w-5" strokeWidth={1.9} />}
+                style={fontStyle}
+              />
+            </div>
+          </div>
         </div>
       </div>
     </m.div>

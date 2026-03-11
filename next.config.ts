@@ -61,6 +61,11 @@ const nextConfig: NextConfig = {
         hostname: '**.tmgrup.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: '**.tmtickets.co.uk',
+        pathname: '/**',
+      },
       // Quicket event images
       {
         protocol: 'https',
