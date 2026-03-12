@@ -12,7 +12,6 @@ import {
 } from "@/app/lib/icons";
 import { useState, useEffect } from "react";
 import confetti from "canvas-confetti";
-import Logo from "../Logo/Logo";
 import { useToast } from "../../contexts/ToastContext";
 
 export default function Footer() {
@@ -170,7 +169,13 @@ export default function Footer() {
             {/* Brand */}
             <div className="flex flex-col items-start gap-4 text-left">
               <Link href="/" className="flex-shrink-0 flex items-center hover:opacity-80 transition-opacity">
-                <Logo variant="footer" />
+                <Image
+                  src="/logos/logo.png"
+                  alt="Sayso logo"
+                  width={180}
+                  height={72}
+                  className="h-14 w-auto object-contain"
+                />
               </Link>
               <p className="font-urbanist text-xs sm:text-sm text-off-white/80 font-normal text-left max-w-[46ch]">
                 Discover trusted local businesses, events, and community favourites.
