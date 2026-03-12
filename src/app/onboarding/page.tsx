@@ -97,7 +97,7 @@ export default function OnboardingPage() {
             <h1 className="font-urbanist text-[34px] leading-[40px] font-700 tracking-tight text-[#2D2D2D]">
               Discover gems near you
             </h1>
-            <p className="max-w-[288px] md:max-w-[600px] font-urbanist text-[16px] leading-[24px] font-normal text-[rgba(45,45,45,0.72)]">
+            <p className="max-w-[288px] md:max-w-[600px] font-urbanist text-[16px] leading-[24px] font-normal text-[rgba(45,45,45,0.72)] [word-break:normal] [overflow-wrap:normal] [hyphens:none]">
               Explore trusted businesses, leave reviews, and see what&apos;s trending around you.
             </p>
           </m.div>
@@ -148,7 +148,7 @@ export default function OnboardingPage() {
         </div>
       </div>
 
-      <p className="w-full text-center font-urbanist text-[14px] leading-[24px] italic font-medium text-[rgba(45,45,45,0.72)]">
+      <p className="w-full text-center font-urbanist text-[14px] leading-[24px] italic font-medium text-[rgba(45,45,45,0.72)] [word-break:normal] [overflow-wrap:normal] [hyphens:none]">
         Less guessing, more confessing
       </p>
     </main>

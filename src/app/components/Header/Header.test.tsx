@@ -7,6 +7,17 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Header from './Header';
 
+class ResizeObserverMock {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
+if (typeof global.ResizeObserver === 'undefined') {
+  // jsdom doesn't provide ResizeObserver by default.
+  (global as typeof global & { ResizeObserver: typeof ResizeObserverMock }).ResizeObserver = ResizeObserverMock;
+}
+
 // Mock Next.js navigation
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
@@ -95,7 +106,7 @@ describe('Header Search Modal UX Fix', () => {
     fireEvent.click(viewAllButton);
 
     // Verify navigation was called with correct query params
-    expect(mockPush).toHaveBeenCalledWith('/?search=restaurant');
+    expect(mockPush).toHaveBeenCalledWith('/home?search=restaurant&guest=true');
   });
 
   it('closes modal when View all is clicked', async () => {
@@ -154,7 +165,7 @@ describe('Header Search Modal UX Fix', () => {
     fireEvent.click(viewAllButton);
 
     // Navigation should happen immediately without clearing results
-    expect(mockPush).toHaveBeenCalledWith('/?search=business');
+    expect(mockPush).toHaveBeenCalledWith('/home?search=business&guest=true');
   });
 
   it('does not navigate when search query is empty', () => {

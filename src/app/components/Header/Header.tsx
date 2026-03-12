@@ -124,6 +124,24 @@ export default function Header({
   const effectiveIsAdminUser = isAdminUser;
   const effectiveIsBusinessAccountUser = isBusinessAccountUser;
   const effectiveNavLinks = navLinks;
+  const shouldKeepGuestMode =
+    effectiveIsGuest || searchParams.get("guest") === "true";
+
+  const buildSearchResultsHref = useCallback(
+    (query: string) => {
+      const params = new URLSearchParams();
+      const trimmedQuery = query.trim();
+      if (trimmedQuery) {
+        params.set("search", trimmedQuery);
+      }
+      if (shouldKeepGuestMode) {
+        params.set("guest", "true");
+      }
+      const queryString = params.toString();
+      return `/home${queryString ? `?${queryString}` : ""}`;
+    },
+    [shouldKeepGuestMode]
+  );
 
   // Sync local state with URL params — skip when the URL change was caused by
   // the user typing (isSelfUrlUpdateRef prevents overwriting in-progress input).
@@ -332,11 +350,7 @@ export default function Header({
       updateSearchUrl(headerSearchQuery);
     } else {
       // Navigate to home with search param for non-home pages
-      const params = new URLSearchParams();
-      if (headerSearchQuery.trim()) {
-        params.set("search", headerSearchQuery.trim());
-      }
-      router.push(`/?${params.toString()}`);
+      router.push(buildSearchResultsHref(headerSearchQuery));
     }
   };
 
@@ -415,11 +429,9 @@ export default function Header({
       collapseDesktopSearch();
       setIsMobileSearchOpen(false);
       setActiveSuggestionIndex(-1);
-      const params = new URLSearchParams();
-      params.set("search", q);
-      router.push(`/home?${params.toString()}`);
+      router.push(buildSearchResultsHref(q));
     },
-    [collapseDesktopSearch, router, setSuggestionQuery]
+    [buildSearchResultsHref, collapseDesktopSearch, router, setSuggestionQuery]
   );
 
   // Handle "View all" button click - preserve search state during navigation
@@ -437,10 +449,8 @@ export default function Header({
     setActiveSuggestionIndex(-1);
 
     // Navigate immediately with captured query params
-    const params = new URLSearchParams();
-    params.set("search", capturedQuery);
-    router.push(`/home?${params.toString()}`);
-  }, [collapseDesktopSearch, headerSearchQuery, router]);
+    router.push(buildSearchResultsHref(capturedQuery));
+  }, [buildSearchResultsHref, collapseDesktopSearch, headerSearchQuery, router]);
 
   // Handle general search navigation (form submit, enter key)
   const navigateToSearchResults = useCallback(() => {
@@ -452,10 +462,8 @@ export default function Header({
     setIsMobileSearchOpen(false);
     setActiveSuggestionIndex(-1);
 
-    const params = new URLSearchParams();
-    params.set("search", q);
-    router.push(`/home?${params.toString()}`);
-  }, [collapseDesktopSearch, headerSearchQuery, router]);
+    router.push(buildSearchResultsHref(q));
+  }, [buildSearchResultsHref, collapseDesktopSearch, headerSearchQuery, router]);
 
   const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (!isSuggestionsOpen) return;
