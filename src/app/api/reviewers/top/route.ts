@@ -3,6 +3,28 @@ import { createClient } from '@supabase/supabase-js';
 import { getBadgeMapping, getBadgePngPath } from '../../../lib/badgeMappings';
 import { isTopContributor } from '../../../lib/topContributor';
 
+const SUPABASE_URL = (process.env.NEXT_PUBLIC_SUPABASE_URL ?? '').replace(/\/$/, '');
+
+/**
+ * Ensure avatar_url is always a fully-qualified HTTPS URL.
+ *
+ * Three cases stored in profiles.avatar_url:
+ *  1. Full Supabase storage URL  → use as-is
+ *  2. OAuth provider URL (Google/Apple)  → use as-is (already absolute)
+ *  3. Relative storage path (old uploads / edge-case)  → build public URL
+ *     e.g. "user-id/avatar-123.jpg"  →  https://…supabase.co/storage/v1/object/public/avatars/user-id/avatar-123.jpg
+ */
+function resolveAvatarUrl(avatarUrl: string | null | undefined, seedName: string): string {
+  if (avatarUrl && (avatarUrl.startsWith('http://') || avatarUrl.startsWith('https://'))) {
+    return avatarUrl;
+  }
+  if (avatarUrl && SUPABASE_URL) {
+    const storagePath = avatarUrl.startsWith('avatars/') ? avatarUrl : `avatars/${avatarUrl}`;
+    return `${SUPABASE_URL}/storage/v1/object/public/${storagePath}`;
+  }
+  return `https://ui-avatars.com/api/?name=${encodeURIComponent(seedName)}&background=random&color=fff&size=128`;
+}
+
 /**
  * GET /api/reviewers/top?limit=12
  * Fetches top reviewers based on a contributor score (cold-start friendly).
@@ -206,9 +228,7 @@ export async function GET(req: Request) {
           id: userId,
           name: displayName,
           username: profile.username,
-          profilePicture:
-            profile.avatar_url ||
-            `https://ui-avatars.com/api/?name=${encodeURIComponent(avatarSeedName)}&background=random`,
+          profilePicture: resolveAvatarUrl(profile.avatar_url, avatarSeedName),
           reviewCount: stats.count,
           avgRatingGiven: stats.count > 0 ? Math.round((stats.ratingSum / stats.count) * 10) / 10 : null,
           helpfulVotes: stats.helpfulReceived,
