@@ -7,7 +7,8 @@ import { NextResponse, type NextRequest } from 'next/server';
  * Single source of truth: profiles.onboarding_completed_at (timestamp)
  *
  * Rules:
- * 1. NO user session → do NOT redirect to onboarding/complete; only redirect protected routes to /login.
+ * 1. NO user session → entry routes (/ and /home) redirect to /onboarding for real users.
+ *    Keep bots crawlable on / and continue protecting private routes via /login.
  * 2. Onboarding redirects ONLY after confirming user exists and email confirmed.
  * 3. Never redirect FROM /verify-email or /login based on onboarding flags.
  * 4. Business account → redirect to /my-businesses ONLY after email verification.
@@ -58,6 +59,11 @@ function isPrefetchRequest(request: NextRequest): boolean {
     request.headers.get('x-middleware-prefetch') === '1' ||
     request.headers.get('purpose') === 'prefetch'
   );
+}
+
+function isCrawlerRequest(request: NextRequest): boolean {
+  const userAgent = request.headers.get('user-agent') || '';
+  return /(bot|crawl|crawler|spider|slurp|bingpreview|facebookexternalhit|linkedinbot|twitterbot|duckduckbot|yandex)/i.test(userAgent);
 }
 
 /** Redirect loop guard: if we already redirected 2+ times within REDIRECT_GUARD_MAX_AGE_SEC, allow next() to break loop. */
@@ -507,19 +513,35 @@ export async function proxy(request: NextRequest) {
     return response;
   }
 
-  // CRITICAL (iOS crash fix): No user session — avoid redirecting to onboarding/complete (except root "/" default landing). Only protect protected routes → /login; allow public.
+  // CRITICAL (iOS crash fix): No user session — route real-user entry traffic to /onboarding,
+  // keep protected routes behind /login, and preserve crawlability of root for bots.
   if (!user) {
     if (isAdminRoute) {
       const loginUrl = getLoginRedirectUrl(request);
       edgeLog('REDIRECT', pathname, { hasUser: false, to: `${loginUrl.pathname}${loginUrl.search}`, reason: 'guest_admin_route' });
       return redirectWithGuard(request, loginUrl);
     }
+    const guestModeRequested = request.nextUrl.searchParams.get('guest') === 'true';
     // Guests should never land on /for-you (empty state can trap navigation on some webviews).
     // Keep /home public; lock personalization to authenticated users only.
     if (pathname === '/for-you' || pathname.startsWith('/for-you/')) {
-      const to = '/home';
+      const to = '/home?guest=true';
       edgeLog('REDIRECT', pathname, { hasUser: false, to, reason: 'guest_for_you' });
       return redirectWithGuard(request, new URL(to, request.url));
+    }
+    const isGuestHomePath = pathname === '/home' || pathname === '/home/';
+    if (isGuestHomePath && guestModeRequested) {
+      edgeLog('ALLOW', pathname, { hasUser: false, reason: 'guest_mode_explicit' });
+      return response;
+    }
+    const isGuestEntryPath = pathname === '/' || pathname === '/home' || pathname === '/home/';
+    if (isGuestEntryPath) {
+      if (pathname === '/' && isCrawlerRequest(request)) {
+        edgeLog('ALLOW', pathname, { hasUser: false, reason: 'guest_root_bot_allowed' });
+        return response;
+      }
+      edgeLog('REDIRECT', pathname, { hasUser: false, to: '/onboarding', reason: 'guest_entry_onboarding' });
+      return redirectWithGuard(request, new URL('/onboarding', request.url));
     }
     if (isPublicRoute) {
       edgeLog('ALLOW', pathname, { hasUser: false });
@@ -535,11 +557,6 @@ export async function proxy(request: NextRequest) {
       const loginUrl = getLoginRedirectUrl(request);
       edgeLog('REDIRECT', pathname, { hasUser: false, to: `${loginUrl.pathname}${loginUrl.search}` });
       return redirectWithGuard(request, loginUrl);
-    }
-    // Keep root public for guests so "/" remains crawlable and indexable.
-    if (pathname === '/') {
-      edgeLog('ALLOW', pathname, { hasUser: false, reason: 'guest_root_public' });
-      return response;
     }
     edgeLog('ALLOW', pathname, { hasUser: false });
     return response;
@@ -937,5 +954,3 @@ export async function proxy(request: NextRequest) {
   edgeLog('ALLOW', pathname, { hasUser: !!user, emailConfirmed: !!user?.email_confirmed_at });
   return response;
 }
-
-
