@@ -116,12 +116,43 @@ function sanitizeText(text: string): string {
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+/** Extract and validate a Bearer token, returning the authenticated user if valid. */
+async function resolveUserFromBearer(req: NextRequest) {
+  const authHeader = req.headers.get('authorization');
+  if (!authHeader) return null;
+  const [scheme, token] = authHeader.trim().split(/\s+/, 2);
+  if (scheme?.toLowerCase() !== 'bearer' || !token?.trim()) return null;
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !anonKey) return null;
+
+  try {
+    const bearerClient = createClient(supabaseUrl, anonKey, {
+      auth: { autoRefreshToken: false, persistSession: false, detectSessionInUrl: false },
+      global: { headers: { Authorization: `Bearer ${token.trim()}` } },
+    });
+    const { data: { user }, error } = await bearerClient.auth.getUser(token.trim());
+    if (error || !user) return null;
+    // Cast: bearer client has the same API surface as the SSR client for our purposes.
+    return { user, supabase: bearerClient as unknown as Awaited<ReturnType<typeof getServerSupabase>> };
+  } catch {
+    return null;
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
-    const supabase = await getServerSupabase(req);
+    // Try Bearer token auth first (mobile clients send Authorization header, not cookies).
+    const bearerAuth = await resolveUserFromBearer(req);
+
+    const supabase = bearerAuth?.supabase ?? await getServerSupabase(req);
 
     // Auth: server-trusted; only treat as authenticated if user exists and no auth error
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const { data: { user: cookieUser }, error: authError } = bearerAuth
+      ? { data: { user: bearerAuth.user }, error: null }
+      : await supabase.auth.getUser();
+    const user = cookieUser;
     const isAnonymous = !user || !!authError;
 
     // Fail-fast when service role is required (anonymous mode) and key is missing
