@@ -283,8 +283,10 @@ function WriteReviewContent() {
         if (selectedImages.length > 0 || removedImageIds.length > 0) {
           const formData = new FormData();
           
-          // Add new images
-          selectedImages.forEach((file) => {
+          // Add new images (compressed client-side before upload)
+          const { ImageUploadService } = await import("../../../lib/services/imageUploadService");
+          const compressedImages = await ImageUploadService.compressFilesForUpload(selectedImages);
+          compressedImages.forEach((file) => {
             formData.append('images', file);
           });
           

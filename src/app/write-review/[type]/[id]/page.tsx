@@ -210,10 +210,14 @@ function WriteReviewContent() {
         formData.append("website_url", honeypotEl.value);
       }
 
-      selectedImages.forEach((image, index) => {
-        const fileName = image.name && image.name.trim() ? image.name : `photo_${Date.now()}_${index}.jpg`;
-        formData.append("images", image, fileName);
-      });
+      if (selectedImages.length > 0) {
+        const { ImageUploadService } = await import("../../../lib/services/imageUploadService");
+        const compressedImages = await ImageUploadService.compressFilesForUpload(selectedImages);
+        compressedImages.forEach((image, index) => {
+          const fileName = image.name && image.name.trim() ? image.name : `photo_${Date.now()}_${index}.jpg`;
+          formData.append("images", image, fileName);
+        });
+      }
 
       let anonymousId: string | null = null;
       if (!user) {

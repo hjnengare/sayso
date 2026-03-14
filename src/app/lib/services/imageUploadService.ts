@@ -141,6 +141,31 @@ export class ImageUploadService {
     }
   }
 
+  // Compress a single image for upload: 80% quality, max 1920×1080, hard-cap at 1 MB.
+  // Falls back to a second pass at 70% / 1280×720 if the first pass still exceeds 1 MB.
+  // Returns the original file unchanged when it already fits within the 1 MB limit.
+  static async compressForUpload(file: File): Promise<File> {
+    const MAX_SIZE = 1 * 1024 * 1024; // 1 MB
+
+    if (file.size <= MAX_SIZE) {
+      return file;
+    }
+
+    const first = await this.compressImage(file, 1920, 1080, 0.8);
+    if (first.size <= MAX_SIZE) {
+      return first;
+    }
+
+    // Still over 1 MB — try a more aggressive pass
+    const second = await this.compressImage(first, 1280, 720, 0.7);
+    return second.size < file.size ? second : file;
+  }
+
+  // Compress an array of files for upload (convenience wrapper around compressForUpload)
+  static async compressFilesForUpload(files: File[]): Promise<File[]> {
+    return Promise.all(files.map(f => this.compressForUpload(f)));
+  }
+
   // Utility function to compress images on the client side
   static async compressImage(
     file: File,

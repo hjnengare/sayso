@@ -159,7 +159,9 @@ export function useReviewSubmission() {
       formData.append('content', reviewData.content);
       reviewData.tags.forEach(tag => formData.append('tags', tag));
       if (reviewData.images?.length) {
-        reviewData.images.forEach((image, index) => {
+        const { ImageUploadService } = await import('../lib/services/imageUploadService');
+        const compressedImages = await ImageUploadService.compressFilesForUpload(reviewData.images);
+        compressedImages.forEach((image, index) => {
           const fileName = image.name && image.name.trim() ? image.name : `photo_${Date.now()}_${index}.jpg`;
           formData.append('images', image, fileName);
         });
