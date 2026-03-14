@@ -43,6 +43,40 @@ export interface ReviewerSearchResult {
   total_reviews: number;
 }
 
+export interface EventSearchResult {
+  id: string;
+  title: string;
+  description: string | null;
+  location: string | null;
+  business_id: string | null;
+  start_date_ts: number;
+  end_date_ts: number | null;
+  image_url: string | null;
+  booking_url: string | null;
+  icon: string | null;
+  price: number | null;
+  availability_status: string | null;
+  category_slug: string | null;
+  category_label: string | null;
+  is_community_event: boolean;
+  result_type: "event";
+}
+
+export interface SpecialSearchResult {
+  id: string;
+  title: string;
+  description: string | null;
+  location: string | null;
+  business_id: string | null;
+  start_date_ts: number;
+  end_date_ts: number | null;
+  image_url: string | null;
+  booking_url: string | null;
+  icon: string | null;
+  price: number | null;
+  result_type: "special";
+}
+
 interface UseLiveSearchOptions {
   initialQuery?: string;
   debounceMs?: number;
@@ -51,6 +85,8 @@ interface UseLiveSearchOptions {
 interface SearchPayload {
   results: LiveSearchResult[];
   reviewerResults: ReviewerSearchResult[];
+  eventResults: EventSearchResult[];
+  specialResults: SpecialSearchResult[];
   error: string | null;
 }
 
@@ -70,6 +106,8 @@ async function fetchSearchResults(
   return {
     results: payload.results || [],
     reviewerResults: payload.reviewerResults || [],
+    eventResults: payload.eventResults || [],
+    specialResults: payload.specialResults || [],
     error: payload.error || null,
   };
 }
@@ -129,6 +167,8 @@ export function useLiveSearch({ initialQuery = "", debounceMs = 300 }: UseLiveSe
     error: error ? (error as Error).message : data?.error ?? null,
     results: swrKey ? (data?.results ?? []) : [],
     reviewerResults: swrKey ? (data?.reviewerResults ?? []) : [],
+    eventResults: swrKey ? (data?.eventResults ?? []) : [],
+    specialResults: swrKey ? (data?.specialResults ?? []) : [],
     filters,
     setDistanceKm,
     setMinRating,

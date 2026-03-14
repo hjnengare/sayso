@@ -4,7 +4,7 @@ import type { CSSProperties, ChangeEvent, FormEvent, KeyboardEvent, RefObject } 
 import { SearchOutline, XOutline } from "@/app/lib/icons";
 import { AnimatePresence, m } from "framer-motion";
 
-import type { LiveSearchResult } from "../../hooks/useLiveSearch";
+import type { LiveSearchResult, EventSearchResult, SpecialSearchResult } from "../../hooks/useLiveSearch";
 import type { QuerySuggestion } from "../../hooks/useSearchSuggestions";
 import { Search } from "@/app/lib/icons";
 
@@ -15,11 +15,15 @@ type SuggestionsDropdownProps = {
   loading: boolean;
   suggestions: LiveSearchResult[];
   querySuggestions?: QuerySuggestion[];
+  eventResults?: EventSearchResult[];
+  specialResults?: SpecialSearchResult[];
   activeSuggestionIndex: number;
   sf: CSSProperties;
   onSetActiveSuggestionIndex: (index: number) => void;
   onNavigateToSuggestion: (item: LiveSearchResult) => void;
   onSelectQuerySuggestion?: (suggestion: QuerySuggestion) => void;
+  onNavigateToEvent?: (item: EventSearchResult) => void;
+  onNavigateToSpecial?: (item: SpecialSearchResult) => void;
   onViewAll: () => void;
 };
 
@@ -35,6 +39,8 @@ type DesktopHeaderSearchProps = {
   suggestionsLoading: boolean;
   cappedSuggestions: LiveSearchResult[];
   querySuggestions?: QuerySuggestion[];
+  eventResults?: EventSearchResult[];
+  specialResults?: SpecialSearchResult[];
   activeSuggestionIndex: number;
   sf: CSSProperties;
   onSubmit: (event: FormEvent) => void;
@@ -46,6 +52,8 @@ type DesktopHeaderSearchProps = {
   onSetActiveSuggestionIndex: (index: number) => void;
   onNavigateToSuggestion: (item: LiveSearchResult) => void;
   onSelectQuerySuggestion?: (suggestion: QuerySuggestion) => void;
+  onNavigateToEvent?: (item: EventSearchResult) => void;
+  onNavigateToSpecial?: (item: SpecialSearchResult) => void;
   onViewAll: () => void;
 };
 
@@ -58,6 +66,8 @@ type MobileHeaderSearchProps = {
   suggestionsLoading: boolean;
   cappedSuggestions: LiveSearchResult[];
   querySuggestions?: QuerySuggestion[];
+  eventResults?: EventSearchResult[];
+  specialResults?: SpecialSearchResult[];
   activeSuggestionIndex: number;
   sf: CSSProperties;
   onSubmit: (event: FormEvent) => void;
@@ -68,8 +78,15 @@ type MobileHeaderSearchProps = {
   onSetActiveSuggestionIndex: (index: number) => void;
   onNavigateToSuggestion: (item: LiveSearchResult) => void;
   onSelectQuerySuggestion?: (suggestion: QuerySuggestion) => void;
+  onNavigateToEvent?: (item: EventSearchResult) => void;
+  onNavigateToSpecial?: (item: SpecialSearchResult) => void;
   onViewAll: () => void;
 };
+
+function formatEventDate(startDateTs: number): string {
+  const date = new Date(startDateTs * 1000);
+  return date.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+}
 
 function HeaderSuggestionsDropdown({
   mode,
@@ -78,14 +95,23 @@ function HeaderSuggestionsDropdown({
   loading,
   suggestions,
   querySuggestions = [],
+  eventResults = [],
+  specialResults = [],
   activeSuggestionIndex,
   sf,
   onSetActiveSuggestionIndex,
   onNavigateToSuggestion,
   onSelectQuerySuggestion,
+  onNavigateToEvent,
+  onNavigateToSpecial,
   onViewAll,
 }: SuggestionsDropdownProps) {
-  const hasContent = loading || suggestions.length > 0 || querySuggestions.length > 0;
+  const hasContent =
+    loading ||
+    suggestions.length > 0 ||
+    querySuggestions.length > 0 ||
+    eventResults.length > 0 ||
+    specialResults.length > 0;
   const show = isOpen && hasContent;
   const widthClass = mode === "desktop" ? "" : "w-full";
   const topClass = mode === "desktop" ? "top-[44px] right-0" : "top-[56px] left-0 right-0";
@@ -180,6 +206,74 @@ function HeaderSuggestionsDropdown({
               })
             )}
           </div>
+
+          {/* Events section */}
+          {eventResults.length > 0 && (
+            <div className="border-t border-charcoal/6">
+              <div className="px-4 pt-2.5 pb-1">
+                <span className="text-[11px] font-semibold text-charcoal/50 uppercase tracking-wide" style={sf}>
+                  Events
+                </span>
+              </div>
+              <div className="pb-2">
+                {eventResults.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => onNavigateToEvent?.(item)}
+                    className="w-full text-left px-4 py-2.5 flex items-center gap-3 hover:bg-charcoal/5 active:bg-sage/10 transition-colors duration-150"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="text-sm font-semibold text-charcoal truncate" style={sf}>
+                        {item.title}
+                      </div>
+                      <div className="text-xs text-charcoal/60 truncate" style={sf}>
+                        {formatEventDate(item.start_date_ts)}
+                        {item.location ? ` · ${item.location}` : ""}
+                      </div>
+                    </div>
+                    <span className="flex-shrink-0 text-[10px] font-medium text-charcoal/40 bg-charcoal/8 rounded-full px-2 py-0.5" style={sf}>
+                      Event
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Specials section */}
+          {specialResults.length > 0 && (
+            <div className="border-t border-charcoal/6">
+              <div className="px-4 pt-2.5 pb-1">
+                <span className="text-[11px] font-semibold text-charcoal/50 uppercase tracking-wide" style={sf}>
+                  Specials
+                </span>
+              </div>
+              <div className="pb-2">
+                {specialResults.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => onNavigateToSpecial?.(item)}
+                    className="w-full text-left px-4 py-2.5 flex items-center gap-3 hover:bg-charcoal/5 active:bg-sage/10 transition-colors duration-150"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="text-sm font-semibold text-charcoal truncate" style={sf}>
+                        {item.title}
+                      </div>
+                      <div className="text-xs text-charcoal/60 truncate" style={sf}>
+                        {formatEventDate(item.start_date_ts)}
+                        {item.location ? ` · ${item.location}` : ""}
+                      </div>
+                    </div>
+                    <span className="flex-shrink-0 text-[10px] font-medium text-charcoal/40 bg-charcoal/8 rounded-full px-2 py-0.5" style={sf}>
+                      Special
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </m.div>
       )}
     </AnimatePresence>
@@ -198,6 +292,8 @@ export function DesktopHeaderSearch({
   suggestionsLoading,
   cappedSuggestions,
   querySuggestions,
+  eventResults,
+  specialResults,
   activeSuggestionIndex,
   sf,
   onSubmit,
@@ -209,6 +305,8 @@ export function DesktopHeaderSearch({
   onSetActiveSuggestionIndex,
   onNavigateToSuggestion,
   onSelectQuerySuggestion,
+  onNavigateToEvent,
+  onNavigateToSpecial,
   onViewAll,
 }: DesktopHeaderSearchProps) {
   return (
@@ -300,11 +398,15 @@ export function DesktopHeaderSearch({
                   loading={suggestionsLoading}
                   suggestions={cappedSuggestions}
                   querySuggestions={querySuggestions}
+                  eventResults={eventResults}
+                  specialResults={specialResults}
                   activeSuggestionIndex={activeSuggestionIndex}
                   sf={sf}
                   onSetActiveSuggestionIndex={onSetActiveSuggestionIndex}
                   onNavigateToSuggestion={onNavigateToSuggestion}
                   onSelectQuerySuggestion={onSelectQuerySuggestion}
+                  onNavigateToEvent={onNavigateToEvent}
+                  onNavigateToSpecial={onNavigateToSpecial}
                   onViewAll={onViewAll}
                 />
               </m.div>
@@ -325,6 +427,8 @@ export function MobileHeaderSearch({
   suggestionsLoading,
   cappedSuggestions,
   querySuggestions,
+  eventResults,
+  specialResults,
   activeSuggestionIndex,
   sf,
   onSubmit,
@@ -335,6 +439,8 @@ export function MobileHeaderSearch({
   onSetActiveSuggestionIndex,
   onNavigateToSuggestion,
   onSelectQuerySuggestion,
+  onNavigateToEvent,
+  onNavigateToSpecial,
   onViewAll,
 }: MobileHeaderSearchProps) {
   return (
@@ -425,11 +531,15 @@ export function MobileHeaderSearch({
             loading={suggestionsLoading}
             suggestions={cappedSuggestions}
             querySuggestions={querySuggestions}
+            eventResults={eventResults}
+            specialResults={specialResults}
             activeSuggestionIndex={activeSuggestionIndex}
             sf={sf}
             onSetActiveSuggestionIndex={onSetActiveSuggestionIndex}
             onNavigateToSuggestion={onNavigateToSuggestion}
             onSelectQuerySuggestion={onSelectQuerySuggestion}
+            onNavigateToEvent={onNavigateToEvent}
+            onNavigateToSpecial={onNavigateToSpecial}
             onViewAll={onViewAll}
           />
         </m.div>

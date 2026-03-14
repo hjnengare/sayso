@@ -9,7 +9,7 @@ import HeaderSkeleton from "./HeaderSkeleton";
 import { DesktopHeaderSearch, MobileHeaderSearch } from "./HeaderSearch";
 import { useHeaderState } from "./useHeaderState";
 import { getLogoHref } from "./headerActionsConfig";
-import { useLiveSearch, type LiveSearchResult } from "../../hooks/useLiveSearch";
+import { useLiveSearch, type LiveSearchResult, type EventSearchResult, type SpecialSearchResult } from "../../hooks/useLiveSearch";
 import { useSearchSuggestions, type QuerySuggestion } from "../../hooks/useSearchSuggestions";
 import { usePrefetchRoutes } from "../../hooks/usePrefetchRoutes";
 import { AdminHeaderRole } from "./roles/AdminHeaderRole";
@@ -114,6 +114,8 @@ export default function Header({
     setQuery: setSuggestionQuery,
     loading: suggestionsLoading,
     results: suggestionResults,
+    eventResults: rawEventResults,
+    specialResults: rawSpecialResults,
   } = useLiveSearch({ initialQuery: urlSearchQuery, debounceMs: 120 });
 
   const { suggestions: querySuggestions } = useSearchSuggestions({
@@ -164,10 +166,17 @@ export default function Header({
     return list.slice(0, 6);
   }, [suggestionResults]);
 
+  const cappedEventResults = useMemo(() => rawEventResults.slice(0, 3), [rawEventResults]);
+  const cappedSpecialResults = useMemo(() => rawSpecialResults.slice(0, 3), [rawSpecialResults]);
+
   const isSuggestionsOpen =
     headerSearchQuery.trim().length > 0 &&
     (isDesktopSearchExpanded || isMobileSearchOpen) &&
-    (suggestionsLoading || cappedSuggestions.length > 0 || querySuggestions.length > 0);
+    (suggestionsLoading ||
+      cappedSuggestions.length > 0 ||
+      querySuggestions.length > 0 ||
+      cappedEventResults.length > 0 ||
+      cappedSpecialResults.length > 0);
 
   const isHomePage = pathname === "/" || pathname === "/home";
   const isHomepageHeroOverlay = isHomePage && urlSearchQuery.trim().length === 0;
@@ -421,6 +430,26 @@ export default function Header({
     [collapseDesktopSearch, router]
   );
 
+  const navigateToEvent = useCallback(
+    (item: EventSearchResult) => {
+      collapseDesktopSearch();
+      setIsMobileSearchOpen(false);
+      setActiveSuggestionIndex(-1);
+      router.push(`/event/${item.id}`);
+    },
+    [collapseDesktopSearch, router]
+  );
+
+  const navigateToSpecial = useCallback(
+    (item: SpecialSearchResult) => {
+      collapseDesktopSearch();
+      setIsMobileSearchOpen(false);
+      setActiveSuggestionIndex(-1);
+      router.push(`/special/${item.id}`);
+    },
+    [collapseDesktopSearch, router]
+  );
+
   const handleSelectQuerySuggestion = useCallback(
     (suggestion: QuerySuggestion) => {
       const q = suggestion.query;
@@ -533,6 +562,8 @@ useEffect(() => {
       suggestionsLoading={suggestionsLoading}
       cappedSuggestions={cappedSuggestions}
       querySuggestions={querySuggestions}
+      eventResults={cappedEventResults}
+      specialResults={cappedSpecialResults}
       activeSuggestionIndex={activeSuggestionIndex}
       sf={sf}
       onSubmit={handleSearchSubmit}
@@ -544,6 +575,8 @@ useEffect(() => {
       onSetActiveSuggestionIndex={setActiveSuggestionIndex}
       onNavigateToSuggestion={navigateToSuggestion}
       onSelectQuerySuggestion={handleSelectQuerySuggestion}
+      onNavigateToEvent={navigateToEvent}
+      onNavigateToSpecial={navigateToSpecial}
       onViewAll={handleViewAll}
     />
   );
@@ -558,6 +591,8 @@ useEffect(() => {
       suggestionsLoading={suggestionsLoading}
       cappedSuggestions={cappedSuggestions}
       querySuggestions={querySuggestions}
+      eventResults={cappedEventResults}
+      specialResults={cappedSpecialResults}
       activeSuggestionIndex={activeSuggestionIndex}
       sf={sf}
       onSubmit={handleSearchSubmit}
@@ -568,6 +603,8 @@ useEffect(() => {
       onSetActiveSuggestionIndex={setActiveSuggestionIndex}
       onNavigateToSuggestion={navigateToSuggestion}
       onSelectQuerySuggestion={handleSelectQuerySuggestion}
+      onNavigateToEvent={navigateToEvent}
+      onNavigateToSpecial={navigateToSpecial}
       onViewAll={handleViewAll}
     />
   );

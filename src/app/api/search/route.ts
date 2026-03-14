@@ -3,7 +3,7 @@ import { getServerSupabase } from "@/app/lib/supabase/server";
 import { getCategoryLabelFromBusiness } from "@/app/utils/subcategoryPlaceholders";
 import { getInterestIdForSubcategory } from "@/app/lib/onboarding/subcategoryMapping";
 import { reRankByContactCompleteness } from "@/app/lib/utils/contactCompleteness";
-import { ALGOLIA_INDICES, BusinessHit } from "@/app/lib/algolia/indices";
+import { ALGOLIA_INDICES, BusinessHit, EventHit, SpecialHit } from "@/app/lib/algolia/indices";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -13,6 +13,8 @@ export const runtime = "nodejs";
 interface AlgoliaSearchResult {
   results: Array<Record<string, unknown>>;
   reviewerResults: Array<Record<string, unknown>>;
+  eventResults: Array<Record<string, unknown>>;
+  specialResults: Array<Record<string, unknown>>;
 }
 
 async function searchWithAlgolia(
@@ -32,6 +34,8 @@ async function searchWithAlgolia(
   const numericFilters: string[] = [];
   if (minRating) numericFilters.push(`average_rating >= ${minRating}`);
 
+  const nowSeconds = Math.floor(Date.now() / 1000);
+
   const { results } = await client.search({
     requests: [
       {
@@ -46,11 +50,25 @@ async function searchWithAlgolia(
         query,
         hitsPerPage: 5,
       },
+      {
+        indexName: ALGOLIA_INDICES.EVENTS,
+        query,
+        hitsPerPage: 3,
+        numericFilters: [`start_date_ts >= ${nowSeconds}`],
+      },
+      {
+        indexName: ALGOLIA_INDICES.SPECIALS,
+        query,
+        hitsPerPage: 3,
+        numericFilters: [`start_date_ts >= ${nowSeconds}`],
+      },
     ],
   });
 
   const businessHits = (results[0] as { hits: (BusinessHit & { objectID: string })[] }).hits ?? [];
   const reviewerHits = (results[1] as { hits: Array<{ objectID: string; display_name?: string; username?: string; avatar_url?: string; is_top_reviewer?: boolean; total_reviews?: number }> }).hits ?? [];
+  const eventHits = (results[2] as { hits: (EventHit & { objectID: string })[] }).hits ?? [];
+  const specialHits = (results[3] as { hits: (SpecialHit & { objectID: string })[] }).hits ?? [];
 
   return {
     results: businessHits.map((hit) => ({
@@ -82,6 +100,38 @@ async function searchWithAlgolia(
       avatar_url: hit.avatar_url ?? null,
       is_top_reviewer: hit.is_top_reviewer ?? false,
       total_reviews: hit.total_reviews ?? 0,
+    })),
+    eventResults: eventHits.map((hit) => ({
+      id: hit.objectID,
+      title: hit.title,
+      description: hit.description ?? null,
+      location: hit.location ?? null,
+      business_id: hit.business_id ?? null,
+      start_date_ts: hit.start_date_ts,
+      end_date_ts: hit.end_date_ts ?? null,
+      image_url: hit.image_url ?? null,
+      booking_url: hit.booking_url ?? null,
+      icon: hit.icon ?? null,
+      price: hit.price ?? null,
+      availability_status: hit.availability_status ?? null,
+      category_slug: hit.category_slug ?? null,
+      category_label: hit.category_label ?? null,
+      is_community_event: hit.is_community_event ?? false,
+      result_type: "event" as const,
+    })),
+    specialResults: specialHits.map((hit) => ({
+      id: hit.objectID,
+      title: hit.title,
+      description: hit.description ?? null,
+      location: hit.location ?? null,
+      business_id: hit.business_id ?? null,
+      start_date_ts: hit.start_date_ts,
+      end_date_ts: hit.end_date_ts ?? null,
+      image_url: hit.image_url ?? null,
+      booking_url: hit.booking_url ?? null,
+      icon: hit.icon ?? null,
+      price: hit.price ?? null,
+      result_type: "special" as const,
     })),
   };
 }
@@ -122,6 +172,8 @@ export async function GET(req: NextRequest) {
           {
             results: algoliaResults.results,
             reviewerResults: algoliaResults.reviewerResults,
+            eventResults: algoliaResults.eventResults,
+            specialResults: algoliaResults.specialResults,
             meta: { query, minRating, total: algoliaResults.results.length, source: "algolia" },
           },
           { status: 200 }
