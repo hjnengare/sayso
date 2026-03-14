@@ -4,6 +4,8 @@
  * Indices:
  *   sayso_businesses  — active, public-facing businesses
  *   sayso_reviewers   — reviewer profiles (public fields only)
+ *   sayso_events      — upcoming events from events_and_specials (type = 'event')
+ *   sayso_specials    — upcoming specials from events_and_specials (type = 'special')
  *
  * Reviews are NOT indexed per product requirements.
  */
@@ -11,6 +13,8 @@
 export const ALGOLIA_INDICES = {
   BUSINESSES: "sayso_businesses",
   REVIEWERS: "sayso_reviewers",
+  EVENTS: "sayso_events",
+  SPECIALS: "sayso_specials",
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -194,3 +198,150 @@ export const REVIEWER_INDEX_SETTINGS = {
     "total_reviews",
   ],
 } as const;
+
+// ---------------------------------------------------------------------------
+// Event hit — source: events_and_specials where type = 'event'
+// ---------------------------------------------------------------------------
+export interface EventHit {
+  objectID: string;            // = events_and_specials.id
+  title: string;
+  description: string | null;
+  location: string | null;
+  business_id: string | null;
+  /** Unix seconds — used for customRanking and numeric filter at query time */
+  start_date_ts: number;
+  end_date_ts: number | null;
+  image_url: string | null;    // mapped from 'image' column
+  booking_url: string | null;
+  icon: string | null;
+  price: number | null;
+  availability_status: string | null;
+  category_slug: string | null;   // quicket_category_slug
+  category_label: string | null;  // quicket_category_label
+  /**
+   * Canonical key for Algolia `distinct` deduplication of recurring series.
+   * Computed by normalising the title (stripping ordinal numbers, date tokens)
+   * and combining with business_id and location.
+   */
+  series_key: string;
+  is_community_event: boolean;
+}
+
+// ---------------------------------------------------------------------------
+// Special hit — source: events_and_specials where type = 'special'
+// ---------------------------------------------------------------------------
+export interface SpecialHit {
+  objectID: string;            // = events_and_specials.id
+  title: string;
+  description: string | null;
+  location: string | null;
+  business_id: string | null;
+  start_date_ts: number;
+  end_date_ts: number | null;
+  image_url: string | null;
+  booking_url: string | null;
+  icon: string | null;
+  price: number | null;
+}
+
+// ---------------------------------------------------------------------------
+// Event index settings
+// ---------------------------------------------------------------------------
+/**
+ * Ranking strategy:
+ *   Tier 1  Textual relevance (Algolia built-in)
+ *   Tier 2  start_date_ts asc — upcoming events first; stale events rank lower
+ *
+ * distinct + attributeForDistinct on series_key prevents recurring events
+ * ("Weekend Play Session 1", "Weekend Play Session 2", …) from flooding results.
+ * Only the next upcoming instance of each series surfaces in search.
+ */
+export const EVENT_INDEX_SETTINGS = {
+  searchableAttributes: [
+    "title",
+    "category_label",
+    "unordered(description)",
+    "unordered(location)",
+  ],
+
+  attributesForFaceting: [
+    "searchable(category_label)",
+    "filterOnly(category_slug)",
+    "filterOnly(availability_status)",
+    "filterOnly(business_id)",
+    "filterOnly(start_date_ts)",
+    "filterOnly(is_community_event)",
+  ],
+
+  // Upcoming events surface first; within the same start time, relevance wins
+  customRanking: ["asc(start_date_ts)"],
+
+  // Deduplicate recurring series — expose only the next upcoming occurrence
+  attributeForDistinct: "series_key",
+  distinct: true,
+
+  typoTolerance: true,
+  removeStopWords: ["en"],
+  ignorePlurals: ["en"],
+  queryLanguages: ["en"],
+  removeWordsIfNoResults: "lastWords",
+  advancedSyntax: true,
+
+  attributesToRetrieve: [
+    "objectID",
+    "title",
+    "description",
+    "location",
+    "business_id",
+    "start_date_ts",
+    "end_date_ts",
+    "image_url",
+    "booking_url",
+    "icon",
+    "price",
+    "availability_status",
+    "category_slug",
+    "category_label",
+    "series_key",
+    "is_community_event",
+  ],
+};
+
+// ---------------------------------------------------------------------------
+// Special index settings
+// ---------------------------------------------------------------------------
+export const SPECIAL_INDEX_SETTINGS = {
+  searchableAttributes: [
+    "title",
+    "unordered(description)",
+    "unordered(location)",
+  ],
+
+  attributesForFaceting: [
+    "filterOnly(business_id)",
+    "filterOnly(start_date_ts)",
+  ],
+
+  customRanking: ["asc(start_date_ts)"],
+
+  typoTolerance: true,
+  removeStopWords: ["en"],
+  ignorePlurals: ["en"],
+  queryLanguages: ["en"],
+  removeWordsIfNoResults: "lastWords",
+  advancedSyntax: true,
+
+  attributesToRetrieve: [
+    "objectID",
+    "title",
+    "description",
+    "location",
+    "business_id",
+    "start_date_ts",
+    "end_date_ts",
+    "image_url",
+    "booking_url",
+    "icon",
+    "price",
+  ],
+};

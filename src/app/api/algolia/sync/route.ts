@@ -1,14 +1,15 @@
 /**
  * Algolia sync webhook — called by Supabase Database Webhooks on:
- *   businesses        INSERT / UPDATE / DELETE
- *   profiles          INSERT / UPDATE / DELETE
- *   business_stats    UPDATE  (rating / review count changes)
+ *   businesses           INSERT / UPDATE / DELETE
+ *   profiles             INSERT / UPDATE / DELETE
+ *   business_stats       UPDATE  (rating / review count changes)
+ *   events_and_specials  INSERT / UPDATE / DELETE
  *
  * Setup in Supabase Dashboard → Database → Webhooks:
  *   URL:    https://<your-domain>/api/algolia/sync
  *   Method: POST
  *   Secret: ALGOLIA_SYNC_SECRET  (sent as Authorization: Bearer <secret>)
- *   Tables: businesses, profiles, business_stats
+ *   Tables: businesses, profiles, business_stats, events_and_specials
  *   Events: INSERT, UPDATE, DELETE
  */
 
@@ -18,6 +19,8 @@ import {
   ALGOLIA_INDICES,
   BusinessHit,
   ReviewerHit,
+  EventHit,
+  SpecialHit,
   computeCompletenessScore,
 } from "@/app/lib/algolia/indices";
 
@@ -63,6 +66,8 @@ export async function POST(req: NextRequest) {
       await handleReviewerEvent(client, type, record, old_record);
     } else if (table === "business_stats") {
       await handleBusinessStatsEvent(client, type, record);
+    } else if (table === "events_and_specials") {
+      await handleEventsAndSpecialsEvent(client, type, record, old_record);
     }
   } catch (err) {
     console.error(`[algolia/sync] Error handling ${table}/${type}:`, err);
@@ -202,5 +207,133 @@ function reviewerRecordToHit(record: Record<string, unknown>): ReviewerHit {
     avatar_url: (record.avatar_url as string) ?? null,
     is_top_reviewer: Boolean(record.is_top_reviewer),
     total_reviews: (record.reviews_count as number) ?? 0,
+  };
+}
+
+// ── Events & Specials sync ─────────────────────────────────────────────────
+
+/**
+ * Strip ordinal numbers, date tokens, and noise from a title to produce a
+ * canonical series key — mirrors the normalizeSeriesKey logic in
+ * /api/events-and-specials/route.ts so Algolia distinct works correctly.
+ */
+const SERIES_STRIP_PATTERNS = [
+  /\s*[-–—:]\s*\d{1,2}\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\w*(?:\s+\d{2,4})?/gi,
+  /\s*\(?\b(?:day|part|session|week|round|set|show|edition|no\.?|number)\s*#?\d+\b\)?/gi,
+  /\s*#\d+/g,
+  /\s+\d{1,2}(?:st|nd|rd|th)?$/i,
+  /\s*[-–—]\s*(?:mon|tue|wed|thu|fri|sat|sun)\w*(?:\s+\d{1,2})?/gi,
+  /\s*\b(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/gi,
+  /\s*\d{1,2}:\d{2}(?:\s*(?:am|pm))?/gi,
+  /\s*\|\s*\d+$/,
+  /\s*\(\d+(?:\s*of\s*\d+)?\)/g,
+];
+
+function buildSeriesKey(record: Record<string, unknown>): string {
+  let title = ((record.title as string) ?? "").trim().toLowerCase();
+  for (const pattern of SERIES_STRIP_PATTERNS) {
+    title = title.replace(pattern, "");
+  }
+  title = title.replace(/\s+/g, " ").replace(/[-–—:,.\s]+$/, "").trim();
+  const business = ((record.business_id as string) ?? "").trim().toLowerCase();
+  const location = ((record.location as string) ?? "").trim().toLowerCase();
+  return `${title}|${business}|${location}`;
+}
+
+function toUnixSeconds(dateStr: unknown): number | null {
+  if (!dateStr || typeof dateStr !== "string") return null;
+  const ts = new Date(dateStr).getTime();
+  return Number.isFinite(ts) ? Math.floor(ts / 1000) : null;
+}
+
+async function handleEventsAndSpecialsEvent(
+  client: ReturnType<typeof getAlgoliaAdminClient>,
+  type: string,
+  record: Record<string, unknown> | null,
+  old_record: Record<string, unknown> | null
+) {
+  const rowType = (record?.type ?? old_record?.type) as string | undefined;
+  const indexName =
+    rowType === "event"
+      ? ALGOLIA_INDICES.EVENTS
+      : rowType === "special"
+      ? ALGOLIA_INDICES.SPECIALS
+      : null;
+
+  if (!indexName) return; // unknown type — skip silently
+
+  if (type === "DELETE") {
+    const id = ((old_record?.id ?? record?.id) as string) ?? undefined;
+    if (id) {
+      await client.deleteObject({ indexName, objectID: id });
+    }
+    return;
+  }
+
+  if (!record) return;
+
+  // Expire check: if the item is already over, remove from index rather than upsert
+  const nowSeconds = Date.now() / 1000;
+  const endTs = toUnixSeconds(record.end_date);
+  const startTs = toUnixSeconds(record.start_date);
+  const isExpired =
+    endTs !== null ? endTs < nowSeconds : startTs !== null && startTs < nowSeconds;
+
+  if (isExpired) {
+    if (type === "UPDATE" && record.id) {
+      await client
+        .deleteObject({ indexName, objectID: record.id as string })
+        .catch(() => {}); // safe — object may not be indexed yet
+    }
+    return;
+  }
+
+  if (rowType === "event") {
+    const hit = eventRecordToHit(record);
+    await client.saveObject({ indexName, body: hit });
+  } else {
+    const hit = specialRecordToHit(record);
+    await client.saveObject({ indexName, body: hit });
+  }
+}
+
+function eventRecordToHit(record: Record<string, unknown>): EventHit {
+  const startTs = toUnixSeconds(record.start_date) ?? 0;
+  const endTs = toUnixSeconds(record.end_date);
+  return {
+    objectID: record.id as string,
+    title: (record.title as string) ?? "",
+    description: (record.description as string) ?? null,
+    location: (record.location as string) ?? null,
+    business_id: (record.business_id as string) ?? null,
+    start_date_ts: startTs,
+    end_date_ts: endTs,
+    image_url: (record.image as string) ?? null,
+    booking_url: (record.booking_url as string) ?? null,
+    icon: (record.icon as string) ?? null,
+    price: (record.price as number) ?? null,
+    availability_status: (record.availability_status as string) ?? null,
+    category_slug: (record.quicket_category_slug as string) ?? null,
+    category_label: (record.quicket_category_label as string) ?? null,
+    series_key: buildSeriesKey(record),
+    is_community_event: !record.business_id,
+  };
+}
+
+function specialRecordToHit(record: Record<string, unknown>): SpecialHit {
+  const startTs = toUnixSeconds(record.start_date) ?? 0;
+  const endTs = toUnixSeconds(record.end_date);
+  return {
+    objectID: record.id as string,
+    title: (record.title as string) ?? "",
+    description: (record.description as string) ?? null,
+    location: (record.location as string) ?? null,
+    business_id: (record.business_id as string) ?? null,
+    start_date_ts: startTs,
+    end_date_ts: endTs,
+    image_url: (record.image as string) ?? null,
+    booking_url: (record.booking_url as string) ?? null,
+    icon: (record.icon as string) ?? null,
+    price: (record.price as number) ?? null,
   };
 }

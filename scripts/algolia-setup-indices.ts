@@ -13,6 +13,8 @@ import {
   ALGOLIA_INDICES,
   BUSINESS_INDEX_SETTINGS,
   REVIEWER_INDEX_SETTINGS,
+  EVENT_INDEX_SETTINGS,
+  SPECIAL_INDEX_SETTINGS,
 } from "../src/app/lib/algolia/indices";
 
 const APP_ID = process.env.ALGOLIA_APP_ID;
@@ -39,6 +41,18 @@ async function main() {
     indexSettings: REVIEWER_INDEX_SETTINGS as Record<string, unknown>,
   });
   console.log(`✓ ${ALGOLIA_INDICES.REVIEWERS} settings applied`);
+
+  await client.setSettings({
+    indexName: ALGOLIA_INDICES.EVENTS,
+    indexSettings: EVENT_INDEX_SETTINGS as Record<string, unknown>,
+  });
+  console.log(`✓ ${ALGOLIA_INDICES.EVENTS} settings applied`);
+
+  await client.setSettings({
+    indexName: ALGOLIA_INDICES.SPECIALS,
+    indexSettings: SPECIAL_INDEX_SETTINGS as Record<string, unknown>,
+  });
+  console.log(`✓ ${ALGOLIA_INDICES.SPECIALS} settings applied`);
 
   console.log("Done.");
 }
