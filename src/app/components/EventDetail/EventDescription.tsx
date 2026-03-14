@@ -85,9 +85,6 @@ export default function EventDescription({ event }: EventDescriptionProps) {
             {normalizedDescription}
           </p>
 
-          {isCollapsible && !isExpanded && (
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-card-bg via-card-bg/95 to-transparent" />
-          )}
         </m.div>
 
         {isCollapsible && (
