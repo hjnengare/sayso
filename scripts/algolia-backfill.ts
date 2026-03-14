@@ -195,10 +195,12 @@ function toUnixSeconds(dateStr: string | null | undefined): number | null {
   return Number.isFinite(ts) ? Math.floor(ts / 1000) : null;
 }
 
-// Algolia hard limit is 10KB per record. Descriptions are the main risk.
+// Strip HTML tags and truncate. Algolia hard limit is 10KB per record.
 function truncateDescription(desc: string | null | undefined, maxChars = 500): string | null {
   if (!desc) return null;
-  return desc.length > maxChars ? desc.slice(0, maxChars).trimEnd() + "…" : desc;
+  const stripped = desc.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+  if (!stripped) return null;
+  return stripped.length > maxChars ? stripped.slice(0, maxChars).trimEnd() + "…" : stripped;
 }
 
 // ── Events & Specials backfill ─────────────────────────────────────────────

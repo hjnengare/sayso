@@ -229,9 +229,12 @@ const SERIES_STRIP_PATTERNS = [
   /\s*\(\d+(?:\s*of\s*\d+)?\)/g,
 ];
 
+// Strip HTML tags and truncate. Algolia hard limit is 10KB per record.
 function truncateDescription(desc: unknown, maxChars = 500): string | null {
   if (!desc || typeof desc !== "string") return null;
-  return desc.length > maxChars ? desc.slice(0, maxChars).trimEnd() + "…" : desc;
+  const stripped = desc.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+  if (!stripped) return null;
+  return stripped.length > maxChars ? stripped.slice(0, maxChars).trimEnd() + "…" : stripped;
 }
 
 function buildSeriesKey(record: Record<string, unknown>): string {
