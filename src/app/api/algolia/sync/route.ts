@@ -229,6 +229,11 @@ const SERIES_STRIP_PATTERNS = [
   /\s*\(\d+(?:\s*of\s*\d+)?\)/g,
 ];
 
+function truncateDescription(desc: unknown, maxChars = 500): string | null {
+  if (!desc || typeof desc !== "string") return null;
+  return desc.length > maxChars ? desc.slice(0, maxChars).trimEnd() + "…" : desc;
+}
+
 function buildSeriesKey(record: Record<string, unknown>): string {
   let title = ((record.title as string) ?? "").trim().toLowerCase();
   for (const pattern of SERIES_STRIP_PATTERNS) {
@@ -303,7 +308,7 @@ function eventRecordToHit(record: Record<string, unknown>): EventHit {
   return {
     objectID: record.id as string,
     title: (record.title as string) ?? "",
-    description: (record.description as string) ?? null,
+    description: truncateDescription(record.description),
     location: (record.location as string) ?? null,
     business_id: (record.business_id as string) ?? null,
     start_date_ts: startTs,
@@ -326,7 +331,7 @@ function specialRecordToHit(record: Record<string, unknown>): SpecialHit {
   return {
     objectID: record.id as string,
     title: (record.title as string) ?? "",
-    description: (record.description as string) ?? null,
+    description: truncateDescription(record.description),
     location: (record.location as string) ?? null,
     business_id: (record.business_id as string) ?? null,
     start_date_ts: startTs,

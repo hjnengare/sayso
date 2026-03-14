@@ -195,6 +195,12 @@ function toUnixSeconds(dateStr: string | null | undefined): number | null {
   return Number.isFinite(ts) ? Math.floor(ts / 1000) : null;
 }
 
+// Algolia hard limit is 10KB per record. Descriptions are the main risk.
+function truncateDescription(desc: string | null | undefined, maxChars = 500): string | null {
+  if (!desc) return null;
+  return desc.length > maxChars ? desc.slice(0, maxChars).trimEnd() + "…" : desc;
+}
+
 // ── Events & Specials backfill ─────────────────────────────────────────────
 
 async function backfillEventsAndSpecials() {
@@ -231,7 +237,7 @@ async function backfillEventsAndSpecials() {
         eventHits.push({
           objectID: row.id,
           title: row.title ?? "",
-          description: row.description ?? null,
+          description: truncateDescription(row.description),
           location: row.location ?? null,
           business_id: row.business_id ?? null,
           start_date_ts: startTs,
@@ -250,7 +256,7 @@ async function backfillEventsAndSpecials() {
         specialHits.push({
           objectID: row.id,
           title: row.title ?? "",
-          description: row.description ?? null,
+          description: truncateDescription(row.description),
           location: row.location ?? null,
           business_id: row.business_id ?? null,
           start_date_ts: startTs,
