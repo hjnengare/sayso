@@ -366,7 +366,7 @@ export default function MobileMenu({
     <>
       {isOpen && (
         <div
-          className="fixed inset-0 bg-charcoal/40 backdrop-blur-xl z-[10000] lg:hidden"
+          className="fixed inset-0 bg-charcoal/40 backdrop-blur-xl z-[99998] lg:hidden"
           onClick={onClose}
         />
       )}

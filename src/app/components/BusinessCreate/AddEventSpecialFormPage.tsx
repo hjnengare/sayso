@@ -3,10 +3,12 @@
 import Link from "next/link";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { m, AnimatePresence } from "framer-motion";
 import {
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
   CalendarDays,
   Clock3,
   MapPin,
@@ -148,6 +150,10 @@ export default function AddEventSpecialFormPage({ type }: AddEventSpecialFormPag
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [isDraggingImage, setIsDraggingImage] = useState(false);
+  const [showOptionalDetails, setShowOptionalDetails] = useState(false);
+  const [hasDraft, setHasDraft] = useState(false);
+  const draftKey = `sayso-draft-${type}`;
+  const draftTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [formData, setFormData] = useState<FormState>({
     businessId: "",
     title: "",
@@ -214,6 +220,71 @@ export default function AddEventSpecialFormPage({ type }: AddEventSpecialFormPag
       isActive = false;
     };
   }, [user?.id, showToast]);
+
+  // Check for saved draft on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(draftKey);
+      if (saved) {
+        const parsed = JSON.parse(saved) as FormState;
+        if (parsed?.title?.trim()) {
+          setHasDraft(true);
+        }
+      }
+    } catch {
+      // ignore
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Auto-save draft with debounce
+  useEffect(() => {
+    if (!formData.title.trim()) return;
+    if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+    draftTimerRef.current = setTimeout(() => {
+      try {
+        localStorage.setItem(draftKey, JSON.stringify(formData));
+      } catch {
+        // ignore
+      }
+    }, 500);
+    return () => {
+      if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData]);
+
+  const restoreDraft = () => {
+    try {
+      const saved = localStorage.getItem(draftKey);
+      if (saved) {
+        const parsed = JSON.parse(saved) as FormState;
+        setFormData(parsed);
+        setHasDraft(false);
+        showToast('Draft restored.', 'success', 2000);
+      }
+    } catch {
+      // ignore
+    }
+  };
+
+  const discardDraft = () => {
+    try {
+      localStorage.removeItem(draftKey);
+    } catch {
+      // ignore
+    }
+    setHasDraft(false);
+  };
+
+  const saveDraft = () => {
+    try {
+      localStorage.setItem(draftKey, JSON.stringify(formData));
+      showToast('Draft saved.', 'success', 2000);
+    } catch {
+      // ignore
+    }
+  };
 
   const setFieldValue = (field: keyof FormState, value: string) => {
     if (field === "businessId") {
@@ -425,6 +496,7 @@ export default function AddEventSpecialFormPage({ type }: AddEventSpecialFormPag
         throw new Error(message);
       }
 
+      try { localStorage.removeItem(draftKey); } catch { /* ignore */ }
       showToast(copy.successLabel, "success", 3000);
       setTimeout(() => {
         router.push(formData.businessId ? "/my-businesses" : "/events-specials");
@@ -439,7 +511,63 @@ export default function AddEventSpecialFormPage({ type }: AddEventSpecialFormPag
     }
   };
 
-  if (authLoading) return <PageLoader size="lg" variant="wavy" color="sage" />;
+  if (authLoading) return (
+    <div className="min-h-dvh bg-off-white relative overflow-hidden font-urbanist">
+      <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-off-white to-coral/5" />
+      <div className="mx-auto max-w-[920px] px-4 pt-10 pb-16 relative z-10 animate-pulse">
+        {/* Breadcrumb skeleton */}
+        <div className="flex items-center gap-2 mb-8">
+          <div className="h-4 w-24 rounded-md bg-charcoal/8" />
+          <div className="h-4 w-3 rounded bg-charcoal/6" />
+          <div className="h-4 w-20 rounded-md bg-charcoal/8" />
+        </div>
+
+        {/* Hero skeleton */}
+        <div className="text-center mb-8">
+          <div className="h-8 w-48 rounded-lg bg-charcoal/8 mx-auto mb-3" />
+          <div className="h-4 w-72 rounded-md bg-charcoal/6 mx-auto" />
+        </div>
+
+        {/* Section 1: Publishing Context */}
+        <div className="rounded-[12px] border border-charcoal/10 bg-white shadow-md px-6 py-8 mb-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="h-10 w-10 rounded-full bg-charcoal/8" />
+            <div className="h-5 w-36 rounded-md bg-charcoal/8" />
+          </div>
+          <div className="h-12 w-full rounded-full bg-charcoal/6" />
+        </div>
+
+        {/* Section 2: Details */}
+        <div className="rounded-[12px] border border-charcoal/10 bg-white shadow-md px-6 py-8 mb-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="h-10 w-10 rounded-full bg-charcoal/8" />
+            <div className="h-5 w-32 rounded-md bg-charcoal/8" />
+          </div>
+          <div className="space-y-5">
+            <div className="h-12 w-full rounded-full bg-charcoal/6" />
+            <div className="h-28 w-full rounded-[12px] bg-charcoal/6" />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="h-12 rounded-full bg-charcoal/6" />
+              <div className="h-12 rounded-full bg-charcoal/6" />
+            </div>
+            <div className="h-12 w-full rounded-full bg-charcoal/6" />
+          </div>
+        </div>
+
+        {/* Section 3: Media */}
+        <div className="rounded-[12px] border border-charcoal/10 bg-white shadow-md px-6 py-8 mb-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="h-10 w-10 rounded-full bg-charcoal/8" />
+            <div className="h-5 w-24 rounded-md bg-charcoal/8" />
+          </div>
+          <div className="h-32 w-full rounded-[12px] bg-charcoal/6 border-2 border-dashed border-charcoal/10" />
+        </div>
+
+        {/* Submit button skeleton */}
+        <div className="h-14 w-full rounded-full bg-charcoal/8" />
+      </div>
+    </div>
+  );
   if (!user) return null;
   if (isSpecialForm && !canCreateSpecialByRole) {
     return (
@@ -514,6 +642,13 @@ export default function AddEventSpecialFormPage({ type }: AddEventSpecialFormPag
                   <p className="text-sm sm:text-base text-charcoal/70 max-w-md mx-auto" style={fontStyle}>{copy.heroSubtitle}</p>
                 </m.div>
 
+                {hasDraft && (
+                  <div className="mb-4 flex items-center gap-3 rounded-[12px] border border-charcoal/15 bg-white px-4 py-3 text-sm text-charcoal" style={fontStyle}>
+                    <span className="flex-1 font-medium">You have a saved draft.</span>
+                    <button type="button" onClick={restoreDraft} className="font-semibold text-navbar-bg hover:underline">Restore</button>
+                    <button type="button" onClick={discardDraft} className="font-semibold text-charcoal/50 hover:text-charcoal hover:underline">Discard</button>
+                  </div>
+                )}
                 <form onSubmit={handleSubmit} className="space-y-6" noValidate>
                   <div className={`${sectionClassName} animate-fade-in-up animate-delay-100`}>
                     <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-sage/10 to-transparent rounded-full blur-lg pointer-events-none" />
@@ -527,7 +662,10 @@ export default function AddEventSpecialFormPage({ type }: AddEventSpecialFormPag
                       </h3>
 
                       {isLoadingBusinesses ? (
-                        <p className="text-sm text-charcoal/70" style={fontStyle}>Loading your businesses...</p>
+                        <div className="animate-pulse space-y-3">
+                          <div className="h-4 w-32 rounded-md bg-charcoal/8" />
+                          <div className="h-12 w-full rounded-full bg-charcoal/6" />
+                        </div>
                       ) : businesses.length === 0 ? (
                         <div className="rounded-[12px] border border-coral/20 bg-coral/5 px-4 py-4">
                           <p className="text-sm sm:text-base text-charcoal/80" style={fontStyle}>{copy.emptyBusinessesCopy}</p>
@@ -594,11 +732,6 @@ export default function AddEventSpecialFormPage({ type }: AddEventSpecialFormPag
                           {touched.title && errors.title ? <p className="mt-2 text-sm text-coral font-medium">{errors.title}</p> : null}
                         </div>
 
-                        <div>
-                          <label className="block text-sm font-semibold text-charcoal mb-2" style={fontStyle}>Description</label>
-                          <textarea value={formData.description} onChange={(e) => setFieldValue("description", e.target.value)} rows={5} className={textareaClassName} placeholder="Share key details and what visitors should expect." style={fontStyle} />
-                        </div>
-
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div>
                             <label className="block text-sm font-semibold text-charcoal mb-2" style={fontStyle}>Start date and time <span className="text-coral">*</span></label>
@@ -609,17 +742,6 @@ export default function AddEventSpecialFormPage({ type }: AddEventSpecialFormPag
                             {touched.startDate && errors.startDate ? <p className="mt-2 text-sm text-coral font-medium">{errors.startDate}</p> : null}
                           </div>
                           <div>
-                            <label className="block text-sm font-semibold text-charcoal mb-2" style={fontStyle}>End date and time (optional)</label>
-                            <div className="relative">
-                              <Clock3 className="w-4 h-4 text-charcoal/50 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
-                              <input type="datetime-local" value={formData.endDate} onChange={(e) => setFieldValue("endDate", e.target.value)} onBlur={() => handleBlur("endDate")} className={`${inputClassName} pl-10`} />
-                            </div>
-                            {touched.endDate && errors.endDate ? <p className="mt-2 text-sm text-coral font-medium">{errors.endDate}</p> : null}
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div>
                             <label className="block text-sm font-semibold text-charcoal mb-2" style={fontStyle}>Location <span className="text-coral">*</span></label>
                             <div className="relative">
                               <MapPin className="w-4 h-4 text-charcoal/50 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -627,74 +749,101 @@ export default function AddEventSpecialFormPage({ type }: AddEventSpecialFormPag
                             </div>
                             {touched.location && errors.location ? <p className="mt-2 text-sm text-coral font-medium">{errors.location}</p> : null}
                           </div>
-                          <div>
-                            <label className="block text-sm font-semibold text-charcoal mb-2" style={fontStyle}>Price (optional)</label>
-                            <div className="relative">
-                              <DollarSign className="w-4 h-4 text-charcoal/50 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
-                              <input type="number" min="0" step="0.01" value={formData.price} onChange={(e) => setFieldValue("price", e.target.value)} onBlur={() => handleBlur("price")} className={`${inputClassName} pl-10`} placeholder="0.00" style={fontStyle} />
-                            </div>
-                            {touched.price && errors.price ? <p className="mt-2 text-sm text-coral font-medium">{errors.price}</p> : null}
-                          </div>
                         </div>
 
-                        <div>
-                          <label className="block text-sm font-semibold text-charcoal mb-2" style={fontStyle}>Image URL (optional)</label>
-                          <div className="space-y-3">
-                            <label
-                              className={`flex flex-col items-center justify-center rounded-[12px] border-2 border-dashed px-4 py-6 text-center transition-colors duration-200 cursor-pointer ${
-                                isDraggingImage ? "border-sage bg-off-white/70" : "border-charcoal/20 bg-white hover:border-sage/40"
-                              } ${isUploadingImage ? "opacity-75 cursor-not-allowed" : ""}`}
-                              onDragOver={(e) => {
-                                e.preventDefault();
-                                if (!isUploadingImage) setIsDraggingImage(true);
-                              }}
-                              onDragLeave={(e) => {
-                                e.preventDefault();
-                                setIsDraggingImage(false);
-                              }}
-                              onDrop={handleImageDrop}
+                        {/* Toggle for optional details */}
+                        <button
+                          type="button"
+                          onClick={() => setShowOptionalDetails((v) => !v)}
+                          className="flex items-center gap-2 text-sm font-semibold text-navbar-bg hover:text-navbar-bg/80 transition-colors"
+                          style={fontStyle}
+                        >
+                          {showOptionalDetails ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                          {showOptionalDetails ? 'Hide optional details' : 'Add more details'}
+                        </button>
+
+                        <AnimatePresence initial={false}>
+                          {showOptionalDetails && (
+                            <m.div
+                              key="optional-details"
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: 'auto' }}
+                              exit={{ opacity: 0, height: 0 }}
+                              transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                              className="overflow-hidden"
                             >
-                              <input
-                                type="file"
-                                accept="image/jpeg,image/jpg,image/png,image/webp"
-                                className="hidden"
-                                onChange={handleImageInputChange}
-                                disabled={isUploadingImage}
-                              />
-                              <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-off-white/80 text-charcoal/85 mb-2">
-                                <UploadCloud className="w-5 h-5" />
-                              </span>
-                              <p className="text-sm font-semibold text-charcoal" style={fontStyle}>
-                                {isUploadingImage ? "Uploading image..." : "Drop image here or click to upload"}
-                              </p>
-                              <p className="text-xs text-charcoal/60 mt-1" style={fontStyle}>
-                                JPEG, PNG, or WebP. Max 5MB.
-                              </p>
-                            </label>
+                              <div className="space-y-6 pt-2">
+                                <div>
+                                  <label className="block text-sm font-semibold text-charcoal mb-2" style={fontStyle}>Description</label>
+                                  <textarea value={formData.description} onChange={(e) => setFieldValue("description", e.target.value)} rows={5} className={textareaClassName} placeholder="Share key details and what visitors should expect." style={fontStyle} />
+                                </div>
 
-                            <div className="relative">
-                              <ImageIcon className="w-4 h-4 text-charcoal/50 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
-                              <input type="url" value={formData.image} onChange={(e) => setFieldValue("image", e.target.value)} onBlur={() => handleBlur("image")} className={`${inputClassName} pl-10`} placeholder="https://example.com/cover.jpg" style={fontStyle} />
-                              {formData.image ? (
-                                <button
-                                  type="button"
-                                  onClick={() => setFieldValue("image", "")}
-                                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-charcoal/60 hover:text-charcoal hover:bg-charcoal/5 transition-colors"
-                                  aria-label="Clear image"
-                                >
-                                  <X className="w-4 h-4" />
-                                </button>
-                              ) : null}
-                            </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                  <div>
+                                    <label className="block text-sm font-semibold text-charcoal mb-2" style={fontStyle}>End date and time (optional)</label>
+                                    <div className="relative">
+                                      <Clock3 className="w-4 h-4 text-charcoal/50 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                                      <input type="datetime-local" value={formData.endDate} onChange={(e) => setFieldValue("endDate", e.target.value)} onBlur={() => handleBlur("endDate")} className={`${inputClassName} pl-10`} />
+                                    </div>
+                                    {touched.endDate && errors.endDate ? <p className="mt-2 text-sm text-coral font-medium">{errors.endDate}</p> : null}
+                                  </div>
+                                  <div>
+                                    <label className="block text-sm font-semibold text-charcoal mb-2" style={fontStyle}>Price (optional)</label>
+                                    <div className="relative">
+                                      <DollarSign className="w-4 h-4 text-charcoal/50 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                                      <input type="number" min="0" step="0.01" value={formData.price} onChange={(e) => setFieldValue("price", e.target.value)} onBlur={() => handleBlur("price")} className={`${inputClassName} pl-10`} placeholder="0.00" style={fontStyle} />
+                                    </div>
+                                    {touched.price && errors.price ? <p className="mt-2 text-sm text-coral font-medium">{errors.price}</p> : null}
+                                  </div>
+                                </div>
 
-                            {formData.image ? (
-                              <div className="rounded-[12px] overflow-hidden border-none bg-white/80 p-2">
-                                <img src={formData.image} alt="Event or special preview" className="w-full h-40 object-cover rounded-[8px]" />
+                                <div>
+                                  <label className="block text-sm font-semibold text-charcoal mb-2" style={fontStyle}>Image (optional)</label>
+                                  <div className="space-y-3">
+                                    <label
+                                      className={`flex flex-col items-center justify-center rounded-[12px] border-2 border-dashed px-4 py-6 text-center transition-colors duration-200 cursor-pointer ${
+                                        isDraggingImage ? "border-sage bg-off-white/70" : "border-charcoal/20 bg-white hover:border-sage/40"
+                                      } ${isUploadingImage ? "opacity-75 cursor-not-allowed" : ""}`}
+                                      onDragOver={(e) => {
+                                        e.preventDefault();
+                                        if (!isUploadingImage) setIsDraggingImage(true);
+                                      }}
+                                      onDragLeave={(e) => {
+                                        e.preventDefault();
+                                        setIsDraggingImage(false);
+                                      }}
+                                      onDrop={handleImageDrop}
+                                    >
+                                      <input
+                                        type="file"
+                                        accept="image/jpeg,image/jpg,image/png,image/webp"
+                                        className="hidden"
+                                        onChange={handleImageInputChange}
+                                        disabled={isUploadingImage}
+                                      />
+                                      <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-off-white/80 text-charcoal/85 mb-2">
+                                        <UploadCloud className="w-5 h-5" />
+                                      </span>
+                                      <p className="text-sm font-semibold text-charcoal" style={fontStyle}>
+                                        {isUploadingImage ? "Uploading image..." : "Drop image here or click to upload"}
+                                      </p>
+                                      <p className="text-xs text-charcoal/60 mt-1" style={fontStyle}>
+                                        JPEG, PNG, or WebP. Max 5MB.
+                                      </p>
+                                    </label>
+
+                                    {formData.image ? (
+                                      <div className="rounded-[12px] overflow-hidden border-none bg-white/80 p-2">
+                                        <img src={formData.image} alt="Event or special preview" className="w-full h-40 object-cover rounded-[8px]" />
+                                      </div>
+                                    ) : null}
+                                  </div>
+                                  {touched.image && errors.image ? <p className="mt-2 text-sm text-coral font-medium">{errors.image}</p> : null}
+                                </div>
                               </div>
-                            ) : null}
-                          </div>
-                          {touched.image && errors.image ? <p className="mt-2 text-sm text-coral font-medium">{errors.image}</p> : null}
-                        </div>
+                            </m.div>
+                          )}
+                        </AnimatePresence>
                       </div>
                     </div>
                   ) : null}
@@ -823,6 +972,14 @@ export default function AddEventSpecialFormPage({ type }: AddEventSpecialFormPag
                       <Link href={backRoute} className="px-6 py-3 rounded-full border-2 border-charcoal/20 text-charcoal font-urbanist font-600 hover:bg-charcoal/5 transition-all duration-200 text-center">
                         Cancel
                       </Link>
+                      <button
+                        type="button"
+                        onClick={saveDraft}
+                        style={fontStyle}
+                        className="px-6 py-3 rounded-full border-2 border-navbar-bg/30 text-navbar-bg font-semibold hover:bg-navbar-bg/5 transition-all duration-200 text-center"
+                      >
+                        Save draft
+                      </button>
                       <m.button type="submit" disabled={isSubmitting} whileHover={{ scale: isSubmitting ? 1 : 1.02 }} whileTap={{ scale: isSubmitting ? 1 : 0.98 }} style={fontStyle} className="w-full bg-gradient-to-r from-coral to-coral/80 text-white text-body font-semibold py-4 px-6 rounded-full hover:from-coral/90 hover:to-coral transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg">
                         <AnimatePresence mode="wait">
                           {isSubmitting ? (

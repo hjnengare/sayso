@@ -217,7 +217,7 @@ export default function FilterModal({
 
   return (
     <div
-      className="fixed inset-0 z-[100] pointer-events-none"
+      className="fixed inset-0 z-[500] pointer-events-none"
       aria-hidden={!isOpen}
       style={sf}
     >

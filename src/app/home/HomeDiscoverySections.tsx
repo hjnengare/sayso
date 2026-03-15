@@ -36,10 +36,31 @@ type HomeDiscoverySectionsProps = {
   featuredLoading: boolean;
   featuredStatus: number | null;
   featuredByCategory: FeaturedBusiness[];
+  onRetryForYou?: () => void;
+  onRetryTrending?: () => void;
+  onRetryFeatured?: () => void;
   renderBusinessRow: (props: BusinessRowComponentProps) => ReactNode;
   renderEventsSpecials: () => ReactNode;
   renderCommunityHighlights: (featuredByCategory: FeaturedBusiness[]) => ReactNode;
 };
+
+const fontStyle = { fontFamily: "Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif" };
+
+function RetryButton({ onRetry }: { onRetry: () => void }) {
+  return (
+    <button
+      onClick={onRetry}
+      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-charcoal text-white text-sm font-semibold shadow-sm hover:bg-charcoal/90 transition-colors duration-200"
+      style={fontStyle}
+    >
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+        <path d="M3 3v5h5" />
+      </svg>
+      Reload
+    </button>
+  );
+}
 
 export function HomeDiscoverySections({
   choreoEnabled,
@@ -59,6 +80,9 @@ export function HomeDiscoverySections({
   featuredLoading,
   featuredStatus,
   featuredByCategory,
+  onRetryForYou,
+  onRetryTrending,
+  onRetryFeatured,
   renderBusinessRow,
   renderEventsSpecials,
   renderCommunityHighlights,
@@ -109,8 +133,9 @@ export function HomeDiscoverySections({
               {forYouLoading ? (
                 <BusinessRowSkeleton title="For You Now" />
               ) : forYouError ? (
-                <div className="mx-auto w-full max-w-[2000px] px-2 py-4 text-sm text-coral">
-                  Couldn&apos;t load personalised picks right now. We&apos;ll retry in the background.
+                <div className="mx-auto w-full max-w-[2000px] px-2 py-4 flex items-center justify-between gap-4">
+                  <p className="text-sm text-coral" style={fontStyle}>Couldn&apos;t load personalised picks right now.</p>
+                  {onRetryForYou && <RetryButton onRetry={onRetryForYou} />}
                 </div>
               ) : forYouBusinesses.length > 0 ? (
                 renderBusinessRow({
@@ -183,10 +208,9 @@ export function HomeDiscoverySections({
             })
           )}
           {trendingError && !trendingLoading && (
-            <div className="mx-auto w-full max-w-[2000px] px-2 py-4 text-sm text-coral space-y-1">
-              <p className="font-medium">Trending</p>
-              <p>{trendingError}</p>
-              {trendingStatus != null && <p className="text-charcoal/70">Status: {trendingStatus}</p>}
+            <div className="mx-auto w-full max-w-[2000px] px-2 py-4 flex items-center justify-between gap-4">
+              <p className="text-sm text-coral" style={fontStyle}>Couldn&apos;t load Trending right now.</p>
+              {onRetryTrending && <RetryButton onRetry={onRetryTrending} />}
             </div>
           )}
         </m.div>
@@ -204,10 +228,9 @@ export function HomeDiscoverySections({
         {...getChoreoItemMotion({ order: 3, intent: "section", enabled: choreoEnabled })}
       >
         {featuredError && !featuredLoading ? (
-          <div className="mx-auto w-full max-w-[2000px] px-2 py-4 text-sm text-coral space-y-1">
-            <p className="font-medium">Featured</p>
-            <p>{featuredError}</p>
-            {featuredStatus != null && <p className="text-charcoal/70">Status: {featuredStatus}</p>}
+          <div className="mx-auto w-full max-w-[2000px] px-2 py-4 flex items-center justify-between gap-4">
+            <p className="text-sm text-coral" style={fontStyle}>Couldn&apos;t load Community Highlights right now.</p>
+            {onRetryFeatured && <RetryButton onRetry={onRetryFeatured} />}
           </div>
         ) : featuredLoading ? (
           <CommunityHighlightsSkeleton reviewerCount={12} businessCount={4} />

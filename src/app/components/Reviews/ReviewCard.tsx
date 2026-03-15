@@ -4,13 +4,13 @@ import React, { useState, useEffect, memo } from 'react';
 import { useReviewHelpful } from '../../hooks/useReviewHelpful';
 import { useReviewReplies } from '../../hooks/useReviewReplies';
 import { useUserBadgesById } from '../../hooks/useUserBadges';
-import { m } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
 import { useRouter } from 'next/navigation';
-import { Trash2, Heart, MessageCircle, Edit, Flag, Loader2 } from "@/app/lib/icons";
+import { Trash2, Heart, MessageCircle, Edit, Flag, Loader2, X } from "@/app/lib/icons";
 import type { ReviewWithUser } from '../../lib/types/database';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
@@ -78,6 +78,9 @@ function ReviewCard({
   const [flagging, setFlagging] = useState(false);
   const [checkingFlagStatus, setCheckingFlagStatus] = useState(false);
   const [showFlagModal, setShowFlagModal] = useState(false);
+  const [showMessageModal, setShowMessageModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
+  const [isSendingMessage, setIsSendingMessage] = useState(false);
 
   // SWR-backed badges for the review author
   const authorId = review.user_id || review.user?.id;
@@ -116,6 +119,42 @@ function ReviewCard({
     const success = await deleteReview(review.id);
     if (success && onUpdate) {
       onUpdate();
+    }
+  };
+
+  const sendDirectMessage = async () => {
+    if (!modalMessage.trim() || !review.business_id || !review.user_id) return;
+    setIsSendingMessage(true);
+    try {
+      const response = await fetch('/api/conversations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          business_id: review.business_id,
+          user_id: review.user_id,
+        }),
+      });
+      if (!response.ok) {
+        const errorPayload = await response.json().catch(() => ({}));
+        throw new Error(errorPayload?.error || 'Failed to start conversation');
+      }
+      const data = await response.json();
+      const conversationId = data?.data?.id;
+      if (conversationId) {
+        await fetch('/api/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ conversation_id: conversationId, content: modalMessage.trim() }),
+        });
+      }
+      showToast('Message sent', 'success', 2500);
+      setShowMessageModal(false);
+      setModalMessage('');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to send message';
+      showToast(message, 'error', 3500);
+    } finally {
+      setIsSendingMessage(false);
     }
   };
 
@@ -506,7 +545,7 @@ function ReviewCard({
                 <m.button
                   whileHover={isDesktop ? undefined : { scale: 1.05 }}
                   whileTap={isDesktop ? undefined : { scale: 0.95 }}
-                  onClick={() => router.push(`/my-businesses/messages?user_id=${review.user_id}&business_id=${review.business_id}`)}
+                  onClick={() => setShowMessageModal(true)}
                   className={`flex items-center space-x-2 px-4 py-2 rounded-full bg-coral text-white font-semibold ${
                     isDesktop ? '' : 'transition-all duration-300 hover:bg-coral/90'
                   }`}
@@ -590,6 +629,84 @@ function ReviewCard({
         cancelText="Cancel"
         variant="danger"
       />
+
+      {/* Message Customer Modal */}
+      <AnimatePresence>
+        {showMessageModal && (
+          <>
+            <m.div
+              key="message-modal-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowMessageModal(false)}
+              className="fixed inset-0 z-50 bg-black/40"
+            />
+            <m.div
+              key="message-modal-card"
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 40 }}
+              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+              className="fixed inset-0 z-50 flex items-end sm:items-center justify-center pointer-events-none"
+            >
+              <div
+                className="pointer-events-auto bg-white rounded-t-[20px] sm:rounded-[16px] p-6 w-full sm:max-w-md shadow-2xl"
+                style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-base font-bold text-charcoal">
+                    Message {review.user?.display_name || review.user?.username || 'Customer'}
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={() => setShowMessageModal(false)}
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-full text-charcoal/50 hover:bg-charcoal/[0.06] hover:text-charcoal transition-colors"
+                    aria-label="Close"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                <textarea
+                  value={modalMessage}
+                  onChange={(e) => setModalMessage(e.target.value)}
+                  rows={4}
+                  placeholder="Write your message..."
+                  disabled={isSendingMessage}
+                  className="w-full rounded-[12px] border border-charcoal/15 bg-off-white px-4 py-3 text-sm text-charcoal placeholder:text-charcoal/40 focus:outline-none focus:ring-2 focus:ring-navbar-bg/30 focus:border-navbar-bg resize-none disabled:opacity-70 transition-colors"
+                  style={{ fontFamily: 'Urbanist, system-ui, sans-serif' }}
+                />
+                <div className="flex items-center justify-between mt-4 gap-3">
+                  <a
+                    href={`/my-businesses/messages?user_id=${review.user_id}&business_id=${review.business_id}`}
+                    className="text-xs text-navbar-bg font-semibold hover:underline flex-shrink-0"
+                  >
+                    Open in inbox
+                  </a>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowMessageModal(false)}
+                      className="px-4 py-2 rounded-full border border-charcoal/20 text-sm font-semibold text-charcoal/70 hover:bg-charcoal/5 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void sendDirectMessage()}
+                      disabled={isSendingMessage || !modalMessage.trim()}
+                      className="px-4 py-2 rounded-full bg-coral text-white text-sm font-semibold hover:bg-coral/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                    >
+                      {isSendingMessage ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
+                      Send Message
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </m.div>
+          </>
+        )}
+      </AnimatePresence>
     </m.div>
   );
 }

@@ -327,7 +327,7 @@ export default function PhoneOtpModal({
     <AnimatePresence>
       {open && session ? (
         <m.div
-          className="fixed inset-0 z-[70] bg-charcoal/35 backdrop-blur-[2px]"
+          className="fixed inset-0 z-[9998] bg-charcoal/35 backdrop-blur-[2px]"
           role="dialog"
           aria-modal="true"
           aria-labelledby="otp-modal-title"

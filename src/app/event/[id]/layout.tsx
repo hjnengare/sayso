@@ -56,7 +56,8 @@ async function getEventData(id: string) {
     };
   }
 
-  // Fallback for legacy ticketmaster routes/IDs.
+  // DEPRECATED: fallback for legacy ticketmaster_id slugs in bookmarked/shared URLs.
+  // New events are in events_and_specials and resolved by the block above.
   const { data: ticketmasterByExternalId } = await dbClient
     .from('ticketmaster_events')
     .select('id, title, description, image_url, image, location, start_date')
@@ -67,6 +68,8 @@ async function getEventData(id: string) {
     return ticketmasterByExternalId;
   }
 
+  // DEPRECATED: UUID lookup in legacy ticketmaster_events table.
+  // New events with UUID ids are resolved via events_and_specials above.
   if (UUID_RE.test(id)) {
     const { data: ticketmasterByUuid } = await dbClient
       .from('ticketmaster_events')

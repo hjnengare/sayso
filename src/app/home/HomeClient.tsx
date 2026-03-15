@@ -212,7 +212,7 @@ export default function HomeClient({ initialTrending }: { initialTrending?: impo
   }, [interests, subcategories, dealbreakers, isDev]);
 
   // Fetch featured businesses from API
-  const { featuredBusinesses, loading: featuredLoading, error: featuredError, statusCode: featuredStatus } = useFeaturedBusinesses({
+  const { featuredBusinesses, loading: featuredLoading, error: featuredError, statusCode: featuredStatus, refetch: refetchFeatured } = useFeaturedBusinesses({
     limit: 12,
     region: userLocation ? 'Cape Town' : null, // TODO: Get actual region from user location
     skip: false,
@@ -541,6 +541,9 @@ export default function HomeClient({ initialTrending }: { initialTrending?: impo
                 featuredLoading={featuredLoading}
                 featuredStatus={featuredStatus ?? null}
                 featuredByCategory={Array.isArray(featuredByCategory) ? featuredByCategory : []}
+                onRetryForYou={refetchForYou}
+                onRetryTrending={refetchTrending}
+                onRetryFeatured={refetchFeatured}
                 renderBusinessRow={(props) => <MemoizedBusinessRow {...props} />}
                 renderEventsSpecials={() => (
                   <EventsSpecials

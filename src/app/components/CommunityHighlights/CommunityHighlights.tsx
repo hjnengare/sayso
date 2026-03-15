@@ -123,7 +123,7 @@ export default function CommunityHighlights({
     return <CommunityHighlightsSkeleton />;
   }
 
-  const hasReviewers = !!topReviewers && topReviewers.length > 0;
+  const hasReviewers = !!topReviewers && topReviewers.length > 5;
   const hasCoordinateBusinesses = (Array.isArray(businessesOfTheMonth) ? businessesOfTheMonth : []).some(
     (business) =>
       typeof business.lat === "number" && Number.isFinite(business.lat) &&
@@ -199,7 +199,7 @@ export default function CommunityHighlights({
               </div>
 
             <ScrollableSection hideArrowsOnDesktop={hideCarouselArrowsOnDesktop}>
-              <div className="flex gap-3 sm:gap-3 md:gap-3 lg:gap-2 xl:gap-2 2xl:gap-2 items-start py-2">
+              <div className="flex gap-3 sm:gap-3 md:gap-3 lg:gap-2 xl:gap-2 2xl:gap-2 items-stretch pt-2">
                 {topReviewers.map((reviewer, index) => {
                 // Try to find an actual review first, otherwise use sample text
                 const actualReview = reviews.find(r => r.reviewer.id === reviewer.id);
@@ -246,7 +246,7 @@ export default function CommunityHighlights({
               </div>
             </div>
             <ScrollableSection hideArrowsOnDesktop={hideCarouselArrowsOnDesktop}>
-              <div className="flex gap-3 sm:gap-3 md:gap-3 lg:gap-2 xl:gap-2 2xl:gap-2 items-start py-2">
+              <div className="flex gap-3 sm:gap-3 md:gap-3 lg:gap-2 xl:gap-2 2xl:gap-2 items-stretch pt-2">
                 {Array.from({ length: 12 }).map((_, index) => (
                   <div
                     key={`reviewer-skeleton-${index}`}

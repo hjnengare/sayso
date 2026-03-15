@@ -54,7 +54,7 @@ export default function BusinessInfoModal({
     <>
       {/* Subtle dark overlay */}
       <div
-        className="fixed inset-0 z-[9999] bg-black/20 pointer-events-auto"
+        className="fixed inset-0 z-[9998] bg-black/20 pointer-events-auto"
         onClick={handleClose}
       />
 

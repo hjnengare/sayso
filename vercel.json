@@ -5,6 +5,10 @@
       "schedule": "0 */6 * * *"
     },
     {
+      "path": "/api/cron/ingest-quicket",
+      "schedule": "0 */6 * * *"
+    },
+    {
       "path": "/api/internal/push/dispatch",
       "schedule": "*/5 * * * *"
     }

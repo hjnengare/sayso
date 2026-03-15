@@ -263,14 +263,18 @@ export async function GET(req: NextRequest) {
     const limit = Math.min(Number(limitParam || "30") || 30, 100);
     const nowIso = new Date().toISOString();
 
+    // Reads from events_and_specials (icon = 'ticketmaster') — source of truth.
+    // ticketmaster_events table is deprecated for reads.
     let query = supabase
-      .from("ticketmaster_events")
-      .select("*")
+      .from("events_and_specials")
+      .select("id, title, description, type, start_date, end_date, location, venue_name, image, booking_url, icon, price")
+      .eq("icon", "ticketmaster")
+      .eq("type", "event")
       .gte("start_date", nowIso)
       .order("start_date", { ascending: true })
       .limit(limit * 3);
 
-    if (city) query = query.eq("city", city);
+    if (city) query = query.ilike("location", `%${city}%`);
 
     const { data, error } = await query;
 
@@ -282,7 +286,20 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const allEvents = data || [];
+    // Normalize events_and_specials field names to match the legacy response shape
+    // so existing consumers continue to work unchanged.
+    const allEvents = (data || []).map((e: any) => ({
+      ...e,
+      image_url: e.image ?? null,
+      url: e.booking_url ?? null,
+      // TM-specific classification columns are not stored in events_and_specials;
+      // isDopamineEvent / isSportsEvent fall back to title/description/location matching.
+      segment: null,
+      classification: null,
+      genre: null,
+      sub_genre: null,
+      city: null,
+    }));
 
     if (debug) {
       return NextResponse.json({

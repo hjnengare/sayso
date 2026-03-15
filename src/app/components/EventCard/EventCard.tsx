@@ -380,7 +380,7 @@ function EventCard({
 
   return (
     <li
-      className={fullWidth ? "flex w-full" : "flex w-[100vw] sm:w-auto sm:w-[260px] md:w-[340px]"}
+      className={fullWidth ? "flex w-full h-full" : "flex w-[100vw] sm:w-auto sm:w-[260px] md:w-[340px] h-full"}
       style={{
         fontFamily: "'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
         fontWeight: 600,
@@ -410,13 +410,13 @@ function EventCard({
       <Link
         href={eventDetailHref}
         prefetch={false}
-        className="block w-full"
+        className="flex flex-col h-full w-full"
         onMouseEnter={handleCardMouseEnter}
         onMouseLeave={handleCardMouseLeave}
         onTouchStart={handleCardTouchStart}
       >
       <article
-        className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden group cursor-pointer w-full flex flex-col backdrop-blur-xl shadow-md pb-4"
+        className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 rounded-[12px] overflow-hidden group cursor-pointer w-full flex flex-col backdrop-blur-xl shadow-md pb-4 h-full"
       >
           {/* MEDIA - Full bleed with premium overlay */}
           <div className="relative w-full flex-shrink-0 z-10">

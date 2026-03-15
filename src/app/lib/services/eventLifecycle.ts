@@ -173,8 +173,12 @@ export function cleanEventDates(event: {
 }
 
 /**
- * Run cleanup on all events in the database
- * Updates events with past dates and deletes fully expired events
+ * Run cleanup on all events in the legacy ticketmaster_events table.
+ *
+ * @deprecated ticketmaster_events is the legacy table. Cleanup for events in
+ * events_and_specials (icon = 'ticketmaster') is handled by cleanupOldEvents()
+ * in services/ticketmaster-ingestor/src/db.ts, which runs at the start of
+ * every ingest cycle. This function can be removed once ticketmaster_events is dropped.
  */
 export async function runEventCleanup(supabase: SupabaseClient): Promise<CleanupResult> {
   const result: CleanupResult = {

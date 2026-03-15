@@ -177,7 +177,7 @@ export function ToastProvider({ children }: ToastProviderProps) {
       {children}
 
       {/* Toast Container - Top-center position with Framer Motion - Responsive */}
-      <div className="fixed top-2 sm:top-4 left-1/2 -translate-x-1/2 z-[9999] flex flex-col gap-2 pointer-events-none w-full px-2 sm:px-4 max-w-full sm:max-w-sm">
+      <div className="fixed top-2 sm:top-4 left-1/2 -translate-x-1/2 z-[100000] flex flex-col gap-2 pointer-events-none w-full px-2 sm:px-4 max-w-full sm:max-w-sm">
         <AnimatePresence mode="popLayout">
           {toasts.map((toast) => (
             <m.div

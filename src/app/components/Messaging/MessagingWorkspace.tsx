@@ -601,6 +601,7 @@ export default function MessagingWorkspace({
                   onChange={setComposerValue}
                   onSend={() => void handleSend()}
                   isSending={isSending}
+                  showTemplates={role === 'business'}
                 />
               </>
             )}

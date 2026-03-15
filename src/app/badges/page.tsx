@@ -89,7 +89,7 @@ export default function BadgesPage() {
               style={{ fontFamily: 'Urbanist, -apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}
             >
               <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-              <span className="text-sm font-medium">Back to previous page</span>
+              <span className="text-sm font-medium">back</span>
             </button>
           </m.div>
 

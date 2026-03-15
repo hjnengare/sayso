@@ -264,7 +264,7 @@ export default function HeroCarousel() {
         document.head.removeChild(link);
       }
     };
-  }, [slides, heroViewport]);
+  }, [slides[0]?.image, heroViewport]);
 
   // Filter state
   const [filters, setFilters] = useState<FilterState>({ minRating: null, distance: null });
@@ -371,7 +371,7 @@ export default function HeroCarousel() {
         slideTimeoutRef.current = null;
       }
     };
-  }, [prefersReduced, paused, currentIndex, slides.length, transitionToIndex, heroViewport]);
+  }, [prefersReduced, paused, currentIndex, slides.length, transitionToIndex]);
 
   // pause when tab is hidden
   useEffect(() => {
@@ -542,9 +542,8 @@ export default function HeroCarousel() {
               </div>
             )}
 
-            {/* Active slide — remounts on key change for a clean hard-cut swap. */}
+            {/* Active slide — src updates in place; no unmount/remount to avoid Chrome compositor flicker. */}
             <div
-              key={activeSlide.id}
               aria-hidden={false}
               className="absolute inset-0 overflow-hidden transform-gpu rounded-none z-10"
             >

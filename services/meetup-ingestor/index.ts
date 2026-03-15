@@ -2,7 +2,7 @@ import * as dotenv from "dotenv";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import cron from "node-cron";
-import { fetchAndProcessAll, type FetchConfig } from "./ticketmaster.js";
+import { fetchAndProcessAll, type FetchConfig } from "./meetup.js";
 import {
   createSupabaseClient,
   cleanupOldEvents,
@@ -16,8 +16,10 @@ import { log } from "./utils.js";
 // ---------------------------------------------------------------------------
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const serviceRoot = path.resolve(__dirname, "..");
-const repoRoot = path.resolve(serviceRoot, "..", "..");
+// index.ts lives at the service root (services/meetup-ingestor/index.ts),
+// so __dirname IS the service root; repo root is two levels up.
+const serviceRoot = __dirname;
+const repoRoot = path.resolve(__dirname, "..", "..");
 
 // Load env from repository root first, then allow .env.local to override,
 // then allow a service-local .env to take final precedence.
@@ -28,50 +30,48 @@ dotenv.config({ path: path.resolve(serviceRoot, ".env"), override: true });
 interface AppConfig extends Omit<FetchConfig, "systemUserId"> {
   supabaseUrl: string;
   supabaseServiceRoleKey: string;
-  preferredSystemUserId: string;
+  preferredSystemUserId?: string;
   runOnStart: boolean;
 }
 
-function isTicketmasterIngestEnabled(): boolean {
-  const raw = process.env.ENABLE_TICKETMASTER_INGEST;
-  if (!raw || !raw.trim()) return true;
-  const normalized = raw.trim().toLowerCase();
-  return normalized === "1" || normalized === "true";
-}
-
 function loadConfig(): AppConfig {
-  const apiKey = process.env.TICKETMASTER_API_KEY;
+  const clientKey = process.env.MEETUP_CLIENT_KEY;
+  const memberId = process.env.MEETUP_MEMBER_ID;
+  const signingSecret = process.env.MEETUP_SIGNING_SECRET;
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const systemBusinessId = process.env.SYSTEM_BUSINESS_ID;
   const preferredSystemUserId = process.env.SYSTEM_USER_ID;
 
-  if (!apiKey) throw new Error("Missing TICKETMASTER_API_KEY");
+  if (!clientKey) throw new Error("Missing MEETUP_CLIENT_KEY");
+  if (!memberId) throw new Error("Missing MEETUP_MEMBER_ID");
+  if (!signingSecret) throw new Error("Missing MEETUP_SIGNING_SECRET");
   if (!supabaseUrl) throw new Error("Missing NEXT_PUBLIC_SUPABASE_URL");
   if (!supabaseServiceRoleKey) throw new Error("Missing SUPABASE_SERVICE_ROLE_KEY");
   if (!systemBusinessId) throw new Error("Missing SYSTEM_BUSINESS_ID");
-  if (!preferredSystemUserId) throw new Error("Missing SYSTEM_USER_ID");
 
-  const cities = (process.env.CITIES || "Cape Town")
-    .split(",")
-    .map((c) => c.trim())
-    .filter(Boolean);
+  const radiusKm = Math.max(
+    1,
+    parseInt(process.env.FETCH_RADIUS_KM || "30", 10)
+  );
 
   return {
-    apiKey,
+    clientKey,
+    memberId,
+    signingSecret,
     supabaseUrl,
     supabaseServiceRoleKey,
     systemBusinessId,
     preferredSystemUserId,
-    cities,
+    radiusKm,
+    pageSize: Math.min(Math.max(parseInt(process.env.PAGE_SIZE || "200", 10), 20), 200),
     fetchWindowDays: 120,
-    pageSize: Math.min(Math.max(parseInt(process.env.PAGE_SIZE || "100", 10), 20), 200),
     runOnStart: process.env.RUN_ON_START === "true",
   };
 }
 
 // ---------------------------------------------------------------------------
-// The ingest job
+// Ingest job
 // ---------------------------------------------------------------------------
 
 let isRunning = false;
@@ -85,8 +85,7 @@ async function runIngest(config: AppConfig): Promise<void> {
   isRunning = true;
   const start = Date.now();
 
-  log.info("=== Ticketmaster ingest starting ===");
-  log.info(`Cities: ${config.cities.join(", ")}`);
+  log.info("=== Meetup ingest starting ===");
 
   const supabase = createSupabaseClient(config.supabaseUrl, config.supabaseServiceRoleKey);
 
@@ -97,18 +96,18 @@ async function runIngest(config: AppConfig): Promise<void> {
     if (testErr) throw new Error(`Supabase connection test failed: ${testErr.message}`);
     log.info("Supabase connected.");
 
-    // 2. Cleanup old events
+    // 2. Cleanup stale Meetup events
     await cleanupOldEvents(supabase);
 
-    // 3. Resolve created_by user and fetch/map/consolidate
+    // 3. Resolve created_by user
     const resolvedCreatedBy = await resolveCreatedByUserId(
       supabase,
       config.systemBusinessId,
       config.preferredSystemUserId
     );
-
     log.info(`Using created_by user id: ${resolvedCreatedBy}`);
 
+    // 4. Fetch, map, consolidate
     const result = await fetchAndProcessAll({
       ...config,
       systemUserId: resolvedCreatedBy,
@@ -119,40 +118,23 @@ async function runIngest(config: AppConfig): Promise<void> {
     );
 
     if (result.rows.length === 0) {
-      log.info("[Ingest] Ticketmaster ingest complete:", {
-        source: "ticketmaster",
-        fetched: result.fetchedCount,
-        mapped: result.mappedCount,
-        consolidated: result.consolidatedCount,
-        inserted: 0,
-        updated: 0,
-        failed: 0,
-        created_by: resolvedCreatedBy,
-      });
+      log.info("[Ingest] No events to upsert. Done.");
       return;
     }
 
-    // 4. Upsert into DB
+    // 5. Upsert into DB
     const dbResult = await upsertEvents(supabase, result.rows);
 
-    const ingestMetrics = {
-      source: "ticketmaster",
+    log.info("[Ingest] Meetup ingest complete:", {
+      source: "meetup",
       fetched: result.fetchedCount,
       mapped: result.mappedCount,
       consolidated: result.consolidatedCount,
       inserted: dbResult.inserted,
       updated: dbResult.updated,
-      failed: dbResult.failed,
+      skipped: dbResult.skipped,
       created_by: resolvedCreatedBy,
-    };
-
-    if (dbResult.batchFailures.length > 0) {
-      log.error("[Ingest] Ticketmaster upsert failed with batch errors:", ingestMetrics);
-      log.error("[Ingest] Ticketmaster batch failure details:", dbResult.batchFailures);
-      throw new Error(`Ticketmaster upsert failed with ${dbResult.batchFailures.length} batch error(s).`);
-    }
-
-    log.info("[Ingest] Ticketmaster ingest complete:", ingestMetrics);
+    });
   } catch (err) {
     log.error(`Ingest failed: ${err}`);
     if (err instanceof Error && err.stack) {
@@ -160,7 +142,6 @@ async function runIngest(config: AppConfig): Promise<void> {
     }
   } finally {
     isRunning = false;
-
     const elapsed = ((Date.now() - start) / 1000).toFixed(1);
     log.info(`=== Ingest complete in ${elapsed}s ===\n`);
   }
@@ -171,16 +152,11 @@ async function runIngest(config: AppConfig): Promise<void> {
 // ---------------------------------------------------------------------------
 
 async function main(): Promise<void> {
-  if (!isTicketmasterIngestEnabled()) {
-    log.warn("Ticketmaster ingest disabled via ENABLE_TICKETMASTER_INGEST.");
-    return;
-  }
-
   const config = loadConfig();
 
-  log.info("Ticketmaster Ingestor started.");
+  log.info("Meetup Ingestor started.");
   log.info(`Schedule: every 6 hours (0 */6 * * *)`);
-  log.info(`Cities: ${config.cities.join(", ")}`);
+  log.info(`Radius: ${config.radiusKm}km around Cape Town`);
   log.info(`Fetch window: ${config.fetchWindowDays} days`);
   log.info(`Page size: ${config.pageSize}`);
 

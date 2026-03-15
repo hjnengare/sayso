@@ -15,6 +15,20 @@ const ICON_CHIP_SMALL_CLASS = `w-6 h-6 ${ICON_CHIP_BASE_CLASS}`;
 const ICON_CHIP_MEDIUM_CLASS = `w-8 h-8 ${ICON_CHIP_BASE_CLASS}`;
 const ICON_CHIP_LARGE_CLASS = `w-10 h-10 ${ICON_CHIP_BASE_CLASS}`;
 
+function DeltaBadge({ current, previous }: { current: number; previous: number }) {
+  if (current === 0 && previous === 0) return null;
+  if (previous === 0) {
+    return current > 0 ? <span className="text-xs font-semibold text-emerald-600">New activity</span> : null;
+  }
+  const pct = Math.round(((current - previous) / previous) * 100);
+  const up = pct >= 0;
+  return (
+    <span className={`text-xs font-semibold ${up ? 'text-emerald-600' : 'text-coral'}`}>
+      {up ? '+' : ''}{pct}% vs last month
+    </span>
+  );
+}
+
 function formatRelativeDate(dateStr: string): string {
   const now = new Date();
   const date = new Date(dateStr);
@@ -286,7 +300,114 @@ export default function OwnerBusinessDashboard() {
   };
 
   if (authLoading || isLoading) {
-    return <PageLoader size="lg" variant="wavy" color="sage" />;
+    return (
+      <div className="font-urbanist">
+        <div className="px-2 sm:px-4 lg:px-6 2xl:px-8 py-6 max-w-5xl mx-auto">
+          {/* Breadcrumb skeleton */}
+          <nav className="pb-1" aria-label="Breadcrumb loading">
+            <div className="flex items-center gap-2">
+              <div className="h-4 w-24 bg-charcoal/8 rounded animate-pulse" />
+              <div className="h-4 w-3 bg-charcoal/8 rounded animate-pulse" />
+              <div className="h-4 w-32 bg-charcoal/10 rounded animate-pulse" />
+            </div>
+          </nav>
+
+          <div className="pt-1 pb-4 space-y-4">
+            {/* Business header card skeleton */}
+            <article className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl rounded-[12px] shadow-lg relative overflow-hidden">
+              <div className="p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-charcoal/8 animate-pulse flex-shrink-0" />
+                  <div className="flex-1 min-w-0 w-full space-y-2.5">
+                    <div className="flex items-center gap-2">
+                      <div className="h-6 w-48 bg-charcoal/10 rounded animate-pulse" />
+                      <div className="h-5 w-16 bg-charcoal/6 rounded-full animate-pulse" />
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="h-4 w-28 bg-charcoal/7 rounded animate-pulse" />
+                      <div className="h-4 w-24 bg-charcoal/7 rounded animate-pulse" />
+                    </div>
+                    <div className="flex items-center gap-2.5">
+                      <div className="h-4 w-12 bg-charcoal/6 rounded-full animate-pulse" />
+                      <div className="h-3 w-px bg-charcoal/10" />
+                      <div className="h-4 w-20 bg-charcoal/6 rounded animate-pulse" />
+                      <div className="h-3 w-px bg-charcoal/10" />
+                      <div className="h-4 w-16 bg-charcoal/6 rounded animate-pulse" />
+                      <div className="h-3 w-px bg-charcoal/10" />
+                      <div className="h-4 w-24 bg-charcoal/6 rounded animate-pulse" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            {/* Stats cards skeleton */}
+            <section className="grid grid-cols-2 sm:grid-cols-4 gap-3" aria-label="Stats loading">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/80 backdrop-blur-xl rounded-[12px] shadow-lg p-4 min-h-[120px] flex flex-col justify-between">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-8 h-8 rounded-full bg-charcoal/8 animate-pulse" />
+                    <div className="h-3.5 w-20 bg-charcoal/7 rounded animate-pulse" />
+                  </div>
+                  <div>
+                    <div className="h-8 w-16 bg-charcoal/10 rounded animate-pulse mb-1" />
+                    <div className="h-3 w-24 bg-charcoal/5 rounded animate-pulse" />
+                  </div>
+                </div>
+              ))}
+            </section>
+
+            {/* Quick actions skeleton */}
+            <section className="space-y-3" aria-label="Quick actions loading">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-charcoal/8 animate-pulse" />
+                <div className="h-4 w-28 bg-charcoal/10 rounded animate-pulse" />
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/80 backdrop-blur-xl rounded-[12px] p-4 flex flex-col items-center gap-2">
+                    <div className="w-10 h-10 rounded-full bg-charcoal/8 animate-pulse" />
+                    <div className="h-3.5 w-20 bg-charcoal/7 rounded animate-pulse" />
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Growth suggestions skeleton */}
+            <section className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl rounded-[12px] shadow-lg p-5 sm:p-6 space-y-4" aria-label="Growth loading">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-charcoal/8 animate-pulse" />
+                <div className="h-4 w-36 bg-charcoal/10 rounded animate-pulse" />
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="flex-1 h-2 bg-charcoal/8 rounded-full animate-pulse" />
+                <div className="h-3 w-8 bg-charcoal/7 rounded animate-pulse" />
+              </div>
+              <div className="space-y-2.5">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <div className="w-5 h-5 rounded-full bg-charcoal/8 animate-pulse flex-shrink-0" />
+                    <div className="h-3.5 bg-charcoal/7 rounded animate-pulse" style={{ width: `${55 + i * 12}%` }} />
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Analytics skeleton */}
+            <section className="bg-gradient-to-br from-card-bg via-card-bg to-card-bg/95 backdrop-blur-xl rounded-[12px] shadow-lg p-6 sm:p-8" aria-label="Analytics loading">
+              <div className="animate-pulse flex items-center gap-3 mb-4">
+                <div className="h-10 w-10 rounded-full bg-charcoal/10" />
+                <div className="h-4 w-32 bg-charcoal/10 rounded" />
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div className="h-[220px] rounded-[12px] bg-charcoal/5" />
+                <div className="h-[220px] rounded-[12px] bg-charcoal/5" />
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (!user) {
@@ -486,9 +607,9 @@ export default function OwnerBusinessDashboard() {
                         <p className="text-3xl font-extrabold text-charcoal">
                           {stats?.total_reviews || 0}
                         </p>
-                        <p className={`text-xs mt-0.5 ${(analytics?.newReviews || 0) > 0 ? 'text-navbar-bg font-medium' : 'text-charcoal/50'}`}>
-                          +{analytics?.newReviews || 0} in last 30d
-                        </p>
+                        <div className="mt-0.5">
+                          <DeltaBadge current={analytics?.newReviews ?? 0} previous={analytics?.prevReviews ?? 0} />
+                        </div>
                       </div>
                     </div>
 
@@ -503,9 +624,9 @@ export default function OwnerBusinessDashboard() {
                         <p className="text-3xl font-extrabold text-charcoal">
                           {analytics?.profileViews ?? '--'}
                         </p>
-                        <p className={`text-xs mt-0.5 ${(analytics?.profileViews || 0) > 0 ? 'text-navbar-bg font-medium' : 'text-charcoal/50'}`}>
-                          +{analytics?.profileViews || 0} in last 30d
-                        </p>
+                        <div className="mt-0.5">
+                          <DeltaBadge current={analytics?.profileViews ?? 0} previous={analytics?.prevProfileViews ?? 0} />
+                        </div>
                       </div>
                     </div>
 
@@ -523,9 +644,9 @@ export default function OwnerBusinessDashboard() {
                         <p className="text-3xl font-extrabold text-charcoal">
                           {analytics?.newConversations ?? '--'}
                         </p>
-                        <p className={`text-xs mt-0.5 ${(analytics?.newConversations || 0) > 0 ? 'text-navbar-bg font-medium' : 'text-charcoal/50'}`}>
-                          +{analytics?.newConversations || 0} in last 30d
-                        </p>
+                        <div className="mt-0.5">
+                          <DeltaBadge current={analytics?.newConversations ?? 0} previous={analytics?.prevConversations ?? 0} />
+                        </div>
                       </div>
                     </Link>
                   </section>

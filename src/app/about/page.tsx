@@ -212,7 +212,7 @@ export default function AboutPage() {
           <Reveal>
             <div className="flex flex-wrap justify-center gap-4">
               <StatPill value="100%"  label="Real reviews from real people" />
-              <StatPill value="$0"    label="Paid placements or sponsored results" />
+              <StatPill value="R0"    label="Paid placements or sponsored results" />
               <StatPill value="24/7"  label="Community-driven updates" />
               <StatPill value="Local" label="One city at a time — deeply local" />
             </div>
@@ -231,8 +231,8 @@ export default function AboutPage() {
         <div className="grid gap-6 sm:grid-cols-3">
           {[
             { icon: BadgeCheck,    title: "No algorithms. No ads.",   body: "Every recommendation on Sayso is shaped by your community — not by who paid the most for placement. If it shows up, someone real vouched for it.", delay: 0.05 },
-            { icon: MapPin,        title: "Hyper-local by design.",   body: "We don't try to cover everywhere. We go deep — suburb by suburb, block by block — so you get recommendations that actually mean something for where you live.", delay: 0.12 },
-            { icon: MessageSquare, title: "Voice that matters.",       body: "Your review can be the first, the one that saves someone a bad night out, or the nudge that helps a small business finally thrive. That's real impact.", delay: 0.19 },
+            { icon: MapPin,        title: "Hyper-local by design.",   body: "We don't try to cover everywhere. We go deep — suburb by suburb, block by block. Tell Sayso what you're into during onboarding and your entire feed reshapes around it, so every recommendation actually means something for where you live and what you love.", delay: 0.12 },
+            { icon: MessageSquare, title: "Voice that matters.",       body: "Your review can be the first, the one that saves someone a bad night out, or the nudge that helps a small business finally thrive. Tag deal-breakers — cash only, no parking, too loud — so the next person knows exactly what they're walking into.", delay: 0.19 },
           ].map(({ icon: Icon, title, body, delay }) => (
             <Reveal key={title} delay={delay}>
               <div className="flex flex-col gap-4 bg-white/8 rounded-[16px] p-6 border border-white/10 h-full">
@@ -265,7 +265,7 @@ export default function AboutPage() {
               </p>
               <p className="text-base text-white/65 leading-relaxed">
                 Every review is geo-tagged. Every recommendation is distance-aware.
-                If you live in Fitzroy, you won&apos;t be drowning in results from Doncaster.
+                If you live in Sea Point, you won&apos;t be drowning in results from Constantia.
                 That&apos;s hyper-local done right.
               </p>
             </Reveal>
@@ -359,7 +359,7 @@ export default function AboutPage() {
             </h2>
           </Reveal>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            <Reveal delay={0.05}><StepCard step="01" icon={Compass}       title="Discover"     body="Browse trending businesses, events, and specials near you — curated by your community, not an algorithm." /></Reveal>
+            <Reveal delay={0.05}><StepCard step="01" icon={Compass}       title="Discover"     body="Browse trending businesses, real events pulled from across the city, and specials nearby — curated by your community and filtered by your interests, not an algorithm." /></Reveal>
             <Reveal delay={0.10}><StepCard step="02" icon={Star}          title="Experience"   body="Go to that café, catch that event, try that special. Actually live it." /></Reveal>
             <Reveal delay={0.15}><StepCard step="03" icon={MessageSquare} title="Review"       body="Write an honest review. Add photos. Tag your dealbreakers. Your voice helps the next person decide." /></Reveal>
             <Reveal delay={0.20}><StepCard step="04" icon={Trophy}        title="Earn badges"  body="Get recognised for your contributions. Build a profile that shows the community who you are as a local." /></Reveal>

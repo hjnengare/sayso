@@ -27,7 +27,7 @@ export default function ToastContainer({
 }: ToastContainerProps) {
   return (
     <div
-      className={`fixed ${positionClasses[position]} z-[9999] flex flex-col gap-3 pointer-events-none`}
+      className={`fixed ${positionClasses[position]} z-[100000] flex flex-col gap-3 pointer-events-none`}
     >
       <AnimatePresence mode="popLayout">
         {notifications.map((notification) => (

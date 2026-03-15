@@ -29,6 +29,10 @@ export async function GET(
 
     const supabase = await getServerSupabase();
 
+    // DEPRECATED: ticketmaster_events is the legacy store. New events live in
+    // events_and_specials (icon = 'ticketmaster'). These lookups are kept as
+    // fallbacks for bookmarked/shared URLs that contain old ticketmaster_id or
+    // UUID values from the legacy table. Remove once old links have expired.
     const tryByTicketmasterId = async () =>
       supabase.from('ticketmaster_events').select('*').eq('ticketmaster_id', id).single();
 

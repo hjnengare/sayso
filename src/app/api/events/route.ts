@@ -38,19 +38,19 @@ function setCachedData(key: string, data: any) {
 
 /**
  * GET /api/events
- * Fetch events from the ticketmaster_events table
- * 
+ * Fetch events from events_and_specials (icon = 'ticketmaster').
+ * ticketmaster_events table is deprecated for reads.
+ *
  * Query parameters:
  * - limit: Number of events to return (default: 20, max: 100)
  * - offset: Offset for pagination (default: 0)
- * - city: Filter by city
- * - segment: Filter by segment (e.g., 'Music', 'Sports')
+ * - city: Filter by city (matched against location field)
  * - upcoming: Only return upcoming events (default: true)
  */
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    
+
     // Check cache first
     const cacheKey = getCacheKey(searchParams);
     const cached = getCachedData(cacheKey);
@@ -63,48 +63,38 @@ export async function GET(req: NextRequest) {
     }
 
     const supabase = await getServerSupabase(req);
-    
+
     // Limit max results to prevent performance issues
     const limit = Math.min(parseInt(searchParams.get('limit') || '20', 10), 100);
     const offset = parseInt(searchParams.get('offset') || '0', 10);
     const city = searchParams.get('city');
-    const segment = searchParams.get('segment');
     const search = searchParams.get('search')?.trim();
     const upcoming = searchParams.get('upcoming') !== 'false'; // Default to true
 
-    // Optimize query - select only fields needed for display
-    // Extract attraction_id and venue_id server-side from raw_data to avoid
-    // sending large JSON blobs to the client (raw_data can be 5-50KB per event)
     let query = supabase
-      .from('ticketmaster_events')
-      .select('id, ticketmaster_id, title, description, type, start_date, end_date, location, city, country, venue_name, venue_address, image_url, url, price_range, classification, segment, genre, sub_genre, raw_data', { count: 'estimated' })
+      .from('events_and_specials')
+      .select('id, title, description, type, start_date, end_date, location, venue_name, image, booking_url, icon, price', { count: 'estimated' })
+      .eq('icon', 'ticketmaster')
+      .eq('type', 'event')
       .order('start_date', { ascending: true });
 
-    // Filter by city if provided
+    // Filter by city (matched against composite location string)
     if (city) {
-      query = query.ilike('city', `%${city}%`);
+      query = query.ilike('location', `%${city}%`);
     }
 
-    // Filter by segment if provided
-    if (segment) {
-      query = query.eq('segment', segment);
-    }
-
-    // Filter for upcoming events only (events that haven't fully ended)
-    // An event is considered upcoming if its end_date (or start_date if no end_date) is today or later
+    // Filter for upcoming events only
     if (upcoming) {
       const todayStart = getTodayUTC().toISOString();
-      // Use OR filter: end_date >= today OR (end_date is null AND start_date >= today)
-      // This ensures multi-day events still show until their end date passes
       query = query.or(`end_date.gte.${todayStart},and(end_date.is.null,start_date.gte.${todayStart})`);
     }
 
-    // Search across multiple fields (title, description, venue, city)
+    // Search across title, description, venue_name, location
     if (search && search.length > 0) {
-      query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%,venue_name.ilike.%${search}%,city.ilike.%${search}%`);
+      query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%,venue_name.ilike.%${search}%,location.ilike.%${search}%`);
     }
 
-    // Apply pagination; allow 15s for slow DB (was 5s, caused false timeouts)
+    // Apply pagination; allow 15s for slow DB
     const queryPromise = query.range(offset, offset + limit - 1);
     const QUERY_TIMEOUT_MS = 15_000;
     let timeoutId: ReturnType<typeof setTimeout>;
@@ -130,28 +120,12 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Extract attraction_id and venue_id from raw_data server-side,
-    // then strip raw_data to keep the response payload small
-    const processedEvents = (events || []).map((evt: any) => {
-      const rawData = evt.raw_data;
-      let attraction_id: string | null = null;
-      let venue_id: string | null = null;
-
-      if (rawData) {
-        const attractions = rawData._embedded?.attractions;
-        if (attractions && Array.isArray(attractions) && attractions.length > 0) {
-          attraction_id = attractions[0].id || null;
-        }
-        const venues = rawData._embedded?.venues;
-        if (venues && Array.isArray(venues) && venues.length > 0) {
-          venue_id = venues[0].id || null;
-        }
-      }
-
-      // Return event without raw_data, with extracted IDs
-      const { raw_data: _, ...eventWithoutRawData } = evt;
-      return { ...eventWithoutRawData, attraction_id, venue_id };
-    });
+    // Normalize field names to match legacy response shape expected by consumers
+    const processedEvents = (events || []).map((evt: any) => ({
+      ...evt,
+      image_url: evt.image ?? null,
+      url: evt.booking_url ?? null,
+    }));
 
     const response = {
       events: processedEvents,
@@ -195,7 +169,9 @@ export async function GET(req: NextRequest) {
 /**
  * POST /api/events
  * Create a custom event (requires authentication)
- * Note: Custom events are stored in ticketmaster_events table with ticketmaster_id = null
+ * @deprecated Writes to the legacy ticketmaster_events table. Migrate to
+ * events_and_specials (upsert_events_and_specials_consolidated RPC) when
+ * custom event creation is reworked.
  */
 export async function POST(req: NextRequest) {
   try {

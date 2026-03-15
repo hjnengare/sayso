@@ -290,7 +290,7 @@ export default function EventsSpecials({
                       {filteredEvents.map((event, index) => (
                         <div
                           key={getStableEventRailKey(event)}
-                          className="snap-start snap-always flex-shrink-0 w-[100vw] sm:w-auto min-w-[clamp(200px,16vw,300px)] list-none flex justify-center"
+                          className="snap-start snap-always flex-shrink-0 w-[100vw] sm:w-auto min-w-[clamp(200px,16vw,300px)] list-none flex justify-center h-full"
                         >
                           <EventCard event={event} index={index} dateRibbonPosition={dateRibbonPosition} />
                         </div>
@@ -308,7 +308,7 @@ export default function EventsSpecials({
                         <m.div
                           key={getStableEventRailKey(event)}
                           variants={itemVariants}
-                          className="snap-start snap-always flex-shrink-0 w-[100vw] sm:w-auto min-w-[clamp(200px,16vw,300px)] list-none flex justify-center"
+                          className="snap-start snap-always flex-shrink-0 w-[100vw] sm:w-auto min-w-[clamp(200px,16vw,300px)] list-none flex justify-center h-full"
                         >
                           <EventCard event={event} index={index} dateRibbonPosition={dateRibbonPosition} />
                         </m.div>
@@ -320,7 +320,7 @@ export default function EventsSpecials({
                     {filteredEvents.map((event, index) => (
                       <div
                         key={getStableEventRailKey(event)}
-                        className="snap-start snap-always flex-shrink-0 w-[100vw] sm:w-auto min-w-[clamp(200px,16vw,300px)] list-none flex justify-center"
+                        className="snap-start snap-always flex-shrink-0 w-[100vw] sm:w-auto min-w-[clamp(200px,16vw,300px)] list-none flex justify-center h-full"
                       >
                         <EventCard event={event} index={index} dateRibbonPosition={dateRibbonPosition} />
                       </div>

@@ -75,6 +75,12 @@ export interface FetchEventsResult {
   timestamp: string;
 }
 
+/**
+ * @deprecated This service class writes to the legacy ticketmaster_events table.
+ * All new Ticketmaster ingestion goes through services/ticketmaster-ingestor which
+ * uses the upsert_events_and_specials_consolidated RPC to write into events_and_specials
+ * (icon = 'ticketmaster'). Remove this class once ticketmaster_events is dropped.
+ */
 export class TicketmasterService {
   private static readonly BASE_URL = 'https://app.ticketmaster.com/discovery/v2/events.json';
 

@@ -20,6 +20,9 @@ interface DashboardAnalytics {
   profileViews: number;
   newReviews: number;
   newConversations: number;
+  prevProfileViews: number;
+  prevReviews: number;
+  prevConversations: number;
 }
 
 interface DashboardData {
@@ -41,8 +44,18 @@ async function fetchDashboard([, userId, businessId]: [string, string, string]):
   const supabase = getBrowserSupabase();
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  const sixtyDaysAgo = new Date();
+  sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
 
-  const [statsResult, reviewsResult, viewsResult, conversationsResult] = await Promise.allSettled([
+  const [
+    statsResult,
+    reviewsResult,
+    views30Result,
+    conversationsResult,
+    prevReviewsResult,
+    prevConversationsResult,
+    views60Result,
+  ] = await Promise.allSettled([
     supabase
       .from('business_stats')
       .select('average_rating, total_reviews')
@@ -59,6 +72,19 @@ async function fetchDashboard([, userId, businessId]: [string, string, string]):
       .select('*', { count: 'exact', head: true })
       .eq('business_id', resolvedId)
       .gte('created_at', thirtyDaysAgo.toISOString()),
+    supabase
+      .from('reviews')
+      .select('*', { count: 'exact', head: true })
+      .eq('business_id', resolvedId)
+      .gte('created_at', sixtyDaysAgo.toISOString())
+      .lt('created_at', thirtyDaysAgo.toISOString()),
+    supabase
+      .from('conversations')
+      .select('*', { count: 'exact', head: true })
+      .eq('business_id', resolvedId)
+      .gte('created_at', sixtyDaysAgo.toISOString())
+      .lt('created_at', thirtyDaysAgo.toISOString()),
+    fetch(`/api/businesses/${resolvedId}/views?days=60`).then(r => r.json()),
   ]);
 
   const stats: BusinessStats =
@@ -69,11 +95,18 @@ async function fetchDashboard([, userId, businessId]: [string, string, string]):
         }
       : { average_rating: null, total_reviews: 0 };
 
+  const views30d = views30Result.status === 'fulfilled' ? (views30Result.value.count ?? 0) : 0;
+  const views60d = views60Result.status === 'fulfilled' ? (views60Result.value.count ?? 0) : 0;
+
   const analytics: DashboardAnalytics = {
     newReviews: reviewsResult.status === 'fulfilled' ? (reviewsResult.value.count ?? 0) : 0,
-    profileViews: viewsResult.status === 'fulfilled' ? (viewsResult.value.count ?? 0) : 0,
+    profileViews: views30d,
     newConversations:
       conversationsResult.status === 'fulfilled' ? (conversationsResult.value.count ?? 0) : 0,
+    prevReviews: prevReviewsResult.status === 'fulfilled' ? (prevReviewsResult.value.count ?? 0) : 0,
+    prevProfileViews: views60d - views30d,
+    prevConversations:
+      prevConversationsResult.status === 'fulfilled' ? (prevConversationsResult.value.count ?? 0) : 0,
   };
 
   return { business: businessData, stats, analytics };
